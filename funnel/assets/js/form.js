@@ -1,6 +1,7 @@
 /* global grecaptcha */
 import { activateFormWidgets, MapMarker } from './utils/form_widgets';
 import Form from './utils/formhelper';
+import 'htmx.org';
 
 window.Hasgeek.initWidgets = async function init(fieldName, config) {
   switch (fieldName) {
@@ -45,7 +46,11 @@ window.Hasgeek.initWidgets = async function init(fieldName, config) {
   }
 };
 
-window.Hasgeek.preventDoubleSubmit = function (formId, isXHR, alertBoxHtml) {
+window.Hasgeek.preventDoubleSubmit = function stopDoubleSubmit(
+  formId,
+  isXHR,
+  alertBoxHtml
+) {
   if (isXHR) {
     document.body.addEventListener('htmx:beforeSend', () => {
       Form.preventDoubleSubmit(formId);
@@ -56,7 +61,7 @@ window.Hasgeek.preventDoubleSubmit = function (formId, isXHR, alertBoxHtml) {
   } else {
     $(() => {
       // Disable submit button when clicked. Prevent double click.
-      $(`#${formId}`).submit(function () {
+      $(`#${formId}`).submit(function onSubmit() {
         if (
           !$(this).data('parsley-validate') ||
           ($(this).data('parsley-validate') && $(this).hasClass('parsley-valid'))
@@ -70,29 +75,34 @@ window.Hasgeek.preventDoubleSubmit = function (formId, isXHR, alertBoxHtml) {
   }
 };
 
-window.Hasgeek.recaptcha = function (formId, formWrapperId, ajax, alertBoxHtml) {
+window.Hasgeek.recaptcha = function handleRecaptcha(
+  formId,
+  formWrapperId,
+  ajax,
+  alertBoxHtml
+) {
   if (ajax) {
-    window.onInvisibleRecaptchaSubmit = function () {
+    window.onInvisibleRecaptchaSubmit = function handleAjaxFormSubmit() {
       const postUrl = $(`#${formId}`).attr('action');
-      const onSuccess = function (responseData) {
+      const onSuccess = function onSubmitSuccess(responseData) {
         $(`#${formWrapperId}`).html(responseData); // Replace with OTP form received as response
       };
-      const onError = function (response) {
+      const onError = function onSubmitError(response) {
         Form.showFormError(formId, response, alertBoxHtml);
       };
       Form.ajaxFormSubmit(formId, postUrl, onSuccess, onError, {
         dataType: 'html',
       });
     };
-    document.getElementById(formId).onsubmit = function (event) {
+    document.getElementById(formId).onsubmit = function onSubmit(event) {
       event.preventDefault();
       grecaptcha.execute();
     };
   } else {
-    window.onInvisibleRecaptchaSubmit = function () {
+    window.onInvisibleRecaptchaSubmit = function recaptchaSubmit() {
       document.getElementById(formId).submit();
     };
-    document.getElementById(formId).onsubmit = function (event) {
+    document.getElementById(formId).onsubmit = function handleFormSubmit(event) {
       event.preventDefault();
       if (typeof grecaptcha !== 'undefined' && grecaptcha.getResponse() === '') {
         grecaptcha.execute();

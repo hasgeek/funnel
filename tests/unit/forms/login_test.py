@@ -1,4 +1,5 @@
 """Test main login form for password and OTP flows."""
+# pylint: disable=redefined-outer-name
 
 import pytest
 

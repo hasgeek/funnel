@@ -1,4 +1,5 @@
 """Test siteadmin endpoints."""
+# pylint: disable=redefined-outer-name
 
 from __future__ import annotations
 

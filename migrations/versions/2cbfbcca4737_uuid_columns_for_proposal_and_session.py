@@ -13,20 +13,14 @@ down_revision = 'cd8d073d7557'
 from uuid import uuid4
 
 from alembic import op
+from progressbar import ProgressBar
 from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
+import progressbar.widgets
 import sqlalchemy as sa
 
-from progressbar import ProgressBar
-import progressbar.widgets
+proposal = table('proposal', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
-proposal = table(
-    'proposal', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
-)
-
-session = table(
-    'session', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
-)
+session = table('session', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 
 def get_progressbar(label, maxval):
@@ -48,7 +42,7 @@ def get_progressbar(label, maxval):
 def upgrade():
     conn = op.get_bind()
 
-    op.add_column('proposal', sa.Column('uuid', UUIDType(binary=False), nullable=True))
+    op.add_column('proposal', sa.Column('uuid', sa.Uuid(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(proposal))
     progress = get_progressbar("Proposals", count)
     progress.start()
@@ -62,7 +56,7 @@ def upgrade():
     op.alter_column('proposal', 'uuid', nullable=False)
     op.create_unique_constraint('proposal_uuid_key', 'proposal', ['uuid'])
 
-    op.add_column('session', sa.Column('uuid', UUIDType(binary=False), nullable=True))
+    op.add_column('session', sa.Column('uuid', sa.Uuid(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(session))
     progress = get_progressbar("Sessions", count)
     progress.start()

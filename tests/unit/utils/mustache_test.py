@@ -87,7 +87,7 @@ templates_and_output['escaped-sequence'] = (
     ids=templates_and_output.keys(),
 )
 def test_mustache_md(template, expected_output):
-    output = mustache_md(template, test_data)
+    output = mustache_md(template, test_data)  # pylint: disable=not-callable
     assert expected_output == output
 
 
@@ -176,5 +176,5 @@ config_template_output['escaped-sequence-document'] = (
 )
 def test_mustache_md_markdown(template, config, expected_output):
     assert expected_output == MarkdownConfig.registry[config].render(
-        mustache_md(template, test_data)
+        mustache_md(template, test_data)  # pylint: disable=not-callable
     )

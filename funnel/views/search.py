@@ -7,11 +7,10 @@ from typing import Any, List, Optional
 from urllib.parse import quote as urlquote
 import re
 
+from flask import request, url_for
+from markupsafe import Markup
 from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
-
-from flask import Markup, request, url_for
-
 from typing_extensions import TypedDict
 
 from baseframe import __

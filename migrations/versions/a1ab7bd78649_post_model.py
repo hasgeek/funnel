@@ -10,7 +10,7 @@ from textwrap import dedent
 from typing import Optional, Tuple, Union
 
 from alembic import op
-from sqlalchemy_utils import TSVectorType, UUIDType
+from sqlalchemy_utils import TSVectorType
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
@@ -39,7 +39,7 @@ def upgrade():
         sa.Column('voteset_id', sa.Integer(), nullable=False),
         sa.Column('commentset_id', sa.Integer(), nullable=False),
         sa.Column('search_vector', TSVectorType(), nullable=False),
-        sa.Column('uuid', UUIDType(binary=False), nullable=False),
+        sa.Column('uuid', sa.Uuid(), nullable=False),
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),

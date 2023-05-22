@@ -7,7 +7,7 @@ from uuid import UUID
 
 from werkzeug.datastructures import MultiDict
 
-from . import Mapped, NoIdMixin, UUIDType, db, json_type, sa
+from . import Mapped, NoIdMixin, db, json_type, sa
 
 __all__ = ['Draft']
 
@@ -19,9 +19,9 @@ class Draft(NoIdMixin, db.Model):  # type: ignore[name-defined]
     __allow_unmapped__ = True
 
     table = sa.Column(sa.UnicodeText, primary_key=True)
-    table_row_id: Mapped[UUID] = sa.Column(UUIDType(binary=False), primary_key=True)
+    table_row_id: Mapped[UUID] = sa.Column(sa.Uuid, primary_key=True)
     body = sa.Column(json_type, nullable=False, server_default='{}')
-    revision: Mapped[Optional[UUID]] = sa.Column(UUIDType(binary=False))
+    revision: Mapped[Optional[UUID]] = sa.Column(sa.Uuid)
 
     @property
     def formdata(self):

@@ -216,10 +216,8 @@ export class MapMarker {
   }
 
   getDefaultLocation() {
-    let latitude;
-    let longitude;
-    latitude = $(`#${this.field.latitudeId}`).val();
-    longitude = $(`#${this.field.longitudeId}`).val();
+    const latitude = $(`#${this.field.latitudeId}`).val();
+    const longitude = $(`#${this.field.longitudeId}`).val();
     return { latitude, longitude };
   }
 }

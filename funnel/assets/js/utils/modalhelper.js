@@ -31,7 +31,7 @@ const Modal = {
       }
     }
 
-    $('body').on('click', '.alert__close', function () {
+    $('body').on('click', '.alert__close', function closeModal() {
       $(this).parents('.alert').fadeOut();
     });
   },
@@ -62,7 +62,7 @@ const Modal = {
   },
   addFocusOnModalShow() {
     let focussedElem;
-    $('body').on($.modal.OPEN, '.modal', function () {
+    $('body').on($.modal.OPEN, '.modal', function moveFocusToModal() {
       focussedElem = document.activeElement;
       Modal.trapFocusWithinModal(this);
     });
@@ -73,19 +73,23 @@ const Modal = {
   },
   activateZoomPopup() {
     if ($('.markdown').length > 0) {
-      $('abbr').each(function () {
+      $('abbr').each(function alignToolTip() {
         if ($(this).offset().left > $(window).width() * 0.7) {
           $(this).addClass('tooltip-right');
         }
       });
     }
 
-    $('body').on('click', '.markdown table, .markdown img', function (event) {
-      event.preventDefault();
-      $('body').append('<div class="markdown-modal markdown"></div>');
-      $('.markdown-modal').html($(this)[0].outerHTML);
-      $('.markdown-modal').modal();
-    });
+    $('body').on(
+      'click',
+      '.markdown table, .markdown img',
+      function openTableInModal(event) {
+        event.preventDefault();
+        $('body').append('<div class="markdown-modal markdown"></div>');
+        $('.markdown-modal').html($(this)[0].outerHTML);
+        $('.markdown-modal').modal();
+      }
+    );
 
     $('body').on('click', '.markdown table a', (event) => {
       event.stopPropagation();

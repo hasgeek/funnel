@@ -5,7 +5,6 @@ from __future__ import annotations
 from secrets import token_urlsafe
 
 from flask import current_app, redirect, request, session
-
 from furl import furl
 from sentry_sdk import capture_exception
 import requests

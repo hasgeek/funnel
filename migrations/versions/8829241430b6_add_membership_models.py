@@ -9,7 +9,6 @@ Create Date: 2020-04-21 01:40:41.323838
 from typing import Optional, Tuple, Union
 
 from alembic import op
-from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
@@ -22,7 +21,7 @@ depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 def upgrade():
     op.create_table(
         'organization_membership',
-        sa.Column('id', postgresql.UUID(), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('granted_at', sa.TIMESTAMP(timezone=True), nullable=False),
@@ -56,7 +55,7 @@ def upgrade():
     )
     op.create_table(
         'project_crew_membership',
-        sa.Column('id', postgresql.UUID(), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('granted_at', sa.TIMESTAMP(timezone=True), nullable=False),
@@ -103,7 +102,7 @@ def upgrade():
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('revoked_by_id', sa.Integer(), nullable=True),
         sa.Column('granted_by_id', sa.Integer(), nullable=True),
-        sa.Column('id', postgresql.UUID(), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.CheckConstraint(

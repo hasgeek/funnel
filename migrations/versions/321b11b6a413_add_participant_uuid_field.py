@@ -13,15 +13,13 @@ down_revision = '664141d5ec56'
 from uuid import uuid4
 
 from alembic import op
+from progressbar import ProgressBar
 from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
+import progressbar.widgets
 import sqlalchemy as sa
 
-from progressbar import ProgressBar
-import progressbar.widgets
-
 participant = table(
-    'participant', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
+    'participant', column('id', sa.Integer()), column('uuid', sa.Uuid())
 )
 
 
@@ -44,9 +42,7 @@ def get_progressbar(label, maxval):
 def upgrade():
     conn = op.get_bind()
 
-    op.add_column(
-        'participant', sa.Column('uuid', UUIDType(binary=False), nullable=True)
-    )
+    op.add_column('participant', sa.Column('uuid', sa.Uuid(), nullable=True))
     # migrate past participants
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(participant))
     progress = get_progressbar("Participants", count)

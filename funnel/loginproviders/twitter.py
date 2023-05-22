@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from flask import redirect, request
-
 import tweepy
 
 from baseframe import _

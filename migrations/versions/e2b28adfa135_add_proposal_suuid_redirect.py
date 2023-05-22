@@ -9,12 +9,10 @@ Create Date: 2020-04-20 03:31:29.101725
 from typing import Optional, Tuple, Union
 
 from alembic import op
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
 from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 import progressbar.widgets
+import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'e2b28adfa135'
@@ -25,7 +23,7 @@ depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 proposal = table(
     'proposal',
     column('id', sa.Integer()),
-    column('uuid', postgresql.UUID(as_uuid=True)),
+    column('uuid', sa.Uuid(as_uuid=True)),
 )
 
 proposal_suuid_redirect = table(

@@ -15,10 +15,8 @@ import socket
 import time
 import weakref
 
-from sqlalchemy.engine import Engine
-
 from flask import Flask
-
+from sqlalchemy.engine import Engine
 from typing_extensions import Protocol
 
 from . import app as main_app

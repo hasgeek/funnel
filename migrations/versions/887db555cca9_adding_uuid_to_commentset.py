@@ -10,12 +10,10 @@ from typing import Optional, Tuple, Union
 from uuid import uuid4
 
 from alembic import op
-from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa
-
 from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 import progressbar.widgets
+import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '887db555cca9'
@@ -24,9 +22,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-commentset = table(
-    'commentset', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
-)
+commentset = table('commentset', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 
 def get_progressbar(label, maxval):
@@ -48,9 +44,7 @@ def get_progressbar(label, maxval):
 def upgrade():
     conn = op.get_bind()
 
-    op.add_column(
-        'commentset', sa.Column('uuid', UUIDType(binary=False), nullable=True)
-    )
+    op.add_column('commentset', sa.Column('uuid', sa.Uuid(), nullable=True))
 
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(commentset))
     progress = get_progressbar("Commentsets", count)

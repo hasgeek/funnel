@@ -1,10 +1,12 @@
 """Tests for Project model."""
+# pylint: disable=redefined-outer-name
 
 from datetime import datetime, timedelta
 
 import pytest
 
 from coaster.utils import utcnow
+
 from funnel import models
 
 

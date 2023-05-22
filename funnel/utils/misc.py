@@ -8,7 +8,6 @@ import io
 import urllib.parse
 
 from flask import abort
-
 import phonenumbers
 import qrcode
 import qrcode.image.svg

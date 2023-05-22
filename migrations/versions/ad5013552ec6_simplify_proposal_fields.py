@@ -10,11 +10,10 @@ from textwrap import dedent
 from typing import Optional, Tuple, Union
 
 from alembic import op
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
 from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 import progressbar.widgets
+import sqlalchemy as sa
 
 from coaster.utils import markdown
 

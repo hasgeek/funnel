@@ -1,4 +1,5 @@
 """Test handling of temporary variables in cookie session."""
+# pylint: disable=redefined-outer-name
 
 from datetime import timedelta
 import time
@@ -6,6 +7,7 @@ import time
 import pytest
 
 from coaster.utils import utcnow
+
 from funnel.views.helpers import SessionTimeouts, session_timeouts
 
 test_timeout_seconds = 1

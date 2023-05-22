@@ -14,20 +14,15 @@ from uuid import uuid4
 
 from alembic import op
 from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
 import sqlalchemy as sa
 
-venue_room = table(
-    'venue_room', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
-)
+venue_room = table('venue_room', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 
 def upgrade():
     conn = op.get_bind()
 
-    op.add_column(
-        'venue_room', sa.Column('uuid', UUIDType(binary=False), nullable=True)
-    )
+    op.add_column('venue_room', sa.Column('uuid', sa.Uuid(), nullable=True))
     items = conn.execute(sa.select(venue_room.c.id))
     for item in items:
         conn.execute(

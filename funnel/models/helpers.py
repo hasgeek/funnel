@@ -20,18 +20,16 @@ from typing import (
 import os.path
 import re
 
+from better_profanity import profanity
+from furl import furl
+from markupsafe import Markup
+from markupsafe import escape as html_escape
 from sqlalchemy.dialects.postgresql import TSQUERY
 from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
 from sqlalchemy.ext.mutable import MutableComposite
 from sqlalchemy.orm import composite
-
-from flask import Markup
-from flask import escape as html_escape
-
-from better_profanity import profanity
-from furl import furl
 from zxcvbn import zxcvbn
 
 from .. import app

@@ -34,7 +34,7 @@
   padding-top: $mui-grid-padding;
   padding-bottom: $mui-grid-padding;
   border-bottom: 1px solid $mui-divider-color;
-  margin-bottom: $mui-grid-padding/2;
+  margin-bottom: $mui-grid-padding * 0.5;
 }
 
 .page-content--mob-nav {
@@ -258,7 +258,7 @@
 .link-icon {
   font-size: 12px;
   font-weight: normal;
-  padding: 0 $mui-grid-padding/2 $mui-grid-padding/2;
+  padding: 0 $mui-grid-padding * 0.5 $mui-grid-padding * 0.5;
   line-height: 1;
   text-transform: capitalize;
   text-decoration: none !important;

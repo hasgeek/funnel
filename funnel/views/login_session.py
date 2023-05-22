@@ -19,10 +19,9 @@ from flask import (
     session,
     url_for,
 )
-import itsdangerous
-
 from furl import furl
 import geoip2.errors
+import itsdangerous
 
 from baseframe import _, statsd
 from baseframe.forms import render_form
@@ -111,7 +110,6 @@ class LoginManager:
         add_auth_attribute('session', None)
 
         lastuser_cookie = {}
-        _lastuser_cookie_headers = {}  # Ignored for now, intended for future changes
 
         # Migrate data from Flask cookie session
         if 'sessionid' in session:
@@ -121,11 +119,9 @@ class LoginManager:
 
         if 'lastuser' in request.cookies:
             try:
-                (
-                    lastuser_cookie,
-                    _lastuser_cookie_headers,
-                ) = lastuser_serializer().loads(
-                    request.cookies['lastuser'], return_header=True
+                lastuser_cookie = lastuser_serializer().loads(
+                    request.cookies['lastuser'],
+                    max_age=365 * 86400,  # Validity 1 year (365 days)
                 )
             except itsdangerous.BadSignature:
                 lastuser_cookie = {}
@@ -299,19 +295,6 @@ def session_mark_accessed(
 
 # Also add future hasjob app here
 @app.after_request
-def clear_old_session(response: ResponseType) -> ResponseType:
-    """Delete cookies that _may_ accidentally be present (and conflicting)."""
-    for cookie_name, domains in app.config.get('DELETE_COOKIES', {}).items():
-        if cookie_name in request.cookies:
-            for domain in domains:
-                response.set_cookie(
-                    cookie_name, '', expires=0, httponly=True, domain=domain
-                )
-    return response
-
-
-# Also add future hasjob app here
-@app.after_request
 def set_lastuser_cookie(response: ResponseType) -> ResponseType:
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
     if (
@@ -326,9 +309,7 @@ def set_lastuser_cookie(response: ResponseType) -> ResponseType:
         expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
         response.set_cookie(
             'lastuser',
-            value=lastuser_serializer().dumps(
-                current_auth.cookie, header_fields={'v': 1}
-            ),
+            value=lastuser_serializer().dumps(current_auth.cookie),
             # Keep this cookie for a year.
             max_age=31557600,
             # Expire one year from now.

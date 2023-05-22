@@ -178,7 +178,7 @@
           {% if project.features.subscription %}<span class="register-block__content__txt mui--text-light">{% trans %}Like this? Support the community{% endtrans %}</span>{% endif %}
           <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
             {% if project.features.subscription %}
-              <span class="register-block__btn__txt" data-cy="unregistered">Get a subscription</span>
+              <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Join{% endtrans %}</span>
             {%- else %}
               <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Get tickets{% endtrans %}</span>
             {% endif %}
@@ -197,7 +197,7 @@
       <a href="#" onclick="return false;" class="project-links left-padding" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" aria-label="{% trans %}Share{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
       {{ share_dropdown(project.url_for(_external=true), project.title) }}
     </div>
-    <a href="#" onclick="return false;" class="hg-link-btn mui--hide left-padding" data-url="{{ project.url_for(_external=true, utm_campaign='webshare') }}" role="button" aria-label="{% trans %}Share this project{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
+    <a href="#" onclick="return false;" class="hg-link-btn mui--hide left-padding" data-url="{{ project.url_for(_external=true, utm_source='webshare') }}" role="button" aria-label="{% trans %}Share this project{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
     {% if project.state.PUBLISHED %}
       <a class="add-calendar left-padding" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="{% trans %}Add to calendar{% endtrans %}" data-ga="Add to calendar" data-cy="add-to-calendar" role="button" aria-haspopup="true">{{ faicon(icon='calendar-plus', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
     {% endif %}

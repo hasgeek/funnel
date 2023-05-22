@@ -10,7 +10,6 @@ from typing import Optional, Tuple, Union
 from uuid import uuid4
 
 from alembic import op
-from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
 import sqlalchemy as sa
 
@@ -32,13 +31,13 @@ organization = table(
     'organization',
     column('id', sa.Integer()),
     column('owners_id', sa.Integer()),
-    column('uuid', postgresql.UUID(as_uuid=True)),
+    column('uuid', sa.Uuid(as_uuid=True)),
 )
 
 profile = table(
     'profile',
     column('id', sa.Integer()),
-    column('uuid', postgresql.UUID(as_uuid=True)),
+    column('uuid', sa.Uuid(as_uuid=True)),
     column('user_id', sa.Integer()),
     column('organization_id', sa.Integer()),
     column('admin_team_id', sa.Integer()),
@@ -77,7 +76,7 @@ proposal = table(
 
 project_crew_membership = table(
     'project_crew_membership',
-    column('id', postgresql.UUID(as_uuid=True)),
+    column('id', sa.Uuid(as_uuid=True)),
     column('project_id', sa.Integer()),
     column('user_id', sa.Integer()),
     column('is_editor', sa.Boolean()),
@@ -94,7 +93,7 @@ project_crew_membership = table(
 
 organization_membership = table(
     'organization_membership',
-    column('id', postgresql.UUID(as_uuid=True)),
+    column('id', sa.Uuid(as_uuid=True)),
     column('organization_id', sa.Integer()),
     column('user_id', sa.Integer()),
     column('is_owner', sa.Boolean()),
@@ -109,7 +108,7 @@ organization_membership = table(
 
 proposal_membership = table(
     'proposal_membership',
-    column('id', postgresql.UUID(as_uuid=True)),
+    column('id', sa.Uuid(as_uuid=True)),
     column('proposal_id', sa.Integer()),
     column('user_id', sa.Integer()),
     column('is_reviewer', sa.Boolean()),

@@ -9,7 +9,6 @@ Create Date: 2020-09-18 02:44:20.827703
 from typing import Optional, Tuple, Union
 
 from alembic import op
-from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
 import sqlalchemy as sa
 
@@ -22,31 +21,31 @@ depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 notification = table(
     'notification',
-    column('eventid', postgresql.UUID()),
-    column('id', postgresql.UUID()),
+    column('eventid', sa.Uuid()),
+    column('id', sa.Uuid()),
     column('type', sa.Unicode()),
-    column('document_uuid', postgresql.UUID()),
-    column('fragment_uuid', postgresql.UUID()),
+    column('document_uuid', sa.Uuid()),
+    column('fragment_uuid', sa.Uuid()),
 )
 
 project = table(
     'project',
     column('id', sa.Integer()),
-    column('uuid', postgresql.UUID()),
+    column('uuid', sa.Uuid()),
     column('commentset_id', sa.Integer()),
 )
 
 proposal = table(
     'proposal',
     column('id', sa.Integer()),
-    column('uuid', postgresql.UUID()),
+    column('uuid', sa.Uuid()),
     column('commentset_id', sa.Integer()),
 )
 
 commentset = table(
     'commentset',
     column('id', sa.Integer()),
-    column('uuid', postgresql.UUID()),
+    column('uuid', sa.Uuid()),
 )
 
 
