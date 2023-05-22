@@ -763,7 +763,7 @@ class UserNotification(
     notification_id: Mapped[UUID] = sa.orm.mapped_column(sa.Uuid, nullable=False)
 
     #: Notification that this user received
-    notification = with_roles(
+    notification: Mapped[Notification] = with_roles(
         sa.orm.relationship(
             Notification, backref=sa.orm.backref('recipients', lazy='dynamic')
         ),
@@ -906,21 +906,18 @@ class UserNotification(
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
 
-    @is_revoked.setter  # type: ignore[no-redef]
-    def is_revoked(self, value: bool) -> None:
+    @is_revoked.inplace.setter
+    def _is_revoked_setter(self, value: bool) -> None:
         if value:
             if not self.revoked_at:
                 self.revoked_at = sa.func.utcnow()
         else:
             self.revoked_at = None
 
-    # PyLint complains because the hybrid property doesn't resemble the mixin's property
-    # pylint: disable=no-self-argument,arguments-renamed,invalid-overridden-method
-    @is_revoked.expression  # type: ignore[no-redef]
-    def is_revoked(cls):
+    @is_revoked.inplace.expression
+    @classmethod
+    def _is_revoked_expression(cls):
         return cls.revoked_at.isnot(None)
-
-    # pylint: enable=no-self-argument,arguments-renamed,invalid-overridden-method
 
     with_roles(is_revoked, rw={'owner'})
 

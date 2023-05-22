@@ -76,9 +76,7 @@ def test_create_shortlink(app, client, user_rincewind, create_shortlink) -> None
     rv = client.post(
         create_shortlink,
         data={
-            'url': user_rincewind.profile.url_for(
-                _external=True, utm_campaign='webshare'
-            )
+            'url': user_rincewind.profile.url_for(_external=True, utm_source='webshare')
         },
     )
     assert rv.status_code == 201
@@ -87,7 +85,7 @@ def test_create_shortlink(app, client, user_rincewind, create_shortlink) -> None
     assert len(str(sl3.path)) <= 5  # API defaults to the shorter form (max 4 chars)
     assert sl3.path != sl1.path  # We got a different shortlink
     assert rv.json['url'] == user_rincewind.profile.url_for(
-        _external=True, utm_campaign='webshare'
+        _external=True, utm_source='webshare'
     )
 
 
