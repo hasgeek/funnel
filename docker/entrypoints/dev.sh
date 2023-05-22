@@ -1,17 +1,10 @@
 #!/bin/bash
 
-npm install
-make deps-editable
-pip install --upgrade pip
-pip install --use-pep517 -r requirements/dev.txt
-
-if [ $(psql -XtA -U postgres -h postgres funnel -c "select count(*) from information_schema.tables where table_schema = 'public';") = "0" ]; then
+if [ "$(psql -XtA -U postgres -h $DB_HOST funnel -c "select count(*) from information_schema.tables where table_schema = 'public';")" = "0" ]; then
     flask dbcreate
     flask db stamp
 else
-    echo "Tables exist"
+    flask db upgrade head
 fi
-
-flask db upgrade head
 
 ./devserver.py

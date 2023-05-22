@@ -2,8 +2,6 @@ services:
   funnel:
     build:
       context: .
-    image: hasgeek/funnel
-    container_name: funnel
     logging:
       driver: json-file
       options:
@@ -12,3 +10,6 @@ services:
     extra_hosts:
       - 'funnel.test:127.0.0.1'
       - 'f.test:127.0.0.1'
+    environment:
+      - OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+      - FLASK_RUN_HOST=0.0.0.0
