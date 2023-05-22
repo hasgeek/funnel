@@ -28,10 +28,7 @@ coveralls==3.3.1
 docopt==0.6.2
     # via coveralls
 exceptiongroup==1.1.1
-    # via
-    #   pytest
-    #   trio
-    #   trio-websocket
+    # via trio-websocket
 h11==0.14.0
     # via wsproto
 iniconfig==2.0.0
@@ -96,10 +93,6 @@ sttable==0.0.1
     # via -r requirements/test.in
 tenacity==8.2.2
     # via pytest-selenium
-tomli==2.0.1
-    # via
-    #   coverage
-    #   pytest
 tomlkit==0.11.8
     # via -r requirements/test.in
 trio==0.22.0
