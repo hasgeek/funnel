@@ -168,14 +168,14 @@ class Profile(
         sa.orm.column_property(
             sa.case(
                 (
-                    user_id.isnot(None),  # ← when, ↙ then
+                    user_id.is_not(None),  # ← when, ↙ then
                     sa.select(User.state.ACTIVE)  # type: ignore[has-type]
                     .where(User.id == user_id)
                     .correlate_except(User)  # type: ignore[arg-type]
                     .scalar_subquery(),
                 ),
                 (
-                    organization_id.isnot(None),  # ← when, ↙ then
+                    organization_id.is_not(None),  # ← when, ↙ then
                     sa.select(Organization.state.ACTIVE)  # type: ignore[has-type]
                     .where(Organization.id == organization_id)
                     .correlate_except(Organization)  # type: ignore[arg-type]
@@ -190,8 +190,8 @@ class Profile(
 
     __table_args__ = (
         sa.CheckConstraint(
-            sa.case((user_id.isnot(None), 1), else_=0)
-            + sa.case((organization_id.isnot(None), 1), else_=0)
+            sa.case((user_id.is_not(None), 1), else_=0)
+            + sa.case((organization_id.is_not(None), 1), else_=0)
             + sa.case((reserved.is_(True), 1), else_=0)
             == 1,
             name='profile_owner_check',
@@ -297,7 +297,7 @@ class Profile(
     @classmethod
     def _is_user_profile_expression(cls) -> sa.ColumnElement[bool]:
         """Test if this is a user account in a SQL expression."""
-        return cls.user_id.isnot(None)
+        return cls.user_id.is_not(None)
 
     @hybrid_property
     def is_organization_profile(self) -> bool:
@@ -308,7 +308,7 @@ class Profile(
     @classmethod
     def _is_organization_profile_expression(cls) -> sa.ColumnElement[bool]:
         """Test if this is an organization account in a SQL expression."""
-        return cls.organization_id.isnot(None)
+        return cls.organization_id.is_not(None)
 
     @property
     def is_public(self) -> bool:
@@ -343,13 +343,13 @@ class Profile(
         return sa.case(
             (
                 # if...
-                cls.user_id.isnot(None),
+                cls.user_id.is_not(None),
                 # then...
                 sa.select(User.fullname).where(cls.user_id == User.id).as_scalar(),
             ),
             (
                 # elif...
-                cls.organization_id.isnot(None),
+                cls.organization_id.is_not(None),
                 # then...
                 sa.select(Organization.title)
                 .where(cls.organization_id == Organization.id)

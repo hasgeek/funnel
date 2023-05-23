@@ -315,7 +315,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             sa.or_(  # type: ignore[arg-type]
                 blocked_at.is_(None),  # or...
                 sa.and_(
-                    blocked_at.isnot(None),
+                    blocked_at.is_not(None),
                     number.is_(None),
                     has_sms.is_(None),
                     has_sms_at.is_(None),
@@ -328,14 +328,14 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         sa.CheckConstraint(
             sa.or_(
                 sa.and_(has_sms.is_(None), has_sms_at.is_(None)),
-                sa.and_(has_sms.isnot(None), has_sms_at.isnot(None)),
+                sa.and_(has_sms.is_not(None), has_sms_at.is_not(None)),
             ),
             'phone_number_has_sms_check',
         ),
         sa.CheckConstraint(
             sa.or_(
                 sa.and_(has_wa.is_(None), has_wa_at.is_(None)),
-                sa.and_(has_wa.isnot(None), has_wa_at.isnot(None)),
+                sa.and_(has_wa.is_not(None), has_wa_at.is_not(None)),
             ),
             'phone_number_has_wa_check',
         ),
@@ -376,7 +376,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def _is_blocked_expression(cls) -> sa.ColumnElement[bool]:
         """Expression form of is_blocked check."""
-        return cls.blocked_at.isnot(None)
+        return cls.blocked_at.is_not(None)
 
     @with_roles(read={'all'})
     @cached_property
@@ -595,7 +595,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             return None  # phone number was not valid
         if is_blocked is not None:
             if is_blocked:
-                query = query.filter(cls.blocked_at.isnot(None))
+                query = query.filter(cls.blocked_at.is_not(None))
             else:
                 query = query.filter(cls.blocked_at.is_(None))
         return query.one_or_none()

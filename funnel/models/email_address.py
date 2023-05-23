@@ -265,7 +265,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         # If `is_blocked` is True, `email` and `domain` must be None
         sa.CheckConstraint(
             sa.or_(  # type: ignore[arg-type]
-                _is_blocked.isnot(True),
+                _is_blocked.is_not(True),
                 sa.and_(_is_blocked.is_(True), email.is_(None), _domain.is_(None)),
             ),
             'email_address_email_is_blocked_check',

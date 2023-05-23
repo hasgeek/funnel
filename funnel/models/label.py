@@ -192,7 +192,7 @@ class Label(
     def _restricted_expression(cls):
         return sa.case(
             (
-                cls.main_label_id.isnot(None),
+                cls.main_label_id.is_not(None),
                 sa.select(Label._restricted)
                 .where(Label.id == cls.main_label_id)
                 .as_scalar(),
@@ -218,7 +218,7 @@ class Label(
         return sa.case(
             (cls._archived.is_(True), cls._archived),
             (
-                cls.main_label_id.isnot(None),
+                cls.main_label_id.is_not(None),
                 sa.select(Label._archived)
                 .where(Label.id == cls.main_label_id)
                 .as_scalar(),

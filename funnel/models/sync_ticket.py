@@ -360,7 +360,7 @@ class TicketParticipant(
                 .join(TicketType, SyncTicket.ticket_type_id == TicketType.id)
                 .filter(SyncTicket.ticket_participant_id == TicketParticipant.id)
                 .label('ticket_type_titles'),
-                cls.user_id.isnot(None).label('has_user'),
+                cls.user_id.is_not(None).label('has_user'),
             )
             .select_from(TicketParticipant)
             .join(

@@ -29,7 +29,7 @@ def upgrade() -> None:
         'session',
         sa.or_(
             sa.and_(start_at.is_(None), end_at.is_(None)),
-            sa.and_(start_at.isnot(None), end_at.isnot(None), end_at > start_at),
+            sa.and_(start_at.is_not(None), end_at.is_not(None), end_at > start_at),
         ),
     )
     op.drop_constraint('project_start_at_end_at_check', 'project', type_='check')
@@ -38,7 +38,7 @@ def upgrade() -> None:
         'project',
         sa.or_(
             sa.and_(start_at.is_(None), end_at.is_(None)),
-            sa.and_(start_at.isnot(None), end_at.isnot(None), end_at > start_at),
+            sa.and_(start_at.is_not(None), end_at.is_not(None), end_at > start_at),
         ),
     )
 
@@ -50,7 +50,7 @@ def downgrade() -> None:
         'session',
         sa.or_(
             sa.and_(start_at.is_(None), end_at.is_(None)),
-            sa.and_(start_at.isnot(None), end_at.isnot(None), end_at >= start_at),
+            sa.and_(start_at.is_not(None), end_at.is_not(None), end_at >= start_at),
         ),
     )
     op.drop_constraint('project_start_at_end_at_check', 'project', type_='check')
@@ -59,6 +59,6 @@ def downgrade() -> None:
         'project',
         sa.or_(
             sa.and_(start_at.is_(None), end_at.is_(None)),
-            sa.and_(start_at.isnot(None), end_at.isnot(None), end_at >= start_at),
+            sa.and_(start_at.is_not(None), end_at.is_not(None), end_at >= start_at),
         ),
     )

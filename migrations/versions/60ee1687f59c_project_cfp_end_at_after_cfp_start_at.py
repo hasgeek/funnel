@@ -28,10 +28,10 @@ def upgrade() -> None:
         'project',
         sa.or_(
             sa.and_(cfp_start_at.is_(None), cfp_end_at.is_(None)),
-            sa.and_(cfp_start_at.isnot(None), cfp_end_at.is_(None)),
+            sa.and_(cfp_start_at.is_not(None), cfp_end_at.is_(None)),
             sa.and_(
-                cfp_start_at.isnot(None),
-                cfp_end_at.isnot(None),
+                cfp_start_at.is_not(None),
+                cfp_end_at.is_not(None),
                 cfp_end_at > cfp_start_at,
             ),
         ),

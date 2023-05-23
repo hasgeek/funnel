@@ -238,9 +238,9 @@ class ProjectSearch(SearchInProfileProvider):
                         'epoch',
                         sa.func.utcnow()
                         - sa.case(
-                            (Project.start_at.isnot(None), Project.start_at),
+                            (Project.start_at.is_not(None), Project.start_at),
                             (
-                                Project.published_at.isnot(None),
+                                Project.published_at.is_not(None),
                                 Project.published_at,
                             ),
                             else_=Project.created_at,
@@ -300,9 +300,9 @@ class ProjectSearch(SearchInProfileProvider):
                         'epoch',
                         sa.func.utcnow()
                         - sa.case(
-                            (Project.start_at.isnot(None), Project.start_at),
+                            (Project.start_at.is_not(None), Project.start_at),
                             (
-                                Project.published_at.isnot(None),
+                                Project.published_at.is_not(None),
                                 Project.published_at,
                             ),
                             else_=Project.created_at,
@@ -325,8 +325,8 @@ class ProfileSearch(SearchProvider):
     def title_column(self) -> ColumnElement:
         """Return title from user or organization that the account is attached to."""
         return sa.case(
-            (Profile.user_id.isnot(None), User.fullname),
-            (Profile.organization_id.isnot(None), Organization.title),
+            (Profile.user_id.is_not(None), User.fullname),
+            (Profile.organization_id.is_not(None), Organization.title),
             else_=Profile.name,
         )
 
@@ -365,7 +365,7 @@ class SessionSearch(SearchInProjectProvider):
         return query.order_by(
             sa.desc(sa.func.ts_rank_cd(Session.search_vector, tsquery)),
             sa.case(
-                (Session.start_at.isnot(None), Session.start_at),
+                (Session.start_at.is_not(None), Session.start_at),
                 else_=Session.created_at,
             ).desc(),
         )
@@ -517,7 +517,7 @@ class UpdateSearch(SearchInProjectProvider):
         return query.order_by(
             sa.desc(sa.func.ts_rank_cd(Update.search_vector, tsquery)),
             sa.case(
-                (Update.published_at.isnot(None), Update.published_at),
+                (Update.published_at.is_not(None), Update.published_at),
                 else_=Update.created_at,
             ).desc(),
         )

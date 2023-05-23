@@ -265,7 +265,7 @@ class Update(
         'WITHDRAWN',
         state.DRAFT,
         lambda update: update.published_at is not None,
-        lambda update: update.published_at.isnot(None),
+        lambda update: update.published_at.is_not(None),
         label=('withdrawn', __("Withdrawn")),
     )
 

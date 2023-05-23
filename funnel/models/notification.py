@@ -373,7 +373,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
             document_uuid,
             fragment_uuid,
             unique=True,
-            postgresql_where=fragment_uuid.isnot(None),
+            postgresql_where=fragment_uuid.is_not(None),
         ),
     )
 
@@ -900,7 +900,7 @@ class UserNotification(
     @classmethod
     def _is_read_expression(cls) -> sa.ColumnElement[bool]:
         """Test if notification has been marked as read, as a SQL expression."""
-        return cls.read_at.isnot(None)
+        return cls.read_at.is_not(None)
 
     with_roles(is_read, rw={'owner'})
 
@@ -920,7 +920,7 @@ class UserNotification(
     @is_revoked.inplace.expression
     @classmethod
     def _is_revoked_expression(cls) -> sa.ColumnElement[bool]:
-        return cls.revoked_at.isnot(None)
+        return cls.revoked_at.is_not(None)
 
     with_roles(is_revoked, rw={'owner'})
 
@@ -1024,7 +1024,7 @@ class UserNotification(
                 # Earlier instance is not revoked
                 UserNotification.revoked_at.is_(None),
                 # Earlier instance has a rollupid
-                UserNotification.rollupid.isnot(None),
+                UserNotification.rollupid.is_not(None),
             )
             .order_by(UserNotification.created_at.asc())
             .limit(1)

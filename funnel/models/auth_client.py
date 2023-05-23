@@ -173,8 +173,8 @@ class AuthClient(
 
     __table_args__ = (
         sa.CheckConstraint(
-            sa.case((user_id.isnot(None), 1), else_=0)
-            + sa.case((organization_id.isnot(None), 1), else_=0)
+            sa.case((user_id.is_not(None), 1), else_=0)
+            + sa.case((organization_id.is_not(None), 1), else_=0)
             == 1,
             name='auth_client_owner_check',
         ),

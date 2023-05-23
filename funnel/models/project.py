@@ -273,17 +273,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         sa.CheckConstraint(
             sa.or_(  # type: ignore[arg-type]
                 sa.and_(start_at.is_(None), end_at.is_(None)),
-                sa.and_(start_at.isnot(None), end_at.isnot(None), end_at > start_at),
+                sa.and_(start_at.is_not(None), end_at.is_not(None), end_at > start_at),
             ),
             'project_start_at_end_at_check',
         ),
         sa.CheckConstraint(
             sa.or_(  # type: ignore[arg-type]
                 sa.and_(cfp_start_at.is_(None), cfp_end_at.is_(None)),
-                sa.and_(cfp_start_at.isnot(None), cfp_end_at.is_(None)),
+                sa.and_(cfp_start_at.is_not(None), cfp_end_at.is_(None)),
                 sa.and_(
-                    cfp_start_at.isnot(None),
-                    cfp_end_at.isnot(None),
+                    cfp_start_at.is_not(None),
+                    cfp_end_at.is_not(None),
                     cfp_end_at > cfp_start_at,
                 ),
             ),
@@ -389,7 +389,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         cfp_state.NONE,
         lambda project: project.instructions_html != '',
         lambda project: sa.and_(
-            project.instructions_html.isnot(None), project.instructions_html != ''
+            project.instructions_html.is_not(None), project.instructions_html != ''
         ),
         label=('draft', __("Draft")),
     )
@@ -408,7 +408,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         lambda project: project.cfp_end_at is not None
         and utcnow() >= project.cfp_end_at,
         lambda project: sa.and_(
-            project.cfp_end_at.isnot(None), sa.func.utcnow() >= project.cfp_end_at
+            project.cfp_end_at.is_not(None), sa.func.utcnow() >= project.cfp_end_at
         ),
         label=('expired', __("Expired")),
     )
@@ -679,7 +679,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         param bool desc: Use descending order (default True)
         """
         clause = sa.case(
-            (cls.start_at.isnot(None), cls.start_at),
+            (cls.start_at.is_not(None), cls.start_at),
             else_=cls.published_at,
         )
         return clause

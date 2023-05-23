@@ -305,14 +305,14 @@ def downgrade() -> None:
     # Restore profile.title from sources in user and organization tables
     op.execute(
         profile.update()
-        .where(sa.and_(profile.c.user_id.isnot(None), profile.c.uuid == user.c.uuid))
+        .where(sa.and_(profile.c.user_id.is_not(None), profile.c.uuid == user.c.uuid))
         .values({'title': user.c.fullname})
     )
     op.execute(
         profile.update()
         .where(
             sa.and_(
-                profile.c.organization_id.isnot(None),
+                profile.c.organization_id.is_not(None),
                 profile.c.uuid == organization.c.uuid,
             )
         )
