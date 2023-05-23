@@ -1,13 +1,13 @@
 """Tests for EmailAddress model."""
-# pylint: disable=possibly-unused-variable
+# pylint: disable=possibly-unused-variable,redefined-outer-name
+
 
 from types import SimpleNamespace
 from typing import Generator
 
 from sqlalchemy.exc import IntegrityError
-import sqlalchemy as sa
-
 import pytest
+import sqlalchemy as sa
 
 from funnel import models
 

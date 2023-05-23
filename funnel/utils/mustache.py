@@ -5,9 +5,8 @@ from typing import Callable
 import functools
 import types
 
-from markupsafe import escape as html_escape
-
 from chevron import render
+from markupsafe import escape as html_escape
 
 from .markdown import markdown_escape
 

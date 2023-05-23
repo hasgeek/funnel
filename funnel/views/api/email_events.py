@@ -6,7 +6,6 @@ from email.utils import parseaddr
 from typing import List
 
 from flask import current_app, request
-
 import requests
 
 from baseframe import statsd

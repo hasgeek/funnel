@@ -4,10 +4,10 @@
 
     <tr align="center">
         <td class="text-content">
-            <p class="body-content">{%- trans project=view.project.joined_title, start_time=view.session.start_at_localized|time -%}<b>{{ project }}</b> starts at {{ start_time }}{%- endtrans -%}</p>
+            <p class="body-content">{%- trans project=view.project.joined_title, start_time=(view.session or view.project).start_at_localized|time -%}<b>{{ project }}</b> starts at {{ start_time }}{%- endtrans -%}</p>
         </td>
     </tr>
-    <br>
+    <br/>
 
     {# Button : BEGIN #}
     {{ cta_button(view.project.url_for(_external=true, **view.tracking_tags()), gettext("Join now") )}}

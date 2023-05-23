@@ -12,16 +12,12 @@ down_revision = '69c2ced88981'
 from uuid import uuid4
 
 from alembic import op
-from sqlalchemy.dialects import postgresql
+from progressbar import ProgressBar
 from sqlalchemy.sql import column, table
+import progressbar.widgets
 import sqlalchemy as sa
 
-from progressbar import ProgressBar
-import progressbar.widgets
-
-comment = table(
-    'comment', column('id', sa.Integer()), column('uuid', postgresql.UUID())
-)
+comment = table('comment', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 
 def get_progressbar(label, maxval):
@@ -43,7 +39,7 @@ def get_progressbar(label, maxval):
 def upgrade():
     conn = op.get_bind()
 
-    op.add_column('comment', sa.Column('uuid', postgresql.UUID(), nullable=True))
+    op.add_column('comment', sa.Column('uuid', sa.Uuid(), nullable=True))
 
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(comment))
     progress = get_progressbar("Comments", count)

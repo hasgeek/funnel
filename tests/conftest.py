@@ -1,5 +1,5 @@
 """Test configuration and fixtures."""
-# pylint: disable=import-outside-toplevel, redefined-outer-name
+# pylint: disable=import-outside-toplevel,redefined-outer-name
 
 from __future__ import annotations
 
@@ -13,15 +13,13 @@ import re
 import typing as t
 import warnings
 
+from flask import session
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.session import Session as FsaSession
 from sqlalchemy.orm import Session as DatabaseSessionClass
-import sqlalchemy as sa
-
-from flask import session
-
 import flask_wtf.csrf
 import pytest
+import sqlalchemy as sa
 import typeguard
 
 if t.TYPE_CHECKING:
@@ -152,7 +150,6 @@ def funnel_devtest(funnel):
 @pytest.fixture(scope='session')
 def response_with_forms() -> t.Any:  # Since the actual return type is defined within
     from flask.wrappers import Response
-
     from lxml.html import FormElement, HtmlElement, fromstring  # nosec
 
     # --- ResponseWithForms, to make form submission in the test client testing easier
@@ -856,7 +853,7 @@ def db_session_rollback(
         connection = engine.connect()
         transaction = connection.begin()
         bindcts[bind] = BindConnectionTransaction(engine, connection, transaction)
-    database.session = database._make_scoped_session(
+    database.session = database._make_scoped_session(  # pylint: disable=W0212
         {
             'class_': BoundSession,
             'bindcts': bindcts,

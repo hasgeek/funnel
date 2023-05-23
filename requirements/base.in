@@ -7,6 +7,7 @@ base58
 bcrypt
 better_profanity!=0.7.0  # https://github.com/snguyenthanh/better_profanity/issues/19
 blinker
+boto3  # Required in Imgee not here, but has a pin on urllib3 version
 Brotli
 chevron
 click
@@ -29,7 +30,7 @@ greenlet
 html2text
 icalendar
 idna
-itsdangerous<2.1.0  # https://github.com/pallets/itsdangerous/pull/273
+itsdangerous
 linkify-it-py
 markdown-it-py
 mdit-py-plugins
@@ -39,7 +40,7 @@ passlib
 phonenumbers
 premailer
 progressbar2
-psycopg2-binary
+psycopg[binary]
 pycountry
 Pygments
 pyIsEmail

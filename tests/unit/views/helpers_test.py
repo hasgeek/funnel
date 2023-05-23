@@ -1,4 +1,5 @@
 """Tests for view helpers."""
+# pylint: disable=redefined-outer-name
 
 from base64 import urlsafe_b64decode
 from datetime import datetime, timezone
@@ -7,9 +8,8 @@ from unittest.mock import patch
 from urllib.parse import urlsplit
 
 from flask import Flask, request
-from werkzeug.routing import BuildError
-
 from furl import furl
+from werkzeug.routing import BuildError
 import pytest
 
 import funnel.views.helpers as vhelpers

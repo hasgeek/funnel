@@ -10,12 +10,10 @@ from typing import Optional, Tuple, Union
 from uuid import uuid4
 
 from alembic import op
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
 from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 import progressbar.widgets
+import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'fa05ebecbc0f'
@@ -44,7 +42,7 @@ proposal = table(
 
 proposal_membership = table(
     'proposal_membership',
-    column('id', postgresql.UUID()),
+    column('id', sa.Uuid()),
     column('created_at', sa.TIMESTAMP(timezone=True)),
     column('updated_at', sa.TIMESTAMP(timezone=True)),
     column('granted_at', sa.TIMESTAMP(timezone=True)),

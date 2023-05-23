@@ -7,9 +7,8 @@ from io import StringIO
 from typing import Dict, Optional
 import csv
 
-from sqlalchemy.exc import IntegrityError
-
 from flask import Response, current_app, render_template, request
+from sqlalchemy.exc import IntegrityError
 
 from baseframe import _
 from coaster.auth import current_auth

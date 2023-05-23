@@ -1,4 +1,5 @@
 """Tests for the login, logout and register views."""
+# pylint: disable=redefined-outer-name
 
 from datetime import timedelta
 from types import SimpleNamespace
@@ -6,11 +7,11 @@ from unittest.mock import patch
 
 from flask import redirect, request, session
 from werkzeug.datastructures import MultiDict
-
 import pytest
 
 from coaster.auth import current_auth
 from coaster.utils import utcnow
+
 from funnel.registry import LoginCallbackError, LoginInitError, LoginProviderData
 from funnel.transports import TransportConnectionError, TransportRecipientError
 from funnel.views.otp import OtpSession

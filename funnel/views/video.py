@@ -6,7 +6,6 @@ from datetime import datetime
 from typing import Optional, Union, cast
 
 from flask import current_app
-
 from pytz import utc
 from sentry_sdk import capture_exception
 from typing_extensions import TypedDict

@@ -9,7 +9,6 @@ from typing import Dict, Generic, Optional, Type, TypeVar, Union
 from flask import current_app, flash, render_template, request, session, url_for
 from werkzeug.exceptions import Forbidden, RequestTimeout, TooManyRequests
 from werkzeug.utils import cached_property
-
 import phonenumbers
 
 from baseframe import _
@@ -478,7 +477,7 @@ class OtpSessionForReset(OtpSession[User], reason='reset'):
             _external=True,
             token=self.link_token,
             utm_medium='email',
-            utm_campaign='reset',
+            utm_source='account-reset',
         )
         jsonld = jsonld_view_action(subject, url, _("Reset password"))
         content = render_template(

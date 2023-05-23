@@ -13,9 +13,8 @@ from uuid import uuid4
 
 from flask import url_for
 from flask_babel import force_locale
-from werkzeug.utils import cached_property
-
 from typing_extensions import Literal
+from werkzeug.utils import cached_property
 
 from baseframe import __, statsd
 from coaster.auth import current_auth
@@ -197,20 +196,36 @@ class RenderNotification:
         )
 
     def tracking_tags(
-        self, transport: str = 'email', campaign: str = 'notification'
+        self,
+        medium: str = 'email',
+        source: str = 'notification',
+        campaign: Optional[str] = None,
     ) -> Dict[str, str]:
         """
         Provide tracking tags for URL parameters. Subclasses may override if required.
 
-        :param transport: Transport (or medium) over which this link is being delivered
+        :param medium: Medium (or transport) over which this link is being delivered
             (default 'email' as that's the most common use case for tracked links)
-        :param campaign: Reason for this link being sent (default 'notification' but
-            unsubscribe links and other specialized links will want to specify another)
+        :param source: Source of this link (default 'notification' but unsubscribe
+            links and other specialised links will want to specify another)
+        :param campaign: Reason for this link being sent (defaults to notification type
+            and timestamp)
         """
-        tags = {'utm_campaign': campaign, 'utm_medium': transport}
-        if not self.notification.for_private_recipient:
-            tags['utm_source'] = self.notification.eventid_b58
-        return tags
+        if campaign is None:
+            if self.notification.for_private_recipient:
+                # Do not include a timestamp when it's a private notification, as that
+                # can be used to identify the event
+                campaign = self.notification.type
+            else:
+                campaign = (
+                    f'{self.notification.type}'
+                    f'-{self.notification.created_at.strftime("%Y%m%d-%H%M")}'
+                )
+        return {
+            'utm_campaign': campaign,
+            'utm_medium': medium,
+            'utm_source': source,
+        }
 
     def unsubscribe_token(self, transport):
         """
@@ -243,7 +258,7 @@ class RenderNotification:
             'notification_unsubscribe',
             token=self.unsubscribe_token(transport=transport),
             _external=True,
-            **self.tracking_tags(transport=transport, campaign='unsubscribe'),
+            **self.tracking_tags(transport, source='unsubscribe'),
         )
 
     @cached_property

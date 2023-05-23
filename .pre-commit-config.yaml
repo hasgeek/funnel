@@ -36,7 +36,7 @@ repos:
           ]
         files: ^requirements/.*\.txt$
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.265
+    rev: v0.0.269
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
@@ -118,7 +118,7 @@ repos:
             '--disable=import-error',
             '-rn', # Disable full report
             '-sn', # Disable evaluation score
-            '--ignore-paths=tests,migrations',
+            '--ignore-paths=migrations',
           ]
         additional_dependencies:
           - tomli

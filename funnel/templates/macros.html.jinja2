@@ -80,7 +80,7 @@
 {% endmacro %}
 
 {% macro share_dropdown(url, title, css_class="") %}
-  {%- with url_copy=url+'?utm_campaign=share-copy', url_email=url+'?utm_campaign=share-email', url_twitter=url+'?utm_campaign=share-twitter', url_facebook=url+'?utm_campaign=share-facebook', url_linkedin=url+'?utm_campaign=share-linkedin' %}
+  {%- with url_copy=url+'?utm_source=share-copy', url_email=url+'?utm_source=share-email&utm_medium=email', url_twitter=url+'?utm_source=share-twitter&utm_medium=social', url_facebook=url+'?utm_source=share-facebook&utm_medium=social', url_linkedin=url+'?utm_source=share-linkedin&utm_medium=social' %}
   <ul class="mui-dropdown__menu mui-dropdown__menu--right mui-dropdown__menu--hg-link {% if css_class %}{{ css_class }}{%- endif %}" data-cy="share-dropdown">
     <li><a class="mui--text-body2 js-copy-link" href="#" onclick="return false;" data-ga="Copy link to share" role="menuitem">{{ faicon(icon='copy', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Copy link{% endtrans %}<span class="js-copy-url" aria-hidden="true">{{ url_copy }}</span></a></li>
     <li><a class="mui--text-body2" href="mailto:?subject={{ title|urlencode }}&amp;body={{ url_email|urlencode }}" data-ga="Email" role="menuitem">{{ faicon(icon='envelope', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Email{% endtrans %}</a></li>
@@ -119,7 +119,7 @@
     {% else %}
       {% set url, title = session.url_for(_external=true), session.title %}
     {%- endif %}
-    <a href="#" onclick="return false;" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ (url+'?utm_campaign=webshare') }}" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
+    <a href="#" onclick="return false;" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ (url+'?utm_source=webshare') }}" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
     <div class="mui-dropdown">
       <a href="#" onclick="return false;" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
       {{ share_dropdown(url, title) }}

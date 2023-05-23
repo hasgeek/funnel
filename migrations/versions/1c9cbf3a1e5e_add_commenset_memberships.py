@@ -10,12 +10,10 @@ from typing import Optional, Tuple, Union
 from uuid import uuid4
 
 from alembic import op
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
 from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 import progressbar.widgets
+import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '1c9cbf3a1e5e'
@@ -43,7 +41,7 @@ rsvp = table(
 commentset = table(
     'commentset',
     column('id', sa.Integer()),
-    column('uuid', postgresql.UUID()),
+    column('uuid', sa.Uuid()),
     column('type', sa.Integer()),
     column('count', sa.Integer()),
 )
@@ -52,7 +50,7 @@ commentset = table(
 proposal = table(
     'proposal',
     column('id', sa.Integer()),
-    column('uuid', postgresql.UUID()),
+    column('uuid', sa.Uuid()),
     column('user_id', sa.Integer()),
     column('commentset_id', sa.Integer()),
 )
@@ -60,7 +58,7 @@ proposal = table(
 
 commentset_membership = table(
     'commentset_membership',
-    column('id', postgresql.UUID()),
+    column('id', sa.Uuid()),
     column('user_id', sa.Integer()),
     column('commentset_id', sa.Integer()),
     column('record_type', sa.Integer()),
@@ -76,7 +74,7 @@ commentset_membership = table(
 
 project_crew_membership = table(
     'project_crew_membership',
-    column('id', postgresql.UUID()),
+    column('id', sa.Uuid()),
     column('user_id', sa.Integer()),
     column('project_id', sa.Integer()),
     column('granted_at', sa.TIMESTAMP(timezone=True)),
@@ -86,7 +84,7 @@ project_crew_membership = table(
 
 proposal_membership = table(
     'proposal_membership',
-    column('id', postgresql.UUID()),
+    column('id', sa.Uuid()),
     column('user_id', sa.Integer()),
     column('proposal_id', sa.Integer()),
     column('granted_at', sa.TIMESTAMP(timezone=True)),

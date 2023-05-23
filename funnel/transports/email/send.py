@@ -9,7 +9,6 @@ from typing import Dict, List, Optional, Tuple, Union
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
 from flask_mailman.message import sanitize_address
-
 from html2text import html2text
 from premailer import transform
 

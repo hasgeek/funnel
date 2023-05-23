@@ -5,9 +5,8 @@ from __future__ import annotations
 from typing import Dict, Optional, Tuple, Union, cast, overload
 
 from flask import current_app
-from werkzeug.utils import cached_property
-
 from typing_extensions import Literal
+from werkzeug.utils import cached_property
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
@@ -201,7 +200,9 @@ class __Project:
     def active_rsvps(self):
         return self.rsvps.join(User).filter(Rsvp.state.YES, User.state.ACTIVE)
 
-    with_roles(active_rsvps, grants_via={Rsvp.user: {'participant'}})
+    with_roles(
+        active_rsvps, grants_via={Rsvp.user: {'participant', 'project_participant'}}
+    )
 
     @overload
     def rsvp_for(self, user: User, create: Literal[True]) -> Rsvp:
