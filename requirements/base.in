@@ -40,7 +40,7 @@ passlib
 phonenumbers
 premailer
 progressbar2
-psycopg2-binary
+psycopg[binary]
 pycountry
 Pygments
 pyIsEmail

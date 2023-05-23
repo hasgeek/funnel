@@ -45,6 +45,7 @@ describe('Add a new submission', () => {
     cy.get('a[data-cy="add-collaborator-modal"]').click();
     cy.get('a[data-cy="add-collaborator"]').click();
     cy.wait('@get-collaborator-form');
+    cy.get('.select2-selection__arrow').click({ multiple: true });
     cy.get('.select2-search__field').type(usher.username, {
       force: true,
     });
@@ -53,7 +54,8 @@ describe('Add a new submission', () => {
     );
     cy.get('.select2-results__option').contains(usher.username).click();
     cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');
-    cy.get('#field-label').type('Editor');
+    cy.wait(1000);
+    cy.get('#field-label').click().type('Editor');
     cy.get('.modal').find('button[data-cy="form-submit-btn"]:visible').click();
     cy.wait('@add-collaborator');
     cy.get('a.modal__close').click();
