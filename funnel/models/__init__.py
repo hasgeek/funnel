@@ -24,6 +24,7 @@ from coaster.sqlalchemy import (
     BaseScopedNameMixin,
     CoordinatesMixin,
     NoIdMixin,
+    Query,
     RegistryMixin,
     RoleMixin,
     TimestampMixin,
@@ -34,7 +35,7 @@ from coaster.sqlalchemy import (
 
 json_type: postgresql.JSONB = mutable_json_type(dbtype=postgresql.JSONB, nested=True)
 
-db = SQLAlchemy()
+db = SQLAlchemy(query_class=Query)  # type: ignore[arg-type]
 
 # This must be set _before_ any of the models are imported
 TimestampMixin.__with_timezone__ = True

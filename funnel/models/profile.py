@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, List, Optional, Union
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
+from typing import Any, Iterable, List, Optional, Sequence, Union
 
 from furl import furl
 from sqlalchemy.sql import expression
-from sqlalchemy.sql.expression import ColumnElement
 
 from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, immutable, with_roles
@@ -295,8 +293,9 @@ class Profile(
         """Test if this is a user account."""
         return self.user_id is not None
 
-    @is_user_profile.expression
-    def is_user_profile(cls):  # pylint: disable=no-self-argument
+    @is_user_profile.inplace.expression
+    @classmethod
+    def _is_user_profile_expression(cls) -> sa.ColumnElement[bool]:
         """Test if this is a user account in a SQL expression."""
         return cls.user_id.isnot(None)
 
@@ -305,8 +304,9 @@ class Profile(
         """Test if this is an organization account."""
         return self.organization_id is not None
 
-    @is_organization_profile.expression
-    def is_organization_profile(cls):  # pylint: disable=no-self-argument
+    @is_organization_profile.inplace.expression
+    @classmethod
+    def _is_organization_profile_expression(cls) -> sa.ColumnElement[bool]:
         """Test if this is an organization account in a SQL expression."""
         return cls.organization_id.isnot(None)
 
@@ -326,8 +326,8 @@ class Profile(
             return self.organization.title
         return ''
 
-    @title.setter
-    def title(self, value: str) -> None:
+    @title.inplace.setter
+    def _title_setter(self, value: str) -> None:
         """Set title of this profile on the underlying User or Organization."""
         if self.user:
             self.user.fullname = value
@@ -336,8 +336,9 @@ class Profile(
         else:
             raise ValueError("Reserved accounts do not have titles")
 
-    @title.expression
-    def title(cls):  # pylint: disable=no-self-argument
+    @title.inplace.expression
+    @classmethod
+    def _title_expression(cls) -> sa.Case:
         """Retrieve title as a SQL expression."""
         return sa.case(
             (
@@ -367,7 +368,7 @@ class Profile(
         return self.title
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         """Identify roles for the given actor."""
         if self.owner:
@@ -379,19 +380,19 @@ class Profile(
         return roles
 
     @classmethod
-    def name_is(cls, name: Any) -> ColumnElement:
+    def name_is(cls, name: Any) -> sa.ColumnElement[bool]:
         """Generate query filter to check if name is matching (case insensitive)."""
         return sa.func.lower(cls.name) == sa.func.lower(sa.func.replace(name, '-', '_'))
 
     @classmethod
-    def name_in(cls, names: Iterable[Any]) -> ColumnElement:
+    def name_in(cls, names: Iterable[Any]) -> sa.ColumnElement[bool]:
         """Generate query flter to check if name is among candidates."""
         return sa.func.lower(cls.name).in_(
             [name.lower().replace('-', '_') for name in names]
         )
 
     @classmethod
-    def name_like(cls, like_query: Any) -> ColumnElement:
+    def name_like(cls, like_query: Any) -> sa.ColumnElement[bool]:
         """Generate query filter for a LIKE query on name."""
         return sa.func.lower(cls.name).like(
             sa.func.lower(sa.func.replace(like_query, '-', r'\_'))
@@ -403,7 +404,7 @@ class Profile(
         return cls.query.filter(cls.name_is(name)).one_or_none()
 
     @classmethod
-    def all_public(cls) -> Query:
+    def all_public(cls) -> Query[Profile]:
         """Construct a query on Profile filtered by public state."""
         return cls.query.filter(cls.state.PUBLIC)
 

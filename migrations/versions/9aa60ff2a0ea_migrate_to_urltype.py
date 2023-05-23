@@ -16,7 +16,7 @@ import sqlalchemy as sa
 from coaster.sqlalchemy import UrlType
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column(
         'profile', 'logo_url', existing_type=sa.Unicode(2000), type_=UrlType()
     )
@@ -49,7 +49,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         'profile', 'logo_url', existing_type=UrlType(), type_=sa.Unicode(2000)
     )

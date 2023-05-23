@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Optional
+from typing import List, Optional, Sequence
 
 from pytz import utc
 from sqlalchemy.orm import attribute_keyed_dict
 from werkzeug.utils import cached_property
 
 from baseframe import __, localize_timezone
-from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
+from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 
 from .. import app
@@ -660,7 +660,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         self.end_at = self.schedule_end_at
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
@@ -672,7 +672,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         return self.proposals.count() == 0
 
     @classmethod
-    def order_by_date(cls):
+    def order_by_date(cls) -> sa.Case:
         """
         Return an order by clause for the project's start_at or published_at.
 
@@ -685,7 +685,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         return clause
 
     @classmethod
-    def all_unsorted(cls):
+    def all_unsorted(cls) -> Query[Project]:
         """Return query of all published projects, without ordering criteria."""
         return (
             cls.query.join(Profile)
@@ -694,14 +694,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         )
 
     @classmethod
-    def all(cls):  # noqa: A003
+    def all(cls) -> Query[Project]:  # noqa: A003
         """Return all published projects, ordered by date."""
         return cls.all_unsorted().order_by(cls.order_by_date())
 
     # The base class offers `get(parent, name)`. We accept f'{parent}/{name}' here for
     # convenience as this is only used in shell access.
     @classmethod
-    def get(cls, profile_project):  # pylint: disable=arguments-differ
+    def get(  # type: ignore[override]  # pylint: disable=arguments-differ
+        cls, profile_project: str
+    ) -> Optional[Project]:
         """Get a project by its URL slug in the form ``<profile>/<project>``."""
         profile_name, project_name = profile_project.split('/')
         return (
@@ -830,7 +832,12 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
         return {}
 
     @classmethod
-    def add(cls, project, profile=None, name=None):
+    def add(
+        cls,
+        project: Project,
+        profile: Optional[Profile] = None,
+        name: Optional[str] = None,
+    ) -> ProjectRedirect:
         """
         Add a project redirect in a given profile.
 
@@ -846,9 +853,9 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
             profile = project.profile
         if name is None:
             name = project.name
-        redirect = ProjectRedirect.query.get((profile.id, name))
+        redirect = cls.query.get((profile.id, name))
         if redirect is None:
-            redirect = ProjectRedirect(profile=profile, name=name, project=project)
+            redirect = cls(profile=profile, name=name, project=project)
             db.session.add(redirect)
         else:
             redirect.project = project

@@ -53,7 +53,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'project',
         sa.Column('first_published_at', sa.TIMESTAMP(timezone=True), nullable=True),
@@ -115,7 +115,7 @@ def upgrade():
     progress.finish()
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(op.f('ix_project_schedule_state'), table_name='project')
     op.drop_index(op.f('ix_project_cfp_state'), table_name='project')
     op.drop_index(op.f('ix_project_state'), table_name='project')

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from typing import Optional, Sequence
 
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
@@ -46,7 +46,7 @@ class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
     description = sa.Column(sa.UnicodeText, nullable=True)
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.user:
@@ -98,7 +98,7 @@ class SavedSession(NoIdMixin, db.Model):  # type: ignore[name-defined]
     description = sa.Column(sa.UnicodeText, nullable=True)
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.user:
@@ -129,7 +129,7 @@ class __User:
 @reopen(Project)
 class __Project:
     @with_roles(call={'all'})
-    def is_saved_by(self, user):
+    def is_saved_by(self, user) -> bool:
         return (
             user is not None and self.saved_by.filter_by(user=user).first() is not None
         )

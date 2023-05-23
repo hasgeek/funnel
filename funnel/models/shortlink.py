@@ -165,13 +165,21 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
     If the provided name is invalid, :func:`name_to_bigint` will raise exceptions.
     """
 
-    def __eq__(self, other: Union[str, bytes]):  # type: ignore[override]
+    def __eq__(  # type: ignore[override]
+        self, other: Union[str, bytes]
+    ) -> sa.ColumnElement[bool]:
         """Return an expression for column == other."""
-        return self.__clause_element__() == name_to_bigint(other)
+        return (  # type: ignore[return-value]
+            self.__clause_element__() == name_to_bigint(other)
+        )
 
-    def in_(self, other: Iterable[Union[str, bytes]]):  # type: ignore[override]
+    def in_(  # type: ignore[override]
+        self, other: Iterable[Union[str, bytes]]
+    ) -> sa.ColumnElement:
         """Return an expression for other IN column."""
-        return self.__clause_element__().in_([name_to_bigint(v) for v in other])
+        return self.__clause_element__().in_(  # type: ignore[attr-defined]
+            [name_to_bigint(v) for v in other]
+        )
 
 
 # --- Models ---------------------------------------------------------------------------
@@ -216,26 +224,27 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
             return ''
         return bigint_to_name(self.id)
 
-    @name.setter
-    def name(self, value: Union[str, bytes]):
+    @name.inplace.setter
+    def _name_setter(self, value: Union[str, bytes]) -> None:
         """Set a name."""
         self.id = name_to_bigint(value)
 
-    @name.comparator
-    def name(cls):  # pylint: disable=no-self-argument
+    @name.inplace.comparator
+    @classmethod
+    def _name_comparator(cls):
         """Compare name to id in a SQL expression."""
         return ShortLinkToBigIntComparator(cls.id)
 
     # --- Validators
 
     @sa.orm.validates('id')
-    def _validate_id_not_zero(self, key, value: int) -> int:  # skipcq: PYL-R0201
+    def _validate_id_not_zero(self, _key: str, value: int) -> int:
         if value == 0:
             raise ValueError("Id cannot be zero")
         return value
 
     @sa.orm.validates('url')
-    def _validate_url(self, key, value) -> str:  # skipcq: PYL-R0201
+    def _validate_url(self, _key: str, value: str) -> str:
         value = str(normalize_url(value))
         # If URL hashes are added to the model, the value must be set here using
         # `url_blake2b160_hash(value)`

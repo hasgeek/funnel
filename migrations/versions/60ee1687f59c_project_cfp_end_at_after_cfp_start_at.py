@@ -22,7 +22,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_check_constraint(
         'project_cfp_start_at_cfp_end_at_check',
         'project',
@@ -38,7 +38,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'project_cfp_start_at_cfp_end_at_check', 'project', type_='check'
     )

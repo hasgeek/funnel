@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from typing import Set
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 

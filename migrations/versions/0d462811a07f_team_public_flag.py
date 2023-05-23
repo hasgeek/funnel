@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'team',
         sa.Column(
@@ -31,5 +31,5 @@ def upgrade():
     op.alter_column('team', 'is_public', server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('team', 'is_public')

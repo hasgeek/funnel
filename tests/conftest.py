@@ -760,12 +760,34 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
     )
 
 
+def _truncate_all_tables(engine: sa.Engine) -> None:
+    """Truncate all tables in the given database engine."""
+    with engine.begin() as transaction:
+        transaction.execute(
+            sa.text(
+                '''
+            DO $$
+            DECLARE tablenames text;
+            BEGIN
+                tablenames := string_agg(
+                    quote_ident(schemaname) || '.' || quote_ident(tablename), ', ')
+                    FROM pg_tables WHERE schemaname = 'public';
+                EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
+            END; $$'''
+            )
+        )
+
+
 @pytest.fixture(scope='session')
 def database(funnel, models, request, app) -> SQLAlchemy:
     """Provide a database structure."""
     with app.app_context():
         models.db.create_all()
         funnel.redis_store.flushdb()
+        # Iterate through all database engines and empty their tables, just in case
+        # a previous test run failed and left stale data in the database
+        for engine in models.db.engines.values():
+            _truncate_all_tables(engine)
 
     @request.addfinalizer
     def drop_tables():
@@ -785,20 +807,7 @@ def db_session_truncate(
 
     # Iterate through all database engines and empty their tables
     for engine in database.engines.values():
-        with engine.begin() as transaction:
-            transaction.execute(
-                sa.text(
-                    '''
-                DO $$
-                DECLARE tablenames text;
-                BEGIN
-                    tablenames := string_agg(
-                        quote_ident(schemaname) || '.' || quote_ident(tablename), ', ')
-                        FROM pg_tables WHERE schemaname = 'public';
-                    EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
-                END; $$'''
-                )
-            )
+        _truncate_all_tables(engine)
 
     # Clear Redis db too
     funnel.redis_store.flushdb()

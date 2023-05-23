@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
+from typing import Optional
 
 from coaster.utils import utcnow
 
@@ -110,27 +110,27 @@ class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         return f'<UserSession {self.buid}>'
 
     @property
-    def has_sudo(self):
+    def has_sudo(self) -> bool:
         return (
             self.sudo_enabled_at is None  # New session, not yet written to db
             or self.sudo_enabled_at > utcnow() - timedelta(minutes=15)
         )
 
-    def set_sudo(self):
+    def set_sudo(self) -> None:
         self.sudo_enabled_at = sa.func.utcnow()
 
-    def revoke(self):
+    def revoke(self) -> None:
         if not self.revoked_at:
             self.revoked_at = sa.func.utcnow()
             self.authtokens.delete(synchronize_session='fetch')
             session_revoked.send(self)
 
     @classmethod
-    def get(cls, buid):
+    def get(cls, buid: str) -> Optional[UserSession]:
         return cls.query.filter_by(buid=buid).one_or_none()
 
     @classmethod
-    def authenticate(cls, buid, silent=False):
+    def authenticate(cls, buid: str, silent: bool = False) -> Optional[UserSession]:
         """
         Retrieve a user session that is supposed to be active.
 

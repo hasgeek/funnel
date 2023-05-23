@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column(
         'profile', 'name', existing_type=sa.Unicode(250), type_=sa.Unicode(63)
     )
@@ -27,7 +27,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         'user', 'timezone', existing_type=sa.Unicode(50), type_=sa.Unicode(40)
     )

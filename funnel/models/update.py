@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from typing import Optional, Sequence
 
 from sqlalchemy.orm import Query as BaseQuery
 
@@ -337,7 +337,7 @@ class Update(
     with_roles(is_currently_restricted, read={'all'})
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if not self.visibility_state.RESTRICTED:
@@ -349,7 +349,7 @@ class Update(
         return roles
 
     @classmethod
-    def all_published_public(cls) -> Query:
+    def all_published_public(cls) -> Query[Update]:
         return cls.query.join(Project).filter(
             Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
         )

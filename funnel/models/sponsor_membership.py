@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from typing import Set
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
@@ -146,7 +145,7 @@ class __Project:
 
     @with_roles(read={'all'})
     @cached_property
-    def has_sponsors(self):
+    def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
     sponsors = DynamicAssociationProxy('sponsor_memberships', 'profile')
@@ -270,7 +269,7 @@ class __Proposal:
 
     @with_roles(read={'all'})
     @cached_property
-    def has_sponsors(self):
+    def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
     sponsors = DynamicAssociationProxy('sponsor_memberships', 'profile')

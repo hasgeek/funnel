@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from typing import Set
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
@@ -94,7 +93,7 @@ class CommentsetMembership(
         self.last_seen_at = sa.func.utcnow()
 
     @classmethod
-    def for_user(cls, user: User) -> Query:
+    def for_user(cls, user: User) -> Query[CommentsetMembership]:
         """
         Return a query representing all active commentset memberships for a user.
 

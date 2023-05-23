@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from typing import Collection, Dict, List, Optional, Union, cast
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 import re
 
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -289,7 +288,7 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
             usetitle = self.use_title
             if self.id:  # pylint: disable=using-constant-test
 
-                def checkused(c):
+                def checkused(c: str) -> bool:
                     return bool(
                         c in reserved
                         or GeoName.query.filter(GeoName.id != self.id)
@@ -299,7 +298,7 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
 
             else:
 
-                def checkused(c):
+                def checkused(c: str) -> bool:
                     return bool(
                         c in reserved or GeoName.query.filter_by(name=c).notempty()
                     )
@@ -544,7 +543,7 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
         return results
 
     @classmethod
-    def autocomplete(cls, prefix: str, lang: Optional[str] = None) -> Query:
+    def autocomplete(cls, prefix: str, lang: Optional[str] = None) -> Query[GeoName]:
         """
         Autocomplete a geoname record.
 

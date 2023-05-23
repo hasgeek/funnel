@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'profile',
         sa.Column(
@@ -35,7 +35,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('proposal_space', 'review_team_id')
     op.drop_column('proposal_space', 'admin_team_id')
     op.drop_column('profile', 'admin_team_id')

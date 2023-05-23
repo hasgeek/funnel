@@ -49,7 +49,7 @@ commentset = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     # UPDATE notification SET type=:type, document_uuid=commentset.uuid
     # FROM project, commentset
     # WHERE notification.type = :type_1 AND notification.document_uuid = project.uuid
@@ -71,7 +71,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(
         notification.update()
         .values(type='comment_proposal', document_uuid=proposal.c.uuid)

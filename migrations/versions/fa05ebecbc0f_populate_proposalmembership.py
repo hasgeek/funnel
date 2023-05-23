@@ -85,7 +85,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     # Adapts from `proposal` table to an empty `proposal_membership` table.
     conn = op.get_bind()
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(proposal))
@@ -122,6 +122,6 @@ def upgrade():
     progress.finish()
 
 
-def downgrade():
+def downgrade() -> None:
     # Removes all items from `proposal_membership` table
     op.execute(proposal_membership.delete())

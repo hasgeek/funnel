@@ -525,7 +525,9 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         ).one_or_none()
 
     @classmethod
-    def get_canonical(cls, email: str, is_blocked: Optional[bool] = None) -> Query:
+    def get_canonical(
+        cls, email: str, is_blocked: Optional[bool] = None
+    ) -> Query[EmailAddress]:
         """
         Get :class:`EmailAddress` instances matching the canonical representation.
 

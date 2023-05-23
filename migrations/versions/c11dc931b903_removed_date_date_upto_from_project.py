@@ -31,12 +31,12 @@ session = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_column('project', 'date')
     op.drop_column('project', 'date_upto')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     op.add_column('project', sa.Column('date', sa.Date(), nullable=True))

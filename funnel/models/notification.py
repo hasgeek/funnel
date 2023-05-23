@@ -503,12 +503,13 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
-    @eventid_b58.setter  # type: ignore[no-redef]
-    def eventid_b58(self, value: str) -> None:
+    @eventid_b58.inplace.setter
+    def _eventid_b58_setter(self, value: str) -> None:
         self.eventid = uuid_from_base58(value)
 
-    @eventid_b58.comparator  # type: ignore[no-redef]
-    def eventid_b58(cls):  # pylint: disable=no-self-argument
+    @eventid_b58.inplace.comparator
+    @classmethod
+    def _eventid_b58_comparator(cls) -> SqlUuidB58Comparator:
         """Return SQL comparator for Base58 rendering."""
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -870,12 +871,13 @@ class UserNotification(
         """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
-    @eventid_b58.setter  # type: ignore[no-redef]
-    def eventid_b58(self, value: str):
+    @eventid_b58.inplace.setter
+    def _eventid_b58_setter(self, value: str) -> None:
         self.eventid = uuid_from_base58(value)
 
-    @eventid_b58.comparator  # type: ignore[no-redef]
-    def eventid_b58(cls):  # pylint: disable=no-self-argument
+    @eventid_b58.inplace.comparator
+    @classmethod
+    def _eventid_b58_comparator(cls):
         """Return SQL comparator for Base58 representation."""
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -886,23 +888,24 @@ class UserNotification(
         """Whether this notification has been marked as read."""
         return self.read_at is not None
 
-    @is_read.setter  # type: ignore[no-redef]
-    def is_read(self, value: bool) -> None:
+    @is_read.inplace.setter
+    def _is_read_setter(self, value: bool) -> None:
         if value:
             if not self.read_at:
                 self.read_at = sa.func.utcnow()
         else:
             self.read_at = None
 
-    @is_read.expression  # type: ignore[no-redef]
-    def is_read(cls):  # pylint: disable=no-self-argument
+    @is_read.inplace.expression
+    @classmethod
+    def _is_read_expression(cls) -> sa.ColumnElement[bool]:
         """Test if notification has been marked as read, as a SQL expression."""
         return cls.read_at.isnot(None)
 
     with_roles(is_read, rw={'owner'})
 
     @hybrid_property
-    def is_revoked(self) -> bool:  # pylint: disable=invalid-overridden-method
+    def is_revoked(self) -> bool:  # type: ignore[override]  # pylint: disable=invalid-overridden-method
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
 
@@ -916,7 +919,7 @@ class UserNotification(
 
     @is_revoked.inplace.expression
     @classmethod
-    def _is_revoked_expression(cls):
+    def _is_revoked_expression(cls) -> sa.ColumnElement[bool]:
         return cls.revoked_at.isnot(None)
 
     with_roles(is_revoked, rw={'owner'})
@@ -1091,7 +1094,9 @@ class UserNotification(
         return cls.query.get((user.id, uuid_from_base58(eventid_b58)))
 
     @classmethod
-    def web_notifications_for(cls, user: User, unread_only: bool = False) -> Query:
+    def web_notifications_for(
+        cls, user: User, unread_only: bool = False
+    ) -> Query[UserNotification]:
         """Return web notifications for a user, optionally returning unread-only."""
         query = UserNotification.query.join(Notification).filter(
             Notification.type.in_(notification_web_types),

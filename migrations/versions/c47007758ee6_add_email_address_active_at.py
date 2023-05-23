@@ -33,7 +33,7 @@ email_address = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'email_address',
         sa.Column('active_at', sa.TIMESTAMP(timezone=True), nullable=True),
@@ -55,7 +55,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'email_address_delivery_state_check', 'email_address', type_='check'
     )

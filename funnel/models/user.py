@@ -289,7 +289,7 @@ class User(
     }
 
     @classmethod
-    def _defercols(cls):
+    def _defercols(cls) -> List[sa.orm.interfaces.LoaderOption]:
         """Return columns that are typically deferred when loading a user."""
         defer = sa.orm.defer
         return [
@@ -311,8 +311,8 @@ class User(
             return self.profile.name
         return None
 
-    @name.setter
-    def name(self, value: Optional[str]):
+    @name.inplace.setter
+    def _name_setter(self, value: Optional[str]) -> None:
         """Set @name."""
         if value is None or not value.strip():
             if self.profile is not None:
@@ -324,8 +324,9 @@ class User(
                 self.profile = Profile(name=value, user=self, uuid=self.uuid)
                 db.session.add(self.profile)
 
-    @name.expression
-    def name(cls):  # pylint: disable=no-self-argument
+    @name.inplace.expression
+    @classmethod
+    def _name_expression(cls):
         """Return @name from linked account as a SQL expression."""
         return sa.select(Profile.name).where(Profile.user_id == cls.id).label('name')
 
@@ -1159,7 +1160,7 @@ class Organization(
     }
 
     @classmethod
-    def _defercols(cls):
+    def _defercols(cls) -> List[sa.orm.interfaces.LoaderOption]:
         """Return columns that are usually deferred from loading."""
         defer = sa.orm.defer
         return [
@@ -1180,8 +1181,8 @@ class Organization(
         """Return username from linked account."""
         return self.profile.name
 
-    @name.setter
-    def name(self, value: Optional[str]) -> None:
+    @name.inplace.setter
+    def _name_setter(self, value: Optional[str]) -> None:
         """Set a new @name for the organization."""
         if value is None or not value.strip():
             raise ValueError("Name is required")
@@ -1194,8 +1195,9 @@ class Organization(
             )
             db.session.add(self.profile)
 
-    @name.expression
-    def name(cls) -> sa.Select:  # pylint: disable=no-self-argument
+    @name.inplace.expression
+    @classmethod
+    def _name_expression(cls) -> sa.Select:
         """Return @name from linked profile as a SQL expression."""
         return (  # type: ignore[return-value]
             sa.select(Profile.name)
@@ -1221,7 +1223,7 @@ class Organization(
 
     with_roles(pickername, read={'all'})
 
-    def people(self) -> Query:
+    def people(self) -> Query[User]:
         """Return a list of users from across the public teams they are in."""
         return (
             User.query.join(team_membership)
@@ -1733,7 +1735,7 @@ class UserEmailClaim(
         )
 
     @classmethod
-    def all(cls, email: str) -> Query:  # noqa: A003
+    def all(cls, email: str) -> Query[UserEmailClaim]:  # noqa: A003
         """
         Return all UserEmailClaim instances with matching email address.
 

@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column('comment', 'parent_id', new_column_name='in_reply_to_id')
     op.execute(
         sa.DDL(
@@ -28,7 +28,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(
         sa.DDL(
             'ALTER TABLE comment RENAME CONSTRAINT'

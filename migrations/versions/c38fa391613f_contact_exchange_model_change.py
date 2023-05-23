@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     # Remove duplicate entries before dropping the project_id column
     op.execute(
         sa.DDL(
@@ -48,7 +48,7 @@ def upgrade():
     op.drop_column('contact_exchange', 'project_id')
 
 
-def downgrade():
+def downgrade() -> None:
     # Re-add project_id column and populate it from participant.project_id,
     # then make it a foreign key
     op.add_column(

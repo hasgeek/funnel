@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'proposal_space',
         sa.Column('instructions_html', sa.UnicodeText(), nullable=True),
@@ -25,6 +25,6 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('proposal_space', 'instructions_text')
     op.drop_column('proposal_space', 'instructions_html')

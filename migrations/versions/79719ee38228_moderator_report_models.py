@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'comment_moderator_report',
         sa.Column('comment_id', sa.Integer(), nullable=False),
@@ -46,7 +46,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(
         op.f('ix_comment_moderator_report_user_id'),
         table_name='comment_moderator_report',

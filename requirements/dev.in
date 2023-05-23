@@ -2,6 +2,7 @@
 bandit
 black
 flake8
+flake8-annotations
 flake8-assertive
 flake8-blind-except
 flake8-bugbear

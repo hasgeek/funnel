@@ -17,9 +17,9 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column('project', 'featured', new_column_name='site_featured')
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column('project', 'site_featured', new_column_name='featured')

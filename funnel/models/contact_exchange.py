@@ -6,13 +6,13 @@ from dataclasses import dataclass
 from datetime import date as date_type
 from datetime import datetime
 from itertools import groupby
-from typing import Collection, Iterable, Optional
+from typing import Collection, List, Optional, Sequence, Tuple
 from uuid import UUID
 
 from pytz import timezone
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from coaster.sqlalchemy import LazyRoleSet
+from coaster.sqlalchemy import LazyRoleSet, Query
 from coaster.utils import uuid_to_base58
 
 from ..typing import OptionalMigratedTables
@@ -102,7 +102,7 @@ class ContactExchange(
     }
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
@@ -128,7 +128,9 @@ class ContactExchange(
                 db.session.delete(ce)
 
     @classmethod
-    def grouped_counts_for(cls, user, archived=False):
+    def grouped_counts_for(
+        cls, user: User, archived: bool = False
+    ) -> List[Tuple[ProjectId, List[DateCountContacts]]]:
         """Return count of contacts grouped by project and date."""
         subq = sa.select(
             cls.scanned_at.label('scanned_at'),
@@ -249,8 +251,8 @@ class ContactExchange(
 
     @classmethod
     def contacts_for_project_and_date(
-        cls, user: User, project: Project, date: date_type, archived=False
-    ):
+        cls, user: User, project: Project, date: date_type, archived: bool = False
+    ) -> Query[ContactExchange]:
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
@@ -275,7 +277,9 @@ class ContactExchange(
         return query
 
     @classmethod
-    def contacts_for_project(cls, user, project, archived=False):
+    def contacts_for_project(
+        cls, user: User, project: Project, archived: bool = False
+    ) -> Query[ContactExchange]:
         """Return contacts for a given user and project."""
         query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
