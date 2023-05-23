@@ -13,9 +13,9 @@ SERVER_NAME = 'funnel.test:3000'
 #: Default domain (server name without port number)
 DEFAULT_DOMAIN = 'funnel.test'
 #: Database backend
-SQLALCHEMY_DATABASE_URI = 'postgresql://host/database'
+SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg://host/database'
 SQLALCHEMY_BINDS = {
-    'geoname': 'postgresql://host/geoname',
+    'geoname': 'postgresql+psycopg://host/geoname',
 }
 #: Shortlink domain for SMS links (must be served via wsgi:shortlinkapp)
 SHORTLINK_DOMAIN = 'domain.tld'
