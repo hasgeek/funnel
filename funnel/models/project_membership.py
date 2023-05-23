@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Set, Union
+from typing import Set
 from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
@@ -18,20 +18,18 @@ from .user import User
 __all__ = ['ProjectCrewMembership', 'project_child_role_map']
 
 #: Roles in a project and their remapped names in objects attached to a project
-project_child_role_map: Dict[str, str] = {
-    'editor': 'project_editor',
-    'promoter': 'project_promoter',
-    'usher': 'project_usher',
-    'crew': 'project_crew',
-    'participant': 'project_participant',
-    'reader': 'reader',
+project_child_role_map = {
+    'editor': {'project_editor'},
+    'promoter': {'project_promoter'},
+    'usher': {'project_usher'},
+    'crew': {'project_crew'},
+    'participant': {'project_participant'},
+    'reader': {'reader'},
 }
 
 #: ProjectCrewMembership maps project's `profile_admin` role to membership's `editor`
 #: role in addition to the recurring role grant map
-project_membership_role_map: Dict[str, Union[str, Set[str]]] = {
-    'profile_admin': {'profile_admin', 'editor'}
-}
+project_membership_role_map = {'profile_admin': {'profile_admin', 'editor'}}
 project_membership_role_map.update(project_child_role_map)
 
 
@@ -195,7 +193,15 @@ class __Project:
             ),
             viewonly=True,
         ),
-        grants_via={'user': {'editor', 'promoter', 'usher', 'participant', 'crew'}},
+        grants_via={
+            'user': {
+                'editor': {'editor', 'project_editor'},
+                'promoter': {'promoter', 'project_promoter'},
+                'usher': {'usher', 'project_usher'},
+                'participant': {'participant', 'project_participant'},
+                'crew': {'crew', 'project_crew'},
+            }
+        },
     )
 
     active_editor_memberships = sa.orm.relationship(

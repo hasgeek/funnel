@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Optional
+
 from flask import render_template
 
 from baseframe import _, __
@@ -18,7 +20,7 @@ class RenderProjectStartingNotification(RenderNotification):
     """Notify crew and participants when the project's schedule is about to start."""
 
     project: Project
-    session: Session
+    session: Optional[Session]
     aliases = {'document': 'project', 'fragment': 'session'}
     emoji_prefix = "⏰ "
     reason = __("You are receiving this because you have registered for this project")
@@ -31,7 +33,7 @@ class RenderProjectStartingNotification(RenderNotification):
     def email_subject(self):
         return self.emoji_prefix + _("{project} starts at {time}").format(
             project=self.project.joined_title,
-            time=time_filter(self.session.start_at_localized),
+            time=time_filter((self.session or self.project).start_at_localized),
         )
 
     def email_content(self):
@@ -43,7 +45,7 @@ class RenderProjectStartingNotification(RenderNotification):
         return OneLineTemplate(
             text1=_("{project} starts at {time}.").format(
                 project=self.project.joined_title,
-                time=time_filter(self.session.start_at_localized),
+                time=time_filter((self.session or self.project).start_at_localized),
             ),
             url=shortlink(
                 self.project.url_for(_external=True, **self.tracking_tags('sms')),

@@ -29,7 +29,7 @@
     class="hg-link-btn mui--hide mui--text-dark"
     data-ga="Share dropdown"
     data-cy="share-project"
-    data-url="{{ proposal.url_for(_external=true, utm_campaign='webshare') }}"
+    data-url="{{ proposal.url_for(_external=true, utm_source='webshare') }}"
     aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size=icon_size, baseline=false, css_class="mui--align-middle") }}</a>
   <div class="mui-dropdown">
     <a href="#"

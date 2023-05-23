@@ -118,7 +118,7 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
 from ..typing import OptionalMigratedTables, T, UuidModelType
-from . import BaseMixin, Mapped, NoIdMixin, db, hybrid_property, postgresql, sa
+from . import BaseMixin, Mapped, NoIdMixin, db, hybrid_property, sa
 from .helpers import reopen
 from .phone_number import PhoneNumber, PhoneNumberMixin
 from .user import User, UserEmail, UserPhone
@@ -290,16 +290,12 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: be shared across notifications, and will be used to enforce a limit of one
     #: instance of a UserNotification per-event rather than per-notification
     eventid: Mapped[UUID] = immutable(
-        sa.orm.mapped_column(
-            postgresql.UUID, primary_key=True, nullable=False, default=uuid4
-        )
+        sa.orm.mapped_column(sa.Uuid, primary_key=True, nullable=False, default=uuid4)
     )
 
     #: Notification id
     id: Mapped[UUID] = immutable(  # noqa: A003
-        sa.orm.mapped_column(
-            postgresql.UUID, primary_key=True, nullable=False, default=uuid4
-        )
+        sa.orm.mapped_column(sa.Uuid, primary_key=True, nullable=False, default=uuid4)
     )
 
     #: Default category of notification. Subclasses MUST override
@@ -355,14 +351,14 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     #: UUID of document that the notification refers to
     document_uuid: Mapped[UUID] = immutable(
-        sa.orm.mapped_column(postgresql.UUID, nullable=False, index=True)
+        sa.orm.mapped_column(sa.Uuid, nullable=False, index=True)
     )
 
     #: Optional fragment within document that the notification refers to. This may be
     #: the document itself, or something within it, such as a comment. Notifications for
     #: multiple fragments are collapsed into a single notification
     fragment_uuid: Mapped[Optional[UUID]] = immutable(
-        sa.orm.mapped_column(postgresql.UUID, nullable=True)
+        sa.orm.mapped_column(sa.Uuid, nullable=True)
     )
 
     __table_args__ = (
@@ -759,19 +755,15 @@ class UserNotification(
 
     #: Random eventid, shared with the Notification instance
     eventid: Mapped[UUID] = with_roles(
-        immutable(
-            sa.orm.mapped_column(postgresql.UUID, primary_key=True, nullable=False)
-        ),
+        immutable(sa.orm.mapped_column(sa.Uuid, primary_key=True, nullable=False)),
         read={'owner'},
     )
 
     #: Id of notification that this user received (fkey in __table_args__ below)
-    notification_id: Mapped[UUID] = sa.orm.mapped_column(
-        postgresql.UUID, nullable=False
-    )
+    notification_id: Mapped[UUID] = sa.orm.mapped_column(sa.Uuid, nullable=False)
 
     #: Notification that this user received
-    notification = with_roles(
+    notification: Mapped[Notification] = with_roles(
         sa.orm.relationship(
             Notification, backref=sa.orm.backref('recipients', lazy='dynamic')
         ),
@@ -806,7 +798,7 @@ class UserNotification(
 
     #: When a roll-up is performed, record an identifier for the items rolled up
     rollupid: Mapped[Optional[UUID]] = with_roles(
-        sa.orm.mapped_column(postgresql.UUID, nullable=True, index=True),
+        sa.orm.mapped_column(sa.Uuid, nullable=True, index=True),
         read={'owner'},
     )
 
@@ -914,21 +906,18 @@ class UserNotification(
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
 
-    @is_revoked.setter  # type: ignore[no-redef]
-    def is_revoked(self, value: bool) -> None:
+    @is_revoked.inplace.setter
+    def _is_revoked_setter(self, value: bool) -> None:
         if value:
             if not self.revoked_at:
                 self.revoked_at = sa.func.utcnow()
         else:
             self.revoked_at = None
 
-    # PyLint complains because the hybrid property doesn't resemble the mixin's property
-    # pylint: disable=no-self-argument,arguments-renamed,invalid-overridden-method
-    @is_revoked.expression  # type: ignore[no-redef]
-    def is_revoked(cls):
+    @is_revoked.inplace.expression
+    @classmethod
+    def _is_revoked_expression(cls):
         return cls.revoked_at.isnot(None)
-
-    # pylint: enable=no-self-argument,arguments-renamed,invalid-overridden-method
 
     with_roles(is_revoked, rw={'owner'})
 
