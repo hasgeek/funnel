@@ -84,16 +84,19 @@ RUN --mount=type=cache,target=/home/pn/.cache/pip,uid=1000,gid=1000 pip install 
 COPY --from=dev-assets --chown=pn:pn /home/pn/app/node_modules /home/pn/app/node_modules
 
 FROM deps as production
+# https://news.ycombinator.com/item?id=23366924
+ENV PYTHONOPTIMIZE=2
 COPY --link --chown=pn:pn . .
 COPY --link --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/static
 
 FROM test-deps as test
-ENV PWD=/home/pn/app
+ENV PWD=/home/pn/app PYTHONOPTIMIZE=2
 COPY --link --chown=pn:pn . .
 COPY --link --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/static
 ENTRYPOINT [ "pytest" ]
 
 FROM dev-deps as dev
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONDEVMODE=1
 RUN --mount=type=cache,target=/home/pn/.cache/pip,uid=1000,gid=1000 cp -R /home/pn/.cache/pip /home/pn/tmp/.cache_pip
 RUN mv /home/pn/tmp/.cache_pip /home/pn/.cache/pip
 COPY --link --chown=pn:pn --from=dev-assets /home/pn/app/funnel/static /home/pn/app/funnel/static
