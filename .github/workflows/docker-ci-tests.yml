@@ -37,6 +37,8 @@ jobs:
           push: false
           target: test
           tags: funnel-test:latest
+          cache-from: type=gha
+          cache-to: type=gha, mode=max
       - name: Run Tests
         run: |
           make docker-ci-test
