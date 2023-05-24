@@ -40,7 +40,8 @@ services:
       - db-test
       - redis-test
     volumes:
-      - pip_cache:/home/pn/.cache/pip:delegated
+      - ../.funnel-pip-cache:/home/pn/.cache/pip:delegated
+      - ./coverage:/home/pn/app/coverage
       # https://stackoverflow.com/questions/43844639/how-do-i-add-cached-or-delegated-into-a-docker-compose-yml-volumes-list
     restart: no
     environment:
@@ -88,7 +89,7 @@ services:
     volumes:
       # https://stackoverflow.com/questions/43844639/how-do-i-add-cached-or-delegated-into-a-docker-compose-yml-volumes-list
       # https://forums.docker.com/t/what-happened-to-delegated-cached-ro-and-other-flags/105097/2
-      - pip_cache:/home/pn/.cache/pip:delegated
+      - ../.funnel-pip-cache:/home/pn/.cache/pip:delegated
       - .:/home/pn/app
       - node_modules:/home/pn/app/node_modules
       - ./docker/entrypoints/dev.sh:/home/pn/dev-entrypoint.sh:ro
@@ -155,7 +156,6 @@ x-tmpfs: &tmpfs
     o: 'uid=999,gid=999' # uid:gid is 999:999 for both postgres and redis
 
 volumes:
-  pip_cache:
   node_modules:
   postgres_dev:
   redis_dev:

@@ -92,8 +92,9 @@ COPY --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/
 FROM test-deps as test
 ENV PWD=/home/pn/app PYTHONOPTIMIZE=2
 COPY --chown=pn:pn . .
+RUN mkdir -pv /home/pn/app/coverage
 COPY --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/static
-ENTRYPOINT [ "pytest" ]
+ENTRYPOINT [ "/home/pn/app/docker/entrypoints/ci-test.sh"]
 
 FROM dev-deps as dev
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONDEVMODE=1
