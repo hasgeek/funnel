@@ -39,64 +39,64 @@ EOF
 USER pn
 
 FROM base as assets
-COPY --link --chown=pn:pn package.json package.json
-COPY --link --chown=pn:pn package-lock.json package-lock.json
+COPY --chown=pn:pn package.json package.json
+COPY --chown=pn:pn package-lock.json package-lock.json
 RUN --mount=type=cache,target=/root/.npm \
     --mount=type=cache,target=/home/pn/.npm,uid=1000,gid=1000 npm ci
-COPY --link --chown=pn:pn ./funnel/assets ./funnel/assets
-COPY --link --chown=pn:pn .eslintrc.js .eslintrc.js
-COPY --link --chown=pn:pn webpack.config.js webpack.config.js
+COPY --chown=pn:pn ./funnel/assets ./funnel/assets
+COPY --chown=pn:pn .eslintrc.js .eslintrc.js
+COPY --chown=pn:pn webpack.config.js webpack.config.js
 RUN --mount=type=cache,target=/root/.npm \
     --mount=type=cache,target=/home/pn/.npm,uid=1000,gid=1000 npm run build
 
 FROM base as dev-assets
-COPY --link --chown=pn:pn package.json package.json
-COPY --link --chown=pn:pn package-lock.json package-lock.json
+COPY --chown=pn:pn package.json package.json
+COPY --chown=pn:pn package-lock.json package-lock.json
 RUN --mount=type=cache,target=/root/.npm \
     --mount=type=cache,target=/home/pn/.npm,uid=1000,gid=1000 npm install
-COPY --link --chown=pn:pn ./funnel/assets ./funnel/assets
-COPY --link --chown=pn:pn .eslintrc.js .eslintrc.js
-COPY --link --chown=pn:pn webpack.config.js webpack.config.js
+COPY --chown=pn:pn ./funnel/assets ./funnel/assets
+COPY --chown=pn:pn .eslintrc.js .eslintrc.js
+COPY --chown=pn:pn webpack.config.js webpack.config.js
 RUN --mount=type=cache,target=/root/.npm \
     --mount=type=cache,target=/home/pn/.npm,uid=1000,gid=1000 npx webpack --mode development --progress
 
 FROM base as deps
-COPY --link --chown=pn:pn Makefile Makefile
+COPY --chown=pn:pn Makefile Makefile
 RUN make deps-editable
-COPY --link --chown=pn:pn requirements/base.txt requirements/base.txt
+COPY --chown=pn:pn requirements/base.txt requirements/base.txt
 RUN --mount=type=cache,target=/home/pn/.cache/pip,uid=1000,gid=1000 <<EOF
     pip install --upgrade pip
     pip install --use-pep517 -r requirements/base.txt
 EOF
 
 FROM devtest-base as test-deps
-COPY --link --chown=pn:pn Makefile Makefile
+COPY --chown=pn:pn Makefile Makefile
 RUN make deps-editable
-COPY --link --chown=pn:pn requirements/base.txt requirements/base.txt
-COPY --link --chown=pn:pn requirements/test.txt requirements/test.txt
+COPY --chown=pn:pn requirements/base.txt requirements/base.txt
+COPY --chown=pn:pn requirements/test.txt requirements/test.txt
 RUN --mount=type=cache,target=/home/pn/.cache/pip,uid=1000,gid=1000 pip install --use-pep517 -r requirements/test.txt
 
 FROM devtest-base as dev-deps
-COPY --link --chown=pn:pn Makefile Makefile
+COPY --chown=pn:pn Makefile Makefile
 RUN make deps-editable
-COPY --link --chown=pn:pn requirements requirements
+COPY --chown=pn:pn requirements requirements
 RUN --mount=type=cache,target=/home/pn/.cache/pip,uid=1000,gid=1000 pip install --use-pep517 -r requirements/dev.txt
 COPY --from=dev-assets --chown=pn:pn /home/pn/app/node_modules /home/pn/app/node_modules
 
 FROM deps as production
 # https://news.ycombinator.com/item?id=23366924
 ENV PYTHONOPTIMIZE=2
-COPY --link --chown=pn:pn . .
-COPY --link --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/static
+COPY --chown=pn:pn . .
+COPY --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/static
 
 FROM test-deps as test
 ENV PWD=/home/pn/app PYTHONOPTIMIZE=2
-COPY --link --chown=pn:pn . .
-COPY --link --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/static
+COPY --chown=pn:pn . .
+COPY --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/static
 ENTRYPOINT [ "pytest" ]
 
 FROM dev-deps as dev
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONDEVMODE=1
 RUN --mount=type=cache,target=/home/pn/.cache/pip,uid=1000,gid=1000 cp -R /home/pn/.cache/pip /home/pn/tmp/.cache_pip
 RUN mv /home/pn/tmp/.cache_pip /home/pn/.cache/pip
-COPY --link --chown=pn:pn --from=dev-assets /home/pn/app/funnel/static /home/pn/app/funnel/static
+COPY --chown=pn:pn --from=dev-assets /home/pn/app/funnel/static /home/pn/app/funnel/static
