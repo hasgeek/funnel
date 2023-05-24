@@ -42,7 +42,7 @@ babel: babelpy babeljs
 
 docker-ci-test:
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain \
-	docker compose --profile test up --abort-on-container-exit --build --no-attach db-test --no-attach redis-test --no-log-prefix --remove-orphans \
+	docker compose --profile test up --abort-on-container-exit --no-attach db-test --no-attach redis-test --no-log-prefix --remove-orphans \
 	&& docker compose --profile test down
 
 docker-dev:

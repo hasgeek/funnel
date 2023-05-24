@@ -1,0 +1,37 @@
+name: 'Pytest on docker'
+
+on:
+  push:
+    branches: ['main', 'aws']
+  pull_request:
+    branches: ['main']
+    paths:
+      - '**.py'
+      - '**.js'
+      - '**.scss'
+      - '**.jinja2'
+      - 'requirements/base.txt'
+      - 'requirements/test.txt'
+      - '.github/workflows/docker-ci-tests.yml'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - 'package.json'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build Test
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          load: true
+          push: false
+          target: test
+          tags: funnel-test:latest
+      - name: Run Tests
+        run: |
+          make docker-ci-test
