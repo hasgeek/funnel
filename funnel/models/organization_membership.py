@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Set
+from typing import List, Set
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import Mapped, db, sa
+from . import DynamicMapped, Mapped, db, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .user import Organization, User
@@ -118,7 +118,7 @@ class OrganizationMembership(
 # Organization.active_memberships is a future possibility. For now just admin and owner
 @reopen(Organization)
 class __Organization:
-    active_admin_memberships = with_roles(
+    active_admin_memberships: DynamicMapped[List[OrganizationMembership]] = with_roles(
         sa.orm.relationship(
             OrganizationMembership,
             lazy='dynamic',
@@ -133,7 +133,9 @@ class __Organization:
         grants_via={'user': {'admin', 'owner'}},
     )
 
-    active_owner_memberships = sa.orm.relationship(
+    active_owner_memberships: DynamicMapped[
+        List[OrganizationMembership]
+    ] = sa.orm.relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -144,7 +146,9 @@ class __Organization:
         viewonly=True,
     )
 
-    active_invitations = sa.orm.relationship(
+    active_invitations: DynamicMapped[
+        List[OrganizationMembership]
+    ] = sa.orm.relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -168,14 +172,18 @@ class __Organization:
 @reopen(User)
 class __User:
     # pylint: disable=invalid-unary-operand-type
-    organization_admin_memberships = sa.orm.relationship(
+    organization_admin_memberships: DynamicMapped[
+        List[OrganizationMembership]
+    ] = sa.orm.relationship(
         OrganizationMembership,
         lazy='dynamic',
         foreign_keys=[OrganizationMembership.user_id],  # type: ignore[has-type]
         viewonly=True,
     )
 
-    noninvite_organization_admin_memberships = sa.orm.relationship(
+    noninvite_organization_admin_memberships: DynamicMapped[
+        List[OrganizationMembership]
+    ] = sa.orm.relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -186,7 +194,9 @@ class __User:
         viewonly=True,
     )
 
-    active_organization_admin_memberships = sa.orm.relationship(
+    active_organization_admin_memberships: DynamicMapped[
+        List[OrganizationMembership]
+    ] = sa.orm.relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -197,7 +207,9 @@ class __User:
         viewonly=True,
     )
 
-    active_organization_owner_memberships = sa.orm.relationship(
+    active_organization_owner_memberships: DynamicMapped[
+        List[OrganizationMembership]
+    ] = sa.orm.relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -209,7 +221,9 @@ class __User:
         viewonly=True,
     )
 
-    active_organization_invitations = sa.orm.relationship(
+    active_organization_invitations: DynamicMapped[
+        List[OrganizationMembership]
+    ] = sa.orm.relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(

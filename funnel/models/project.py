@@ -16,6 +16,7 @@ from .. import app
 from ..typing import OptionalMigratedTables
 from . import (
     BaseScopedNameMixin,
+    DynamicMapped,
     Mapped,
     MarkdownCompositeDocument,
     TimestampMixin,
@@ -736,7 +737,7 @@ add_search_trigger(Project, 'search_vector')
 class __Profile:
     id: Mapped[int]  # noqa: A003
 
-    listed_projects = sa.orm.relationship(
+    listed_projects: DynamicMapped[List[Project]] = sa.orm.relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -745,7 +746,7 @@ class __Profile:
         ),
         viewonly=True,
     )
-    draft_projects = sa.orm.relationship(
+    draft_projects: DynamicMapped[List[Project]] = sa.orm.relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(

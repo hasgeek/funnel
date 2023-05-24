@@ -27,7 +27,16 @@ from coaster.utils import buid as make_buid
 from coaster.utils import newsecret, require_one_of, utcnow
 
 from ..typing import OptionalMigratedTables
-from . import BaseMixin, Mapped, UuidMixin, db, declarative_mixin, declared_attr, sa
+from . import (
+    BaseMixin,
+    DynamicMapped,
+    Mapped,
+    UuidMixin,
+    db,
+    declarative_mixin,
+    declared_attr,
+    sa,
+)
 from .helpers import reopen
 from .user import Organization, Team, User
 from .user_session import UserSession, auth_client_user_session
@@ -164,7 +173,7 @@ class AuthClient(
         sa.Column(sa.Boolean, nullable=False, default=False), read={'all'}
     )
 
-    user_sessions = sa.orm.relationship(
+    user_sessions: DynamicMapped[List[UserSession]] = sa.orm.relationship(
         UserSession,
         lazy='dynamic',
         secondary=auth_client_user_session,

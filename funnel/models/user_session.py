@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Optional
+from typing import List, Optional
 
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
-from . import BaseMixin, Mapped, UuidMixin, db, sa
+from . import BaseMixin, DynamicMapped, Mapped, UuidMixin, db, sa
 from .helpers import reopen
 from .user import User
 
@@ -167,7 +167,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 
 @reopen(User)
 class __User:
-    active_user_sessions = sa.orm.relationship(
+    active_user_sessions: DynamicMapped[List[UserSession]] = sa.orm.relationship(
         UserSession,
         lazy='dynamic',
         primaryjoin=sa.and_(

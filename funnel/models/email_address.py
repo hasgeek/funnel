@@ -708,9 +708,9 @@ class EmailAddressMixin:
 
     @declared_attr
     @classmethod
-    def email_address_id(cls) -> Mapped[int]:
+    def email_address_id(cls) -> Mapped[Optional[int]]:
         """Foreign key to email_address table."""
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('email_address.id', ondelete='SET NULL'),
             nullable=cls.__email_optional__,

@@ -721,7 +721,7 @@ class PhoneNumberMixin:
     @classmethod
     def phone_number_id(cls) -> Mapped[int]:
         """Foreign key to phone_number table."""
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('phone_number.id', ondelete='SET NULL'),
             nullable=cls.__phone_optional__,

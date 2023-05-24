@@ -13,6 +13,7 @@ from coaster.utils import LabeledEnum
 
 from . import (
     BaseMixin,
+    DynamicMapped,
     Mapped,
     MarkdownCompositeBasic,
     TSVectorType,
@@ -203,7 +204,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     commentset_id = sa.Column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
-    commentset = with_roles(
+    commentset: Mapped[Commentset] = with_roles(
         sa.orm.relationship(
             Commentset,
             backref=sa.orm.backref('comments', lazy='dynamic', cascade='all'),
@@ -410,7 +411,7 @@ add_search_trigger(Comment, 'search_vector')
 
 @reopen(Commentset)
 class __Commentset:
-    toplevel_comments = sa.orm.relationship(
+    toplevel_comments: DynamicMapped[List[Comment]] = sa.orm.relationship(
         Comment,
         lazy='dynamic',
         primaryjoin=sa.and_(

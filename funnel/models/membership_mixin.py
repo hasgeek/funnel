@@ -121,7 +121,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     #: for records created when the member table was added to the database
     granted_at: Mapped[datetime_type] = with_roles(
         immutable(
-            sa.Column(
+            sa.orm.mapped_column(
                 sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
             )
         ),
@@ -129,13 +129,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     )
     #: End time of membership, ordinarily a mirror of updated_at
     revoked_at: Mapped[Optional[datetime_type]] = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'subject', 'editor'},
     )
     #: Record type
     record_type: Mapped[int] = with_roles(
         immutable(
-            sa.Column(
+            sa.orm.mapped_column(
                 sa.Integer,
                 StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
                 default=MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
@@ -155,7 +155,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @classmethod
     def revoked_by_id(cls) -> Mapped[Optional[int]]:
         """Id of user who revoked the membership."""
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
         )
 
@@ -168,14 +168,14 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @declared_attr
     @classmethod
-    def granted_by_id(cls) -> Mapped[int]:
+    def granted_by_id(cls) -> Mapped[Optional[int]]:
         """
         Id of user who assigned the membership.
 
         This is nullable only for historical data. New records always require a value
         for granted_by.
         """
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('user.id', ondelete='SET NULL'),
             nullable=cls.__null_granted_by__,
@@ -377,7 +377,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def user_id(cls) -> Mapped[int]:
         """Foreign key column to user table."""
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('user.id', ondelete='CASCADE'),
             nullable=False,
@@ -499,7 +499,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def profile_id(cls) -> Mapped[int]:
         """Foreign key column to account (nee profile) table."""
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('profile.id', ondelete='CASCADE'),
             nullable=False,
@@ -618,7 +618,7 @@ class ReorderMembershipMixin(ReorderMixin):
     @classmethod
     def seq(cls) -> Mapped[int]:
         """Ordering sequence number."""
-        return sa.Column(sa.Integer, nullable=False)
+        return sa.orm.mapped_column(sa.Integer, nullable=False)
 
     @declared_attr.directive
     @classmethod

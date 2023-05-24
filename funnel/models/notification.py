@@ -90,6 +90,7 @@ from typing import (
     ClassVar,
     Dict,
     Generator,
+    List,
     Optional,
     Sequence,
     Set,
@@ -118,7 +119,7 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
 from ..typing import OptionalMigratedTables, T, UuidModelType
-from . import BaseMixin, Mapped, NoIdMixin, db, hybrid_property, sa
+from . import BaseMixin, DynamicMapped, Mapped, NoIdMixin, db, hybrid_property, sa
 from .helpers import reopen
 from .phone_number import PhoneNumber, PhoneNumberMixin
 from .user import User, UserEmail, UserPhone
@@ -1328,7 +1329,7 @@ class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined
 
 @reopen(User)
 class __User:
-    all_notifications = with_roles(
+    all_notifications: DynamicMapped[List[UserNotification]] = with_roles(
         sa.orm.relationship(
             UserNotification,
             lazy='dynamic',
@@ -1338,7 +1339,9 @@ class __User:
         read={'owner'},
     )
 
-    notification_preferences = sa.orm.relationship(
+    notification_preferences: Mapped[
+        Dict[str, NotificationPreferences]
+    ] = sa.orm.relationship(
         NotificationPreferences,
         collection_class=column_keyed_dict(NotificationPreferences.notification_type),
         back_populates='user',

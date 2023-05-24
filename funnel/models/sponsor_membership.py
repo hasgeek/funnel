@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Set
+from typing import List, Set
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import Mapped, db, sa
+from . import DynamicMapped, Mapped, db, sa
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
@@ -129,7 +129,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
 @reopen(Project)
 class __Project:
-    sponsor_memberships = with_roles(
+    sponsor_memberships: DynamicMapped[List[ProjectSponsorMembership]] = with_roles(
         sa.orm.relationship(
             ProjectSponsorMembership,
             lazy='dynamic',
@@ -253,7 +253,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
 @reopen(Proposal)
 class __Proposal:
-    sponsor_memberships = with_roles(
+    sponsor_memberships: DynamicMapped[List[ProposalSponsorMembership]] = with_roles(
         sa.orm.relationship(
             ProposalSponsorMembership,
             lazy='dynamic',
@@ -278,7 +278,9 @@ class __Proposal:
 @reopen(Profile)
 class __Profile:
     # pylint: disable=invalid-unary-operand-type
-    noninvite_project_sponsor_memberships = sa.orm.relationship(
+    noninvite_project_sponsor_memberships: DynamicMapped[
+        List[ProjectSponsorMembership]
+    ] = sa.orm.relationship(
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -289,7 +291,9 @@ class __Profile:
         viewonly=True,
     )
 
-    project_sponsor_memberships = sa.orm.relationship(
+    project_sponsor_memberships: DynamicMapped[
+        List[ProjectSponsorMembership]
+    ] = sa.orm.relationship(
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -300,7 +304,9 @@ class __Profile:
         viewonly=True,
     )
 
-    project_sponsor_membership_invites = with_roles(
+    project_sponsor_membership_invites: DynamicMapped[
+        List[ProjectSponsorMembership]
+    ] = with_roles(
         sa.orm.relationship(
             ProjectSponsorMembership,
             lazy='dynamic',
@@ -315,7 +321,9 @@ class __Profile:
         read={'admin'},
     )
 
-    noninvite_proposal_sponsor_memberships = sa.orm.relationship(
+    noninvite_proposal_sponsor_memberships: DynamicMapped[
+        List[ProposalSponsorMembership]
+    ] = sa.orm.relationship(
         ProposalSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -326,7 +334,9 @@ class __Profile:
         viewonly=True,
     )
 
-    proposal_sponsor_memberships = sa.orm.relationship(
+    proposal_sponsor_memberships: DynamicMapped[
+        List[ProposalSponsorMembership]
+    ] = sa.orm.relationship(
         ProposalSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -337,7 +347,9 @@ class __Profile:
         viewonly=True,
     )
 
-    proposal_sponsor_membership_invites = with_roles(
+    proposal_sponsor_membership_invites: DynamicMapped[
+        List[ProposalSponsorMembership]
+    ] = with_roles(
         sa.orm.relationship(
             ProposalSponsorMembership,
             lazy='dynamic',

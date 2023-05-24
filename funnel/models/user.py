@@ -29,6 +29,7 @@ from coaster.utils import LabeledEnum, newsecret, require_one_of, utcnow
 from ..typing import OptionalMigratedTables
 from . import (
     BaseMixin,
+    DynamicMapped,
     LocaleType,
     Mapped,
     TimezoneType,
@@ -1340,7 +1341,7 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         ),
         grants_via={None: {'owner': 'owner', 'admin': 'admin'}},
     )
-    users = with_roles(
+    users: DynamicMapped[List[User]] = with_roles(
         sa.orm.relationship(
             User, secondary=team_membership, lazy='dynamic', backref='teams'
         ),

@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Set
+from typing import List, Set
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, Query, with_roles
 
-from . import Mapped, db, sa
+from . import DynamicMapped, Mapped, db, sa
 from .comment import Comment, Commentset
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -59,8 +59,8 @@ class CommentsetMembership(
         ),
     )
 
-    parent_id: int = sa.orm.synonym('commentset_id')
-    parent_id_column = 'commentset_id'
+    parent_id: Mapped[int] = sa.orm.synonym('commentset_id')
+    parent_id_column: str = 'commentset_id'
     parent: Commentset = sa.orm.synonym('commentset')
 
     #: Flag to indicate notifications are muted
@@ -122,7 +122,9 @@ class CommentsetMembership(
 
 @reopen(User)
 class __User:
-    active_commentset_memberships = sa.orm.relationship(
+    active_commentset_memberships: DynamicMapped[
+        List[CommentsetMembership]
+    ] = sa.orm.relationship(
         CommentsetMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -139,7 +141,7 @@ class __User:
 
 @reopen(Commentset)
 class __Commentset:
-    active_memberships = sa.orm.relationship(
+    active_memberships: DynamicMapped[List[CommentsetMembership]] = sa.orm.relationship(
         CommentsetMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -150,7 +152,7 @@ class __Commentset:
     )
 
     # Send notifications only to subscribers who haven't muted
-    active_memberships_unmuted = with_roles(
+    active_memberships_unmuted: DynamicMapped[List[CommentsetMembership]] = with_roles(
         sa.orm.relationship(
             CommentsetMembership,
             lazy='dynamic',
