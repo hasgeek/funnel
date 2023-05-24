@@ -8,8 +8,8 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 USER pn
 RUN <<EOF
-    mkdir -pv /home/pn/.cache/pip /home/pn/.npm /home/pn/tmp /home/pn/app
-    chown -R pn:pn /home/pn/.cache /home/pn/.npm /home/pn/tmp /home/pn/app
+    mkdir -pv /home/pn/.cache/pip /home/pn/.npm /home/pn/tmp /home/pn/app /home/pn/app/coverage
+    chown -R pn:pn /home/pn/.cache /home/pn/.npm /home/pn/tmp /home/pn/app /home/pn/app/coverage
 EOF
 EXPOSE 3000
 WORKDIR /home/pn/app
@@ -92,10 +92,9 @@ COPY --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/
 FROM test-deps as test
 ENV PWD=/home/pn/app PYTHONOPTIMIZE=2
 COPY --chown=pn:pn . .
-RUN mkdir -pv /home/pn/app/coverage
+
 COPY --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/static
 ENTRYPOINT [ "/home/pn/app/docker/entrypoints/ci-test.sh"]
-
 FROM dev-deps as dev
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONDEVMODE=1
 RUN --mount=type=cache,target=/home/pn/.cache/pip,uid=1000,gid=1000 cp -R /home/pn/.cache/pip /home/pn/tmp/.cache_pip
