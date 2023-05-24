@@ -42,7 +42,7 @@ services:
     volumes:
       - pip_cache:/home/pn/.cache/pip:delegated
       # https://stackoverflow.com/questions/43844639/how-do-i-add-cached-or-delegated-into-a-docker-compose-yml-volumes-list
-    restart: always
+    restart: no
     environment:
       - REDIS_HOST=redis-test
       - POSTGRES_USER_HOST=funnel@db-test
