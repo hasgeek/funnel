@@ -134,7 +134,6 @@ baseframe.init_app(
     app,
     requires=['funnel'],
     ext_requires=[
-        'pygments',
         'getdevicepixelratio',
         'funnel-mui',
     ],
