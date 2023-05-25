@@ -1,39 +1,19 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{{ page.title }}{% endblock title %}
-{%- from "macros.html.jinja2" import page_footer %}
+{% block title %}{{ title }}{% endblock title %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/about.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/account.scss') }}" />
 {% endblock pageheaders %}
 
-{% block contenthead %}
-<div class="profile profile--hg">
-<div class="profile__banner">
-  <div class="profile__banner__box">
-    <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}" alt="{{ self.title() }}"/>
-  </div>
-  <div class="mui-container profile__banner__box__heading">
-    <div class="grid">
-      <div class="grid__col-xs-12">
-        <h1 class="mui--text-headline"><strong>{{ self.title() }}</strong></h1>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-{% endblock contenthead %}
 
 {% block contentwrapper -%}
   <div class="grid">
     <div class="grid__col-xs-12 grid__col-sm-7 grid__col-md-8 grid__col-lg-9">
-      {{ page.html|safe }}
+      {{ message }}
     </div>
   </div>
 {%- endblock contentwrapper %}
 
-{% block basefooter %}
-  {{ page_footer() }}
-{% endblock basefooter %}
 
 {% block footerscripts %}
 {% endblock footerscripts %}
