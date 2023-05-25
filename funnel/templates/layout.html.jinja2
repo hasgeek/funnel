@@ -118,7 +118,7 @@
                     class="header__site-title__title__about nounderline"><span class="emoji-hand" aria-hidden="true">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}
                   </a>
                   <a href="{{ url_for('index') }}"
-                    class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if current_view.current_section == 'home' %}header__nav-links--active{% endif %}"
+                    class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if request.endpoint == 'index' %}header__nav-links--active{% endif %}"
                     aria-label="{% trans %}Home{% endtrans %}"
                     data-cy="home"
                     data-ga="Home">
@@ -145,13 +145,13 @@
                   <a href="#"
                     onclick="return false;"
                     data-target="search"
-                    class="header__nav-links js-search-show header__nav-links--search {% if current_view.current_section == 'search' %}header__nav-links--active{% endif %}"
+                    class="header__nav-links js-search-show header__nav-links--search {% if request.endpoint == 'search' %}header__nav-links--active{% endif %}"
                     aria-label="{% trans %}Search{% endtrans %}"
                     data-ga="Search">{{ faicon(icon='search-solid', css_class="header__nav-links__icon") }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span>
                   </a>
                   {% if not current_auth.is_anonymous -%}
                     <a href="{{ url_for('notifications') }}"
-                      class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates"
+                      class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if request.endpoint == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates"
                       aria-label="{% trans %}Updates{% endtrans %}"
                       data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class="header__nav-links__icon") }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span>
                     </a>
