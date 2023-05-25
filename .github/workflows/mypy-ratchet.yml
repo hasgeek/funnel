@@ -18,9 +18,9 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install mypy mypy-json-report
+          make install-python-dev
+          pip install types-all
 
       - name: Run mypy
         run: |
-          make install-python-dev
-          mypy . --strict --install-types --no-warn-unused-ignores | mypy-json-report parse --diff-old-report mypy-ratchet.json --output-file mypy-ratchet.json
+          mypy . --strict --no-warn-unused-ignores | mypy-json-report parse --diff-old-report mypy-ratchet.json --output-file mypy-ratchet.json
