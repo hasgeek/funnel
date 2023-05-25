@@ -22,4 +22,5 @@ jobs:
 
       - name: Run mypy
         run: |
-          mypy . --strict | mypy-json-report parse --diff-old-report mypy-ratchet.json --output-file mypy-ratchet.json
+          make install-python-dev
+          mypy . --strict --install-types --no-warn-unused-ignores | mypy-json-report parse --diff-old-report mypy-ratchet.json --output-file mypy-ratchet.json
