@@ -6,9 +6,9 @@ from typing import List, Set
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, Query, with_roles
+from coaster.sqlalchemy import DynamicAssociationProxy, with_roles
 
-from . import DynamicMapped, Mapped, db, sa
+from . import DynamicMapped, Mapped, Query, db, sa
 from .comment import Comment, Commentset
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin

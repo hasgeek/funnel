@@ -9,7 +9,7 @@ from sqlalchemy.orm import attribute_keyed_dict
 from werkzeug.utils import cached_property
 
 from baseframe import __, localize_timezone
-from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, with_roles
+from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 
 from .. import app
@@ -19,6 +19,7 @@ from . import (
     DynamicMapped,
     Mapped,
     MarkdownCompositeDocument,
+    Query,
     TimestampMixin,
     TimezoneType,
     TSVectorType,

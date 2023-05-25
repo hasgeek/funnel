@@ -7,10 +7,9 @@ import re
 
 from sqlalchemy.dialects.postgresql import ARRAY
 
-from coaster.sqlalchemy import Query
 from coaster.utils import make_name
 
-from . import BaseMixin, BaseNameMixin, Mapped, db, sa
+from . import BaseMixin, BaseNameMixin, Mapped, Query, db, sa
 from .helpers import quote_autocomplete_like
 
 __all__ = ['GeoName', 'GeoCountryInfo', 'GeoAdmin1Code', 'GeoAdmin2Code', 'GeoAltName']

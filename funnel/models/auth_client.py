@@ -22,7 +22,7 @@ from sqlalchemy.orm.query import Query as QueryBaseClass
 from werkzeug.utils import cached_property
 
 from baseframe import _
-from coaster.sqlalchemy import Query, with_roles
+from coaster.sqlalchemy import with_roles
 from coaster.utils import buid as make_buid
 from coaster.utils import newsecret, require_one_of, utcnow
 
@@ -31,6 +31,7 @@ from . import (
     BaseMixin,
     DynamicMapped,
     Mapped,
+    Query,
     UuidMixin,
     db,
     declarative_mixin,

@@ -1,5 +1,6 @@
 """Provide configuration for models and import all into a common `models` namespace."""
 # flake8: noqa
+# pylint: disable=unused-import
 
 from __future__ import annotations
 

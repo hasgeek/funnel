@@ -11,7 +11,7 @@ from isoweek import Week
 from werkzeug.utils import cached_property
 
 from baseframe import localize_timezone
-from coaster.sqlalchemy import Query, with_roles
+from coaster.sqlalchemy import with_roles
 from coaster.utils import utcnow
 
 from . import (
@@ -19,6 +19,7 @@ from . import (
     DynamicMapped,
     Mapped,
     MarkdownCompositeDocument,
+    Query,
     TSVectorType,
     UuidMixin,
     db,

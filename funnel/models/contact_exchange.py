@@ -12,11 +12,11 @@ from uuid import UUID
 from pytz import timezone
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from coaster.sqlalchemy import LazyRoleSet, Query
+from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
 from ..typing import OptionalMigratedTables
-from . import Mapped, RoleMixin, TimestampMixin, db, sa
+from . import Mapped, Query, RoleMixin, TimestampMixin, db, sa
 from .project import Project
 from .sync_ticket import TicketParticipant
 from .user import User

@@ -7,13 +7,7 @@ from typing import Optional, Sequence
 from sqlalchemy.orm import Query as BaseQuery
 
 from baseframe import __
-from coaster.sqlalchemy import (
-    LazyRoleSet,
-    Query,
-    StateManager,
-    auto_init_default,
-    with_roles,
-)
+from coaster.sqlalchemy import LazyRoleSet, StateManager, auto_init_default, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
@@ -22,6 +16,7 @@ from . import (
     Mapped,
     MarkdownCompositeDocument,
     Project,
+    Query,
     TimestampMixin,
     TSVectorType,
     User,

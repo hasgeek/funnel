@@ -11,6 +11,7 @@ from typing import (
     Iterable,
     Optional,
     Set,
+    Type,
     TypeVar,
     Union,
 )
@@ -780,26 +781,28 @@ class AmendMembership(Generic[MembershipType]):
 
 
 @event.listens_for(EnumerateMembershipsMixin, 'mapper_configured', propagate=True)
-def _confirm_enumerated_mixins(mapper, class_) -> None:
+def _confirm_enumerated_mixins(
+    _mapper: Any, cls: Type[EnumerateMembershipsMixin]
+) -> None:
     """Confirm that the membership collection attributes actually exist."""
     expected_class = ImmutableMembershipMixin
-    if issubclass(class_, User):
+    if issubclass(cls, User):
         expected_class = ImmutableUserMembershipMixin
-    elif issubclass(class_, Profile):
+    elif issubclass(cls, Profile):
         expected_class = ImmutableProfileMembershipMixin
     for source in (
-        class_.__active_membership_attrs__,
-        class_.__noninvite_membership_attrs__,
+        cls.__active_membership_attrs__,
+        cls.__noninvite_membership_attrs__,
     ):
         for attr_name in source:
-            relationship = getattr(class_, attr_name, None)
+            relationship = getattr(cls, attr_name, None)
             if relationship is None:
                 raise AttributeError(
-                    f'{class_.__name__} does not have a relationship named'
+                    f'{cls.__name__} does not have a relationship named'
                     f' {attr_name!r} targeting a subclass of {expected_class.__name__}'
                 )
             if not issubclass(relationship.property.mapper.class_, expected_class):
                 raise AttributeError(
-                    f'{class_.__name__}.{attr_name} should be a relationship to a'
+                    f'{cls.__name__}.{attr_name} should be a relationship to a'
                     f' subclass of {expected_class.__name__}'
                 )

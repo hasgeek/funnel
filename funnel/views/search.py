@@ -14,7 +14,6 @@ from sqlalchemy.sql.elements import ColumnElement
 from typing_extensions import TypedDict
 
 from baseframe import __
-from coaster.sqlalchemy import Query
 from coaster.views import (
     ClassView,
     ModelView,
@@ -34,6 +33,7 @@ from ..models import (
     Project,
     Proposal,
     ProposalMembership,
+    Query,
     Session,
     Update,
     User,

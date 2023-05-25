@@ -109,7 +109,6 @@ from werkzeug.utils import cached_property
 
 from baseframe import __
 from coaster.sqlalchemy import (
-    Query,
     Registry,
     SqlUuidB58Comparator,
     auto_init_default,
@@ -119,7 +118,16 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
 from ..typing import OptionalMigratedTables, T, UuidModelType
-from . import BaseMixin, DynamicMapped, Mapped, NoIdMixin, db, hybrid_property, sa
+from . import (
+    BaseMixin,
+    DynamicMapped,
+    Mapped,
+    NoIdMixin,
+    Query,
+    db,
+    hybrid_property,
+    sa,
+)
 from .helpers import reopen
 from .phone_number import PhoneNumber, PhoneNumberMixin
 from .user import User, UserEmail, UserPhone
@@ -142,9 +150,9 @@ __all__ = [
 
 #: Registry of Notification subclasses for user preferences, automatically populated.
 #: Inactive types and types that shadow other types are excluded from this registry
-notification_type_registry: Dict[str, Notification] = {}
+notification_type_registry: Dict[str, Type[Notification]] = {}
 #: Registry of notification types that allow web renders
-notification_web_types: Set[Notification] = set()
+notification_web_types: Set[str] = set()
 
 
 @dataclass
@@ -1385,7 +1393,7 @@ auto_init_default(Notification.eventid)
 
 
 @event.listens_for(Notification, 'mapper_configured', propagate=True)
-def _register_notification_types(mapper_, cls) -> None:
+def _register_notification_types(mapper_: Any, cls: Type[Notification]) -> None:
     # Don't register the base class itself, or inactive types
     if cls is not Notification:
         # Tell mypy what type of class we're processing

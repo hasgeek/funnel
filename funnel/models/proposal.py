@@ -7,7 +7,7 @@ from typing import Optional, Sequence
 
 from baseframe import __
 from baseframe.filters import preview
-from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, with_roles
+from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
@@ -15,6 +15,7 @@ from . import (
     BaseScopedIdNameMixin,
     Mapped,
     MarkdownCompositeDocument,
+    Query,
     TSVectorType,
     UuidMixin,
     db,

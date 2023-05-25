@@ -802,7 +802,9 @@ def _clear_cached_properties(target: PhoneNumber) -> None:
 
 
 @event.listens_for(PhoneNumber.number, 'set', retval=True)
-def _validate_number(target: PhoneNumber, value: Any, old_value: Any, initiator) -> Any:
+def _validate_number(
+    target: PhoneNumber, value: Any, old_value: Any, _initiator: Any
+) -> Any:
     # First: check if value is acceptable and phone attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
@@ -838,11 +840,15 @@ def _validate_number(target: PhoneNumber, value: Any, old_value: Any, initiator)
     raise ValueError(f"Invalid value for phone number: {value}")
 
 
-def _send_refcount_event_remove(target, value, initiator):
+def _send_refcount_event_remove(
+    target: PhoneNumber, _value: Any, _initiator: Any
+) -> None:
     phonenumber_refcount_dropping.send(target)
 
 
-def _send_refcount_event_before_delete(mapper_, connection, target):
+def _send_refcount_event_before_delete(
+    _mapper: Any, _connection: Any, target: PhoneNumberMixin
+) -> None:
     if target.phone_number:
         phonenumber_refcount_dropping.send(target.phone_number)
 
@@ -855,7 +861,10 @@ def _setup_refcount_events() -> None:
 
 
 def _phone_number_mixin_set_validator(
-    target, value: Optional[PhoneNumber], old_value, initiator
+    target: PhoneNumberMixin,
+    value: Optional[PhoneNumber],
+    old_value: Optional[PhoneNumber],
+    _initiator: Any,
 ) -> None:
     if value is not None and value != old_value and target.__phone_for__:
         if value.is_blocked:
@@ -865,6 +874,8 @@ def _phone_number_mixin_set_validator(
 
 
 @event.listens_for(PhoneNumberMixin, 'mapper_configured', propagate=True)
-def _phone_number_mixin_configure_events(mapper_, cls: Type[PhoneNumberMixin]):
+def _phone_number_mixin_configure_events(
+    _mapper: Any, cls: Type[PhoneNumberMixin]
+) -> None:
     event.listen(cls.phone_number, 'set', _phone_number_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)

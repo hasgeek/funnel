@@ -8,7 +8,7 @@ from furl import furl
 from sqlalchemy.sql import expression
 
 from baseframe import __
-from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, immutable, with_roles
+from coaster.sqlalchemy import LazyRoleSet, StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
@@ -16,6 +16,7 @@ from . import (
     BaseMixin,
     Mapped,
     MarkdownCompositeDocument,
+    Query,
     TSVectorType,
     UrlType,
     UuidMixin,

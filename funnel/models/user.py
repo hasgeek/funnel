@@ -16,7 +16,6 @@ import phonenumbers
 
 from baseframe import __
 from coaster.sqlalchemy import (
-    Query,
     RoleMixin,
     StateManager,
     add_primary_relationship,
@@ -32,6 +31,7 @@ from . import (
     DynamicMapped,
     LocaleType,
     Mapped,
+    Query,
     TimezoneType,
     TSVectorType,
     UuidMixin,
