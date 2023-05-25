@@ -114,8 +114,8 @@ OptionStrings = Literal['html', 'breaks', 'linkify', 'typographer']
 class MarkdownPlugin:
     """Markdown plugin registry with configuration."""
 
-    #: Registry of named sub-classes
-    registry: ClassVar[Dict[str, MarkdownConfig]] = {}
+    #: Registry of instances
+    registry: ClassVar[Dict[str, MarkdownPlugin]] = {}
 
     #: Optional name for this config, for adding to the registry
     name: str
@@ -134,7 +134,7 @@ class MarkdownPlugin:
 class MarkdownConfig:
     """Markdown processor with custom configuration, with a registry."""
 
-    #: Registry of named sub-classes
+    #: Registry of named instances
     registry: ClassVar[Dict[str, MarkdownConfig]] = {}
 
     #: Optional name for this config, for adding to the registry

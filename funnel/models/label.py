@@ -189,7 +189,8 @@ class Label(
 
     @restricted.inplace.expression
     @classmethod
-    def _restricted_expression(cls):
+    def _restricted_expression(cls) -> sa.Case:
+        """Return SQL Expression."""
         return sa.case(
             (
                 cls.main_label_id.is_not(None),
@@ -202,6 +203,7 @@ class Label(
 
     @hybrid_property
     def archived(self) -> bool:
+        """Test if this label or parent label is archived."""
         return self._archived or (
             self.main_label._archived  # pylint: disable=protected-access
             if self.main_label
@@ -210,11 +212,13 @@ class Label(
 
     @archived.inplace.setter
     def _archived_setter(self, value: bool) -> None:
+        """Archive this label."""
         self._archived = value
 
     @archived.inplace.expression
     @classmethod
-    def _archived_expression(cls):
+    def _archived_expression(cls) -> sa.Case:
+        """Return SQL Expression."""
         return sa.case(
             (cls._archived.is_(True), cls._archived),
             (
@@ -233,6 +237,7 @@ class Label(
     @has_options.inplace.expression
     @classmethod
     def _has_options_expression(cls) -> sa.Exists:
+        """Return SQL Expression."""
         return sa.exists().where(Label.main_label_id == cls.id)
 
     @property

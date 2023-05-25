@@ -304,7 +304,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 
     @user.inplace.expression
     @classmethod
-    def _user_expression(cls):
+    def _user_expression(cls) -> sa.orm.InstrumentedAttribute[Optional[User]]:
+        """Return SQL Expression."""
         return cls._user
 
     with_roles(user, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'})

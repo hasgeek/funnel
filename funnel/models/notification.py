@@ -912,6 +912,7 @@ class UserNotification(
 
     @is_revoked.inplace.setter
     def _is_revoked_setter(self, value: bool) -> None:
+        """Set or remove revoked_at timestamp."""
         if value:
             if not self.revoked_at:
                 self.revoked_at = sa.func.utcnow()
@@ -921,6 +922,7 @@ class UserNotification(
     @is_revoked.inplace.expression
     @classmethod
     def _is_revoked_expression(cls) -> sa.ColumnElement[bool]:
+        """Return SQL Expression."""
         return cls.revoked_at.is_not(None)
 
     with_roles(is_revoked, rw={'owner'})

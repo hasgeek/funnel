@@ -207,6 +207,7 @@ class Session(
     @scheduled.inplace.expression
     @classmethod
     def _scheduled_expression(cls) -> sa.ColumnElement[bool]:
+        """Return SQL Expression."""
         return (cls.start_at.is_not(None)) & (cls.end_at.is_not(None))
 
     @cached_property

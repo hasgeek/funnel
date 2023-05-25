@@ -198,7 +198,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @is_active.inplace.expression
     @classmethod
-    def _is_active_expression(cls):
+    def _is_active_expression(cls) -> sa.ColumnElement[bool]:
         """Test if membership record is active as a SQL expression."""
         return sa.and_(
             cls.revoked_at.is_(None), cls.record_type != MEMBERSHIP_RECORD_TYPE.INVITE

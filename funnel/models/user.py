@@ -327,7 +327,7 @@ class User(
 
     @name.inplace.expression
     @classmethod
-    def _name_expression(cls):
+    def _name_expression(cls) -> sa.Label:
         """Return @name from linked account as a SQL expression."""
         return sa.select(Profile.name).where(Profile.user_id == cls.id).label('name')
 
@@ -1198,12 +1198,12 @@ class Organization(
 
     @name.inplace.expression
     @classmethod
-    def _name_expression(cls) -> sa.Select:
+    def _name_expression(cls) -> sa.Label:
         """Return @name from linked profile as a SQL expression."""
-        return (  # type: ignore[return-value]
+        return (
             sa.select(Profile.name)
             .where(Profile.organization_id == cls.id)
-            .label('name'),
+            .label('name')
         )
 
     with_roles(name, read={'all'})

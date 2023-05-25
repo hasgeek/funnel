@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Set, Union, overload
+from typing import Any, Optional, Set, Type, Union, overload
 import hashlib
 
 from sqlalchemy import event, inspect
@@ -865,6 +865,6 @@ def _phone_number_mixin_set_validator(
 
 
 @event.listens_for(PhoneNumberMixin, 'mapper_configured', propagate=True)
-def _phone_number_mixin_configure_events(mapper_, cls: PhoneNumberMixin):
+def _phone_number_mixin_configure_events(mapper_, cls: Type[PhoneNumberMixin]):
     event.listen(cls.phone_number, 'set', _phone_number_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)
