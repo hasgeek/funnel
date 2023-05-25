@@ -305,7 +305,7 @@ class AuthClientCredential(BaseMixin, db.Model):  # type: ignore[name-defined]
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<AuthClientCredential {self.name} {self.title!r}>'
 
     def secret_is(self, candidate: str, upgrade_hash: bool = False):

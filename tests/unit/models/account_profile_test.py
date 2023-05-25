@@ -76,7 +76,7 @@ def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
         user_wolfgang.make_profile_public()
 
 
-def test_account_name_is(user_rincewind, org_uu, user_lutze):
+def test_account_name_is(user_rincewind, org_uu, user_lutze) -> None:
     """Test Account.name_is to return a query filter."""
     assert (
         models.Account.query.filter(models.Account.name_is('rincewind')).one()
@@ -98,7 +98,7 @@ def test_account_name_is(user_rincewind, org_uu, user_lutze):
     )
 
 
-def test_account_name_in(user_rincewind, org_uu, user_lutze):
+def test_account_name_in(user_rincewind, org_uu, user_lutze) -> None:
     """Test Account.name_in to return a query filter."""
     assert models.Account.query.filter(
         models.Account.name_in(['lu-tze', 'lu_tze'])
@@ -108,7 +108,7 @@ def test_account_name_in(user_rincewind, org_uu, user_lutze):
     ) == {user_rincewind, org_uu}
 
 
-def test_account_name_like(user_rincewind, user_ridcully, user_lutze):
+def test_account_name_like(user_rincewind, user_ridcully, user_lutze) -> None:
     """Test Account.name_like to return a query filter."""
     assert set(models.Account.query.filter(models.Account.name_like('r%')).all()) == {
         user_rincewind,

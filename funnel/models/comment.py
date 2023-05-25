@@ -283,7 +283,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         self.commentset.last_comment_at = sa.func.utcnow()
 
     @cached_property
-    def has_replies(self):
+    def has_replies(self) -> bool:
         return bool(self.replies)
 
     @property
