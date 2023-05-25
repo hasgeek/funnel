@@ -119,10 +119,10 @@ def phone_number_user_id() -> ReturnView:
             if phone_number:
                 return {
                     'user_id': phone_number.used_in_user_phone[0].user.id,
-                    'full_name': phone_number.used_in_user_phone[0].user.fullname,
+                    'fullname': phone_number.used_in_user_phone[0].user.fullname,
                     'username': phone_number.used_in_user_phone[0].user.name,
                 }
         return {
             'error': 'user_not_found',
         }, 404
-    return {'error': 'bad_api_key'}
+    return {'error': 'invalid_api_key'}, 401

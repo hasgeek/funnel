@@ -95,3 +95,4 @@ IMAGE_URL_DOMAINS = ('images.example.com',)
 IMAGE_URL_SCHEMES = ('https',)
 
 ENABLE_COMMENT_SIDEBAR = True
+API_KEY = 'abcdefgh'
