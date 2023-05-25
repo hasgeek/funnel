@@ -11,7 +11,7 @@ from coaster.auth import current_auth
 
 from ... import app
 from ...forms import PasswordPolicyForm, UsernameAvailableForm
-from ...models import PhoneNumber
+from ...models import UserPhone
 from ...typing import ReturnView
 from ..helpers import progressive_rate_limit_validator, validate_rate_limit
 
@@ -113,14 +113,13 @@ def account_username_availability() -> ReturnView:
 def phone_number_user_id() -> ReturnView:
     """Check whether a phone number is associated with a user."""
     if request.headers.get('X-API-Key') == app.config.get('API_KEY'):
-        number = request.form.get('phone_number')
-        if number:
-            phone_number = PhoneNumber.query.filter_by(number=number).first()
-            if phone_number:
+        phone_number = request.form.get('phone_number')
+        if phone_number:
+            user_phone = UserPhone.get(phone_number)
+            if user_phone:
                 return {
-                    'user_id': phone_number.used_in_user_phone[0].user.id,
-                    'fullname': phone_number.used_in_user_phone[0].user.fullname,
-                    'username': phone_number.used_in_user_phone[0].user.name,
+                    'fullname': user_phone.user.fullname,
+                    'username': user_phone.user.name,
                 }
         return {
             'error': 'user_not_found',
