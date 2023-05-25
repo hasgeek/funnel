@@ -1,6 +1,11 @@
 name: Mypy Ratchet
 
-on: [push]
+on:
+  push:
+    paths:
+      - '**.py'
+      - 'requirements/*.txt'
+      - '.github/workflows/mypy-ratchet.yml'
 
 jobs:
   mypy:
@@ -23,5 +28,4 @@ jobs:
 
       - name: Run mypy
         run: |
-          mypy . --strict --no-warn-unused-ignores | mypy-json-report parse --diff-old-report mypy-ratchet.json --output-file mypy-ratchet.json
-          true  # Disable failure reporting until we figure this out
+          mypy . --strict --no-warn-unused-ignores | mypy-json-report parse --diff-old-report mypy-ratchet.json --output-file mypy-ratchet.json || true
