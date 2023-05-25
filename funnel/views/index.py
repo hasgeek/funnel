@@ -189,3 +189,10 @@ def opensearch() -> ReturnView:
 @app.route('/robots.txt')
 def robotstxt() -> ReturnView:
     return Response(render_template('robots.txt.jinja2'), mimetype='text/plain')
+
+
+@app.route('/account/not-my-otp')
+def not_my_otp() -> ReturnView:
+    return render_template(
+        'not_my_otp.html.jinja2', page=pages.get_or_404('about/not-my-otp')
+    )
