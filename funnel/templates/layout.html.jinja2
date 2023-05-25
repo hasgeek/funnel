@@ -293,7 +293,6 @@
     {%- endfor %}
 
     {#- This block is to include JS assets of the app that are not required on all the pages but has to be included before baseframe bundle(assets "js_all") #}
-
     {% block pagescripts %}
     {% endblock pagescripts %}
 
@@ -302,19 +301,19 @@
     {%- endassets -%}
 
     {%- if config['MATOMO_URL'] and config['MATOMO_ID'] and not config['DEBUG'] -%}
-    <script type="text/javascript">
-      var _paq = window._paq || [];
-      _paq.push(['setRequestMethod', 'POST']);
-      _paq.push(['trackPageView']);
-      _paq.push(['enableLinkTracking']);
-      (function() {
-        var u="{{ config['MATOMO_URL'] }}";
-        _paq.push(['setTrackerUrl', u+'{{ config['MATOMO_FILE'] }}']);
-        _paq.push(['setSiteId', '{{ config['MATOMO_ID'] }}']);
-        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'{{ config['MATOMO_JS'] }}'; s.parentNode.insertBefore(g,s);
-      })();
-    </script>
+      <script type="text/javascript">
+        var _paq = window._paq || [];
+        _paq.push(['setRequestMethod', 'POST']);
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+          var u="{{ config['MATOMO_URL'] }}";
+          _paq.push(['setTrackerUrl', u+'{{ config['MATOMO_FILE'] }}']);
+          _paq.push(['setSiteId', '{{ config['MATOMO_ID'] }}']);
+          var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+          g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'{{ config['MATOMO_JS'] }}'; s.parentNode.insertBefore(g,s);
+        })();
+      </script>
     {%- endif -%}
 
     {%- if config['GA_CODE'] and not config['DEBUG'] -%}
