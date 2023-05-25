@@ -60,13 +60,6 @@ export const Widgets = {
     };
     this.activateToggleSwitch(checkboxId, onSuccess);
   },
-  activateSelect2Focus() {
-    /* Upgrade to jquery 3.6 select2 autofocus isn't working. This is to fix that problem.
-      select2/select2#5993  */
-    $(document).on('select2:open', () => {
-      document.querySelector('.select2-search__field').focus();
-    });
-  },
   handleDelete(elementClass, onSucessFn) {
     $('body').on('click', elementClass, async function remove(event) {
       event.preventDefault();
@@ -180,8 +173,6 @@ export async function activateFormWidgets() {
       codemirrorStylesheetHelper(textareaId);
     });
   }
-
-  Widgets.activateSelect2Focus();
 }
 
 export class MapMarker {

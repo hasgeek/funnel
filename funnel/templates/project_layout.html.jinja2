@@ -158,8 +158,7 @@
     {% endif %}
     </div>
     {% if project.features.tickets() %}
-      <div class="register-block__content register-block__content--half">
-          {% if project.features.subscription %}<span class="register-block__content__txt mui--text-light">{% trans %}Like this? Support the community{% endtrans %}</span>{% endif %}
+      <div class="register-block__content {% if project.features.rsvp() or project.buy_tickets_url.url %} register-block__content--half {%- endif %}">
           <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
             {% if project.features.subscription %}
               <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Join{% endtrans %}</span>
