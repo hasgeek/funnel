@@ -1,0 +1,25 @@
+name: Mypy Ratchet
+
+on: [push]
+
+jobs:
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.7'
+          cache: pip
+          cache-dependency-path: 'requirements/*.txt'
+
+      - name: Install Python dependencies
+        run: |
+          pip install mypy mypy-json-report
+
+      - name: Run mypy
+        run: |
+          mypy . --strict | mypy-json-report parse --diff-old-report mypy-ratchet.json --output-file mypy-ratchet.json
