@@ -17,7 +17,7 @@ repos:
       - id: pip-compile-multi-verify
         files: ^requirements/.*\.(in|txt)$
   - repo: https://github.com/pypa/pip-audit
-    rev: v2.5.5
+    rev: v2.5.6
     hooks:
       - id: pip-audit
         args: [
@@ -36,7 +36,7 @@ repos:
           ]
         files: ^requirements/.*\.txt$
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.269
+    rev: v0.0.270
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']

@@ -426,7 +426,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: object) -> bool:
+    def is_available_for(self, owner: PhoneNumberMixin) -> bool:
         """Return True if this PhoneNumber is available for the given owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -627,7 +627,9 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     @classmethod
     def add_for(
-        cls, owner: Optional[object], phone: Union[str, phonenumbers.PhoneNumber]
+        cls,
+        owner: Optional[PhoneNumberMixin],
+        phone: Union[str, phonenumbers.PhoneNumber],
     ) -> PhoneNumber:
         """
         Create a new :class:`PhoneNumber` after validation.
@@ -654,7 +656,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[object],
+        owner: Optional[PhoneNumberMixin],
         phone: Union[str, phonenumbers.PhoneNumber],
         new: bool = False,
     ) -> Union[bool, Literal['invalid', 'not_new', 'blocked']]:

@@ -373,7 +373,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: object) -> bool:
+    def is_available_for(self, owner: EmailAddressMixin) -> bool:
         """Return True if this EmailAddress is available for the given owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -572,7 +572,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         return new_email
 
     @classmethod
-    def add_for(cls, owner: Optional[object], email: str) -> EmailAddress:
+    def add_for(cls, owner: Optional[EmailAddressMixin], email: str) -> EmailAddress:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -593,7 +593,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[object],
+        owner: Optional[EmailAddressMixin],
         email: str,
         check_dns: bool = False,
         new: bool = False,

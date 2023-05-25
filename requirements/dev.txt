@@ -129,7 +129,7 @@ pyupgrade==3.4.0
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
-ruff==0.0.269
+ruff==0.0.270
     # via -r requirements/dev.in
 smmap==5.0.0
     # via gitdb
@@ -171,7 +171,7 @@ types-pytz==2023.3.0.0
     # via -r requirements/dev.in
 types-redis==4.5.5.2
     # via -r requirements/dev.in
-types-requests==2.30.0.0
+types-requests==2.31.0.0
     # via -r requirements/dev.in
 types-setuptools==67.8.0.0
     # via -r requirements/dev.in
