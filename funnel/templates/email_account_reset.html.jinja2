@@ -1,4 +1,6 @@
 {% extends "notifications/layout_email.html.jinja2" %}
+{%- from "notifications/macros_email.html.jinja2" import cta_button -%}
+
 {% block content -%}
 
   <p>{% trans %}Hello {{ fullname }},{% endtrans %}</p>
@@ -9,8 +11,11 @@
 
   <p>{% trans %}You can also use this link:{% endtrans %}</p>
 
-  <p class="btn-bar"><a class="btn" href="{{ url }}">{% trans %}Reset your password{% endtrans %}</a></p>
+  {# Button : BEGIN #}
+  {{ cta_button(url, gettext("Reset your password") )}}
+  {# Button : END #}
 
+  <br>
   <p>{% trans %}If you did not ask for this, you may safely ignore this email.{% endtrans %}</p>
 
 {%- endblock content %}
