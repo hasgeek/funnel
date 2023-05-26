@@ -46,9 +46,10 @@ class Model(ModelBase, DeclarativeBase):
     __with_timezone__ = True
 
 
-class GeonameModel(ModelBase, DeclarativeBase, bind_key='geoname'):
+class GeonameModel(ModelBase, DeclarativeBase):
     """Base for geoname models."""
 
+    __bind_key__ = 'geoname'
     __with_timezone__ = True
 
 
