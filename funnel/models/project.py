@@ -26,8 +26,8 @@ from . import (
     UrlType,
     UuidMixin,
     db,
-    json_type,
     sa,
+    types,
 )
 from .comment import SET_TYPE, Commentset
 from .helpers import (
@@ -109,7 +109,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    parsed_location = sa.Column(json_type, nullable=False, server_default='{}')
+    parsed_location: Mapped[types.jsonb_dict]
 
     website = with_roles(
         sa.Column(UrlType, nullable=True),
@@ -193,8 +193,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
-    boxoffice_data = with_roles(
-        sa.Column(json_type, nullable=False, server_default='{}'),
+    boxoffice_data: Mapped[types.jsonb_dict] = with_roles(
+        sa.orm.mapped_column(),
         # This is an attribute, but we deliberately use `call` instead of `read` to
         # block this from dictionary enumeration. FIXME: Break up this dictionary into
         # individual columns with `all` access for ticket embed id and `promoter`
@@ -264,7 +264,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     )
 
     livestream_urls = with_roles(
-        sa.Column(sa.ARRAY(sa.UnicodeText, dimensions=1), server_default='{}'),
+        sa.Column(
+            sa.ARRAY(sa.UnicodeText, dimensions=1),
+            server_default=sa.text("'{}'::text[]"),
+        ),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )

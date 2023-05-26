@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Union
 from uuid import UUID
 
 from werkzeug.datastructures import MultiDict
 
-from . import Mapped, NoIdMixin, db, json_type, sa
+from . import Mapped, NoIdMixin, db, sa, types
 
 __all__ = ['Draft']
 
@@ -18,17 +18,17 @@ class Draft(NoIdMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'draft'
     __allow_unmapped__ = True
 
-    table = sa.Column(sa.UnicodeText, primary_key=True)
-    table_row_id: Mapped[UUID] = sa.Column(sa.Uuid, primary_key=True)
-    body = sa.Column(json_type, nullable=False, server_default='{}')
-    revision: Mapped[Optional[UUID]] = sa.Column(sa.Uuid)
+    table: Mapped[types.text] = sa.orm.mapped_column(primary_key=True)
+    table_row_id: Mapped[UUID] = sa.orm.mapped_column(primary_key=True)
+    body: Mapped[Optional[types.jsonb_dict]]  # Optional only when instance is new
+    revision: Mapped[Optional[UUID]]
 
     @property
-    def formdata(self):
-        return MultiDict(self.body.get('form', {}))
+    def formdata(self) -> MultiDict:
+        return MultiDict(self.body.get('form', {}) if self.body is not None else {})
 
     @formdata.setter
-    def formdata(self, value):
+    def formdata(self, value: Union[MultiDict, dict]) -> None:
         if self.body is not None:
             self.body['form'] = value
         else:

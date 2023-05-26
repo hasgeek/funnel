@@ -7,15 +7,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable, TypeVar
 
 from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy.model import DefaultMeta
-from flask_sqlalchemy.model import Model as ModelBase
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import DynamicMapped, Mapped, declarative_mixin, declared_attr
-from sqlalchemy_json import mutable_json_type
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    DynamicMapped,
+    Mapped,
+    declarative_mixin,
+    declared_attr,
+)
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType
-import sqlalchemy as sa  # noqa
-import sqlalchemy.orm  # Required to make sa.orm work  # noqa
+import sqlalchemy as sa
+import typing_extensions as te
 
 from coaster.sqlalchemy import (
     BaseIdNameMixin,
@@ -24,6 +27,7 @@ from coaster.sqlalchemy import (
     BaseScopedIdNameMixin,
     BaseScopedNameMixin,
     CoordinatesMixin,
+    ModelBase,
     NoIdMixin,
     Query,
     RegistryMixin,
@@ -31,20 +35,39 @@ from coaster.sqlalchemy import (
     TimestampMixin,
     UrlType,
     UuidMixin,
+    bigint,
+    relationship,
+    smallint,
+    timestamp,
+    timestamp_now,
     with_roles,
 )
 
-json_type: postgresql.JSONB = mutable_json_type(dbtype=postgresql.JSONB, nested=True)
 
-db = SQLAlchemy(query_class=Query)  # type: ignore[arg-type]
+class Model(ModelBase, DeclarativeBase):
+    """Base for all models."""
 
-# This must be set _before_ any of the models are imported
+    __with_timezone__ = True
+
+
+class GeonameModel(ModelBase, DeclarativeBase, bind_key='geoname'):
+    """Base for geoname models."""
+
+    __with_timezone__ = True
+
+
+# This must be set _before_ any of the models using db.Model are imported
 TimestampMixin.__with_timezone__ = True
+
+db = SQLAlchemy(query_class=Query, metadata=Model.metadata)  # type: ignore[arg-type]
+Model.init_flask_sqlalchemy(db)
+GeonameModel.init_flask_sqlalchemy(db)
 
 # Some of these imports are order sensitive due to circular dependencies
 # All of them have to be imported after TimestampMixin is patched
 
 # pylint: disable=wrong-import-position
+from . import types  # isort:skip
 from .helpers import *  # isort:skip
 from .user import *  # isort:skip
 from .user_signals import *  # isort:skip
