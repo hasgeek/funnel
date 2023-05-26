@@ -35,11 +35,7 @@ from coaster.sqlalchemy import (
     TimestampMixin,
     UrlType,
     UuidMixin,
-    bigint,
     relationship,
-    smallint,
-    timestamp,
-    timestamp_now,
     with_roles,
 )
 
