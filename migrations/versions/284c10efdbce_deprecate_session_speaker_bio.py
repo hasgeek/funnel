@@ -56,7 +56,7 @@ def session_description(row):
     return description
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(session))
@@ -104,7 +104,7 @@ def upgrade():
     op.drop_column('session', 'speaker_bio_html')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'session',
         sa.Column(

@@ -12,7 +12,7 @@ down_revision = '2c64e60b80a'
 from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint(
         'sync_ticket_proposal_space_id_ticket_no_key', 'sync_ticket', type_='unique'
     )
@@ -23,7 +23,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'sync_ticket_proposal_space_id_order_no_ticket_no',
         'sync_ticket',

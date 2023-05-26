@@ -23,7 +23,7 @@ notification_preferences = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute(
         notification_preferences.update()
         .values(notification_type='comment_new')
@@ -37,7 +37,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(
         notification_preferences.update()
         .values(notification_type='comment_project')

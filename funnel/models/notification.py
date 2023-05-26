@@ -90,6 +90,7 @@ from typing import (
     ClassVar,
     Dict,
     Generator,
+    List,
     Optional,
     Sequence,
     Set,
@@ -108,7 +109,6 @@ from werkzeug.utils import cached_property
 
 from baseframe import __
 from coaster.sqlalchemy import (
-    Query,
     Registry,
     SqlUuidB58Comparator,
     auto_init_default,
@@ -118,7 +118,16 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
 from ..typing import OptionalMigratedTables, T, UuidModelType
-from . import BaseMixin, Mapped, NoIdMixin, db, hybrid_property, sa
+from . import (
+    BaseMixin,
+    DynamicMapped,
+    Mapped,
+    NoIdMixin,
+    Query,
+    db,
+    hybrid_property,
+    sa,
+)
 from .helpers import reopen
 from .phone_number import PhoneNumber, PhoneNumberMixin
 from .user import User, UserEmail, UserPhone
@@ -141,9 +150,9 @@ __all__ = [
 
 #: Registry of Notification subclasses for user preferences, automatically populated.
 #: Inactive types and types that shadow other types are excluded from this registry
-notification_type_registry: Dict[str, Notification] = {}
+notification_type_registry: Dict[str, Type[Notification]] = {}
 #: Registry of notification types that allow web renders
-notification_web_types: Set[Notification] = set()
+notification_web_types: Set[str] = set()
 
 
 @dataclass
@@ -373,7 +382,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
             document_uuid,
             fragment_uuid,
             unique=True,
-            postgresql_where=fragment_uuid.isnot(None),
+            postgresql_where=fragment_uuid.is_not(None),
         ),
     )
 
@@ -503,12 +512,13 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
-    @eventid_b58.setter  # type: ignore[no-redef]
-    def eventid_b58(self, value: str) -> None:
+    @eventid_b58.inplace.setter
+    def _eventid_b58_setter(self, value: str) -> None:
         self.eventid = uuid_from_base58(value)
 
-    @eventid_b58.comparator  # type: ignore[no-redef]
-    def eventid_b58(cls):  # pylint: disable=no-self-argument
+    @eventid_b58.inplace.comparator
+    @classmethod
+    def _eventid_b58_comparator(cls) -> SqlUuidB58Comparator:
         """Return SQL comparator for Base58 rendering."""
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -870,12 +880,13 @@ class UserNotification(
         """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
-    @eventid_b58.setter  # type: ignore[no-redef]
-    def eventid_b58(self, value: str):
+    @eventid_b58.inplace.setter
+    def _eventid_b58_setter(self, value: str) -> None:
         self.eventid = uuid_from_base58(value)
 
-    @eventid_b58.comparator  # type: ignore[no-redef]
-    def eventid_b58(cls):  # pylint: disable=no-self-argument
+    @eventid_b58.inplace.comparator
+    @classmethod
+    def _eventid_b58_comparator(cls):
         """Return SQL comparator for Base58 representation."""
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -886,28 +897,30 @@ class UserNotification(
         """Whether this notification has been marked as read."""
         return self.read_at is not None
 
-    @is_read.setter  # type: ignore[no-redef]
-    def is_read(self, value: bool) -> None:
+    @is_read.inplace.setter
+    def _is_read_setter(self, value: bool) -> None:
         if value:
             if not self.read_at:
                 self.read_at = sa.func.utcnow()
         else:
             self.read_at = None
 
-    @is_read.expression  # type: ignore[no-redef]
-    def is_read(cls):  # pylint: disable=no-self-argument
+    @is_read.inplace.expression
+    @classmethod
+    def _is_read_expression(cls) -> sa.ColumnElement[bool]:
         """Test if notification has been marked as read, as a SQL expression."""
-        return cls.read_at.isnot(None)
+        return cls.read_at.is_not(None)
 
     with_roles(is_read, rw={'owner'})
 
     @hybrid_property
-    def is_revoked(self) -> bool:  # pylint: disable=invalid-overridden-method
+    def is_revoked(self) -> bool:  # type: ignore[override]  # pylint: disable=invalid-overridden-method
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
 
     @is_revoked.inplace.setter
     def _is_revoked_setter(self, value: bool) -> None:
+        """Set or remove revoked_at timestamp."""
         if value:
             if not self.revoked_at:
                 self.revoked_at = sa.func.utcnow()
@@ -916,8 +929,9 @@ class UserNotification(
 
     @is_revoked.inplace.expression
     @classmethod
-    def _is_revoked_expression(cls):
-        return cls.revoked_at.isnot(None)
+    def _is_revoked_expression(cls) -> sa.ColumnElement[bool]:
+        """Return SQL Expression."""
+        return cls.revoked_at.is_not(None)
 
     with_roles(is_revoked, rw={'owner'})
 
@@ -1021,7 +1035,7 @@ class UserNotification(
                 # Earlier instance is not revoked
                 UserNotification.revoked_at.is_(None),
                 # Earlier instance has a rollupid
-                UserNotification.rollupid.isnot(None),
+                UserNotification.rollupid.is_not(None),
             )
             .order_by(UserNotification.created_at.asc())
             .limit(1)
@@ -1091,7 +1105,9 @@ class UserNotification(
         return cls.query.get((user.id, uuid_from_base58(eventid_b58)))
 
     @classmethod
-    def web_notifications_for(cls, user: User, unread_only: bool = False) -> Query:
+    def web_notifications_for(
+        cls, user: User, unread_only: bool = False
+    ) -> Query[UserNotification]:
         """Return web notifications for a user, optionally returning unread-only."""
         query = UserNotification.query.join(Notification).filter(
             Notification.type.in_(notification_web_types),
@@ -1323,7 +1339,7 @@ class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined
 
 @reopen(User)
 class __User:
-    all_notifications = with_roles(
+    all_notifications: DynamicMapped[List[UserNotification]] = with_roles(
         sa.orm.relationship(
             UserNotification,
             lazy='dynamic',
@@ -1333,7 +1349,9 @@ class __User:
         read={'owner'},
     )
 
-    notification_preferences = sa.orm.relationship(
+    notification_preferences: Mapped[
+        Dict[str, NotificationPreferences]
+    ] = sa.orm.relationship(
         NotificationPreferences,
         collection_class=column_keyed_dict(NotificationPreferences.notification_type),
         back_populates='user',
@@ -1375,7 +1393,7 @@ auto_init_default(Notification.eventid)
 
 
 @event.listens_for(Notification, 'mapper_configured', propagate=True)
-def _register_notification_types(mapper_, cls) -> None:
+def _register_notification_types(mapper_: Any, cls: Type[Notification]) -> None:
     # Don't register the base class itself, or inactive types
     if cls is not Notification:
         # Tell mypy what type of class we're processing

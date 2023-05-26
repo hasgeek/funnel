@@ -123,7 +123,7 @@ renamed_indexes = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     for old, new in renamed_tables:
         op.rename_table(old, new)
 
@@ -142,7 +142,7 @@ def upgrade():
         op.execute(sa.DDL(f'ALTER INDEX "{old}" RENAME TO "{new}"'))
 
 
-def downgrade():
+def downgrade() -> None:
     for old, new in renamed_indexes:
         op.execute(sa.DDL(f'ALTER INDEX "{new}" RENAME TO "{old}"'))
 

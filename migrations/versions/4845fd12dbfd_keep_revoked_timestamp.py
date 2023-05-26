@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'user_notification',
         sa.Column('revoked_at', sa.TIMESTAMP(timezone=True), nullable=True),
@@ -41,7 +41,7 @@ def upgrade():
     op.drop_column('user_notification', 'is_revoked')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'user_notification',
         sa.Column(

@@ -41,7 +41,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     op.add_column('commentset', sa.Column('uuid', sa.Uuid(), nullable=True))
@@ -61,6 +61,6 @@ def upgrade():
     op.create_unique_constraint('commentset_uuid_key', 'commentset', ['uuid'])
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('commentset_uuid_key', 'commentset', type_='unique')
     op.drop_column('commentset', 'uuid')

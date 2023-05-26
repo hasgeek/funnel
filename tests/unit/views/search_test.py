@@ -12,8 +12,8 @@ from typing import cast
 from flask import url_for
 import pytest
 
+from funnel.models import Query
 from funnel.views.search import (
-    Query,
     SearchInProfileProvider,
     SearchInProjectProvider,
     get_tsquery,

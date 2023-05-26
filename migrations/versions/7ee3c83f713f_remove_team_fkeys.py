@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint(
         'organization_owners_id_fkey', 'organization', type_='foreignkey'
     )
@@ -33,7 +33,7 @@ def upgrade():
     op.drop_column('project', 'checkin_team_id')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'project',
         sa.Column('checkin_team_id', sa.INTEGER(), autoincrement=False, nullable=True),

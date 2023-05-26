@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime as datetime_type
-from typing import Iterable, Optional
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
+from typing import Optional, Sequence
 
 from baseframe import __
 from baseframe.filters import preview
@@ -16,6 +15,7 @@ from . import (
     BaseScopedIdNameMixin,
     Mapped,
     MarkdownCompositeDocument,
+    Query,
     TSVectorType,
     UuidMixin,
     db,
@@ -425,7 +425,7 @@ class Proposal(  # type: ignore[misc]
         pass
 
     @with_roles(call={'project_editor'})
-    def move_to(self, project):
+    def move_to(self, project: Project) -> None:
         """Move to a new project and reset :attr:`url_id`."""
         self.project = project
         self.url_id = None  # pylint: disable=attribute-defined-outside-init
@@ -435,7 +435,7 @@ class Proposal(  # type: ignore[misc]
         if not self.custom_description:
             self.description = preview(self.body_html)
 
-    def getnext(self):
+    def getnext(self) -> Optional[Proposal]:
         return (
             Proposal.query.filter(
                 Proposal.project == self.project,
@@ -445,7 +445,7 @@ class Proposal(  # type: ignore[misc]
             .first()
         )
 
-    def getprev(self):
+    def getprev(self) -> Optional[Proposal]:
         return (
             Proposal.query.filter(
                 Proposal.project == self.project,
@@ -456,7 +456,7 @@ class Proposal(  # type: ignore[misc]
         )
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if self.state.DRAFT:
@@ -472,11 +472,13 @@ class Proposal(  # type: ignore[misc]
         return roles
 
     @classmethod
-    def all_public(cls):
+    def all_public(cls) -> Query[Proposal]:
         return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.state.PUBLIC)
 
     @classmethod
-    def get(cls, uuid_b58):  # pylint: disable=arguments-differ
+    def get(  # type: ignore[override]  # pylint: disable=arguments-differ
+        cls, uuid_b58: str
+    ) -> Optional[Proposal]:
         """Get a proposal by its public Base58 id."""
         return cls.query.filter_by(uuid_b58=uuid_b58).one_or_none()
 

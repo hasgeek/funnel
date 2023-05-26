@@ -42,12 +42,12 @@ profile = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_index('ix_account_name_reserved', table_name='account_name')
     op.drop_table('account_name')
 
 
-def downgrade():
+def downgrade() -> None:
     op.create_table(
         'account_name',
         sa.Column('id', sa.Uuid(), autoincrement=False, nullable=False),

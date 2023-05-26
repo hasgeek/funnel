@@ -13,7 +13,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint(
         'contact_exchange_user_id_proposal_space_id_participant_id_key',
         'contact_exchange',
@@ -27,7 +27,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column('contact_exchange', sa.Column('id', sa.INTEGER(), nullable=False))
     op.drop_constraint(
         'contact_exchange_user_id_proposal_space_id_participant_id_pk',

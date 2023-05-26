@@ -1,5 +1,6 @@
 """Provide configuration for models and import all into a common `models` namespace."""
 # flake8: noqa
+# pylint: disable=unused-import
 
 from __future__ import annotations
 
@@ -10,7 +11,7 @@ from flask_sqlalchemy.model import DefaultMeta
 from flask_sqlalchemy.model import Model as ModelBase
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, declarative_mixin, declared_attr
+from sqlalchemy.orm import DynamicMapped, Mapped, declarative_mixin, declared_attr
 from sqlalchemy_json import mutable_json_type
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType
 import sqlalchemy as sa  # noqa
@@ -24,6 +25,7 @@ from coaster.sqlalchemy import (
     BaseScopedNameMixin,
     CoordinatesMixin,
     NoIdMixin,
+    Query,
     RegistryMixin,
     RoleMixin,
     TimestampMixin,
@@ -34,7 +36,7 @@ from coaster.sqlalchemy import (
 
 json_type: postgresql.JSONB = mutable_json_type(dbtype=postgresql.JSONB, nested=True)
 
-db = SQLAlchemy()
+db = SQLAlchemy(query_class=Query)  # type: ignore[arg-type]
 
 # This must be set _before_ any of the models are imported
 TimestampMixin.__with_timezone__ = True

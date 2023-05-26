@@ -21,7 +21,7 @@ depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 # The email, phone and location fields are not redundant and will be lost.
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_index('ix_proposal_email_address_id', table_name='proposal')
     op.drop_constraint('proposal_email_address_id_fkey', 'proposal', type_='foreignkey')
     op.drop_column('proposal', 'outline_html')
@@ -39,7 +39,7 @@ def upgrade():
     op.drop_column('proposal', 'requirements_text')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'proposal',
         sa.Column('requirements_text', sa.TEXT(), autoincrement=False, nullable=True),

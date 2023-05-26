@@ -46,7 +46,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
     op.add_column('rsvp', sa.Column('uuid', sa.Uuid(), nullable=True))
 
@@ -72,6 +72,6 @@ def upgrade():
     op.create_unique_constraint('rsvp_uuid_key', 'rsvp', ['uuid'])
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('rsvp_uuid_key', 'rsvp', type_='unique')
     op.drop_column('rsvp', 'uuid')

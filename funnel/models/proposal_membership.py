@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Set
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
+from typing import List, Set
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import Mapped, db, sa
+from . import DynamicMapped, Mapped, db, sa
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
@@ -163,14 +162,18 @@ class __Proposal:
 class __User:
     # pylint: disable=invalid-unary-operand-type
 
-    all_proposal_memberships = sa.orm.relationship(
+    all_proposal_memberships: DynamicMapped[
+        List[ProposalMembership]
+    ] = sa.orm.relationship(
         ProposalMembership,
         lazy='dynamic',
         foreign_keys=[ProposalMembership.user_id],
         viewonly=True,
     )
 
-    noninvite_proposal_memberships = sa.orm.relationship(
+    noninvite_proposal_memberships: DynamicMapped[
+        List[ProposalMembership]
+    ] = sa.orm.relationship(
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -180,7 +183,7 @@ class __User:
         viewonly=True,
     )
 
-    proposal_memberships = sa.orm.relationship(
+    proposal_memberships: DynamicMapped[List[ProposalMembership]] = sa.orm.relationship(
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(

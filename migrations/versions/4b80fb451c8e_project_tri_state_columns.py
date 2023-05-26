@@ -69,7 +69,7 @@ upgrade_states = {
 }
 
 
-def upgrade():
+def upgrade() -> None:
     # Move `state` out of the way into `old_state`
     op.alter_column('project', 'state', new_column_name='old_state')
     op.execute(
@@ -147,7 +147,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('project', 'cfp_end_at')
     op.drop_column('project', 'cfp_start_at')
     op.drop_constraint('project_state_check', 'project', type_='check')

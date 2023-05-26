@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     # This migration assumes there is no existing data in the table
     op.add_column(
         'proposal_membership', sa.Column('is_uncredited', sa.Boolean(), nullable=False)
@@ -38,7 +38,7 @@ def upgrade():
     op.drop_column('proposal_membership', 'is_presenter')
 
 
-def downgrade():
+def downgrade() -> None:
     # This migration assumes there is no existing data in the table
     op.add_column(
         'proposal_membership',

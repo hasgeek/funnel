@@ -18,11 +18,11 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_column('profile', 'legacy')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'profile',
         sa.Column(

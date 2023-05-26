@@ -13,11 +13,11 @@ down_revision = 'e2be4ab896d3'
 from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_index(
         op.f('ix_label_main_label_id'), 'label', ['main_label_id'], unique=False
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(op.f('ix_label_main_label_id'), table_name='label')

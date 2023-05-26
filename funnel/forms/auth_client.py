@@ -105,7 +105,7 @@ class AuthClientForm(forms.Form):
         ),
     )
 
-    def validate_client_owner(self, field) -> None:
+    def validate_client_owner(self, field: forms.Field) -> None:
         """Validate client's owner to be the current user or an org owned by them."""
         if field.data == self.edit_user.buid:
             self.user = self.edit_user
@@ -132,7 +132,7 @@ class AuthClientForm(forms.Form):
             and (p1.password == p2.password)
         )
 
-    def validate_redirect_uri(self, field) -> None:
+    def validate_redirect_uri(self, field: forms.Field) -> None:
         """Validate redirect URI points to the website for confidential clients."""
         if self.confidential.data and not self._urls_match(
             self.website.data, field.data

@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     # Migration auto-generated using Migra
     op.execute(
         sa.DDL(
@@ -115,7 +115,7 @@ alter table "rsvp" add constraint "rsvp_state_check" CHECK ((state = ANY (ARRAY[
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(
         sa.DDL(
             '''

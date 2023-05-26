@@ -18,12 +18,12 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint('auth_client_namespace_key', 'auth_client', type_='unique')
     op.drop_column('auth_client', 'namespace')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'auth_client',
         sa.Column('namespace', sa.TEXT(), autoincrement=False, nullable=True),

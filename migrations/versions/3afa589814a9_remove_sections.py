@@ -15,14 +15,14 @@ from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint('proposal_section_id_fkey', 'proposal', type_='foreignkey')
     op.drop_column('proposal', 'section_id')
     op.drop_table('section')
     op.drop_column('project', 'inherit_sections')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'project',
         sa.Column(

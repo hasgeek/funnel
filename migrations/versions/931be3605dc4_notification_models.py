@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'notification',
         sa.Column('eventid', sa.Uuid(), nullable=False),
@@ -98,7 +98,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(op.f('ix_user_notification_rollupid'), table_name='user_notification')
     op.drop_index(
         op.f('ix_user_notification_is_revoked'), table_name='user_notification'

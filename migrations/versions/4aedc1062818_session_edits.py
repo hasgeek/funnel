@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column('session', 'start_datetime', new_column_name='start')
     op.alter_column('session', 'end_datetime', new_column_name='end')
     op.alter_column(
@@ -22,7 +22,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         'session', 'venue_room_id', existing_type=sa.INTEGER(), nullable=False
     )

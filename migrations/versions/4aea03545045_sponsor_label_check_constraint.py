@@ -18,13 +18,13 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_check_constraint(
         'sponsor_membership_label_check', 'sponsor_membership', column('label') != ''
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'sponsor_membership_label_check', 'sponsor_membership', type_='check'
     )

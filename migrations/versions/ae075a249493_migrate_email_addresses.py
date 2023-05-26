@@ -160,7 +160,7 @@ def email_domain_naive(email):
 # --- Migrations -----------------------------------------------------------------------
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     # --- UserEmail --------------------------------------------------------------------
@@ -351,13 +351,13 @@ def upgrade():
     count = conn.scalar(
         sa.select(sa.func.count('*'))
         .select_from(proposal)
-        .where(proposal.c.email.isnot(None))
+        .where(proposal.c.email.is_not(None))
     )
     progress = get_progressbar("Proposals", count)
     progress.start()
     items = conn.execute(
         sa.select(proposal.c.id, proposal.c.email, proposal.c.created_at)
-        .where(proposal.c.email.isnot(None))
+        .where(proposal.c.email.is_not(None))
         .order_by(proposal.c.id)
     )
     for counter, item in enumerate(items):
@@ -404,7 +404,7 @@ def upgrade():
     op.drop_column('proposal', 'email')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     # --- Proposal ---------------------------------------------------------------------
@@ -416,7 +416,7 @@ def downgrade():
     count = conn.scalar(
         sa.select(sa.func.count('*'))
         .select_from(proposal)
-        .where(proposal.c.email_address_id.isnot(None))
+        .where(proposal.c.email_address_id.is_not(None))
     )
     progress = get_progressbar("Proposals", count)
     progress.start()

@@ -208,7 +208,7 @@ class ProposalMemberForm(forms.Form):
     )
     is_uncredited = forms.BooleanField(__("Hide collaborator on submission"))
 
-    def validate_user(self, field) -> None:
+    def validate_user(self, field: forms.Field) -> None:
         """Validate user field to confirm user is not an existing collaborator."""
         for membership in self.proposal.memberships:
             if membership.user == field.data:

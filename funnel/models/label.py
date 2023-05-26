@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 from typing import Union
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from sqlalchemy.ext.orderinglist import ordering_list
-from sqlalchemy.sql import exists
 
 from coaster.sqlalchemy import with_roles
 
@@ -183,17 +181,19 @@ class Label(
         # pylint: disable=protected-access
         return self.main_label._restricted if self.main_label else self._restricted
 
-    @restricted.setter
-    def restricted(self, value: bool) -> None:
+    @restricted.inplace.setter
+    def _restricted_setter(self, value: bool) -> None:
         if self.main_label:
             raise ValueError("This flag must be set on the parent")
         self._restricted = value
 
-    @restricted.expression
-    def restricted(cls):  # pylint: disable=no-self-argument
+    @restricted.inplace.expression
+    @classmethod
+    def _restricted_expression(cls) -> sa.Case:
+        """Return SQL Expression."""
         return sa.case(
             (
-                cls.main_label_id.isnot(None),
+                cls.main_label_id.is_not(None),
                 sa.select(Label._restricted)
                 .where(Label.id == cls.main_label_id)
                 .as_scalar(),
@@ -203,22 +203,26 @@ class Label(
 
     @hybrid_property
     def archived(self) -> bool:
+        """Test if this label or parent label is archived."""
         return self._archived or (
             self.main_label._archived  # pylint: disable=protected-access
             if self.main_label
             else False
         )
 
-    @archived.setter
-    def archived(self, value: bool) -> None:
+    @archived.inplace.setter
+    def _archived_setter(self, value: bool) -> None:
+        """Archive this label."""
         self._archived = value
 
-    @archived.expression
-    def archived(cls):  # pylint: disable=no-self-argument
+    @archived.inplace.expression
+    @classmethod
+    def _archived_expression(cls) -> sa.Case:
+        """Return SQL Expression."""
         return sa.case(
             (cls._archived.is_(True), cls._archived),
             (
-                cls.main_label_id.isnot(None),
+                cls.main_label_id.is_not(None),
                 sa.select(Label._archived)
                 .where(Label.id == cls.main_label_id)
                 .as_scalar(),
@@ -230,9 +234,11 @@ class Label(
     def has_options(self) -> bool:
         return bool(self.options)
 
-    @has_options.expression
-    def has_options(cls):  # pylint: disable=no-self-argument
-        return exists().where(Label.main_label_id == cls.id)
+    @has_options.inplace.expression
+    @classmethod
+    def _has_options_expression(cls) -> sa.Exists:
+        """Return SQL Expression."""
+        return sa.exists().where(Label.main_label_id == cls.id)
 
     @property
     def is_main_label(self) -> bool:
@@ -243,8 +249,8 @@ class Label(
         # pylint: disable=using-constant-test
         return self._required if self.has_options else False
 
-    @required.setter
-    def required(self, value: bool) -> None:
+    @required.inplace.setter
+    def _required_setter(self, value: bool) -> None:
         if value and not self.has_options:
             raise ValueError("Labels without options cannot be mandatory")
         self._required = value
