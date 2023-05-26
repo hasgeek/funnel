@@ -13,7 +13,7 @@ down_revision = '5290f9238875'
 from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column('comment', 'message', new_column_name='message_text')
     op.alter_column('proposal', 'objective', new_column_name='objective_text')
     op.alter_column('proposal', 'bio', new_column_name='bio_text')
@@ -22,7 +22,7 @@ def upgrade():
     op.alter_column('proposal_space', 'description', new_column_name='description_text')
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column('comment', 'message_text', new_column_name='message')
     op.alter_column('proposal', 'objective_text', new_column_name='objective')
     op.alter_column('proposal', 'bio_text', new_column_name='bio')

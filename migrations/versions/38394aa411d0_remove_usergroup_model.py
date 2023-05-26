@@ -15,12 +15,12 @@ from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_table('group_members')
     op.drop_table('user_group')
 
 
-def downgrade():
+def downgrade() -> None:
     op.create_table(
         'user_group',
         sa.Column('id', sa.INTEGER(), autoincrement=True, nullable=False),

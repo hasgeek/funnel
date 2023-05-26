@@ -19,11 +19,11 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_table('proposal_feedback')
 
 
-def downgrade():
+def downgrade() -> None:
     op.create_table(
         'proposal_feedback',
         sa.Column('id', sa.INTEGER(), autoincrement=True, nullable=False),

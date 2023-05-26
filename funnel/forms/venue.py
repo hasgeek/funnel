@@ -101,7 +101,7 @@ class VenueRoomForm(forms.Form):
         default="CCCCCC",
     )
 
-    def validate_bgcolor(self, field) -> None:
+    def validate_bgcolor(self, field: forms.Field) -> None:
         """Validate colour to be in RGB."""
         if not valid_color_re.match(field.data):
             raise forms.validators.ValidationError(

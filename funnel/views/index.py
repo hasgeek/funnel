@@ -54,7 +54,7 @@ class IndexView(ClassView):
                     Project.state.UPCOMING,
                     sa.and_(
                         Project.start_at.is_(None),
-                        Project.published_at.isnot(None),
+                        Project.published_at.is_not(None),
                         Project.site_featured.is_(True),
                     ),
                 ),
@@ -71,7 +71,7 @@ class IndexView(ClassView):
                     Project.state.LIVE,
                     Project.state.UPCOMING,
                     sa.and_(
-                        Project.start_at.is_(None), Project.published_at.isnot(None)
+                        Project.start_at.is_(None), Project.published_at.is_not(None)
                     ),
                 ),
                 Project.site_featured.is_(True),
@@ -117,7 +117,7 @@ class IndexView(ClassView):
                 p.current_access(datasets=('primary', 'related'))
                 for p in Profile.query.filter(
                     Profile.is_verified.is_(True),
-                    Profile.organization_id.isnot(None),
+                    Profile.organization_id.is_not(None),
                 )
                 .order_by(sa.func.random())
                 .limit(6)

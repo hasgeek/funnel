@@ -2,6 +2,7 @@
 bandit
 black
 flake8
+flake8-annotations
 flake8-assertive
 flake8-blind-except
 flake8-bugbear
@@ -17,6 +18,7 @@ flask-debugtoolbar
 isort
 lxml-stubs
 mypy
+mypy-json-report
 pep8-naming
 pip-compile-multi
 po2json

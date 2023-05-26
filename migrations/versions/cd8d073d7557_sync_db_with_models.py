@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column(
         'event', 'title', existing_type=sa.VARCHAR(length=250), nullable=False
     )
@@ -26,7 +26,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         'ticket_type', 'title', existing_type=sa.VARCHAR(length=250), nullable=True
     )

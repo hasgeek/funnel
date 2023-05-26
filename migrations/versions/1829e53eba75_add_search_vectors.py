@@ -17,7 +17,7 @@ from sqlalchemy_utils import TSVectorType
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column('comment', sa.Column('search_vector', TSVectorType(), nullable=True))
     op.create_index(
         'ix_comment_search_vector',
@@ -170,7 +170,7 @@ def upgrade():
     op.alter_column('session', 'search_vector', nullable=False)
 
 
-def downgrade():
+def downgrade() -> None:
     # Drop triggers and functions
     op.execute(
         sa.DDL(

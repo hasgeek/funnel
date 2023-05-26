@@ -17,14 +17,14 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint('comment_state_check', 'comment', type_='check')
     op.create_check_constraint(
         'comment_state_check', 'comment', 'state IN (0, 1, 2, 3, 4, 5)'
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('comment_state_check', 'comment', type_='check')
     op.create_check_constraint(
         'comment_state_check', 'comment', 'state IN (0, 1, 2, 3, 4)'

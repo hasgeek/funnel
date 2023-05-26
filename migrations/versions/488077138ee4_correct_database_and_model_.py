@@ -31,7 +31,7 @@ tables_with_name_column = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     for tablename in tables_with_name_column:
         # Create CHECK constraint on name
         op.create_check_constraint(tablename + '_name_check', tablename, "name <> ''")
@@ -82,7 +82,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column('user', 'userinfo', type_=sa.TEXT(), existing_type=JsonDict())
 
     op.execute(CreateSequence(Sequence('proposal_redirect_url_id_seq')))

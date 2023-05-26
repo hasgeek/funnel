@@ -131,11 +131,11 @@ def make_video_url(video_source: str, video_id: str):
 # --- Migrations -----------------------------------------------------------------------
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     proposals = conn.execute(
-        proposal.select().where(proposal.c.preview_video.isnot(None))
+        proposal.select().where(proposal.c.preview_video.is_not(None))
     )
     troublesome_previews = []
     for prop in proposals:
@@ -195,13 +195,13 @@ def upgrade():
     op.drop_column('proposal', 'preview_video')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'proposal', sa.Column('preview_video', sa.UnicodeText(), nullable=True)
     )
 
     conn = op.get_bind()
-    proposals = conn.execute(proposal.select().where(proposal.c.video_id.isnot(None)))
+    proposals = conn.execute(proposal.select().where(proposal.c.video_id.is_not(None)))
     for prop in proposals:
         conn.execute(
             sa.update(proposal)
@@ -213,7 +213,7 @@ def downgrade():
 
     conn.execute(
         sa.update(proposal)
-        .where(proposal.c.preview_video.isnot(None))
+        .where(proposal.c.preview_video.is_not(None))
         .values(video_source=None, video_id=None)
     )
 

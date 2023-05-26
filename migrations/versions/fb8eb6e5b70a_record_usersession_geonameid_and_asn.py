@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'user_session', sa.Column('geonameid_city', sa.Integer(), nullable=True)
     )
@@ -31,7 +31,7 @@ def upgrade():
     op.add_column('user_session', sa.Column('geoip_asn', sa.Integer(), nullable=True))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('user_session', 'geoip_asn')
     op.drop_column('user_session', 'geonameid_country')
     op.drop_column('user_session', 'geonameid_subdivision')

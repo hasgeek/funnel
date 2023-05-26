@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Optional
+from typing import List, Optional, Sequence
 
 from pytz import utc
 from sqlalchemy.orm import attribute_keyed_dict
@@ -16,8 +16,10 @@ from .. import app
 from ..typing import OptionalMigratedTables
 from . import (
     BaseScopedNameMixin,
+    DynamicMapped,
     Mapped,
     MarkdownCompositeDocument,
+    Query,
     TimestampMixin,
     TimezoneType,
     TSVectorType,
@@ -273,17 +275,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         sa.CheckConstraint(
             sa.or_(  # type: ignore[arg-type]
                 sa.and_(start_at.is_(None), end_at.is_(None)),
-                sa.and_(start_at.isnot(None), end_at.isnot(None), end_at > start_at),
+                sa.and_(start_at.is_not(None), end_at.is_not(None), end_at > start_at),
             ),
             'project_start_at_end_at_check',
         ),
         sa.CheckConstraint(
             sa.or_(  # type: ignore[arg-type]
                 sa.and_(cfp_start_at.is_(None), cfp_end_at.is_(None)),
-                sa.and_(cfp_start_at.isnot(None), cfp_end_at.is_(None)),
+                sa.and_(cfp_start_at.is_not(None), cfp_end_at.is_(None)),
                 sa.and_(
-                    cfp_start_at.isnot(None),
-                    cfp_end_at.isnot(None),
+                    cfp_start_at.is_not(None),
+                    cfp_end_at.is_not(None),
                     cfp_end_at > cfp_start_at,
                 ),
             ),
@@ -389,7 +391,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         cfp_state.NONE,
         lambda project: project.instructions_html != '',
         lambda project: sa.and_(
-            project.instructions_html.isnot(None), project.instructions_html != ''
+            project.instructions_html.is_not(None), project.instructions_html != ''
         ),
         label=('draft', __("Draft")),
     )
@@ -408,7 +410,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         lambda project: project.cfp_end_at is not None
         and utcnow() >= project.cfp_end_at,
         lambda project: sa.and_(
-            project.cfp_end_at.isnot(None), sa.func.utcnow() >= project.cfp_end_at
+            project.cfp_end_at.is_not(None), sa.func.utcnow() >= project.cfp_end_at
         ),
         label=('expired', __("Expired")),
     )
@@ -660,7 +662,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         self.end_at = self.schedule_end_at
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
@@ -672,20 +674,20 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         return self.proposals.count() == 0
 
     @classmethod
-    def order_by_date(cls):
+    def order_by_date(cls) -> sa.Case:
         """
         Return an order by clause for the project's start_at or published_at.
 
         param bool desc: Use descending order (default True)
         """
         clause = sa.case(
-            (cls.start_at.isnot(None), cls.start_at),
+            (cls.start_at.is_not(None), cls.start_at),
             else_=cls.published_at,
         )
         return clause
 
     @classmethod
-    def all_unsorted(cls):
+    def all_unsorted(cls) -> Query[Project]:
         """Return query of all published projects, without ordering criteria."""
         return (
             cls.query.join(Profile)
@@ -694,14 +696,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         )
 
     @classmethod
-    def all(cls):  # noqa: A003
+    def all(cls) -> Query[Project]:  # noqa: A003
         """Return all published projects, ordered by date."""
         return cls.all_unsorted().order_by(cls.order_by_date())
 
     # The base class offers `get(parent, name)`. We accept f'{parent}/{name}' here for
     # convenience as this is only used in shell access.
     @classmethod
-    def get(cls, profile_project):  # pylint: disable=arguments-differ
+    def get(  # type: ignore[override]  # pylint: disable=arguments-differ
+        cls, profile_project: str
+    ) -> Optional[Project]:
         """Get a project by its URL slug in the form ``<profile>/<project>``."""
         profile_name, project_name = profile_project.split('/')
         return (
@@ -734,7 +738,7 @@ add_search_trigger(Project, 'search_vector')
 class __Profile:
     id: Mapped[int]  # noqa: A003
 
-    listed_projects = sa.orm.relationship(
+    listed_projects: DynamicMapped[List[Project]] = sa.orm.relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -743,7 +747,7 @@ class __Profile:
         ),
         viewonly=True,
     )
-    draft_projects = sa.orm.relationship(
+    draft_projects: DynamicMapped[List[Project]] = sa.orm.relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -830,7 +834,12 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
         return {}
 
     @classmethod
-    def add(cls, project, profile=None, name=None):
+    def add(
+        cls,
+        project: Project,
+        profile: Optional[Profile] = None,
+        name: Optional[str] = None,
+    ) -> ProjectRedirect:
         """
         Add a project redirect in a given profile.
 
@@ -846,9 +855,9 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
             profile = project.profile
         if name is None:
             name = project.name
-        redirect = ProjectRedirect.query.get((profile.id, name))
+        redirect = cls.query.get((profile.id, name))
         if redirect is None:
-            redirect = ProjectRedirect(profile=profile, name=name, project=project)
+            redirect = cls(profile=profile, name=name, project=project)
             db.session.add(redirect)
         else:
             redirect.project = project

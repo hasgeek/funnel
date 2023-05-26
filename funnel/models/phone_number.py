@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Set, Union, overload
+from typing import Any, Optional, Set, Type, Union, overload
 import hashlib
 
 from sqlalchemy import event, inspect
@@ -315,7 +315,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             sa.or_(  # type: ignore[arg-type]
                 blocked_at.is_(None),  # or...
                 sa.and_(
-                    blocked_at.isnot(None),
+                    blocked_at.is_not(None),
                     number.is_(None),
                     has_sms.is_(None),
                     has_sms_at.is_(None),
@@ -328,14 +328,14 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         sa.CheckConstraint(
             sa.or_(
                 sa.and_(has_sms.is_(None), has_sms_at.is_(None)),
-                sa.and_(has_sms.isnot(None), has_sms_at.isnot(None)),
+                sa.and_(has_sms.is_not(None), has_sms_at.is_not(None)),
             ),
             'phone_number_has_sms_check',
         ),
         sa.CheckConstraint(
             sa.or_(
                 sa.and_(has_wa.is_(None), has_wa_at.is_(None)),
-                sa.and_(has_wa.isnot(None), has_wa_at.isnot(None)),
+                sa.and_(has_wa.is_not(None), has_wa_at.is_not(None)),
             ),
             'phone_number_has_wa_check',
         ),
@@ -372,10 +372,11 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         with db.session.no_autoflush:
             return self.blocked_at is not None
 
-    @is_blocked.expression
-    def is_blocked(cls):  # pylint: disable=no-self-argument
+    @is_blocked.inplace.expression
+    @classmethod
+    def _is_blocked_expression(cls) -> sa.ColumnElement[bool]:
         """Expression form of is_blocked check."""
-        return cls.blocked_at.isnot(None)
+        return cls.blocked_at.is_not(None)
 
     @with_roles(read={'all'})
     @cached_property
@@ -425,7 +426,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: object) -> bool:
+    def is_available_for(self, owner: PhoneNumberMixin) -> bool:
         """Return True if this PhoneNumber is available for the given owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -594,7 +595,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             return None  # phone number was not valid
         if is_blocked is not None:
             if is_blocked:
-                query = query.filter(cls.blocked_at.isnot(None))
+                query = query.filter(cls.blocked_at.is_not(None))
             else:
                 query = query.filter(cls.blocked_at.is_(None))
         return query.one_or_none()
@@ -626,7 +627,9 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     @classmethod
     def add_for(
-        cls, owner: Optional[object], phone: Union[str, phonenumbers.PhoneNumber]
+        cls,
+        owner: Optional[PhoneNumberMixin],
+        phone: Union[str, phonenumbers.PhoneNumber],
     ) -> PhoneNumber:
         """
         Create a new :class:`PhoneNumber` after validation.
@@ -653,7 +656,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[object],
+        owner: Optional[PhoneNumberMixin],
         phone: Union[str, phonenumbers.PhoneNumber],
         new: bool = False,
     ) -> Union[bool, Literal['invalid', 'not_new', 'blocked']]:
@@ -720,7 +723,7 @@ class PhoneNumberMixin:
     @classmethod
     def phone_number_id(cls) -> Mapped[int]:
         """Foreign key to phone_number table."""
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('phone_number.id', ondelete='SET NULL'),
             nullable=cls.__phone_optional__,
@@ -729,9 +732,8 @@ class PhoneNumberMixin:
         )
 
     @declared_attr
-    def phone_number(  # pylint: disable=no-self-argument
-        cls,
-    ) -> Mapped[PhoneNumber]:
+    @classmethod
+    def phone_number(cls) -> Mapped[PhoneNumber]:
         """Instance of :class:`PhoneNumber` as a relationship."""
         backref_name = 'used_in_' + cls.__tablename__
         PhoneNumber.__backrefs__.add(backref_name)
@@ -802,7 +804,9 @@ def _clear_cached_properties(target: PhoneNumber) -> None:
 
 
 @event.listens_for(PhoneNumber.number, 'set', retval=True)
-def _validate_number(target: PhoneNumber, value: Any, old_value: Any, initiator) -> Any:
+def _validate_number(
+    target: PhoneNumber, value: Any, old_value: Any, _initiator: Any
+) -> Any:
     # First: check if value is acceptable and phone attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
@@ -838,11 +842,15 @@ def _validate_number(target: PhoneNumber, value: Any, old_value: Any, initiator)
     raise ValueError(f"Invalid value for phone number: {value}")
 
 
-def _send_refcount_event_remove(target, value, initiator):
+def _send_refcount_event_remove(
+    target: PhoneNumber, _value: Any, _initiator: Any
+) -> None:
     phonenumber_refcount_dropping.send(target)
 
 
-def _send_refcount_event_before_delete(mapper_, connection, target):
+def _send_refcount_event_before_delete(
+    _mapper: Any, _connection: Any, target: PhoneNumberMixin
+) -> None:
     if target.phone_number:
         phonenumber_refcount_dropping.send(target.phone_number)
 
@@ -855,7 +863,10 @@ def _setup_refcount_events() -> None:
 
 
 def _phone_number_mixin_set_validator(
-    target, value: Optional[PhoneNumber], old_value, initiator
+    target: PhoneNumberMixin,
+    value: Optional[PhoneNumber],
+    old_value: Optional[PhoneNumber],
+    _initiator: Any,
 ) -> None:
     if value is not None and value != old_value and target.__phone_for__:
         if value.is_blocked:
@@ -865,6 +876,8 @@ def _phone_number_mixin_set_validator(
 
 
 @event.listens_for(PhoneNumberMixin, 'mapper_configured', propagate=True)
-def _phone_number_mixin_configure_events(mapper_, cls: PhoneNumberMixin):
+def _phone_number_mixin_configure_events(
+    _mapper: Any, cls: Type[PhoneNumberMixin]
+) -> None:
     event.listen(cls.phone_number, 'set', _phone_number_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)

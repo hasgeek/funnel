@@ -80,7 +80,7 @@ class DecisionBranchBase:
     #: A list of decision factors and branches
     factors: List[Union[DecisionFactorBase, DecisionBranchBase]]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate decision factors to have matching criteria."""
         unspecified_values = (None, ())
         check_fields = {
@@ -309,7 +309,7 @@ class RenderNotification:
         return [_f.access_for(actor=self.user_notification.user) for _f in query.all()]
 
     @cached_property
-    def is_rollup(self):
+    def is_rollup(self) -> bool:
         return len(self.fragments) > 1
 
     def has_current_access(self) -> bool:

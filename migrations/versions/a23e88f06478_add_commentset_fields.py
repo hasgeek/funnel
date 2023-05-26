@@ -31,7 +31,7 @@ comment = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'commentset',
         sa.Column('last_comment_at', sa.TIMESTAMP(timezone=True), nullable=True),
@@ -56,6 +56,6 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('commentset_membership', 'is_muted')
     op.drop_column('commentset', 'last_comment_at')

@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Iterable, List, Optional, Set, Union
+from typing import List, Optional, Sequence, Set, Union
 
-from sqlalchemy.orm import CompositeProperty
 from werkzeug.utils import cached_property
 
 from baseframe import _, __
@@ -14,6 +13,7 @@ from coaster.utils import LabeledEnum
 
 from . import (
     BaseMixin,
+    DynamicMapped,
     Mapped,
     MarkdownCompositeBasic,
     TSVectorType,
@@ -151,7 +151,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     with_roles(last_comment, read={'all'}, datasets={'primary'})
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         parent_roles = self.parent.roles_for(actor, anchors)
@@ -204,7 +204,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     commentset_id = sa.Column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
-    commentset = with_roles(
+    commentset: Mapped[Commentset] = with_roles(
         sa.orm.relationship(
             Commentset,
             backref=sa.orm.backref('comments', lazy='dynamic', cascade='all'),
@@ -298,20 +298,20 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
             else self._user
         )
 
-    @user.setter
-    def user(self, value: Optional[User]) -> None:
+    @user.inplace.setter
+    def _user_setter(self, value: Optional[User]) -> None:
         self._user = value
 
-    @user.expression
-    def user(cls):  # pylint: disable=no-self-argument
+    @user.inplace.expression
+    @classmethod
+    def _user_expression(cls) -> sa.orm.InstrumentedAttribute[Optional[User]]:
+        """Return SQL Expression."""
         return cls._user
 
     with_roles(user, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'})
 
-    # XXX: We're returning MarkownComposite, not CompositeProperty, but mypy doesn't
-    # know. This is pending a fix to SQLAlchemy's type system, hopefully in 2.0
     @hybrid_property
-    def message(self) -> Union[CompositeProperty, MessageComposite]:
+    def message(self) -> Union[MessageComposite, MarkdownCompositeBasic]:
         """Return the message of the comment if not deleted or removed."""
         return (
             message_deleted
@@ -321,13 +321,14 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
             else self._message
         )
 
-    @message.setter
-    def message(self, value: str) -> None:
+    @message.inplace.setter  # type: ignore[arg-type]
+    def _message_setter(self, value: str) -> None:
         """Edit the message of a comment."""
         self._message = value  # type: ignore[assignment]
 
-    @message.expression
-    def message(cls):  # pylint: disable=no-self-argument
+    @message.inplace.expression
+    @classmethod
+    def _message_expression(cls):
         """Return SQL expression for comment message column."""
         return cls._message
 
@@ -399,7 +400,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         """Mark this comment as not spam."""
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         roles.add('reader')
@@ -411,7 +412,7 @@ add_search_trigger(Comment, 'search_vector')
 
 @reopen(Commentset)
 class __Commentset:
-    toplevel_comments = sa.orm.relationship(
+    toplevel_comments: DynamicMapped[List[Comment]] = sa.orm.relationship(
         Comment,
         lazy='dynamic',
         primaryjoin=sa.and_(

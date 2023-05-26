@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'proposal',
         sa.Column(
@@ -27,5 +27,5 @@ def upgrade():
     op.alter_column('proposal', 'location', server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('proposal', 'location')

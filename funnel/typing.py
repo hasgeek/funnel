@@ -31,15 +31,24 @@ T = TypeVar('T')
 #: Type used to indicate parameter continuity within a block of code
 P = ParamSpec('P')
 
+#: Type used to bound Query to host model
+_QM = TypeVar('_QM', bound='ModelType')
 
-class ModelType(Protocol):
+
+class ModelType(Protocol[_QM]):
     """Protocol class for models."""
 
     __tablename__: str
-    query: Query
+    query: Query[_QM]
 
 
-class UuidModelType(ModelType):
+class IdModelType(ModelType):
+    """Protocol class for models."""
+
+    id: Mapped[Union[int, UUID]]  # noqa: A003
+
+
+class UuidModelType(IdModelType):
     """Protocol class for models with UUID column."""
 
     uuid: Mapped[UUID]

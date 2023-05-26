@@ -15,12 +15,12 @@ from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_table('proposal_tags')
     op.drop_table('tag')
 
 
-def downgrade():
+def downgrade() -> None:
     op.create_table(
         'tag',
         sa.Column(

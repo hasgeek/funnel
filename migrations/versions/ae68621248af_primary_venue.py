@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'project_venue_primary',
         sa.Column('project_id', sa.Integer(), nullable=False),
@@ -62,7 +62,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(
         sa.DDL(
             '''

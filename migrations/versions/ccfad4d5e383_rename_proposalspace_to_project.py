@@ -183,7 +183,7 @@ renamed_constraints = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     for old, new in renamed_tables:
         op.rename_table(old, new)
 
@@ -203,7 +203,7 @@ def upgrade():
         )
 
 
-def downgrade():
+def downgrade() -> None:
     for table, old, new in renamed_constraints:
         op.execute(
             sa.DDL(

@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'saved_project',
         sa.Column('user_id', sa.Integer(), nullable=False),
@@ -54,7 +54,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(op.f('ix_saved_session_session_id'), table_name='saved_session')
     op.drop_table('saved_session')
 

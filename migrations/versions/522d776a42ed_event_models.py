@@ -13,7 +13,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'ticket_type',
         sa.Column('id', sa.Integer(), nullable=False),
@@ -97,7 +97,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_table('event_ticket_type')
     op.drop_table('sync_ticket')
     op.drop_table('attendee')

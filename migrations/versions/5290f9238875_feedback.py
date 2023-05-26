@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'proposal_feedback',
         sa.Column('id', sa.Integer(), nullable=False),
@@ -34,5 +34,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_table('proposal_feedback')

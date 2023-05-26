@@ -27,7 +27,17 @@ from coaster.utils import buid as make_buid
 from coaster.utils import newsecret, require_one_of, utcnow
 
 from ..typing import OptionalMigratedTables
-from . import BaseMixin, Mapped, UuidMixin, db, declarative_mixin, declared_attr, sa
+from . import (
+    BaseMixin,
+    DynamicMapped,
+    Mapped,
+    Query,
+    UuidMixin,
+    db,
+    declarative_mixin,
+    declared_attr,
+    sa,
+)
 from .helpers import reopen
 from .user import Organization, Team, User
 from .user_session import UserSession, auth_client_user_session
@@ -52,7 +62,9 @@ class ScopeMixin:
     @classmethod
     def _scope(cls) -> Mapped[str]:
         """Database column for storing scopes as a space-separated string."""
-        return sa.Column('scope', sa.UnicodeText, nullable=cls.__scope_null_allowed__)
+        return sa.orm.mapped_column(
+            'scope', sa.UnicodeText, nullable=cls.__scope_null_allowed__
+        )
 
     @property
     def scope(self) -> Tuple[str, ...]:
@@ -162,7 +174,7 @@ class AuthClient(
         sa.Column(sa.Boolean, nullable=False, default=False), read={'all'}
     )
 
-    user_sessions = sa.orm.relationship(
+    user_sessions: DynamicMapped[List[UserSession]] = sa.orm.relationship(
         UserSession,
         lazy='dynamic',
         secondary=auth_client_user_session,
@@ -171,8 +183,8 @@ class AuthClient(
 
     __table_args__ = (
         sa.CheckConstraint(
-            sa.case((user_id.isnot(None), 1), else_=0)
-            + sa.case((organization_id.isnot(None), 1), else_=0)
+            sa.case((user_id.is_not(None), 1), else_=0)
+            + sa.case((organization_id.is_not(None), 1), else_=0)
             == 1,
             name='auth_client_owner_check',
         ),
@@ -276,7 +288,7 @@ class AuthClient(
         return cls.query.filter(cls.buid == buid, cls.active.is_(True)).one_or_none()
 
     @classmethod
-    def all_for(cls, user: Optional[User]) -> QueryBaseClass:
+    def all_for(cls, user: Optional[User]) -> Query[AuthClient]:
         """Return all clients, optionally all clients owned by the specified user."""
         if user is None:
             return cls.query.order_by(cls.title)
@@ -362,12 +374,12 @@ class AuthClientCredential(BaseMixin, db.Model):  # type: ignore[name-defined]
         return False
 
     @classmethod
-    def get(cls, name: str):
+    def get(cls, name: str) -> Optional[AuthClientCredential]:
         """Get a client credential by its key name."""
         return cls.query.filter(cls.name == name).one_or_none()
 
     @classmethod
-    def new(cls, auth_client: AuthClient):
+    def new(cls, auth_client: AuthClient) -> Tuple[AuthClientCredential, str]:
         """
         Create a new client credential and return (cred, secret).
 
@@ -420,7 +432,7 @@ class AuthCode(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         return not self.used and self.created_at >= utcnow() - timedelta(minutes=3)
 
     @classmethod
-    def all_for(cls, user: User) -> QueryBaseClass:
+    def all_for(cls, user: User) -> Query[AuthCode]:
         """Return all auth codes for the specified user."""
         return cls.query.filter(cls.user == user)
 
@@ -618,9 +630,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         ).one_or_none()
 
     @classmethod
-    def all(  # noqa: A003
-        cls, users: Union[QueryBaseClass, Sequence[User]]
-    ) -> List[AuthToken]:
+    def all(cls, users: Union[Query, Sequence[User]]) -> List[AuthToken]:  # noqa: A003
         """Return all AuthToken for the specified users."""
         query = cls.query.join(AuthClient)
         if isinstance(users, QueryBaseClass):
@@ -644,7 +654,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         return []
 
     @classmethod
-    def all_for(cls, user: User) -> QueryBaseClass:
+    def all_for(cls, user: User) -> Query[AuthToken]:
         """Get all AuthTokens for a specified user (direct only)."""
         return cls.query.filter(cls.user == user)
 
@@ -719,12 +729,12 @@ class AuthClientUserPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
         ).one_or_none()
 
     @classmethod
-    def all_for(cls, user: User) -> QueryBaseClass:
+    def all_for(cls, user: User) -> Query[AuthClientUserPermissions]:
         """Get all permissions assigned to user for various clients."""
         return cls.query.filter(cls.user == user)
 
     @classmethod
-    def all_forclient(cls, auth_client: AuthClient) -> QueryBaseClass:
+    def all_forclient(cls, auth_client: AuthClient) -> Query[AuthClientUserPermissions]:
         """Get all permissions assigned on the specified auth client."""
         return cls.query.filter(cls.auth_client == auth_client)
 
@@ -779,7 +789,9 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
         ).one_or_none()
 
     @classmethod
-    def all_for(cls, auth_client: AuthClient, user: User) -> QueryBaseClass:
+    def all_for(
+        cls, auth_client: AuthClient, user: User
+    ) -> Query[AuthClientUserPermissions]:
         """Get all permissions for the specified user via their teams."""
         return cls.query.filter(
             cls.auth_client == auth_client,
@@ -787,7 +799,7 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
         )
 
     @classmethod
-    def all_forclient(cls, auth_client: AuthClient) -> QueryBaseClass:
+    def all_forclient(cls, auth_client: AuthClient) -> Query[AuthClientTeamPermissions]:
         """Get all permissions assigned on the specified auth client."""
         return cls.query.filter(cls.auth_client == auth_client)
 
