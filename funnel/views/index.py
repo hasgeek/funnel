@@ -6,9 +6,11 @@ from dataclasses import dataclass
 import os.path
 
 from flask import Response, g, render_template
+from markupsafe import Markup
 
-from baseframe import __
+from baseframe import _, __
 from baseframe.filters import date_filter
+from baseframe.forms import render_message
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, pages
@@ -189,3 +191,22 @@ def opensearch() -> ReturnView:
 @app.route('/robots.txt')
 def robotstxt() -> ReturnView:
     return Response(render_template('robots.txt.jinja2'), mimetype='text/plain')
+
+
+@app.route('/account/not-my-otp')
+def not_my_otp() -> ReturnView:
+    """Show help page for OTP misuse."""
+    return render_message(
+        title=_("Did not request an OTP?"),
+        message=Markup(
+            _(
+                "If you’ve received an OTP without requesting it, someone may have made"
+                " a typo in their own phone number and accidentally used yours. They"
+                " will not gain access to your account without the OTP.<br><br>"
+                "However, if you suspect misbehaviour of any form, please report it"
+                " to us. Email:"
+                ' <a href="mailto:support@hasgeek.com">support@hasgeek.com</a>, phone:'
+                ' <a href="tel:+917676332020">+91 7676 33 2020</a>.'
+            )
+        ),
+    )

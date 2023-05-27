@@ -231,11 +231,10 @@ def test_object_use(msgt) -> None:
 
 
 def test_web_otp_template() -> None:
-    t = sms.WebOtpTemplate(otp='1234', helpline_text="call 12345", domain='example.com')
+    t = sms.WebOtpTemplate(otp='1234')
     assert str(t) == (
-        'OTP is 1234 for Hasgeek.\n\n'
-        'Not you? Block misuse: call 12345\n\n'
-        '@example.com #1234'
+        'OTP is 1234 for Hasgeek. If you did not request this, report misuse at '
+        'https://has.gy/not-my-otp\n\n@hasgeek.com #1234'
     )
 
 
