@@ -195,6 +195,7 @@ def robotstxt() -> ReturnView:
 
 @app.route('/account/not-my-otp')
 def not_my_otp() -> ReturnView:
+    """Show help page for OTP misuse."""
     return render_message(
         title=_("Did not request an OTP?"),
         message=Markup(
@@ -202,7 +203,7 @@ def not_my_otp() -> ReturnView:
                 "If you’ve received an OTP without requesting it, someone may have made"
                 " a typo in their own phone number and accidentally used yours. They"
                 " will not gain access to your account without the OTP.<br><br>"
-                "If you suspect misbehaviour of any form, please report it"
+                "However, if you suspect misbehaviour of any form, please report it"
                 " to us. Email:"
                 ' <a href="mailto:support@hasgeek.com">support@hasgeek.com</a>, phone:'
                 ' <a href="tel:+917676332020">+91 7676 33 2020</a>.'
