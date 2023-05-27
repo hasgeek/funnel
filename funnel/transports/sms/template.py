@@ -372,14 +372,17 @@ class WebOtpTemplate(SmsTemplate):
     """Template for Web OTPs."""
 
     registered_template = (
-        'OTP is {#var#} for Hasgeek. If you did not request this, report misuse at '
-        'https://has.gy/not-my-otp\n\n@hasgeek.com #{#var#}'
+        'OTP is {#var#} for Hasgeek. If you did not request this, report misuse at'
+        ' https://has.gy/not-my-otp\n\n@hasgeek.com #{#var#}'
     )
     template = (
-        'OTP is {otp} for Hasgeek. If you did not request this, report misuse at '
-        'https://has.gy/not-my-otp\n\n@hasgeek.com #{otp}'
+        'OTP is {otp} for Hasgeek. If you did not request this, report misuse at'
+        ' https://has.gy/not-my-otp\n\n@hasgeek.com #{otp}'
     )
-    plaintext_template = 'OTP is {otp} for Hasgeek. If you did not request this, report misuse at https://has.gy/not-my-otp\n\n@hasgeek.com #{otp}'
+    plaintext_template = (
+        'OTP is {otp} for Hasgeek. If you did not request this, report misuse at'
+        ' https://has.gy/not-my-otp\n\n@hasgeek.com #{otp}'
+    )
 
 
 class OneLineTemplate(SmsTemplate):
