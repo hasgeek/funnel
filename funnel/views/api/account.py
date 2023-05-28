@@ -11,7 +11,6 @@ from coaster.auth import current_auth
 
 from ... import app
 from ...forms import PasswordPolicyForm, UsernameAvailableForm
-from ...models import UserPhone
 from ...typing import ReturnView
 from ..helpers import progressive_rate_limit_validator, validate_rate_limit
 
@@ -107,21 +106,3 @@ def account_username_availability() -> ReturnView:
             else str(list(form.errors.values())[0][0])
         ),
     }, 200
-
-
-@app.route('/api/1/support/callerid', methods=['POST'])
-def phone_number_user_id() -> ReturnView:
-    """Check whether a phone number is associated with a user."""
-    if request.headers.get('X-API-Key') == app.config.get('API_KEY'):
-        phone_number = request.form.get('phone_number')
-        if phone_number:
-            user_phone = UserPhone.get(phone_number)
-            if user_phone:
-                return {
-                    'fullname': user_phone.user.fullname,
-                    'username': user_phone.user.name,
-                }
-        return {
-            'error': 'user_not_found',
-        }, 404
-    return {'error': 'invalid_api_key'}, 401
