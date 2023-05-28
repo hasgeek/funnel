@@ -19,7 +19,7 @@ import sqlalchemy as sa
 venue_room = table('venue_room', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     op.add_column('venue_room', sa.Column('uuid', sa.Uuid(), nullable=True))
@@ -32,6 +32,6 @@ def upgrade():
     op.create_unique_constraint('venue_room_uuid_key', 'venue_room', ['uuid'])
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('venue_room_uuid_key', 'venue_room', type_='unique')
     op.drop_column('venue_room', 'uuid')

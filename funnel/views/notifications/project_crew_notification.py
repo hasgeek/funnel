@@ -683,13 +683,11 @@ class RenderShared:
         """
         if membership is None:
             membership = self.membership
-        membership_user_uuid = membership.user.uuid
         membership_actor = self.membership_actor(membership)
-        membership_actor_uuid = membership_actor.uuid if membership_actor else None
         match = self.template_picker.match(
             membership,
-            is_subject=self.user_notification.user.uuid == membership_user_uuid,
-            for_actor=self.user_notification.user.uuid == membership_actor_uuid,
+            is_subject=self.user_notification.user == membership.user,
+            for_actor=self.user_notification.user == membership_actor,
         )
         if match is not None:
             return match.template
@@ -710,7 +708,7 @@ class RenderShared:
         membership, the original actor must be attributed.
         """
         if (
-            self.user_notification.user.uuid == self.membership.user.uuid
+            self.user_notification.user == self.membership.user
             and self.notification.user is not None
         ):
             return self.notification.user

@@ -16,7 +16,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'votespace',
         sa.Column('id', sa.Integer(), nullable=False),
@@ -206,7 +206,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_table('proposal_tags')
     op.drop_table('proposal')
     op.drop_table('group_members')

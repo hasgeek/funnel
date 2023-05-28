@@ -63,12 +63,12 @@ downgrade_states = {
 }
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint('project_old_state_check', 'project', type_='check')
     op.drop_column('project', 'old_state')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'project',
         sa.Column(

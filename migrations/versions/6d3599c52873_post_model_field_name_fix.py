@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column('post', sa.Column('body_html', sa.UnicodeText(), nullable=False))
     op.add_column('post', sa.Column('body_text', sa.UnicodeText(), nullable=False))
     op.add_column('post', sa.Column('is_pinned', sa.Boolean(), nullable=False))
@@ -38,7 +38,7 @@ def upgrade():
     op.drop_column('post', 'pinned')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'post', sa.Column('pinned', sa.BOOLEAN(), autoincrement=False, nullable=False)
     )

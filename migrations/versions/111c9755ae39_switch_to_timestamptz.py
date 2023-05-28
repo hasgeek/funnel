@@ -83,7 +83,7 @@ migrate_table_columns = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     for table, column in migrate_table_columns:
         op.execute(
             sa.DDL(
@@ -93,7 +93,7 @@ def upgrade():
         )
 
 
-def downgrade():
+def downgrade() -> None:
     for table, column in reversed(migrate_table_columns):
         op.execute(
             sa.DDL(

@@ -31,12 +31,12 @@ session = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_column('project', 'date')
     op.drop_column('project', 'date_upto')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     op.add_column('project', sa.Column('date', sa.Date(), nullable=True))
@@ -47,7 +47,7 @@ def downgrade():
         first_session = conn.execute(
             sa.select(session.c.start)
             .where(session.c.project_id == project_id[0])
-            .where(session.c.start.isnot(None))
+            .where(session.c.start.is_not(None))
             .order_by(session.c.start.asc())
         ).fetchone()
         if first_session is not None:
@@ -59,7 +59,7 @@ def downgrade():
         last_session = conn.execute(
             sa.select(session.c.end)
             .where(session.c.project_id == project_id[0])
-            .where(session.c.end.isnot(None))
+            .where(session.c.end.is_not(None))
             .order_by(session.c.end.desc())
         ).fetchone()
         if last_session is not None:

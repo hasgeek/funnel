@@ -13,7 +13,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'ticket_client',
         sa.Column('id', sa.Integer(), nullable=False),
@@ -40,7 +40,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'sync_ticket_ticket_client_id', 'sync_ticket', type_='foreignkey'
     )

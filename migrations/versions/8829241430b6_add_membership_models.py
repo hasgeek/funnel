@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'organization_membership',
         sa.Column('id', sa.Uuid(), nullable=False),
@@ -130,7 +130,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(
         op.f('ix_proposal_membership_active'), table_name='proposal_membership'
     )

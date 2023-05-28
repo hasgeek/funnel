@@ -26,7 +26,7 @@ USER_STATES = {
 }
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column('user', 'status', new_column_name='state')
     op.create_check_constraint(
         'user_state_check',
@@ -35,6 +35,6 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('user_state_check', 'user', type_='check')
     op.alter_column('user', 'state', new_column_name='status')

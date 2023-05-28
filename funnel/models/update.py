@@ -2,35 +2,31 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from typing import Optional, Sequence
 
 from sqlalchemy.orm import Query as BaseQuery
 
 from baseframe import __
-from coaster.sqlalchemy import (
-    LazyRoleSet,
-    Query,
-    StateManager,
-    auto_init_default,
-    with_roles,
-)
+from coaster.sqlalchemy import LazyRoleSet, StateManager, auto_init_default, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
     BaseScopedIdNameMixin,
-    Commentset,
     Mapped,
     MarkdownCompositeDocument,
-    Project,
+    Model,
+    Query,
     TimestampMixin,
     TSVectorType,
-    User,
     UuidMixin,
     db,
+    relationship,
     sa,
 )
-from .comment import SET_TYPE
+from .comment import SET_TYPE, Commentset
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
+from .project import Project
+from .user import User
 
 __all__ = ['Update']
 
@@ -46,16 +42,11 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
     RESTRICTED = (2, 'restricted', __("Restricted"))
 
 
-class Update(
-    UuidMixin,
-    BaseScopedIdNameMixin,
-    TimestampMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     __tablename__ = 'update'
     __allow_unmapped__ = True
 
-    _visibility_state = sa.Column(
+    _visibility_state = sa.orm.mapped_column(
         'visibility_state',
         sa.SmallInteger,
         StateManager.check_constraint('visibility_state', VISIBILITY_STATE),
@@ -67,7 +58,7 @@ class Update(
         '_visibility_state', VISIBILITY_STATE, doc="Visibility state"
     )
 
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', UPDATE_STATE),
@@ -77,11 +68,11 @@ class Update(
     )
     state = StateManager('_state', UPDATE_STATE, doc="Update state")
 
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=False, index=True
     )
     user = with_roles(
-        sa.orm.relationship(
+        relationship(
             User,
             backref=sa.orm.backref('updates', lazy='dynamic'),
             foreign_keys=[user_id],
@@ -90,11 +81,11 @@ class Update(
         grants={'creator'},
     )
 
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, index=True
     )
     project: Mapped[Project] = with_roles(
-        sa.orm.relationship(Project, backref=sa.orm.backref('updates', lazy='dynamic')),
+        relationship(Project, backref=sa.orm.backref('updates', lazy='dynamic')),
         read={'all'},
         datasets={'primary'},
         grants_via={
@@ -107,24 +98,26 @@ class Update(
     )
     parent: Mapped[Project] = sa.orm.synonym('project')
 
-    body = MarkdownCompositeDocument.create('body', nullable=False)
+    body, body_text, body_html = MarkdownCompositeDocument.create(
+        'body', nullable=False
+    )
 
     #: Update number, for Project updates, assigned when the update is published
     number = with_roles(
-        sa.Column(sa.Integer, nullable=True, default=None), read={'all'}
+        sa.orm.mapped_column(sa.Integer, nullable=True, default=None), read={'all'}
     )
 
     #: Like pinned tweets. You can keep posting updates,
     #: but might want to pin an update from a week ago.
     is_pinned = with_roles(
-        sa.Column(sa.Boolean, default=False, nullable=False), read={'all'}
+        sa.orm.mapped_column(sa.Boolean, default=False, nullable=False), read={'all'}
     )
 
-    published_by_id = sa.Column(
+    published_by_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
     )
     published_by: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             User,
             backref=sa.orm.backref('published_updates', lazy='dynamic'),
             foreign_keys=[published_by_id],
@@ -132,14 +125,14 @@ class Update(
         read={'all'},
     )
     published_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    deleted_by_id = sa.Column(
+    deleted_by_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
     )
     deleted_by: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             User,
             backref=sa.orm.backref('deleted_updates', lazy='dynamic'),
             foreign_keys=[deleted_by_id],
@@ -147,18 +140,19 @@ class Update(
         read={'reader'},
     )
     deleted_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'reader'}
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
+        read={'reader'},
     )
 
     edited_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    commentset_id = sa.Column(
+    commentset_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset = with_roles(
-        sa.orm.relationship(
+        relationship(
             Commentset,
             uselist=False,
             lazy='joined',
@@ -169,20 +163,19 @@ class Update(
         read={'all'},
     )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'name',
-                'title',
-                'body_text',
-                weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter, Update.title, Update.body_html
-                ),
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'name',
+            'title',
+            'body_text',
+            weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter, Update.title, Update.body_html
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     __roles__ = {
@@ -265,7 +258,7 @@ class Update(
         'WITHDRAWN',
         state.DRAFT,
         lambda update: update.published_at is not None,
-        lambda update: update.published_at.isnot(None),
+        lambda update: update.published_at.is_not(None),
         label=('withdrawn', __("Withdrawn")),
     )
 
@@ -337,7 +330,7 @@ class Update(
     with_roles(is_currently_restricted, read={'all'})
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if not self.visibility_state.RESTRICTED:
@@ -349,7 +342,7 @@ class Update(
         return roles
 
     @classmethod
-    def all_published_public(cls) -> Query:
+    def all_published_public(cls) -> Query[Update]:
         return cls.query.join(Project).filter(
             Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
         )

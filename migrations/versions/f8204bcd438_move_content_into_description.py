@@ -18,7 +18,7 @@ from coaster.gfm import markdown
 from coaster.sqlalchemy import JsonDict
 
 
-def upgrade():
+def upgrade() -> None:
     connection = op.get_bind()
     proposal_space = table(
         'proposal_space',
@@ -66,6 +66,6 @@ def upgrade():
                     )
 
 
-def downgrade():
+def downgrade() -> None:
     # XXX: There is no downgrade since we clobbered the content column's content. We're one-way.
     pass

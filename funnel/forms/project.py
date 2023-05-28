@@ -116,7 +116,7 @@ class ProjectForm(forms.Form):
         description=__("Landing page contents"),
     )
 
-    def validate_location(self, field) -> None:
+    def validate_location(self, field: forms.Field) -> None:
         """Validate location field to not have quotes (from copy paste of hint)."""
         if re.search(double_quote_re, field.data) is not None:
             raise forms.validators.ValidationError(
@@ -251,7 +251,7 @@ class CfpForm(forms.Form):
         naive=False,
     )
 
-    def validate_cfp_end_at(self, field) -> None:
+    def validate_cfp_end_at(self, field: forms.Field) -> None:
         """Validate closing date to be in the future."""
         if field.data <= utcnow():
             raise forms.validators.StopValidation(

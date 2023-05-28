@@ -75,12 +75,12 @@ class SessionTimeouts(Dict[str, timedelta]):
         self.keys_at.add(f'{key}_at')
         super().__setitem__(key, value)
 
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key: str) -> None:
         """Remove a value from the dictionary."""
         self.keys_at.remove(f'{key}_at')
         super().__delitem__(key)
 
-    def has_intersection(self, other):
+    def has_intersection(self, other: Any) -> bool:
         """Check for intersection with other dictionary-like object."""
         okeys = other.keys()
         return not (self.keys_at.isdisjoint(okeys) and self.keys().isdisjoint(okeys))

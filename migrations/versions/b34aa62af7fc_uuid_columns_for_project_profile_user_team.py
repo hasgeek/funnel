@@ -60,7 +60,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     # --- Project
@@ -136,7 +136,7 @@ def upgrade():
     op.drop_column('user', 'userid')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     # --- User

@@ -123,7 +123,7 @@ proposal_membership = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     #: Create OrganizationMembership record for owners team members of Organization
@@ -228,7 +228,7 @@ def upgrade():
             )
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
     conn.execute(project_crew_membership.delete())
     conn.execute(organization_membership.delete())

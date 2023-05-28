@@ -15,7 +15,7 @@ from sqlalchemy_utils import TimezoneType
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column(
         'project',
         'timezone',
@@ -24,7 +24,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         'project',
         'timezone',

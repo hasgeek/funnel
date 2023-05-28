@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column('session', 'start', new_column_name='start_at')
     op.alter_column('session', 'end', new_column_name='end_at')
     op.create_index(op.f('ix_session_start_at'), 'session', ['start_at'], unique=False)
@@ -27,7 +27,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(
         sa.DDL(
             'ALTER TABLE session RENAME CONSTRAINT session_start_at_end_at_check '

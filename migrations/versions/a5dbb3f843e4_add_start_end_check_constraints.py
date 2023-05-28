@@ -22,14 +22,14 @@ start_at = column('start_at', sa.TIMESTAMP)
 end_at = column('end_at', sa.TIMESTAMP)
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint('session_start_at_end_at_check', 'session', type_='check')
     op.create_check_constraint(
         'session_start_at_end_at_check',
         'session',
         sa.or_(
             sa.and_(start_at.is_(None), end_at.is_(None)),
-            sa.and_(start_at.isnot(None), end_at.isnot(None), end_at >= start_at),
+            sa.and_(start_at.is_not(None), end_at.is_not(None), end_at >= start_at),
         ),
     )
     op.create_check_constraint(
@@ -37,12 +37,12 @@ def upgrade():
         'project',
         sa.or_(
             sa.and_(start_at.is_(None), end_at.is_(None)),
-            sa.and_(start_at.isnot(None), end_at.isnot(None), end_at >= start_at),
+            sa.and_(start_at.is_not(None), end_at.is_not(None), end_at >= start_at),
         ),
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('project_start_at_end_at_check', 'project', type_='check')
     op.drop_constraint('session_start_at_end_at_check', 'session', type_='check')
     op.create_check_constraint(
@@ -50,6 +50,6 @@ def downgrade():
         'session',
         sa.or_(
             sa.and_(start_at.is_(None), end_at.is_(None)),
-            sa.and_(start_at.isnot(None), end_at.isnot(None)),
+            sa.and_(start_at.is_not(None), end_at.is_not(None)),
         ),
     )

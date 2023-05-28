@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
+from typing import List, Optional
 
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
-from . import BaseMixin, Mapped, UuidMixin, db, sa
+from . import BaseMixin, DynamicMapped, Mapped, Model, UuidMixin, relationship, sa
 from .helpers import reopen
 from .user import User
 
@@ -43,9 +43,9 @@ USER_SESSION_VALIDITY_PERIOD = timedelta(days=365)
 
 #: When a user logs into an client app, the user's session is logged against
 #: the client app in this table
-auth_client_user_session: sa.Table = sa.Table(
+auth_client_user_session = sa.Table(
     'auth_client_user_session',
-    db.Model.metadata,  # type: ignore[has-type]
+    Model.metadata,
     sa.Column(
         'auth_client_id',
         sa.Integer,
@@ -75,33 +75,33 @@ auth_client_user_session: sa.Table = sa.Table(
 )
 
 
-class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class UserSession(UuidMixin, BaseMixin, Model):
     __tablename__ = 'user_session'
     __allow_unmapped__ = True
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user: Mapped[User] = sa.orm.relationship(
+    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user: Mapped[User] = relationship(
         User, backref=sa.orm.backref('all_user_sessions', cascade='all', lazy='dynamic')
     )
 
     #: User's last known IP address
-    ipaddr = sa.Column(sa.String(45), nullable=False)
+    ipaddr = sa.orm.mapped_column(sa.String(45), nullable=False)
     #: City geonameid from IP address
-    geonameid_city = sa.Column(sa.Integer, nullable=True)
+    geonameid_city = sa.orm.mapped_column(sa.Integer, nullable=True)
     #: State/subdivision geonameid from IP address
-    geonameid_subdivision = sa.Column(sa.Integer, nullable=True)
+    geonameid_subdivision = sa.orm.mapped_column(sa.Integer, nullable=True)
     #: Country geonameid from IP address
-    geonameid_country = sa.Column(sa.Integer, nullable=True)
+    geonameid_country = sa.orm.mapped_column(sa.Integer, nullable=True)
     #: User's network, from IP address
-    geoip_asn = sa.Column(sa.Integer, nullable=True)
+    geoip_asn = sa.orm.mapped_column(sa.Integer, nullable=True)
     #: User agent
-    user_agent = sa.Column(sa.UnicodeText, nullable=False)
+    user_agent = sa.orm.mapped_column(sa.UnicodeText, nullable=False)
     #: The login service that was used to make this session
-    login_service = sa.Column(sa.Unicode, nullable=True)
+    login_service = sa.orm.mapped_column(sa.Unicode, nullable=True)
 
-    accessed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=False)
-    revoked_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
-    sudo_enabled_at = sa.Column(
+    accessed_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=False)
+    revoked_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
+    sudo_enabled_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
 
@@ -110,27 +110,27 @@ class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         return f'<UserSession {self.buid}>'
 
     @property
-    def has_sudo(self):
+    def has_sudo(self) -> bool:
         return (
             self.sudo_enabled_at is None  # New session, not yet written to db
             or self.sudo_enabled_at > utcnow() - timedelta(minutes=15)
         )
 
-    def set_sudo(self):
+    def set_sudo(self) -> None:
         self.sudo_enabled_at = sa.func.utcnow()
 
-    def revoke(self):
+    def revoke(self) -> None:
         if not self.revoked_at:
             self.revoked_at = sa.func.utcnow()
             self.authtokens.delete(synchronize_session='fetch')
             session_revoked.send(self)
 
     @classmethod
-    def get(cls, buid):
+    def get(cls, buid: str) -> Optional[UserSession]:
         return cls.query.filter_by(buid=buid).one_or_none()
 
     @classmethod
-    def authenticate(cls, buid, silent=False):
+    def authenticate(cls, buid: str, silent: bool = False) -> Optional[UserSession]:
         """
         Retrieve a user session that is supposed to be active.
 
@@ -167,7 +167,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 
 @reopen(User)
 class __User:
-    active_user_sessions = sa.orm.relationship(
+    active_user_sessions: DynamicMapped[List[UserSession]] = relationship(
         UserSession,
         lazy='dynamic',
         primaryjoin=sa.and_(

@@ -59,7 +59,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     if geoip2_database is not None:
         try:
             geoip_city = geoip2_database.Reader(GEOIP_DB_CITY)
@@ -135,5 +135,5 @@ def upgrade():
         print("Skipping geonameid population as geoip2 is not installed")  # noqa: T201
 
 
-def downgrade():
+def downgrade() -> None:
     pass

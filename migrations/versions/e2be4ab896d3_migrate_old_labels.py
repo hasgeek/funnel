@@ -61,7 +61,7 @@ proposal_label = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
     # Migrate sections -
     projects = conn.execute(project.select())
@@ -273,7 +273,7 @@ def upgrade():
                 )
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
     conn.execute(label.delete())
     conn.execute(proposal_label.delete())

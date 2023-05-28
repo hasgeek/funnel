@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, List, Optional, Union
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
+from typing import Any, Iterable, List, Optional, Sequence, Union
 
 from furl import furl
 from sqlalchemy.sql import expression
-from sqlalchemy.sql.expression import ColumnElement
 
 from baseframe import __
-from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, immutable, with_roles
+from coaster.sqlalchemy import LazyRoleSet, StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
@@ -18,11 +16,14 @@ from . import (
     BaseMixin,
     Mapped,
     MarkdownCompositeDocument,
+    Model,
+    Query,
     TSVectorType,
     UrlType,
     UuidMixin,
     db,
     hybrid_property,
+    relationship,
     sa,
 )
 from .helpers import (
@@ -53,12 +54,7 @@ class PROFILE_STATE(LabeledEnum):  # noqa: N801
 
 # This model does not use BaseNameMixin because it has no title column. The title comes
 # from the linked User or Organization
-class Profile(
-    EnumerateMembershipsMixin,
-    UuidMixin,
-    BaseMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
     """
     Consolidated account for :class:`User` and :class:`Organization` models.
 
@@ -75,7 +71,7 @@ class Profile(
 
     #: The "username" assigned to a user or organization.
     #: Length limit 63 to fit DNS label limit
-    name = sa.Column(
+    name = sa.orm.mapped_column(
         sa.Unicode(__name_length__),
         sa.CheckConstraint("name <> ''"),
         nullable=False,
@@ -83,7 +79,7 @@ class Profile(
     )
     # Only one of the following three may be set:
     #: User that owns this name (limit one per user)
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('user.id', ondelete='SET NULL'),
         unique=True,
@@ -94,27 +90,29 @@ class Profile(
     # be trivially deleted
 
     user: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             'User',
             backref=sa.orm.backref('profile', uselist=False, cascade='all'),
         ),
         grants={'owner'},
     )
     #: Organization that owns this name (limit one per organization)
-    organization_id = sa.Column(
+    organization_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('organization.id', ondelete='SET NULL'),
         unique=True,
         nullable=True,
     )
-    organization: Mapped[Optional[Organization]] = sa.orm.relationship(
+    organization: Mapped[Optional[Organization]] = relationship(
         'Organization',
         backref=sa.orm.backref('profile', uselist=False, cascade='all'),
     )
     #: Reserved account (not assigned to any party)
-    reserved = sa.Column(sa.Boolean, nullable=False, default=False, index=True)
+    reserved = sa.orm.mapped_column(
+        sa.Boolean, nullable=False, default=False, index=True
+    )
 
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', PROFILE_STATE),
@@ -125,62 +123,69 @@ class Profile(
         '_state', PROFILE_STATE, doc="Current state of the account page"
     )
 
-    tagline = sa.Column(sa.Unicode, nullable=True)
-    description = MarkdownCompositeDocument.create(
+    tagline = sa.orm.mapped_column(sa.Unicode, nullable=True)
+    description, description_text, description_html = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
-    website: Mapped[Optional[furl]] = sa.Column(UrlType, nullable=True)
-    logo_url: Mapped[Optional[ImgeeFurl]] = sa.Column(ImgeeType, nullable=True)
-    banner_image_url: Mapped[Optional[ImgeeFurl]] = sa.Column(ImgeeType, nullable=True)
+    website: Mapped[Optional[furl]] = sa.orm.mapped_column(UrlType, nullable=True)
+    logo_url: Mapped[Optional[ImgeeFurl]] = sa.orm.mapped_column(
+        ImgeeType, nullable=True
+    )
+    banner_image_url: Mapped[Optional[ImgeeFurl]] = sa.orm.mapped_column(
+        ImgeeType, nullable=True
+    )
 
     # These two flags are read-only. There is no provision for writing to them within
     # the app:
 
     #: Protected accounts cannot be deleted
     is_protected = with_roles(
-        immutable(sa.Column(sa.Boolean, default=False, nullable=False)),
+        immutable(sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)),
         read={'owner', 'admin'},
     )
     #: Verified accounts get listed on the home page and are not considered throwaway
     #: accounts for spam control. There are no other privileges at this time
     is_verified = with_roles(
-        immutable(sa.Column(sa.Boolean, default=False, nullable=False, index=True)),
+        immutable(
+            sa.orm.mapped_column(sa.Boolean, default=False, nullable=False, index=True)
+        ),
         read={'all'},
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
-    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+    revisionid = with_roles(
+        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+    )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'name',
-                'description_text',
-                weights={'name': 'A', 'description_text': 'B'},
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter, Profile.name, Profile.description_html
-                ),
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'name',
+            'description_text',
+            weights={'name': 'A', 'description_text': 'B'},
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter, Profile.name, Profile.description_html
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     is_active = with_roles(
         sa.orm.column_property(
             sa.case(
                 (
-                    user_id.isnot(None),  # ← when, ↙ then
-                    sa.select(User.state.ACTIVE)  # type: ignore[has-type]
+                    user_id.is_not(None),  # ← when, ↙ then
+                    sa.select(User.state.ACTIVE)
                     .where(User.id == user_id)
-                    .correlate_except(User)  # type: ignore[arg-type]
+                    .correlate_except(User)
                     .scalar_subquery(),
                 ),
                 (
-                    organization_id.isnot(None),  # ← when, ↙ then
-                    sa.select(Organization.state.ACTIVE)  # type: ignore[has-type]
+                    organization_id.is_not(None),  # ← when, ↙ then
+                    sa.select(Organization.state.ACTIVE)
                     .where(Organization.id == organization_id)
-                    .correlate_except(Organization)  # type: ignore[arg-type]
+                    .correlate_except(Organization)
                     .scalar_subquery(),
                 ),
                 else_=expression.false(),
@@ -192,8 +197,8 @@ class Profile(
 
     __table_args__ = (
         sa.CheckConstraint(
-            sa.case((user_id.isnot(None), 1), else_=0)
-            + sa.case((organization_id.isnot(None), 1), else_=0)
+            sa.case((user_id.is_not(None), 1), else_=0)
+            + sa.case((organization_id.is_not(None), 1), else_=0)
             + sa.case((reserved.is_(True), 1), else_=0)
             == 1,
             name='profile_owner_check',
@@ -295,20 +300,22 @@ class Profile(
         """Test if this is a user account."""
         return self.user_id is not None
 
-    @is_user_profile.expression
-    def is_user_profile(cls):  # pylint: disable=no-self-argument
+    @is_user_profile.inplace.expression
+    @classmethod
+    def _is_user_profile_expression(cls) -> sa.ColumnElement[bool]:
         """Test if this is a user account in a SQL expression."""
-        return cls.user_id.isnot(None)
+        return cls.user_id.is_not(None)
 
     @hybrid_property
     def is_organization_profile(self) -> bool:
         """Test if this is an organization account."""
         return self.organization_id is not None
 
-    @is_organization_profile.expression
-    def is_organization_profile(cls):  # pylint: disable=no-self-argument
+    @is_organization_profile.inplace.expression
+    @classmethod
+    def _is_organization_profile_expression(cls) -> sa.ColumnElement[bool]:
         """Test if this is an organization account in a SQL expression."""
-        return cls.organization_id.isnot(None)
+        return cls.organization_id.is_not(None)
 
     @property
     def is_public(self) -> bool:
@@ -326,8 +333,8 @@ class Profile(
             return self.organization.title
         return ''
 
-    @title.setter
-    def title(self, value: str) -> None:
+    @title.inplace.setter
+    def _title_setter(self, value: str) -> None:
         """Set title of this profile on the underlying User or Organization."""
         if self.user:
             self.user.fullname = value
@@ -336,19 +343,20 @@ class Profile(
         else:
             raise ValueError("Reserved accounts do not have titles")
 
-    @title.expression
-    def title(cls):  # pylint: disable=no-self-argument
+    @title.inplace.expression
+    @classmethod
+    def _title_expression(cls) -> sa.Case:
         """Retrieve title as a SQL expression."""
         return sa.case(
             (
                 # if...
-                cls.user_id.isnot(None),
+                cls.user_id.is_not(None),
                 # then...
                 sa.select(User.fullname).where(cls.user_id == User.id).as_scalar(),
             ),
             (
                 # elif...
-                cls.organization_id.isnot(None),
+                cls.organization_id.is_not(None),
                 # then...
                 sa.select(Organization.title)
                 .where(cls.organization_id == Organization.id)
@@ -367,7 +375,7 @@ class Profile(
         return self.title
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         """Identify roles for the given actor."""
         if self.owner:
@@ -379,19 +387,19 @@ class Profile(
         return roles
 
     @classmethod
-    def name_is(cls, name: Any) -> ColumnElement:
+    def name_is(cls, name: Any) -> sa.ColumnElement[bool]:
         """Generate query filter to check if name is matching (case insensitive)."""
         return sa.func.lower(cls.name) == sa.func.lower(sa.func.replace(name, '-', '_'))
 
     @classmethod
-    def name_in(cls, names: Iterable[Any]) -> ColumnElement:
+    def name_in(cls, names: Iterable[Any]) -> sa.ColumnElement[bool]:
         """Generate query flter to check if name is among candidates."""
         return sa.func.lower(cls.name).in_(
             [name.lower().replace('-', '_') for name in names]
         )
 
     @classmethod
-    def name_like(cls, like_query: Any) -> ColumnElement:
+    def name_like(cls, like_query: Any) -> sa.ColumnElement[bool]:
         """Generate query filter for a LIKE query on name."""
         return sa.func.lower(cls.name).like(
             sa.func.lower(sa.func.replace(like_query, '-', r'\_'))
@@ -403,7 +411,7 @@ class Profile(
         return cls.query.filter(cls.name_is(name)).one_or_none()
 
     @classmethod
-    def all_public(cls) -> Query:
+    def all_public(cls) -> Query[Profile]:
         """Construct a query on Profile filtered by public state."""
         return cls.query.filter(cls.state.PUBLIC)
 

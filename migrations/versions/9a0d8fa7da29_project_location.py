@@ -15,7 +15,7 @@ import sqlalchemy as sa
 from coaster.sqlalchemy import JsonDict
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'project_location',
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -41,7 +41,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('project', 'parsed_location')
     op.drop_column('project', 'location')
     op.drop_index(op.f('ix_project_location_geonameid'), table_name='project_location')
