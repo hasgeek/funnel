@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, sa
+from . import DynamicMapped, Mapped, Model, relationship, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .user import Organization, User
@@ -85,7 +85,7 @@ class OrganizationMembership(ImmutableUserMembershipMixin, Model):
         nullable=False,
     )
     organization: Mapped[Organization] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Organization,
             backref=sa.orm.backref(
                 'memberships', lazy='dynamic', cascade='all', passive_deletes=True
@@ -116,7 +116,7 @@ class OrganizationMembership(ImmutableUserMembershipMixin, Model):
 @reopen(Organization)
 class __Organization:
     active_admin_memberships: DynamicMapped[List[OrganizationMembership]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             OrganizationMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
@@ -132,7 +132,7 @@ class __Organization:
 
     active_owner_memberships: DynamicMapped[
         List[OrganizationMembership]
-    ] = sa.orm.relationship(
+    ] = relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -143,9 +143,7 @@ class __Organization:
         viewonly=True,
     )
 
-    active_invitations: DynamicMapped[
-        List[OrganizationMembership]
-    ] = sa.orm.relationship(
+    active_invitations: DynamicMapped[List[OrganizationMembership]] = relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -171,7 +169,7 @@ class __User:
     # pylint: disable=invalid-unary-operand-type
     organization_admin_memberships: DynamicMapped[
         List[OrganizationMembership]
-    ] = sa.orm.relationship(
+    ] = relationship(
         OrganizationMembership,
         lazy='dynamic',
         foreign_keys=[OrganizationMembership.user_id],  # type: ignore[has-type]
@@ -180,7 +178,7 @@ class __User:
 
     noninvite_organization_admin_memberships: DynamicMapped[
         List[OrganizationMembership]
-    ] = sa.orm.relationship(
+    ] = relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -193,7 +191,7 @@ class __User:
 
     active_organization_admin_memberships: DynamicMapped[
         List[OrganizationMembership]
-    ] = sa.orm.relationship(
+    ] = relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -206,7 +204,7 @@ class __User:
 
     active_organization_owner_memberships: DynamicMapped[
         List[OrganizationMembership]
-    ] = sa.orm.relationship(
+    ] = relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -220,7 +218,7 @@ class __User:
 
     active_organization_invitations: DynamicMapped[
         List[OrganizationMembership]
-    ] = sa.orm.relationship(
+    ] = relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(

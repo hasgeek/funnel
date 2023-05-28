@@ -16,6 +16,7 @@ from . import (
     MarkdownCompositeBasic,
     Model,
     UuidMixin,
+    relationship,
     sa,
 )
 from .helpers import reopen
@@ -31,7 +32,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
 
     project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
     project: Mapped[Project] = with_roles(
-        sa.orm.relationship(Project, back_populates='venues'),
+        relationship(Project, back_populates='venues'),
         grants_via={None: project_child_role_map},
     )
     parent: Mapped[Project] = sa.orm.synonym('project')
@@ -45,7 +46,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
     postcode = sa.Column(sa.Unicode(20), default='', nullable=False)
     country = sa.Column(sa.Unicode(2), default='', nullable=False)
 
-    rooms: Mapped[List[VenueRoom]] = sa.orm.relationship(
+    rooms: Mapped[List[VenueRoom]] = relationship(
         'VenueRoom',
         cascade='all',
         order_by='VenueRoom.seq',
@@ -110,7 +111,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
 
     venue_id = sa.Column(sa.Integer, sa.ForeignKey('venue.id'), nullable=False)
     venue: Mapped[Venue] = with_roles(
-        sa.orm.relationship(Venue, back_populates='rooms'),
+        relationship(Venue, back_populates='rooms'),
         # Since Venue already remaps Project roles, we just want the remapped role names
         grants_via={None: set(itertools.chain(*project_child_role_map.values()))},
     )
@@ -176,7 +177,7 @@ with_roles(Project.primary_venue, read={'all'}, datasets={'primary', 'without_pa
 @reopen(Project)
 class __Project:
     venues = with_roles(
-        sa.orm.relationship(
+        relationship(
             Venue,
             cascade='all',
             order_by='Venue.seq',

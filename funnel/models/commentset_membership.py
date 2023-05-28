@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, with_roles
 
-from . import DynamicMapped, Mapped, Model, Query, db, sa
+from . import DynamicMapped, Mapped, Model, Query, db, relationship, sa
 from .comment import Comment, Commentset
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -46,7 +46,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
         sa.ForeignKey('commentset.id', ondelete='CASCADE'),
         nullable=False,
     )
-    commentset: Mapped[Commentset] = sa.orm.relationship(
+    commentset: Mapped[Commentset] = relationship(
         Commentset,
         backref=sa.orm.backref(
             'subscriber_memberships',
@@ -121,7 +121,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
 class __User:
     active_commentset_memberships: DynamicMapped[
         List[CommentsetMembership]
-    ] = sa.orm.relationship(
+    ] = relationship(
         CommentsetMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -138,7 +138,7 @@ class __User:
 
 @reopen(Commentset)
 class __Commentset:
-    active_memberships: DynamicMapped[List[CommentsetMembership]] = sa.orm.relationship(
+    active_memberships: DynamicMapped[List[CommentsetMembership]] = relationship(
         CommentsetMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -150,7 +150,7 @@ class __Commentset:
 
     # Send notifications only to subscribers who haven't muted
     active_memberships_unmuted: DynamicMapped[List[CommentsetMembership]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             CommentsetMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(

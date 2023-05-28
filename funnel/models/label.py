@@ -8,7 +8,15 @@ from sqlalchemy.ext.orderinglist import ordering_list
 
 from coaster.sqlalchemy import with_roles
 
-from . import BaseScopedNameMixin, Mapped, Model, TSVectorType, hybrid_property, sa
+from . import (
+    BaseScopedNameMixin,
+    Mapped,
+    Model,
+    TSVectorType,
+    hybrid_property,
+    relationship,
+    sa,
+)
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
@@ -45,7 +53,7 @@ class Label(BaseScopedNameMixin, Model):
     )
     # Backref from project is defined in the Project model with an ordering list
     project: Mapped[Project] = with_roles(
-        sa.orm.relationship(Project), grants_via={None: project_child_role_map}
+        relationship(Project), grants_via={None: project_child_role_map}
     )
     # `parent` is required for
     # :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
@@ -61,7 +69,7 @@ class Label(BaseScopedNameMixin, Model):
         nullable=True,
     )
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
-    options = sa.orm.relationship(
+    options = relationship(
         'Label',
         backref=sa.orm.backref('main_label', remote_side='Label.id'),
         order_by='Label.seq',
@@ -115,7 +123,7 @@ class Label(BaseScopedNameMixin, Model):
     )
 
     #: Proposals that this label is attached to
-    proposals: Mapped[Proposal] = sa.orm.relationship(
+    proposals: Mapped[Proposal] = relationship(
         Proposal, secondary=proposal_label, back_populates='labels'
     )
 
@@ -386,7 +394,7 @@ class ProposalLabelProxy:
 
 @reopen(Project)
 class __Project:
-    labels = sa.orm.relationship(
+    labels = relationship(
         Label,
         primaryjoin=sa.and_(
             Label.project_id == Project.id,
@@ -396,7 +404,7 @@ class __Project:
         order_by=Label.seq,
         viewonly=True,
     )
-    all_labels = sa.orm.relationship(
+    all_labels = relationship(
         Label,
         collection_class=ordering_list('seq', count_from=1),
         back_populates='project',
@@ -409,8 +417,6 @@ class __Proposal:
     formlabels = ProposalLabelProxy()
 
     labels = with_roles(
-        sa.orm.relationship(
-            Label, secondary=proposal_label, back_populates='proposals'
-        ),
+        relationship(Label, secondary=proposal_label, back_populates='proposals'),
         read={'all'},
     )

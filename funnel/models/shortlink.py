@@ -15,7 +15,7 @@ from typing_extensions import Literal
 
 from coaster.sqlalchemy import immutable, with_roles
 
-from . import Mapped, Model, NoIdMixin, UrlType, db, hybrid_property, sa
+from . import Mapped, Model, NoIdMixin, UrlType, db, hybrid_property, relationship, sa
 from .helpers import profanity
 from .user import User
 
@@ -214,7 +214,7 @@ class Shortlink(NoIdMixin, Model):
         sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
     )
     #: User who created this shortlink (optional)
-    user: Mapped[Optional[User]] = sa.orm.relationship(User)
+    user: Mapped[Optional[User]] = relationship(User)
 
     #: Is this link enabled? If not, render 410 Gone
     enabled = sa.Column(sa.Boolean, nullable=False, default=True)

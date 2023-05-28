@@ -37,6 +37,7 @@ from . import (
     db,
     declarative_mixin,
     declared_attr,
+    relationship,
     sa,
 )
 from .helpers import reopen
@@ -106,7 +107,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         sa.Integer, sa.ForeignKey('user.id'), nullable=True
     )
     user: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             User,
             foreign_keys=[user_id],
             backref=sa.orm.backref('clients', cascade='all'),
@@ -120,7 +121,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         sa.Integer, sa.ForeignKey('organization.id'), nullable=True
     )
     organization: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Organization,
             foreign_keys=[organization_id],
             backref=sa.orm.backref('clients', cascade='all'),
@@ -173,7 +174,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         sa.Column(sa.Boolean, nullable=False, default=False), read={'all'}
     )
 
-    user_sessions: DynamicMapped[List[UserSession]] = sa.orm.relationship(
+    user_sessions: DynamicMapped[List[UserSession]] = relationship(
         UserSession,
         lazy='dynamic',
         secondary=auth_client_user_session,
@@ -324,7 +325,7 @@ class AuthClientCredential(BaseMixin, Model):
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
     auth_client: Mapped[AuthClient] = with_roles(
-        sa.orm.relationship(
+        relationship(
             AuthClient,
             backref=sa.orm.backref(
                 'credentials',
@@ -407,11 +408,11 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
     user_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=False
     )
-    user: Mapped[User] = sa.orm.relationship(User, foreign_keys=[user_id])
+    user: Mapped[User] = relationship(User, foreign_keys=[user_id])
     auth_client_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
-    auth_client: Mapped[AuthClient] = sa.orm.relationship(
+    auth_client: Mapped[AuthClient] = relationship(
         AuthClient,
         foreign_keys=[auth_client_id],
         backref=sa.orm.backref('authcodes', cascade='all'),
@@ -419,7 +420,7 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
     user_session_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('user_session.id'), nullable=True
     )
-    user_session: Mapped[Optional[UserSession]] = sa.orm.relationship(UserSession)
+    user_session: Mapped[Optional[UserSession]] = relationship(UserSession)
     code: Mapped[str] = sa.Column(sa.String(44), default=newsecret, nullable=False)
     redirect_uri: Mapped[str] = sa.Column(sa.UnicodeText, nullable=False)
     used: Mapped[bool] = sa.Column(sa.Boolean, default=False, nullable=False)
@@ -451,7 +452,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     # User id is null for client-only tokens and public clients as the user is
     # identified via user_session.user there
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
-    user: Mapped[Optional[User]] = sa.orm.relationship(
+    user: Mapped[Optional[User]] = relationship(
         User,
         backref=sa.orm.backref('authtokens', lazy='dynamic', cascade='all'),
     )
@@ -460,9 +461,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         sa.Integer, sa.ForeignKey('user_session.id'), nullable=True
     )
     user_session: Mapped[Optional[UserSession]] = with_roles(
-        sa.orm.relationship(
-            UserSession, backref=sa.orm.backref('authtokens', lazy='dynamic')
-        ),
+        relationship(UserSession, backref=sa.orm.backref('authtokens', lazy='dynamic')),
         read={'owner'},
     )
     #: The client this authtoken is for
@@ -470,7 +469,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
     auth_client: Mapped[AuthClient] = with_roles(
-        sa.orm.relationship(
+        relationship(
             AuthClient,
             backref=sa.orm.backref('authtokens', lazy='dynamic', cascade='all'),
         ),
@@ -667,7 +666,7 @@ class AuthClientUserPermissions(BaseMixin, Model):
     __allow_unmapped__ = True
     #: User who has these permissions
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user = sa.orm.relationship(
+    user = relationship(
         User,
         foreign_keys=[user_id],
         backref=sa.orm.backref('client_permissions', cascade='all'),
@@ -677,7 +676,7 @@ class AuthClientUserPermissions(BaseMixin, Model):
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
     auth_client: Mapped[AuthClient] = with_roles(
-        sa.orm.relationship(
+        relationship(
             AuthClient,
             foreign_keys=[auth_client_id],
             backref=sa.orm.backref('user_permissions', cascade='all'),
@@ -747,7 +746,7 @@ class AuthClientTeamPermissions(BaseMixin, Model):
     __allow_unmapped__ = True
     #: Team which has these permissions
     team_id = sa.Column(sa.Integer, sa.ForeignKey('team.id'), nullable=False)
-    team = sa.orm.relationship(
+    team = relationship(
         Team,
         foreign_keys=[team_id],
         backref=sa.orm.backref('client_permissions', cascade='all'),
@@ -757,7 +756,7 @@ class AuthClientTeamPermissions(BaseMixin, Model):
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
     auth_client: Mapped[AuthClient] = with_roles(
-        sa.orm.relationship(
+        relationship(
             AuthClient,
             foreign_keys=[auth_client_id],
             backref=sa.orm.backref('team_permissions', cascade='all'),

@@ -16,7 +16,7 @@ from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
 from ..typing import OptionalMigratedTables
-from . import Mapped, Model, Query, RoleMixin, TimestampMixin, db, sa
+from . import Mapped, Model, Query, RoleMixin, TimestampMixin, db, relationship, sa
 from .project import Project
 from .sync_ticket import TicketParticipant
 from .user import User
@@ -54,7 +54,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     user_id = sa.Column(
         sa.Integer, sa.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True
     )
-    user: Mapped[User] = sa.orm.relationship(
+    user: Mapped[User] = relationship(
         User,
         backref=sa.orm.backref(
             'scanned_contacts',
@@ -70,7 +70,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         primary_key=True,
         index=True,
     )
-    ticket_participant: Mapped[TicketParticipant] = sa.orm.relationship(
+    ticket_participant: Mapped[TicketParticipant] = relationship(
         TicketParticipant,
         backref=sa.orm.backref('scanned_contacts', passive_deletes=True),
     )

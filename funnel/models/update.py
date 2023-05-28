@@ -20,6 +20,7 @@ from . import (
     TSVectorType,
     UuidMixin,
     db,
+    relationship,
     sa,
 )
 from .comment import SET_TYPE, Commentset
@@ -71,7 +72,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         sa.Integer, sa.ForeignKey('user.id'), nullable=False, index=True
     )
     user = with_roles(
-        sa.orm.relationship(
+        relationship(
             User,
             backref=sa.orm.backref('updates', lazy='dynamic'),
             foreign_keys=[user_id],
@@ -84,7 +85,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, index=True
     )
     project: Mapped[Project] = with_roles(
-        sa.orm.relationship(Project, backref=sa.orm.backref('updates', lazy='dynamic')),
+        relationship(Project, backref=sa.orm.backref('updates', lazy='dynamic')),
         read={'all'},
         datasets={'primary'},
         grants_via={
@@ -114,7 +115,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
     )
     published_by: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             User,
             backref=sa.orm.backref('published_updates', lazy='dynamic'),
             foreign_keys=[published_by_id],
@@ -129,7 +130,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
     )
     deleted_by: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             User,
             backref=sa.orm.backref('deleted_updates', lazy='dynamic'),
             foreign_keys=[deleted_by_id],
@@ -148,7 +149,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset = with_roles(
-        sa.orm.relationship(
+        relationship(
             Commentset,
             uselist=False,
             lazy='joined',

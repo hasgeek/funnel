@@ -30,6 +30,7 @@ from . import (
     declarative_mixin,
     declared_attr,
     hybrid_property,
+    relationship,
     sa,
 )
 
@@ -723,7 +724,7 @@ class EmailAddressMixin:
         EmailAddress.__backrefs__.add(backref_name)
         if cls.__email_for__ and cls.__email_is_exclusive__:
             EmailAddress.__exclusive_backrefs__.add(backref_name)
-        return sa.orm.relationship(EmailAddress, backref=backref_name)
+        return relationship(EmailAddress, backref=backref_name)
 
     @property
     def email(self) -> Optional[str]:

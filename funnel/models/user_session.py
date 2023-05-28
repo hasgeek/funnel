@@ -8,7 +8,7 @@ from typing import List, Optional
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
-from . import BaseMixin, DynamicMapped, Mapped, Model, UuidMixin, sa
+from . import BaseMixin, DynamicMapped, Mapped, Model, UuidMixin, relationship, sa
 from .helpers import reopen
 from .user import User
 
@@ -80,7 +80,7 @@ class UserSession(UuidMixin, BaseMixin, Model):
     __allow_unmapped__ = True
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user: Mapped[User] = sa.orm.relationship(
+    user: Mapped[User] = relationship(
         User, backref=sa.orm.backref('all_user_sessions', cascade='all', lazy='dynamic')
     )
 
@@ -167,7 +167,7 @@ class UserSession(UuidMixin, BaseMixin, Model):
 
 @reopen(User)
 class __User:
-    active_user_sessions: DynamicMapped[List[UserSession]] = sa.orm.relationship(
+    active_user_sessions: DynamicMapped[List[UserSession]] = relationship(
         UserSession,
         lazy='dynamic',
         primaryjoin=sa.and_(

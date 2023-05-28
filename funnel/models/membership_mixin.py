@@ -33,6 +33,7 @@ from . import (
     declarative_mixin,
     declared_attr,
     hybrid_property,
+    relationship,
     sa,
 )
 from .profile import Profile
@@ -165,7 +166,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @classmethod
     def revoked_by(cls) -> Mapped[Optional[User]]:
         """User who revoked the membership."""
-        return sa.orm.relationship(User, foreign_keys=[cls.revoked_by_id])
+        return relationship(User, foreign_keys=[cls.revoked_by_id])
 
     @declared_attr
     @classmethod
@@ -187,7 +188,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @classmethod
     def granted_by(cls) -> Mapped[Optional[User]]:
         """User who assigned the membership."""
-        return sa.orm.relationship(User, foreign_keys=[cls.granted_by_id])
+        return relationship(User, foreign_keys=[cls.granted_by_id])
 
     @hybrid_property
     def is_active(self) -> bool:
@@ -390,7 +391,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def user(cls) -> Mapped[User]:
         """User who is the subject of this membership record."""
-        return sa.orm.relationship(User, foreign_keys=[cls.user_id])
+        return relationship(User, foreign_keys=[cls.user_id])
 
     @declared_attr
     @classmethod
@@ -512,7 +513,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def profile(cls) -> Mapped[Profile]:
         """Account that is the subject of this membership record."""
-        return sa.orm.relationship(Profile, foreign_keys=[cls.profile_id])
+        return relationship(Profile, foreign_keys=[cls.profile_id])
 
     @declared_attr
     @classmethod
@@ -795,13 +796,13 @@ def _confirm_enumerated_mixins(
         cls.__noninvite_membership_attrs__,
     ):
         for attr_name in source:
-            relationship = getattr(cls, attr_name, None)
-            if relationship is None:
+            attr_relationship = getattr(cls, attr_name, None)
+            if attr_relationship is None:
                 raise AttributeError(
                     f'{cls.__name__} does not have a relationship named'
                     f' {attr_name!r} targeting a subclass of {expected_class.__name__}'
                 )
-            if not issubclass(relationship.property.mapper.class_, expected_class):
+            if not issubclass(attr_relationship.property.mapper.class_, expected_class):
                 raise AttributeError(
                     f'{cls.__name__}.{attr_name} should be a relationship to a'
                     f' subclass of {expected_class.__name__}'

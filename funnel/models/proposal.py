@@ -20,6 +20,7 @@ from . import (
     TSVectorType,
     UuidMixin,
     db,
+    relationship,
     sa,
 )
 from .comment import SET_TYPE, Commentset
@@ -120,7 +121,7 @@ class Proposal(  # type: ignore[misc]
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = with_roles(
-        sa.orm.relationship(
+        relationship(
             User,
             foreign_keys=[user_id],
             backref=sa.orm.backref('created_proposals', cascade='all', lazy='dynamic'),
@@ -129,7 +130,7 @@ class Proposal(  # type: ignore[misc]
     )
     project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
     project: Mapped[Project] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Project,
             foreign_keys=[project_id],
             backref=sa.orm.backref(
@@ -167,7 +168,7 @@ class Proposal(  # type: ignore[misc]
     commentset_id = sa.Column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
-    commentset: Mapped[Commentset] = sa.orm.relationship(
+    commentset: Mapped[Commentset] = relationship(
         Commentset,
         uselist=False,
         lazy='joined',
@@ -493,12 +494,12 @@ class ProposalSuuidRedirect(BaseMixin, Model):
     proposal_id = sa.Column(
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
-    proposal: Mapped[Proposal] = sa.orm.relationship(Proposal)
+    proposal: Mapped[Proposal] = relationship(Proposal)
 
 
 @reopen(Commentset)
 class __Commentset:
-    proposal = sa.orm.relationship(Proposal, uselist=False, back_populates='commentset')
+    proposal = relationship(Proposal, uselist=False, back_populates='commentset')
 
 
 @reopen(Project)

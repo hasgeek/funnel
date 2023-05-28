@@ -21,6 +21,7 @@ from . import (
     UuidMixin,
     db,
     hybrid_property,
+    relationship,
     sa,
 )
 from .helpers import MessageComposite, add_search_trigger, reopen
@@ -197,7 +198,7 @@ class Comment(UuidMixin, BaseMixin, Model):
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
     _user: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             User, backref=sa.orm.backref('comments', lazy='dynamic', cascade='all')
         ),
         grants={'author'},
@@ -206,7 +207,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Commentset,
             backref=sa.orm.backref('comments', lazy='dynamic', cascade='all'),
         ),
@@ -214,7 +215,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     )
 
     in_reply_to_id = sa.Column(sa.Integer, sa.ForeignKey('comment.id'), nullable=True)
-    replies: Mapped[List[Comment]] = sa.orm.relationship(
+    replies: Mapped[List[Comment]] = relationship(
         'Comment', backref=sa.orm.backref('in_reply_to', remote_side='Comment.id')
     )
 
@@ -413,7 +414,7 @@ add_search_trigger(Comment, 'search_vector')
 
 @reopen(Commentset)
 class __Commentset:
-    toplevel_comments: DynamicMapped[List[Comment]] = sa.orm.relationship(
+    toplevel_comments: DynamicMapped[List[Comment]] = relationship(
         Comment,
         lazy='dynamic',
         primaryjoin=sa.and_(

@@ -7,7 +7,7 @@ from typing import Set
 from werkzeug.utils import cached_property
 
 from ..typing import Mapped
-from . import Model, User, declared_attr, sa
+from . import Model, User, declared_attr, relationship, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 
@@ -116,7 +116,7 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
 @reopen(User)
 class __User:
     # Singular, as only one can be active
-    active_site_membership = sa.orm.relationship(
+    active_site_membership = relationship(
         SiteMembership,
         lazy='select',
         primaryjoin=sa.and_(

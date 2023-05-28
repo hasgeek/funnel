@@ -127,6 +127,7 @@ from . import (
     Query,
     db,
     hybrid_property,
+    relationship,
     sa,
 )
 from .helpers import reopen
@@ -357,7 +358,7 @@ class Notification(NoIdMixin, Model):
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
     #: notifications of their own activity
-    user: Mapped[Optional[User]] = sa.orm.relationship(User)
+    user: Mapped[Optional[User]] = relationship(User)
 
     #: UUID of document that the notification refers to
     document_uuid: Mapped[UUID] = immutable(
@@ -757,7 +758,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
 
     #: User being notified (backref defined below, outside the model)
     user: Mapped[User] = with_roles(
-        sa.orm.relationship(User), read={'owner'}, grants={'owner'}
+        relationship(User), read={'owner'}, grants={'owner'}
     )
 
     #: Random eventid, shared with the Notification instance
@@ -771,7 +772,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
 
     #: Notification that this user received
     notification: Mapped[Notification] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Notification, backref=sa.orm.backref('recipients', lazy='dynamic')
         ),
         read={'owner'},
@@ -1204,7 +1205,7 @@ class NotificationPreferences(BaseMixin, Model):
     )
     #: User whose preferences are represented here
     user = with_roles(
-        sa.orm.relationship(User, back_populates='notification_preferences'),
+        relationship(User, back_populates='notification_preferences'),
         read={'owner'},
         grants={'owner'},
     )
@@ -1337,7 +1338,7 @@ class NotificationPreferences(BaseMixin, Model):
 @reopen(User)
 class __User:
     all_notifications: DynamicMapped[List[UserNotification]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             UserNotification,
             lazy='dynamic',
             order_by=UserNotification.created_at.desc(),
@@ -1346,16 +1347,14 @@ class __User:
         read={'owner'},
     )
 
-    notification_preferences: Mapped[
-        Dict[str, NotificationPreferences]
-    ] = sa.orm.relationship(
+    notification_preferences: Mapped[Dict[str, NotificationPreferences]] = relationship(
         NotificationPreferences,
         collection_class=column_keyed_dict(NotificationPreferences.notification_type),
         back_populates='user',
     )
 
     # This relationship is wrapped in a property that creates it on first access
-    _main_notification_preferences = sa.orm.relationship(
+    _main_notification_preferences = relationship(
         NotificationPreferences,
         primaryjoin=sa.and_(
             NotificationPreferences.user_id == User.id,

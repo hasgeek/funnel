@@ -27,6 +27,7 @@ from . import (
     UrlType,
     UuidMixin,
     db,
+    relationship,
     sa,
     types,
 )
@@ -73,14 +74,14 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     reserved_names = RESERVED_NAMES
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user: Mapped[User] = sa.orm.relationship(
+    user: Mapped[User] = relationship(
         User,
         foreign_keys=[user_id],
         backref=sa.orm.backref('projects', cascade='all'),
     )
     profile_id = sa.Column(sa.Integer, sa.ForeignKey('profile.id'), nullable=False)
     profile: Mapped[Profile] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Profile, backref=sa.orm.backref('projects', cascade='all', lazy='dynamic')
         ),
         read={'all'},
@@ -209,7 +210,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     commentset_id = sa.Column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
-    commentset: Mapped[Commentset] = sa.orm.relationship(
+    commentset: Mapped[Commentset] = relationship(
         Commentset,
         uselist=False,
         cascade='all',
@@ -220,7 +221,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     parent_id = sa.Column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
-    parent_project: Mapped[Optional[Project]] = sa.orm.relationship(
+    parent_project: Mapped[Optional[Project]] = relationship(
         'Project', remote_side='Project.id', backref='subprojects'
     )
 
@@ -742,7 +743,7 @@ add_search_trigger(Project, 'search_vector')
 class __Profile:
     id: Mapped[int]  # noqa: A003
 
-    listed_projects: DynamicMapped[List[Project]] = sa.orm.relationship(
+    listed_projects: DynamicMapped[List[Project]] = relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -751,7 +752,7 @@ class __Profile:
         ),
         viewonly=True,
     )
-    draft_projects: DynamicMapped[List[Project]] = sa.orm.relationship(
+    draft_projects: DynamicMapped[List[Project]] = relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -761,7 +762,7 @@ class __Profile:
         viewonly=True,
     )
     projects_by_name = with_roles(
-        sa.orm.relationship(
+        relationship(
             Project, collection_class=attribute_keyed_dict('name'), viewonly=True
         ),
         read={'all'},
@@ -812,7 +813,7 @@ class ProjectRedirect(TimestampMixin, Model):
     profile_id = sa.Column(
         sa.Integer, sa.ForeignKey('profile.id'), nullable=False, primary_key=True
     )
-    profile: Mapped[Profile] = sa.orm.relationship(
+    profile: Mapped[Profile] = relationship(
         Profile, backref=sa.orm.backref('project_redirects', cascade='all')
     )
     parent: Mapped[Profile] = sa.orm.synonym('profile')
@@ -821,7 +822,7 @@ class ProjectRedirect(TimestampMixin, Model):
     project_id = sa.Column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
-    project: Mapped[Project] = sa.orm.relationship(Project, backref='redirects')
+    project: Mapped[Project] = relationship(Project, backref='redirects')
 
     def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
@@ -894,7 +895,7 @@ class ProjectLocation(TimestampMixin, Model):
     project_id = sa.Column(
         sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False
     )
-    project: Mapped[Project] = sa.orm.relationship(
+    project: Mapped[Project] = relationship(
         Project, backref=sa.orm.backref('locations', cascade='all')
     )
     #: Geonameid for this project
@@ -912,7 +913,7 @@ class ProjectLocation(TimestampMixin, Model):
 @reopen(Commentset)
 class __Commentset:
     project = with_roles(
-        sa.orm.relationship(Project, uselist=False, back_populates='commentset'),
+        relationship(Project, uselist=False, back_populates='commentset'),
         grants_via={None: {'editor': 'document_subscriber'}},
     )
 

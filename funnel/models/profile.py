@@ -23,6 +23,7 @@ from . import (
     UuidMixin,
     db,
     hybrid_property,
+    relationship,
     sa,
 )
 from .helpers import (
@@ -89,7 +90,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
     # be trivially deleted
 
     user: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             'User',
             backref=sa.orm.backref('profile', uselist=False, cascade='all'),
         ),
@@ -102,7 +103,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
         unique=True,
         nullable=True,
     )
-    organization: Mapped[Optional[Organization]] = sa.orm.relationship(
+    organization: Mapped[Optional[Organization]] = relationship(
         'Organization',
         backref=sa.orm.backref('profile', uselist=False, cascade='all'),
     )

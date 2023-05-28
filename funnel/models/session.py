@@ -25,6 +25,7 @@ from . import (
     UuidMixin,
     db,
     hybrid_property,
+    relationship,
     sa,
 )
 from .helpers import ImgeeType, add_search_trigger, reopen, visual_field_delimiter
@@ -46,7 +47,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Project, backref=sa.orm.backref('sessions', cascade='all', lazy='dynamic')
         ),
         grants_via={None: project_child_role_map},
@@ -58,14 +59,14 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     proposal_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id'), nullable=True, unique=True
     )
-    proposal: Mapped[Optional[Proposal]] = sa.orm.relationship(
+    proposal: Mapped[Optional[Proposal]] = relationship(
         Proposal, backref=sa.orm.backref('session', uselist=False, cascade='all')
     )
     speaker = sa.Column(sa.Unicode(200), default=None, nullable=True)
     start_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
     end_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
     venue_room_id = sa.Column(sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True)
-    venue_room: Mapped[Optional[VenueRoom]] = sa.orm.relationship(
+    venue_room: Mapped[Optional[VenueRoom]] = relationship(
         VenueRoom, backref=sa.orm.backref('sessions')
     )
     is_break = sa.Column(sa.Boolean, default=False, nullable=False)
@@ -270,7 +271,7 @@ add_search_trigger(Session, 'search_vector')
 
 @reopen(VenueRoom)
 class __VenueRoom:
-    scheduled_sessions = sa.orm.relationship(
+    scheduled_sessions = relationship(
         Session,
         primaryjoin=sa.and_(
             Session.venue_room_id == VenueRoom.id,
@@ -357,7 +358,7 @@ class __Project:
         return self.sessions.filter(Session.start_at.is_not(None)).count()
 
     featured_sessions = with_roles(
-        sa.orm.relationship(
+        relationship(
             Session,
             order_by=Session.start_at.asc(),
             primaryjoin=sa.and_(
@@ -368,7 +369,7 @@ class __Project:
         read={'all'},
     )
     scheduled_sessions = with_roles(
-        sa.orm.relationship(
+        relationship(
             Session,
             order_by=Session.start_at.asc(),
             primaryjoin=sa.and_(
@@ -380,7 +381,7 @@ class __Project:
         read={'all'},
     )
     unscheduled_sessions = with_roles(
-        sa.orm.relationship(
+        relationship(
             Session,
             order_by=Session.start_at.asc(),
             primaryjoin=sa.and_(
@@ -393,7 +394,7 @@ class __Project:
     )
 
     sessions_with_video: DynamicMapped[List[Session]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Session,
             lazy='dynamic',
             primaryjoin=sa.and_(

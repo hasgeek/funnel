@@ -425,7 +425,7 @@ def email_models(database, app) -> Generator:
         emailuser_id = sa.Column(
             sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=False
         )
-        emailuser = sa.orm.relationship(EmailUser)
+        emailuser = models.relationship(EmailUser)
 
     class EmailDocument(models.EmailAddressMixin, models.BaseMixin, models.Model):
         """Test model unaffiliated to a user that has an email address attached."""
@@ -441,7 +441,7 @@ def email_models(database, app) -> Generator:
         emailuser_id = sa.Column(
             sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=True
         )
-        emailuser = sa.orm.relationship(EmailUser)
+        emailuser = models.relationship(EmailUser)
 
     new_models = [EmailUser, EmailLink, EmailDocument, EmailLinkedDocument]
 

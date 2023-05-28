@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, TypeVar
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -18,7 +16,6 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType
 import sqlalchemy as sa
-import typing_extensions as te
 
 from coaster.sqlalchemy import (
     BaseIdNameMixin,

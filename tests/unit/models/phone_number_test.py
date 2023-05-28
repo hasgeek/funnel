@@ -62,7 +62,7 @@ def phone_models(database, app) -> Generator:
         phoneuser_id = sa.Column(
             sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=False
         )
-        phoneuser = sa.orm.relationship(PhoneUser)
+        phoneuser = models.relationship(PhoneUser)
 
     class PhoneDocument(models.PhoneNumberMixin, models.BaseMixin, models.Model):
         """Test model unaffiliated to a user that has a phone number attached."""
@@ -78,7 +78,7 @@ def phone_models(database, app) -> Generator:
         phoneuser_id = sa.Column(
             sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=True
         )
-        phoneuser = sa.orm.relationship(PhoneUser)
+        phoneuser = models.relationship(PhoneUser)
 
     new_models = [PhoneUser, PhoneLink, PhoneDocument, PhoneLinkedDocument]
 

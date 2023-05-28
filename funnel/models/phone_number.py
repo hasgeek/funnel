@@ -27,6 +27,7 @@ from . import (
     declarative_mixin,
     declared_attr,
     hybrid_property,
+    relationship,
     sa,
 )
 
@@ -743,7 +744,7 @@ class PhoneNumberMixin:
         PhoneNumber.__backrefs__.add(backref_name)
         if cls.__phone_for__ and cls.__phone_is_exclusive__:
             PhoneNumber.__exclusive_backrefs__.add(backref_name)
-        return sa.orm.relationship(PhoneNumber, backref=backref_name)
+        return relationship(PhoneNumber, backref=backref_name)
 
     @property
     def phone(self) -> Optional[str]:

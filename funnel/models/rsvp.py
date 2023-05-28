@@ -13,7 +13,7 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import Model, NoIdMixin, UuidMixin, db, sa
+from . import Model, NoIdMixin, UuidMixin, db, relationship, sa
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
@@ -38,7 +38,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project = with_roles(
-        sa.orm.relationship(
+        relationship(
             Project, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         read={'owner', 'project_promoter'},
@@ -48,7 +48,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         sa.Integer, sa.ForeignKey('user.id'), nullable=False, primary_key=True
     )
     user = with_roles(
-        sa.orm.relationship(
+        relationship(
             User, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         read={'owner', 'project_promoter'},

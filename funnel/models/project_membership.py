@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, declared_attr, sa
+from . import DynamicMapped, Mapped, Model, declared_attr, relationship, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
@@ -105,7 +105,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Project,
             backref=sa.orm.backref(
                 'crew_memberships',
@@ -180,7 +180,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
 @reopen(Project)
 class __Project:
     active_crew_memberships: DynamicMapped[List[ProjectCrewMembership]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             ProjectCrewMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
@@ -202,7 +202,7 @@ class __Project:
 
     active_editor_memberships: DynamicMapped[
         List[ProjectCrewMembership]
-    ] = sa.orm.relationship(
+    ] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -215,7 +215,7 @@ class __Project:
 
     active_promoter_memberships: DynamicMapped[
         List[ProjectCrewMembership]
-    ] = sa.orm.relationship(
+    ] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -226,9 +226,7 @@ class __Project:
         viewonly=True,
     )
 
-    active_usher_memberships: DynamicMapped[
-        List[ProjectCrewMembership]
-    ] = sa.orm.relationship(
+    active_usher_memberships: DynamicMapped[List[ProjectCrewMembership]] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -252,7 +250,7 @@ class __User:
 
     # This relationship is only useful to check if the user has ever been a crew member.
     # Most operations will want to use one of the active membership relationships.
-    projects_as_crew_memberships = sa.orm.relationship(
+    projects_as_crew_memberships = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         foreign_keys=[ProjectCrewMembership.user_id],
@@ -260,7 +258,7 @@ class __User:
     )
 
     # This is used to determine if it is safe to purge the subject's database record
-    projects_as_crew_noninvite_memberships = sa.orm.relationship(
+    projects_as_crew_noninvite_memberships = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -269,7 +267,7 @@ class __User:
         ),
         viewonly=True,
     )
-    projects_as_crew_active_memberships = sa.orm.relationship(
+    projects_as_crew_active_memberships = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -283,7 +281,7 @@ class __User:
         'projects_as_crew_active_memberships', 'project'
     )
 
-    projects_as_editor_active_memberships = sa.orm.relationship(
+    projects_as_editor_active_memberships = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(

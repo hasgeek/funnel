@@ -39,6 +39,7 @@ from . import (
     db,
     declarative_mixin,
     hybrid_property,
+    relationship,
     sa,
 )
 from .email_address import EmailAddress, EmailAddressMixin
@@ -967,7 +968,7 @@ class UserOldId(UuidMixin, BaseMixin, Model):
     __uuid_primary_key__ = True
 
     #: Old user account, if still present
-    olduser: Mapped[User] = sa.orm.relationship(
+    olduser: Mapped[User] = relationship(
         User,
         primaryjoin='foreign(UserOldId.id) == remote(User.uuid)',
         backref=sa.orm.backref('oldid', uselist=False),
@@ -975,7 +976,7 @@ class UserOldId(UuidMixin, BaseMixin, Model):
     #: User id of new user
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     #: New user account
-    user: Mapped[User] = sa.orm.relationship(
+    user: Mapped[User] = relationship(
         User, foreign_keys=[user_id], backref=sa.orm.backref('oldids', cascade='all')
     )
 
@@ -1332,7 +1333,7 @@ class Team(UuidMixin, BaseMixin, Model):
         sa.Integer, sa.ForeignKey('organization.id'), nullable=False
     )
     organization = with_roles(
-        sa.orm.relationship(
+        relationship(
             Organization,
             backref=sa.orm.backref(
                 'teams', order_by=sa.func.lower(title), cascade='all'
@@ -1341,9 +1342,7 @@ class Team(UuidMixin, BaseMixin, Model):
         grants_via={None: {'owner': 'owner', 'admin': 'admin'}},
     )
     users: DynamicMapped[List[User]] = with_roles(
-        sa.orm.relationship(
-            User, secondary=team_membership, lazy='dynamic', backref='teams'
-        ),
+        relationship(User, secondary=team_membership, lazy='dynamic', backref='teams'),
         grants={'subject'},
     )
 
@@ -1401,7 +1400,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, Model):
     email_address: Mapped[EmailAddress]
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user: Mapped[User] = sa.orm.relationship(
+    user: Mapped[User] = relationship(
         User, backref=sa.orm.backref('emails', cascade='all')
     )
 
@@ -1576,7 +1575,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, Model):
     email_address: Mapped[EmailAddress]
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user: Mapped[User] = sa.orm.relationship(
+    user: Mapped[User] = relationship(
         User, backref=sa.orm.backref('emailclaims', cascade='all')
     )
     verification_code = sa.Column(sa.String(44), nullable=False, default=newsecret)
@@ -1754,7 +1753,7 @@ class UserPhone(PhoneNumberMixin, BaseMixin, Model):
     __phone_for__ = 'user'
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user: Mapped[User] = sa.orm.relationship(
+    user: Mapped[User] = relationship(
         User, backref=sa.orm.backref('phones', cascade='all')
     )
 
@@ -1937,7 +1936,7 @@ class UserExternalId(BaseMixin, Model):
     #: Foreign key to user table
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     #: User that this connected account belongs to
-    user: Mapped[User] = sa.orm.relationship(
+    user: Mapped[User] = relationship(
         User, backref=sa.orm.backref('externalids', cascade='all')
     )
     #: Identity of the external service (in app's login provider registry)
