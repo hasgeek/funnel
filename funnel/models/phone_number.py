@@ -22,6 +22,7 @@ from ..signals import phonenumber_refcount_dropping
 from . import (
     BaseMixin,
     Mapped,
+    Model,
     db,
     declarative_mixin,
     declared_attr,
@@ -230,7 +231,7 @@ def phone_blake2b160_hash(
 # --- Models ---------------------------------------------------------------------------
 
 
-class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
+class PhoneNumber(BaseMixin, Model):
     """
     Represents a phone number as a standalone entity, with associated metadata.
 
@@ -342,6 +343,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     )
 
     def __init__(self, phone: str, *, _pre_validated_formatted: bool = False) -> None:
+        super().__init__()
         if not isinstance(phone, str):
             raise ValueError("A string phone number is required")
         if not _pre_validated_formatted:

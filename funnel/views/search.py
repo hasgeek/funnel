@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from html import unescape as html_unescape
-from typing import Any, List, Optional, TypeVar
+from typing import Any, List, Optional, Type, TypeVar
 from urllib.parse import quote as urlquote
 import re
 
@@ -28,6 +28,7 @@ from .. import app, executor
 from ..models import (
     Comment,
     Commentset,
+    Model,
     Organization,
     Profile,
     Project,
@@ -76,7 +77,7 @@ class SearchProvider:
     #: Label to use in UI
     label: str
     #: Model to query against
-    model: Any  # type: ignore[name-defined]
+    model: Type[Model]
     #: Does this model have a title column?
     has_title: bool = True
 

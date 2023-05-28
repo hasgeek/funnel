@@ -13,7 +13,7 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import NoIdMixin, UuidMixin, db, sa
+from . import Model, NoIdMixin, UuidMixin, db, sa
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
@@ -31,7 +31,7 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
     AWAITING = ('A', 'awaiting', __("Awaiting"))
 
 
-class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
+class Rsvp(UuidMixin, NoIdMixin, Model):
     __tablename__ = 'rsvp'
     __allow_unmapped__ = True
     project_id = sa.Column(

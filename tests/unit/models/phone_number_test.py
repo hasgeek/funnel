@@ -40,58 +40,49 @@ hash_map = {
 # This fixture must be session scope as it cannot be called twice in the same process.
 # SQLAlchemy models must only be defined once. A model can theoretically be removed,
 # but there is no formal API. Removal has at least three parts:
-# 1. Remove class from mapper registry using ``db.Model.registry._dispose_cls(cls)``
-# 2. Remove table from metadata using db.metadata.remove(cls.__table__)
+# 1. Remove class from mapper registry using ``Model.registry._dispose_cls(cls)``
+# 2. Remove table from metadata using Model.metadata.remove(cls.__table__)
 # 3. Remove all relationships to other classes (unsolved)
 @pytest.fixture(scope='session')
 def phone_models(database, app) -> Generator:
-    db = database
-
-    class PhoneUser(models.BaseMixin, db.Model):  # type: ignore[name-defined]
+    class PhoneUser(models.BaseMixin, models.Model):
         """Test model representing a user account."""
 
-        __tablename__ = 'phoneuser'
+        __tablename__ = 'test_phone_user'
 
-    class PhoneLink(
-        models.PhoneNumberMixin,
-        models.BaseMixin,
-        db.Model,  # type: ignore[name-defined]
-    ):
+    class PhoneLink(models.PhoneNumberMixin, models.BaseMixin, models.Model):
         """Test model connecting PhoneUser to PhoneNumber."""
 
+        __tablename__ = 'test_phone_link'
         __phone_optional__ = False
         __phone_unique__ = True
         __phone_for__ = 'phoneuser'
         __phone_is_exclusive__ = True
 
         phoneuser_id = sa.Column(
-            sa.Integer, sa.ForeignKey('phoneuser.id'), nullable=False
+            sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=False
         )
         phoneuser = sa.orm.relationship(PhoneUser)
 
-    class PhoneDocument(
-        models.PhoneNumberMixin,
-        models.BaseMixin,
-        db.Model,  # type: ignore[name-defined]
-    ):
+    class PhoneDocument(models.PhoneNumberMixin, models.BaseMixin, models.Model):
         """Test model unaffiliated to a user that has a phone number attached."""
 
-    class PhoneLinkedDocument(
-        models.PhoneNumberMixin,
-        models.BaseMixin,
-        db.Model,  # type: ignore[name-defined]
-    ):
+        __tablename__ = 'test_phone_document'
+
+    class PhoneLinkedDocument(models.PhoneNumberMixin, models.BaseMixin, models.Model):
         """Test model that accepts an optional user and an optional phone."""
 
+        __tablename__ = 'test_phone_linked_document'
         __phone_for__ = 'phoneuser'
 
         phoneuser_id = sa.Column(
-            sa.Integer, sa.ForeignKey('phoneuser.id'), nullable=True
+            sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=True
         )
         phoneuser = sa.orm.relationship(PhoneUser)
 
     new_models = [PhoneUser, PhoneLink, PhoneDocument, PhoneLinkedDocument]
 
+    sa.orm.configure_mappers()
     # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
         database.metadata.create_all(

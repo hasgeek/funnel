@@ -8,7 +8,7 @@ from sqlalchemy.ext.orderinglist import ordering_list
 
 from coaster.sqlalchemy import with_roles
 
-from . import BaseScopedNameMixin, Mapped, TSVectorType, db, hybrid_property, sa
+from . import BaseScopedNameMixin, Mapped, Model, TSVectorType, hybrid_property, sa
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
@@ -16,7 +16,7 @@ from .proposal import Proposal
 
 proposal_label = sa.Table(
     'proposal_label',
-    db.Model.metadata,  # type: ignore[has-type]
+    Model.metadata,
     sa.Column(
         'proposal_id',
         sa.Integer,
@@ -36,10 +36,7 @@ proposal_label = sa.Table(
 )
 
 
-class Label(
-    BaseScopedNameMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class Label(BaseScopedNameMixin, Model):
     __tablename__ = 'label'
     __allow_unmapped__ = True
 

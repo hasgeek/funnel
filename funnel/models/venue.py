@@ -14,8 +14,8 @@ from . import (
     CoordinatesMixin,
     Mapped,
     MarkdownCompositeBasic,
+    Model,
     UuidMixin,
-    db,
     sa,
 )
 from .helpers import reopen
@@ -25,12 +25,7 @@ from .project_membership import project_child_role_map
 __all__ = ['Venue', 'VenueRoom']
 
 
-class Venue(
-    UuidMixin,
-    BaseScopedNameMixin,
-    CoordinatesMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
     __tablename__ = 'venue'
     __allow_unmapped__ = True
 
@@ -109,7 +104,7 @@ class Venue(
     }
 
 
-class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-defined]
+class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
     __tablename__ = 'venue_room'
     __allow_unmapped__ = True
 

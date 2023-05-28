@@ -36,7 +36,7 @@ from zxcvbn import zxcvbn
 from .. import app
 from ..typing import T
 from ..utils import MarkdownConfig, markdown_escape
-from . import UrlType, sa
+from . import Model, UrlType, sa
 
 __all__ = [
     'RESERVED_NAMES',
@@ -393,15 +393,13 @@ def quote_autocomplete_tsquery(prefix: str) -> TSQUERY:
     )
 
 
-def add_search_trigger(
-    model: Any, column_name: str  # type: ignore[name-defined]
-) -> Dict[str, str]:
+def add_search_trigger(model: Type[Model], column_name: str) -> Dict[str, str]:
     """
     Add a search trigger and returns SQL for use in migrations.
 
     Typical use::
 
-        class MyModel(db.Model):  # type: ignore[name-defined]
+        class MyModel(Model):
             ...
             search_vector: Mapped[TSVectorType] = sa.orm.deferred(sa.Column(
                 TSVectorType(

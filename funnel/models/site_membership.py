@@ -7,17 +7,14 @@ from typing import Set
 from werkzeug.utils import cached_property
 
 from ..typing import Mapped
-from . import User, db, declared_attr, sa
+from . import Model, User, declared_attr, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 
 __all__ = ['SiteMembership']
 
 
-class SiteMembership(
-    ImmutableUserMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class SiteMembership(ImmutableUserMembershipMixin, Model):
     """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'

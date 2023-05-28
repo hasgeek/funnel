@@ -6,7 +6,7 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, Comment, Mapped, SiteMembership, User, UuidMixin, db, sa
+from . import BaseMixin, Comment, Mapped, Model, SiteMembership, User, UuidMixin, db, sa
 from .helpers import reopen
 
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
@@ -17,11 +17,7 @@ class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
     SPAM = (2, 'spam', __("Spam"))
 
 
-class CommentModeratorReport(
-    UuidMixin,
-    BaseMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class CommentModeratorReport(UuidMixin, BaseMixin, Model):
     __tablename__ = 'comment_moderator_report'
     __allow_unmapped__ = True
     __uuid_primary_key__ = True

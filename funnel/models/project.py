@@ -19,6 +19,7 @@ from . import (
     DynamicMapped,
     Mapped,
     MarkdownCompositeDocument,
+    Model,
     Query,
     TimestampMixin,
     TimezoneType,
@@ -66,7 +67,7 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-defined]
+class Project(UuidMixin, BaseScopedNameMixin, Model):
     __tablename__ = 'project'
     __allow_unmapped__ = True
     reserved_names = RESERVED_NAMES
@@ -804,7 +805,7 @@ class __Profile:
         )
 
 
-class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
+class ProjectRedirect(TimestampMixin, Model):
     __tablename__ = 'project_redirect'
     __allow_unmapped__ = True
 
@@ -886,7 +887,7 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
                 db.session.delete(pr)
 
 
-class ProjectLocation(TimestampMixin, db.Model):  # type: ignore[name-defined]
+class ProjectLocation(TimestampMixin, Model):
     __tablename__ = 'project_location'
     __allow_unmapped__ = True
     #: Project we are tagging

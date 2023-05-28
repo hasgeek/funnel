@@ -122,6 +122,7 @@ from . import (
     BaseMixin,
     DynamicMapped,
     Mapped,
+    Model,
     NoIdMixin,
     Query,
     db,
@@ -223,7 +224,7 @@ class SMS_STATUS(LabeledEnum):  # noqa: N801
 # --- Legacy models --------------------------------------------------------------------
 
 
-class SmsMessage(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class SmsMessage(PhoneNumberMixin, BaseMixin, Model):
     """An outbound SMS message."""
 
     __tablename__ = 'sms_message'
@@ -276,7 +277,7 @@ class NotificationType(Protocol):
     user: Optional[User]
 
 
-class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
+class Notification(NoIdMixin, Model):
     """
     Holds a single notification for an activity on a document object.
 
@@ -342,7 +343,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per account (nee profile) or project
-    preference_context: ClassVar[db.Model] = None  # type: ignore[name-defined]
+    preference_context: ClassVar[Optional[Model]] = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
     type_: Mapped[str] = immutable(
@@ -691,14 +692,14 @@ class UserNotificationMixin:
     with_roles(notification_pref_type, read={'owner'})
 
     @cached_property
-    def document(self) -> Optional[db.Model]:  # type: ignore[name-defined]
+    def document(self) -> Optional[Model]:
         """Document that this notification is for."""
         return self.notification.document
 
     with_roles(document, read={'owner'})
 
     @cached_property
-    def fragment(self) -> Optional[db.Model]:  # type: ignore[name-defined]
+    def fragment(self) -> Optional[Model]:
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
 
@@ -732,11 +733,7 @@ class UserNotificationMixin:
         return False
 
 
-class UserNotification(
-    UserNotificationMixin,
-    NoIdMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class UserNotification(UserNotificationMixin, NoIdMixin, Model):
     """
     The recipient of a notification.
 
@@ -1192,7 +1189,7 @@ class NotificationFor(UserNotificationMixin):
 # --- Notification preferences ---------------------------------------------------------
 
 
-class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined]
+class NotificationPreferences(BaseMixin, Model):
     """Holds a user's preferences for a particular :class:`Notification` type."""
 
     __tablename__ = 'notification_preferences'

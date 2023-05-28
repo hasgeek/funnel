@@ -13,6 +13,7 @@ from . import (
     BaseScopedNameMixin,
     DynamicMapped,
     Mapped,
+    Model,
     UuidMixin,
     db,
     sa,
@@ -48,7 +49,7 @@ def make_private_key():
 
 ticket_event_ticket_type = sa.Table(
     'ticket_event_ticket_type',
-    db.Model.metadata,  # type: ignore[has-type]
+    Model.metadata,
     sa.Column(
         'ticket_event_id',
         sa.Integer,
@@ -96,7 +97,7 @@ class GetTitleMixin(BaseScopedNameMixin):
         return instance
 
 
-class TicketEvent(GetTitleMixin, db.Model):  # type: ignore[name-defined]
+class TicketEvent(GetTitleMixin, Model):
     """
     A discrete event under a project that a ticket grants access to.
 
@@ -156,7 +157,7 @@ class TicketEvent(GetTitleMixin, db.Model):  # type: ignore[name-defined]
     }
 
 
-class TicketType(GetTitleMixin, db.Model):  # type: ignore[name-defined]
+class TicketType(GetTitleMixin, Model):
     """
     A ticket type that can grant access to multiple events within a project.
 
@@ -200,12 +201,7 @@ class TicketType(GetTitleMixin, db.Model):  # type: ignore[name-defined]
     }
 
 
-class TicketParticipant(
-    EmailAddressMixin,
-    UuidMixin,
-    BaseMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     """A participant in one or more events, synced from an external ticket source."""
 
     __tablename__ = 'ticket_participant'
@@ -386,7 +382,7 @@ class TicketParticipant(
         return query.all()
 
 
-class TicketEventParticipant(BaseMixin, db.Model):  # type: ignore[name-defined]
+class TicketEventParticipant(BaseMixin, Model):
     """Join model between :class:`TicketParticipant` and :class:`TicketEvent`."""
 
     __tablename__ = 'ticket_event_participant'
@@ -442,7 +438,7 @@ class TicketEventParticipant(BaseMixin, db.Model):  # type: ignore[name-defined]
         )
 
 
-class TicketClient(BaseMixin, db.Model):  # type: ignore[name-defined]
+class TicketClient(BaseMixin, Model):
     __tablename__ = 'ticket_client'
     __allow_unmapped__ = True
     name = with_roles(
@@ -512,7 +508,7 @@ class TicketClient(BaseMixin, db.Model):  # type: ignore[name-defined]
                 ticket.ticket_participant.add_events(ticket_type.ticket_events)
 
 
-class SyncTicket(BaseMixin, db.Model):  # type: ignore[name-defined]
+class SyncTicket(BaseMixin, Model):
     """Model for a ticket that was bought elsewhere, like Boxoffice or Explara."""
 
     __tablename__ = 'sync_ticket'

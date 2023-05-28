@@ -19,7 +19,7 @@ pytestmark = pytest.mark.filterwarnings(
 @pytest.fixture(scope='session')
 def notification_types(database) -> SimpleNamespace:
     class ProjectIsParent:
-        document: models.db.Model  # type: ignore[name-defined]
+        document: models.Model
 
         @property
         def preference_context(self) -> models.Profile:
@@ -122,7 +122,7 @@ def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many
     db_session.commit()
 
     refresh_attrs = [
-        attr for attr in locals().values() if isinstance(attr, models.db.Model)
+        attr for attr in locals().values() if isinstance(attr, models.Model)
     ]
 
     def refresh():

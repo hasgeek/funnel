@@ -7,14 +7,16 @@ from typing import Optional, Sequence
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
 from ..typing import OptionalMigratedTables
-from . import Mapped, NoIdMixin, db, sa
+from . import Mapped, Model, NoIdMixin, db, sa
 from .helpers import reopen
 from .project import Project
 from .session import Session
 from .user import User
 
 
-class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
+class SavedProject(NoIdMixin, Model):
+    __tablename__ = 'saved_project'
+
     #: User who saved this project
     user_id = sa.Column(
         sa.Integer,
@@ -66,7 +68,9 @@ class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
                 db.session.delete(sp)
 
 
-class SavedSession(NoIdMixin, db.Model):  # type: ignore[name-defined]
+class SavedSession(NoIdMixin, Model):
+    __tablename__ = 'saved_session'
+
     #: User who saved this session
     user_id = sa.Column(
         sa.Integer,

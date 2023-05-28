@@ -16,7 +16,7 @@ from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
 from ..typing import OptionalMigratedTables
-from . import Mapped, Query, RoleMixin, TimestampMixin, db, sa
+from . import Mapped, Model, Query, RoleMixin, TimestampMixin, db, sa
 from .project import Project
 from .sync_ticket import TicketParticipant
 from .user import User
@@ -45,11 +45,7 @@ class DateCountContacts:
     contacts: Collection[ContactExchange]
 
 
-class ContactExchange(
-    TimestampMixin,
-    RoleMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class ContactExchange(TimestampMixin, RoleMixin, Model):
     """Model to track who scanned whose badge, in which project."""
 
     __tablename__ = 'contact_exchange'

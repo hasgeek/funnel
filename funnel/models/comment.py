@@ -16,6 +16,7 @@ from . import (
     DynamicMapped,
     Mapped,
     MarkdownCompositeBasic,
+    Model,
     TSVectorType,
     UuidMixin,
     db,
@@ -72,7 +73,7 @@ message_removed = MessageComposite(__("[removed]"), 'del')
 # --- Models ---------------------------------------------------------------------------
 
 
-class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class Commentset(UuidMixin, BaseMixin, Model):
     __tablename__ = 'commentset'
     __allow_unmapped__ = True
     #: Commentset state code
@@ -190,7 +191,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     # Transitions for the other two states are pending on the TODO notes in post_comment
 
 
-class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class Comment(UuidMixin, BaseMixin, Model):
     __tablename__ = 'comment'
     __allow_unmapped__ = True
 

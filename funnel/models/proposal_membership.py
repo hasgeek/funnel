@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, db, sa
+from . import DynamicMapped, Mapped, Model, sa
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
@@ -23,10 +23,7 @@ __all__ = ['ProposalMembership']
 
 
 class ProposalMembership(  # type: ignore[misc]
-    FrozenAttributionMixin,
-    ReorderMembershipMixin,
-    ImmutableUserMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
+    FrozenAttributionMixin, ReorderMembershipMixin, ImmutableUserMembershipMixin, Model
 ):
     """Users can be presenters or reviewers on proposals."""
 

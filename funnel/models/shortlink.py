@@ -15,7 +15,7 @@ from typing_extensions import Literal
 
 from coaster.sqlalchemy import immutable, with_roles
 
-from . import Mapped, NoIdMixin, UrlType, db, hybrid_property, sa
+from . import Mapped, Model, NoIdMixin, UrlType, db, hybrid_property, sa
 from .helpers import profanity
 from .user import User
 
@@ -187,7 +187,7 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
 # --- Models ---------------------------------------------------------------------------
 
 
-class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
+class Shortlink(NoIdMixin, Model):
     """A short link to a full-size link, for use over SMS."""
 
     __tablename__ = 'shortlink'

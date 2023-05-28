@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Any, Iterable, Iterator, List, Optional, Set, Union, cast, overload
+from typing import Iterable, Iterator, List, Optional, Set, Union, cast, overload
 from uuid import UUID
 import hashlib
 import itertools
@@ -31,6 +31,7 @@ from . import (
     DynamicMapped,
     LocaleType,
     Mapped,
+    Model,
     Query,
     TimezoneType,
     TSVectorType,
@@ -171,13 +172,7 @@ class EnumerateMembershipsMixin:
         )
 
 
-class User(
-    SharedProfileMixin,
-    EnumerateMembershipsMixin,
-    UuidMixin,
-    BaseMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class User(SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
     """User model."""
 
     __tablename__ = 'user'
@@ -561,7 +556,9 @@ class User(
         )
 
     @with_roles(call={'owner'})
-    def transport_for_email(self, context) -> Optional[UserEmail]:
+    def transport_for_email(
+        self, context: Optional[Model] = None
+    ) -> Optional[UserEmail]:
         """Return user's preferred email address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE:
@@ -569,7 +566,7 @@ class User(
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_sms(self, context) -> Optional[UserPhone]:
+    def transport_for_sms(self, context: Optional[Model] = None) -> Optional[UserPhone]:
         """Return user's preferred phone number within a context."""
         # TODO: Per-account/project customization is a future option
         if (
@@ -581,17 +578,21 @@ class User(
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_webpush(self, context):  # TODO  # pragma: no cover
+    def transport_for_webpush(
+        self, context: Optional[Model] = None
+    ):  # TODO  # pragma: no cover
         """Return user's preferred webpush transport address within a context."""
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_telegram(self, context):  # TODO  # pragma: no cover
+    def transport_for_telegram(
+        self, context: Optional[Model] = None
+    ):  # TODO  # pragma: no cover
         """Return user's preferred Telegram transport address within a context."""
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_whatsapp(self, context):
+    def transport_for_whatsapp(self, context: Optional[Model] = None):
         """Return user's preferred WhatsApp transport address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_wa:
@@ -599,7 +600,7 @@ class User(
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_signal(self, context):
+    def transport_for_signal(self, context: Optional[Model] = None):
         """Return user's preferred Signal transport address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sm:
@@ -623,7 +624,7 @@ class User(
 
     @with_roles(call={'owner'})
     def transport_for(
-        self, transport: str, context: Any  # type: ignore[name-defined]
+        self, transport: str, context: Optional[Model] = None
     ) -> Optional[Union[UserEmail, UserPhone]]:
         """
         Get transport address for a given transport and context.
@@ -632,7 +633,9 @@ class User(
         """
         return getattr(self, 'transport_for_' + transport)(context)
 
-    def default_email(self, context=None) -> Optional[Union[UserEmail, UserEmailClaim]]:
+    def default_email(
+        self, context: Optional[Model] = None
+    ) -> Optional[Union[UserEmail, UserEmailClaim]]:
         """
         Return default email address (verified if present, else unverified).
 
@@ -956,7 +959,7 @@ auto_init_default(User._state)  # pylint: disable=protected-access
 add_search_trigger(User, 'search_vector')
 
 
-class UserOldId(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class UserOldId(UuidMixin, BaseMixin, Model):
     """Record of an older UUID for a user, after account merger."""
 
     __tablename__ = 'user_oldid'
@@ -1058,7 +1061,7 @@ removed_user = DuckTypeUser(__("[removed]"))
 
 team_membership = sa.Table(
     'team_membership',
-    db.Model.metadata,  # type: ignore[has-type]
+    Model.metadata,
     sa.Column(
         'user_id',
         sa.Integer,
@@ -1083,11 +1086,7 @@ team_membership = sa.Table(
 
 
 class Organization(
-    SharedProfileMixin,
-    EnumerateMembershipsMixin,
-    UuidMixin,
-    BaseMixin,
-    db.Model,  # type: ignore[name-defined]
+    SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model
 ):
     """An organization of one or more users with distinct roles."""
 
@@ -1320,7 +1319,7 @@ class Organization(
 add_search_trigger(Organization, 'search_vector')
 
 
-class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class Team(UuidMixin, BaseMixin, Model):
     """A team of users within an organization."""
 
     __tablename__ = 'team'
@@ -1388,7 +1387,7 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 # --- User email/phone and misc
 
 
-class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class UserEmail(EmailAddressMixin, BaseMixin, Model):
     """An email address linked to a user account."""
 
     __tablename__ = 'user_email'
@@ -1563,11 +1562,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
         return [cls.__table__.name, user_email_primary_table.name]
 
 
-class UserEmailClaim(
-    EmailAddressMixin,
-    BaseMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class UserEmailClaim(EmailAddressMixin, BaseMixin, Model):
     """Claimed but unverified email address for a user."""
 
     __tablename__ = 'user_email_claim'
@@ -1748,7 +1743,7 @@ class UserEmailClaim(
 auto_init_default(UserEmailClaim.verification_code)
 
 
-class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class UserPhone(PhoneNumberMixin, BaseMixin, Model):
     """A phone number linked to a user account."""
 
     __tablename__ = 'user_phone'
@@ -1933,7 +1928,7 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
         return [cls.__table__.name, user_phone_primary_table.name]
 
 
-class UserExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
+class UserExternalId(BaseMixin, Model):
     """An external connected account for a user."""
 
     __tablename__ = 'user_externalid'

@@ -403,58 +403,49 @@ def test_email_address_delivery_state() -> None:
 # This fixture must be session scope as it cannot be called twice in the same process.
 # SQLAlchemy models must only be defined once. A model can theoretically be removed,
 # but there is no formal API. Removal has at least three parts:
-# 1. Remove class from mapper registry using ``db.Model.registry._dispose_cls(cls)``
-# 2. Remove table from metadata using db.metadata.remove(cls.__table__)
+# 1. Remove class from mapper registry using ``Model.registry._dispose_cls(cls)``
+# 2. Remove table from metadata using Model.metadata.remove(cls.__table__)
 # 3. Remove all relationships to other classes (unsolved)
 @pytest.fixture(scope='session')
 def email_models(database, app) -> Generator:
-    db = database
-
-    class EmailUser(models.BaseMixin, db.Model):  # type: ignore[name-defined]
+    class EmailUser(models.BaseMixin, models.Model):
         """Test model representing a user account."""
 
-        __tablename__ = 'emailuser'
+        __tablename__ = 'test_email_user'
 
-    class EmailLink(
-        models.EmailAddressMixin,
-        models.BaseMixin,
-        db.Model,  # type: ignore[name-defined]
-    ):
+    class EmailLink(models.EmailAddressMixin, models.BaseMixin, models.Model):
         """Test model connecting EmailUser to EmailAddress."""
 
+        __tablename__ = 'test_email_link'
         __email_optional__ = False
         __email_unique__ = True
         __email_for__ = 'emailuser'
         __email_is_exclusive__ = True
 
         emailuser_id = sa.Column(
-            sa.Integer, sa.ForeignKey('emailuser.id'), nullable=False
+            sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=False
         )
         emailuser = sa.orm.relationship(EmailUser)
 
-    class EmailDocument(
-        models.EmailAddressMixin,
-        models.BaseMixin,
-        db.Model,  # type: ignore[name-defined]
-    ):
+    class EmailDocument(models.EmailAddressMixin, models.BaseMixin, models.Model):
         """Test model unaffiliated to a user that has an email address attached."""
 
-    class EmailLinkedDocument(
-        models.EmailAddressMixin,
-        models.BaseMixin,
-        db.Model,  # type: ignore[name-defined]
-    ):
+        __tablename__ = 'test_email_document'
+
+    class EmailLinkedDocument(models.EmailAddressMixin, models.BaseMixin, models.Model):
         """Test model that accepts an optional user and an optional email."""
 
+        __tablename__ = 'test_email_linked_document'
         __email_for__ = 'emailuser'
 
         emailuser_id = sa.Column(
-            sa.Integer, sa.ForeignKey('emailuser.id'), nullable=True
+            sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=True
         )
         emailuser = sa.orm.relationship(EmailUser)
 
     new_models = [EmailUser, EmailLink, EmailDocument, EmailLinkedDocument]
 
+    sa.orm.configure_mappers()
     # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
         database.metadata.create_all(

@@ -91,7 +91,7 @@ def block_of_sessions(db_session, new_project) -> SimpleNamespace:
     )
 
     refresh_attrs = [
-        attr for attr in locals().values() if isinstance(attr, models.db.Model)
+        attr for attr in locals().values() if isinstance(attr, models.Model)
     ]
     db_session.add_all(refresh_attrs)
     db_session.commit()

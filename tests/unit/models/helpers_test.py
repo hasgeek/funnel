@@ -166,15 +166,13 @@ def test_add_to_class() -> None:
 
 @pytest.fixture(scope='session')
 def image_models(database, app):
-    db = database
-
-    class MyImageModel(db.Model):  # type: ignore[name-defined]
-        __tablename__ = 'my_image_model'
+    class MyImageModel(models.Model):
+        __tablename__ = 'test_my_image_model'
         id = sa.Column(sa.Integer, primary_key=True)  # noqa: A003
         image_url = sa.Column(models.ImgeeType)
 
     with app.app_context():
-        db.create_all()
+        database.create_all()
     return SimpleNamespace(**locals())
 
 

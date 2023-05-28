@@ -19,6 +19,7 @@ from . import (
     DynamicMapped,
     Mapped,
     MarkdownCompositeDocument,
+    Model,
     Query,
     TSVectorType,
     UuidMixin,
@@ -37,12 +38,7 @@ from .video_mixin import VideoMixin
 __all__ = ['Session']
 
 
-class Session(
-    UuidMixin,
-    BaseScopedIdNameMixin,
-    VideoMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     __tablename__ = 'session'
     __allow_unmapped__ = True
 

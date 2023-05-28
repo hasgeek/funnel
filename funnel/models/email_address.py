@@ -24,6 +24,7 @@ from ..signals import emailaddress_refcount_dropping
 from . import (
     BaseMixin,
     Mapped,
+    Model,
     Query,
     db,
     declarative_mixin,
@@ -148,7 +149,7 @@ class EmailAddressInUseError(EmailAddressError):
     """Email address is in use by another owner."""
 
 
-class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
+class EmailAddress(BaseMixin, Model):
     """
     Represents an email address as a standalone entity, with associated metadata.
 
@@ -352,6 +353,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         return f'EmailAddress({self.email!r})'
 
     def __init__(self, email: str) -> None:
+        super().__init__()
         if not isinstance(email, str):
             raise ValueError("A string email address is required")
         # Set the hash first so the email column validator passes. Both hash columns

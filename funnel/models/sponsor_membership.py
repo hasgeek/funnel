@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, db, sa
+from . import DynamicMapped, Mapped, Model, db, sa
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
@@ -26,7 +26,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
     ImmutableProfileMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
+    Model,
 ):
     """Sponsor of a project."""
 
@@ -155,7 +155,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
     ImmutableProfileMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
+    Model,
 ):
     """Sponsor of a proposal."""
 

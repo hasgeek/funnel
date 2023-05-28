@@ -8,7 +8,7 @@ from typing import List, Optional
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
-from . import BaseMixin, DynamicMapped, Mapped, UuidMixin, db, sa
+from . import BaseMixin, DynamicMapped, Mapped, Model, UuidMixin, sa
 from .helpers import reopen
 from .user import User
 
@@ -45,7 +45,7 @@ USER_SESSION_VALIDITY_PERIOD = timedelta(days=365)
 #: the client app in this table
 auth_client_user_session: sa.Table = sa.Table(
     'auth_client_user_session',
-    db.Model.metadata,  # type: ignore[has-type]
+    Model.metadata,
     sa.Column(
         'auth_client_id',
         sa.Integer,
@@ -75,7 +75,7 @@ auth_client_user_session: sa.Table = sa.Table(
 )
 
 
-class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class UserSession(UuidMixin, BaseMixin, Model):
     __tablename__ = 'user_session'
     __allow_unmapped__ = True
 

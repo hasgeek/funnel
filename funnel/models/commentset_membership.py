@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, with_roles
 
-from . import DynamicMapped, Mapped, Query, db, sa
+from . import DynamicMapped, Mapped, Model, Query, db, sa
 from .comment import Comment, Commentset
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -20,10 +20,7 @@ from .user import User
 __all__ = ['CommentsetMembership']
 
 
-class CommentsetMembership(
-    ImmutableUserMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class CommentsetMembership(ImmutableUserMembershipMixin, Model):
     """Membership roles for users who are commentset users and subscribers."""
 
     __tablename__ = 'commentset_membership'

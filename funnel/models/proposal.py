@@ -15,6 +15,7 @@ from . import (
     BaseScopedIdNameMixin,
     Mapped,
     MarkdownCompositeDocument,
+    Model,
     Query,
     TSVectorType,
     UuidMixin,
@@ -112,11 +113,7 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
 
 
 class Proposal(  # type: ignore[misc]
-    UuidMixin,
-    BaseScopedIdNameMixin,
-    VideoMixin,
-    ReorderMixin,
-    db.Model,  # type: ignore[name-defined]
+    UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
 ):
     __tablename__ = 'proposal'
     __allow_unmapped__ = True
@@ -486,7 +483,7 @@ class Proposal(  # type: ignore[misc]
 add_search_trigger(Proposal, 'search_vector')
 
 
-class ProposalSuuidRedirect(BaseMixin, db.Model):  # type: ignore[name-defined]
+class ProposalSuuidRedirect(BaseMixin, Model):
     """Holds Proposal SUUIDs from before when they were deprecated."""
 
     __tablename__ = 'proposal_suuid_redirect'

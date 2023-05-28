@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, db, sa
+from . import DynamicMapped, Mapped, Model, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .user import Organization, User
@@ -16,10 +16,7 @@ from .user import Organization, User
 __all__ = ['OrganizationMembership']
 
 
-class OrganizationMembership(
-    ImmutableUserMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class OrganizationMembership(ImmutableUserMembershipMixin, Model):
     """
     A user can be an administrator of an organization and optionally an owner.
 

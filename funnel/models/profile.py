@@ -16,6 +16,7 @@ from . import (
     BaseMixin,
     Mapped,
     MarkdownCompositeDocument,
+    Model,
     Query,
     TSVectorType,
     UrlType,
@@ -52,12 +53,7 @@ class PROFILE_STATE(LabeledEnum):  # noqa: N801
 
 # This model does not use BaseNameMixin because it has no title column. The title comes
 # from the linked User or Organization
-class Profile(
-    EnumerateMembershipsMixin,
-    UuidMixin,
-    BaseMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
     """
     Consolidated account for :class:`User` and :class:`Organization` models.
 

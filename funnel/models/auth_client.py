@@ -31,6 +31,7 @@ from . import (
     BaseMixin,
     DynamicMapped,
     Mapped,
+    Model,
     Query,
     UuidMixin,
     db,
@@ -93,9 +94,7 @@ class ScopeMixin:
         self.scope = set(self.scope).union(set(additional))
 
 
-class AuthClient(
-    ScopeMixin, UuidMixin, BaseMixin, db.Model  # type: ignore[name-defined]
-):
+class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
     """OAuth client application."""
 
     __tablename__ = 'auth_client'
@@ -300,7 +299,7 @@ class AuthClient(
         ).order_by(cls.title)
 
 
-class AuthClientCredential(BaseMixin, db.Model):  # type: ignore[name-defined]
+class AuthClientCredential(BaseMixin, Model):
     """
     AuthClient key and secret hash.
 
@@ -400,7 +399,7 @@ class AuthClientCredential(BaseMixin, db.Model):  # type: ignore[name-defined]
         return cred, secret
 
 
-class AuthCode(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class AuthCode(ScopeMixin, BaseMixin, Model):
     """Short-lived authorization tokens."""
 
     __tablename__ = 'auth_code'
@@ -444,7 +443,7 @@ class AuthCode(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         ).one_or_none()
 
 
-class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class AuthToken(ScopeMixin, BaseMixin, Model):
     """Access tokens for access to data."""
 
     __tablename__ = 'auth_token'
@@ -661,7 +660,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 
 # This model's name is in plural because it defines multiple permissions within each
 # instance
-class AuthClientUserPermissions(BaseMixin, db.Model):  # type: ignore[name-defined]
+class AuthClientUserPermissions(BaseMixin, Model):
     """Permissions assigned to a user on a client app."""
 
     __tablename__ = 'auth_client_user_permissions'
@@ -741,7 +740,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
 
 # This model's name is in plural because it defines multiple permissions within each
 # instance
-class AuthClientTeamPermissions(BaseMixin, db.Model):  # type: ignore[name-defined]
+class AuthClientTeamPermissions(BaseMixin, Model):
     """Permissions assigned to a team on a client app."""
 
     __tablename__ = 'auth_client_team_permissions'

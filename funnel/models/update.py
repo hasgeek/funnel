@@ -12,20 +12,20 @@ from coaster.utils import LabeledEnum
 
 from . import (
     BaseScopedIdNameMixin,
-    Commentset,
     Mapped,
     MarkdownCompositeDocument,
-    Project,
+    Model,
     Query,
     TimestampMixin,
     TSVectorType,
-    User,
     UuidMixin,
     db,
     sa,
 )
-from .comment import SET_TYPE
+from .comment import SET_TYPE, Commentset
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
+from .project import Project
+from .user import User
 
 __all__ = ['Update']
 
@@ -41,12 +41,7 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
     RESTRICTED = (2, 'restricted', __("Restricted"))
 
 
-class Update(
-    UuidMixin,
-    BaseScopedIdNameMixin,
-    TimestampMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     __tablename__ = 'update'
     __allow_unmapped__ = True
 

@@ -7,12 +7,12 @@ from uuid import UUID
 
 from werkzeug.datastructures import MultiDict
 
-from . import Mapped, NoIdMixin, db, sa, types
+from . import Mapped, Model, NoIdMixin, sa, types
 
 __all__ = ['Draft']
 
 
-class Draft(NoIdMixin, db.Model):  # type: ignore[name-defined]
+class Draft(NoIdMixin, Model):
     """Store for autosaved, unvalidated drafts on behalf of other models."""
 
     __tablename__ = 'draft'

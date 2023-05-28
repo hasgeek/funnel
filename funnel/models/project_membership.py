@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, db, declared_attr, sa
+from . import DynamicMapped, Mapped, Model, declared_attr, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
@@ -32,10 +32,7 @@ project_membership_role_map = {'profile_admin': {'profile_admin', 'editor'}}
 project_membership_role_map.update(project_child_role_map)
 
 
-class ProjectCrewMembership(
-    ImmutableUserMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
     """Users can be crew members of projects, with specified access rights."""
 
     __tablename__ = 'project_crew_membership'
