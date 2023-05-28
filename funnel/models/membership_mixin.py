@@ -11,6 +11,7 @@ from typing import (
     Iterable,
     Optional,
     Set,
+    Type,
     TypeVar,
     Union,
 )
@@ -121,7 +122,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     #: for records created when the member table was added to the database
     granted_at: Mapped[datetime_type] = with_roles(
         immutable(
-            sa.Column(
+            sa.orm.mapped_column(
                 sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
             )
         ),
@@ -129,13 +130,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     )
     #: End time of membership, ordinarily a mirror of updated_at
     revoked_at: Mapped[Optional[datetime_type]] = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'subject', 'editor'},
     )
     #: Record type
     record_type: Mapped[int] = with_roles(
         immutable(
-            sa.Column(
+            sa.orm.mapped_column(
                 sa.Integer,
                 StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
                 default=MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
@@ -155,7 +156,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @classmethod
     def revoked_by_id(cls) -> Mapped[Optional[int]]:
         """Id of user who revoked the membership."""
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
         )
 
@@ -168,14 +169,14 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @declared_attr
     @classmethod
-    def granted_by_id(cls) -> Mapped[int]:
+    def granted_by_id(cls) -> Mapped[Optional[int]]:
         """
         Id of user who assigned the membership.
 
         This is nullable only for historical data. New records always require a value
         for granted_by.
         """
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('user.id', ondelete='SET NULL'),
             nullable=cls.__null_granted_by__,
@@ -196,8 +197,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             and self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
         )
 
-    @is_active.expression
-    def is_active(cls):  # pylint: disable=no-self-argument
+    @is_active.inplace.expression
+    @classmethod
+    def _is_active_expression(cls) -> sa.ColumnElement[bool]:
         """Test if membership record is active as a SQL expression."""
         return sa.and_(
             cls.revoked_at.is_(None), cls.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
@@ -376,7 +378,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def user_id(cls) -> Mapped[int]:
         """Foreign key column to user table."""
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('user.id', ondelete='CASCADE'),
             nullable=False,
@@ -498,7 +500,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def profile_id(cls) -> Mapped[int]:
         """Foreign key column to account (nee profile) table."""
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('profile.id', ondelete='CASCADE'),
             nullable=False,
@@ -617,7 +619,7 @@ class ReorderMembershipMixin(ReorderMixin):
     @classmethod
     def seq(cls) -> Mapped[int]:
         """Ordering sequence number."""
-        return sa.Column(sa.Integer, nullable=False)
+        return sa.orm.mapped_column(sa.Integer, nullable=False)
 
     @declared_attr.directive
     @classmethod
@@ -779,26 +781,28 @@ class AmendMembership(Generic[MembershipType]):
 
 
 @event.listens_for(EnumerateMembershipsMixin, 'mapper_configured', propagate=True)
-def _confirm_enumerated_mixins(mapper, class_) -> None:
+def _confirm_enumerated_mixins(
+    _mapper: Any, cls: Type[EnumerateMembershipsMixin]
+) -> None:
     """Confirm that the membership collection attributes actually exist."""
     expected_class = ImmutableMembershipMixin
-    if issubclass(class_, User):
+    if issubclass(cls, User):
         expected_class = ImmutableUserMembershipMixin
-    elif issubclass(class_, Profile):
+    elif issubclass(cls, Profile):
         expected_class = ImmutableProfileMembershipMixin
     for source in (
-        class_.__active_membership_attrs__,
-        class_.__noninvite_membership_attrs__,
+        cls.__active_membership_attrs__,
+        cls.__noninvite_membership_attrs__,
     ):
         for attr_name in source:
-            relationship = getattr(class_, attr_name, None)
+            relationship = getattr(cls, attr_name, None)
             if relationship is None:
                 raise AttributeError(
-                    f'{class_.__name__} does not have a relationship named'
+                    f'{cls.__name__} does not have a relationship named'
                     f' {attr_name!r} targeting a subclass of {expected_class.__name__}'
                 )
             if not issubclass(relationship.property.mapper.class_, expected_class):
                 raise AttributeError(
-                    f'{class_.__name__}.{attr_name} should be a relationship to a'
+                    f'{cls.__name__}.{attr_name} should be a relationship to a'
                     f' subclass of {expected_class.__name__}'
                 )

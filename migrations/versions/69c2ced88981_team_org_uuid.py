@@ -42,7 +42,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     op.add_column('team', sa.Column('org_uuid', sa.Uuid(), nullable=True))
@@ -64,7 +64,7 @@ def upgrade():
     op.drop_column('team', 'orgid')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     op.add_column(

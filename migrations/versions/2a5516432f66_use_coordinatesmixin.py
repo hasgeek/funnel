@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column(
         'venue', 'latitude', existing_type=sa.Numeric(8, 5), type_=sa.Numeric()
     )
@@ -23,7 +23,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         'venue', 'latitude', existing_type=sa.Numeric(), type_=sa.Numeric(8, 5)
     )

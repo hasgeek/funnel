@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Optional, Set, Union, cast, overload
+from typing import Any, List, Optional, Set, Type, Union, cast, overload
 import hashlib
 import unicodedata
 
@@ -17,19 +17,14 @@ from werkzeug.utils import cached_property
 import base58
 import idna
 
-from coaster.sqlalchemy import (
-    Query,
-    StateManager,
-    auto_init_default,
-    immutable,
-    with_roles,
-)
+from coaster.sqlalchemy import StateManager, auto_init_default, immutable, with_roles
 from coaster.utils import LabeledEnum, require_one_of
 
 from ..signals import emailaddress_refcount_dropping
 from . import (
     BaseMixin,
     Mapped,
+    Query,
     db,
     declarative_mixin,
     declared_attr,
@@ -265,7 +260,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         # If `is_blocked` is True, `email` and `domain` must be None
         sa.CheckConstraint(
             sa.or_(  # type: ignore[arg-type]
-                _is_blocked.isnot(True),
+                _is_blocked.is_not(True),
                 sa.and_(_is_blocked.is_(True), email.is_(None), _domain.is_(None)),
             ),
             'email_address_email_is_blocked_check',
@@ -378,7 +373,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: object) -> bool:
+    def is_available_for(self, owner: EmailAddressMixin) -> bool:
         """Return True if this EmailAddress is available for the given owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -525,7 +520,9 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         ).one_or_none()
 
     @classmethod
-    def get_canonical(cls, email: str, is_blocked: Optional[bool] = None) -> Query:
+    def get_canonical(
+        cls, email: str, is_blocked: Optional[bool] = None
+    ) -> Query[EmailAddress]:
         """
         Get :class:`EmailAddress` instances matching the canonical representation.
 
@@ -575,7 +572,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         return new_email
 
     @classmethod
-    def add_for(cls, owner: Optional[object], email: str) -> EmailAddress:
+    def add_for(cls, owner: Optional[EmailAddressMixin], email: str) -> EmailAddress:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -596,7 +593,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[object],
+        owner: Optional[EmailAddressMixin],
         email: str,
         check_dns: bool = False,
         new: bool = False,
@@ -706,9 +703,9 @@ class EmailAddressMixin:
 
     @declared_attr
     @classmethod
-    def email_address_id(cls) -> Mapped[int]:
+    def email_address_id(cls) -> Mapped[Optional[int]]:
         """Foreign key to email_address table."""
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('email_address.id', ondelete='SET NULL'),
             nullable=cls.__email_optional__,
@@ -786,7 +783,9 @@ auto_init_default(EmailAddress._is_blocked)  # pylint: disable=protected-access
 
 
 @event.listens_for(EmailAddress.email, 'set')
-def _validate_email(target, value: Any, old_value: Any, initiator) -> None:
+def _validate_email(
+    target: EmailAddress, value: Any, old_value: Any, _initiator: Any
+) -> None:
     # First: check if value is acceptable and email attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
@@ -834,11 +833,15 @@ def _validate_email(target, value: Any, old_value: Any, initiator) -> None:
     # We don't have to set target.email because SQLAlchemy will do that for us.
 
 
-def _send_refcount_event_remove(target, value, initiator):
+def _send_refcount_event_remove(
+    target: EmailAddress, _value: Any, _initiator: Any
+) -> None:
     emailaddress_refcount_dropping.send(target)
 
 
-def _send_refcount_event_before_delete(mapper_, connection, target):
+def _send_refcount_event_before_delete(
+    _mapper: Any, _connection: Any, target: EmailAddressMixin
+) -> None:
     if target.email_address:
         emailaddress_refcount_dropping.send(target.email_address)
 
@@ -851,7 +854,10 @@ def _setup_refcount_events() -> None:
 
 
 def _email_address_mixin_set_validator(
-    target, value: Optional[EmailAddress], old_value, initiator
+    target: EmailAddressMixin,
+    value: Optional[EmailAddress],
+    old_value: Optional[EmailAddress],
+    _initiator: Any,
 ) -> None:
     if value != old_value and target.__email_for__:
         if value is not None:
@@ -862,6 +868,8 @@ def _email_address_mixin_set_validator(
 
 
 @event.listens_for(EmailAddressMixin, 'mapper_configured', propagate=True)
-def _email_address_mixin_configure_events(mapper_, cls: EmailAddressMixin):
+def _email_address_mixin_configure_events(
+    _mapper: Any, cls: Type[EmailAddressMixin]
+) -> None:
     event.listen(cls.email_address, 'set', _email_address_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)

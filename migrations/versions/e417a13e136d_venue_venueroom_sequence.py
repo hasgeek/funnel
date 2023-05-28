@@ -32,7 +32,7 @@ venue_room = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column('venue', sa.Column('seq', sa.Integer(), nullable=True))
     op.add_column('venue_room', sa.Column('seq', sa.Integer(), nullable=True))
 
@@ -73,6 +73,6 @@ def upgrade():
     op.alter_column('venue_room', 'seq', existing_type=sa.Integer(), nullable=False)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('venue_room', 'seq')
     op.drop_column('venue', 'seq')

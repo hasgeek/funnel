@@ -19,7 +19,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_index(
         'ix_auth_password_reset_request_user_id',
         table_name='auth_password_reset_request',
@@ -27,7 +27,7 @@ def upgrade():
     op.drop_table('auth_password_reset_request')
 
 
-def downgrade():
+def downgrade() -> None:
     op.create_table(
         'auth_password_reset_request',
         sa.Column('id', sa.INTEGER(), autoincrement=True, nullable=False),

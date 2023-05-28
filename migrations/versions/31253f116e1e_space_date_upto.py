@@ -14,9 +14,9 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column('proposal_space', sa.Column('date_upto', sa.Date(), nullable=True))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('proposal_space', 'date_upto')

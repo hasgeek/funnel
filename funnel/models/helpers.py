@@ -13,6 +13,7 @@ from typing import (
     List,
     Optional,
     Set,
+    Tuple,
     Type,
     TypeVar,
     cast,
@@ -518,7 +519,7 @@ class MessageComposite:
     :param tag: Optional wrapper tag for HTML rendering
     """
 
-    def __init__(self, text: str, tag: Optional[str] = None):
+    def __init__(self, text: str, tag: Optional[str] = None) -> None:
         self.text = text
         self.tag = tag
 
@@ -581,51 +582,54 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
         return value
 
 
+_MC = TypeVar('_MC', bound='MarkdownCompositeBase')
+
+
 class MarkdownCompositeBase(MutableComposite):
     """Represents Markdown text and rendered HTML as a composite column."""
 
     config: ClassVar[MarkdownConfig]
 
-    def __init__(self, text, html=None):
+    def __init__(self, text: Optional[str], html: Optional[str] = None) -> None:
         """Create a composite."""
         if html is None:
             self.text = text  # This will regenerate HTML
         else:
             self._text = text
-            self._html = html
+            self._html: Optional[str] = html
 
     # Return column values for SQLAlchemy to insert into the database
-    def __composite_values__(self):
+    def __composite_values__(self) -> Tuple[Optional[str], Optional[str]]:
         """Return composite values."""
         return (self._text, self._html)
 
     # Return a string representation of the text (see class decorator)
-    def __str__(self):
+    def __str__(self) -> str:
         """Return string representation."""
         return self._text or ''
 
-    def __markdown__(self):
+    def __markdown__(self) -> str:
         """Return source Markdown (for escaper)."""
         return self._text or ''
 
     # Return a HTML representation of the text
-    def __html__(self):
+    def __html__(self) -> str:
         """Return HTML representation."""
         return self._html or ''
 
     # Return a Markup string of the HTML
     @property
-    def html(self):
+    def html(self) -> Optional[Markup]:
         """Return HTML as a read-only property."""
         return Markup(self._html) if self._html is not None else None
 
     @property
-    def text(self):
+    def text(self) -> Optional[str]:
         """Return text as a property."""
         return self._text
 
     @text.setter
-    def text(self, value):
+    def text(self, value: Optional[str]) -> None:
         """Set the text value."""
         self._text = None if value is None else str(value)
         self._html = self.config.render(self._text)
@@ -636,13 +640,13 @@ class MarkdownCompositeBase(MutableComposite):
         return {'text': self._text, 'html': self._html}
 
     # Compare text value
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Compare for equality."""
         return isinstance(other, self.__class__) and (
             self.__composite_values__() == other.__composite_values__()
         )
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         """Compare for inequality."""
         return not self.__eq__(other)
 
@@ -650,30 +654,34 @@ class MarkdownCompositeBase(MutableComposite):
     # tested here as we don't use them.
     # https://docs.sqlalchemy.org/en/13/orm/extensions/mutable.html#id1
 
-    def __getstate__(self):
+    def __getstate__(self) -> Tuple[Optional[str], Optional[str]]:
         """Get state for pickling."""
         # Return state for pickling
         return (self._text, self._html)
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: Tuple[Optional[str], Optional[str]]) -> None:
         """Set state from pickle."""
         # Set state from pickle
         self._text, self._html = state
         self.changed()
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """Return boolean value."""
         return bool(self._text)
 
     @classmethod
-    def coerce(cls, key, value):
+    def coerce(cls: Type[_MC], key: str, value: Any) -> _MC:
         """Allow a composite column to be assigned a string value."""
         return cls(value)
 
     @classmethod
     def create(
-        cls, name: str, deferred: bool = False, group: Optional[str] = None, **kwargs
-    ):
+        cls: Type[_MC],
+        name: str,
+        deferred: bool = False,
+        group: Optional[str] = None,
+        **kwargs,
+    ) -> sa.orm.Composite[_MC]:
         """Create a composite column and backing individual columns."""
         return composite(
             cls,

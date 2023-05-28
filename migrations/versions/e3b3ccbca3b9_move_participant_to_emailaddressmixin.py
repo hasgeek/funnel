@@ -125,7 +125,7 @@ def email_domain(email):
     return idna.encode(email.split('@', 1)[1], uts46=True).decode()
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     op.add_column(
@@ -238,7 +238,7 @@ def upgrade():
     op.drop_column('participant', 'email')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     op.add_column(

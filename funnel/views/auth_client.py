@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from typing import List, Tuple
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from flask import abort, flash, render_template, request, url_for
 from markupsafe import Markup

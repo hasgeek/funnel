@@ -21,12 +21,12 @@ depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 SCHEDULE_STATE_PUBLISHED = 1
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_index('ix_project_schedule_state', table_name='project')
     op.drop_column('project', 'schedule_state')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'project',
         sa.Column(

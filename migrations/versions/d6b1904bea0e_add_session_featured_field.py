@@ -13,7 +13,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'session',
         sa.Column(
@@ -26,5 +26,5 @@ def upgrade():
     op.alter_column('session', 'featured', server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('session', 'featured')

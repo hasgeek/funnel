@@ -17,13 +17,13 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column(
         'project_crew_membership', 'is_concierge', new_column_name='is_promoter'
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         'project_crew_membership', 'is_promoter', new_column_name='is_concierge'
     )

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
-
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum

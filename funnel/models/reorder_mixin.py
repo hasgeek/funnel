@@ -6,9 +6,7 @@ from datetime import datetime
 from typing import TypeVar, Union
 from uuid import UUID
 
-from coaster.sqlalchemy import Query
-
-from . import db, declarative_mixin, sa
+from . import Query, db, declarative_mixin, sa
 
 __all__ = ['ReorderMixin']
 

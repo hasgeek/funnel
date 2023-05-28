@@ -19,7 +19,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'user',
         sa.Column(
@@ -43,7 +43,7 @@ def upgrade():
     op.alter_column('user', 'auto_locale', server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('user', 'auto_locale')
     op.drop_column('user', 'locale')
     op.drop_column('user', 'auto_timezone')

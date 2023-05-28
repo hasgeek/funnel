@@ -371,7 +371,7 @@ def load_admin1_codes(filename: str) -> None:
         if item.geonameid:
             rec = GeoAdmin1Code.query.get(item.geonameid)
             if rec is None:
-                rec = GeoAdmin1Code(geonameid=item.geonameid)
+                rec = GeoAdmin1Code(geonameid=int(item.geonameid))
                 db.session.add(rec)
             rec.title = item.title
             rec.ascii_title = item.ascii_title

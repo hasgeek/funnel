@@ -13,7 +13,7 @@ down_revision = '2d73dbe935dc'
 from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_unique_constraint(
         'attendee_event_id_participant_id_key',
         'attendee',
@@ -21,7 +21,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'attendee_event_id_participant_id_key', 'attendee', type_='unique'
     )

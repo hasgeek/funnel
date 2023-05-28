@@ -53,7 +53,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'project',
         sa.Column('first_published_at', sa.TIMESTAMP(timezone=True), nullable=True),
@@ -97,13 +97,13 @@ def upgrade():
     for counter, row in enumerate(project_ids):
         start_at = conn.scalar(
             sa.select(sa.func.min(session.c.start_at))
-            .where(session.c.start_at.isnot(None))
+            .where(session.c.start_at.is_not(None))
             .where(session.c.project_id == row.id)
         )
         if start_at is not None:
             end_at = conn.scalar(
                 sa.select(sa.func.max(session.c.end_at))
-                .where(session.c.end_at.isnot(None))
+                .where(session.c.end_at.is_not(None))
                 .where(session.c.project_id == row.id)
             )
             conn.execute(
@@ -115,7 +115,7 @@ def upgrade():
     progress.finish()
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(op.f('ix_project_schedule_state'), table_name='project')
     op.drop_index(op.f('ix_project_cfp_state'), table_name='project')
     op.drop_index(op.f('ix_project_state'), table_name='project')

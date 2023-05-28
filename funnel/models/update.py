@@ -2,18 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from typing import Optional, Sequence
 
 from sqlalchemy.orm import Query as BaseQuery
 
 from baseframe import __
-from coaster.sqlalchemy import (
-    LazyRoleSet,
-    Query,
-    StateManager,
-    auto_init_default,
-    with_roles,
-)
+from coaster.sqlalchemy import LazyRoleSet, StateManager, auto_init_default, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
@@ -22,6 +16,7 @@ from . import (
     Mapped,
     MarkdownCompositeDocument,
     Project,
+    Query,
     TimestampMixin,
     TSVectorType,
     User,
@@ -265,7 +260,7 @@ class Update(
         'WITHDRAWN',
         state.DRAFT,
         lambda update: update.published_at is not None,
-        lambda update: update.published_at.isnot(None),
+        lambda update: update.published_at.is_not(None),
         label=('withdrawn', __("Withdrawn")),
     )
 
@@ -337,7 +332,7 @@ class Update(
     with_roles(is_currently_restricted, read={'all'})
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if not self.visibility_state.RESTRICTED:
@@ -349,7 +344,7 @@ class Update(
         return roles
 
     @classmethod
-    def all_published_public(cls) -> Query:
+    def all_published_public(cls) -> Query[Update]:
         return cls.query.join(Project).filter(
             Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
         )

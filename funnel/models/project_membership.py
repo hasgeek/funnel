@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Set
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
+from typing import List, Set
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import Mapped, db, declared_attr, sa
+from . import DynamicMapped, Mapped, db, declared_attr, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
@@ -105,7 +104,7 @@ class ProjectCrewMembership(
         },
     }
 
-    project_id: Mapped[int] = sa.Column(
+    project_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     project: Mapped[Project] = with_roles(
@@ -183,7 +182,7 @@ class ProjectCrewMembership(
 # Project relationships: all crew, vs specific roles
 @reopen(Project)
 class __Project:
-    active_crew_memberships = with_roles(
+    active_crew_memberships: DynamicMapped[List[ProjectCrewMembership]] = with_roles(
         sa.orm.relationship(
             ProjectCrewMembership,
             lazy='dynamic',
@@ -204,7 +203,9 @@ class __Project:
         },
     )
 
-    active_editor_memberships = sa.orm.relationship(
+    active_editor_memberships: DynamicMapped[
+        List[ProjectCrewMembership]
+    ] = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -215,7 +216,9 @@ class __Project:
         viewonly=True,
     )
 
-    active_promoter_memberships = sa.orm.relationship(
+    active_promoter_memberships: DynamicMapped[
+        List[ProjectCrewMembership]
+    ] = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -226,7 +229,9 @@ class __Project:
         viewonly=True,
     )
 
-    active_usher_memberships = sa.orm.relationship(
+    active_usher_memberships: DynamicMapped[
+        List[ProjectCrewMembership]
+    ] = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
