@@ -6,20 +6,23 @@ import json
 from werkzeug.datastructures import MultiDict
 import pytest
 
-valid_json = {
-    "fields": [
+valid_schema = {
+    'fields': [
         {
-            "description": "An explanation for this field",
-            "name": "field_name",
-            "title": "Field label shown to user",
-            "type": "string",
+            'description': "An explanation for this field",
+            'name': 'field_name',
+            'title': "Field label shown to user",
+            'type': 'string',
         },
-        {"name": "has_checked", "title": "I accept the terms", "type": "boolean"},
         {
-            "choices": ["First choice", "Second choice", "Third choice"],
-            "name": "choice",
-            "title": "Choose one",
-            "type": "select",
+            'name': 'has_checked',
+            'title': "I accept the terms",
+            'type': 'boolean',
+        },
+        {
+            'name': 'choice',
+            'title': "Choose one",
+            'choices': ["First choice", "Second choice", "Third choice"],
         },
     ]
 }
@@ -35,10 +38,11 @@ rsvp_excess_json = {
     'choice': 'First choice',
     'field_name': 'Twoflower',
     'has_checked': 'on',
-    'company': 'MAANG',
+    'company': 'MAANG',  # This is extra
 }
 
 
+# TODO: This fixture is not used in tests
 @pytest.fixture(name="project")
 def project_fixture(db_session, project_expo2010):
     project_expo2010.start_at = datetime.datetime.now() + datetime.timedelta(days=1)
@@ -74,7 +78,7 @@ def project_fixture(db_session, project_expo2010):
 
 # Organizer side testing
 def test_valid_json_box_office(
-    client, login, user_vetinari, project_expo2010, csrf_token
+    client, login, csrf_token, user_vetinari, project_expo2010
 ):
     login.as_(user_vetinari)
     endpoint = project_expo2010.url_for('edit_boxoffice_data')
@@ -87,7 +91,7 @@ def test_valid_json_box_office(
                 'allow_rsvp': True,
                 'is_subscription': False,
                 'register_button_txt': 'Follow',
-                'register_form_schema': json.dumps(valid_json),
+                'register_form_schema': json.dumps(valid_schema),
                 'csrf_token': csrf_token,
             }
         ),
@@ -103,11 +107,13 @@ def test_invalid_json_boxoffice(
     rv = client.post(
         endpoint,
         data={
-            "register_form_schema": 'This is an invalid json',
+            "register_form_schema": 'This is invalid JSON',
             'csrf_token': csrf_token,
         },
     )
     assert rv.status_code == 200
+    # TODO: Test that the form submission resulted in an error: there should be no
+    # Rsvp object for this user in the db
 
 
 def test_valid_json_register(
@@ -131,7 +137,7 @@ def test_valid_json_register(
         headers={'Content-Type': 'application/json'},
     )
     assert rv.status_code == 303
-    assert user_twoflower.rsvps.first().form == valid_json_rsvp
+    assert project.rsvp_for(user_twoflower).form == valid_json_rsvp
 
 
 def test_invalid_json_register(
