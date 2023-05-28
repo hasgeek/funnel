@@ -38,6 +38,7 @@ def unaffiliated_phone_number() -> models.PhoneNumber:
 
 @pytest.fixture()
 def support_api_key(app: Flask) -> str:
+    """Random support API key."""
     app.config['INTERNAL_SUPPORT_API_KEY'] = secrets.token_urlsafe()
     return app.config['INTERNAL_SUPPORT_API_KEY']
 
