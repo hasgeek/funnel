@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'proposal_space', sa.Column('parent_space_id', sa.Integer(), nullable=True)
     )
@@ -27,7 +27,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'proposal_space_proposal_space_id_fkey', 'proposal_space', type_='foreignkey'
     )

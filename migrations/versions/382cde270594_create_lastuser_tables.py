@@ -69,7 +69,7 @@ DROP FUNCTION user_user_email_primary_validate();
 '''
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'organization',
         sa.Column('id', sa.Integer(), nullable=False),
@@ -573,7 +573,7 @@ def upgrade():
     print("Use `pg_dump --data-only --exclude-table=alembic_version`")  # noqa: T201
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(sa.DDL(downgrade_triggers))
 
     op.drop_index('ix_user_externalid_username_lower', table_name='user_externalid')

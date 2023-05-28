@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column(
         'commentset_membership',
         'granted_by_id',
@@ -36,7 +36,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         'site_membership', 'granted_by_id', existing_type=sa.INTEGER(), nullable=True
     )

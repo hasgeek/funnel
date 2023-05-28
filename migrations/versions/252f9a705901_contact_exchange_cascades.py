@@ -13,7 +13,7 @@ down_revision = '034863dbaac2'
 from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint(
         'contact_exchange_user_id_fkey', 'contact_exchange', type_='foreignkey'
     )
@@ -49,7 +49,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'contact_exchange_participant_id_fkey', 'contact_exchange', type_='foreignkey'
     )

@@ -13,7 +13,7 @@ down_revision = 'd576f55f9eba'
 from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_check_constraint(
         'ck_proposal_state_valid',
         'proposal',
@@ -34,7 +34,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('ck_proposal_state_valid', 'proposal')
     op.drop_constraint('ck_comment_state_valid', 'comment')
     op.drop_constraint('ck_rsvp_state_valid', 'rsvp')

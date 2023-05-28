@@ -34,7 +34,7 @@ renamed_indexes = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_index('ix_post_profile_id', 'post')
     op.drop_constraint('post_owner_check', 'post', type_='check')
     op.drop_column('post', 'profile_id')
@@ -48,7 +48,7 @@ def upgrade():
         op.execute(sa.DDL(f'ALTER INDEX "{old}" RENAME TO "{new}"'))
 
 
-def downgrade():
+def downgrade() -> None:
     for old, new in renamed_indexes:
         op.execute(sa.DDL(f'ALTER INDEX "{new}" RENAME TO "{old}"'))
 

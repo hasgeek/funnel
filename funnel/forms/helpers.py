@@ -133,9 +133,7 @@ class EmailAddressAvailable:
                 _("This email address has been blocked from use")
             )
         if is_valid is not True:
-            app.logger.error(  # type: ignore[unreachable]
-                "Unknown email address validation code: %r", is_valid
-            )
+            app.logger.error("Unknown email address validation code: %r", is_valid)
 
         if is_valid and self.purpose == 'register':
             # One last check: is there an existing claim? If so, stop the user from

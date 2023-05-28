@@ -66,7 +66,7 @@ pytest-base-url==2.0.0
     # via pytest-selenium
 pytest-bdd==6.1.1
     # via -r requirements/test.in
-pytest-cov==4.0.0
+pytest-cov==4.1.0
     # via -r requirements/test.in
 pytest-dotenv==0.5.2
     # via -r requirements/test.in

@@ -13,7 +13,7 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import Mapped, NoIdMixin, UuidMixin, db, json_type, sa
+from . import Mapped, Model, NoIdMixin, UuidMixin, db, relationship, sa, types
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
@@ -29,43 +29,41 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
     NO = ('N', 'no', __("Not going"))
     MAYBE = ('M', 'maybe', __("Maybe"))
     AWAITING = ('A', 'awaiting', __("Awaiting"))
-    __order__ = (YES, NO, MAYBE, AWAITING)
-    # USER_CHOICES = {YES, NO, MAYBE}
 
 
-class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
+class Rsvp(UuidMixin, NoIdMixin, Model):
     __tablename__ = 'rsvp'
     __allow_unmapped__ = True
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project = with_roles(
-        sa.orm.relationship(
+        relationship(
             Project, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
         datasets={'primary'},
     )
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=False, primary_key=True
     )
     user = with_roles(
-        sa.orm.relationship(
+        relationship(
             User, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         read={'owner', 'project_promoter'},
         grants={'owner'},
         datasets={'primary', 'without_parent'},
     )
-    form: Mapped[Optional[dict]] = with_roles(
-        sa.orm.mapped_column(json_type, nullable=True),
+    form: Mapped[types.jsonb] = with_roles(
+        sa.orm.mapped_column(),
         rw={'owner'},
         read={'project_promoter'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.CHAR(1),
         StateManager.check_constraint('state', RSVP_STATUS),

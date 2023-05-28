@@ -40,7 +40,7 @@ migrate_team_columns = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint('comment_old_user_id_fkey', 'comment', type_='foreignkey')
     op.drop_column('comment', 'old_user_id')
 
@@ -121,7 +121,7 @@ def upgrade():
     op.drop_column('vote', 'old_user_id')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'vote',
         sa.Column('old_user_id', sa.INTEGER(), autoincrement=False, nullable=True),

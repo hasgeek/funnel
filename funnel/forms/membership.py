@@ -72,7 +72,7 @@ class ProjectCrewMembershipForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def validate(self, *args, **kwargs):
+    def validate(self, *args, **kwargs) -> bool:
         """Validate form."""
         is_valid = super().validate(*args, **kwargs)
         if not any([self.is_editor.data, self.is_promoter.data, self.is_usher.data]):

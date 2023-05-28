@@ -52,12 +52,12 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_index('ix_user_email_claim_blake2b', table_name='user_email_claim')
     op.drop_column('user_email_claim', 'blake2b')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
     op.add_column(
         'user_email_claim',

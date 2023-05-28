@@ -14,12 +14,12 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     with op.batch_alter_table('proposal', schema=None) as batch_op:
         batch_op.drop_column('blog_post')
 
 
-def downgrade():
+def downgrade() -> None:
     with op.batch_alter_table('proposal', schema=None) as batch_op:
         batch_op.add_column(
             sa.Column(

@@ -14,11 +14,11 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'event', sa.Column('badge_template', sa.Unicode(length=250), nullable=True)
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('event', 'badge_template')

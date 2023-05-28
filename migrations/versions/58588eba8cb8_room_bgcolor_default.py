@@ -16,7 +16,7 @@ import sqlalchemy as sa
 from funnel.models import VenueRoom
 
 
-def upgrade():
+def upgrade() -> None:
     connection = op.get_bind()
     room = VenueRoom.__table__
     updt_stmt = room.update().where(room.c.bgcolor.is_(None)).values(bgcolor='229922')
@@ -26,7 +26,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         'venue_room', 'bgcolor', existing_type=sa.VARCHAR(length=6), nullable=True
     )

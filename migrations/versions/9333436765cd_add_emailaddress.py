@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'email_address',
         sa.Column('id', sa.Integer(), nullable=False),
@@ -56,7 +56,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(op.f('ix_email_address_domain'), table_name='email_address')
     op.drop_index(
         op.f('ix_email_address_blake2b160_canonical'), table_name='email_address'

@@ -17,12 +17,12 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_column('project', 'explore_url')
     op.drop_column('project', 'bg_color')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'project',
         sa.Column('bg_color', sa.VARCHAR(length=6), autoincrement=False, nullable=True),

@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'ticket_type', sa.Column('title', sa.Unicode(length=250), nullable=True)
     )
@@ -25,7 +25,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         "ticket_type_proposal_space_id_name_key", 'ticket_type', type_='unique'
     )

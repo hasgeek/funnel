@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'rsvp',
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -38,6 +38,6 @@ def upgrade():
     op.alter_column('proposal_space', 'allow_rsvp', server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('proposal_space', 'allow_rsvp')
     op.drop_table('rsvp')

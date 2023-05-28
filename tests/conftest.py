@@ -513,7 +513,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
                 return f'{entity.__name__}(repr-error)'
             return 'repr-error'
 
-    @sa.event.listens_for(models.db.Model, 'init', propagate=True)
+    @sa.event.listens_for(models.Model, 'init', propagate=True)
     def event_init(obj, args, kwargs):
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
@@ -713,7 +713,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
 
     yield
 
-    sa.event.remove(models.db.Model, 'init', event_init)
+    sa.event.remove(models.Model, 'init', event_init)
     sa.event.remove(
         DatabaseSessionClass, 'transient_to_pending', event_transient_to_pending
     )
@@ -760,12 +760,34 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
     )
 
 
+def _truncate_all_tables(engine: sa.Engine) -> None:
+    """Truncate all tables in the given database engine."""
+    with engine.begin() as transaction:
+        transaction.execute(
+            sa.text(
+                '''
+            DO $$
+            DECLARE tablenames text;
+            BEGIN
+                tablenames := string_agg(
+                    quote_ident(schemaname) || '.' || quote_ident(tablename), ', ')
+                    FROM pg_tables WHERE schemaname = 'public';
+                EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
+            END; $$'''
+            )
+        )
+
+
 @pytest.fixture(scope='session')
 def database(funnel, models, request, app) -> SQLAlchemy:
     """Provide a database structure."""
     with app.app_context():
         models.db.create_all()
         funnel.redis_store.flushdb()
+        # Iterate through all database engines and empty their tables, just in case
+        # a previous test run failed and left stale data in the database
+        for engine in models.db.engines.values():
+            _truncate_all_tables(engine)
 
     @request.addfinalizer
     def drop_tables():
@@ -785,20 +807,7 @@ def db_session_truncate(
 
     # Iterate through all database engines and empty their tables
     for engine in database.engines.values():
-        with engine.begin() as transaction:
-            transaction.execute(
-                sa.text(
-                    '''
-                DO $$
-                DECLARE tablenames text;
-                BEGIN
-                    tablenames := string_agg(
-                        quote_ident(schemaname) || '.' || quote_ident(tablename), ', ')
-                        FROM pg_tables WHERE schemaname = 'public';
-                    EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
-                END; $$'''
-                )
-            )
+        _truncate_all_tables(engine)
 
     # Clear Redis db too
     funnel.redis_store.flushdb()
@@ -928,7 +937,7 @@ def client(response_with_forms, app, db_session) -> FlaskClient:
         db_session.commit()
         return client_open(*args, **kwargs)
 
-    client.open = commit_before_open  # type: ignore[assignment]
+    client.open = commit_before_open  # type: ignore[method-assign]
     return client
 
 

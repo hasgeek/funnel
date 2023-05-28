@@ -162,9 +162,9 @@ def get_registration_text(count: int, registered=False, follow_mode=False) -> st
 @Project.features('rsvp')
 def feature_project_rsvp(obj: Project) -> bool:
     return (
-        obj.state.PUBLISHED  # type: ignore[unreachable]
+        obj.state.PUBLISHED
         and obj.allow_rsvp is True
-        and (obj.start_at is None or not obj.state.PAST)  # type: ignore[unreachable]
+        and (obj.start_at is None or not obj.state.PAST)
     )
 
 

@@ -29,7 +29,7 @@ renamed_constraints = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column('update', 'project_id', existing_type=sa.INTEGER(), nullable=False)
     for old, new in renamed_constraints:
         op.execute(sa.DDL(f'ALTER TABLE update RENAME CONSTRAINT "{old}" TO "{new}"'))
@@ -64,7 +64,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(
         sa.DDL(
             dedent(

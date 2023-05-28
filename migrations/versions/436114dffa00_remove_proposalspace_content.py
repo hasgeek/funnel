@@ -16,11 +16,11 @@ import sqlalchemy as sa
 from coaster.sqlalchemy import JsonDict
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_column('proposal_space', 'content')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'proposal_space',
         sa.Column('content', JsonDict, server_default='{}', nullable=False),
