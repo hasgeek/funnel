@@ -78,7 +78,7 @@ class ProposalMembership(  # type: ignore[misc]
     revoke_on_subject_delete = False
 
     proposal_id: Mapped[int] = with_roles(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('proposal.id', ondelete='CASCADE'),
             nullable=False,
@@ -106,11 +106,11 @@ class ProposalMembership(  # type: ignore[misc]
     #: Uncredited members are not listed in the main display, but can edit and may be
     #: listed in a details section. Uncredited memberships are for support roles such
     #: as copy editors.
-    is_uncredited = sa.Column(sa.Boolean, nullable=False, default=False)
+    is_uncredited = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
 
     #: Optional label, indicating the member's role on the proposal
     label = immutable(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint("label <> ''", name='proposal_membership_label_check'),
             nullable=True,

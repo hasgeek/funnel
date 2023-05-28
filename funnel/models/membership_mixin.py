@@ -685,7 +685,7 @@ class FrozenAttributionMixin:
     def _title(cls) -> Mapped[Optional[str]]:
         """Create optional attribution title for this membership record."""
         return immutable(
-            sa.Column(
+            sa.orm.mapped_column(
                 'title', sa.Unicode, sa.CheckConstraint("title <> ''"), nullable=True
             )
         )

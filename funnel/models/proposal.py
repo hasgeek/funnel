@@ -119,7 +119,7 @@ class Proposal(  # type: ignore[misc]
     __tablename__ = 'proposal'
     __allow_unmapped__ = True
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = with_roles(
         relationship(
             User,
@@ -128,7 +128,9 @@ class Proposal(  # type: ignore[misc]
         ),
         grants={'creator', 'participant'},
     )
-    project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
+    project_id = sa.orm.mapped_column(
+        sa.Integer, sa.ForeignKey('project.id'), nullable=False
+    )
     project: Mapped[Project] = with_roles(
         relationship(
             Project,
@@ -156,7 +158,7 @@ class Proposal(  # type: ignore[misc]
     # TODO: Stand-in for `submitted_at` until proposals have a workflow-driven datetime
     datetime: Mapped[datetime_type] = sa.orm.synonym('created_at')
 
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', PROPOSAL_STATE),
@@ -165,7 +167,7 @@ class Proposal(  # type: ignore[misc]
     )
     state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
-    commentset_id = sa.Column(
+    commentset_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = relationship(
@@ -178,36 +180,37 @@ class Proposal(  # type: ignore[misc]
     )
 
     body = MarkdownCompositeDocument.create('body', nullable=False, default='')
-    description = sa.Column(sa.Unicode, nullable=False, default='')
-    custom_description = sa.Column(sa.Boolean, nullable=False, default=False)
-    template = sa.Column(sa.Boolean, nullable=False, default=False)
-    featured = sa.Column(sa.Boolean, nullable=False, default=False)
+    description = sa.orm.mapped_column(sa.Unicode, nullable=False, default='')
+    custom_description = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
+    template = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
+    featured = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
 
-    edited_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    edited_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Revision number maintained by SQLAlchemy, starting at 1
-    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+    revisionid = with_roles(
+        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+    )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'title',
-                'description',
-                'body_text',
-                weights={
-                    'title': 'A',
-                    'description': 'B',
-                    'body_text': 'B',
-                },
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter,
-                    Proposal.title,
-                    Proposal.body_html,
-                ),
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'title',
+            'description',
+            'body_text',
+            weights={
+                'title': 'A',
+                'description': 'B',
+                'body_text': 'B',
+            },
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter,
+                Proposal.title,
+                Proposal.body_html,
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     __table_args__ = (
@@ -490,8 +493,8 @@ class ProposalSuuidRedirect(BaseMixin, Model):
     __tablename__ = 'proposal_suuid_redirect'
     __allow_unmapped__ = True
 
-    suuid = sa.Column(sa.Unicode(22), nullable=False, index=True)
-    proposal_id = sa.Column(
+    suuid = sa.orm.mapped_column(sa.Unicode(22), nullable=False, index=True)
+    proposal_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
     proposal: Mapped[Proposal] = relationship(Proposal)

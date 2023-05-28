@@ -46,7 +46,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     __tablename__ = 'update'
     __allow_unmapped__ = True
 
-    _visibility_state = sa.Column(
+    _visibility_state = sa.orm.mapped_column(
         'visibility_state',
         sa.SmallInteger,
         StateManager.check_constraint('visibility_state', VISIBILITY_STATE),
@@ -58,7 +58,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         '_visibility_state', VISIBILITY_STATE, doc="Visibility state"
     )
 
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', UPDATE_STATE),
@@ -68,7 +68,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     )
     state = StateManager('_state', UPDATE_STATE, doc="Update state")
 
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=False, index=True
     )
     user = with_roles(
@@ -81,7 +81,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         grants={'creator'},
     )
 
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, index=True
     )
     project: Mapped[Project] = with_roles(
@@ -102,16 +102,16 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
 
     #: Update number, for Project updates, assigned when the update is published
     number = with_roles(
-        sa.Column(sa.Integer, nullable=True, default=None), read={'all'}
+        sa.orm.mapped_column(sa.Integer, nullable=True, default=None), read={'all'}
     )
 
     #: Like pinned tweets. You can keep posting updates,
     #: but might want to pin an update from a week ago.
     is_pinned = with_roles(
-        sa.Column(sa.Boolean, default=False, nullable=False), read={'all'}
+        sa.orm.mapped_column(sa.Boolean, default=False, nullable=False), read={'all'}
     )
 
-    published_by_id = sa.Column(
+    published_by_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
     )
     published_by: Mapped[Optional[User]] = with_roles(
@@ -123,10 +123,10 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         read={'all'},
     )
     published_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    deleted_by_id = sa.Column(
+    deleted_by_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
     )
     deleted_by: Mapped[Optional[User]] = with_roles(
@@ -138,14 +138,15 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         read={'reader'},
     )
     deleted_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'reader'}
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
+        read={'reader'},
     )
 
     edited_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    commentset_id = sa.Column(
+    commentset_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset = with_roles(
@@ -160,20 +161,19 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         read={'all'},
     )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'name',
-                'title',
-                'body_text',
-                weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter, Update.title, Update.body_html
-                ),
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'name',
+            'title',
+            'body_text',
+            weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter, Update.title, Update.body_html
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     __roles__ = {

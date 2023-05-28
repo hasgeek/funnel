@@ -51,7 +51,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     __tablename__ = 'contact_exchange'
     __allow_unmapped__ = True
     #: User who scanned this contact
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True
     )
     user: Mapped[User] = relationship(
@@ -64,7 +64,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         ),
     )
     #: Participant whose contact was scanned
-    ticket_participant_id = sa.Column(
+    ticket_participant_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('ticket_participant.id', ondelete='CASCADE'),
         primary_key=True,
@@ -75,13 +75,13 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         backref=sa.orm.backref('scanned_contacts', passive_deletes=True),
     )
     #: Datetime at which the scan happened
-    scanned_at = sa.Column(
+    scanned_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: Note recorded by the user (plain text)
-    description = sa.Column(sa.UnicodeText, nullable=False, default='')
+    description = sa.orm.mapped_column(sa.UnicodeText, nullable=False, default='')
     #: Archived flag
-    archived = sa.Column(sa.Boolean, nullable=False, default=False)
+    archived = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
 
     __roles__ = {
         'owner': {

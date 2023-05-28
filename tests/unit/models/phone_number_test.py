@@ -59,7 +59,7 @@ def phone_models(database, app) -> Generator:
         __phone_for__ = 'phoneuser'
         __phone_is_exclusive__ = True
 
-        phoneuser_id = sa.Column(
+        phoneuser_id = sa.orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=False
         )
         phoneuser = models.relationship(PhoneUser)
@@ -75,7 +75,7 @@ def phone_models(database, app) -> Generator:
         __tablename__ = 'test_phone_linked_document'
         __phone_for__ = 'phoneuser'
 
-        phoneuser_id = sa.Column(
+        phoneuser_id = sa.orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=True
         )
         phoneuser = models.relationship(PhoneUser)

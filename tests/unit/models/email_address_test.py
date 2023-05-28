@@ -422,7 +422,7 @@ def email_models(database, app) -> Generator:
         __email_for__ = 'emailuser'
         __email_is_exclusive__ = True
 
-        emailuser_id = sa.Column(
+        emailuser_id = sa.orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=False
         )
         emailuser = models.relationship(EmailUser)
@@ -438,7 +438,7 @@ def email_models(database, app) -> Generator:
         __tablename__ = 'test_email_linked_document'
         __email_for__ = 'emailuser'
 
-        emailuser_id = sa.Column(
+        emailuser_id = sa.orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=True
         )
         emailuser = models.relationship(EmailUser)

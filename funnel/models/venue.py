@@ -30,7 +30,9 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
     __tablename__ = 'venue'
     __allow_unmapped__ = True
 
-    project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
+    project_id = sa.orm.mapped_column(
+        sa.Integer, sa.ForeignKey('project.id'), nullable=False
+    )
     project: Mapped[Project] = with_roles(
         relationship(Project, back_populates='venues'),
         grants_via={None: project_child_role_map},
@@ -39,12 +41,12 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
     description = MarkdownCompositeBasic.create(
         'description', default='', nullable=False
     )
-    address1 = sa.Column(sa.Unicode(160), default='', nullable=False)
-    address2 = sa.Column(sa.Unicode(160), default='', nullable=False)
-    city = sa.Column(sa.Unicode(30), default='', nullable=False)
-    state = sa.Column(sa.Unicode(30), default='', nullable=False)
-    postcode = sa.Column(sa.Unicode(20), default='', nullable=False)
-    country = sa.Column(sa.Unicode(2), default='', nullable=False)
+    address1 = sa.orm.mapped_column(sa.Unicode(160), default='', nullable=False)
+    address2 = sa.orm.mapped_column(sa.Unicode(160), default='', nullable=False)
+    city = sa.orm.mapped_column(sa.Unicode(30), default='', nullable=False)
+    state = sa.orm.mapped_column(sa.Unicode(30), default='', nullable=False)
+    postcode = sa.orm.mapped_column(sa.Unicode(20), default='', nullable=False)
+    country = sa.orm.mapped_column(sa.Unicode(2), default='', nullable=False)
 
     rooms: Mapped[List[VenueRoom]] = relationship(
         'VenueRoom',
@@ -54,7 +56,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
         back_populates='venue',
     )
 
-    seq = sa.Column(sa.Integer, nullable=False)
+    seq = sa.orm.mapped_column(sa.Integer, nullable=False)
 
     __table_args__ = (sa.UniqueConstraint('project_id', 'name'),)
 
@@ -109,7 +111,9 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
     __tablename__ = 'venue_room'
     __allow_unmapped__ = True
 
-    venue_id = sa.Column(sa.Integer, sa.ForeignKey('venue.id'), nullable=False)
+    venue_id = sa.orm.mapped_column(
+        sa.Integer, sa.ForeignKey('venue.id'), nullable=False
+    )
     venue: Mapped[Venue] = with_roles(
         relationship(Venue, back_populates='rooms'),
         # Since Venue already remaps Project roles, we just want the remapped role names
@@ -119,9 +123,9 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
     description = MarkdownCompositeBasic.create(
         'description', default='', nullable=False
     )
-    bgcolor = sa.Column(sa.Unicode(6), nullable=False, default='229922')
+    bgcolor = sa.orm.mapped_column(sa.Unicode(6), nullable=False, default='229922')
 
-    seq = sa.Column(sa.Integer, nullable=False)
+    seq = sa.orm.mapped_column(sa.Integer, nullable=False)
 
     __table_args__ = (sa.UniqueConstraint('venue_id', 'name'),)
 

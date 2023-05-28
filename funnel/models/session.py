@@ -62,41 +62,50 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     proposal: Mapped[Optional[Proposal]] = relationship(
         Proposal, backref=sa.orm.backref('session', uselist=False, cascade='all')
     )
-    speaker = sa.Column(sa.Unicode(200), default=None, nullable=True)
-    start_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
-    end_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
-    venue_room_id = sa.Column(sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True)
+    speaker = sa.orm.mapped_column(sa.Unicode(200), default=None, nullable=True)
+    start_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True, index=True
+    )
+    end_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True, index=True
+    )
+    venue_room_id = sa.orm.mapped_column(
+        sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True
+    )
     venue_room: Mapped[Optional[VenueRoom]] = relationship(
         VenueRoom, backref=sa.orm.backref('sessions')
     )
-    is_break = sa.Column(sa.Boolean, default=False, nullable=False)
-    featured = sa.Column(sa.Boolean, default=False, nullable=False)
-    banner_image_url: Mapped[Optional[str]] = sa.Column(ImgeeType, nullable=True)
+    is_break = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
+    featured = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
+    banner_image_url: Mapped[Optional[str]] = sa.orm.mapped_column(
+        ImgeeType, nullable=True
+    )
 
     #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
-    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+    revisionid = with_roles(
+        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+    )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'title',
-                'description_text',
-                'speaker',
-                weights={
-                    'title': 'A',
-                    'description_text': 'B',
-                    'speaker': 'A',
-                },
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter,
-                    Session.title,
-                    Session.speaker,
-                    Session.description_html,
-                ),
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'title',
+            'description_text',
+            'speaker',
+            weights={
+                'title': 'A',
+                'description_text': 'B',
+                'speaker': 'A',
+            },
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter,
+                Session.title,
+                Session.speaker,
+                Session.description_html,
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     __table_args__ = (

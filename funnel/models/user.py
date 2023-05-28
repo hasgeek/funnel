@@ -182,29 +182,30 @@ class User(SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, 
 
     #: The user's fullname
     fullname: Mapped[str] = with_roles(
-        sa.Column(sa.Unicode(__title_length__), default='', nullable=False),
+        sa.orm.mapped_column(sa.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
     )
     #: Alias for the user's fullname
     title: Mapped[str] = sa.orm.synonym('fullname')
     #: Argon2 or Bcrypt hash of the user's password
-    pw_hash = sa.Column(sa.Unicode, nullable=True)
+    pw_hash = sa.orm.mapped_column(sa.Unicode, nullable=True)
     #: Timestamp for when the user's password last changed
-    pw_set_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    pw_set_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: Expiry date for the password (to prompt user to reset it)
-    pw_expires_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    pw_expires_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: User's preferred/last known timezone
     timezone = with_roles(
-        sa.Column(TimezoneType(backend='pytz'), nullable=True), read={'owner'}
+        sa.orm.mapped_column(TimezoneType(backend='pytz'), nullable=True),
+        read={'owner'},
     )
     #: Update timezone automatically from browser activity
-    auto_timezone = sa.Column(sa.Boolean, default=True, nullable=False)
+    auto_timezone = sa.orm.mapped_column(sa.Boolean, default=True, nullable=False)
     #: User's preferred/last known locale
-    locale = with_roles(sa.Column(LocaleType, nullable=True), read={'owner'})
+    locale = with_roles(sa.orm.mapped_column(LocaleType, nullable=True), read={'owner'})
     #: Update locale automatically from browser activity
-    auto_locale = sa.Column(sa.Boolean, default=True, nullable=False)
+    auto_locale = sa.orm.mapped_column(sa.Boolean, default=True, nullable=False)
     #: User's state code (active, suspended, merged, deleted)
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', USER_STATE),
@@ -216,16 +217,15 @@ class User(SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, 
     #: Other user accounts that were merged into this user account
     oldusers = association_proxy('oldids', 'olduser')
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'fullname',
-                weights={'fullname': 'A'},
-                regconfig='english',
-                hltext=lambda: User.fullname,
-            ),
-            nullable=False,
-        )
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'fullname',
+            weights={'fullname': 'A'},
+            regconfig='english',
+            hltext=lambda: User.fullname,
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     __table_args__ = (
@@ -974,7 +974,7 @@ class UserOldId(UuidMixin, BaseMixin, Model):
         backref=sa.orm.backref('oldid', uselist=False),
     )
     #: User id of new user
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     #: New user account
     user: Mapped[User] = relationship(
         User, foreign_keys=[user_id], backref=sa.orm.backref('oldids', cascade='all')
@@ -1098,12 +1098,12 @@ class Organization(
     # profile: Mapped[Profile]
 
     title = with_roles(
-        sa.Column(sa.Unicode(__title_length__), default='', nullable=False),
+        sa.orm.mapped_column(sa.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
     )
 
     #: Organization's state (active, suspended)
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', ORGANIZATION_STATE),
@@ -1113,16 +1113,15 @@ class Organization(
     #: Organization state manager
     state = StateManager('_state', ORGANIZATION_STATE, doc="Organization state")
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'title',
-                weights={'title': 'A'},
-                regconfig='english',
-                hltext=lambda: Organization.title,
-            ),
-            nullable=False,
-        )
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'title',
+            weights={'title': 'A'},
+            regconfig='english',
+            hltext=lambda: Organization.title,
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     __table_args__ = (
@@ -1327,9 +1326,9 @@ class Team(UuidMixin, BaseMixin, Model):
     __allow_unmapped__ = True
     __title_length__ = 250
     #: Displayed name
-    title = sa.Column(sa.Unicode(__title_length__), nullable=False)
+    title = sa.orm.mapped_column(sa.Unicode(__title_length__), nullable=False)
     #: Organization
-    organization_id = sa.Column(
+    organization_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('organization.id'), nullable=False
     )
     organization = with_roles(
@@ -1346,7 +1345,7 @@ class Team(UuidMixin, BaseMixin, Model):
         grants={'subject'},
     )
 
-    is_public = sa.Column(sa.Boolean, nullable=False, default=False)
+    is_public = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
 
     def __repr__(self) -> str:
         """Represent :class:`Team` as a string."""
@@ -1399,12 +1398,12 @@ class UserEmail(EmailAddressMixin, BaseMixin, Model):
     # Tell mypy that these are not optional
     email_address: Mapped[EmailAddress]
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user: Mapped[User] = relationship(
         User, backref=sa.orm.backref('emails', cascade='all')
     )
 
-    private = sa.Column(sa.Boolean, nullable=False, default=False)
+    private = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
 
     __datasets__ = {
         'primary': {'user', 'email', 'private', 'type'},
@@ -1574,13 +1573,15 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, Model):
     # Tell mypy that these are not optional
     email_address: Mapped[EmailAddress]
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user: Mapped[User] = relationship(
         User, backref=sa.orm.backref('emailclaims', cascade='all')
     )
-    verification_code = sa.Column(sa.String(44), nullable=False, default=newsecret)
+    verification_code = sa.orm.mapped_column(
+        sa.String(44), nullable=False, default=newsecret
+    )
 
-    private = sa.Column(sa.Boolean, nullable=False, default=False)
+    private = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
 
     __table_args__ = (sa.UniqueConstraint('user_id', 'email_address_id'),)
 
@@ -1752,12 +1753,12 @@ class UserPhone(PhoneNumberMixin, BaseMixin, Model):
     __phone_is_exclusive__ = True
     __phone_for__ = 'user'
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user: Mapped[User] = relationship(
         User, backref=sa.orm.backref('phones', cascade='all')
     )
 
-    private = sa.Column(sa.Boolean, nullable=False, default=False)
+    private = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
 
     __datasets__ = {
         'primary': {'user', 'phone', 'private', 'type'},
@@ -1934,32 +1935,38 @@ class UserExternalId(BaseMixin, Model):
     __allow_unmapped__ = True
     __at_username_services__: List[str] = []
     #: Foreign key to user table
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     #: User that this connected account belongs to
     user: Mapped[User] = relationship(
         User, backref=sa.orm.backref('externalids', cascade='all')
     )
     #: Identity of the external service (in app's login provider registry)
-    service = sa.Column(sa.UnicodeText, nullable=False)
+    service = sa.orm.mapped_column(sa.UnicodeText, nullable=False)
     #: Unique user id as per external service, used for identifying related accounts
-    userid = sa.Column(sa.UnicodeText, nullable=False)  # Unique id (or obsolete OpenID)
+    userid = sa.orm.mapped_column(
+        sa.UnicodeText, nullable=False
+    )  # Unique id (or obsolete OpenID)
     #: Optional public-facing username on the external service
-    username = sa.Column(sa.UnicodeText, nullable=True)  # LinkedIn once used full URLs
+    username = sa.orm.mapped_column(
+        sa.UnicodeText, nullable=True
+    )  # LinkedIn once used full URLs
     #: OAuth or OAuth2 access token
-    oauth_token = sa.Column(sa.UnicodeText, nullable=True)
+    oauth_token = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
     #: Optional token secret (not used in OAuth2, used by Twitter with OAuth1a)
-    oauth_token_secret = sa.Column(sa.UnicodeText, nullable=True)
+    oauth_token_secret = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
     #: OAuth token type (typically 'bearer')
-    oauth_token_type = sa.Column(sa.UnicodeText, nullable=True)
+    oauth_token_type = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
     #: OAuth2 refresh token
-    oauth_refresh_token = sa.Column(sa.UnicodeText, nullable=True)
+    oauth_refresh_token = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
     #: OAuth2 token expiry in seconds, as sent by service provider
-    oauth_expires_in = sa.Column(sa.Integer, nullable=True)
+    oauth_expires_in = sa.orm.mapped_column(sa.Integer, nullable=True)
     #: OAuth2 token expiry timestamp, estimate from created_at + oauth_expires_in
-    oauth_expires_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
+    oauth_expires_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True, index=True
+    )
 
     #: Timestamp of when this connected account was last (re-)authorised by the user
-    last_used_at = sa.Column(
+    last_used_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), default=sa.func.utcnow(), nullable=False
     )
 

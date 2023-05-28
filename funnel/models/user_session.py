@@ -43,7 +43,7 @@ USER_SESSION_VALIDITY_PERIOD = timedelta(days=365)
 
 #: When a user logs into an client app, the user's session is logged against
 #: the client app in this table
-auth_client_user_session: sa.Table = sa.Table(
+auth_client_user_session = sa.Table(
     'auth_client_user_session',
     Model.metadata,
     sa.Column(
@@ -79,29 +79,29 @@ class UserSession(UuidMixin, BaseMixin, Model):
     __tablename__ = 'user_session'
     __allow_unmapped__ = True
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user: Mapped[User] = relationship(
         User, backref=sa.orm.backref('all_user_sessions', cascade='all', lazy='dynamic')
     )
 
     #: User's last known IP address
-    ipaddr = sa.Column(sa.String(45), nullable=False)
+    ipaddr = sa.orm.mapped_column(sa.String(45), nullable=False)
     #: City geonameid from IP address
-    geonameid_city = sa.Column(sa.Integer, nullable=True)
+    geonameid_city = sa.orm.mapped_column(sa.Integer, nullable=True)
     #: State/subdivision geonameid from IP address
-    geonameid_subdivision = sa.Column(sa.Integer, nullable=True)
+    geonameid_subdivision = sa.orm.mapped_column(sa.Integer, nullable=True)
     #: Country geonameid from IP address
-    geonameid_country = sa.Column(sa.Integer, nullable=True)
+    geonameid_country = sa.orm.mapped_column(sa.Integer, nullable=True)
     #: User's network, from IP address
-    geoip_asn = sa.Column(sa.Integer, nullable=True)
+    geoip_asn = sa.orm.mapped_column(sa.Integer, nullable=True)
     #: User agent
-    user_agent = sa.Column(sa.UnicodeText, nullable=False)
+    user_agent = sa.orm.mapped_column(sa.UnicodeText, nullable=False)
     #: The login service that was used to make this session
-    login_service = sa.Column(sa.Unicode, nullable=True)
+    login_service = sa.orm.mapped_column(sa.Unicode, nullable=True)
 
-    accessed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=False)
-    revoked_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
-    sudo_enabled_at = sa.Column(
+    accessed_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=False)
+    revoked_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
+    sudo_enabled_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
 

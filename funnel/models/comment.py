@@ -78,7 +78,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
     __tablename__ = 'commentset'
     __allow_unmapped__ = True
     #: Commentset state code
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', COMMENTSET_STATE),
@@ -89,17 +89,19 @@ class Commentset(UuidMixin, BaseMixin, Model):
     state = StateManager('_state', COMMENTSET_STATE, doc="Commentset state")
     #: Type of parent object
     settype: Mapped[Optional[int]] = with_roles(
-        sa.Column('type', sa.Integer, nullable=True), read={'all'}, datasets={'primary'}
+        sa.orm.mapped_column('type', sa.Integer, nullable=True),
+        read={'all'},
+        datasets={'primary'},
     )
     #: Count of comments, stored to avoid count(*) queries
     count = with_roles(
-        sa.Column(sa.Integer, default=0, nullable=False),
+        sa.orm.mapped_column(sa.Integer, default=0, nullable=False),
         read={'all'},
         datasets={'primary'},
     )
     #: Timestamp of last comment, for ordering.
     last_comment_at: Mapped[Optional[datetime]] = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary'},
     )
@@ -196,14 +198,14 @@ class Comment(UuidMixin, BaseMixin, Model):
     __tablename__ = 'comment'
     __allow_unmapped__ = True
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
+    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
     _user: Mapped[Optional[User]] = with_roles(
         relationship(
             User, backref=sa.orm.backref('comments', lazy='dynamic', cascade='all')
         ),
         grants={'author'},
     )
-    commentset_id = sa.Column(
+    commentset_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
@@ -214,14 +216,16 @@ class Comment(UuidMixin, BaseMixin, Model):
         grants_via={None: {'document_subscriber'}},
     )
 
-    in_reply_to_id = sa.Column(sa.Integer, sa.ForeignKey('comment.id'), nullable=True)
+    in_reply_to_id = sa.orm.mapped_column(
+        sa.Integer, sa.ForeignKey('comment.id'), nullable=True
+    )
     replies: Mapped[List[Comment]] = relationship(
         'Comment', backref=sa.orm.backref('in_reply_to', remote_side='Comment.id')
     )
 
     _message = MarkdownCompositeBasic.create('message', nullable=False)
 
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', COMMENT_STATE),
@@ -231,24 +235,25 @@ class Comment(UuidMixin, BaseMixin, Model):
     state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment")
 
     edited_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary', 'related', 'json'},
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
-    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+    revisionid = with_roles(
+        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+    )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'message_text',
-                weights={'message_text': 'A'},
-                regconfig='english',
-                hltext=lambda: Comment.message_html,
-            ),
-            nullable=False,
-        )
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'message_text',
+            weights={'message_text': 'A'},
+            regconfig='english',
+            hltext=lambda: Comment.message_html,
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     __table_args__ = (

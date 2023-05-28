@@ -41,7 +41,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
         }
     }
 
-    commentset_id: Mapped[int] = sa.Column(
+    commentset_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('commentset.id', ondelete='CASCADE'),
         nullable=False,
@@ -61,9 +61,9 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
     parent: Commentset = sa.orm.synonym('commentset')
 
     #: Flag to indicate notifications are muted
-    is_muted = sa.Column(sa.Boolean, nullable=False, default=False)
+    is_muted = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
     #: When the user visited this commentset last
-    last_seen_at = sa.Column(
+    last_seen_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
 

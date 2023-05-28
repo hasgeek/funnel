@@ -48,7 +48,7 @@ class Label(BaseScopedNameMixin, Model):
     __tablename__ = 'label'
     __allow_unmapped__ = True
 
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     # Backref from project is defined in the Project model with an ordering list
@@ -62,7 +62,7 @@ class Label(BaseScopedNameMixin, Model):
     #: Parent label's id. Do not write to this column directly, as we don't have the
     #: ability to : validate the value within the app. Always use the :attr:`main_label`
     #: relationship.
-    main_label_id = sa.Column(
+    main_label_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('label.id', ondelete='CASCADE'),
         index=True,
@@ -82,44 +82,49 @@ class Label(BaseScopedNameMixin, Model):
     # add_primary_relationship)
 
     #: Sequence number for this label, used in UI for ordering
-    seq = sa.Column(sa.Integer, nullable=False)
+    seq = sa.orm.mapped_column(sa.Integer, nullable=False)
 
     # A single-line description of this label, shown when picking labels (optional)
-    description = sa.Column(sa.UnicodeText, nullable=False, default='')
+    description = sa.orm.mapped_column(sa.UnicodeText, nullable=False, default='')
 
     #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
     #: Since emoji can be composed from multiple symbols, there is no length
     #: limit imposed here
-    icon_emoji = sa.Column(sa.UnicodeText, nullable=True)
+    icon_emoji = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
 
     #: Restricted mode specifies that this label may only be applied by someone with
     #: an editorial role (TODO: name the role). If this label is a parent, it applies
     #: to all its children
-    _restricted = sa.Column('restricted', sa.Boolean, nullable=False, default=False)
+    _restricted = sa.orm.mapped_column(
+        'restricted', sa.Boolean, nullable=False, default=False
+    )
 
     #: Required mode signals to UI that if this label is a parent, one of its
     #: children must be mandatorily applied to the proposal. The value of this
     #: field must be ignored if the label is not a parent
-    _required = sa.Column('required', sa.Boolean, nullable=False, default=False)
+    _required = sa.orm.mapped_column(
+        'required', sa.Boolean, nullable=False, default=False
+    )
 
     #: Archived mode specifies that the label is no longer available for use
     #: although all the previous records will stay in database.
-    _archived = sa.Column('archived', sa.Boolean, nullable=False, default=False)
+    _archived = sa.orm.mapped_column(
+        'archived', sa.Boolean, nullable=False, default=False
+    )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'name',
-                'title',
-                'description',
-                weights={'name': 'A', 'title': 'A', 'description': 'B'},
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter, Label.title, Label.description
-                ),
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'name',
+            'title',
+            'description',
+            weights={'name': 'A', 'title': 'A', 'description': 'B'},
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter, Label.title, Label.description
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     #: Proposals that this label is attached to

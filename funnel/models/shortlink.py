@@ -201,23 +201,25 @@ class Shortlink(NoIdMixin, Model):
     id = with_roles(  # noqa: A003
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
         # handling collisions. This needs an "immutable after commit" handler
-        sa.Column(sa.BigInteger, autoincrement=False, nullable=False, primary_key=True),
+        sa.orm.mapped_column(
+            sa.BigInteger, autoincrement=False, nullable=False, primary_key=True
+        ),
         read={'all'},
     )
     #: URL target of this shortlink
     url = with_roles(
-        immutable(sa.Column(UrlType, nullable=False, index=True)),
+        immutable(sa.orm.mapped_column(UrlType, nullable=False, index=True)),
         read={'all'},
     )
     #: Id of user who created this shortlink (optional)
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
     )
     #: User who created this shortlink (optional)
     user: Mapped[Optional[User]] = relationship(User)
 
     #: Is this link enabled? If not, render 410 Gone
-    enabled = sa.Column(sa.Boolean, nullable=False, default=True)
+    enabled = sa.orm.mapped_column(sa.Boolean, nullable=False, default=True)
 
     @hybrid_property
     def name(self) -> str:

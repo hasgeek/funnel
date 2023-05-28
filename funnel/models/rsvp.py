@@ -34,7 +34,7 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
 class Rsvp(UuidMixin, NoIdMixin, Model):
     __tablename__ = 'rsvp'
     __allow_unmapped__ = True
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project = with_roles(
@@ -44,7 +44,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
     )
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=False, primary_key=True
     )
     user = with_roles(
@@ -55,7 +55,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         grants={'owner'},
     )
 
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.CHAR(1),
         StateManager.check_constraint('state', RSVP_STATUS),

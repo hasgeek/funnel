@@ -401,14 +401,15 @@ def add_search_trigger(model: Type[Model], column_name: str) -> Dict[str, str]:
 
         class MyModel(Model):
             ...
-            search_vector: Mapped[TSVectorType] = sa.orm.deferred(sa.Column(
+            search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
                 TSVectorType(
                     'name', 'title', *indexed_columns,
                     weights={'name': 'A', 'title': 'B'},
                     regconfig='english'
                 ),
                 nullable=False,
-            ))
+                deferred=True,
+            )
 
             __table_args__ = (
                 sa.Index(
@@ -683,8 +684,8 @@ class MarkdownCompositeBase(MutableComposite):
         """Create a composite column and backing individual columns."""
         return composite(
             cls,
-            sa.Column(name + '_text', sa.UnicodeText, **kwargs),
-            sa.Column(name + '_html', sa.UnicodeText, **kwargs),
+            sa.orm.mapped_column(name + '_text', sa.UnicodeText, **kwargs),
+            sa.orm.mapped_column(name + '_html', sa.UnicodeText, **kwargs),
             deferred=deferred,
             group=group or name,
         )

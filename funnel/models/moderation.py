@@ -33,7 +33,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, Model):
     __allow_unmapped__ = True
     __uuid_primary_key__ = True
 
-    comment_id = sa.Column(
+    comment_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('comment.id'), nullable=False, index=True
     )
     comment: Mapped[Comment] = relationship(
@@ -41,7 +41,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, Model):
         foreign_keys=[comment_id],
         backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=False, index=True
     )
     user: Mapped[User] = relationship(
@@ -49,16 +49,18 @@ class CommentModeratorReport(UuidMixin, BaseMixin, Model):
         foreign_keys=[user_id],
         backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
-    report_type = sa.Column(
+    report_type = sa.orm.mapped_column(
         sa.SmallInteger,
         StateManager.check_constraint('report_type', MODERATOR_REPORT_TYPE),
         nullable=False,
         default=MODERATOR_REPORT_TYPE.SPAM,
     )
-    reported_at = sa.Column(
+    reported_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), default=sa.func.utcnow(), nullable=False
     )
-    resolved_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
+    resolved_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True, index=True
+    )
 
     __datasets__ = {
         'primary': {

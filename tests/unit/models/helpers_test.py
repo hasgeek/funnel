@@ -168,8 +168,8 @@ def test_add_to_class() -> None:
 def image_models(database, app):
     class MyImageModel(models.Model):
         __tablename__ = 'test_my_image_model'
-        id = sa.Column(sa.Integer, primary_key=True)  # noqa: A003
-        image_url = sa.Column(models.ImgeeType)
+        id = sa.orm.mapped_column(sa.Integer, primary_key=True)  # noqa: A003
+        image_url = sa.orm.mapped_column(models.ImgeeType)
 
     with app.app_context():
         database.create_all()

@@ -192,10 +192,10 @@ class EmailAddress(BaseMixin, Model):
 
     #: The email address, centrepiece of this model. Case preserving.
     #: Validated by the :func:`_validate_email` event handler
-    email = sa.Column(sa.Unicode, nullable=True)
+    email = sa.orm.mapped_column(sa.Unicode, nullable=True)
     #: The domain of the email, stored for quick lookup of related addresses
     #: Read-only, accessible via the :property:`domain` property
-    _domain = sa.Column('domain', sa.Unicode, nullable=True, index=True)
+    _domain = sa.orm.mapped_column('domain', sa.Unicode, nullable=True, index=True)
 
     # email_normalized is defined below
 
@@ -203,7 +203,7 @@ class EmailAddress(BaseMixin, Model):
     #: email is removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite
     #: the name, we're only storing 20 bytes
     blake2b160 = immutable(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.LargeBinary,
             sa.CheckConstraint(
                 'LENGTH(blake2b160) = 20',
@@ -218,11 +218,11 @@ class EmailAddress(BaseMixin, Model):
     #: email detection. Indexed but does not use a unique constraint because a+b@tld and
     #: a+c@tld are both a@tld canonically but can exist in records separately.
     blake2b160_canonical = immutable(
-        sa.Column(sa.LargeBinary, nullable=False, index=True)
+        sa.orm.mapped_column(sa.LargeBinary, nullable=False, index=True)
     )
 
     #: Does this email address work? Records last known delivery state
-    _delivery_state = sa.Column(
+    _delivery_state = sa.orm.mapped_column(
         'delivery_state',
         sa.Integer,
         StateManager.check_constraint(
@@ -239,18 +239,20 @@ class EmailAddress(BaseMixin, Model):
         doc="Last known delivery state of this email address",
     )
     #: Timestamp of last known delivery state
-    delivery_state_at = sa.Column(
+    delivery_state_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: Timestamp of last known recipient activity resulting from sent mail
-    active_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    active_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Is this email address blocked from being used? If so, :attr:`email` should be
     #: null. Blocks apply to the canonical address (without the +sub-address variation),
     #: so a test for whether an address is blocked should use blake2b160_canonical to
     #: load the record. Other records with the same canonical hash _may_ exist without
     #: setting the flag due to a lack of database-side enforcement
-    _is_blocked = sa.Column('is_blocked', sa.Boolean, nullable=False, default=False)
+    _is_blocked = sa.orm.mapped_column(
+        'is_blocked', sa.Boolean, nullable=False, default=False
+    )
 
     __table_args__ = (
         # `domain` must be lowercase always. Note that Python `.lower()` is not

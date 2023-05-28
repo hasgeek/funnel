@@ -18,7 +18,7 @@ class SavedProject(NoIdMixin, Model):
     __tablename__ = 'saved_project'
 
     #: User who saved this project
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('user.id', ondelete='CASCADE'),
         nullable=False,
@@ -29,7 +29,7 @@ class SavedProject(NoIdMixin, Model):
         backref=sa.orm.backref('saved_projects', lazy='dynamic', passive_deletes=True),
     )
     #: Project that was saved
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('project.id', ondelete='CASCADE'),
         nullable=False,
@@ -41,11 +41,11 @@ class SavedProject(NoIdMixin, Model):
         backref=sa.orm.backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
     #: Timestamp when the save happened
-    saved_at = sa.Column(
+    saved_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: User's plaintext note to self on why they saved this (optional)
-    description = sa.Column(sa.UnicodeText, nullable=True)
+    description = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
 
     def roles_for(
         self, actor: Optional[User] = None, anchors: Sequence = ()
@@ -72,7 +72,7 @@ class SavedSession(NoIdMixin, Model):
     __tablename__ = 'saved_session'
 
     #: User who saved this session
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('user.id', ondelete='CASCADE'),
         nullable=False,
@@ -83,7 +83,7 @@ class SavedSession(NoIdMixin, Model):
         backref=sa.orm.backref('saved_sessions', lazy='dynamic', passive_deletes=True),
     )
     #: Session that was saved
-    session_id = sa.Column(
+    session_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('session.id', ondelete='CASCADE'),
         nullable=False,
@@ -95,11 +95,11 @@ class SavedSession(NoIdMixin, Model):
         backref=sa.orm.backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
     #: Timestamp when the save happened
-    saved_at = sa.Column(
+    saved_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: User's plaintext note to self on why they saved this (optional)
-    description = sa.Column(sa.UnicodeText, nullable=True)
+    description = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
 
     def roles_for(
         self, actor: Optional[User] = None, anchors: Sequence = ()

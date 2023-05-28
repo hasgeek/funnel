@@ -85,7 +85,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
     revoke_on_subject_delete = False
 
-    project_id: Mapped[int] = sa.Column(
+    project_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     project: Mapped[Project] = relationship(
@@ -103,11 +103,11 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
     #: Is this sponsor being promoted for commercial reasons? Projects may have a legal
     #: obligation to reveal this. This column records a declaration from the project.
-    is_promoted = immutable(sa.Column(sa.Boolean, nullable=False))
+    is_promoted = immutable(sa.orm.mapped_column(sa.Boolean, nullable=False))
 
     #: Optional label, indicating the type of sponsor
     label = immutable(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='project_sponsor_membership_label_check'
@@ -214,7 +214,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
     revoke_on_subject_delete = False
 
-    proposal_id: Mapped[int] = sa.Column(
+    proposal_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
     proposal: Mapped[Proposal] = relationship(
@@ -232,11 +232,11 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
     #: Is this sponsor being promoted for commercial reasons? Proposals may have a legal
     #: obligation to reveal this. This column records a declaration from the proposal.
-    is_promoted = immutable(sa.Column(sa.Boolean, nullable=False))
+    is_promoted = immutable(sa.orm.mapped_column(sa.Boolean, nullable=False))
 
     #: Optional label, indicating the type of sponsor
     label = immutable(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='proposal_sponsor_membership_label_check'
