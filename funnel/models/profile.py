@@ -176,16 +176,16 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
             sa.case(
                 (
                     user_id.is_not(None),  # ← when, ↙ then
-                    sa.select(User.state.ACTIVE)  # type: ignore[has-type]
+                    sa.select(User.state.ACTIVE)
                     .where(User.id == user_id)
-                    .correlate_except(User)  # type: ignore[arg-type]
+                    .correlate_except(User)
                     .scalar_subquery(),
                 ),
                 (
                     organization_id.is_not(None),  # ← when, ↙ then
-                    sa.select(Organization.state.ACTIVE)  # type: ignore[has-type]
+                    sa.select(Organization.state.ACTIVE)
                     .where(Organization.id == organization_id)
-                    .correlate_except(Organization)  # type: ignore[arg-type]
+                    .correlate_except(Organization)
                     .scalar_subquery(),
                 ),
                 else_=expression.false(),

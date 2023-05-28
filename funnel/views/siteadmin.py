@@ -315,9 +315,7 @@ class SiteadminView(ClassView):
         # Avoid request.form.getlist('comment_id') here
         if comment_spam_form.validate_on_submit():
             comments = Comment.query.filter(
-                Comment.uuid_b58.in_(  # type: ignore[attr-defined]
-                    request.form.getlist('comment_id')
-                )
+                Comment.uuid_b58.in_(request.form.getlist('comment_id'))
             )
             for comment in comments:
                 CommentModeratorReport.submit(actor=current_auth.user, comment=comment)

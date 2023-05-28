@@ -291,14 +291,14 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         sa.UniqueConstraint('profile_id', 'name'),
         sa.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
         sa.CheckConstraint(
-            sa.or_(  # type: ignore[arg-type]
+            sa.or_(
                 sa.and_(start_at.is_(None), end_at.is_(None)),
                 sa.and_(start_at.is_not(None), end_at.is_not(None), end_at > start_at),
             ),
             'project_start_at_end_at_check',
         ),
         sa.CheckConstraint(
-            sa.or_(  # type: ignore[arg-type]
+            sa.or_(
                 sa.and_(cfp_start_at.is_(None), cfp_end_at.is_(None)),
                 sa.and_(cfp_start_at.is_not(None), cfp_end_at.is_(None)),
                 sa.and_(

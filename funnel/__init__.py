@@ -110,10 +110,10 @@ app.jinja_env.globals['get_locale'] = get_locale
 # API it borrows from the Flask-Login extension
 app.login_manager = views.login_session.LoginManager()
 
-db.init_app(app)  # type: ignore[has-type]
-db.init_app(shortlinkapp)  # type: ignore[has-type]
+db.init_app(app)
+db.init_app(shortlinkapp)
 
-migrate = Migrate(app, db)  # type: ignore[has-type]
+migrate = Migrate(app, db)
 
 mail.init_app(app)
 mail.init_app(shortlinkapp)  # Required for email error reports
@@ -203,7 +203,7 @@ views.siteadmin.init_rq_dashboard()
 
 # --- Serve static files with Whitenoise -----------------------------------------------
 
-app.wsgi_app = WhiteNoise(  # type: ignore[assignment]
+app.wsgi_app = WhiteNoise(  # type: ignore[method-assign]
     app.wsgi_app, root=app.static_folder, prefix=app.static_url_path
 )
 app.wsgi_app.add_files(  # type: ignore[attr-defined]

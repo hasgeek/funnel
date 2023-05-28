@@ -136,7 +136,7 @@ class __Proposal:
             ProposalMembership,
             primaryjoin=sa.and_(
                 ProposalMembership.proposal_id == Proposal.id,
-                ProposalMembership.is_active,  # type: ignore[arg-type]
+                ProposalMembership.is_active,
             ),
             order_by=ProposalMembership.seq,
             viewonly=True,
@@ -173,7 +173,7 @@ class __User:
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProposalMembership.user_id == User.id,
-            ~ProposalMembership.is_invite,  # type: ignore[operator]
+            ~ProposalMembership.is_invite,
         ),
         viewonly=True,
     )
@@ -183,7 +183,7 @@ class __User:
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProposalMembership.user_id == User.id,
-            ProposalMembership.is_active,  # type: ignore[arg-type]
+            ProposalMembership.is_active,
         ),
         viewonly=True,
     )

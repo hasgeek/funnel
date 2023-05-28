@@ -125,8 +125,8 @@ class __User:
         CommentsetMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            CommentsetMembership.user_id == User.id,  # type: ignore[has-type]
-            CommentsetMembership.is_active,  # type: ignore[arg-type]
+            CommentsetMembership.user_id == User.id,
+            CommentsetMembership.is_active,
         ),
         viewonly=True,
     )
@@ -143,7 +143,7 @@ class __Commentset:
         lazy='dynamic',
         primaryjoin=sa.and_(
             CommentsetMembership.commentset_id == Commentset.id,
-            CommentsetMembership.is_active,  # type: ignore[arg-type]
+            CommentsetMembership.is_active,
         ),
         viewonly=True,
     )
@@ -155,7 +155,7 @@ class __Commentset:
             lazy='dynamic',
             primaryjoin=sa.and_(
                 CommentsetMembership.commentset_id == Commentset.id,
-                CommentsetMembership.is_active,  # type: ignore[arg-type]
+                CommentsetMembership.is_active,
                 CommentsetMembership.is_muted.is_(False),
             ),
             viewonly=True,

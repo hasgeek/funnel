@@ -937,7 +937,7 @@ def client(response_with_forms, app, db_session) -> FlaskClient:
         db_session.commit()
         return client_open(*args, **kwargs)
 
-    client.open = commit_before_open  # type: ignore[assignment]
+    client.open = commit_before_open  # type: ignore[method-assign]
     return client
 
 

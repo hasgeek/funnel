@@ -17,6 +17,7 @@ from typing import (
 )
 
 from sqlalchemy import event
+from sqlalchemy.orm import Synonym
 from sqlalchemy.sql.expression import ColumnElement
 from werkzeug.utils import cached_property
 
@@ -24,10 +25,11 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
 
-from ..typing import ModelType, OptionalMigratedTables
+from ..typing import OptionalMigratedTables
 from . import (
     BaseMixin,
     Mapped,
+    Model,
     UuidMixin,
     db,
     declarative_mixin,
@@ -103,11 +105,11 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     #: List of columns that will be copied into a new row when a membership is amended
     __data_columns__: ClassVar[Iterable[str]] = ()
     #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
-    parent_id: Optional[int]
+    parent_id: Synonym[int]
     #: Name of the parent id column, used in SQL constraints
     parent_id_column: ClassVar[Optional[str]]
     #: Parent object
-    parent: Optional[ModelType]
+    parent: Optional[Model]
     #: Subject of this membership (subclasses must define)
     subject: SubjectType
 
@@ -666,9 +668,9 @@ class ReorderMembershipMixin(ReorderMixin):
                 cls.parent_id == self.parent_id,
                 cls.is_active,  # type: ignore[attr-defined]
             )
-        return sa.and_(
-            cls.parent == self.parent,  # type: ignore[attr-defined]
-            cls.is_active,  # type: ignore[attr-defined]
+        return sa.and_(  # type: ignore[unreachable]
+            cls.parent == self.parent,
+            cls.is_active,
         )
 
 

@@ -146,10 +146,6 @@ module = ['tests']
 check_untyped_defs = true
 warn_unreachable = false
 
-[[tool.mypy.overrides]]
-module = ['flask_sqlalchemy']
-follow_imports = 'skip'
-
 [tool.pylint.master]
 max-parents = 10
 init-hook = """

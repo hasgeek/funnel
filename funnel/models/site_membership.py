@@ -72,7 +72,7 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
         args = list(super().__table_args__)
         args.append(
             sa.CheckConstraint(
-                sa.or_(  # type: ignore[arg-type]
+                sa.or_(
                     cls.is_comment_moderator.is_(True),
                     cls.is_user_moderator.is_(True),
                     cls.is_site_editor.is_(True),
@@ -121,7 +121,7 @@ class __User:
         lazy='select',
         primaryjoin=sa.and_(
             SiteMembership.user_id == User.id,  # type: ignore[has-type]
-            SiteMembership.is_active,  # type: ignore[arg-type]
+            SiteMembership.is_active,
         ),
         viewonly=True,
         uselist=False,

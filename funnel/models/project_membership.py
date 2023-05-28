@@ -151,13 +151,13 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
 
     @declared_attr.directive
     @classmethod
-    def __table_args__(cls) -> tuple:  # type: ignore[override]
+    def __table_args__(cls) -> tuple:
         """Table arguments."""
         args = list(super().__table_args__)
         kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
         args.append(
             sa.CheckConstraint(
-                sa.or_(  # type: ignore[arg-type]
+                sa.or_(
                     cls.is_editor.is_(True),
                     cls.is_promoter.is_(True),
                     cls.is_usher.is_(True),
@@ -191,7 +191,7 @@ class __Project:
             lazy='dynamic',
             primaryjoin=sa.and_(
                 ProjectCrewMembership.project_id == Project.id,
-                ProjectCrewMembership.is_active,  # type: ignore[arg-type]
+                ProjectCrewMembership.is_active,
             ),
             viewonly=True,
         ),
@@ -213,7 +213,7 @@ class __Project:
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProjectCrewMembership.project_id == Project.id,
-            ProjectCrewMembership.is_active,  # type: ignore[arg-type]
+            ProjectCrewMembership.is_active,
             ProjectCrewMembership.is_editor.is_(True),
         ),
         viewonly=True,
@@ -226,7 +226,7 @@ class __Project:
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProjectCrewMembership.project_id == Project.id,
-            ProjectCrewMembership.is_active,  # type: ignore[arg-type]
+            ProjectCrewMembership.is_active,
             ProjectCrewMembership.is_promoter.is_(True),
         ),
         viewonly=True,
@@ -237,7 +237,7 @@ class __Project:
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProjectCrewMembership.project_id == Project.id,
-            ProjectCrewMembership.is_active,  # type: ignore[arg-type]
+            ProjectCrewMembership.is_active,
             ProjectCrewMembership.is_usher.is_(True),
         ),
         viewonly=True,
@@ -269,7 +269,7 @@ class __User:
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProjectCrewMembership.user_id == User.id,
-            ~ProjectCrewMembership.is_invite,  # type: ignore[operator]
+            ~ProjectCrewMembership.is_invite,
         ),
         viewonly=True,
     )
@@ -278,7 +278,7 @@ class __User:
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProjectCrewMembership.user_id == User.id,
-            ProjectCrewMembership.is_active,  # type: ignore[arg-type]
+            ProjectCrewMembership.is_active,
         ),
         viewonly=True,
     )
@@ -292,7 +292,7 @@ class __User:
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProjectCrewMembership.user_id == User.id,
-            ProjectCrewMembership.is_active,  # type: ignore[arg-type]
+            ProjectCrewMembership.is_active,
             ProjectCrewMembership.is_editor.is_(True),
         ),
         viewonly=True,

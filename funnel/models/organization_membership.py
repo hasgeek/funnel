@@ -122,7 +122,7 @@ class __Organization:
             primaryjoin=sa.and_(
                 sa.orm.remote(OrganizationMembership.organization_id)
                 == Organization.id,
-                OrganizationMembership.is_active,  # type: ignore[arg-type]
+                OrganizationMembership.is_active,
             ),
             order_by=OrganizationMembership.granted_at.asc(),
             viewonly=True,
@@ -137,7 +137,7 @@ class __Organization:
         lazy='dynamic',
         primaryjoin=sa.and_(
             sa.orm.remote(OrganizationMembership.organization_id) == Organization.id,
-            OrganizationMembership.is_active,  # type: ignore[arg-type]
+            OrganizationMembership.is_active,
             OrganizationMembership.is_owner.is_(True),
         ),
         viewonly=True,
@@ -148,7 +148,7 @@ class __Organization:
         lazy='dynamic',
         primaryjoin=sa.and_(
             sa.orm.remote(OrganizationMembership.organization_id) == Organization.id,
-            OrganizationMembership.is_invite,  # type: ignore[arg-type]
+            OrganizationMembership.is_invite,
             OrganizationMembership.revoked_at.is_(None),
         ),
         viewonly=True,
@@ -184,7 +184,7 @@ class __User:
         primaryjoin=sa.and_(
             sa.orm.remote(OrganizationMembership.user_id)  # type: ignore[has-type]
             == User.id,
-            ~OrganizationMembership.is_invite,  # type: ignore[operator]
+            ~OrganizationMembership.is_invite,
         ),
         viewonly=True,
     )
@@ -197,7 +197,7 @@ class __User:
         primaryjoin=sa.and_(
             sa.orm.remote(OrganizationMembership.user_id)  # type: ignore[has-type]
             == User.id,
-            OrganizationMembership.is_active,  # type: ignore[arg-type]
+            OrganizationMembership.is_active,
         ),
         viewonly=True,
     )
@@ -210,7 +210,7 @@ class __User:
         primaryjoin=sa.and_(
             sa.orm.remote(OrganizationMembership.user_id)  # type: ignore[has-type]
             == User.id,
-            OrganizationMembership.is_active,  # type: ignore[arg-type]
+            OrganizationMembership.is_active,
             OrganizationMembership.is_owner.is_(True),
         ),
         viewonly=True,
@@ -224,7 +224,7 @@ class __User:
         primaryjoin=sa.and_(
             sa.orm.remote(OrganizationMembership.user_id)  # type: ignore[has-type]
             == User.id,
-            OrganizationMembership.is_invite,  # type: ignore[arg-type]
+            OrganizationMembership.is_invite,
             OrganizationMembership.revoked_at.is_(None),
         ),
         viewonly=True,

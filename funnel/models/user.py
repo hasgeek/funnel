@@ -361,7 +361,7 @@ class User(SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, 
             # Also see :meth:`password_is` for transparent upgrade
         self.pw_set_at = sa.func.utcnow()
         # Expire passwords after one year. TODO: make this configurable
-        self.pw_expires_at = self.pw_set_at + timedelta(days=365)  # type: ignore
+        self.pw_expires_at = self.pw_set_at + timedelta(days=365)
 
     #: Write-only property (passwords cannot be read back in plain text)
     password = property(fset=_set_password, doc=_set_password.__doc__)
@@ -830,13 +830,10 @@ class User(SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, 
         if buids and usernames:
             # Use .outerjoin(Profile) or users without usernames will be excluded
             query = cls.query.outerjoin(Profile).filter(
-                sa.or_(
-                    cls.buid.in_(buids),  # type: ignore[attr-defined]
-                    Profile.name_in(usernames),
-                )
+                sa.or_(cls.buid.in_(buids), Profile.name_in(usernames))
             )
         elif buids:
-            query = cls.query.filter(cls.buid.in_(buids))  # type: ignore[attr-defined]
+            query = cls.query.filter(cls.buid.in_(buids))
         elif usernames:
             query = cls.query.join(Profile).filter(Profile.name_in(usernames))
         else:
@@ -1190,9 +1187,7 @@ class Organization(
             self.profile.name = value
         else:
             # This code will only be reachable during `__init__`
-            self.profile = Profile(  # type: ignore[unreachable]
-                name=value, organization=self, uuid=self.uuid
-            )
+            self.profile = Profile(name=value, organization=self, uuid=self.uuid)
             db.session.add(self.profile)
 
     @name.inplace.expression
@@ -1304,7 +1299,7 @@ class Organization(
         """Get all organizations with matching `buids` and `names`."""
         orgs = []
         if buids:
-            query = cls.query.filter(cls.buid.in_(buids))  # type: ignore[attr-defined]
+            query = cls.query.filter(cls.buid.in_(buids))
             if defercols:
                 query = query.options(*cls._defercols())
             orgs.extend(query.all())

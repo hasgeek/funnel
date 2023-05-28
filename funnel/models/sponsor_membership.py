@@ -135,7 +135,7 @@ class __Project:
             lazy='dynamic',
             primaryjoin=sa.and_(
                 ProjectSponsorMembership.project_id == Project.id,
-                ProjectSponsorMembership.is_active,  # type: ignore[arg-type]
+                ProjectSponsorMembership.is_active,
             ),
             order_by=ProjectSponsorMembership.seq,
             viewonly=True,
@@ -259,7 +259,7 @@ class __Proposal:
             lazy='dynamic',
             primaryjoin=sa.and_(
                 ProposalSponsorMembership.proposal_id == Proposal.id,
-                ProposalSponsorMembership.is_active,  # type: ignore[arg-type]
+                ProposalSponsorMembership.is_active,
             ),
             order_by=ProposalSponsorMembership.seq,
             viewonly=True,
@@ -285,7 +285,7 @@ class __Profile:
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProjectSponsorMembership.profile_id == Profile.id,
-            ~ProjectSponsorMembership.is_invite,  # type: ignore[operator]
+            ~ProjectSponsorMembership.is_invite,
         ),
         order_by=ProjectSponsorMembership.granted_at.desc(),
         viewonly=True,
@@ -298,7 +298,7 @@ class __Profile:
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProjectSponsorMembership.profile_id == Profile.id,
-            ProjectSponsorMembership.is_active,  # type: ignore[arg-type]
+            ProjectSponsorMembership.is_active,
         ),
         order_by=ProjectSponsorMembership.granted_at.desc(),
         viewonly=True,
@@ -312,8 +312,8 @@ class __Profile:
             lazy='dynamic',
             primaryjoin=sa.and_(
                 ProjectSponsorMembership.profile_id == Profile.id,
-                ProjectSponsorMembership.is_invite,  # type: ignore[arg-type]
-                ProjectSponsorMembership.revoked_at.is_(None),  # type: ignore[has-type]
+                ProjectSponsorMembership.is_invite,
+                ProjectSponsorMembership.revoked_at.is_(None),
             ),
             order_by=ProjectSponsorMembership.granted_at.desc(),
             viewonly=True,
@@ -328,7 +328,7 @@ class __Profile:
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProposalSponsorMembership.profile_id == Profile.id,
-            ~ProposalSponsorMembership.is_invite,  # type: ignore[operator]
+            ~ProposalSponsorMembership.is_invite,
         ),
         order_by=ProposalSponsorMembership.granted_at.desc(),
         viewonly=True,
@@ -341,7 +341,7 @@ class __Profile:
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProposalSponsorMembership.profile_id == Profile.id,
-            ProposalSponsorMembership.is_active,  # type: ignore[arg-type]
+            ProposalSponsorMembership.is_active,
         ),
         order_by=ProposalSponsorMembership.granted_at.desc(),
         viewonly=True,
@@ -355,10 +355,8 @@ class __Profile:
             lazy='dynamic',
             primaryjoin=sa.and_(
                 ProposalSponsorMembership.profile_id == Profile.id,
-                ProposalSponsorMembership.is_invite,  # type: ignore[arg-type]
-                ProposalSponsorMembership.revoked_at.is_(  # type: ignore[has-type]
-                    None
-                ),
+                ProposalSponsorMembership.is_invite,
+                ProposalSponsorMembership.revoked_at.is_(None),
             ),
             order_by=ProposalSponsorMembership.granted_at.desc(),
             viewonly=True,

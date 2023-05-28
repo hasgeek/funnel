@@ -372,9 +372,7 @@ def test_shortlink_comparator() -> None:
     # Equality and container expressions work
     expr = models.shortlink.Shortlink.name == 'example'
     assert expr is not None
-    expr = models.shortlink.Shortlink.name.in_(  # type: ignore[attr-defined]
-        ['example', 'example_org']
-    )
+    expr = models.shortlink.Shortlink.name.in_(['example', 'example_org'])
     assert expr is not None
     # Inequality expression is not supported, nor is anything else
     with pytest.raises(NotImplementedError):
@@ -390,7 +388,5 @@ def test_shortlink_lookup_multiple() -> None:
     assert models.shortlink.Shortlink.query.filter_by(name='example_com').all() == [sl2]
     assert models.shortlink.Shortlink.query.filter_by(name='unknown').all() == []
     assert models.shortlink.Shortlink.query.filter(
-        models.shortlink.Shortlink.name.in_(  # type: ignore[attr-defined]
-            ['example', 'example_com', 'unknown']
-        )
+        models.shortlink.Shortlink.name.in_(['example', 'example_com', 'unknown'])
     ).all() == [sl1, sl2]

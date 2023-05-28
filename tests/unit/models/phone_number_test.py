@@ -311,9 +311,9 @@ def test_phone_number_mutability() -> None:
     with pytest.raises(ValueError, match="A phone number is required"):
         pn.number = ''
     with pytest.raises(ValueError, match="A phone number is required"):
-        pn.number = False  # type: ignore[assignment]
+        pn.number = False
     with pytest.raises(ValueError, match="Phone number cannot be changed"):
-        pn.number = [1, 2, 3]  # type: ignore[assignment]
+        pn.number = [1, 2, 3]
 
     # Changing after nulling is not allowed as hash won't match
     pn.number = None
@@ -322,9 +322,9 @@ def test_phone_number_mutability() -> None:
     with pytest.raises(ValueError, match="A phone number is required"):
         pn.number = ''
     with pytest.raises(ValueError, match="A phone number is required"):
-        pn.number = False  # type: ignore[assignment]
+        pn.number = False
     with pytest.raises(ValueError, match="Invalid value for phone number"):
-        pn.number = [1, 2, 3]  # type: ignore[assignment]
+        pn.number = [1, 2, 3]
 
 
 def test_phone_number_md5() -> None:
@@ -341,7 +341,7 @@ def test_phone_number_is_blocked_flag() -> None:
     pn = models.PhoneNumber(EXAMPLE_NUMBER_IN)
     assert pn.is_blocked is False
     with pytest.raises(AttributeError):
-        pn.is_blocked = True  # type: ignore[misc]
+        pn.is_blocked = True
 
 
 def test_phone_number_can_commit(db_session) -> None:

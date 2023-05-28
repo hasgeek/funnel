@@ -389,7 +389,7 @@ class Shortlink(NoIdMixin, Model):
             idv = name_to_bigint(name)
         except (ValueError, TypeError):
             return None
-        obj = db.session.get(  # type: ignore[attr-defined]
+        obj = db.session.get(
             cls, idv, options=[sa.orm.load_only(cls.id, cls.url, cls.enabled)]
         )
         if obj is not None and (ignore_enabled or obj.enabled):

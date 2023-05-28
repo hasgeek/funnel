@@ -111,7 +111,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     __table_args__ = (
         sa.UniqueConstraint('project_id', 'url_id'),
         sa.CheckConstraint(
-            sa.or_(  # type: ignore[arg-type]
+            sa.or_(
                 sa.and_(start_at.is_(None), end_at.is_(None)),
                 sa.and_(
                     start_at.is_not(None),
@@ -204,7 +204,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     def user(self) -> Optional[User]:
         if self.proposal is not None:
             return self.proposal.first_user
-        return None  # type: ignore[unreachable]
+        return None
 
     @hybrid_property
     def scheduled(self) -> bool:
@@ -284,7 +284,7 @@ class __VenueRoom:
         Session,
         primaryjoin=sa.and_(
             Session.venue_room_id == VenueRoom.id,
-            Session.scheduled,  # type: ignore[arg-type]
+            Session.scheduled,
         ),
         viewonly=True,
     )
@@ -299,7 +299,7 @@ class __Project:
             sa.select(sa.func.min(Session.start_at))
             .where(Session.start_at.is_not(None))
             .where(Session.project_id == Project.id)
-            .correlate_except(Session)  # type: ignore[arg-type]
+            .correlate_except(Session)
             .scalar_subquery()
         ),
         read={'all'},
@@ -323,7 +323,7 @@ class __Project:
                     .where(
                         Project.start_at >= sa.func.utcnow()  # type: ignore[has-type]
                     )
-                    .correlate(Project)  # type: ignore[arg-type]
+                    .correlate(Project)
                 )
             )
             .scalar_subquery()
@@ -336,7 +336,7 @@ class __Project:
             sa.select(sa.func.max(Session.end_at))
             .where(Session.end_at.is_not(None))
             .where(Session.project_id == Project.id)
-            .correlate_except(Session)  # type: ignore[arg-type]
+            .correlate_except(Session)
             .scalar_subquery()
         ),
         read={'all'},
@@ -383,7 +383,7 @@ class __Project:
             order_by=Session.start_at.asc(),
             primaryjoin=sa.and_(
                 Session.project_id == Project.id,
-                Session.scheduled,  # type: ignore[arg-type]
+                Session.scheduled,
             ),
             viewonly=True,
         ),
@@ -395,7 +395,7 @@ class __Project:
             order_by=Session.start_at.asc(),
             primaryjoin=sa.and_(
                 Session.project_id == Project.id,
-                Session.scheduled.is_not(True),  # type: ignore[attr-defined]
+                Session.scheduled.is_not(True),
             ),
             viewonly=True,
         ),
@@ -459,7 +459,7 @@ class __Project:
                 .scalar()
             )
 
-        return None  # type: ignore[unreachable]
+        return None
 
     @classmethod
     def starting_at(  # type: ignore[misc]

@@ -320,7 +320,7 @@ class PhoneNumber(BaseMixin, Model):
     __table_args__ = (
         # If `blocked_at` is not None, `number` and `has_*` must be None
         sa.CheckConstraint(
-            sa.or_(  # type: ignore[arg-type]
+            sa.or_(
                 blocked_at.is_(None),  # or...
                 sa.and_(
                     blocked_at.is_not(None),

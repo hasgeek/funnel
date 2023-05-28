@@ -228,7 +228,7 @@ def test_email_address_is_blocked_flag() -> None:
     ea = models.EmailAddress('example@example.com')
     assert ea.is_blocked is False
     with pytest.raises(AttributeError):
-        ea.is_blocked = True  # type: ignore[misc]
+        ea.is_blocked = True
 
 
 def test_email_address_can_commit(db_session) -> None:

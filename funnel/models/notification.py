@@ -117,7 +117,7 @@ from coaster.sqlalchemy import (
 )
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
-from ..typing import OptionalMigratedTables, T, UuidModelType
+from ..typing import ModelType, OptionalMigratedTables, T, UuidModelType
 from . import (
     BaseMixin,
     DynamicMapped,
@@ -344,7 +344,7 @@ class Notification(NoIdMixin, Model):
 
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per account (nee profile) or project
-    preference_context: ClassVar[Optional[Model]] = None
+    preference_context: Optional[ModelType] = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
     type_: Mapped[str] = immutable(
@@ -525,7 +525,7 @@ class Notification(NoIdMixin, Model):
         return SqlUuidB58Comparator(cls.eventid)
 
     @cached_property
-    def document(self) -> Optional[UuidModelType]:
+    def document(self) -> Optional[Model]:
         """
         Retrieve the document referenced by this Notification, if any.
 
@@ -538,7 +538,7 @@ class Notification(NoIdMixin, Model):
         return None
 
     @cached_property
-    def fragment(self) -> Optional[UuidModelType]:
+    def fragment(self) -> Optional[Model]:
         """
         Retrieve the fragment within a document referenced by this Notification, if any.
 
@@ -833,7 +833,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
 
     __table_args__ = (
         sa.ForeignKeyConstraint(
-            [eventid, notification_id],  # type: ignore[list-item]
+            [eventid, notification_id],
             [Notification.eventid, Notification.id],
             ondelete='CASCADE',
             name='user_notification_eventid_notification_id_fkey',
@@ -1402,14 +1402,10 @@ def _register_notification_types(mapper_: Any, cls: Type[Notification]) -> None:
                 f"Notification subclass {cls!r} must specify document_model"
             )
         cls.document_type = (
-            cls.document_model.__tablename__  # type: ignore[attr-defined]
-            if cls.document_model
-            else None
+            cls.document_model.__tablename__ if cls.document_model else None
         )
         cls.fragment_type = (
-            cls.fragment_model.__tablename__  # type: ignore[attr-defined]
-            if cls.fragment_model
-            else None
+            cls.fragment_model.__tablename__ if cls.fragment_model else None
         )
 
         # Exclude inactive notifications in the registry. It is used to populate the

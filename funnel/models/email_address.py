@@ -263,7 +263,7 @@ class EmailAddress(BaseMixin, Model):
         ),
         # If `is_blocked` is True, `email` and `domain` must be None
         sa.CheckConstraint(
-            sa.or_(  # type: ignore[arg-type]
+            sa.or_(
                 _is_blocked.is_not(True),
                 sa.and_(_is_blocked.is_(True), email.is_(None), _domain.is_(None)),
             ),
@@ -274,7 +274,7 @@ class EmailAddress(BaseMixin, Model):
         # easy way to do an IDN match in Postgres without an extension.
         # `_` and `%` must be escaped as they are wildcards to the LIKE/ILIKE operator
         sa.CheckConstraint(
-            sa.or_(  # type: ignore[arg-type]
+            sa.or_(
                 # email and domain must both be non-null, or
                 sa.and_(email.is_(None), _domain.is_(None)),
                 # domain must be an IDN, or

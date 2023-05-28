@@ -148,12 +148,12 @@ def test_add_to_class() -> None:
     # New methods can have a custom name and can take any decorator valid in the class
     @mhelpers.add_to_class(ReferenceClass, 'spameggs')  # type: ignore[misc]
     @property
-    def spameggs_property(self):
+    def spameggs_property(self) -> str:
         return 'is_spameggs'
 
     assert hasattr(ReferenceClass, 'spameggs')
     assert not hasattr(ReferenceClass, 'spameggs_property')
-    assert ReferenceClass.spameggs is spameggs_property  # type: ignore[attr-defined]
+    assert ReferenceClass.spameggs is spameggs_property
     assert ReferenceClass().spameggs == 'is_spameggs'  # type: ignore[attr-defined]
 
     # Existing attributes cannot be replaced

@@ -385,8 +385,8 @@ class Comment(UuidMixin, BaseMixin, Model):
     def delete(self) -> None:
         """Delete this comment."""
         if len(self.replies) > 0:
-            self.user = None  # type: ignore[assignment]
-            self.message = ''  # type: ignore[assignment]
+            self.user = None
+            self.message = ''
         else:
             if self.in_reply_to and self.in_reply_to.state.DELETED:
                 # If the comment this is replying to is deleted, ask it to reconsider

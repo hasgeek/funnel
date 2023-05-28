@@ -10,7 +10,7 @@ from funnel.transports import sms
 
 
 @pytest.fixture()
-def app():
+def app() -> Flask:
     test_app = Flask(__name__)
     test_app.config['TESTING'] = True
     test_app.config['SMS_DLT_ENTITY_ID'] = 'dlt_entity_id'
@@ -19,7 +19,7 @@ def app():
 
 
 @pytest.fixture(scope='session')
-def msgt():
+def msgt() -> SimpleNamespace:
     class MyMessage(sms.SmsTemplate):
         registered_template = "Insert {#var#} here"
         template = "Insert {var} here"
@@ -179,8 +179,8 @@ def test_validate_no_entity_template_id() -> None:
             registered_templateid = '12345'
 
 
-def test_subclass_config(app, msgt) -> None:
-    class MySubMessage(msgt.MyMessage):  # type: ignore[name-defined]
+def test_subclass_config(app: Flask, msgt: SimpleNamespace) -> None:
+    class MySubMessage(msgt.MyMessage):
         pass
 
     assert sms.SmsTemplate.registered_templateid is None
@@ -199,7 +199,7 @@ def test_subclass_config(app, msgt) -> None:
     assert MySubMessage.registered_templateid == 'qwerty'
 
 
-def test_init_app(app, msgt) -> None:
+def test_init_app(app: Flask, msgt: SimpleNamespace) -> None:
     assert sms.SmsTemplate.registered_entityid is None
     assert msgt.MyMessage.registered_entityid is None
     sms.SmsTemplate.init_app(app)
@@ -207,13 +207,13 @@ def test_init_app(app, msgt) -> None:
     assert msgt.MyMessage.registered_entityid == 'dlt_entity_id'
 
 
-def test_inline_use(msgt) -> None:
+def test_inline_use(msgt: SimpleNamespace) -> None:
     assert str(msgt.MyMessage(var="sample1")) == "Insert sample1 here"
     assert msgt.MyMessage(var="sample2").text == "Insert sample2 here"
     assert msgt.MyMessage(var="sample3").plaintext == "sample3 here"
 
 
-def test_object_use(msgt) -> None:
+def test_object_use(msgt: SimpleNamespace) -> None:
     # pylint: disable=attribute-defined-outside-init
     msg = msgt.MyMessage()
     msg.var = "sample1"
