@@ -39,8 +39,9 @@ def unaffiliated_phone_number() -> models.PhoneNumber:
 @pytest.fixture()
 def support_api_key(app: Flask) -> str:
     """Random support API key."""
-    app.config['INTERNAL_SUPPORT_API_KEY'] = secrets.token_urlsafe()
-    return app.config['INTERNAL_SUPPORT_API_KEY']
+    key = secrets.token_urlsafe()
+    app.config['INTERNAL_SUPPORT_API_KEY'] = key
+    return key
 
 
 def test_api_key_not_configured(client: FlaskClient) -> None:
@@ -84,7 +85,7 @@ def test_valid_phone_affiliated(
     support_api_key: str,
     user_rincewind_phone: models.UserPhone,
     number: str,
-):
+) -> None:
     """Test phone number affiliated with a user account."""
     rv = client.post(
         url_for('support_callerid'),
@@ -106,7 +107,7 @@ def test_valid_phone_intl(
     support_api_key: str,
     user_twoflower_phone: models.UserPhone,
     number: str,
-):
+) -> None:
     """Test phone number affiliated with a user account."""
     rv = client.post(
         url_for('support_callerid'),
