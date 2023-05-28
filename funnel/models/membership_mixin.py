@@ -111,7 +111,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     if TYPE_CHECKING:
         #: Subclass has a table name
         __tablename__: str
-        #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
+        #: Parent column (declare as synonym of 'profile_id' or 'project_id' in
+        #: subclasses)
         parent_id: Mapped[int]
         #: Parent object
         parent: Mapped[Optional[Model]]
