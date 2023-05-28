@@ -525,7 +525,7 @@ class Notification(NoIdMixin, Model):
         return SqlUuidB58Comparator(cls.eventid)
 
     @cached_property
-    def document(self) -> Optional[Model]:
+    def document(self) -> Optional[UuidModelType]:
         """
         Retrieve the document referenced by this Notification, if any.
 
@@ -538,7 +538,7 @@ class Notification(NoIdMixin, Model):
         return None
 
     @cached_property
-    def fragment(self) -> Optional[Model]:
+    def fragment(self) -> Optional[UuidModelType]:
         """
         Retrieve the fragment within a document referenced by this Notification, if any.
 
