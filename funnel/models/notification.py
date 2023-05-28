@@ -693,14 +693,14 @@ class UserNotificationMixin:
     with_roles(notification_pref_type, read={'owner'})
 
     @cached_property
-    def document(self) -> Optional[Model]:
+    def document(self) -> Optional[UuidModelType]:
         """Document that this notification is for."""
         return self.notification.document
 
     with_roles(document, read={'owner'})
 
     @cached_property
-    def fragment(self) -> Optional[Model]:
+    def fragment(self) -> Optional[UuidModelType]:
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
 
