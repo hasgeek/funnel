@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, TypeVar, Union
+from typing import TYPE_CHECKING, ClassVar, TypeVar, Union
 from uuid import UUID
 
 from . import Mapped, QueryProperty, db, declarative_mixin, sa
@@ -33,7 +33,7 @@ class ReorderMixin:
         seq: Mapped[int]
 
         #: Subclass must offer a SQLAlchemy query (this is standard from base classes)
-        query: QueryProperty
+        query: ClassVar[QueryProperty]
 
     @property
     def parent_scoped_reorder_query_filter(self: Reorderable):
