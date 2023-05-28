@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, with_roles
 
-from . import DynamicMapped, Mapped, Query, db, sa
+from . import DynamicMapped, Mapped, Model, Query, db, relationship, sa
 from .comment import Comment, Commentset
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -20,10 +20,7 @@ from .user import User
 __all__ = ['CommentsetMembership']
 
 
-class CommentsetMembership(
-    ImmutableUserMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class CommentsetMembership(ImmutableUserMembershipMixin, Model):
     """Membership roles for users who are commentset users and subscribers."""
 
     __tablename__ = 'commentset_membership'
@@ -44,12 +41,12 @@ class CommentsetMembership(
         }
     }
 
-    commentset_id: Mapped[int] = sa.Column(
+    commentset_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('commentset.id', ondelete='CASCADE'),
         nullable=False,
     )
-    commentset: Mapped[Commentset] = sa.orm.relationship(
+    commentset: Mapped[Commentset] = relationship(
         Commentset,
         backref=sa.orm.backref(
             'subscriber_memberships',
@@ -60,13 +57,13 @@ class CommentsetMembership(
     )
 
     parent_id: Mapped[int] = sa.orm.synonym('commentset_id')
-    parent_id_column: str = 'commentset_id'
-    parent: Commentset = sa.orm.synonym('commentset')
+    parent_id_column = 'commentset_id'
+    parent: Mapped[Commentset] = sa.orm.synonym('commentset')
 
     #: Flag to indicate notifications are muted
-    is_muted = sa.Column(sa.Boolean, nullable=False, default=False)
+    is_muted = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
     #: When the user visited this commentset last
-    last_seen_at = sa.Column(
+    last_seen_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
 
@@ -124,12 +121,12 @@ class CommentsetMembership(
 class __User:
     active_commentset_memberships: DynamicMapped[
         List[CommentsetMembership]
-    ] = sa.orm.relationship(
+    ] = relationship(
         CommentsetMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            CommentsetMembership.user_id == User.id,  # type: ignore[has-type]
-            CommentsetMembership.is_active,  # type: ignore[arg-type]
+            CommentsetMembership.user_id == User.id,
+            CommentsetMembership.is_active,
         ),
         viewonly=True,
     )
@@ -141,24 +138,24 @@ class __User:
 
 @reopen(Commentset)
 class __Commentset:
-    active_memberships: DynamicMapped[List[CommentsetMembership]] = sa.orm.relationship(
+    active_memberships: DynamicMapped[List[CommentsetMembership]] = relationship(
         CommentsetMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
             CommentsetMembership.commentset_id == Commentset.id,
-            CommentsetMembership.is_active,  # type: ignore[arg-type]
+            CommentsetMembership.is_active,
         ),
         viewonly=True,
     )
 
     # Send notifications only to subscribers who haven't muted
     active_memberships_unmuted: DynamicMapped[List[CommentsetMembership]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             CommentsetMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
                 CommentsetMembership.commentset_id == Commentset.id,
-                CommentsetMembership.is_active,  # type: ignore[arg-type]
+                CommentsetMembership.is_active,
                 CommentsetMembership.is_muted.is_(False),
             ),
             viewonly=True,

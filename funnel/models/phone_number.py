@@ -22,10 +22,12 @@ from ..signals import phonenumber_refcount_dropping
 from . import (
     BaseMixin,
     Mapped,
+    Model,
     db,
     declarative_mixin,
     declared_attr,
     hybrid_property,
+    relationship,
     sa,
 )
 
@@ -232,7 +234,7 @@ def phone_blake2b160_hash(
 # --- Models ---------------------------------------------------------------------------
 
 
-class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
+class PhoneNumber(BaseMixin, Model):
     """
     Represents a phone number as a standalone entity, with associated metadata.
 
@@ -261,13 +263,13 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     #: The phone number, centrepiece of this model. Stored normalized in E164 format.
     #: Validated by the :func:`_validate_phone` event handler
-    number = sa.Column(sa.Unicode, nullable=True, unique=True)
+    number = sa.orm.mapped_column(sa.Unicode, nullable=True, unique=True)
 
     #: BLAKE2b 160-bit hash of :attr:`phone`. Kept permanently even if phone is
     #: removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the name,
     #: we're only storing 20 bytes
     blake2b160 = immutable(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.LargeBinary,
             sa.CheckConstraint(
                 'LENGTH(blake2b160) = 20',
@@ -283,38 +285,42 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     # device, we record distinct timestamps for last sent, delivery and failure.
 
     #: Cached state for whether this phone number is known to have SMS support
-    has_sms = sa.Column(sa.Boolean, nullable=True)
+    has_sms = sa.orm.mapped_column(sa.Boolean, nullable=True)
     #: Timestamp at which this number was determined to be valid/invalid for SMS
-    has_sms_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    has_sms_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: Cached state for whether this phone number is known to be on WhatsApp or not
-    has_wa = sa.Column(sa.Boolean, nullable=True)
+    has_wa = sa.orm.mapped_column(sa.Boolean, nullable=True)
     #: Timestamp at which this number was tested for availability on WhatsApp
-    has_wa_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    has_wa_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Timestamp of last SMS sent
-    msg_sms_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_sms_sent_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: Timestamp of last SMS delivered
-    msg_sms_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_sms_delivered_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
     #: Timestamp of last SMS delivery failure
-    msg_sms_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_sms_failed_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Timestamp of last WA message sent
-    msg_wa_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_wa_sent_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: Timestamp of last WA message delivered
-    msg_wa_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_wa_delivered_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
     #: Timestamp of last WA message delivery failure
-    msg_wa_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_wa_failed_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Timestamp of last known recipient activity resulting from sent messages
-    active_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    active_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Is this phone number blocked from being used? :attr:`phone` should be null if so.
-    blocked_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    blocked_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     __table_args__ = (
         # If `blocked_at` is not None, `number` and `has_*` must be None
         sa.CheckConstraint(
-            sa.or_(  # type: ignore[arg-type]
+            sa.or_(
                 blocked_at.is_(None),  # or...
                 sa.and_(
                     blocked_at.is_not(None),
@@ -344,6 +350,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     )
 
     def __init__(self, phone: str, *, _pre_validated_formatted: bool = False) -> None:
+        super().__init__()
         if not isinstance(phone, str):
             raise ValueError("A string phone number is required")
         if not _pre_validated_formatted:
@@ -741,7 +748,7 @@ class PhoneNumberMixin:
         PhoneNumber.__backrefs__.add(backref_name)
         if cls.__phone_for__ and cls.__phone_is_exclusive__:
             PhoneNumber.__exclusive_backrefs__.add(backref_name)
-        return sa.orm.relationship(PhoneNumber, backref=backref_name)
+        return relationship(PhoneNumber, backref=backref_name)
 
     @property
     def phone(self) -> Optional[str]:

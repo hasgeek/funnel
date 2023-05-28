@@ -15,7 +15,7 @@ from typing_extensions import Literal
 
 from coaster.sqlalchemy import immutable, with_roles
 
-from . import Mapped, NoIdMixin, UrlType, db, hybrid_property, sa
+from . import Mapped, Model, NoIdMixin, UrlType, db, hybrid_property, relationship, sa
 from .helpers import profanity
 from .user import User
 
@@ -187,7 +187,7 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
 # --- Models ---------------------------------------------------------------------------
 
 
-class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
+class Shortlink(NoIdMixin, Model):
     """A short link to a full-size link, for use over SMS."""
 
     __tablename__ = 'shortlink'
@@ -201,23 +201,25 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
     id = with_roles(  # noqa: A003
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
         # handling collisions. This needs an "immutable after commit" handler
-        sa.Column(sa.BigInteger, autoincrement=False, nullable=False, primary_key=True),
+        sa.orm.mapped_column(
+            sa.BigInteger, autoincrement=False, nullable=False, primary_key=True
+        ),
         read={'all'},
     )
     #: URL target of this shortlink
     url = with_roles(
-        immutable(sa.Column(UrlType, nullable=False, index=True)),
+        immutable(sa.orm.mapped_column(UrlType, nullable=False, index=True)),
         read={'all'},
     )
     #: Id of user who created this shortlink (optional)
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
     )
     #: User who created this shortlink (optional)
-    user: Mapped[Optional[User]] = sa.orm.relationship(User)
+    user: Mapped[Optional[User]] = relationship(User)
 
     #: Is this link enabled? If not, render 410 Gone
-    enabled = sa.Column(sa.Boolean, nullable=False, default=True)
+    enabled = sa.orm.mapped_column(sa.Boolean, nullable=False, default=True)
 
     @hybrid_property
     def name(self) -> str:
@@ -387,7 +389,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
             idv = name_to_bigint(name)
         except (ValueError, TypeError):
             return None
-        obj = db.session.get(  # type: ignore[attr-defined]
+        obj = db.session.get(
             cls, idv, options=[sa.orm.load_only(cls.id, cls.url, cls.enabled)]
         )
         if obj is not None and (ignore_enabled or obj.enabled):

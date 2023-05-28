@@ -55,7 +55,7 @@ def test_proposal_assignment_radio(new_main_label, new_proposal) -> None:
 
 def test_label_flags(new_main_label, new_label) -> None:
     restricted_labels = models.Label.query.filter(
-        models.Label.restricted.is_(True)  # type: ignore[attr-defined]
+        models.Label.restricted.is_(True)
     ).all()
     assert new_main_label in restricted_labels
     assert new_label not in restricted_labels

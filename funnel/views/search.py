@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 from html import unescape as html_unescape
-from typing import Any, List, Optional, TypeVar
+from typing import Any, Dict, List, Optional, Type, TypeVar
 from urllib.parse import quote as urlquote
 import re
 
 from flask import request, url_for
 from markupsafe import Markup
 from sqlalchemy.sql import expression
-from sqlalchemy.sql.elements import ColumnElement
-from typing_extensions import TypedDict
+from typing_extensions import Protocol, TypedDict
 
 from baseframe import __
 from coaster.views import (
@@ -28,6 +27,7 @@ from .. import app, executor
 from ..models import (
     Comment,
     Commentset,
+    Mapped,
     Organization,
     Profile,
     Project,
@@ -35,13 +35,14 @@ from ..models import (
     ProposalMembership,
     Query,
     Session,
+    TSVectorType,
     Update,
     User,
     db,
     sa,
     visual_field_delimiter,
 )
-from ..typing import ReturnRenderWith
+from ..typing import IdModelType, ReturnRenderWith
 from ..utils import abort_null
 from .helpers import render_redirect
 from .mixins import ProfileViewMixin, ProjectViewMixin
@@ -49,6 +50,14 @@ from .mixins import ProfileViewMixin, ProjectViewMixin
 # --- Definitions ----------------------------------------------------------------------
 
 _Q = TypeVar('_Q', bound=Query)
+
+
+class SearchModelType(IdModelType, Protocol):
+    """Protocol class for a model with search columns."""
+
+    title: Mapped[str]
+    search_vector: Mapped[TSVectorType]
+
 
 # PostgreSQL ts_headline markers
 pg_startsel = '<mark>'
@@ -76,7 +85,7 @@ class SearchProvider:
     #: Label to use in UI
     label: str
     #: Model to query against
-    model: Any  # type: ignore[name-defined]
+    model: Type[SearchModelType]
     #: Does this model have a title column?
     has_title: bool = True
 
@@ -86,12 +95,12 @@ class SearchProvider:
         return self.model.search_vector.type.options.get('regconfig', 'english')
 
     @property
-    def title_column(self):
+    def title_column(self) -> sa.ColumnElement[str]:
         """Return a column or column expression representing the object's title."""
         return self.model.title
 
     @property
-    def hltext(self) -> ColumnElement:
+    def hltext(self) -> sa.ColumnElement[str]:
         """Return concatenation of all text in search_vector, for highlighting."""
         model_hltext = self.model.search_vector.type.options.get('hltext')
         if model_hltext is not None:
@@ -103,7 +112,9 @@ class SearchProvider:
             *(getattr(self.model, c) for c in self.model.search_vector.type.columns),
         )
 
-    def hltitle_column(self, tsquery: sa.sql.functions.Function) -> ColumnElement:
+    def hltitle_column(
+        self, tsquery: sa.sql.functions.Function
+    ) -> sa.ColumnElement[str]:
         """Return a column expression for title with search terms highlighted."""
         return sa.func.ts_headline(
             self.regconfig,
@@ -113,7 +124,9 @@ class SearchProvider:
             type_=sa.UnicodeText,
         )
 
-    def hlsnippet_column(self, tsquery: sa.sql.functions.Function) -> ColumnElement:
+    def hlsnippet_column(
+        self, tsquery: sa.sql.functions.Function
+    ) -> sa.ColumnElement[str]:
         """Return a column expression for a snippet of text with highlights."""
         return sa.func.ts_headline(
             self.regconfig,
@@ -125,7 +138,9 @@ class SearchProvider:
             type_=sa.UnicodeText,
         )
 
-    def matched_text_column(self, tsquery: sa.sql.functions.Function) -> ColumnElement:
+    def matched_text_column(
+        self, tsquery: sa.sql.functions.Function
+    ) -> sa.ColumnElement[str]:
         """Return a column expression for matching text, without highlighting."""
         return sa.func.ts_headline(
             self.regconfig,
@@ -322,7 +337,7 @@ class ProfileSearch(SearchProvider):
     model = Profile
 
     @property
-    def title_column(self) -> ColumnElement:
+    def title_column(self) -> sa.ColumnElement[str]:
         """Return title from user or organization that the account is attached to."""
         return sa.case(
             (Profile.user_id.is_not(None), User.fullname),
@@ -331,7 +346,7 @@ class ProfileSearch(SearchProvider):
         )
 
     @property
-    def hltext(self) -> ColumnElement:
+    def hltext(self) -> sa.ColumnElement[str]:
         """Return text from which matches will be highlighted."""
         return sa.func.concat_ws(
             visual_field_delimiter, self.title_column, Profile.description_html
@@ -703,7 +718,7 @@ class CommentSearch(SearchInProjectProvider):
 
 
 #: Ordered dictionary of search providers
-search_providers = {
+search_providers: Dict[str, SearchProvider] = {
     'project': ProjectSearch(),
     'profile': ProfileSearch(),
     'session': SessionSearch(),

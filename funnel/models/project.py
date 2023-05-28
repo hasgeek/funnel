@@ -19,6 +19,7 @@ from . import (
     DynamicMapped,
     Mapped,
     MarkdownCompositeDocument,
+    Model,
     Query,
     TimestampMixin,
     TimezoneType,
@@ -26,8 +27,9 @@ from . import (
     UrlType,
     UuidMixin,
     db,
-    json_type,
+    relationship,
     sa,
+    types,
 )
 from .comment import SET_TYPE, Commentset
 from .helpers import (
@@ -66,20 +68,22 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-defined]
+class Project(UuidMixin, BaseScopedNameMixin, Model):
     __tablename__ = 'project'
     __allow_unmapped__ = True
     reserved_names = RESERVED_NAMES
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user: Mapped[User] = sa.orm.relationship(
+    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user: Mapped[User] = relationship(
         User,
         foreign_keys=[user_id],
         backref=sa.orm.backref('projects', cascade='all'),
     )
-    profile_id = sa.Column(sa.Integer, sa.ForeignKey('profile.id'), nullable=False)
+    profile_id = sa.orm.mapped_column(
+        sa.Integer, sa.ForeignKey('profile.id'), nullable=False
+    )
     profile: Mapped[Profile] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Profile, backref=sa.orm.backref('projects', cascade='all', lazy='dynamic')
         ),
         read={'all'},
@@ -91,38 +95,40 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     )
     parent: Mapped[Profile] = sa.orm.synonym('profile')
     tagline: Mapped[str] = with_roles(
-        sa.Column(sa.Unicode(250), nullable=False),
+        sa.orm.mapped_column(sa.Unicode(250), nullable=False),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    description = with_roles(
-        MarkdownCompositeDocument.create('description', default='', nullable=False),
-        read={'all'},
+    description, description_text, description_html = MarkdownCompositeDocument.create(
+        'description', default='', nullable=False
     )
-    instructions = with_roles(
-        MarkdownCompositeDocument.create('instructions', default='', nullable=True),
-        read={'all'},
-    )
+    with_roles(description, read={'all'})
+    (
+        instructions,
+        instructions_text,
+        instructions_html,
+    ) = MarkdownCompositeDocument.create('instructions', default='', nullable=True)
+    with_roles(instructions, read={'all'})
 
     location = with_roles(
-        sa.Column(sa.Unicode(50), default='', nullable=True),
+        sa.orm.mapped_column(sa.Unicode(50), default='', nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    parsed_location = sa.Column(json_type, nullable=False, server_default='{}')
+    parsed_location: Mapped[types.jsonb_dict]
 
     website = with_roles(
-        sa.Column(UrlType, nullable=True),
+        sa.orm.mapped_column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
     timezone = with_roles(
-        sa.Column(TimezoneType(backend='pytz'), nullable=False, default=utc),
+        sa.orm.mapped_column(TimezoneType(backend='pytz'), nullable=False, default=utc),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', PROJECT_STATE),
@@ -133,7 +139,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     state = with_roles(
         StateManager('_state', PROJECT_STATE, doc="Project state"), call={'all'}
     )
-    _cfp_state = sa.Column(
+    _cfp_state = sa.orm.mapped_column(
         'cfp_state',
         sa.Integer,
         StateManager.check_constraint('cfp_state', CFP_STATE),
@@ -146,55 +152,61 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     )
 
     #: Audit timestamp to detect re-publishing to re-surface a project
-    first_published_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    first_published_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
     #: Timestamp of when this project was most recently published
     published_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'all'},
         write={'promoter'},
         datasets={'primary', 'without_parent', 'related'},
     )
     #: Optional start time for schedule, cached from column property schedule_start_at
     start_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'all'},
         write={'editor'},
         datasets={'primary', 'without_parent', 'related'},
     )
     #: Optional end time for schedule, cached from column property schedule_end_at
     end_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'all'},
         write={'editor'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    cfp_start_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
-    cfp_end_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
+    cfp_start_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True, index=True
+    )
+    cfp_end_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True, index=True
+    )
 
     bg_image = with_roles(
-        sa.Column(ImgeeType, nullable=True),
+        sa.orm.mapped_column(ImgeeType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
     allow_rsvp: Mapped[bool] = with_roles(
-        sa.Column(sa.Boolean, default=True, nullable=False),
+        sa.orm.mapped_column(sa.Boolean, default=True, nullable=False),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
     buy_tickets_url: Mapped[Optional[str]] = with_roles(
-        sa.Column(UrlType, nullable=True),
+        sa.orm.mapped_column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
     banner_video_url = with_roles(
-        sa.Column(UrlType, nullable=True),
+        sa.orm.mapped_column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
-    boxoffice_data = with_roles(
-        sa.Column(json_type, nullable=False, server_default='{}'),
+    boxoffice_data: Mapped[types.jsonb_dict] = with_roles(
+        sa.orm.mapped_column(),
         # This is an attribute, but we deliberately use `call` instead of `read` to
         # block this from dictionary enumeration. FIXME: Break up this dictionary into
         # individual columns with `all` access for ticket embed id and `promoter`
@@ -202,13 +214,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         call={'all'},
     )
 
-    hasjob_embed_url = with_roles(sa.Column(UrlType, nullable=True), read={'all'})
-    hasjob_embed_limit = with_roles(sa.Column(sa.Integer, default=8), read={'all'})
+    hasjob_embed_url = with_roles(
+        sa.orm.mapped_column(UrlType, nullable=True), read={'all'}
+    )
+    hasjob_embed_limit = with_roles(
+        sa.orm.mapped_column(sa.Integer, default=8), read={'all'}
+    )
 
-    commentset_id = sa.Column(
+    commentset_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
-    commentset: Mapped[Commentset] = sa.orm.relationship(
+    commentset: Mapped[Commentset] = relationship(
         Commentset,
         uselist=False,
         cascade='all',
@@ -216,55 +232,59 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         back_populates='project',
     )
 
-    parent_id = sa.Column(
+    parent_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
-    parent_project: Mapped[Optional[Project]] = sa.orm.relationship(
+    parent_project: Mapped[Optional[Project]] = relationship(
         'Project', remote_side='Project.id', backref='subprojects'
     )
 
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or account admins.
     site_featured = with_roles(
-        sa.Column(sa.Boolean, default=False, nullable=False),
+        sa.orm.mapped_column(sa.Boolean, default=False, nullable=False),
         read={'all'},
         write={'site_editor'},
         datasets={'primary', 'without_parent'},
     )
 
     #: Revision number maintained by SQLAlchemy, used for vCal files, starting at 1
-    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+    revisionid = with_roles(
+        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+    )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'name',
-                'title',
-                'description_text',
-                'instructions_text',
-                'location',
-                weights={
-                    'name': 'A',
-                    'title': 'A',
-                    'description_text': 'B',
-                    'instructions_text': 'B',
-                    'location': 'C',
-                },
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter,
-                    Project.title,
-                    Project.location,
-                    Project.description_html,
-                    Project.instructions_html,
-                ),
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'name',
+            'title',
+            'description_text',
+            'instructions_text',
+            'location',
+            weights={
+                'name': 'A',
+                'title': 'A',
+                'description_text': 'B',
+                'instructions_text': 'B',
+                'location': 'C',
+            },
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter,
+                Project.title,
+                Project.location,
+                Project.description_html,
+                Project.instructions_html,
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     livestream_urls = with_roles(
-        sa.Column(sa.ARRAY(sa.UnicodeText, dimensions=1), server_default='{}'),
+        sa.orm.mapped_column(
+            sa.ARRAY(sa.UnicodeText, dimensions=1),
+            server_default=sa.text("'{}'::text[]"),
+        ),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
@@ -273,14 +293,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         sa.UniqueConstraint('profile_id', 'name'),
         sa.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
         sa.CheckConstraint(
-            sa.or_(  # type: ignore[arg-type]
+            sa.or_(
                 sa.and_(start_at.is_(None), end_at.is_(None)),
                 sa.and_(start_at.is_not(None), end_at.is_not(None), end_at > start_at),
             ),
             'project_start_at_end_at_check',
         ),
         sa.CheckConstraint(
-            sa.or_(  # type: ignore[arg-type]
+            sa.or_(
                 sa.and_(cfp_start_at.is_(None), cfp_end_at.is_(None)),
                 sa.and_(cfp_start_at.is_not(None), cfp_end_at.is_(None)),
                 sa.and_(
@@ -738,7 +758,7 @@ add_search_trigger(Project, 'search_vector')
 class __Profile:
     id: Mapped[int]  # noqa: A003
 
-    listed_projects: DynamicMapped[List[Project]] = sa.orm.relationship(
+    listed_projects: DynamicMapped[List[Project]] = relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -747,7 +767,7 @@ class __Profile:
         ),
         viewonly=True,
     )
-    draft_projects: DynamicMapped[List[Project]] = sa.orm.relationship(
+    draft_projects: DynamicMapped[List[Project]] = relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -757,7 +777,7 @@ class __Profile:
         viewonly=True,
     )
     projects_by_name = with_roles(
-        sa.orm.relationship(
+        relationship(
             Project, collection_class=attribute_keyed_dict('name'), viewonly=True
         ),
         read={'all'},
@@ -801,23 +821,23 @@ class __Profile:
         )
 
 
-class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
+class ProjectRedirect(TimestampMixin, Model):
     __tablename__ = 'project_redirect'
     __allow_unmapped__ = True
 
-    profile_id = sa.Column(
+    profile_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('profile.id'), nullable=False, primary_key=True
     )
-    profile: Mapped[Profile] = sa.orm.relationship(
+    profile: Mapped[Profile] = relationship(
         Profile, backref=sa.orm.backref('project_redirects', cascade='all')
     )
     parent: Mapped[Profile] = sa.orm.synonym('profile')
-    name = sa.Column(sa.Unicode(250), nullable=False, primary_key=True)
+    name = sa.orm.mapped_column(sa.Unicode(250), nullable=False, primary_key=True)
 
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
-    project: Mapped[Project] = sa.orm.relationship(Project, backref='redirects')
+    project: Mapped[Project] = relationship(Project, backref='redirects')
 
     def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
@@ -883,19 +903,21 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
                 db.session.delete(pr)
 
 
-class ProjectLocation(TimestampMixin, db.Model):  # type: ignore[name-defined]
+class ProjectLocation(TimestampMixin, Model):
     __tablename__ = 'project_location'
     __allow_unmapped__ = True
     #: Project we are tagging
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False
     )
-    project: Mapped[Project] = sa.orm.relationship(
+    project: Mapped[Project] = relationship(
         Project, backref=sa.orm.backref('locations', cascade='all')
     )
     #: Geonameid for this project
-    geonameid = sa.Column(sa.Integer, primary_key=True, nullable=False, index=True)
-    primary = sa.Column(sa.Boolean, default=True, nullable=False)
+    geonameid = sa.orm.mapped_column(
+        sa.Integer, primary_key=True, nullable=False, index=True
+    )
+    primary = sa.orm.mapped_column(sa.Boolean, default=True, nullable=False)
 
     def __repr__(self) -> str:
         """Represent :class:`ProjectLocation` as a string."""
@@ -908,7 +930,7 @@ class ProjectLocation(TimestampMixin, db.Model):  # type: ignore[name-defined]
 @reopen(Commentset)
 class __Commentset:
     project = with_roles(
-        sa.orm.relationship(Project, uselist=False, back_populates='commentset'),
+        relationship(Project, uselist=False, back_populates='commentset'),
         grants_via={None: {'editor': 'document_subscriber'}},
     )
 

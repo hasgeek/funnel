@@ -16,10 +16,12 @@ from . import (
     DynamicMapped,
     Mapped,
     MarkdownCompositeBasic,
+    Model,
     TSVectorType,
     UuidMixin,
     db,
     hybrid_property,
+    relationship,
     sa,
 )
 from .helpers import MessageComposite, add_search_trigger, reopen
@@ -72,11 +74,11 @@ message_removed = MessageComposite(__("[removed]"), 'del')
 # --- Models ---------------------------------------------------------------------------
 
 
-class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class Commentset(UuidMixin, BaseMixin, Model):
     __tablename__ = 'commentset'
     __allow_unmapped__ = True
     #: Commentset state code
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', COMMENTSET_STATE),
@@ -87,17 +89,19 @@ class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     state = StateManager('_state', COMMENTSET_STATE, doc="Commentset state")
     #: Type of parent object
     settype: Mapped[Optional[int]] = with_roles(
-        sa.Column('type', sa.Integer, nullable=True), read={'all'}, datasets={'primary'}
+        sa.orm.mapped_column('type', sa.Integer, nullable=True),
+        read={'all'},
+        datasets={'primary'},
     )
     #: Count of comments, stored to avoid count(*) queries
     count = with_roles(
-        sa.Column(sa.Integer, default=0, nullable=False),
+        sa.orm.mapped_column(sa.Integer, default=0, nullable=False),
         read={'all'},
         datasets={'primary'},
     )
     #: Timestamp of last comment, for ordering.
     last_comment_at: Mapped[Optional[datetime]] = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary'},
     )
@@ -190,36 +194,40 @@ class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     # Transitions for the other two states are pending on the TODO notes in post_comment
 
 
-class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class Comment(UuidMixin, BaseMixin, Model):
     __tablename__ = 'comment'
     __allow_unmapped__ = True
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
+    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
     _user: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             User, backref=sa.orm.backref('comments', lazy='dynamic', cascade='all')
         ),
         grants={'author'},
     )
-    commentset_id = sa.Column(
+    commentset_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Commentset,
             backref=sa.orm.backref('comments', lazy='dynamic', cascade='all'),
         ),
         grants_via={None: {'document_subscriber'}},
     )
 
-    in_reply_to_id = sa.Column(sa.Integer, sa.ForeignKey('comment.id'), nullable=True)
-    replies: Mapped[List[Comment]] = sa.orm.relationship(
+    in_reply_to_id = sa.orm.mapped_column(
+        sa.Integer, sa.ForeignKey('comment.id'), nullable=True
+    )
+    replies: Mapped[List[Comment]] = relationship(
         'Comment', backref=sa.orm.backref('in_reply_to', remote_side='Comment.id')
     )
 
-    _message = MarkdownCompositeBasic.create('message', nullable=False)
+    _message, message_text, message_html = MarkdownCompositeBasic.create(
+        'message', nullable=False
+    )
 
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', COMMENT_STATE),
@@ -229,24 +237,25 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment")
 
     edited_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary', 'related', 'json'},
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
-    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+    revisionid = with_roles(
+        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+    )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'message_text',
-                weights={'message_text': 'A'},
-                regconfig='english',
-                hltext=lambda: Comment.message_html,
-            ),
-            nullable=False,
-        )
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'message_text',
+            weights={'message_text': 'A'},
+            regconfig='english',
+            hltext=lambda: Comment.message_html,
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     __table_args__ = (
@@ -378,8 +387,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     def delete(self) -> None:
         """Delete this comment."""
         if len(self.replies) > 0:
-            self.user = None  # type: ignore[assignment]
-            self.message = ''  # type: ignore[assignment]
+            self.user = None
+            self.message = ''
         else:
             if self.in_reply_to and self.in_reply_to.state.DELETED:
                 # If the comment this is replying to is deleted, ask it to reconsider
@@ -412,7 +421,7 @@ add_search_trigger(Comment, 'search_vector')
 
 @reopen(Commentset)
 class __Commentset:
-    toplevel_comments: DynamicMapped[List[Comment]] = sa.orm.relationship(
+    toplevel_comments: DynamicMapped[List[Comment]] = relationship(
         Comment,
         lazy='dynamic',
         primaryjoin=sa.and_(

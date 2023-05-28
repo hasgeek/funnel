@@ -8,7 +8,15 @@ from sqlalchemy.ext.orderinglist import ordering_list
 
 from coaster.sqlalchemy import with_roles
 
-from . import BaseScopedNameMixin, Mapped, TSVectorType, db, hybrid_property, sa
+from . import (
+    BaseScopedNameMixin,
+    Mapped,
+    Model,
+    TSVectorType,
+    hybrid_property,
+    relationship,
+    sa,
+)
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
@@ -16,7 +24,7 @@ from .proposal import Proposal
 
 proposal_label = sa.Table(
     'proposal_label',
-    db.Model.metadata,  # type: ignore[has-type]
+    Model.metadata,
     sa.Column(
         'proposal_id',
         sa.Integer,
@@ -36,19 +44,16 @@ proposal_label = sa.Table(
 )
 
 
-class Label(
-    BaseScopedNameMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class Label(BaseScopedNameMixin, Model):
     __tablename__ = 'label'
     __allow_unmapped__ = True
 
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     # Backref from project is defined in the Project model with an ordering list
     project: Mapped[Project] = with_roles(
-        sa.orm.relationship(Project), grants_via={None: project_child_role_map}
+        relationship(Project), grants_via={None: project_child_role_map}
     )
     # `parent` is required for
     # :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
@@ -57,14 +62,14 @@ class Label(
     #: Parent label's id. Do not write to this column directly, as we don't have the
     #: ability to : validate the value within the app. Always use the :attr:`main_label`
     #: relationship.
-    main_label_id = sa.Column(
+    main_label_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('label.id', ondelete='CASCADE'),
         index=True,
         nullable=True,
     )
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
-    options = sa.orm.relationship(
+    options = relationship(
         'Label',
         backref=sa.orm.backref('main_label', remote_side='Label.id'),
         order_by='Label.seq',
@@ -77,48 +82,53 @@ class Label(
     # add_primary_relationship)
 
     #: Sequence number for this label, used in UI for ordering
-    seq = sa.Column(sa.Integer, nullable=False)
+    seq = sa.orm.mapped_column(sa.Integer, nullable=False)
 
     # A single-line description of this label, shown when picking labels (optional)
-    description = sa.Column(sa.UnicodeText, nullable=False, default='')
+    description = sa.orm.mapped_column(sa.UnicodeText, nullable=False, default='')
 
     #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
     #: Since emoji can be composed from multiple symbols, there is no length
     #: limit imposed here
-    icon_emoji = sa.Column(sa.UnicodeText, nullable=True)
+    icon_emoji = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
 
     #: Restricted mode specifies that this label may only be applied by someone with
     #: an editorial role (TODO: name the role). If this label is a parent, it applies
     #: to all its children
-    _restricted = sa.Column('restricted', sa.Boolean, nullable=False, default=False)
+    _restricted = sa.orm.mapped_column(
+        'restricted', sa.Boolean, nullable=False, default=False
+    )
 
     #: Required mode signals to UI that if this label is a parent, one of its
     #: children must be mandatorily applied to the proposal. The value of this
     #: field must be ignored if the label is not a parent
-    _required = sa.Column('required', sa.Boolean, nullable=False, default=False)
+    _required = sa.orm.mapped_column(
+        'required', sa.Boolean, nullable=False, default=False
+    )
 
     #: Archived mode specifies that the label is no longer available for use
     #: although all the previous records will stay in database.
-    _archived = sa.Column('archived', sa.Boolean, nullable=False, default=False)
+    _archived = sa.orm.mapped_column(
+        'archived', sa.Boolean, nullable=False, default=False
+    )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'name',
-                'title',
-                'description',
-                weights={'name': 'A', 'title': 'A', 'description': 'B'},
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter, Label.title, Label.description
-                ),
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'name',
+            'title',
+            'description',
+            weights={'name': 'A', 'title': 'A', 'description': 'B'},
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter, Label.title, Label.description
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     #: Proposals that this label is attached to
-    proposals: Mapped[Proposal] = sa.orm.relationship(
+    proposals: Mapped[Proposal] = relationship(
         Proposal, secondary=proposal_label, back_populates='labels'
     )
 
@@ -389,7 +399,7 @@ class ProposalLabelProxy:
 
 @reopen(Project)
 class __Project:
-    labels = sa.orm.relationship(
+    labels = relationship(
         Label,
         primaryjoin=sa.and_(
             Label.project_id == Project.id,
@@ -399,7 +409,7 @@ class __Project:
         order_by=Label.seq,
         viewonly=True,
     )
-    all_labels = sa.orm.relationship(
+    all_labels = relationship(
         Label,
         collection_class=ordering_list('seq', count_from=1),
         back_populates='project',
@@ -412,8 +422,6 @@ class __Proposal:
     formlabels = ProposalLabelProxy()
 
     labels = with_roles(
-        sa.orm.relationship(
-            Label, secondary=proposal_label, back_populates='proposals'
-        ),
+        relationship(Label, secondary=proposal_label, back_populates='proposals'),
         read={'all'},
     )

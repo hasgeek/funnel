@@ -16,7 +16,7 @@ from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
 from ..typing import OptionalMigratedTables
-from . import Mapped, Query, RoleMixin, TimestampMixin, db, sa
+from . import Mapped, Model, Query, RoleMixin, TimestampMixin, db, relationship, sa
 from .project import Project
 from .sync_ticket import TicketParticipant
 from .user import User
@@ -45,20 +45,16 @@ class DateCountContacts:
     contacts: Collection[ContactExchange]
 
 
-class ContactExchange(
-    TimestampMixin,
-    RoleMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class ContactExchange(TimestampMixin, RoleMixin, Model):
     """Model to track who scanned whose badge, in which project."""
 
     __tablename__ = 'contact_exchange'
     __allow_unmapped__ = True
     #: User who scanned this contact
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True
     )
-    user: Mapped[User] = sa.orm.relationship(
+    user: Mapped[User] = relationship(
         User,
         backref=sa.orm.backref(
             'scanned_contacts',
@@ -68,24 +64,24 @@ class ContactExchange(
         ),
     )
     #: Participant whose contact was scanned
-    ticket_participant_id = sa.Column(
+    ticket_participant_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('ticket_participant.id', ondelete='CASCADE'),
         primary_key=True,
         index=True,
     )
-    ticket_participant: Mapped[TicketParticipant] = sa.orm.relationship(
+    ticket_participant: Mapped[TicketParticipant] = relationship(
         TicketParticipant,
         backref=sa.orm.backref('scanned_contacts', passive_deletes=True),
     )
     #: Datetime at which the scan happened
-    scanned_at = sa.Column(
+    scanned_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: Note recorded by the user (plain text)
-    description = sa.Column(sa.UnicodeText, nullable=False, default='')
+    description = sa.orm.mapped_column(sa.UnicodeText, nullable=False, default='')
     #: Archived flag
-    archived = sa.Column(sa.Boolean, nullable=False, default=False)
+    archived = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
 
     __roles__ = {
         'owner': {
