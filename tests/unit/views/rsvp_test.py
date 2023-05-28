@@ -112,8 +112,8 @@ def test_invalid_json_boxoffice(
         },
     )
     assert rv.status_code == 200
-    # TODO: Test that the form submission resulted in an error: there should be no
-    # Rsvp object for this user in the db
+    # TODO: Test that the form submission resulted in an error -- page must have error
+    # message, or database must have previous contents with no change from this call
 
 
 def test_valid_json_register(
