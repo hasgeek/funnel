@@ -53,7 +53,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
         grants_via={None: project_child_role_map},
     )
     parent: Mapped[Project] = sa.orm.synonym('project')
-    description = MarkdownCompositeDocument.create(
+    description, description_text, description_html = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
     proposal_id: Mapped[int] = sa.orm.mapped_column(

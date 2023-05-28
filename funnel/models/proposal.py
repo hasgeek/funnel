@@ -179,7 +179,9 @@ class Proposal(  # type: ignore[misc]
         back_populates='proposal',
     )
 
-    body = MarkdownCompositeDocument.create('body', nullable=False, default='')
+    body, body_text, body_html = MarkdownCompositeDocument.create(
+        'body', nullable=False, default=''
+    )
     description = sa.orm.mapped_column(sa.Unicode, nullable=False, default='')
     custom_description = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
     template = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)

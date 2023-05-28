@@ -98,7 +98,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     )
     parent: Mapped[Project] = sa.orm.synonym('project')
 
-    body = MarkdownCompositeDocument.create('body', nullable=False)
+    body, body_text, body_html = MarkdownCompositeDocument.create(
+        'body', nullable=False
+    )
 
     #: Update number, for Project updates, assigned when the update is published
     number = with_roles(

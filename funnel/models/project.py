@@ -99,14 +99,16 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    description = with_roles(
-        MarkdownCompositeDocument.create('description', default='', nullable=False),
-        read={'all'},
+    description, description_text, description_html = MarkdownCompositeDocument.create(
+        'description', default='', nullable=False
     )
-    instructions = with_roles(
-        MarkdownCompositeDocument.create('instructions', default='', nullable=True),
-        read={'all'},
-    )
+    with_roles(description, read={'all'})
+    (
+        instructions,
+        instructions_text,
+        instructions_html,
+    ) = MarkdownCompositeDocument.create('instructions', default='', nullable=True)
+    with_roles(instructions, read={'all'})
 
     location = with_roles(
         sa.orm.mapped_column(sa.Unicode(50), default='', nullable=True),

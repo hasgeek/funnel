@@ -101,11 +101,11 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     __uuid_primary_key__ = True
     #: Can granted_by be null? Only in memberships based on legacy data
-    __null_granted_by__ = False
+    __null_granted_by__: ClassVar[bool] = False
     #: List of columns that will be copied into a new row when a membership is amended
     __data_columns__: ClassVar[Iterable[str]] = ()
     #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
-    parent_id: Synonym[int]
+    parent_id: ClassVar[Synonym[int]]
     #: Name of the parent id column, used in SQL constraints
     parent_id_column: ClassVar[Optional[str]]
     #: Parent object

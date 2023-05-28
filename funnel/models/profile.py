@@ -124,7 +124,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
     )
 
     tagline = sa.orm.mapped_column(sa.Unicode, nullable=True)
-    description = MarkdownCompositeDocument.create(
+    description, description_text, description_html = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
     website: Mapped[Optional[furl]] = sa.orm.mapped_column(UrlType, nullable=True)

@@ -57,8 +57,8 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
     )
 
     parent_id: Mapped[int] = sa.orm.synonym('commentset_id')
-    parent_id_column: str = 'commentset_id'
-    parent: Commentset = sa.orm.synonym('commentset')
+    parent_id_column = 'commentset_id'
+    parent: Mapped[Commentset] = sa.orm.synonym('commentset')
 
     #: Flag to indicate notifications are muted
     is_muted = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)

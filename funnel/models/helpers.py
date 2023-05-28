@@ -30,7 +30,7 @@ from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
 from sqlalchemy.ext.mutable import MutableComposite
-from sqlalchemy.orm import composite
+from sqlalchemy.orm import Mapped, composite
 from zxcvbn import zxcvbn
 
 from .. import app
@@ -680,14 +680,20 @@ class MarkdownCompositeBase(MutableComposite):
         deferred: bool = False,
         group: Optional[str] = None,
         **kwargs,
-    ) -> sa.orm.Composite[_MC]:
+    ) -> Tuple[sa.orm.Composite[_MC], Mapped[str], Mapped[str]]:
         """Create a composite column and backing individual columns."""
-        return composite(
-            cls,
-            sa.orm.mapped_column(name + '_text', sa.UnicodeText, **kwargs),
-            sa.orm.mapped_column(name + '_html', sa.UnicodeText, **kwargs),
-            deferred=deferred,
-            group=group or name,
+        col_text = sa.orm.mapped_column(name + '_text', sa.UnicodeText, **kwargs)
+        col_html = sa.orm.mapped_column(name + '_html', sa.UnicodeText, **kwargs)
+        return (
+            composite(
+                cls,
+                col_text,
+                col_html,
+                deferred=deferred,
+                group=group or name,
+            ),
+            col_text,
+            col_html,
         )
 
 

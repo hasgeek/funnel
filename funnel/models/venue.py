@@ -38,7 +38,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
         grants_via={None: project_child_role_map},
     )
     parent: Mapped[Project] = sa.orm.synonym('project')
-    description = MarkdownCompositeBasic.create(
+    description, description_text, description_html = MarkdownCompositeBasic.create(
         'description', default='', nullable=False
     )
     address1 = sa.orm.mapped_column(sa.Unicode(160), default='', nullable=False)
@@ -120,7 +120,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
         grants_via={None: set(itertools.chain(*project_child_role_map.values()))},
     )
     parent: Mapped[Venue] = sa.orm.synonym('venue')
-    description = MarkdownCompositeBasic.create(
+    description, description_text, description_html = MarkdownCompositeBasic.create(
         'description', default='', nullable=False
     )
     bgcolor = sa.orm.mapped_column(sa.Unicode(6), nullable=False, default='229922')

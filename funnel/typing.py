@@ -20,7 +20,7 @@ from sqlalchemy.orm import Mapped
 from typing_extensions import ParamSpec, Protocol
 from werkzeug.wrappers import Response  # Base class for Flask Response
 
-from coaster.sqlalchemy import QueryProperty
+from coaster.sqlalchemy.model import QueryProperty
 
 __all__ = [
     'T',
