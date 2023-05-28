@@ -149,6 +149,8 @@ def parse_phone_number(
     :param sms: Validate that the number is from a range that supports SMS delivery,
         returning `False` if it isn't
 
+    :param parsed: Return :class:`phonenumbers.PhoneNumber` object instead of a string
+
     :returns: E164-formatted phone number if found and valid, `None` if not found, or
         `False` if the number is valid but does not support SMS delivery
     """
@@ -494,17 +496,17 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def get_filter(
         cls, *, phone: Union[str, phonenumbers.PhoneNumber]
-    ) -> Optional[ColumnElement]:
+    ) -> ColumnElement[bool]:
         ...
 
     @overload
     @classmethod
-    def get_filter(cls, *, blake2b160: bytes) -> ColumnElement:
+    def get_filter(cls, *, blake2b160: bytes) -> ColumnElement[bool]:
         ...
 
     @overload
     @classmethod
-    def get_filter(cls, *, phone_hash: str) -> ColumnElement:
+    def get_filter(cls, *, phone_hash: str) -> ColumnElement[bool]:
         ...
 
     @overload
@@ -515,7 +517,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         phone: Optional[Union[str, phonenumbers.PhoneNumber]],
         blake2b160: Optional[bytes],
         phone_hash: Optional[str],
-    ) -> Optional[ColumnElement]:
+    ) -> ColumnElement[bool]:
         ...
 
     @classmethod
@@ -525,7 +527,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         phone: Optional[Union[str, phonenumbers.PhoneNumber]] = None,
         blake2b160: Optional[bytes] = None,
         phone_hash: Optional[str] = None,
-    ) -> Optional[ColumnElement]:
+    ) -> ColumnElement[bool]:
         """
         Get an filter condition for retriving a :class:`PhoneNumber`.
 
