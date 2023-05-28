@@ -359,6 +359,8 @@ class ProjectRegisterForm(forms.Form):
     """Register for a project with an optional custom JSON form."""
 
     __expects__ = ('schema',)
+    schema: Optional[dict]
+
     form = forms.TextAreaField(
         __("Form"),
         filters=nullable_json_filters,
@@ -366,16 +368,17 @@ class ProjectRegisterForm(forms.Form):
     )
 
     def validate_form(self, field: forms.Field) -> None:
-        if self.form.data.keys() and not self.schema:
-            raise forms.validators.StopValidation(_("Form value error")) from None
+        if self.form.data and not self.schema:
+            raise forms.validators.StopValidation(
+                _("This registration is not expecting any form fields")
+            )
         if self.schema:
-            try:
-                form_keys = set(self.form.data.keys())
-                schema_keys = {i['name'] for i in self.schema['fields']}
-                if not form_keys.issubset(schema_keys):
-                    invalid_keys = form_keys.difference(schema_keys)
-                    raise forms.validators.StopValidation(
-                        _(f"Invalid field {invalid_keys}")
-                    ) from None
-            except ValueError:
-                raise forms.validators.StopValidation(_("Form value error")) from None
+            form_keys = set(self.form.data.keys())
+            schema_keys = {i['name'] for i in self.schema['fields']}
+            if not form_keys.issubset(schema_keys):
+                invalid_keys = form_keys.difference(schema_keys)
+                raise forms.validators.StopValidation(
+                    _("The form is not expecting these fields: {fields}").format(
+                        fields=', '.join(invalid_keys)
+                    )
+                )
