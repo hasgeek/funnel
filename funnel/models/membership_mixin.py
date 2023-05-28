@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime as datetime_type
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
@@ -17,7 +18,6 @@ from typing import (
 )
 
 from sqlalchemy import event
-from sqlalchemy.orm import Synonym
 from sqlalchemy.sql.expression import ColumnElement
 from werkzeug.utils import cached_property
 
@@ -104,14 +104,17 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     __null_granted_by__: ClassVar[bool] = False
     #: List of columns that will be copied into a new row when a membership is amended
     __data_columns__: ClassVar[Iterable[str]] = ()
-    #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
-    parent_id: ClassVar[Synonym[int]]
     #: Name of the parent id column, used in SQL constraints
     parent_id_column: ClassVar[Optional[str]]
-    #: Parent object
-    parent: Optional[Model]
     #: Subject of this membership (subclasses must define)
     subject: SubjectType
+    if TYPE_CHECKING:
+        #: Subclass has a table name
+        __tablename__: str
+        #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
+        parent_id: Mapped[int]
+        #: Parent object
+        parent: Mapped[Optional[Model]]
 
     #: Should an active membership record be revoked when the subject is soft-deleted?
     #: (Hard deletes will cascade and also delete all membership records.)
@@ -526,7 +529,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
     @declared_attr.directive
     @classmethod
     def __table_args__(cls) -> tuple:
-        if cls.parent_id is not None:
+        if cls.parent_id_column is not None:
             return (
                 sa.Index(
                     'ix_' + cls.__tablename__ + '_active',
@@ -613,6 +616,9 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
 class ReorderMembershipMixin(ReorderMixin):
     """Customizes ReorderMixin for membership models."""
 
+    if TYPE_CHECKING:
+        parent_id_column: ClassVar[str]
+
     #: Sequence number. Not immutable, and may be overwritten by ReorderMixin as a
     #: side-effect of reordering other records. This is not considered a revision.
     #: However, it can be argued that relocating a sponsor in the list constitutes a
@@ -644,8 +650,8 @@ class ReorderMembershipMixin(ReorderMixin):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         # Assign a default value to `seq`
-        if self.seq is None:
-            self.seq = (
+        if self.seq is None:  # Will be None until first commit
+            self.seq = (  # type: ignore[unreachable]
                 sa.select(sa.func.coalesce(sa.func.max(self.__class__.seq) + 1, 1))
                 .where(self.parent_scoped_reorder_query_filter)
                 .scalar_subquery()
