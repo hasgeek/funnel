@@ -53,6 +53,8 @@ _Q = TypeVar('_Q', bound=Query)
 
 
 class SearchModelType(IdModelType, Protocol):
+    """Protocol class for a model with search columns."""
+
     title: Mapped[str]
     search_vector: Mapped[TSVectorType]
 
