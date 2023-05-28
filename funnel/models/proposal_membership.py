@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Set
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
+from typing import List, Set
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import Mapped, db, sa
+from . import DynamicMapped, Mapped, Model, relationship, sa
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
@@ -24,10 +23,7 @@ __all__ = ['ProposalMembership']
 
 
 class ProposalMembership(  # type: ignore[misc]
-    FrozenAttributionMixin,
-    ReorderMembershipMixin,
-    ImmutableUserMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
+    FrozenAttributionMixin, ReorderMembershipMixin, ImmutableUserMembershipMixin, Model
 ):
     """Users can be presenters or reviewers on proposals."""
 
@@ -82,7 +78,7 @@ class ProposalMembership(  # type: ignore[misc]
     revoke_on_member_delete = False
 
     proposal_id: Mapped[int] = with_roles(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('proposal.id', ondelete='CASCADE'),
             nullable=False,
@@ -91,7 +87,7 @@ class ProposalMembership(  # type: ignore[misc]
     )
 
     proposal: Mapped[Proposal] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Proposal,
             backref=sa.orm.backref(
                 'all_memberships',
@@ -110,11 +106,11 @@ class ProposalMembership(  # type: ignore[misc]
     #: Uncredited members are not listed in the main display, but can edit and may be
     #: listed in a details section. Uncredited memberships are for support roles such
     #: as copy editors.
-    is_uncredited = sa.Column(sa.Boolean, nullable=False, default=False)
+    is_uncredited = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
 
     #: Optional label, indicating the member's role on the proposal
     label = immutable(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint("label <> ''", name='proposal_membership_label_check'),
             nullable=True,
@@ -136,11 +132,11 @@ class __Proposal:
     # This relationship does not use `lazy='dynamic'` because it is expected to contain
     # <2 records on average, and won't exceed 50 in the most extreme cases
     memberships = with_roles(
-        sa.orm.relationship(
+        relationship(
             ProposalMembership,
             primaryjoin=sa.and_(
                 ProposalMembership.proposal_id == Proposal.id,
-                ProposalMembership.is_active,  # type: ignore[arg-type]
+                ProposalMembership.is_active,
             ),
             order_by=ProposalMembership.seq,
             viewonly=True,
@@ -163,29 +159,31 @@ class __Proposal:
 class __Account:
     # pylint: disable=invalid-unary-operand-type
 
-    all_proposal_memberships = sa.orm.relationship(
+    all_proposal_memberships: DynamicMapped[List[ProposalMembership]] = relationship(
         ProposalMembership,
         lazy='dynamic',
         foreign_keys=[ProposalMembership.member_id],
         viewonly=True,
     )
 
-    noninvite_proposal_memberships = sa.orm.relationship(
+    noninvite_proposal_memberships: DynamicMapped[
+        List[ProposalMembership]
+    ] = relationship(
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProposalMembership.member_id == Account.id,
-            ~ProposalMembership.is_invite,  # type: ignore[operator]
+            ~ProposalMembership.is_invite,
         ),
         viewonly=True,
     )
 
-    proposal_memberships = sa.orm.relationship(
+    proposal_memberships: DynamicMapped[List[ProposalMembership]] = relationship(
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProposalMembership.member_id == Account.id,
-            ProposalMembership.is_active,  # type: ignore[arg-type]
+            ProposalMembership.is_active,
         ),
         viewonly=True,
     )

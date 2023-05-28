@@ -17,6 +17,7 @@ from .account import (
     AccountExternalId,
     AccountPhone,
     Anchor,
+    Model,
     db,
 )
 from .phone_number import PHONE_LOOKUP_REGIONS
@@ -186,14 +187,14 @@ def merge_accounts(
 
 
 def do_migrate_instances(
-    old_instance: db.Model,  # type: ignore[name-defined]
-    new_instance: db.Model,  # type: ignore[name-defined]
+    old_instance: Model,
+    new_instance: Model,
     helper_method: Optional[str] = None,
 ) -> bool:
     """
     Migrate references to old instance of any model to provided new instance.
 
-    The model must derive from :class:`db.Model` and must have a single primary key
+    The model must derive from :class:`Model` and must have a single primary key
     column named ``id`` (typically provided by :class:`BaseMixin`).
     """
     if old_instance == new_instance:
@@ -277,7 +278,7 @@ def do_migrate_instances(
         return True
 
     # Look up all subclasses of the base class
-    for model in db.Model.__subclasses__():
+    for model in Model.__subclasses__():
         if model != old_instance.__class__:
             if helper_method and hasattr(model, helper_method):
                 try:
@@ -303,7 +304,7 @@ def do_migrate_instances(
                 migrated_tables.add(model.__table__.name)
 
     # Now look in the metadata for any tables we missed
-    for table in db.Model.metadata.tables.values():
+    for table in Model.metadata.tables.values():
         if table.name not in migrated_tables:
             if not do_migrate_table(table):
                 safe_to_remove_instance = False

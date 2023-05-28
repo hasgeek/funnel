@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 from typing import Set
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
 from ..typing import Mapped
-from . import db, declared_attr, sa
+from . import Model, declared_attr, relationship, sa
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -16,10 +15,7 @@ from .membership_mixin import ImmutableUserMembershipMixin
 __all__ = ['SiteMembership']
 
 
-class SiteMembership(
-    ImmutableUserMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class SiteMembership(ImmutableUserMembershipMixin, Model):
     """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'
@@ -77,7 +73,7 @@ class SiteMembership(
         args = list(super().__table_args__)
         args.append(
             sa.CheckConstraint(
-                sa.or_(  # type: ignore[arg-type]
+                sa.or_(
                     cls.is_comment_moderator.is_(True),
                     cls.is_user_moderator.is_(True),
                     cls.is_site_editor.is_(True),
@@ -121,12 +117,12 @@ class SiteMembership(
 @reopen(Account)
 class __Account:
     # Singular, as only one can be active
-    active_site_membership = sa.orm.relationship(
+    active_site_membership = relationship(
         SiteMembership,
         lazy='select',
         primaryjoin=sa.and_(
             SiteMembership.member_id == Account.id,  # type: ignore[has-type]
-            SiteMembership.is_active,  # type: ignore[arg-type]
+            SiteMembership.is_active,
         ),
         viewonly=True,
         uselist=False,

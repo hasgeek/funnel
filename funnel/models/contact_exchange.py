@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import date as date_type
 from datetime import datetime
 from itertools import groupby
-from typing import Collection, Iterable, Optional
+from typing import Collection, List, Optional, Sequence, Tuple
 from uuid import UUID
 
 from pytz import timezone
@@ -15,7 +15,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
-from . import Mapped, RoleMixin, TimestampMixin, db, sa
+from . import Mapped, Model, Query, RoleMixin, TimestampMixin, db, relationship, sa
 from .account import Account
 from .project import Project
 from .sync_ticket import TicketParticipant
@@ -44,20 +44,16 @@ class DateCountContacts:
     contacts: Collection[ContactExchange]
 
 
-class ContactExchange(
-    TimestampMixin,
-    RoleMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class ContactExchange(TimestampMixin, RoleMixin, Model):
     """Model to track who scanned whose badge, in which project."""
 
     __tablename__ = 'contact_exchange'
     __allow_unmapped__ = True
     #: User who scanned this contact
-    user_id: Mapped[int] = sa.Column(
-        sa.Integer, sa.ForeignKey('account.id', ondelete='CASCADE'), primary_key=True
+    user_id: Mapped[int] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id', ondelete='CASCADE'), primary_key=True
     )
-    user: Mapped[Account] = sa.orm.relationship(
+    user: Mapped[Account] = relationship(
         Account,
         backref=sa.orm.backref(
             'scanned_contacts',
@@ -67,24 +63,24 @@ class ContactExchange(
         ),
     )
     #: Participant whose contact was scanned
-    ticket_participant_id = sa.Column(
+    ticket_participant_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('ticket_participant.id', ondelete='CASCADE'),
         primary_key=True,
         index=True,
     )
-    ticket_participant: Mapped[TicketParticipant] = sa.orm.relationship(
+    ticket_participant: Mapped[TicketParticipant] = relationship(
         TicketParticipant,
         backref=sa.orm.backref('scanned_contacts', passive_deletes=True),
     )
     #: Datetime at which the scan happened
-    scanned_at = sa.Column(
+    scanned_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: Note recorded by the user (plain text)
-    description = sa.Column(sa.UnicodeText, nullable=False, default='')
+    description = sa.orm.mapped_column(sa.UnicodeText, nullable=False, default='')
     #: Archived flag
-    archived = sa.Column(sa.Boolean, nullable=False, default=False)
+    archived = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
 
     __roles__ = {
         'owner': {
@@ -101,7 +97,7 @@ class ContactExchange(
     }
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
@@ -125,7 +121,9 @@ class ContactExchange(
                 db.session.delete(ce)
 
     @classmethod
-    def grouped_counts_for(cls, user, archived=False):
+    def grouped_counts_for(
+        cls, user: Account, archived: bool = False
+    ) -> List[Tuple[ProjectId, List[DateCountContacts]]]:
         """Return count of contacts grouped by project and date."""
         subq = sa.select(
             cls.scanned_at.label('scanned_at'),
@@ -246,8 +244,8 @@ class ContactExchange(
 
     @classmethod
     def contacts_for_project_and_date(
-        cls, user: Account, project: Project, date: date_type, archived=False
-    ):
+        cls, user: Account, project: Project, date: date_type, archived: bool = False
+    ) -> Query[ContactExchange]:
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
@@ -272,7 +270,9 @@ class ContactExchange(
         return query
 
     @classmethod
-    def contacts_for_project(cls, user, project, archived=False):
+    def contacts_for_project(
+        cls, user: Account, project: Project, archived: bool = False
+    ) -> Query[ContactExchange]:
         """Return contacts for a given user and project."""
         query = cls.query.join(TicketParticipant).filter(
             cls.user == user,

@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Set
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
+from typing import List, Set
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import Mapped, db, sa
+from . import DynamicMapped, Mapped, Model, relationship, sa
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -17,10 +16,7 @@ from .membership_mixin import ImmutableUserMembershipMixin
 __all__ = ['AccountAdminMembership']
 
 
-class AccountAdminMembership(
-    ImmutableUserMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class AccountAdminMembership(ImmutableUserMembershipMixin, Model):
     """
     An account can be an owner or admin of another account.
 
@@ -89,7 +85,7 @@ class AccountAdminMembership(
         nullable=False,
     )
     account: Mapped[Account] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Account,
             foreign_keys=[account_id],
             backref=sa.orm.backref(
@@ -119,13 +115,13 @@ class AccountAdminMembership(
 # Add active membership relationships to Account
 @reopen(Account)
 class __Account:
-    active_admin_memberships = with_roles(
-        sa.orm.relationship(
+    active_admin_memberships: DynamicMapped[List[AccountAdminMembership]] = with_roles(
+        relationship(
             AccountAdminMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
                 sa.orm.remote(AccountAdminMembership.account_id) == Account.id,
-                AccountAdminMembership.is_active,  # type: ignore[arg-type]
+                AccountAdminMembership.is_active,
             ),
             order_by=AccountAdminMembership.granted_at.asc(),
             viewonly=True,
@@ -133,23 +129,25 @@ class __Account:
         grants_via={'member': {'admin', 'owner'}},
     )
 
-    active_owner_memberships = sa.orm.relationship(
+    active_owner_memberships: DynamicMapped[
+        List[AccountAdminMembership]
+    ] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
             sa.orm.remote(AccountAdminMembership.account_id) == Account.id,
-            AccountAdminMembership.is_active,  # type: ignore[arg-type]
+            AccountAdminMembership.is_active,
             AccountAdminMembership.is_owner.is_(True),
         ),
         viewonly=True,
     )
 
-    active_invitations = sa.orm.relationship(
+    active_invitations: DynamicMapped[List[AccountAdminMembership]] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
             sa.orm.remote(AccountAdminMembership.account_id) == Account.id,
-            AccountAdminMembership.is_invite,  # type: ignore[arg-type]
+            AccountAdminMembership.is_invite,
             AccountAdminMembership.revoked_at.is_(None),
         ),
         viewonly=True,
@@ -163,58 +161,68 @@ class __Account:
     )
 
     # pylint: disable=invalid-unary-operand-type
-    organization_admin_memberships = sa.orm.relationship(
+    organization_admin_memberships: DynamicMapped[
+        List[AccountAdminMembership]
+    ] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
         foreign_keys=[AccountAdminMembership.member_id],  # type: ignore[has-type]
         viewonly=True,
     )
 
-    noninvite_organization_admin_memberships = sa.orm.relationship(
+    noninvite_organization_admin_memberships: DynamicMapped[
+        List[AccountAdminMembership]
+    ] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
         foreign_keys=[AccountAdminMembership.member_id],
         primaryjoin=sa.and_(
             sa.orm.remote(AccountAdminMembership.member_id)  # type: ignore[has-type]
             == Account.id,
-            ~AccountAdminMembership.is_invite,  # type: ignore[operator]
+            ~AccountAdminMembership.is_invite,
         ),
         viewonly=True,
     )
 
-    active_organization_admin_memberships = sa.orm.relationship(
+    active_organization_admin_memberships: DynamicMapped[
+        List[AccountAdminMembership]
+    ] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
         foreign_keys=[AccountAdminMembership.member_id],
         primaryjoin=sa.and_(
             sa.orm.remote(AccountAdminMembership.member_id)  # type: ignore[has-type]
             == Account.id,
-            AccountAdminMembership.is_active,  # type: ignore[arg-type]
+            AccountAdminMembership.is_active,
         ),
         viewonly=True,
     )
 
-    active_organization_owner_memberships = sa.orm.relationship(
+    active_organization_owner_memberships: DynamicMapped[
+        List[AccountAdminMembership]
+    ] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
         foreign_keys=[AccountAdminMembership.member_id],
         primaryjoin=sa.and_(
             sa.orm.remote(AccountAdminMembership.member_id)  # type: ignore[has-type]
             == Account.id,
-            AccountAdminMembership.is_active,  # type: ignore[arg-type]
+            AccountAdminMembership.is_active,
             AccountAdminMembership.is_owner.is_(True),
         ),
         viewonly=True,
     )
 
-    active_organization_invitations = sa.orm.relationship(
+    active_organization_invitations: DynamicMapped[
+        List[AccountAdminMembership]
+    ] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
         foreign_keys=[AccountAdminMembership.member_id],
         primaryjoin=sa.and_(
             sa.orm.remote(AccountAdminMembership.member_id)  # type: ignore[has-type]
             == Account.id,
-            AccountAdminMembership.is_invite,  # type: ignore[arg-type]
+            AccountAdminMembership.is_invite,
             AccountAdminMembership.revoked_at.is_(None),
         ),
         viewonly=True,

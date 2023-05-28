@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Any, Iterable, Iterator, List, Optional, Set, Union, cast, overload
+from typing import Iterable, Iterator, List, Optional, Set, Union, cast, overload
 from uuid import UUID
 import hashlib
 import itertools
@@ -24,7 +24,6 @@ import phonenumbers
 from baseframe import __
 from coaster.sqlalchemy import (
     LazyRoleSet,
-    Query,
     RoleMixin,
     StateManager,
     add_primary_relationship,
@@ -41,12 +40,15 @@ from . import (
     LocaleType,
     Mapped,
     MarkdownCompositeDocument,
+    Model,
+    Query,
     TimezoneType,
     TSVectorType,
     UrlType,
     UuidMixin,
     db,
     hybrid_property,
+    relationship,
     sa,
 )
 from .email_address import EmailAddress, EmailAddressMixin
@@ -115,12 +117,8 @@ class ZBase32Comparator(Comparator[str]):  # pylint: disable=abstract-method
         return self.__clause_element__() == UUID(bytes=zbase32_decode(other))
 
 
-class Account(
-    UuidMixin,
-    BaseMixin,
-    db.Model,  # type: ignore[name-defined]
-):
-    """User model."""
+class Account(UuidMixin, BaseMixin, Model):
+    """Account model."""
 
     __tablename__ = 'account'
     __allow_unmapped__ = True
@@ -223,7 +221,7 @@ class Account(
     tagline: Mapped[Optional[str]] = sa.orm.mapped_column(
         sa.Unicode, sa.CheckConstraint("tagline <> ''"), nullable=True
     )
-    description = MarkdownCompositeDocument.create(
+    description, description_text, description_html = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
     website: Mapped[Optional[furl]] = sa.orm.mapped_column(
@@ -258,33 +256,32 @@ class Account(
         sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[str] = sa.orm.deferred(
-        sa.orm.mapped_column(
-            TSVectorType(
-                'title',
-                'description_text',
-                weights={'name': 'A', 'title': 'A', 'description_text': 'B'},
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter,
-                    Account.title,
-                    Account.name,
-                    Account.description_html,
-                ),
+    search_vector: Mapped[str] = sa.orm.mapped_column(
+        TSVectorType(
+            'title',
+            'description_text',
+            weights={'name': 'A', 'title': 'A', 'description_text': 'B'},
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter,
+                Account.title,
+                Account.name,
+                Account.description_html,
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
-    name_vector: Mapped[str] = sa.orm.deferred(
-        sa.orm.mapped_column(
-            TSVectorType(
-                'name',
-                'title',
-                regconfig='simple',
-                hltext=lambda: sa.func.concat_ws(' @', Account.title, Account.name),
-            ),
-            nullable=False,
-        )
+
+    name_vector: Mapped[str] = sa.orm.mapped_column(
+        TSVectorType(
+            'name',
+            'title',
+            regconfig='simple',
+            hltext=lambda: sa.func.concat_ws(' @', Account.title, Account.name),
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     __table_args__ = (
@@ -379,7 +376,7 @@ class Account(
     )
 
     @classmethod
-    def _defercols(cls):
+    def _defercols(cls) -> List[sa.orm.interfaces.LoaderOption]:
         """Return columns that are typically deferred when loading a user."""
         defer = sa.orm.defer
         return [
@@ -453,7 +450,7 @@ class Account(
             # Also see :meth:`password_is` for transparent upgrade
         self.pw_set_at = sa.func.utcnow()
         # Expire passwords after one year. TODO: make this configurable
-        self.pw_expires_at = self.pw_set_at + timedelta(days=365)  # type: ignore
+        self.pw_expires_at = self.pw_set_at + timedelta(days=365)
 
     #: Write-only property (passwords cannot be read back in plain text)
     password = property(fset=_set_password, doc=_set_password.__doc__)
@@ -671,7 +668,9 @@ class Account(
         )
 
     @with_roles(call={'owner'})
-    def transport_for_email(self, context) -> Optional[AccountEmail]:
+    def transport_for_email(
+        self, context: Optional[Model] = None
+    ) -> Optional[AccountEmail]:
         """Return user's preferred email address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE:
@@ -679,7 +678,9 @@ class Account(
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_sms(self, context) -> Optional[AccountPhone]:
+    def transport_for_sms(
+        self, context: Optional[Model] = None
+    ) -> Optional[AccountPhone]:
         """Return user's preferred phone number within a context."""
         # TODO: Per-account/project customization is a future option
         if (
@@ -691,17 +692,21 @@ class Account(
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_webpush(self, context):  # TODO  # pragma: no cover
+    def transport_for_webpush(
+        self, context: Optional[Model] = None
+    ):  # TODO  # pragma: no cover
         """Return user's preferred webpush transport address within a context."""
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_telegram(self, context):  # TODO  # pragma: no cover
+    def transport_for_telegram(
+        self, context: Optional[Model] = None
+    ):  # TODO  # pragma: no cover
         """Return user's preferred Telegram transport address within a context."""
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_whatsapp(self, context):
+    def transport_for_whatsapp(self, context: Optional[Model] = None):
         """Return user's preferred WhatsApp transport address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_wa:
@@ -709,7 +714,7 @@ class Account(
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_signal(self, context):
+    def transport_for_signal(self, context: Optional[Model] = None):
         """Return user's preferred Signal transport address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sm:
@@ -733,7 +738,7 @@ class Account(
 
     @with_roles(call={'owner'})
     def transport_for(
-        self, transport: str, context: Any  # type: ignore[name-defined]
+        self, transport: str, context: Optional[Model] = None
     ) -> Optional[Union[AccountEmail, AccountPhone]]:
         """
         Get transport address for a given transport and context.
@@ -743,7 +748,7 @@ class Account(
         return getattr(self, 'transport_for_' + transport)(context)
 
     def default_email(
-        self, context=None
+        self, context: Optional[Model] = None
     ) -> Optional[Union[AccountEmail, AccountEmailClaim]]:
         """
         Return default email address (verified if present, else unverified).
@@ -991,14 +996,9 @@ class Account(
         """
         accounts = set()
         if buids and names:
-            query = cls.query.filter(
-                sa.or_(
-                    cls.buid.in_(buids),  # type: ignore[attr-defined]
-                    cls.name_in(names),
-                )
-            )
+            query = cls.query.filter(sa.or_(cls.buid.in_(buids), cls.name_in(names)))
         elif buids:
-            query = cls.query.filter(cls.buid.in_(buids))  # type: ignore[attr-defined]
+            query = cls.query.filter(cls.buid.in_(buids))
         elif names:
             query = cls.query.filter(cls.name_in(names))
         else:
@@ -1197,7 +1197,7 @@ add_search_trigger(Account, 'search_vector')
 add_search_trigger(Account, 'name_vector')
 
 
-class AccountOldId(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class AccountOldId(UuidMixin, BaseMixin, Model):
     """Record of an older UUID for an account, after account merger."""
 
     __tablename__ = 'account_oldid'
@@ -1205,17 +1205,17 @@ class AccountOldId(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined
     __uuid_primary_key__ = True
 
     #: Old account, if still present
-    old_account: Mapped[Account] = sa.orm.relationship(
+    old_account: Mapped[Account] = relationship(
         Account,
         primaryjoin='foreign(AccountOldId.id) == remote(Account.uuid)',
         backref=sa.orm.backref('oldid', uselist=False),
     )
     #: User id of new user
     account_id: Mapped[int] = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), nullable=False
     )
     #: New account
-    account: Mapped[Account] = sa.orm.relationship(
+    account: Mapped[Account] = relationship(
         Account,
         foreign_keys=[account_id],
         backref=sa.orm.backref('oldids', cascade='all'),
@@ -1321,7 +1321,7 @@ unknown_account = DuckTypeAccount(__("[unknown]"))
 
 team_membership = sa.Table(
     'team_membership',
-    db.Model.metadata,  # type: ignore[has-type]
+    Model.metadata,
     sa.Column(
         'account_id',
         sa.Integer,
@@ -1361,7 +1361,7 @@ class Organization(Account):
             )
         )
 
-    def people(self) -> Query:
+    def people(self) -> Query[Organization]:
         """Return a list of users from across the public teams they are in."""
         return (
             Account.query.join(team_membership)
@@ -1379,7 +1379,7 @@ class Placeholder(Account):
     is_placeholder_profile = True
 
 
-class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class Team(UuidMixin, BaseMixin, Model):
     """A team of users within an organization."""
 
     __tablename__ = 'team'
@@ -1391,10 +1391,10 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     )
     #: Organization
     account_id: Mapped[int] = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), nullable=False
     )
     account = with_roles(
-        sa.orm.relationship(
+        relationship(
             Account,
             foreign_keys=[account_id],
             backref=sa.orm.backref(
@@ -1404,7 +1404,7 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         grants_via={None: {'owner': 'owner', 'admin': 'admin'}},
     )
     users = with_roles(
-        sa.orm.relationship(
+        relationship(
             Account, secondary=team_membership, lazy='dynamic', backref='member_teams'
         ),
         grants={'member'},
@@ -1456,7 +1456,7 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 # --- Account email/phone and misc
 
 
-class AccountEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class AccountEmail(EmailAddressMixin, BaseMixin, Model):
     """An email address linked to an account."""
 
     __tablename__ = 'account_email'
@@ -1470,9 +1470,9 @@ class AccountEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name
     email_address: Mapped[EmailAddress]
 
     account_id: Mapped[int] = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), nullable=False
     )
-    account: Mapped[Account] = sa.orm.relationship(
+    account: Mapped[Account] = relationship(
         Account, backref=sa.orm.backref('emails', cascade='all')
     )
     user: Mapped[Account] = sa.orm.synonym('account')
@@ -1638,11 +1638,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name
         return [cls.__table__.name, user_email_primary_table.name]
 
 
-class AccountEmailClaim(
-    EmailAddressMixin,
-    BaseMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
     """Claimed but unverified email address for a user."""
 
     __tablename__ = 'account_email_claim'
@@ -1656,9 +1652,9 @@ class AccountEmailClaim(
     email_address: Mapped[EmailAddress]
 
     account_id: Mapped[int] = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), nullable=False
     )
-    account: Mapped[Account] = sa.orm.relationship(
+    account: Mapped[Account] = relationship(
         Account, backref=sa.orm.backref('emailclaims', cascade='all')
     )
     user: Mapped[Account] = sa.orm.synonym('account')
@@ -1816,19 +1812,22 @@ class AccountEmailClaim(
         )
 
     @classmethod
-    def all(cls, email: str) -> Query:  # noqa: A003
+    def all(cls, email: str) -> Query[AccountEmailClaim]:  # noqa: A003
         """
         Return all instances with the matching email address.
 
         :param str email: Email address to lookup
         """
-        return cls.query.join(EmailAddress).filter(EmailAddress.get_filter(email=email))
+        email_filter = EmailAddress.get_filter(email=email)
+        if email_filter is None:
+            raise ValueError(email)
+        return cls.query.join(EmailAddress).filter(email_filter)
 
 
 auto_init_default(AccountEmailClaim.verification_code)
 
 
-class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
     """A phone number linked to an account."""
 
     __tablename__ = 'account_phone'
@@ -1839,9 +1838,9 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-
     __phone_for__ = 'account'
 
     account_id: Mapped[int] = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), nullable=False
     )
-    account: Mapped[Account] = sa.orm.relationship(
+    account: Mapped[Account] = relationship(
         Account, backref=sa.orm.backref('phones', cascade='all')
     )
     user: Mapped[Account] = sa.orm.synonym('account')
@@ -2020,7 +2019,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-
         return [cls.__table__.name, user_phone_primary_table.name]
 
 
-class AccountExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
+class AccountExternalId(BaseMixin, Model):
     """An external connected account for a user."""
 
     __tablename__ = 'account_externalid'
@@ -2028,10 +2027,10 @@ class AccountExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
     __at_username_services__: List[str] = []
     #: Foreign key to user table
     account_id: Mapped[int] = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), nullable=False
     )
     #: User that this connected account belongs to
-    account: Mapped[Account] = sa.orm.relationship(
+    account: Mapped[Account] = relationship(
         Account, backref=sa.orm.backref('externalids', cascade='all')
     )
     user: Mapped[Account] = sa.orm.synonym('account')

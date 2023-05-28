@@ -125,7 +125,6 @@ env_files = ['.env', '.env.testing']
 [tool.mypy]
 files = '**/*.py'
 exclude = ['node_modules', 'build']
-plugins = ['sqlalchemy.ext.mypy.plugin']
 ignore_missing_imports = true
 show_error_codes = true
 warn_unreachable = true
@@ -138,10 +137,6 @@ check_untyped_defs = false
 module = ['tests']
 check_untyped_defs = true
 warn_unreachable = false
-
-[[tool.mypy.overrides]]
-module = ['flask_sqlalchemy']
-follow_imports = 'skip'
 
 [tool.pylint.master]
 max-parents = 10

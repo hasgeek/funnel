@@ -97,13 +97,13 @@ def upgrade() -> None:
     for counter, row in enumerate(project_ids):
         start_at = conn.scalar(
             sa.select(sa.func.min(session.c.start_at))
-            .where(session.c.start_at.isnot(None))
+            .where(session.c.start_at.is_not(None))
             .where(session.c.project_id == row.id)
         )
         if start_at is not None:
             end_at = conn.scalar(
                 sa.select(sa.func.max(session.c.end_at))
-                .where(session.c.end_at.isnot(None))
+                .where(session.c.end_at.is_not(None))
                 .where(session.c.project_id == row.id)
             )
             conn.execute(

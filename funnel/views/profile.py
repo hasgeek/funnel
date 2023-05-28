@@ -108,7 +108,8 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
                         Project.state.LIVE,
                         Project.state.UPCOMING,
                         sa.and_(
-                            Project.start_at.is_(None), Project.published_at.isnot(None)
+                            Project.start_at.is_(None),
+                            Project.published_at.is_not(None),
                         ),
                     ),
                 )
@@ -124,7 +125,8 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
                         Project.state.LIVE,
                         Project.state.UPCOMING,
                         sa.and_(
-                            Project.start_at.is_(None), Project.published_at.isnot(None)
+                            Project.start_at.is_(None),
+                            Project.published_at.is_not(None),
                         ),
                     ),
                     Project.site_featured.is_(True),

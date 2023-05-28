@@ -2,16 +2,25 @@
 
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import Collection, Dict, List, Optional, Union, cast
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 import re
 
 from sqlalchemy.dialects.postgresql import ARRAY
 
-from coaster.sqlalchemy import Query
 from coaster.utils import make_name
 
-from . import BaseMixin, BaseNameMixin, Mapped, db, sa
+from . import (
+    BaseMixin,
+    BaseNameMixin,
+    GeonameModel,
+    Mapped,
+    Query,
+    db,
+    relationship,
+    sa,
+    types,
+)
 from .helpers import quote_autocomplete_like
 
 __all__ = ['GeoName', 'GeoCountryInfo', 'GeoAdmin1Code', 'GeoAdmin2Code', 'GeoAltName']
@@ -31,37 +40,41 @@ continent_codes = {
 }
 
 
-class GeoCountryInfo(BaseNameMixin, db.Model):  # type: ignore[name-defined]
+class GeoCountryInfo(BaseNameMixin, GeonameModel):
     """Geoname record for a country."""
 
     __tablename__ = 'geo_country_info'
-    __allow_unmapped__ = True
-    __bind_key__ = 'geoname'
 
     geonameid: Mapped[int] = sa.orm.synonym('id')
-    geoname: Mapped[GeoName] = sa.orm.relationship(
+    geoname: Mapped[Optional[GeoName]] = relationship(
         'GeoName',
         uselist=False,
         primaryjoin='GeoCountryInfo.id == foreign(GeoName.id)',
         backref='has_country',
     )
-    iso_alpha2 = sa.Column(sa.CHAR(2), unique=True)
-    iso_alpha3 = sa.Column(sa.CHAR(3), unique=True)
-    iso_numeric = sa.Column(sa.Integer)
-    fips_code = sa.Column(sa.Unicode(3))
-    capital = sa.Column(sa.Unicode)
-    area_in_sqkm = sa.Column(sa.Numeric)
-    population = sa.Column(sa.BigInteger)
-    continent = sa.Column(sa.CHAR(2))
-    tld = sa.Column(sa.Unicode(3))
-    currency_code = sa.Column(sa.CHAR(3))
-    currency_name = sa.Column(sa.Unicode)
-    phone = sa.Column(sa.Unicode(16))
-    postal_code_format = sa.Column(sa.Unicode)
-    postal_code_regex = sa.Column(sa.Unicode)
-    languages = sa.Column(ARRAY(sa.Unicode, dimensions=1))
-    neighbours = sa.Column(ARRAY(sa.CHAR(2), dimensions=1))
-    equivalent_fips_code = sa.Column(sa.Unicode(3))
+    iso_alpha2: Mapped[Optional[types.char2]] = sa.orm.mapped_column(
+        sa.CHAR(2), unique=True
+    )
+    iso_alpha3: Mapped[Optional[types.char3]] = sa.orm.mapped_column(unique=True)
+    iso_numeric: Mapped[Optional[int]]
+    fips_code: Mapped[Optional[types.str3]]
+    capital: Mapped[Optional[str]]
+    area_in_sqkm: Mapped[Optional[Decimal]]
+    population: Mapped[Optional[types.bigint]]
+    continent: Mapped[Optional[types.char2]]
+    tld: Mapped[Optional[types.str3]]
+    currency_code: Mapped[Optional[types.char3]]
+    currency_name: Mapped[Optional[str]]
+    phone: Mapped[Optional[types.str16]]
+    postal_code_format: Mapped[Optional[types.unicode]]
+    postal_code_regex: Mapped[Optional[types.unicode]]
+    languages: Mapped[Optional[List[str]]] = sa.orm.mapped_column(
+        ARRAY(sa.Unicode, dimensions=1)
+    )
+    neighbours: Mapped[Optional[List[str]]] = sa.orm.mapped_column(
+        ARRAY(sa.CHAR(2), dimensions=1)
+    )
+    equivalent_fips_code: Mapped[types.str3]
 
     __table_args__ = (
         sa.Index(
@@ -76,98 +89,95 @@ class GeoCountryInfo(BaseNameMixin, db.Model):  # type: ignore[name-defined]
         return f'<GeoCountryInfo {self.geonameid} "{self.title}">'
 
 
-class GeoAdmin1Code(BaseMixin, db.Model):  # type: ignore[name-defined]
+class GeoAdmin1Code(BaseMixin, GeonameModel):
     """Geoname record for 1st level administrative division (state, province)."""
 
     __tablename__ = 'geo_admin1_code'
     __allow_unmapped__ = True
-    __bind_key__ = 'geoname'
 
     geonameid: Mapped[int] = sa.orm.synonym('id')
-    geoname: Mapped[GeoName] = sa.orm.relationship(
+    geoname: Mapped[GeoName] = relationship(
         'GeoName',
         uselist=False,
         primaryjoin='GeoAdmin1Code.id == foreign(GeoName.id)',
         backref='has_admin1code',
         viewonly=True,
     )
-    title = sa.Column(sa.Unicode)
-    ascii_title = sa.Column(sa.Unicode)
-    country_id = sa.Column(
+    title = sa.orm.mapped_column(sa.Unicode)
+    ascii_title = sa.orm.mapped_column(sa.Unicode)
+    country_id = sa.orm.mapped_column(
         'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
     )
-    country: Mapped[GeoCountryInfo] = sa.orm.relationship('GeoCountryInfo')
-    admin1_code = sa.Column(sa.Unicode)
+    country: Mapped[Optional[GeoCountryInfo]] = relationship('GeoCountryInfo')
+    admin1_code = sa.orm.mapped_column(sa.Unicode)
 
     def __repr__(self) -> str:
         """Return representation."""
         return f'<GeoAdmin1Code {self.geonameid} "self.ascii_title">'
 
 
-class GeoAdmin2Code(BaseMixin, db.Model):  # type: ignore[name-defined]
+class GeoAdmin2Code(BaseMixin, GeonameModel):
     """Geoname record for 2nd level administrative division (district, county)."""
 
     __tablename__ = 'geo_admin2_code'
     __allow_unmapped__ = True
-    __bind_key__ = 'geoname'
 
     geonameid: Mapped[int] = sa.orm.synonym('id')
-    geoname: Mapped[GeoName] = sa.orm.relationship(
+    geoname: Mapped[GeoName] = relationship(
         'GeoName',
         uselist=False,
         primaryjoin='GeoAdmin2Code.id == foreign(GeoName.id)',
         backref='has_admin2code',
         viewonly=True,
     )
-    title = sa.Column(sa.Unicode)
-    ascii_title = sa.Column(sa.Unicode)
-    country_id = sa.Column(
+    title = sa.orm.mapped_column(sa.Unicode)
+    ascii_title = sa.orm.mapped_column(sa.Unicode)
+    country_id = sa.orm.mapped_column(
         'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
     )
-    country: Mapped[GeoCountryInfo] = sa.orm.relationship('GeoCountryInfo')
-    admin1_code = sa.Column(sa.Unicode)
-    admin2_code = sa.Column(sa.Unicode)
+    country: Mapped[Optional[GeoCountryInfo]] = relationship('GeoCountryInfo')
+    admin1_code = sa.orm.mapped_column(sa.Unicode)
+    admin2_code = sa.orm.mapped_column(sa.Unicode)
 
     def __repr__(self) -> str:
         """Return representation."""
         return f'<GeoAdmin2Code {self.geonameid} "self.ascii_title">'
 
 
-class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
+class GeoName(BaseNameMixin, GeonameModel):
     """Geographical name record."""
 
     __tablename__ = 'geo_name'
     __allow_unmapped__ = True
-    __bind_key__ = 'geoname'
 
     geonameid: Mapped[int] = sa.orm.synonym('id')
-    ascii_title = sa.Column(sa.Unicode)
-    latitude = sa.Column(sa.Numeric)
-    longitude = sa.Column(sa.Numeric)
-    fclass = sa.Column(sa.CHAR(1))
-    fcode = sa.Column(sa.Unicode)
-    country_id = sa.Column(
+    ascii_title = sa.orm.mapped_column(sa.Unicode)
+    latitude = sa.orm.mapped_column(sa.Numeric)
+    longitude = sa.orm.mapped_column(sa.Numeric)
+    fclass = sa.orm.mapped_column(sa.CHAR(1))
+    fcode = sa.orm.mapped_column(sa.Unicode)
+    country_id = sa.orm.mapped_column(
         'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
     )
-    country: Mapped[GeoCountryInfo] = sa.orm.relationship('GeoCountryInfo')
-    cc2 = sa.Column(sa.Unicode)
-    admin1 = sa.Column(sa.Unicode)
-    admin1_ref: Mapped[Optional[GeoAdmin1Code]] = sa.orm.relationship(
+    country: Mapped[Optional[GeoCountryInfo]] = relationship('GeoCountryInfo')
+    cc2 = sa.orm.mapped_column(sa.Unicode)
+    admin1 = sa.orm.mapped_column(sa.Unicode)
+    admin1_ref: Mapped[Optional[GeoAdmin1Code]] = relationship(
         'GeoAdmin1Code',
         uselist=False,
         primaryjoin='and_(GeoName.country_id == foreign(GeoAdmin1Code.country_id), '
         'GeoName.admin1 == foreign(GeoAdmin1Code.admin1_code))',
         viewonly=True,
     )
-    admin1_id = sa.Column(
+    admin1_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('geo_admin1_code.id'), nullable=True
     )
-    admin1code: Mapped[Optional[GeoAdmin1Code]] = sa.orm.relationship(
+    admin1code: Mapped[Optional[GeoAdmin1Code]] = relationship(
         'GeoAdmin1Code', uselist=False, foreign_keys=[admin1_id]
     )
 
-    admin2 = sa.Column(sa.Unicode)
-    admin2_ref: Mapped[Optional[GeoAdmin2Code]] = sa.orm.relationship(
+    admin2 = sa.orm.mapped_column(sa.Unicode)
+    admin2_ref: Mapped[Optional[GeoAdmin2Code]] = relationship(
         'GeoAdmin2Code',
         uselist=False,
         primaryjoin='and_(GeoName.country_id == foreign(GeoAdmin2Code.country_id), '
@@ -175,20 +185,20 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
         'GeoName.admin2 == foreign(GeoAdmin2Code.admin2_code))',
         viewonly=True,
     )
-    admin2_id = sa.Column(
+    admin2_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('geo_admin2_code.id'), nullable=True
     )
-    admin2code: Mapped[Optional[GeoAdmin2Code]] = sa.orm.relationship(
+    admin2code: Mapped[Optional[GeoAdmin2Code]] = relationship(
         'GeoAdmin2Code', uselist=False, foreign_keys=[admin2_id]
     )
 
-    admin4 = sa.Column(sa.Unicode)
-    admin3 = sa.Column(sa.Unicode)
-    population = sa.Column(sa.BigInteger)
-    elevation = sa.Column(sa.Integer)
-    dem = sa.Column(sa.Integer)  # Digital Elevation Model
-    timezone = sa.Column(sa.Unicode)
-    moddate = sa.Column(sa.Date)
+    admin4 = sa.orm.mapped_column(sa.Unicode)
+    admin3 = sa.orm.mapped_column(sa.Unicode)
+    population = sa.orm.mapped_column(sa.BigInteger)
+    elevation = sa.orm.mapped_column(sa.Integer)
+    dem = sa.orm.mapped_column(sa.Integer)  # Digital Elevation Model
+    timezone = sa.orm.mapped_column(sa.Unicode)
+    moddate = sa.orm.mapped_column(sa.Date)
 
     __table_args__ = (
         sa.Index(
@@ -544,7 +554,7 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
         return results
 
     @classmethod
-    def autocomplete(cls, prefix: str, lang: Optional[str] = None) -> Query:
+    def autocomplete(cls, prefix: str, lang: Optional[str] = None) -> Query[GeoName]:
         """
         Autocomplete a geoname record.
 
@@ -567,24 +577,25 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
         return query
 
 
-class GeoAltName(BaseMixin, db.Model):  # type: ignore[name-defined]
+class GeoAltName(BaseMixin, GeonameModel):
     """Additional names for any :class:`GeoName`."""
 
     __tablename__ = 'geo_alt_name'
     __allow_unmapped__ = True
-    __bind_key__ = 'geoname'
 
-    geonameid = sa.Column(sa.Integer, sa.ForeignKey('geo_name.id'), nullable=False)
-    geoname: Mapped[GeoName] = sa.orm.relationship(
+    geonameid = sa.orm.mapped_column(
+        sa.Integer, sa.ForeignKey('geo_name.id'), nullable=False
+    )
+    geoname: Mapped[GeoName] = relationship(
         GeoName,
         backref=sa.orm.backref('alternate_titles', cascade='all, delete-orphan'),
     )
-    lang = sa.Column(sa.Unicode, nullable=True, index=True)
-    title = sa.Column(sa.Unicode, nullable=False)
-    is_preferred_name = sa.Column(sa.Boolean, nullable=False)
-    is_short_name = sa.Column(sa.Boolean, nullable=False)
-    is_colloquial = sa.Column(sa.Boolean, nullable=False)
-    is_historic = sa.Column(sa.Boolean, nullable=False)
+    lang = sa.orm.mapped_column(sa.Unicode, nullable=True, index=True)
+    title = sa.orm.mapped_column(sa.Unicode, nullable=False)
+    is_preferred_name = sa.orm.mapped_column(sa.Boolean, nullable=False)
+    is_short_name = sa.orm.mapped_column(sa.Boolean, nullable=False)
+    is_colloquial = sa.orm.mapped_column(sa.Boolean, nullable=False)
+    is_historic = sa.orm.mapped_column(sa.Boolean, nullable=False)
 
     __table_args__ = (
         sa.Index(

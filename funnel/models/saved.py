@@ -2,50 +2,51 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from typing import Optional, Sequence
 
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
-from . import Mapped, NoIdMixin, db, sa
+from . import Mapped, Model, NoIdMixin, db, relationship, sa
 from .account import Account
 from .helpers import reopen
 from .project import Project
 from .session import Session
 
 
-class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
+class SavedProject(NoIdMixin, Model):
+    __tablename__ = 'saved_project'
+
     #: User who saved this project
-    user_id: Mapped[int] = sa.Column(
-        sa.Integer,
+    user_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
     )
-    user: Mapped[Account] = sa.orm.relationship(
+    user: Mapped[Account] = relationship(
         Account,
         backref=sa.orm.backref('saved_projects', lazy='dynamic', passive_deletes=True),
     )
     #: Project that was saved
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('project.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
         index=True,
     )
-    project: Mapped[Project] = sa.orm.relationship(
+    project: Mapped[Project] = relationship(
         Project,
         backref=sa.orm.backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
     #: Timestamp when the save happened
-    saved_at = sa.Column(
+    saved_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: User's plaintext note to self on why they saved this (optional)
-    description = sa.Column(sa.UnicodeText, nullable=True)
+    description = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.user:
@@ -63,39 +64,40 @@ class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
                 db.session.delete(sp)
 
 
-class SavedSession(NoIdMixin, db.Model):  # type: ignore[name-defined]
+class SavedSession(NoIdMixin, Model):
+    __tablename__ = 'saved_session'
+
     #: User who saved this session
-    user_id: Mapped[int] = sa.Column(
-        sa.Integer,
+    user_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
     )
-    user: Mapped[Account] = sa.orm.relationship(
+    user: Mapped[Account] = relationship(
         Account,
         backref=sa.orm.backref('saved_sessions', lazy='dynamic', passive_deletes=True),
     )
     #: Session that was saved
-    session_id = sa.Column(
+    session_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('session.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
         index=True,
     )
-    session: Mapped[Session] = sa.orm.relationship(
+    session: Mapped[Session] = relationship(
         Session,
         backref=sa.orm.backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
     #: Timestamp when the save happened
-    saved_at = sa.Column(
+    saved_at = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: User's plaintext note to self on why they saved this (optional)
-    description = sa.Column(sa.UnicodeText, nullable=True)
+    description = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.user:

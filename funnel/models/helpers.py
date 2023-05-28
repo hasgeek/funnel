@@ -30,13 +30,13 @@ from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
 from sqlalchemy.ext.mutable import MutableComposite
-from sqlalchemy.orm import composite
+from sqlalchemy.orm import Mapped, composite
 from zxcvbn import zxcvbn
 
 from .. import app
 from ..typing import T
 from ..utils import MarkdownConfig, markdown_escape
-from . import UrlType, sa
+from . import Model, UrlType, sa
 
 __all__ = [
     'RESERVED_NAMES',
@@ -397,24 +397,23 @@ def quote_autocomplete_tsquery(prefix: str) -> TSQUERY:
     )
 
 
-def add_search_trigger(
-    model: Any, column_name: str  # type: ignore[name-defined]
-) -> Dict[str, str]:
+def add_search_trigger(model: Type[Model], column_name: str) -> Dict[str, str]:
     """
     Add a search trigger and returns SQL for use in migrations.
 
     Typical use::
 
-        class MyModel(db.Model):  # type: ignore[name-defined]
+        class MyModel(Model):
             ...
-            search_vector: Mapped[str] = sa.orm.deferred(sa.orm.mapped_column(
+            search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
                 TSVectorType(
                     'name', 'title', *indexed_columns,
                     weights={'name': 'A', 'title': 'B'},
                     regconfig='english'
                 ),
                 nullable=False,
-            ))
+                deferred=True,
+            )
 
             __table_args__ = (
                 sa.Index(
@@ -586,6 +585,9 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
         return value
 
 
+_MC = TypeVar('_MC', bound='MarkdownCompositeBase')
+
+
 class MarkdownCompositeBase(MutableComposite):
     """Represents Markdown text and rendered HTML as a composite column."""
 
@@ -641,13 +643,13 @@ class MarkdownCompositeBase(MutableComposite):
         return {'text': self._text, 'html': self._html}
 
     # Compare text value
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """Compare for equality."""
         return isinstance(other, self.__class__) and (
             self.__composite_values__() == other.__composite_values__()
         )
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: Any) -> bool:
         """Compare for inequality."""
         return not self.__eq__(other)
 
@@ -671,21 +673,31 @@ class MarkdownCompositeBase(MutableComposite):
         return bool(self._text)
 
     @classmethod
-    def coerce(cls, key: str, value: Any):
+    def coerce(cls: Type[_MC], key: str, value: Any) -> _MC:
         """Allow a composite column to be assigned a string value."""
         return cls(value)
 
     @classmethod
     def create(
-        cls, name: str, deferred: bool = False, group: Optional[str] = None, **kwargs
-    ) -> sa.orm.Composite[MarkdownCompositeBase]:
+        cls: Type[_MC],
+        name: str,
+        deferred: bool = False,
+        group: Optional[str] = None,
+        **kwargs,
+    ) -> Tuple[sa.orm.Composite[_MC], Mapped[str], Mapped[str]]:
         """Create a composite column and backing individual columns."""
-        return composite(
-            cls,
-            sa.Column(name + '_text', sa.UnicodeText, **kwargs),
-            sa.Column(name + '_html', sa.UnicodeText, **kwargs),
-            deferred=deferred,
-            group=group or name,
+        col_text = sa.orm.mapped_column(name + '_text', sa.UnicodeText, **kwargs)
+        col_html = sa.orm.mapped_column(name + '_html', sa.UnicodeText, **kwargs)
+        return (
+            composite(
+                cls,
+                col_text,
+                col_html,
+                deferred=deferred,
+                group=group or name,
+            ),
+            col_text,
+            col_html,
         )
 
 

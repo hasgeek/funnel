@@ -33,19 +33,19 @@ def downgrade(engine_name='') -> None:
 def upgrade_() -> None:
     """Upgrade database bind ''."""
     with op.batch_alter_table('profile', schema=None) as batch_op:
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'website',
             existing_type=sa.UnicodeText(),
             type_=sa.Unicode(),
             existing_nullable=True,
         )
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'logo_url',
             existing_type=sa.UnicodeText(),
             type_=sa.Unicode(),
             existing_nullable=True,
         )
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'banner_image_url',
             existing_type=sa.UnicodeText(),
             type_=sa.Unicode(),
@@ -53,31 +53,31 @@ def upgrade_() -> None:
         )
 
     with op.batch_alter_table('project', schema=None) as batch_op:
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'website',
             existing_type=sa.UnicodeText(),
             type_=sa.Unicode(),
             existing_nullable=True,
         )
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'bg_image',
             existing_type=sa.UnicodeText(),
             type_=sa.Unicode(),
             existing_nullable=True,
         )
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'buy_tickets_url',
             existing_type=sa.UnicodeText(),
             type_=sa.Unicode(),
             existing_nullable=True,
         )
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'banner_video_url',
             existing_type=sa.UnicodeText(),
             type_=sa.Unicode(),
             existing_nullable=True,
         )
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'hasjob_embed_url',
             existing_type=sa.UnicodeText(),
             type_=sa.Unicode(),
@@ -85,7 +85,7 @@ def upgrade_() -> None:
         )
 
     with op.batch_alter_table('session', schema=None) as batch_op:
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'banner_image_url',
             existing_type=sa.UnicodeText(),
             type_=sa.Unicode(),
@@ -93,7 +93,7 @@ def upgrade_() -> None:
         )
 
     with op.batch_alter_table('shortlink', schema=None) as batch_op:
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'url',
             existing_type=sa.UnicodeText(),
             type_=sa.Unicode(),
@@ -104,7 +104,7 @@ def upgrade_() -> None:
 def downgrade_() -> None:
     """Downgrade database bind ''."""
     with op.batch_alter_table('shortlink', schema=None) as batch_op:
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'url',
             existing_type=sa.Unicode(),
             type_=sa.UnicodeText(),
@@ -112,7 +112,7 @@ def downgrade_() -> None:
         )
 
     with op.batch_alter_table('session', schema=None) as batch_op:
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'banner_image_url',
             existing_type=sa.Unicode(),
             type_=sa.UnicodeText(),
@@ -120,31 +120,31 @@ def downgrade_() -> None:
         )
 
     with op.batch_alter_table('project', schema=None) as batch_op:
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'hasjob_embed_url',
             existing_type=sa.Unicode(),
             type_=sa.UnicodeText(),
             existing_nullable=True,
         )
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'banner_video_url',
             existing_type=sa.Unicode(),
             type_=sa.UnicodeText(),
             existing_nullable=True,
         )
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'buy_tickets_url',
             existing_type=sa.Unicode(),
             type_=sa.UnicodeText(),
             existing_nullable=True,
         )
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'bg_image',
             existing_type=sa.Unicode(),
             type_=sa.UnicodeText(),
             existing_nullable=True,
         )
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'website',
             existing_type=sa.Unicode(),
             type_=sa.UnicodeText(),
@@ -152,19 +152,19 @@ def downgrade_() -> None:
         )
 
     with op.batch_alter_table('profile', schema=None) as batch_op:
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'banner_image_url',
             existing_type=sa.Unicode(),
             type_=sa.UnicodeText(),
             existing_nullable=True,
         )
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'logo_url',
             existing_type=sa.Unicode(),
             type_=sa.UnicodeText(),
             existing_nullable=True,
         )
-        batch_op.alter_column(  # type: ignore[attr-defined]
+        batch_op.alter_column(
             'website',
             existing_type=sa.Unicode(),
             type_=sa.UnicodeText(),

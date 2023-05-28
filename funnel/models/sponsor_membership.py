@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Set
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
+from typing import List, Set
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import Mapped, db, sa
+from . import DynamicMapped, Mapped, Model, db, relationship, sa
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
@@ -27,7 +26,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
     ImmutableUserMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
+    Model,
 ):
     """Sponsor of a project."""
 
@@ -86,10 +85,10 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
     revoke_on_member_delete = False
 
-    project_id: Mapped[int] = sa.Column(
+    project_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
-    project: Mapped[Project] = sa.orm.relationship(
+    project: Mapped[Project] = relationship(
         Project,
         backref=sa.orm.backref(
             'all_sponsor_memberships',
@@ -104,11 +103,11 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
     #: Is this sponsor being promoted for commercial reasons? Projects may have a legal
     #: obligation to reveal this. This column records a declaration from the project.
-    is_promoted = immutable(sa.Column(sa.Boolean, nullable=False))
+    is_promoted = immutable(sa.orm.mapped_column(sa.Boolean, nullable=False))
 
     #: Optional label, indicating the type of sponsor
     label = immutable(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='project_sponsor_membership_label_check'
@@ -130,13 +129,13 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
 @reopen(Project)
 class __Project:
-    sponsor_memberships = with_roles(
-        sa.orm.relationship(
+    sponsor_memberships: DynamicMapped[List[ProjectSponsorMembership]] = with_roles(
+        relationship(
             ProjectSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
                 ProjectSponsorMembership.project_id == Project.id,
-                ProjectSponsorMembership.is_active,  # type: ignore[arg-type]
+                ProjectSponsorMembership.is_active,
             ),
             order_by=ProjectSponsorMembership.seq,
             viewonly=True,
@@ -158,7 +157,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
     ImmutableUserMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
+    Model,
 ):
     """Sponsor of a proposal."""
 
@@ -217,10 +216,10 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
     revoke_on_member_delete = False
 
-    proposal_id: Mapped[int] = sa.Column(
+    proposal_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
-    proposal: Mapped[Proposal] = sa.orm.relationship(
+    proposal: Mapped[Proposal] = relationship(
         Proposal,
         backref=sa.orm.backref(
             'all_sponsor_memberships',
@@ -235,11 +234,11 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
     #: Is this sponsor being promoted for commercial reasons? Proposals may have a legal
     #: obligation to reveal this. This column records a declaration from the proposal.
-    is_promoted = immutable(sa.Column(sa.Boolean, nullable=False))
+    is_promoted = immutable(sa.orm.mapped_column(sa.Boolean, nullable=False))
 
     #: Optional label, indicating the type of sponsor
     label = immutable(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='proposal_sponsor_membership_label_check'
@@ -256,13 +255,13 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
 @reopen(Proposal)
 class __Proposal:
-    sponsor_memberships = with_roles(
-        sa.orm.relationship(
+    sponsor_memberships: DynamicMapped[List[ProposalSponsorMembership]] = with_roles(
+        relationship(
             ProposalSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
                 ProposalSponsorMembership.proposal_id == Proposal.id,
-                ProposalSponsorMembership.is_active,  # type: ignore[arg-type]
+                ProposalSponsorMembership.is_active,
             ),
             order_by=ProposalSponsorMembership.seq,
             viewonly=True,
@@ -281,36 +280,42 @@ class __Proposal:
 @reopen(Account)
 class __Account:
     # pylint: disable=invalid-unary-operand-type
-    noninvite_project_sponsor_memberships = sa.orm.relationship(
+    noninvite_project_sponsor_memberships: DynamicMapped[
+        List[ProjectSponsorMembership]
+    ] = relationship(
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProjectSponsorMembership.member_id == Account.id,
-            ~ProjectSponsorMembership.is_invite,  # type: ignore[operator]
+            ~ProjectSponsorMembership.is_invite,
         ),
         order_by=ProjectSponsorMembership.granted_at.desc(),
         viewonly=True,
     )
 
-    project_sponsor_memberships = sa.orm.relationship(
+    project_sponsor_memberships: DynamicMapped[
+        List[ProjectSponsorMembership]
+    ] = relationship(
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProjectSponsorMembership.member_id == Account.id,
-            ProjectSponsorMembership.is_active,  # type: ignore[arg-type]
+            ProjectSponsorMembership.is_active,
         ),
         order_by=ProjectSponsorMembership.granted_at.desc(),
         viewonly=True,
     )
 
-    project_sponsor_membership_invites = with_roles(
-        sa.orm.relationship(
+    project_sponsor_membership_invites: DynamicMapped[
+        List[ProjectSponsorMembership]
+    ] = with_roles(
+        relationship(
             ProjectSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
                 ProjectSponsorMembership.member_id == Account.id,
-                ProjectSponsorMembership.is_invite,  # type: ignore[arg-type]
-                ProjectSponsorMembership.revoked_at.is_(None),  # type: ignore[has-type]
+                ProjectSponsorMembership.is_invite,
+                ProjectSponsorMembership.revoked_at.is_(None),
             ),
             order_by=ProjectSponsorMembership.granted_at.desc(),
             viewonly=True,
@@ -318,38 +323,42 @@ class __Account:
         read={'admin'},
     )
 
-    noninvite_proposal_sponsor_memberships = sa.orm.relationship(
+    noninvite_proposal_sponsor_memberships: DynamicMapped[
+        List[ProposalSponsorMembership]
+    ] = relationship(
         ProposalSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProposalSponsorMembership.member_id == Account.id,
-            ~ProposalSponsorMembership.is_invite,  # type: ignore[operator]
+            ~ProposalSponsorMembership.is_invite,
         ),
         order_by=ProposalSponsorMembership.granted_at.desc(),
         viewonly=True,
     )
 
-    proposal_sponsor_memberships = sa.orm.relationship(
+    proposal_sponsor_memberships: DynamicMapped[
+        List[ProposalSponsorMembership]
+    ] = relationship(
         ProposalSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
             ProposalSponsorMembership.member_id == Account.id,
-            ProposalSponsorMembership.is_active,  # type: ignore[arg-type]
+            ProposalSponsorMembership.is_active,
         ),
         order_by=ProposalSponsorMembership.granted_at.desc(),
         viewonly=True,
     )
 
-    proposal_sponsor_membership_invites = with_roles(
-        sa.orm.relationship(
+    proposal_sponsor_membership_invites: DynamicMapped[
+        List[ProposalSponsorMembership]
+    ] = with_roles(
+        relationship(
             ProposalSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
                 ProposalSponsorMembership.member_id == Account.id,
-                ProposalSponsorMembership.is_invite,  # type: ignore[arg-type]
-                ProposalSponsorMembership.revoked_at.is_(  # type: ignore[has-type]
-                    None
-                ),
+                ProposalSponsorMembership.is_invite,
+                ProposalSponsorMembership.revoked_at.is_(None),
             ),
             order_by=ProposalSponsorMembership.granted_at.desc(),
             viewonly=True,

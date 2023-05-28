@@ -91,7 +91,7 @@ def block_of_sessions(db_session, new_project) -> SimpleNamespace:
     )
 
     refresh_attrs = [
-        attr for attr in locals().values() if isinstance(attr, models.db.Model)
+        attr for attr in locals().values() if isinstance(attr, models.Model)
     ]
     db_session.add_all(refresh_attrs)
     db_session.commit()
@@ -103,7 +103,7 @@ def block_of_sessions(db_session, new_project) -> SimpleNamespace:
     return SimpleNamespace(**locals())
 
 
-def find_projects(starting_times, within, gap) -> Dict[datetime, models.Project]:
+def find_projects(starting_times, within, gap) -> Dict[datetime, List[models.Project]]:
     # Keep the timestamps at which projects were found, plus the project. Criteria:
     # starts at `timestamp` + up to `within` period, with `gap` from prior sessions
     return {

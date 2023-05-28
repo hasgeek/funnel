@@ -29,7 +29,7 @@ def upgrade() -> None:
         'session',
         sa.or_(
             sa.and_(start_at.is_(None), end_at.is_(None)),
-            sa.and_(start_at.isnot(None), end_at.isnot(None), end_at >= start_at),
+            sa.and_(start_at.is_not(None), end_at.is_not(None), end_at >= start_at),
         ),
     )
     op.create_check_constraint(
@@ -37,7 +37,7 @@ def upgrade() -> None:
         'project',
         sa.or_(
             sa.and_(start_at.is_(None), end_at.is_(None)),
-            sa.and_(start_at.isnot(None), end_at.isnot(None), end_at >= start_at),
+            sa.and_(start_at.is_not(None), end_at.is_not(None), end_at >= start_at),
         ),
     )
 
@@ -50,6 +50,6 @@ def downgrade() -> None:
         'session',
         sa.or_(
             sa.and_(start_at.is_(None), end_at.is_(None)),
-            sa.and_(start_at.isnot(None), end_at.isnot(None)),
+            sa.and_(start_at.is_not(None), end_at.is_not(None)),
         ),
     )

@@ -10,6 +10,7 @@ from sqlalchemy.exc import IntegrityError
 import pytest
 
 from funnel import models
+from funnel.typing import UuidModelType
 
 pytestmark = pytest.mark.filterwarnings(
     "ignore:Object of type <AccountEmail> not in session"
@@ -19,7 +20,7 @@ pytestmark = pytest.mark.filterwarnings(
 @pytest.fixture(scope='session')
 def notification_types(database) -> SimpleNamespace:
     class ProjectIsParent:
-        document: models.db.Model  # type: ignore[name-defined]
+        document: UuidModelType
 
         @property
         def preference_context(self) -> models.Account:
@@ -123,7 +124,7 @@ def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many
     db_session.commit()
 
     refresh_attrs = [
-        attr for attr in locals().values() if isinstance(attr, models.db.Model)
+        attr for attr in locals().values() if isinstance(attr, models.Model)
     ]
 
     def refresh():

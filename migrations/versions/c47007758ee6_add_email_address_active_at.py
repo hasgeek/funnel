@@ -61,7 +61,7 @@ def downgrade() -> None:
     )
     op.execute(
         email_address.update()
-        .where(email_address.c.active_at.isnot(None))
+        .where(email_address.c.active_at.is_not(None))
         .values({'delivery_state': DELIVERY_STATE.ACTIVE})
     )
     op.drop_column('email_address', 'active_at')

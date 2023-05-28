@@ -2,23 +2,26 @@
 
 from __future__ import annotations
 
-from typing import ClassVar, Dict, List, Optional, Set
+from typing import ClassVar, Dict, Generic, Iterable, List, Optional, Set, Type, TypeVar
 
 import click
 import rich.progress
 
 from ... import models
 from ...models import db, sa
+from ...typing import IdModelType
 from . import refresh
 
+_M = TypeVar('_M', bound=IdModelType)
 
-class MarkdownModel:
+
+class MarkdownModel(Generic[_M]):
     """Holding class for a model that has markdown fields with custom configuration."""
 
     registry: ClassVar[Dict[str, MarkdownModel]] = {}
     config_registry: ClassVar[Dict[str, Set[MarkdownModel]]] = {}
 
-    def __init__(self, model, fields: Set[str]) -> None:
+    def __init__(self, model: Type[_M], fields: Set[str]) -> None:
         self.name = model.__tablename__
         self.model = model
         self.fields = fields
@@ -28,14 +31,14 @@ class MarkdownModel:
             self.config_fields.setdefault(config, set()).add(field)
 
     @classmethod
-    def register(cls, model, fields: Set[str]):
+    def register(cls, model: Type[_M], fields: Set[str]) -> None:
         """Create an instance and add it to the registry."""
         obj = cls(model, fields)
         for config in obj.config_fields:
             cls.config_registry.setdefault(config, set()).add(obj)
         cls.registry[obj.name] = obj
 
-    def reparse(self, config: Optional[str] = None, obj=None):
+    def reparse(self, config: Optional[str] = None, obj: Optional[_M] = None) -> None:
         """Reparse Markdown fields, optionally for a single config profile."""
         if config and config not in self.config_fields:
             return
@@ -43,6 +46,8 @@ class MarkdownModel:
             fields = self.config_fields[config]
         else:
             fields = self.fields
+
+        iter_list: Iterable[_M]
 
         if obj is not None:
             iter_list = [obj]

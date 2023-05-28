@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Set, Union, overload
+from typing import Any, Optional, Set, Type, Union, overload
 import hashlib
 
 from sqlalchemy import event, inspect
@@ -22,10 +22,12 @@ from ..signals import phonenumber_refcount_dropping
 from . import (
     BaseMixin,
     Mapped,
+    Model,
     db,
     declarative_mixin,
     declared_attr,
     hybrid_property,
+    relationship,
     sa,
 )
 
@@ -149,6 +151,8 @@ def parse_phone_number(
     :param sms: Validate that the number is from a range that supports SMS delivery,
         returning `False` if it isn't
 
+    :param parsed: Return :class:`phonenumbers.PhoneNumber` object instead of a string
+
     :returns: E164-formatted phone number if found and valid, `None` if not found, or
         `False` if the number is valid but does not support SMS delivery
     """
@@ -230,7 +234,7 @@ def phone_blake2b160_hash(
 # --- Models ---------------------------------------------------------------------------
 
 
-class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
+class PhoneNumber(BaseMixin, Model):
     """
     Represents a phone number as a standalone entity, with associated metadata.
 
@@ -259,13 +263,13 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     #: The phone number, centrepiece of this model. Stored normalized in E164 format.
     #: Validated by the :func:`_validate_phone` event handler
-    number = sa.Column(sa.Unicode, nullable=True, unique=True)
+    number = sa.orm.mapped_column(sa.Unicode, nullable=True, unique=True)
 
     #: BLAKE2b 160-bit hash of :attr:`phone`. Kept permanently even if phone is
     #: removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the name,
     #: we're only storing 20 bytes
     blake2b160 = immutable(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.LargeBinary,
             sa.CheckConstraint(
                 'LENGTH(blake2b160) = 20',
@@ -281,41 +285,45 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     # device, we record distinct timestamps for last sent, delivery and failure.
 
     #: Cached state for whether this phone number is known to have SMS support
-    has_sms = sa.Column(sa.Boolean, nullable=True)
+    has_sms = sa.orm.mapped_column(sa.Boolean, nullable=True)
     #: Timestamp at which this number was determined to be valid/invalid for SMS
-    has_sms_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    has_sms_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: Cached state for whether this phone number is known to be on WhatsApp or not
-    has_wa = sa.Column(sa.Boolean, nullable=True)
+    has_wa = sa.orm.mapped_column(sa.Boolean, nullable=True)
     #: Timestamp at which this number was tested for availability on WhatsApp
-    has_wa_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    has_wa_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Timestamp of last SMS sent
-    msg_sms_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_sms_sent_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: Timestamp of last SMS delivered
-    msg_sms_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_sms_delivered_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
     #: Timestamp of last SMS delivery failure
-    msg_sms_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_sms_failed_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Timestamp of last WA message sent
-    msg_wa_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_wa_sent_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: Timestamp of last WA message delivered
-    msg_wa_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_wa_delivered_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
     #: Timestamp of last WA message delivery failure
-    msg_wa_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_wa_failed_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Timestamp of last known recipient activity resulting from sent messages
-    active_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    active_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Is this phone number blocked from being used? :attr:`phone` should be null if so.
-    blocked_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    blocked_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     __table_args__ = (
         # If `blocked_at` is not None, `number` and `has_*` must be None
         sa.CheckConstraint(
-            sa.or_(  # type: ignore[arg-type]
+            sa.or_(
                 blocked_at.is_(None),  # or...
                 sa.and_(
-                    blocked_at.isnot(None),
+                    blocked_at.is_not(None),
                     number.is_(None),
                     has_sms.is_(None),
                     has_sms_at.is_(None),
@@ -328,20 +336,21 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         sa.CheckConstraint(
             sa.or_(
                 sa.and_(has_sms.is_(None), has_sms_at.is_(None)),
-                sa.and_(has_sms.isnot(None), has_sms_at.isnot(None)),
+                sa.and_(has_sms.is_not(None), has_sms_at.is_not(None)),
             ),
             'phone_number_has_sms_check',
         ),
         sa.CheckConstraint(
             sa.or_(
                 sa.and_(has_wa.is_(None), has_wa_at.is_(None)),
-                sa.and_(has_wa.isnot(None), has_wa_at.isnot(None)),
+                sa.and_(has_wa.is_not(None), has_wa_at.is_not(None)),
             ),
             'phone_number_has_wa_check',
         ),
     )
 
     def __init__(self, phone: str, *, _pre_validated_formatted: bool = False) -> None:
+        super().__init__()
         if not isinstance(phone, str):
             raise ValueError("A string phone number is required")
         if not _pre_validated_formatted:
@@ -374,9 +383,9 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     @is_blocked.inplace.expression
     @classmethod
-    def _is_blocked_expression(cls):
+    def _is_blocked_expression(cls) -> sa.ColumnElement[bool]:
         """Expression form of is_blocked check."""
-        return cls.blocked_at.isnot(None)
+        return cls.blocked_at.is_not(None)
 
     @with_roles(read={'all'})
     @cached_property
@@ -426,7 +435,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: object) -> bool:
+    def is_available_for(self, owner: PhoneNumberMixin) -> bool:
         """Return True if this PhoneNumber is available for the given owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -494,17 +503,17 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def get_filter(
         cls, *, phone: Union[str, phonenumbers.PhoneNumber]
-    ) -> Optional[ColumnElement]:
+    ) -> ColumnElement[bool]:
         ...
 
     @overload
     @classmethod
-    def get_filter(cls, *, blake2b160: bytes) -> ColumnElement:
+    def get_filter(cls, *, blake2b160: bytes) -> ColumnElement[bool]:
         ...
 
     @overload
     @classmethod
-    def get_filter(cls, *, phone_hash: str) -> ColumnElement:
+    def get_filter(cls, *, phone_hash: str) -> ColumnElement[bool]:
         ...
 
     @overload
@@ -515,7 +524,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         phone: Optional[Union[str, phonenumbers.PhoneNumber]],
         blake2b160: Optional[bytes],
         phone_hash: Optional[str],
-    ) -> Optional[ColumnElement]:
+    ) -> ColumnElement[bool]:
         ...
 
     @classmethod
@@ -525,7 +534,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         phone: Optional[Union[str, phonenumbers.PhoneNumber]] = None,
         blake2b160: Optional[bytes] = None,
         phone_hash: Optional[str] = None,
-    ) -> Optional[ColumnElement]:
+    ) -> ColumnElement[bool]:
         """
         Get an filter condition for retriving a :class:`PhoneNumber`.
 
@@ -595,7 +604,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             return None  # phone number was not valid
         if is_blocked is not None:
             if is_blocked:
-                query = query.filter(cls.blocked_at.isnot(None))
+                query = query.filter(cls.blocked_at.is_not(None))
             else:
                 query = query.filter(cls.blocked_at.is_(None))
         return query.one_or_none()
@@ -627,7 +636,9 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     @classmethod
     def add_for(
-        cls, owner: Optional[object], phone: Union[str, phonenumbers.PhoneNumber]
+        cls,
+        owner: Optional[PhoneNumberMixin],
+        phone: Union[str, phonenumbers.PhoneNumber],
     ) -> PhoneNumber:
         """
         Create a new :class:`PhoneNumber` after validation.
@@ -654,7 +665,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[object],
+        owner: Optional[PhoneNumberMixin],
         phone: Union[str, phonenumbers.PhoneNumber],
         new: bool = False,
     ) -> Union[bool, Literal['invalid', 'not_new', 'blocked']]:
@@ -721,7 +732,7 @@ class PhoneNumberMixin:
     @classmethod
     def phone_number_id(cls) -> Mapped[int]:
         """Foreign key to phone_number table."""
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('phone_number.id', ondelete='SET NULL'),
             nullable=cls.__phone_optional__,
@@ -737,7 +748,7 @@ class PhoneNumberMixin:
         PhoneNumber.__backrefs__.add(backref_name)
         if cls.__phone_for__ and cls.__phone_is_exclusive__:
             PhoneNumber.__exclusive_backrefs__.add(backref_name)
-        return sa.orm.relationship(PhoneNumber, backref=backref_name)
+        return relationship(PhoneNumber, backref=backref_name)
 
     @property
     def phone(self) -> Optional[str]:
@@ -802,7 +813,9 @@ def _clear_cached_properties(target: PhoneNumber) -> None:
 
 
 @event.listens_for(PhoneNumber.number, 'set', retval=True)
-def _validate_number(target: PhoneNumber, value: Any, old_value: Any, initiator) -> Any:
+def _validate_number(
+    target: PhoneNumber, value: Any, old_value: Any, _initiator: Any
+) -> Any:
     # First: check if value is acceptable and phone attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
@@ -838,11 +851,15 @@ def _validate_number(target: PhoneNumber, value: Any, old_value: Any, initiator)
     raise ValueError(f"Invalid value for phone number: {value}")
 
 
-def _send_refcount_event_remove(target, value, initiator):
+def _send_refcount_event_remove(
+    target: PhoneNumber, _value: Any, _initiator: Any
+) -> None:
     phonenumber_refcount_dropping.send(target)
 
 
-def _send_refcount_event_before_delete(mapper_, connection, target):
+def _send_refcount_event_before_delete(
+    _mapper: Any, _connection: Any, target: PhoneNumberMixin
+) -> None:
     if target.phone_number:
         phonenumber_refcount_dropping.send(target.phone_number)
 
@@ -855,7 +872,10 @@ def _setup_refcount_events() -> None:
 
 
 def _phone_number_mixin_set_validator(
-    target, value: Optional[PhoneNumber], old_value, initiator
+    target: PhoneNumberMixin,
+    value: Optional[PhoneNumber],
+    old_value: Optional[PhoneNumber],
+    _initiator: Any,
 ) -> None:
     if value is not None and value != old_value and target.__phone_for__:
         if value.is_blocked:
@@ -865,6 +885,8 @@ def _phone_number_mixin_set_validator(
 
 
 @event.listens_for(PhoneNumberMixin, 'mapper_configured', propagate=True)
-def _phone_number_mixin_configure_events(mapper_, cls: PhoneNumberMixin):
+def _phone_number_mixin_configure_events(
+    _mapper: Any, cls: Type[PhoneNumberMixin]
+) -> None:
     event.listen(cls.phone_number, 'set', _phone_number_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)

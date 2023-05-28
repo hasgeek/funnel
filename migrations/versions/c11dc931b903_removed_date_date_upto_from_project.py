@@ -47,7 +47,7 @@ def downgrade() -> None:
         first_session = conn.execute(
             sa.select(session.c.start)
             .where(session.c.project_id == project_id[0])
-            .where(session.c.start.isnot(None))
+            .where(session.c.start.is_not(None))
             .order_by(session.c.start.asc())
         ).fetchone()
         if first_session is not None:
@@ -59,7 +59,7 @@ def downgrade() -> None:
         last_session = conn.execute(
             sa.select(session.c.end)
             .where(session.c.project_id == project_id[0])
-            .where(session.c.end.isnot(None))
+            .where(session.c.end.is_not(None))
             .order_by(session.c.end.desc())
         ).fetchone()
         if last_session is not None:

@@ -12,7 +12,7 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import Mapped, NoIdMixin, UuidMixin, db, sa
+from . import Mapped, Model, NoIdMixin, UuidMixin, db, relationship, sa
 from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
 from .helpers import reopen
 from .project import Project
@@ -28,35 +28,33 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
     NO = ('N', 'no', __("Not going"))
     MAYBE = ('M', 'maybe', __("Maybe"))
     AWAITING = ('A', 'awaiting', __("Awaiting"))
-    __order__ = (YES, NO, MAYBE, AWAITING)
-    # USER_CHOICES = {YES, NO, MAYBE}
 
 
-class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
+class Rsvp(UuidMixin, NoIdMixin, Model):
     __tablename__ = 'rsvp'
     __allow_unmapped__ = True
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project = with_roles(
-        sa.orm.relationship(
+        relationship(
             Project, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
     )
-    user_id: Mapped[int] = sa.Column(
-        sa.Integer, sa.ForeignKey('account.id'), nullable=False, primary_key=True
+    user_id: Mapped[int] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
     user = with_roles(
-        sa.orm.relationship(
+        relationship(
             Account, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         read={'owner', 'project_promoter'},
         grants={'owner'},
     )
 
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.CHAR(1),
         StateManager.check_constraint('state', RSVP_STATUS),

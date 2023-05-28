@@ -505,7 +505,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
         extid.oauth_expires_at = (
             (utcnow() + timedelta(seconds=userdata.oauth_expires_in))
             if userdata.oauth_expires_in
-            else None,
+            else None
         )
         extid.last_used_at = sa.func.utcnow()
     else:
