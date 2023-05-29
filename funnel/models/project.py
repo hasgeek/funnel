@@ -758,7 +758,7 @@ add_search_trigger(Project, 'search_vector')
 class __Profile:
     id: Mapped[int]  # noqa: A003
 
-    listed_projects: DynamicMapped[List[Project]] = relationship(
+    listed_projects: DynamicMapped[Project] = relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -767,7 +767,7 @@ class __Profile:
         ),
         viewonly=True,
     )
-    draft_projects: DynamicMapped[List[Project]] = relationship(
+    draft_projects: DynamicMapped[Project] = relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(

@@ -129,7 +129,7 @@ class TicketEvent(GetTitleMixin, Model):
         ),
         rw={'project_promoter'},
     )
-    ticket_participants: DynamicMapped[List[TicketParticipant]] = with_roles(
+    ticket_participants: DynamicMapped[TicketParticipant] = with_roles(
         relationship(
             'TicketParticipant',
             secondary='ticket_event_participant',
@@ -587,7 +587,7 @@ class __Project:
     # to look for the first matching record (.first() instead of .one()). This may
     # expose a new edge case in future in case the TicketParticipant model adds an
     # `offered_roles` method, as only the first matching record's method will be called
-    ticket_participants: DynamicMapped[List[TicketParticipant]] = with_roles(
+    ticket_participants: DynamicMapped[TicketParticipant] = with_roles(
         relationship(
             TicketParticipant, lazy='dynamic', cascade='all', back_populates='project'
         ),
