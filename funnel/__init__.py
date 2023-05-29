@@ -86,8 +86,13 @@ from .models import db, sa  # isort:skip  # pylint: disable=wrong-import-positio
 
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
 app.config['SESSION_REFRESH_EACH_REQUEST'] = False
-coaster.app.init_app(app, ['py', 'toml'])
-coaster.app.init_app(shortlinkapp, ['py', 'toml'], init_logging=False)
+coaster.app.init_app(app, ['env', 'py'], env_prefix=['FLASK', 'APP_FUNNEL'])
+coaster.app.init_app(
+    shortlinkapp,
+    ['env', 'py'],
+    env_prefix=['FLASK', 'APP_SHORTLINK'],
+    init_logging=False,
+)
 proxies.init_app(app)
 proxies.init_app(shortlinkapp)
 
