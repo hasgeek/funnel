@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Set
+from typing import Set
 
 from werkzeug.utils import cached_property
 
@@ -185,7 +185,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
 # Project relationships: all crew, vs specific roles
 @reopen(Project)
 class __Project:
-    active_crew_memberships: DynamicMapped[List[ProjectCrewMembership]] = with_roles(
+    active_crew_memberships: DynamicMapped[ProjectCrewMembership] = with_roles(
         relationship(
             ProjectCrewMembership,
             lazy='dynamic',
@@ -206,9 +206,7 @@ class __Project:
         },
     )
 
-    active_editor_memberships: DynamicMapped[
-        List[ProjectCrewMembership]
-    ] = relationship(
+    active_editor_memberships: DynamicMapped[ProjectCrewMembership] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -219,9 +217,7 @@ class __Project:
         viewonly=True,
     )
 
-    active_promoter_memberships: DynamicMapped[
-        List[ProjectCrewMembership]
-    ] = relationship(
+    active_promoter_memberships: DynamicMapped[ProjectCrewMembership] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -232,7 +228,7 @@ class __Project:
         viewonly=True,
     )
 
-    active_usher_memberships: DynamicMapped[List[ProjectCrewMembership]] = relationship(
+    active_usher_memberships: DynamicMapped[ProjectCrewMembership] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(

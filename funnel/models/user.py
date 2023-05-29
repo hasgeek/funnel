@@ -1335,7 +1335,7 @@ class Team(UuidMixin, BaseMixin, Model):
         ),
         grants_via={None: {'owner': 'owner', 'admin': 'admin'}},
     )
-    users: DynamicMapped[List[User]] = with_roles(
+    users: DynamicMapped[User] = with_roles(
         relationship(User, secondary=team_membership, lazy='dynamic', backref='teams'),
         grants={'subject'},
     )
