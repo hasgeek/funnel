@@ -1,34 +1,67 @@
 """Sample configuration."""
 
+# ==== BASIC SETUP ====
+
+DEBUG = False
+#: Site id (for statsd)
+SITE_ID = 'hasgeek'
 #: The title of this site
 SITE_TITLE = 'Hasgeek Funnel'
 #: Support contact email
 SITE_SUPPORT_EMAIL = 'test@example.com'
 #: Support contact phone
 SITE_SUPPORT_PHONE = '+1 234 567 8901'
-#: Google Analytics code UA-XXXXXX-X
-GA_CODE = ''
+#: Timezone
+TIMEZONE = 'Asia/Kolkata'
+#: Used for attribution when sharing a proposal on twitter
+TWITTER_ID = "hasgeek"
+#: Log file
+LOGFILE = 'error.log'
+DASHBOARD_USERS = ['']
+ENABLE_COMMENT_SIDEBAR = True
+
+# ==== DB & CACHES ====
+
+#: Database backend
+SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg://user:pass@host/database'
+SQLALCHEMY_BINDS = {
+    'geoname': 'postgresql+psycopg://user:pass@host/geoname',
+}
+CACHE_TYPE = 'redis'
+REDIS_URL = RQ_REDIS_URL = RQ_DASHBOARD_REDIS_URL = 'redis://localhost:6379/0'
+RQ_SCHEDULER_INTERVAL = 1
+
+
+# ==== SECURITY ====
+
+# Session config
+SESSION_COOKIE_NAME = 'root_session'
+SESSION_COOKIE_DOMAIN = False
+SESSION_COOKIE_SECURE = True
+PREFERRED_URL_SCHEME = 'https'
+
+#: Secret keys
+SECRET_KEYS = ['make this something random']
+#: Lastuser secret keys (for the auth cookie)
+LASTUSER_SECRET_KEYS = ['make this something random']
+
+
+# ==== DOMAINS ====
+
 #: Server name (required to generate URLs)
 SERVER_NAME = 'funnel.test:3000'
 #: Default domain (server name without port number)
 DEFAULT_DOMAIN = 'funnel.test'
-#: Database backend
-SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg://host/database'
-SQLALCHEMY_BINDS = {
-    'geoname': 'postgresql+psycopg://host/geoname',
-}
 #: Shortlink domain for SMS links (must be served via wsgi:shortlinkapp)
-SHORTLINK_DOMAIN = 'domain.tld'
-#: Secret keys
-SECRET_KEYS = ['make this something random']
-#: Timezone
-TIMEZONE = 'Asia/Kolkata'
-#: Lastuser secret keys (for the auth cookie)
-LASTUSER_SECRET_KEYS = ['make this something random']
+SHORTLINK_DOMAIN = 'f.test'
 #: Lastuser cookie domain
-LASTUSER_COOKIE_DOMAIN = '.mydomain.tld'
-#: Used for attribution when shared a proposal on twitter
-TWITTER_ID = "hasgeek"
+LASTUSER_COOKIE_DOMAIN = '.' + DEFAULT_DOMAIN
+#: Unsubscribe token domain
+UNSUBSCRIBE_DOMAIN = 'bye.li'
+
+
+# ==== MAIL SETUP ====
+
 #: Mail settings
 #: MAIL_FAIL_SILENTLY : default True
 #: MAIL_SERVER : default 'localhost'
@@ -38,22 +71,31 @@ TWITTER_ID = "hasgeek"
 #: MAIL_USERNAME : default None
 #: MAIL_PASSWORD : default None
 #: DEFAULT_MAIL_SENDER : default None
-MAIL_FAIL_SILENTLY = False
+MAIL_FAIL_SILENTLY = True
 MAIL_SERVER = 'localhost'
 MAIL_DEFAULT_SENDER = 'Sender <sender@domain.tld>'
 #: Logging: recipients of error emails
 ADMINS = []  # type: ignore[var-annotated]  # Remove this comment when editing
-#: Log file
-LOGFILE = 'error.log'
 
-CACHE_TYPE = 'redis'
-RQ_REDIS_URL = 'redis://localhost:6379/0'
-RQ_SCHEDULER_INTERVAL = 1
-DEBUG = True
+
+# ==== INTEGRATIONS ====
+
+#: Internal
+HASCORE_SERVER = ''
+BOXOFFICE_SERVER = ''
+HASJOB_SERVER = ''
+IMGEE_HOST = ''
+# IMAGE_URL_SCHEMES = {'https'}
+# IMAGE_URL_DOMAINS = {'hasgeek.com', 'images.hasgeek.com', 'imgee.s3.amazonaws.com'}
+
+#: TypeKit code for fonts
+TYPEKIT_CODE = ''
 
 #: Twitter integration
 OAUTH_TWITTER_KEY = ''  # nosec
 OAUTH_TWITTER_SECRET = ''  # nosec
+OAUTH_TWITTER_ACCESS_KEY = ''  # nosec
+OAUTH_TWITTER_ACCESS_SECRET = ''  # nosec
 
 #: GitHub integration
 OAUTH_GITHUB_KEY = ''  # nosec
@@ -69,17 +111,27 @@ OAUTH_GOOGLE_SCOPE = ['email', 'profile']  # nosec
 OAUTH_LINKEDIN_KEY = ''  # nosec
 OAUTH_LINKEDIN_SECRET = ''  # nosec
 
+#: Youtube integration
+YOUTUBE_API_KEY = ''
+
+#: Vimeo integration
+VIMEO_CLIENT_ID = ''  # nosec
+VIMEO_CLIENT_SECRET = ''  # nosec
+VIMEO_ACCESS_TOKEN = ''  # nosec
+
+#: Google Maps integration
+GOOGLE_MAPS_API_KEY = ''
+
 #: Recaptcha for the registration form
 RECAPTCHA_USE_SSL = True  # nosec
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
 RECAPTCHA_OPTIONS = ''
 
+
+# ==== INTEGRATIONS ====
+
 #: SMS gateways
-#: SMSGupShup support is deprecated
-SMS_SMSGUPSHUP_MASK = ''
-SMS_SMSGUPSHUP_USER = ''  # nosec
-SMS_SMSGUPSHUP_PASS = ''  # nosec
 #: Exotel support is active
 SMS_EXOTEL_SID = ''  # nosec
 SMS_EXOTEL_TOKEN = ''  # nosec
@@ -98,7 +150,7 @@ SMS_TWILIO_SID = ''  # nosec
 SMS_TWILIO_TOKEN = ''  # nosec
 SMS_TWILIO_FROM = ''  # nosec
 
-#: Unsubscribe token domain
-UNSUBSCRIBE_DOMAIN = 'bye.li'
-
-IMGEE_HOST = ''
+# SES Notification Topic
+SES_NOTIFICATION_TOPICS = [
+    # nosec
+]
