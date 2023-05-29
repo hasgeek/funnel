@@ -180,7 +180,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         sa.orm.mapped_column(sa.Boolean, nullable=False, default=False), read={'all'}
     )
 
-    user_sessions: DynamicMapped[List[UserSession]] = relationship(
+    user_sessions: DynamicMapped[UserSession] = relationship(
         UserSession,
         lazy='dynamic',
         secondary=auth_client_user_session,

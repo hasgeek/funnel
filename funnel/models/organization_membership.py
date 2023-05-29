@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Set
+from typing import Set
 
 from werkzeug.utils import cached_property
 
@@ -115,7 +115,7 @@ class OrganizationMembership(ImmutableUserMembershipMixin, Model):
 # Organization.active_memberships is a future possibility. For now just admin and owner
 @reopen(Organization)
 class __Organization:
-    active_admin_memberships: DynamicMapped[List[OrganizationMembership]] = with_roles(
+    active_admin_memberships: DynamicMapped[OrganizationMembership] = with_roles(
         relationship(
             OrganizationMembership,
             lazy='dynamic',
@@ -130,9 +130,7 @@ class __Organization:
         grants_via={'user': {'admin', 'owner'}},
     )
 
-    active_owner_memberships: DynamicMapped[
-        List[OrganizationMembership]
-    ] = relationship(
+    active_owner_memberships: DynamicMapped[OrganizationMembership] = relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -143,7 +141,7 @@ class __Organization:
         viewonly=True,
     )
 
-    active_invitations: DynamicMapped[List[OrganizationMembership]] = relationship(
+    active_invitations: DynamicMapped[OrganizationMembership] = relationship(
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -168,7 +166,7 @@ class __Organization:
 class __User:
     # pylint: disable=invalid-unary-operand-type
     organization_admin_memberships: DynamicMapped[
-        List[OrganizationMembership]
+        OrganizationMembership
     ] = relationship(
         OrganizationMembership,
         lazy='dynamic',
@@ -177,7 +175,7 @@ class __User:
     )
 
     noninvite_organization_admin_memberships: DynamicMapped[
-        List[OrganizationMembership]
+        OrganizationMembership
     ] = relationship(
         OrganizationMembership,
         lazy='dynamic',
@@ -190,7 +188,7 @@ class __User:
     )
 
     active_organization_admin_memberships: DynamicMapped[
-        List[OrganizationMembership]
+        OrganizationMembership
     ] = relationship(
         OrganizationMembership,
         lazy='dynamic',
@@ -203,7 +201,7 @@ class __User:
     )
 
     active_organization_owner_memberships: DynamicMapped[
-        List[OrganizationMembership]
+        OrganizationMembership
     ] = relationship(
         OrganizationMembership,
         lazy='dynamic',
@@ -217,7 +215,7 @@ class __User:
     )
 
     active_organization_invitations: DynamicMapped[
-        List[OrganizationMembership]
+        OrganizationMembership
     ] = relationship(
         OrganizationMembership,
         lazy='dynamic',

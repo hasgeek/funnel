@@ -421,7 +421,7 @@ add_search_trigger(Comment, 'search_vector')
 
 @reopen(Commentset)
 class __Commentset:
-    toplevel_comments: DynamicMapped[List[Comment]] = relationship(
+    toplevel_comments: DynamicMapped[Comment] = relationship(
         Comment,
         lazy='dynamic',
         primaryjoin=sa.and_(
