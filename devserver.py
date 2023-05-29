@@ -4,9 +4,11 @@
 import os
 import sys
 
+from flask.cli import load_dotenv
 from werkzeug import run_simple
 
 if __name__ == '__main__':
+    load_dotenv()
     sys.path.insert(0, os.path.dirname(__file__))
     os.environ['FLASK_ENV'] = 'development'  # Needed for coaster.app.init_app
     os.environ.setdefault('FLASK_DEBUG', '1')
