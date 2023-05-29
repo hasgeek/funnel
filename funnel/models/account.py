@@ -37,15 +37,16 @@ from coaster.utils import LabeledEnum, newsecret, require_one_of, utcnow
 from ..typing import OptionalMigratedTables
 from . import (
     BaseMixin,
+    DynamicMapped,
     LocaleType,
     Mapped,
-    MarkdownCompositeDocument,
     Model,
     Query,
     TimezoneType,
     TSVectorType,
     UrlType,
     UuidMixin,
+    backref,
     db,
     hybrid_property,
     relationship,
@@ -55,6 +56,7 @@ from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
+    MarkdownCompositeDocument,
     add_search_trigger,
     quote_autocomplete_like,
     quote_autocomplete_tsquery,
@@ -1208,7 +1210,7 @@ class AccountOldId(UuidMixin, BaseMixin, Model):
     old_account: Mapped[Account] = relationship(
         Account,
         primaryjoin='foreign(AccountOldId.id) == remote(Account.uuid)',
-        backref=sa.orm.backref('oldid', uselist=False),
+        backref=backref('oldid', uselist=False),
     )
     #: User id of new user
     account_id: Mapped[int] = sa.orm.mapped_column(
@@ -1218,7 +1220,7 @@ class AccountOldId(UuidMixin, BaseMixin, Model):
     account: Mapped[Account] = relationship(
         Account,
         foreign_keys=[account_id],
-        backref=sa.orm.backref('oldids', cascade='all'),
+        backref=backref('oldids', cascade='all'),
     )
 
     def __repr__(self) -> str:
@@ -1397,13 +1399,11 @@ class Team(UuidMixin, BaseMixin, Model):
         relationship(
             Account,
             foreign_keys=[account_id],
-            backref=sa.orm.backref(
-                'teams', order_by=sa.func.lower(title), cascade='all'
-            ),
+            backref=backref('teams', order_by=sa.func.lower(title), cascade='all'),
         ),
         grants_via={None: {'owner': 'owner', 'admin': 'admin'}},
     )
-    users = with_roles(
+    users: DynamicMapped[Account] = with_roles(
         relationship(
             Account, secondary=team_membership, lazy='dynamic', backref='member_teams'
         ),
@@ -1473,7 +1473,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         sa.ForeignKey('account.id'), nullable=False
     )
     account: Mapped[Account] = relationship(
-        Account, backref=sa.orm.backref('emails', cascade='all')
+        Account, backref=backref('emails', cascade='all')
     )
     user: Mapped[Account] = sa.orm.synonym('account')
 
@@ -1655,7 +1655,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         sa.ForeignKey('account.id'), nullable=False
     )
     account: Mapped[Account] = relationship(
-        Account, backref=sa.orm.backref('emailclaims', cascade='all')
+        Account, backref=backref('emailclaims', cascade='all')
     )
     user: Mapped[Account] = sa.orm.synonym('account')
     verification_code: Mapped[str] = sa.orm.mapped_column(
@@ -1841,7 +1841,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         sa.ForeignKey('account.id'), nullable=False
     )
     account: Mapped[Account] = relationship(
-        Account, backref=sa.orm.backref('phones', cascade='all')
+        Account, backref=backref('phones', cascade='all')
     )
     user: Mapped[Account] = sa.orm.synonym('account')
 
@@ -2031,7 +2031,7 @@ class AccountExternalId(BaseMixin, Model):
     )
     #: User that this connected account belongs to
     account: Mapped[Account] = relationship(
-        Account, backref=sa.orm.backref('externalids', cascade='all')
+        Account, backref=backref('externalids', cascade='all')
     )
     user: Mapped[Account] = sa.orm.synonym('account')
     #: Identity of the external service (in app's login provider registry)

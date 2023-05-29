@@ -27,15 +27,16 @@ from coaster.sqlalchemy import (
     ModelBase,
     NoIdMixin,
     Query,
+    QueryProperty,
     RegistryMixin,
     RoleMixin,
     TimestampMixin,
     UrlType,
     UuidMixin,
+    backref,
     relationship,
     with_roles,
 )
-from coaster.sqlalchemy.model import QueryProperty
 
 
 class Model(ModelBase, DeclarativeBase):

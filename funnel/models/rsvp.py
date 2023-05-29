@@ -12,7 +12,7 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import Mapped, Model, NoIdMixin, UuidMixin, db, relationship, sa
+from . import Mapped, Model, NoIdMixin, UuidMixin, backref, db, relationship, sa
 from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
 from .helpers import reopen
 from .project import Project
@@ -37,9 +37,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project = with_roles(
-        relationship(
-            Project, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
-        ),
+        relationship(Project, backref=backref('rsvps', cascade='all', lazy='dynamic')),
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
     )
@@ -47,9 +45,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
     user = with_roles(
-        relationship(
-            Account, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
-        ),
+        relationship(Account, backref=backref('rsvps', cascade='all', lazy='dynamic')),
         read={'owner', 'project_promoter'},
         grants={'owner'},
     )

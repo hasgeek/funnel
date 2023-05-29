@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import List, Set
+from typing import Set
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, relationship, sa
+from . import DynamicMapped, Mapped, Model, backref, relationship, sa
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
@@ -89,7 +89,7 @@ class ProposalMembership(  # type: ignore[misc]
     proposal: Mapped[Proposal] = with_roles(
         relationship(
             Proposal,
-            backref=sa.orm.backref(
+            backref=backref(
                 'all_memberships',
                 lazy='dynamic',
                 cascade='all',
@@ -159,16 +159,14 @@ class __Proposal:
 class __Account:
     # pylint: disable=invalid-unary-operand-type
 
-    all_proposal_memberships: DynamicMapped[List[ProposalMembership]] = relationship(
+    all_proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
         ProposalMembership,
         lazy='dynamic',
         foreign_keys=[ProposalMembership.member_id],
         viewonly=True,
     )
 
-    noninvite_proposal_memberships: DynamicMapped[
-        List[ProposalMembership]
-    ] = relationship(
+    noninvite_proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -178,7 +176,7 @@ class __Account:
         viewonly=True,
     )
 
-    proposal_memberships: DynamicMapped[List[ProposalMembership]] = relationship(
+    proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(

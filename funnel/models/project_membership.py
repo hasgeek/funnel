@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from typing import Dict, List, Set, Union
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, declared_attr, relationship, sa
+from . import DynamicMapped, Mapped, Model, backref, declared_attr, relationship, sa
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -110,7 +109,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
     project: Mapped[Project] = with_roles(
         relationship(
             Project,
-            backref=sa.orm.backref(
+            backref=backref(
                 'crew_memberships',
                 lazy='dynamic',
                 cascade='all',
@@ -188,7 +187,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
 # Project relationships: all crew, vs specific roles
 @reopen(Project)
 class __Project:
-    active_crew_memberships: DynamicMapped[List[ProjectCrewMembership]] = with_roles(
+    active_crew_memberships: DynamicMapped[ProjectCrewMembership] = with_roles(
         relationship(
             ProjectCrewMembership,
             lazy='dynamic',
@@ -201,9 +200,7 @@ class __Project:
         grants_via={'member': {'editor', 'promoter', 'usher', 'participant', 'crew'}},
     )
 
-    active_editor_memberships: DynamicMapped[
-        List[ProjectCrewMembership]
-    ] = relationship(
+    active_editor_memberships: DynamicMapped[ProjectCrewMembership] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -214,9 +211,7 @@ class __Project:
         viewonly=True,
     )
 
-    active_promoter_memberships: DynamicMapped[
-        List[ProjectCrewMembership]
-    ] = relationship(
+    active_promoter_memberships: DynamicMapped[ProjectCrewMembership] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -227,7 +222,7 @@ class __Project:
         viewonly=True,
     )
 
-    active_usher_memberships: DynamicMapped[List[ProjectCrewMembership]] = relationship(
+    active_usher_memberships: DynamicMapped[ProjectCrewMembership] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(

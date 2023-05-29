@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import List, Set
+from typing import Set
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, relationship, sa
+from . import DynamicMapped, Mapped, Model, backref, relationship, sa
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -88,7 +88,7 @@ class AccountAdminMembership(ImmutableUserMembershipMixin, Model):
         relationship(
             Account,
             foreign_keys=[account_id],
-            backref=sa.orm.backref(
+            backref=backref(
                 'memberships', lazy='dynamic', cascade='all', passive_deletes=True
             ),
         ),
@@ -115,7 +115,7 @@ class AccountAdminMembership(ImmutableUserMembershipMixin, Model):
 # Add active membership relationships to Account
 @reopen(Account)
 class __Account:
-    active_admin_memberships: DynamicMapped[List[AccountAdminMembership]] = with_roles(
+    active_admin_memberships: DynamicMapped[AccountAdminMembership] = with_roles(
         relationship(
             AccountAdminMembership,
             lazy='dynamic',
@@ -129,9 +129,7 @@ class __Account:
         grants_via={'member': {'admin', 'owner'}},
     )
 
-    active_owner_memberships: DynamicMapped[
-        List[AccountAdminMembership]
-    ] = relationship(
+    active_owner_memberships: DynamicMapped[AccountAdminMembership] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -142,7 +140,7 @@ class __Account:
         viewonly=True,
     )
 
-    active_invitations: DynamicMapped[List[AccountAdminMembership]] = relationship(
+    active_invitations: DynamicMapped[AccountAdminMembership] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -162,7 +160,7 @@ class __Account:
 
     # pylint: disable=invalid-unary-operand-type
     organization_admin_memberships: DynamicMapped[
-        List[AccountAdminMembership]
+        AccountAdminMembership
     ] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
@@ -171,7 +169,7 @@ class __Account:
     )
 
     noninvite_organization_admin_memberships: DynamicMapped[
-        List[AccountAdminMembership]
+        AccountAdminMembership
     ] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
@@ -185,7 +183,7 @@ class __Account:
     )
 
     active_organization_admin_memberships: DynamicMapped[
-        List[AccountAdminMembership]
+        AccountAdminMembership
     ] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
@@ -199,7 +197,7 @@ class __Account:
     )
 
     active_organization_owner_memberships: DynamicMapped[
-        List[AccountAdminMembership]
+        AccountAdminMembership
     ] = relationship(
         AccountAdminMembership,
         lazy='dynamic',
@@ -214,7 +212,7 @@ class __Account:
     )
 
     active_organization_invitations: DynamicMapped[
-        List[AccountAdminMembership]
+        AccountAdminMembership
     ] = relationship(
         AccountAdminMembership,
         lazy='dynamic',

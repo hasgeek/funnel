@@ -14,18 +14,23 @@ from . import (
     BaseMixin,
     BaseScopedIdNameMixin,
     Mapped,
-    MarkdownCompositeDocument,
     Model,
     Query,
     TSVectorType,
     UuidMixin,
+    backref,
     db,
     relationship,
     sa,
 )
 from .account import Account
 from .comment import SET_TYPE, Commentset
-from .helpers import add_search_trigger, reopen, visual_field_delimiter
+from .helpers import (
+    MarkdownCompositeDocument,
+    add_search_trigger,
+    reopen,
+    visual_field_delimiter,
+)
 from .project import Project
 from .project_membership import project_child_role_map
 from .reorder_mixin import ReorderMixin
@@ -124,7 +129,7 @@ class Proposal(  # type: ignore[misc]
         relationship(
             Account,
             foreign_keys=[created_by_id],
-            backref=sa.orm.backref('created_proposals', cascade='all', lazy='dynamic'),
+            backref=backref('created_proposals', cascade='all', lazy='dynamic'),
         ),
         grants={'creator', 'participant'},
     )
@@ -135,7 +140,7 @@ class Proposal(  # type: ignore[misc]
         relationship(
             Project,
             foreign_keys=[project_id],
-            backref=sa.orm.backref(
+            backref=backref(
                 'proposals', cascade='all', lazy='dynamic', order_by='Proposal.url_id'
             ),
         ),

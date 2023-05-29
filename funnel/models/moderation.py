@@ -6,7 +6,7 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, Mapped, Model, UuidMixin, db, relationship, sa
+from . import BaseMixin, Mapped, Model, UuidMixin, backref, db, relationship, sa
 from .account import Account
 from .comment import Comment
 from .helpers import reopen
@@ -31,7 +31,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, Model):
     comment: Mapped[Comment] = relationship(
         Comment,
         foreign_keys=[comment_id],
-        backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
+        backref=backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
     user_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, index=True
@@ -39,7 +39,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, Model):
     user: Mapped[Account] = relationship(
         Account,
         foreign_keys=[user_id],
-        backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
+        backref=backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
     report_type = sa.orm.mapped_column(
         sa.SmallInteger,

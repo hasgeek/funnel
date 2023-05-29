@@ -18,6 +18,7 @@ from . import (
     TimestampMixin,
     TSVectorType,
     UuidMixin,
+    backref,
     db,
     relationship,
     sa,
@@ -78,7 +79,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     created_by: Mapped[Account] = with_roles(
         relationship(
             Account,
-            backref=sa.orm.backref('updates_created', lazy='dynamic'),
+            backref=backref('updates_created', lazy='dynamic'),
             foreign_keys=[created_by_id],
         ),
         read={'all'},
@@ -89,7 +90,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, index=True
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=sa.orm.backref('updates', lazy='dynamic')),
+        relationship(Project, backref=backref('updates', lazy='dynamic')),
         read={'all'},
         datasets={'primary'},
         grants_via={
@@ -123,7 +124,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     published_by: Mapped[Optional[Account]] = with_roles(
         relationship(
             Account,
-            backref=sa.orm.backref('published_updates', lazy='dynamic'),
+            backref=backref('published_updates', lazy='dynamic'),
             foreign_keys=[published_by_id],
         ),
         read={'all'},
@@ -138,7 +139,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     deleted_by: Mapped[Optional[Account]] = with_roles(
         relationship(
             Account,
-            backref=sa.orm.backref('deleted_updates', lazy='dynamic'),
+            backref=backref('deleted_updates', lazy='dynamic'),
             foreign_keys=[deleted_by_id],
         ),
         read={'reader'},
@@ -162,7 +163,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
             lazy='joined',
             cascade='all',
             single_parent=True,
-            backref=sa.orm.backref('update', uselist=False),
+            backref=backref('update', uselist=False),
         ),
         read={'all'},
     )

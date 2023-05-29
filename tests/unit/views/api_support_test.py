@@ -44,8 +44,9 @@ def support_api_key(app: Flask) -> str:
     return key
 
 
-def test_api_key_not_configured(client: FlaskClient) -> None:
+def test_api_key_not_configured(app: Flask, client: FlaskClient) -> None:
     """Server must be configured with an API key."""
+    app.config.pop('INTERNAL_SUPPORT_API_KEY', None)
     rv = client.post(url_for('support_callerid'), data={'number': VALID_PHONE})
     assert rv.status_code == 501
 

@@ -90,7 +90,6 @@ from typing import (
     ClassVar,
     Dict,
     Generator,
-    List,
     Optional,
     Sequence,
     Set,
@@ -125,6 +124,7 @@ from . import (
     Model,
     NoIdMixin,
     Query,
+    backref,
     db,
     hybrid_property,
     postgresql,
@@ -781,9 +781,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
 
     #: Notification that this user received
     notification: Mapped[Notification] = with_roles(
-        relationship(
-            Notification, backref=sa.orm.backref('recipients', lazy='dynamic')
-        ),
+        relationship(Notification, backref=backref('recipients', lazy='dynamic')),
         read={'owner'},
     )
 
@@ -1344,8 +1342,8 @@ class NotificationPreferences(BaseMixin, Model):
 
 @reopen(Account)
 class __Account:
-    all_notifications: DynamicMapped[List[UserNotification]] = with_roles(
-        sa.orm.relationship(
+    all_notifications: DynamicMapped[UserNotification] = with_roles(
+        relationship(
             UserNotification,
             lazy='dynamic',
             order_by=UserNotification.created_at.desc(),

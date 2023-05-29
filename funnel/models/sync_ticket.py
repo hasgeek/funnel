@@ -15,6 +15,7 @@ from . import (
     Mapped,
     Model,
     UuidMixin,
+    backref,
     db,
     relationship,
     sa,
@@ -116,7 +117,7 @@ class TicketEvent(GetTitleMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=sa.orm.backref('ticket_events', cascade='all')),
+        relationship(Project, backref=backref('ticket_events', cascade='all')),
         rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
@@ -129,7 +130,7 @@ class TicketEvent(GetTitleMixin, Model):
         ),
         rw={'project_promoter'},
     )
-    ticket_participants: DynamicMapped[List[TicketParticipant]] = with_roles(
+    ticket_participants: DynamicMapped[TicketParticipant] = with_roles(
         relationship(
             'TicketParticipant',
             secondary='ticket_event_participant',
@@ -172,7 +173,7 @@ class TicketType(GetTitleMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=sa.orm.backref('ticket_types', cascade='all')),
+        relationship(Project, backref=backref('ticket_types', cascade='all')),
         rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
@@ -251,7 +252,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
         sa.ForeignKey('account.id'), nullable=True
     )
     user: Mapped[Optional[Account]] = relationship(
-        Account, backref=sa.orm.backref('ticket_participants', cascade='all')
+        Account, backref=backref('ticket_participants', cascade='all')
     )
     project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
@@ -394,7 +395,7 @@ class TicketEventParticipant(BaseMixin, Model):
     )
     ticket_participant: Mapped[TicketParticipant] = relationship(
         TicketParticipant,
-        backref=sa.orm.backref(
+        backref=backref(
             'ticket_event_participants',
             cascade='all',
             overlaps='ticket_events,ticket_participants',
@@ -406,7 +407,7 @@ class TicketEventParticipant(BaseMixin, Model):
     )
     ticket_event: Mapped[TicketEvent] = relationship(
         TicketEvent,
-        backref=sa.orm.backref(
+        backref=backref(
             'ticket_event_participants',
             cascade='all',
             overlaps='ticket_events,ticket_participants',
@@ -461,7 +462,7 @@ class TicketClient(BaseMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project = with_roles(
-        relationship(Project, backref=sa.orm.backref('ticket_clients', cascade='all')),
+        relationship(Project, backref=backref('ticket_clients', cascade='all')),
         rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
@@ -521,20 +522,20 @@ class SyncTicket(BaseMixin, Model):
         sa.Integer, sa.ForeignKey('ticket_type.id'), nullable=False
     )
     ticket_type: Mapped[TicketType] = relationship(
-        TicketType, backref=sa.orm.backref('sync_tickets', cascade='all')
+        TicketType, backref=backref('sync_tickets', cascade='all')
     )
     ticket_participant_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_participant.id'), nullable=False
     )
     ticket_participant: Mapped[TicketParticipant] = relationship(
         TicketParticipant,
-        backref=sa.orm.backref('sync_tickets', cascade='all'),
+        backref=backref('sync_tickets', cascade='all'),
     )
     ticket_client_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_client.id'), nullable=False
     )
     ticket_client: Mapped[TicketClient] = relationship(
-        TicketClient, backref=sa.orm.backref('sync_tickets', cascade='all')
+        TicketClient, backref=backref('sync_tickets', cascade='all')
     )
     __table_args__ = (sa.UniqueConstraint('ticket_client_id', 'order_no', 'ticket_no'),)
 
@@ -585,7 +586,7 @@ class __Project:
     # to look for the first matching record (.first() instead of .one()). This may
     # expose a new edge case in future in case the TicketParticipant model adds an
     # `offered_roles` method, as only the first matching record's method will be called
-    ticket_participants: DynamicMapped[List[TicketParticipant]] = with_roles(
+    ticket_participants: DynamicMapped[TicketParticipant] = with_roles(
         relationship(
             TicketParticipant, lazy='dynamic', cascade='all', back_populates='project'
         ),

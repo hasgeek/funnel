@@ -15,10 +15,10 @@ from . import (
     BaseMixin,
     DynamicMapped,
     Mapped,
-    MarkdownCompositeBasic,
     Model,
     TSVectorType,
     UuidMixin,
+    backref,
     db,
     hybrid_property,
     relationship,
@@ -31,7 +31,12 @@ from .account import (
     removed_account,
     unknown_account,
 )
-from .helpers import MessageComposite, add_search_trigger, reopen
+from .helpers import (
+    MarkdownCompositeBasic,
+    MessageComposite,
+    add_search_trigger,
+    reopen,
+)
 
 __all__ = ['Comment', 'Commentset']
 
@@ -209,7 +214,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     )
     _user: Mapped[Optional[Account]] = with_roles(
         relationship(
-            Account, backref=sa.orm.backref('comments', lazy='dynamic', cascade='all')
+            Account, backref=backref('comments', lazy='dynamic', cascade='all')
         ),
         grants={'author'},
     )
@@ -219,7 +224,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     commentset: Mapped[Commentset] = with_roles(
         relationship(
             Commentset,
-            backref=sa.orm.backref('comments', lazy='dynamic', cascade='all'),
+            backref=backref('comments', lazy='dynamic', cascade='all'),
         ),
         grants_via={None: {'document_subscriber'}},
     )
@@ -228,7 +233,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         sa.Integer, sa.ForeignKey('comment.id'), nullable=True
     )
     replies: Mapped[List[Comment]] = relationship(
-        'Comment', backref=sa.orm.backref('in_reply_to', remote_side='Comment.id')
+        'Comment', backref=backref('in_reply_to', remote_side='Comment.id')
     )
 
     _message, message_text, message_html = MarkdownCompositeBasic.create(
@@ -431,7 +436,7 @@ add_search_trigger(Comment, 'search_vector')
 
 @reopen(Commentset)
 class __Commentset:
-    toplevel_comments: DynamicMapped[List[Comment]] = relationship(
+    toplevel_comments: DynamicMapped[Comment] = relationship(
         Comment,
         lazy='dynamic',
         primaryjoin=sa.and_(

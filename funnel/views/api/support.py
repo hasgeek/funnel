@@ -38,10 +38,18 @@ def support_callerid(number: str) -> Tuple[Dict[str, Any], int]:
     """Retrieve information about a phone number for caller id."""
     parsed_number = parse_phone_number(number)
     if not parsed_number:
-        return {'error': 'invalid', 'error_description': _("Invalid phone number")}, 422
+        return {
+            'status': 'error',
+            'error': 'invalid',
+            'error_description': _("Invalid phone number"),
+        }, 422
     phone_number = PhoneNumber.get(parsed_number)
     if not phone_number:
-        return {'error': 'unknown', 'error_description': _("Unknown phone number")}, 422
+        return {
+            'status': 'error',
+            'error': 'unknown',
+            'error_description': _("Unknown phone number"),
+        }, 422
 
     info = {
         'number': phone_number.number,

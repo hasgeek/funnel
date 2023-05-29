@@ -3,12 +3,21 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import List, Optional
+from typing import Optional
 
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
-from . import BaseMixin, DynamicMapped, Mapped, Model, UuidMixin, relationship, sa
+from . import (
+    BaseMixin,
+    DynamicMapped,
+    Mapped,
+    Model,
+    UuidMixin,
+    backref,
+    relationship,
+    sa,
+)
 from .account import Account
 from .helpers import reopen
 
@@ -82,9 +91,9 @@ class UserSession(UuidMixin, BaseMixin, Model):
     user_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
-    user: Mapped[Account] = sa.orm.relationship(
+    user: Mapped[Account] = relationship(
         Account,
-        backref=sa.orm.backref('all_user_sessions', cascade='all', lazy='dynamic'),
+        backref=backref('all_user_sessions', cascade='all', lazy='dynamic'),
     )
 
     #: User's last known IP address
@@ -170,7 +179,7 @@ class UserSession(UuidMixin, BaseMixin, Model):
 
 @reopen(Account)
 class __Account:
-    active_user_sessions: DynamicMapped[List[UserSession]] = relationship(
+    active_user_sessions: DynamicMapped[UserSession] = relationship(
         UserSession,
         lazy='dynamic',
         primaryjoin=sa.and_(

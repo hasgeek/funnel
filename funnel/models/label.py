@@ -13,6 +13,7 @@ from . import (
     Mapped,
     Model,
     TSVectorType,
+    backref,
     hybrid_property,
     relationship,
     sa,
@@ -71,7 +72,7 @@ class Label(BaseScopedNameMixin, Model):
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
     options = relationship(
         'Label',
-        backref=sa.orm.backref('main_label', remote_side='Label.id'),
+        backref=backref('main_label', remote_side='Label.id'),
         order_by='Label.seq',
         passive_deletes=True,
         collection_class=ordering_list('seq', count_from=1),

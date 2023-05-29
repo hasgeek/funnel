@@ -15,7 +15,17 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
-from . import Mapped, Model, Query, RoleMixin, TimestampMixin, db, relationship, sa
+from . import (
+    Mapped,
+    Model,
+    Query,
+    RoleMixin,
+    TimestampMixin,
+    backref,
+    db,
+    relationship,
+    sa,
+)
 from .account import Account
 from .project import Project
 from .sync_ticket import TicketParticipant
@@ -55,7 +65,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     )
     user: Mapped[Account] = relationship(
         Account,
-        backref=sa.orm.backref(
+        backref=backref(
             'scanned_contacts',
             lazy='dynamic',
             order_by='ContactExchange.scanned_at.desc()',
@@ -71,7 +81,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     )
     ticket_participant: Mapped[TicketParticipant] = relationship(
         TicketParticipant,
-        backref=sa.orm.backref('scanned_contacts', passive_deletes=True),
+        backref=backref('scanned_contacts', passive_deletes=True),
     )
     #: Datetime at which the scan happened
     scanned_at = sa.orm.mapped_column(

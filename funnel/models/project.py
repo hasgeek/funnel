@@ -17,7 +17,6 @@ from . import (
     BaseScopedNameMixin,
     DynamicMapped,
     Mapped,
-    MarkdownCompositeDocument,
     Model,
     Query,
     TimestampMixin,
@@ -25,6 +24,7 @@ from . import (
     TSVectorType,
     UrlType,
     UuidMixin,
+    backref,
     db,
     relationship,
     sa,
@@ -35,6 +35,7 @@ from .comment import SET_TYPE, Commentset
 from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
+    MarkdownCompositeDocument,
     add_search_trigger,
     reopen,
     valid_name,
@@ -81,7 +82,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         relationship(
             Account,
             foreign_keys=[account_id],
-            backref=sa.orm.backref('projects', cascade='all', lazy='dynamic'),
+            backref=backref('projects', cascade='all', lazy='dynamic'),
         ),
         read={'all'},
         # If account grants an 'admin' role, make it 'account_admin' here
@@ -753,7 +754,7 @@ add_search_trigger(Project, 'search_vector')
 class __Account:
     id: Mapped[int]  # noqa: A003
 
-    listed_projects: DynamicMapped[List[Project]] = relationship(
+    listed_projects: DynamicMapped[Project] = relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -762,7 +763,7 @@ class __Account:
         ),
         viewonly=True,
     )
-    draft_projects: DynamicMapped[List[Project]] = relationship(
+    draft_projects: DynamicMapped[Project] = relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -827,7 +828,7 @@ class ProjectRedirect(TimestampMixin, Model):
         sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
     account: Mapped[Account] = relationship(
-        Account, backref=sa.orm.backref('project_redirects', cascade='all')
+        Account, backref=backref('project_redirects', cascade='all')
     )
     parent: Mapped[Account] = sa.orm.synonym('account')
     name: Mapped[str] = sa.orm.mapped_column(
@@ -910,7 +911,7 @@ class ProjectLocation(TimestampMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False
     )
     project: Mapped[Project] = relationship(
-        Project, backref=sa.orm.backref('locations', cascade='all')
+        Project, backref=backref('locations', cascade='all')
     )
     #: Geonameid for this project
     geonameid = sa.orm.mapped_column(

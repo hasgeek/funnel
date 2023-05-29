@@ -6,7 +6,7 @@ from typing import Optional, Sequence
 
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
-from . import Mapped, Model, NoIdMixin, db, relationship, sa
+from . import Mapped, Model, NoIdMixin, backref, db, relationship, sa
 from .account import Account
 from .helpers import reopen
 from .project import Project
@@ -24,7 +24,7 @@ class SavedProject(NoIdMixin, Model):
     )
     user: Mapped[Account] = relationship(
         Account,
-        backref=sa.orm.backref('saved_projects', lazy='dynamic', passive_deletes=True),
+        backref=backref('saved_projects', lazy='dynamic', passive_deletes=True),
     )
     #: Project that was saved
     project_id = sa.orm.mapped_column(
@@ -36,7 +36,7 @@ class SavedProject(NoIdMixin, Model):
     )
     project: Mapped[Project] = relationship(
         Project,
-        backref=sa.orm.backref('saved_by', lazy='dynamic', passive_deletes=True),
+        backref=backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
     #: Timestamp when the save happened
     saved_at = sa.orm.mapped_column(
@@ -75,7 +75,7 @@ class SavedSession(NoIdMixin, Model):
     )
     user: Mapped[Account] = relationship(
         Account,
-        backref=sa.orm.backref('saved_sessions', lazy='dynamic', passive_deletes=True),
+        backref=backref('saved_sessions', lazy='dynamic', passive_deletes=True),
     )
     #: Session that was saved
     session_id = sa.orm.mapped_column(
@@ -87,7 +87,7 @@ class SavedSession(NoIdMixin, Model):
     )
     session: Mapped[Session] = relationship(
         Session,
-        backref=sa.orm.backref('saved_by', lazy='dynamic', passive_deletes=True),
+        backref=backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
     #: Timestamp when the save happened
     saved_at = sa.orm.mapped_column(
