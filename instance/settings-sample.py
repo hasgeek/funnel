@@ -20,6 +20,7 @@ LOGFILE = 'error.log'
 DASHBOARD_USERS = ['']
 ENABLE_COMMENT_SIDEBAR = True
 
+
 # ==== DB & CACHES ====
 
 #: Database backend
@@ -129,7 +130,7 @@ RECAPTCHA_PRIVATE_KEY = ''
 RECAPTCHA_OPTIONS = ''
 
 
-# ==== INTEGRATIONS ====
+# ==== NOTIFICATIONS ====
 
 #: SMS gateways
 #: Exotel support is active
