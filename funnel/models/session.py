@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, Optional, Type
 
 from flask_babel import format_date, get_locale
 from isoweek import Week
@@ -402,7 +402,7 @@ class __Project:
         read={'all'},
     )
 
-    sessions_with_video: DynamicMapped[List[Session]] = with_roles(
+    sessions_with_video: DynamicMapped[Session] = with_roles(
         relationship(
             Session,
             lazy='dynamic',

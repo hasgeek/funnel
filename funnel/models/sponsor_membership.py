@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Set
+from typing import Set
 
 from werkzeug.utils import cached_property
 
@@ -129,7 +129,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
 @reopen(Project)
 class __Project:
-    sponsor_memberships: DynamicMapped[List[ProjectSponsorMembership]] = with_roles(
+    sponsor_memberships: DynamicMapped[ProjectSponsorMembership] = with_roles(
         relationship(
             ProjectSponsorMembership,
             lazy='dynamic',
@@ -253,7 +253,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
 @reopen(Proposal)
 class __Proposal:
-    sponsor_memberships: DynamicMapped[List[ProposalSponsorMembership]] = with_roles(
+    sponsor_memberships: DynamicMapped[ProposalSponsorMembership] = with_roles(
         relationship(
             ProposalSponsorMembership,
             lazy='dynamic',
@@ -279,7 +279,7 @@ class __Proposal:
 class __Profile:
     # pylint: disable=invalid-unary-operand-type
     noninvite_project_sponsor_memberships: DynamicMapped[
-        List[ProjectSponsorMembership]
+        ProjectSponsorMembership
     ] = relationship(
         ProjectSponsorMembership,
         lazy='dynamic',
@@ -291,9 +291,7 @@ class __Profile:
         viewonly=True,
     )
 
-    project_sponsor_memberships: DynamicMapped[
-        List[ProjectSponsorMembership]
-    ] = relationship(
+    project_sponsor_memberships: DynamicMapped[ProjectSponsorMembership] = relationship(
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -305,7 +303,7 @@ class __Profile:
     )
 
     project_sponsor_membership_invites: DynamicMapped[
-        List[ProjectSponsorMembership]
+        ProjectSponsorMembership
     ] = with_roles(
         relationship(
             ProjectSponsorMembership,
@@ -322,7 +320,7 @@ class __Profile:
     )
 
     noninvite_proposal_sponsor_memberships: DynamicMapped[
-        List[ProposalSponsorMembership]
+        ProposalSponsorMembership
     ] = relationship(
         ProposalSponsorMembership,
         lazy='dynamic',
@@ -335,7 +333,7 @@ class __Profile:
     )
 
     proposal_sponsor_memberships: DynamicMapped[
-        List[ProposalSponsorMembership]
+        ProposalSponsorMembership
     ] = relationship(
         ProposalSponsorMembership,
         lazy='dynamic',
@@ -348,7 +346,7 @@ class __Profile:
     )
 
     proposal_sponsor_membership_invites: DynamicMapped[
-        List[ProposalSponsorMembership]
+        ProposalSponsorMembership
     ] = with_roles(
         relationship(
             ProposalSponsorMembership,
