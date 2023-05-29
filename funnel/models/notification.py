@@ -117,15 +117,17 @@ from coaster.sqlalchemy import (
 )
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
-from ..typing import OptionalMigratedTables, T, UuidModelType
+from ..typing import ModelType, OptionalMigratedTables, T, UuidModelType
 from . import (
     BaseMixin,
     DynamicMapped,
     Mapped,
+    Model,
     NoIdMixin,
     Query,
     db,
     hybrid_property,
+    relationship,
     sa,
 )
 from .helpers import reopen
@@ -223,7 +225,7 @@ class SMS_STATUS(LabeledEnum):  # noqa: N801
 # --- Legacy models --------------------------------------------------------------------
 
 
-class SmsMessage(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class SmsMessage(PhoneNumberMixin, BaseMixin, Model):
     """An outbound SMS message."""
 
     __tablename__ = 'sms_message'
@@ -276,7 +278,7 @@ class NotificationType(Protocol):
     user: Optional[User]
 
 
-class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
+class Notification(NoIdMixin, Model):
     """
     Holds a single notification for an activity on a document object.
 
@@ -342,7 +344,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per account (nee profile) or project
-    preference_context: ClassVar[db.Model] = None  # type: ignore[name-defined]
+    preference_context: Optional[ModelType] = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
     type_: Mapped[str] = immutable(
@@ -356,7 +358,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
     #: notifications of their own activity
-    user: Mapped[Optional[User]] = sa.orm.relationship(User)
+    user: Mapped[Optional[User]] = relationship(User)
 
     #: UUID of document that the notification refers to
     document_uuid: Mapped[UUID] = immutable(
@@ -691,14 +693,14 @@ class UserNotificationMixin:
     with_roles(notification_pref_type, read={'owner'})
 
     @cached_property
-    def document(self) -> Optional[db.Model]:  # type: ignore[name-defined]
+    def document(self) -> Optional[UuidModelType]:
         """Document that this notification is for."""
         return self.notification.document
 
     with_roles(document, read={'owner'})
 
     @cached_property
-    def fragment(self) -> Optional[db.Model]:  # type: ignore[name-defined]
+    def fragment(self) -> Optional[UuidModelType]:
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
 
@@ -732,11 +734,7 @@ class UserNotificationMixin:
         return False
 
 
-class UserNotification(
-    UserNotificationMixin,
-    NoIdMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class UserNotification(UserNotificationMixin, NoIdMixin, Model):
     """
     The recipient of a notification.
 
@@ -760,7 +758,7 @@ class UserNotification(
 
     #: User being notified (backref defined below, outside the model)
     user: Mapped[User] = with_roles(
-        sa.orm.relationship(User), read={'owner'}, grants={'owner'}
+        relationship(User), read={'owner'}, grants={'owner'}
     )
 
     #: Random eventid, shared with the Notification instance
@@ -774,7 +772,7 @@ class UserNotification(
 
     #: Notification that this user received
     notification: Mapped[Notification] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Notification, backref=sa.orm.backref('recipients', lazy='dynamic')
         ),
         read={'owner'},
@@ -835,7 +833,7 @@ class UserNotification(
 
     __table_args__ = (
         sa.ForeignKeyConstraint(
-            [eventid, notification_id],  # type: ignore[list-item]
+            [eventid, notification_id],
             [Notification.eventid, Notification.id],
             ondelete='CASCADE',
             name='user_notification_eventid_notification_id_fkey',
@@ -1192,7 +1190,7 @@ class NotificationFor(UserNotificationMixin):
 # --- Notification preferences ---------------------------------------------------------
 
 
-class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined]
+class NotificationPreferences(BaseMixin, Model):
     """Holds a user's preferences for a particular :class:`Notification` type."""
 
     __tablename__ = 'notification_preferences'
@@ -1207,7 +1205,7 @@ class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined
     )
     #: User whose preferences are represented here
     user = with_roles(
-        sa.orm.relationship(User, back_populates='notification_preferences'),
+        relationship(User, back_populates='notification_preferences'),
         read={'owner'},
         grants={'owner'},
     )
@@ -1340,7 +1338,7 @@ class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined
 @reopen(User)
 class __User:
     all_notifications: DynamicMapped[List[UserNotification]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             UserNotification,
             lazy='dynamic',
             order_by=UserNotification.created_at.desc(),
@@ -1349,16 +1347,14 @@ class __User:
         read={'owner'},
     )
 
-    notification_preferences: Mapped[
-        Dict[str, NotificationPreferences]
-    ] = sa.orm.relationship(
+    notification_preferences: Mapped[Dict[str, NotificationPreferences]] = relationship(
         NotificationPreferences,
         collection_class=column_keyed_dict(NotificationPreferences.notification_type),
         back_populates='user',
     )
 
     # This relationship is wrapped in a property that creates it on first access
-    _main_notification_preferences = sa.orm.relationship(
+    _main_notification_preferences = relationship(
         NotificationPreferences,
         primaryjoin=sa.and_(
             NotificationPreferences.user_id == User.id,
@@ -1406,14 +1402,10 @@ def _register_notification_types(mapper_: Any, cls: Type[Notification]) -> None:
                 f"Notification subclass {cls!r} must specify document_model"
             )
         cls.document_type = (
-            cls.document_model.__tablename__  # type: ignore[attr-defined]
-            if cls.document_model
-            else None
+            cls.document_model.__tablename__ if cls.document_model else None
         )
         cls.fragment_type = (
-            cls.fragment_model.__tablename__  # type: ignore[attr-defined]
-            if cls.fragment_model
-            else None
+            cls.fragment_model.__tablename__ if cls.fragment_model else None
         )
 
         # Exclude inactive notifications in the registry. It is used to populate the

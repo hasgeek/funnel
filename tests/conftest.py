@@ -513,7 +513,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
                 return f'{entity.__name__}(repr-error)'
             return 'repr-error'
 
-    @sa.event.listens_for(models.db.Model, 'init', propagate=True)
+    @sa.event.listens_for(models.Model, 'init', propagate=True)
     def event_init(obj, args, kwargs):
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
@@ -713,7 +713,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
 
     yield
 
-    sa.event.remove(models.db.Model, 'init', event_init)
+    sa.event.remove(models.Model, 'init', event_init)
     sa.event.remove(
         DatabaseSessionClass, 'transient_to_pending', event_transient_to_pending
     )
@@ -937,7 +937,7 @@ def client(response_with_forms, app, db_session) -> FlaskClient:
         db_session.commit()
         return client_open(*args, **kwargs)
 
-    client.open = commit_before_open  # type: ignore[assignment]
+    client.open = commit_before_open  # type: ignore[method-assign]
     return client
 
 

@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TypeVar, Union
+from typing import TYPE_CHECKING, ClassVar, TypeVar, Union
 from uuid import UUID
 
-from . import Query, db, declarative_mixin, sa
+from . import Mapped, QueryProperty, db, declarative_mixin, sa
 
 __all__ = ['ReorderMixin']
 
@@ -20,18 +20,20 @@ Reorderable = TypeVar('Reorderable', bound='ReorderMixin')
 class ReorderMixin:
     """Adds support for re-ordering sequences within a parent container."""
 
-    #: Subclasses must have a created_at column
-    created_at: datetime
-    #: Subclass must have a primary key that is int or uuid
-    id: int  # noqa: A003
-    #: Subclass must declare a parent_id synonym to the parent model fkey column
-    parent_id: Union[int, UUID]
-    #: Subclass must declare a seq column or synonym, holding a sequence id. It need not
-    #: be unique, but reordering is meaningless when both items have the same number
-    seq: int
+    if TYPE_CHECKING:
+        #: Subclasses must have a created_at column
+        created_at: Mapped[datetime]
+        #: Subclass must have a primary key that is int or uuid
+        id: Mapped[int]  # noqa: A001
+        #: Subclass must declare a parent_id synonym to the parent model fkey column
+        parent_id: Mapped[Union[int, UUID]]
+        #: Subclass must declare a seq column or synonym, holding a sequence id. It
+        #: need not be unique, but reordering is meaningless when both items have the
+        #: same number
+        seq: Mapped[int]
 
-    #: Subclass must offer a SQLAlchemy query (this is standard from base classes)
-    query: Query
+        #: Subclass must offer a SQLAlchemy query (this is standard from base classes)
+        query: ClassVar[QueryProperty]
 
     @property
     def parent_scoped_reorder_query_filter(self: Reorderable):

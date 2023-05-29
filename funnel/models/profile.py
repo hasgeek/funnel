@@ -16,12 +16,14 @@ from . import (
     BaseMixin,
     Mapped,
     MarkdownCompositeDocument,
+    Model,
     Query,
     TSVectorType,
     UrlType,
     UuidMixin,
     db,
     hybrid_property,
+    relationship,
     sa,
 )
 from .helpers import (
@@ -52,12 +54,7 @@ class PROFILE_STATE(LabeledEnum):  # noqa: N801
 
 # This model does not use BaseNameMixin because it has no title column. The title comes
 # from the linked User or Organization
-class Profile(
-    EnumerateMembershipsMixin,
-    UuidMixin,
-    BaseMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
     """
     Consolidated account for :class:`User` and :class:`Organization` models.
 
@@ -74,7 +71,7 @@ class Profile(
 
     #: The "username" assigned to a user or organization.
     #: Length limit 63 to fit DNS label limit
-    name = sa.Column(
+    name = sa.orm.mapped_column(
         sa.Unicode(__name_length__),
         sa.CheckConstraint("name <> ''"),
         nullable=False,
@@ -82,7 +79,7 @@ class Profile(
     )
     # Only one of the following three may be set:
     #: User that owns this name (limit one per user)
-    user_id = sa.Column(
+    user_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('user.id', ondelete='SET NULL'),
         unique=True,
@@ -93,27 +90,29 @@ class Profile(
     # be trivially deleted
 
     user: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             'User',
             backref=sa.orm.backref('profile', uselist=False, cascade='all'),
         ),
         grants={'owner'},
     )
     #: Organization that owns this name (limit one per organization)
-    organization_id = sa.Column(
+    organization_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('organization.id', ondelete='SET NULL'),
         unique=True,
         nullable=True,
     )
-    organization: Mapped[Optional[Organization]] = sa.orm.relationship(
+    organization: Mapped[Optional[Organization]] = relationship(
         'Organization',
         backref=sa.orm.backref('profile', uselist=False, cascade='all'),
     )
     #: Reserved account (not assigned to any party)
-    reserved = sa.Column(sa.Boolean, nullable=False, default=False, index=True)
+    reserved = sa.orm.mapped_column(
+        sa.Boolean, nullable=False, default=False, index=True
+    )
 
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', PROFILE_STATE),
@@ -124,45 +123,52 @@ class Profile(
         '_state', PROFILE_STATE, doc="Current state of the account page"
     )
 
-    tagline = sa.Column(sa.Unicode, nullable=True)
-    description = MarkdownCompositeDocument.create(
+    tagline = sa.orm.mapped_column(sa.Unicode, nullable=True)
+    description, description_text, description_html = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
-    website: Mapped[Optional[furl]] = sa.Column(UrlType, nullable=True)
-    logo_url: Mapped[Optional[ImgeeFurl]] = sa.Column(ImgeeType, nullable=True)
-    banner_image_url: Mapped[Optional[ImgeeFurl]] = sa.Column(ImgeeType, nullable=True)
+    website: Mapped[Optional[furl]] = sa.orm.mapped_column(UrlType, nullable=True)
+    logo_url: Mapped[Optional[ImgeeFurl]] = sa.orm.mapped_column(
+        ImgeeType, nullable=True
+    )
+    banner_image_url: Mapped[Optional[ImgeeFurl]] = sa.orm.mapped_column(
+        ImgeeType, nullable=True
+    )
 
     # These two flags are read-only. There is no provision for writing to them within
     # the app:
 
     #: Protected accounts cannot be deleted
     is_protected = with_roles(
-        immutable(sa.Column(sa.Boolean, default=False, nullable=False)),
+        immutable(sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)),
         read={'owner', 'admin'},
     )
     #: Verified accounts get listed on the home page and are not considered throwaway
     #: accounts for spam control. There are no other privileges at this time
     is_verified = with_roles(
-        immutable(sa.Column(sa.Boolean, default=False, nullable=False, index=True)),
+        immutable(
+            sa.orm.mapped_column(sa.Boolean, default=False, nullable=False, index=True)
+        ),
         read={'all'},
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
-    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+    revisionid = with_roles(
+        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+    )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'name',
-                'description_text',
-                weights={'name': 'A', 'description_text': 'B'},
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter, Profile.name, Profile.description_html
-                ),
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'name',
+            'description_text',
+            weights={'name': 'A', 'description_text': 'B'},
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter, Profile.name, Profile.description_html
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     is_active = with_roles(
@@ -170,16 +176,16 @@ class Profile(
             sa.case(
                 (
                     user_id.is_not(None),  # ← when, ↙ then
-                    sa.select(User.state.ACTIVE)  # type: ignore[has-type]
+                    sa.select(User.state.ACTIVE)
                     .where(User.id == user_id)
-                    .correlate_except(User)  # type: ignore[arg-type]
+                    .correlate_except(User)
                     .scalar_subquery(),
                 ),
                 (
                     organization_id.is_not(None),  # ← when, ↙ then
-                    sa.select(Organization.state.ACTIVE)  # type: ignore[has-type]
+                    sa.select(Organization.state.ACTIVE)
                     .where(Organization.id == organization_id)
-                    .correlate_except(Organization)  # type: ignore[arg-type]
+                    .correlate_except(Organization)
                     .scalar_subquery(),
                 ),
                 else_=expression.false(),

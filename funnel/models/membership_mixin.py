@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime as datetime_type
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
@@ -24,15 +25,17 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
 
-from ..typing import ModelType, OptionalMigratedTables
+from ..typing import OptionalMigratedTables
 from . import (
     BaseMixin,
     Mapped,
+    Model,
     UuidMixin,
     db,
     declarative_mixin,
     declared_attr,
     hybrid_property,
+    relationship,
     sa,
 )
 from .profile import Profile
@@ -98,17 +101,21 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     __uuid_primary_key__ = True
     #: Can granted_by be null? Only in memberships based on legacy data
-    __null_granted_by__ = False
+    __null_granted_by__: ClassVar[bool] = False
     #: List of columns that will be copied into a new row when a membership is amended
     __data_columns__: ClassVar[Iterable[str]] = ()
-    #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
-    parent_id: Optional[int]
     #: Name of the parent id column, used in SQL constraints
     parent_id_column: ClassVar[Optional[str]]
-    #: Parent object
-    parent: Optional[ModelType]
     #: Subject of this membership (subclasses must define)
     subject: SubjectType
+    if TYPE_CHECKING:
+        #: Subclass has a table name
+        __tablename__: str
+        #: Parent column (declare as synonym of 'profile_id' or 'project_id' in
+        #: subclasses)
+        parent_id: Mapped[int]
+        #: Parent object
+        parent: Mapped[Optional[Model]]
 
     #: Should an active membership record be revoked when the subject is soft-deleted?
     #: (Hard deletes will cascade and also delete all membership records.)
@@ -165,7 +172,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @classmethod
     def revoked_by(cls) -> Mapped[Optional[User]]:
         """User who revoked the membership."""
-        return sa.orm.relationship(User, foreign_keys=[cls.revoked_by_id])
+        return relationship(User, foreign_keys=[cls.revoked_by_id])
 
     @declared_attr
     @classmethod
@@ -187,7 +194,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @classmethod
     def granted_by(cls) -> Mapped[Optional[User]]:
         """User who assigned the membership."""
-        return sa.orm.relationship(User, foreign_keys=[cls.granted_by_id])
+        return relationship(User, foreign_keys=[cls.granted_by_id])
 
     @hybrid_property
     def is_active(self) -> bool:
@@ -390,7 +397,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def user(cls) -> Mapped[User]:
         """User who is the subject of this membership record."""
-        return sa.orm.relationship(User, foreign_keys=[cls.user_id])
+        return relationship(User, foreign_keys=[cls.user_id])
 
     @declared_attr
     @classmethod
@@ -512,7 +519,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def profile(cls) -> Mapped[Profile]:
         """Account that is the subject of this membership record."""
-        return sa.orm.relationship(Profile, foreign_keys=[cls.profile_id])
+        return relationship(Profile, foreign_keys=[cls.profile_id])
 
     @declared_attr
     @classmethod
@@ -523,7 +530,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
     @declared_attr.directive
     @classmethod
     def __table_args__(cls) -> tuple:
-        if cls.parent_id is not None:
+        if cls.parent_id_column is not None:
             return (
                 sa.Index(
                     'ix_' + cls.__tablename__ + '_active',
@@ -610,6 +617,9 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
 class ReorderMembershipMixin(ReorderMixin):
     """Customizes ReorderMixin for membership models."""
 
+    if TYPE_CHECKING:
+        parent_id_column: ClassVar[str]
+
     #: Sequence number. Not immutable, and may be overwritten by ReorderMixin as a
     #: side-effect of reordering other records. This is not considered a revision.
     #: However, it can be argued that relocating a sponsor in the list constitutes a
@@ -641,8 +651,8 @@ class ReorderMembershipMixin(ReorderMixin):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         # Assign a default value to `seq`
-        if self.seq is None:
-            self.seq = (
+        if self.seq is None:  # Will be None until first commit
+            self.seq = (  # type: ignore[unreachable]
                 sa.select(sa.func.coalesce(sa.func.max(self.__class__.seq) + 1, 1))
                 .where(self.parent_scoped_reorder_query_filter)
                 .scalar_subquery()
@@ -665,9 +675,9 @@ class ReorderMembershipMixin(ReorderMixin):
                 cls.parent_id == self.parent_id,
                 cls.is_active,  # type: ignore[attr-defined]
             )
-        return sa.and_(
-            cls.parent == self.parent,  # type: ignore[attr-defined]
-            cls.is_active,  # type: ignore[attr-defined]
+        return sa.and_(  # type: ignore[unreachable]
+            cls.parent == self.parent,
+            cls.is_active,
         )
 
 
@@ -684,7 +694,7 @@ class FrozenAttributionMixin:
     def _title(cls) -> Mapped[Optional[str]]:
         """Create optional attribution title for this membership record."""
         return immutable(
-            sa.Column(
+            sa.orm.mapped_column(
                 'title', sa.Unicode, sa.CheckConstraint("title <> ''"), nullable=True
             )
         )
@@ -795,13 +805,13 @@ def _confirm_enumerated_mixins(
         cls.__noninvite_membership_attrs__,
     ):
         for attr_name in source:
-            relationship = getattr(cls, attr_name, None)
-            if relationship is None:
+            attr_relationship = getattr(cls, attr_name, None)
+            if attr_relationship is None:
                 raise AttributeError(
                     f'{cls.__name__} does not have a relationship named'
                     f' {attr_name!r} targeting a subclass of {expected_class.__name__}'
                 )
-            if not issubclass(relationship.property.mapper.class_, expected_class):
+            if not issubclass(attr_relationship.property.mapper.class_, expected_class):
                 raise AttributeError(
                     f'{cls.__name__}.{attr_name} should be a relationship to a'
                     f' subclass of {expected_class.__name__}'

@@ -148,12 +148,12 @@ def test_add_to_class() -> None:
     # New methods can have a custom name and can take any decorator valid in the class
     @mhelpers.add_to_class(ReferenceClass, 'spameggs')  # type: ignore[misc]
     @property
-    def spameggs_property(self):
+    def spameggs_property(self) -> str:
         return 'is_spameggs'
 
     assert hasattr(ReferenceClass, 'spameggs')
     assert not hasattr(ReferenceClass, 'spameggs_property')
-    assert ReferenceClass.spameggs is spameggs_property  # type: ignore[attr-defined]
+    assert ReferenceClass.spameggs is spameggs_property
     assert ReferenceClass().spameggs == 'is_spameggs'  # type: ignore[attr-defined]
 
     # Existing attributes cannot be replaced
@@ -166,15 +166,13 @@ def test_add_to_class() -> None:
 
 @pytest.fixture(scope='session')
 def image_models(database, app):
-    db = database
-
-    class MyImageModel(db.Model):  # type: ignore[name-defined]
-        __tablename__ = 'my_image_model'
-        id = sa.Column(sa.Integer, primary_key=True)  # noqa: A003
-        image_url = sa.Column(models.ImgeeType)
+    class MyImageModel(models.Model):
+        __tablename__ = 'test_my_image_model'
+        id = sa.orm.mapped_column(sa.Integer, primary_key=True)  # noqa: A003
+        image_url = sa.orm.mapped_column(models.ImgeeType)
 
     with app.app_context():
-        db.create_all()
+        database.create_all()
     return SimpleNamespace(**locals())
 
 

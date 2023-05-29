@@ -19,11 +19,13 @@ from . import (
     DynamicMapped,
     Mapped,
     MarkdownCompositeDocument,
+    Model,
     Query,
     TSVectorType,
     UuidMixin,
     db,
     hybrid_property,
+    relationship,
     sa,
 )
 from .helpers import ImgeeType, add_search_trigger, reopen, visual_field_delimiter
@@ -37,12 +39,7 @@ from .video_mixin import VideoMixin
 __all__ = ['Session']
 
 
-class Session(
-    UuidMixin,
-    BaseScopedIdNameMixin,
-    VideoMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     __tablename__ = 'session'
     __allow_unmapped__ = True
 
@@ -50,62 +47,71 @@ class Session(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Project, backref=sa.orm.backref('sessions', cascade='all', lazy='dynamic')
         ),
         grants_via={None: project_child_role_map},
     )
     parent: Mapped[Project] = sa.orm.synonym('project')
-    description = MarkdownCompositeDocument.create(
+    description, description_text, description_html = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
     proposal_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id'), nullable=True, unique=True
     )
-    proposal: Mapped[Optional[Proposal]] = sa.orm.relationship(
+    proposal: Mapped[Optional[Proposal]] = relationship(
         Proposal, backref=sa.orm.backref('session', uselist=False, cascade='all')
     )
-    speaker = sa.Column(sa.Unicode(200), default=None, nullable=True)
-    start_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
-    end_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
-    venue_room_id = sa.Column(sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True)
-    venue_room: Mapped[Optional[VenueRoom]] = sa.orm.relationship(
+    speaker = sa.orm.mapped_column(sa.Unicode(200), default=None, nullable=True)
+    start_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True, index=True
+    )
+    end_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True, index=True
+    )
+    venue_room_id = sa.orm.mapped_column(
+        sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True
+    )
+    venue_room: Mapped[Optional[VenueRoom]] = relationship(
         VenueRoom, backref=sa.orm.backref('sessions')
     )
-    is_break = sa.Column(sa.Boolean, default=False, nullable=False)
-    featured = sa.Column(sa.Boolean, default=False, nullable=False)
-    banner_image_url: Mapped[Optional[str]] = sa.Column(ImgeeType, nullable=True)
+    is_break = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
+    featured = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
+    banner_image_url: Mapped[Optional[str]] = sa.orm.mapped_column(
+        ImgeeType, nullable=True
+    )
 
     #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
-    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+    revisionid = with_roles(
+        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+    )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'title',
-                'description_text',
-                'speaker',
-                weights={
-                    'title': 'A',
-                    'description_text': 'B',
-                    'speaker': 'A',
-                },
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter,
-                    Session.title,
-                    Session.speaker,
-                    Session.description_html,
-                ),
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'title',
+            'description_text',
+            'speaker',
+            weights={
+                'title': 'A',
+                'description_text': 'B',
+                'speaker': 'A',
+            },
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter,
+                Session.title,
+                Session.speaker,
+                Session.description_html,
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     __table_args__ = (
         sa.UniqueConstraint('project_id', 'url_id'),
         sa.CheckConstraint(
-            sa.or_(  # type: ignore[arg-type]
+            sa.or_(
                 sa.and_(start_at.is_(None), end_at.is_(None)),
                 sa.and_(
                     start_at.is_not(None),
@@ -198,7 +204,7 @@ class Session(
     def user(self) -> Optional[User]:
         if self.proposal is not None:
             return self.proposal.first_user
-        return None  # type: ignore[unreachable]
+        return None
 
     @hybrid_property
     def scheduled(self) -> bool:
@@ -274,11 +280,11 @@ add_search_trigger(Session, 'search_vector')
 
 @reopen(VenueRoom)
 class __VenueRoom:
-    scheduled_sessions = sa.orm.relationship(
+    scheduled_sessions = relationship(
         Session,
         primaryjoin=sa.and_(
             Session.venue_room_id == VenueRoom.id,
-            Session.scheduled,  # type: ignore[arg-type]
+            Session.scheduled,
         ),
         viewonly=True,
     )
@@ -293,7 +299,7 @@ class __Project:
             sa.select(sa.func.min(Session.start_at))
             .where(Session.start_at.is_not(None))
             .where(Session.project_id == Project.id)
-            .correlate_except(Session)  # type: ignore[arg-type]
+            .correlate_except(Session)
             .scalar_subquery()
         ),
         read={'all'},
@@ -317,7 +323,7 @@ class __Project:
                     .where(
                         Project.start_at >= sa.func.utcnow()  # type: ignore[has-type]
                     )
-                    .correlate(Project)  # type: ignore[arg-type]
+                    .correlate(Project)
                 )
             )
             .scalar_subquery()
@@ -330,7 +336,7 @@ class __Project:
             sa.select(sa.func.max(Session.end_at))
             .where(Session.end_at.is_not(None))
             .where(Session.project_id == Project.id)
-            .correlate_except(Session)  # type: ignore[arg-type]
+            .correlate_except(Session)
             .scalar_subquery()
         ),
         read={'all'},
@@ -361,7 +367,7 @@ class __Project:
         return self.sessions.filter(Session.start_at.is_not(None)).count()
 
     featured_sessions = with_roles(
-        sa.orm.relationship(
+        relationship(
             Session,
             order_by=Session.start_at.asc(),
             primaryjoin=sa.and_(
@@ -372,24 +378,24 @@ class __Project:
         read={'all'},
     )
     scheduled_sessions = with_roles(
-        sa.orm.relationship(
+        relationship(
             Session,
             order_by=Session.start_at.asc(),
             primaryjoin=sa.and_(
                 Session.project_id == Project.id,
-                Session.scheduled,  # type: ignore[arg-type]
+                Session.scheduled,
             ),
             viewonly=True,
         ),
         read={'all'},
     )
     unscheduled_sessions = with_roles(
-        sa.orm.relationship(
+        relationship(
             Session,
             order_by=Session.start_at.asc(),
             primaryjoin=sa.and_(
                 Session.project_id == Project.id,
-                Session.scheduled.is_not(True),  # type: ignore[attr-defined]
+                Session.scheduled.is_not(True),
             ),
             viewonly=True,
         ),
@@ -397,7 +403,7 @@ class __Project:
     )
 
     sessions_with_video: DynamicMapped[List[Session]] = with_roles(
-        sa.orm.relationship(
+        relationship(
             Session,
             lazy='dynamic',
             primaryjoin=sa.and_(
@@ -453,7 +459,7 @@ class __Project:
                 .scalar()
             )
 
-        return None  # type: ignore[unreachable]
+        return None
 
     @classmethod
     def starting_at(  # type: ignore[misc]

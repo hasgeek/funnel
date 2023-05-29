@@ -2,14 +2,25 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    TypeVar,
+    Union,
+)
 from uuid import UUID
 
 from sqlalchemy.orm import Mapped
 from typing_extensions import ParamSpec, Protocol
 from werkzeug.wrappers import Response  # Base class for Flask Response
 
-from coaster.sqlalchemy import Query
+from coaster.sqlalchemy.model import QueryProperty
 
 __all__ = [
     'T',
@@ -31,24 +42,21 @@ T = TypeVar('T')
 #: Type used to indicate parameter continuity within a block of code
 P = ParamSpec('P')
 
-#: Type used to bound Query to host model
-_QM = TypeVar('_QM', bound='ModelType')
 
-
-class ModelType(Protocol[_QM]):
+class ModelType(Protocol):
     """Protocol class for models."""
 
     __tablename__: str
-    query: Query[_QM]
+    query: ClassVar[QueryProperty]
 
 
-class IdModelType(ModelType):
+class IdModelType(ModelType, Protocol):
     """Protocol class for models."""
 
     id: Mapped[Union[int, UUID]]  # noqa: A003
 
 
-class UuidModelType(IdModelType):
+class UuidModelType(IdModelType, Protocol):
     """Protocol class for models with UUID column."""
 
     uuid: Mapped[UUID]
