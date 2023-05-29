@@ -9,6 +9,7 @@
 .sass-cache
 .webassets-cache
 __pycache__
+monkeytype.sqlite3
 
 # MacOS file
 .DS_Store
