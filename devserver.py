@@ -34,7 +34,7 @@ if __name__ == '__main__':
         use_debugger=debug_mode,
         use_evalex=debug_mode,
         threaded=True,
-        extra_files=['funnel/static/build/manifest.json'],
+        extra_files=['funnel/static/build/manifest.json', '.env'],
     )
 
     if background_rq:
