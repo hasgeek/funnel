@@ -391,14 +391,14 @@ def print_stack(pytestconfig, colorama, colorize_code) -> t.Callable[[int, int],
 @pytest.fixture(scope='session')
 def app(funnel) -> Flask:
     """App fixture with testing flag set."""
-    funnel.app.config['TESTING'] = True
+    assert funnel.app.config['TESTING']
     return funnel.app
 
 
 @pytest.fixture(scope='session')
 def shortlinkapp(funnel) -> Flask:
     """Shortlink app with testing flag set."""
-    funnel.shortlinkapp.config['TESTING'] = True
+    assert funnel.shortlinkapp.config['TESTING']
     return funnel.shortlinkapp
 
 

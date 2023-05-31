@@ -206,7 +206,7 @@ class Label(BaseScopedNameMixin, Model):
                 cls.main_label_id.is_not(None),
                 sa.select(Label._restricted)
                 .where(Label.id == cls.main_label_id)
-                .as_scalar(),
+                .scalar_subquery(),
             ),
             else_=cls._restricted,
         )
@@ -235,7 +235,7 @@ class Label(BaseScopedNameMixin, Model):
                 cls.main_label_id.is_not(None),
                 sa.select(Label._archived)
                 .where(Label.id == cls.main_label_id)
-                .as_scalar(),
+                .scalar_subquery(),
             ),
             else_=cls._archived,
         )

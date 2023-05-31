@@ -110,17 +110,35 @@ markers = [
   'debug_markdown_output: Generate markdown debug file tests/data/markdown/output.html (dev use only)',
   'requires_config("feature"): Run test only if specified app config is available'
 ]
-filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
 bdd_features_base_dir = 'tests/features/'
 remote_data_strict = true
+
 env = [
+  # Put Flask in testing mode
   'FLASK_ENV=testing',
+  'FLASK_TESTING=true',
+  'FLASK_DEBUG_TB_ENABLED=false',
+  # Enable CSRF so tests reflect production use
+  'FLASK_WTF_CSRF_ENABLED=true',
+  # Use Redis cache so that rate limit validation tests work, with Redis db 9
+  'FLASK_CACHE_TYPE=flask_caching.backends.RedisCache',
+  'FLASK_REDIS_URL=redis://localhost:6379/9',
+  'FLASK_RQ_REDIS_URL=redis://localhost:6379/9',
+  'FLASK_CACHE_REDIS_URL=redis://localhost:6379/9',
+  # Run RQ jobs inline in tests
+  'FLASK_RQ_ASYNC=false',
+  # Recaptcha keys from https://developers.google.com/recaptcha/docs/faq#id-like-to-run-automated-tests-with-recaptcha.-what-should-i-do
+  'FLASK_RECAPTCHA_USE_SSL=true',
+  'FLASK_RECAPTCHA_PUBLIC_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+  'FLASK_RECAPTCHA_PRIVATE_KEY=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe',
+  'FLASK_RECAPTCHA_OPTIONS=""',
   # For macOS: https://stackoverflow.com/a/52230415/78903
   'OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES',
+  # Use hostaliases on supported platforms
   'D:HOSTALIASES={PWD}/HOSTALIASES'
 ]
 env_override_existing_values = false
-env_files = ['.env', '.env.testing']
+env_files = ['.env.testing', '.env']
 
 [tool.pyright]
 venv = 'hasgeek'
