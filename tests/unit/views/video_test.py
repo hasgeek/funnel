@@ -128,6 +128,7 @@ def test_vimeo_request_exception(caplog, requests_mock, new_proposal) -> None:
 
 
 @pytest.mark.usefixtures('app_context')
+@pytest.mark.requires_config('youtube')
 def test_youtube_request_exception(caplog, requests_mock, new_proposal) -> None:
     caplog.set_level(logging.WARNING)
     requests_mock.get(
