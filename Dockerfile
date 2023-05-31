@@ -88,6 +88,18 @@ FROM deps as production
 ENV PYTHONOPTIMIZE=2
 COPY --chown=pn:pn . .
 COPY --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/static
+ENTRYPOINT ["uwsgi", "--ini"]
+
+FROM production as supervisor
+USER root
+RUN <<EOF
+    apt-get update -yqq
+    apt-get install -yqq --no-install-recommends supervisor
+    mkdir -pv /var/log/supervisor
+EOF
+COPY ./docker/supervisord/supervisord.conf /etc/supervisor/supervisord.conf
+# COPY ./docker/uwsgi/emperor.ini /etc/uwsgi/emperor.ini
+ENTRYPOINT ["/usr/bin/supervisord"]
 
 FROM test-deps as test
 ENV PWD=/home/pn/app PYTHONOPTIMIZE=2
@@ -96,7 +108,7 @@ COPY --chown=pn:pn . .
 COPY --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/static
 ENTRYPOINT [ "/home/pn/app/docker/entrypoints/ci-test.sh"]
 FROM dev-deps as dev
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONDEVMODE=1
+ENV PYTHONDEVMODE=1
 RUN --mount=type=cache,target=/home/pn/.cache/pip,uid=1000,gid=1000 cp -R /home/pn/.cache/pip /home/pn/tmp/.cache_pip
 RUN mv /home/pn/tmp/.cache_pip /home/pn/.cache/pip
 COPY --chown=pn:pn --from=dev-assets /home/pn/app/funnel/static /home/pn/app/funnel/static

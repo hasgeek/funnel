@@ -19,10 +19,34 @@ x-redis: &redis
   restart: always
   healthcheck:
     test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+x-app: &app
+  extends:
+    file: docker/compose/services.yml
+    service: funnel-prod
+  build:
+    context: .
+    target: production
+  image: funnel
+  profiles:
+    - production
+  depends_on:
+    - redis
+  environment:
+    - REDIS_HOST=redis
 services:
+  app:
+    <<: *app
+    volumes:
+      - ./instance/settings.py:/home/pn/app/instance/settings.py
+      - ./docker/uwsgi/funnel.ini:/home/pn/funnel.ini:ro
+    command: ../funnel.ini
+    expose:
+      - 6400
+    ports:
+      - 6400:6400
   test:
     extends:
-      file: docker/compose/service-funnel.yml
+      file: docker/compose/services.yml
       service: funnel
     image: funnel-test
     profiles:
@@ -64,7 +88,7 @@ services:
       - redis_test:/data
   dev:
     extends:
-      file: docker/compose/service-funnel.yml
+      file: docker/compose/services.yml
       service: funnel
     image: funnel-dev
     container_name: funnel-dev
@@ -106,7 +130,7 @@ services:
       start_period: 30s
   asset-watcher:
     extends:
-      file: docker/compose/service-funnel.yml
+      file: docker/compose/services.yml
       service: funnel
     image: funnel-dev-asset-watcher
     container_name: funnel-dev-asset-watcher
@@ -148,6 +172,12 @@ services:
       - dev-no-watch
     volumes:
       - redis_dev:/data
+  redis:
+    <<: *redis
+    profiles:
+      - production
+    volumes:
+      - redis:/data
 x-tmpfs: &tmpfs
   driver: local
   driver_opts:
@@ -159,6 +189,7 @@ volumes:
   node_modules:
   postgres_dev:
   redis_dev:
+  redis:
   postgres_test:
     <<: *tmpfs
   redis_test:

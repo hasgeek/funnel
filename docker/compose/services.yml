@@ -1,7 +1,5 @@
 services:
   funnel:
-    build:
-      context: .
     logging:
       driver: json-file
       options:
@@ -13,3 +11,11 @@ services:
     environment:
       - OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
       - FLASK_RUN_HOST=0.0.0.0
+  funnel-prod:
+    extends:
+      file: services.yml
+      service: funnel
+    build:
+      target: production
+    links:
+      - redis
