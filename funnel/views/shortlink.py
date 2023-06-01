@@ -6,13 +6,14 @@ from datetime import datetime, timedelta
 
 from flask import abort, redirect
 
-from .. import app, shortlinkapp
+from .. import app, shortlinkapp, unsubscribeapp
 from ..models import Shortlink
 from ..typing import ReturnView
 from .helpers import app_url_for
 
 
 @shortlinkapp.route('/')
+@unsubscribeapp.route('/')
 def index() -> ReturnView:
     return redirect(app_url_for(app, 'index'), 301)
 
@@ -37,4 +38,16 @@ def link(name: str) -> ReturnView:
     response.content_security_policy['referrer'] = 'always'  # type: ignore
     response.headers['Referrer-Policy'] = 'unsafe-url'
     # TODO: Perform analytics here: log client, set session cookie, etc
+    return response
+
+
+@unsubscribeapp.route('/<token>')
+def unsubscribe_short(token: str) -> ReturnView:
+    """Redirect to full length unsubscribe URL."""
+    response = redirect(
+        app_url_for(app, 'notification_unsubscribe_short', token=token), 301
+    )
+    # Set referrer as in the shortlink app
+    response.content_security_policy['referrer'] = 'always'  # type: ignore
+    response.headers['Referrer-Policy'] = 'unsafe-url'
     return response

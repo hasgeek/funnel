@@ -9,7 +9,7 @@ source .env.testing
 set +o allexport
 
 # Break on errors instead of continuing
-set -e
+set -o errexit
 
 python -m tests.cypress.cypress_initdb_test
 flask run -p 3002 --no-reload --debugger 2>&1 1>/tmp/funnel-server.log & echo $! > /tmp/funnel-server.pid

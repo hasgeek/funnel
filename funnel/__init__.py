@@ -29,6 +29,8 @@ from ._version import __version__
 app = Flask(__name__, instance_relative_config=True)
 #: Shortlink app at has.gy
 shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True)
+#: Unsubscribe app at bye.li
+unsubscribeapp = Flask(__name__, static_folder=None, instance_relative_config=True)
 
 mail = Mail()
 pages = FlatPages()
@@ -93,6 +95,12 @@ coaster.app.init_app(
     env_prefix=['FLASK', 'APP_SHORTLINK'],
     init_logging=False,
 )
+coaster.app.init_app(
+    unsubscribeapp,
+    ['py', 'env'],
+    env_prefix=['FLASK', 'APP_UNSUBSCRIBE'],
+    init_logging=False,
+)
 proxies.init_app(app)
 proxies.init_app(shortlinkapp)
 
@@ -101,9 +109,11 @@ proxies.init_app(shortlinkapp)
 # provided as example.
 coaster.app.load_config_from_file(app, 'hasgeekapp.py')
 shortlinkapp.config['SERVER_NAME'] = app.config['SHORTLINK_DOMAIN']
+if app.config.get('UNSUBSCRIBE_DOMAIN'):
+    unsubscribeapp.config['SERVER_NAME'] = app.config['UNSUBSCRIBE_DOMAIN']
 
 # Downgrade logging from default WARNING level to INFO
-for _logging_app in (app, shortlinkapp):
+for _logging_app in (app, shortlinkapp, unsubscribeapp):
     if not _logging_app.debug:
         _logging_app.logger.setLevel(logging.INFO)
 
@@ -122,6 +132,7 @@ migrate = Migrate(app, db)
 
 mail.init_app(app)
 mail.init_app(shortlinkapp)  # Required for email error reports
+mail.init_app(unsubscribeapp)
 
 app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['markdown.extensions.nl2br']
 app.config['FLATPAGES_EXTENSION'] = '.md'

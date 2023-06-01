@@ -90,6 +90,7 @@ required_plugins = [
   'pytest-bdd',
   'pytest-cov',
   'pytest-dotenv',
+  'pytest-env',
   'pytest-remotedata',
   'pytest-rerunfailures',
   'requests-mock',
@@ -112,6 +113,7 @@ markers = [
 ]
 bdd_features_base_dir = 'tests/features/'
 remote_data_strict = true
+env = ['FLASK_ENV=testing']
 env_override_existing_values = false
 env_files = ['.env.testing', '.testenv', '.env', '.flaskenv']
 
