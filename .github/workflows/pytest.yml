@@ -10,6 +10,8 @@ on:
       - '**.py'
       - '**.js'
       - '**.jinja2'
+      - '.flaskenv'
+      - '.testenv'
       - 'requirements/base.txt'
       - 'requirements/test.txt'
       - '.github/workflows/pytest.yml'
