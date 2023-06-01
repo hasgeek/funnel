@@ -50,6 +50,7 @@ jobs:
     steps:
       - name: Setup Docker on macOS
         uses: douglascamata/setup-docker-macos-action@v1-alpha
+        if: ${{ matrix.os == 'macos-latest' }}
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Install Firefox (for browser testing)
