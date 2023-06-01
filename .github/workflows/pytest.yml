@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Setup Docker on macOS
-        uses: douglascamata/setup-docker-macos-action@v1-alpha
+        uses: docker-practice/actions-setup-docker@1.0.11
         if: ${{ matrix.os == 'macos-latest' }}
       - name: Checkout code
         uses: actions/checkout@v3
