@@ -31,7 +31,6 @@ __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
 # https://github.com/pytest-dev/pytest-flask/pull/138
 # https://github.com/pytest-dev/pytest-flask/issues/139
 if platform.system() == 'Darwin':
-    os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
     multiprocessing = multiprocessing.get_context('fork')  # type: ignore[assignment]
 
 # --- Development and testing app multiplexer ------------------------------------------
