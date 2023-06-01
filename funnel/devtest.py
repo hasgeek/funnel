@@ -20,7 +20,7 @@ from sqlalchemy.engine import Engine
 from typing_extensions import Protocol
 
 from . import app as main_app
-from . import shortlinkapp, transports
+from . import shortlinkapp, transports, unsubscribeapp
 from .models import db
 from .typing import ReturnView
 
@@ -95,12 +95,12 @@ class AppByHostWsgi:
         # If no host matched, use the info app
         return info_app
 
-    def __call__(self, environ, start_response) -> Iterable[bytes]:
+    def __call__(self, environ: Any, start_response: Any) -> Iterable[bytes]:
         use_app = self.get_app(environ['HTTP_HOST'])
         return use_app(environ, start_response)
 
 
-devtest_app = AppByHostWsgi(main_app, shortlinkapp)
+devtest_app = AppByHostWsgi(main_app, shortlinkapp, unsubscribeapp)
 
 # --- Background worker ----------------------------------------------------------------
 
@@ -374,6 +374,6 @@ class BackgroundWorker:
         self.start()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         """Finalise a context manager."""
         self.stop()

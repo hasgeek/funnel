@@ -402,6 +402,13 @@ def shortlinkapp(funnel) -> Flask:
     return funnel.shortlinkapp
 
 
+@pytest.fixture(scope='session')
+def unsubscribeapp(funnel) -> Flask:
+    """Unsubscribe URL app with testing flag set."""
+    assert funnel.unsubscribeapp.config['TESTING']
+    return funnel.unsubscribeapp
+
+
 @pytest.fixture()
 def app_context(app) -> t.Iterator:
     """Create an app context for the test."""
