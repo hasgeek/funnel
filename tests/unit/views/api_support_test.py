@@ -18,6 +18,11 @@ VALID_PHONE_INTL = '+12015550123'
 VALID_PHONE_INTL_ZEROPREFIXED = '0012015550123'
 
 
+def mock_api_key() -> str:
+    """Mock API key."""
+    return secrets.token_urlsafe()
+
+
 @pytest.fixture()
 def user_twoflower_phone(user_twoflower: models.User) -> models.UserPhone:
     """User phone fixture."""
@@ -36,21 +41,16 @@ def unaffiliated_phone_number() -> models.PhoneNumber:
     return models.PhoneNumber.add(VALID_PHONE)
 
 
-@pytest.fixture()
-def support_api_key(app: Flask) -> str:
-    """Random support API key."""
-    key = secrets.token_urlsafe()
-    app.config['INTERNAL_SUPPORT_API_KEY'] = key
-    return key
-
-
-def test_api_key_not_configured(client: FlaskClient) -> None:
+@pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': ...})
+def test_api_key_not_configured(app: Flask, client: FlaskClient) -> None:
     """Server must be configured with an API key."""
+    app.config.pop('INTERNAL_SUPPORT_API_KEY', None)
     rv = client.post(url_for('support_callerid'), data={'number': VALID_PHONE})
     assert rv.status_code == 501
 
 
-def test_api_key_mismatch(client: FlaskClient, support_api_key: str) -> None:
+@pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': mock_api_key})
+def test_api_key_mismatch(client: FlaskClient) -> None:
     """Client must supply the correct API key."""
     rv = client.post(
         url_for('support_callerid'),
@@ -60,16 +60,17 @@ def test_api_key_mismatch(client: FlaskClient, support_api_key: str) -> None:
     assert rv.status_code == 403
 
 
+@pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': mock_api_key})
 def test_valid_phone_unaffiliated(
+    app: Flask,
     client: FlaskClient,
-    support_api_key: str,
     unaffiliated_phone_number: models.PhoneNumber,
 ) -> None:
     """Test phone number not affiliated with a user account."""
     rv = client.post(
         url_for('support_callerid'),
         data={'number': VALID_PHONE},
-        headers={'Authorization': f'Bearer {support_api_key}'},
+        headers={'Authorization': f'Bearer {app.config["INTERNAL_SUPPORT_API_KEY"]}'},
     )
     assert rv.status_code == 200
     data = rv.json
@@ -77,12 +78,13 @@ def test_valid_phone_unaffiliated(
     assert 'account' not in data['result']
 
 
+@pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': mock_api_key})
 @pytest.mark.parametrize(
     'number', [VALID_PHONE, VALID_PHONE_UNPREFIXED, VALID_PHONE_ZEROPREFIXED]
 )
 def test_valid_phone_affiliated(
+    app: Flask,
     client: FlaskClient,
-    support_api_key: str,
     user_rincewind_phone: models.UserPhone,
     number: str,
 ) -> None:
@@ -90,7 +92,7 @@ def test_valid_phone_affiliated(
     rv = client.post(
         url_for('support_callerid'),
         data={'number': number},
-        headers={'Authorization': f'Bearer {support_api_key}'},
+        headers={'Authorization': f'Bearer {app.config["INTERNAL_SUPPORT_API_KEY"]}'},
     )
     assert rv.status_code == 200
     data = rv.json
@@ -101,10 +103,11 @@ def test_valid_phone_affiliated(
     }
 
 
+@pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': mock_api_key})
 @pytest.mark.parametrize('number', [VALID_PHONE_INTL, VALID_PHONE_INTL_ZEROPREFIXED])
 def test_valid_phone_intl(
+    app: Flask,
     client: FlaskClient,
-    support_api_key: str,
     user_twoflower_phone: models.UserPhone,
     number: str,
 ) -> None:
@@ -112,7 +115,7 @@ def test_valid_phone_intl(
     rv = client.post(
         url_for('support_callerid'),
         data={'number': number},
-        headers={'Authorization': f'Bearer {support_api_key}'},
+        headers={'Authorization': f'Bearer {app.config["INTERNAL_SUPPORT_API_KEY"]}'},
     )
     assert rv.status_code == 200
     data = rv.json

@@ -10,6 +10,8 @@ on:
       - '**.py'
       - '**.js'
       - '**.jinja2'
+      - '.flaskenv'
+      - '.testenv'
       - 'requirements/base.txt'
       - 'requirements/test.txt'
       - '.github/workflows/pytest.yml'
@@ -19,12 +21,13 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest] # TODO: Figure out macos-latest and Docker
         python-version: ['3.7', '3.11']
 
     services:
@@ -47,6 +50,9 @@ jobs:
           - 5432:5432
 
     steps:
+      - name: Setup Docker on macOS
+        uses: docker-practice/actions-setup-docker@1.0.11
+        if: ${{ matrix.os == 'macos-latest' }}
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Install Firefox (for browser testing)

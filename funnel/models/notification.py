@@ -90,7 +90,6 @@ from typing import (
     ClassVar,
     Dict,
     Generator,
-    List,
     Optional,
     Sequence,
     Set,
@@ -1337,7 +1336,7 @@ class NotificationPreferences(BaseMixin, Model):
 
 @reopen(User)
 class __User:
-    all_notifications: DynamicMapped[List[UserNotification]] = with_roles(
+    all_notifications: DynamicMapped[UserNotification] = with_roles(
         relationship(
             UserNotification,
             lazy='dynamic',

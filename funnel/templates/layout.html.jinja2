@@ -155,16 +155,14 @@
                       aria-label="{% trans %}Updates{% endtrans %}"
                       data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class="header__nav-links__icon") }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span>
                     </a>
-                    {%- if config['ENABLE_COMMENT_SIDEBAR'] %}
-                      <a href="#"
-                        onclick="return false;"
-                        class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-btn"
-                        data-ga="Comments"
-                        role="button"
-                        aria-haspopup="true"
-                        aria-expanded="false">{{ faicon(icon='comment-alt-solid', css_class="header__nav-links__icon") }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span>
-                      </a>
-                    {% endif %}
+                    <a href="#"
+                      onclick="return false;"
+                      class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-btn"
+                      data-ga="Comments"
+                      role="button"
+                      aria-haspopup="true"
+                      aria-expanded="false">{{ faicon(icon='comment-alt-solid', css_class="header__nav-links__icon") }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span>
+                    </a>
                     <div class="header__nav-links">
                       <a class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links user user--standalone js-menu-btn"
                         data-ga="account dropdown"
@@ -185,18 +183,16 @@
                         data-cy="my-updates"
                         data-ga="Updates">{{ faicon(icon='bell', icon_size='title', baseline=false) }}
                       </a>
-                      {%- if config['ENABLE_COMMENT_SIDEBAR'] %}
-                        <a href="#"
-                          onclick="return false;"
-                          class="header__nav-links header__nav-links--right profile-avatar profile-avatar--bigger js-comments-btn"
-                          aria-label="{% trans %}Comments{% endtrans %}"
-                          data-ga="Comments"
-                          data-cy="comment-sidebar"
-                          role="button"
-                          aria-haspopup="true"
-                          aria-expanded="false">{{ faicon(icon='comment-alt', icon_size='title', baseline=false) }}
-                        </a>
-                      {% endif %}
+                      <a href="#"
+                        onclick="return false;"
+                        class="header__nav-links header__nav-links--right profile-avatar profile-avatar--bigger js-comments-btn"
+                        aria-label="{% trans %}Comments{% endtrans %}"
+                        data-ga="Comments"
+                        data-cy="comment-sidebar"
+                        role="button"
+                        aria-haspopup="true"
+                        aria-expanded="false">{{ faicon(icon='comment-alt', icon_size='title', baseline=false) }}
+                      </a>
                       <div class="header__nav-links--dropdown">
                         <a class="header__nav-links user user--standalone js-menu-btn"
                           data-cy="my-account"
@@ -339,10 +335,8 @@
       window.Hasgeek.Config.notificationCount = {{ url_for('notifications_count')|tojson }};
       window.Hasgeek.Config.accountSudo = {{ url_for('account_sudo')|tojson }};
       window.Hasgeek.Config.accountMenu = {{ url_for('account_menu')|tojson }};
-      {% if config['ENABLE_COMMENT_SIDEBAR'] %}
-        window.Hasgeek.Config.commentSidebarElem = '#js-unread-comments';
-        window.Hasgeek.Config.unreadCommentUrl = {{ url_for('comments')|tojson }};
-      {% endif %}
+      window.Hasgeek.Config.commentSidebarElem = '#js-unread-comments';
+      window.Hasgeek.Config.unreadCommentUrl = {{ url_for('comments')|tojson }};
       window.Hasgeek.Config.shorturlApi = {{ url_for('create_shortlink')|tojson }};
       window.Hasgeek.Config.markNotificationReadUrl = {{ url_for('notification_mark_read', eventid_b58='eventid_b58')|tojson }};
     </script>

@@ -30,7 +30,6 @@ ruff
 toml
 types-certifi
 types-cryptography
-types-flask
 types-geoip2
 types-itsdangerous
 types-maxminddb

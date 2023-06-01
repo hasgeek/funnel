@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Set
+from typing import Set
 
 from werkzeug.utils import cached_property
 
@@ -119,9 +119,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
 
 @reopen(User)
 class __User:
-    active_commentset_memberships: DynamicMapped[
-        List[CommentsetMembership]
-    ] = relationship(
+    active_commentset_memberships: DynamicMapped[CommentsetMembership] = relationship(
         CommentsetMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -138,7 +136,7 @@ class __User:
 
 @reopen(Commentset)
 class __Commentset:
-    active_memberships: DynamicMapped[List[CommentsetMembership]] = relationship(
+    active_memberships: DynamicMapped[CommentsetMembership] = relationship(
         CommentsetMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -149,7 +147,7 @@ class __Commentset:
     )
 
     # Send notifications only to subscribers who haven't muted
-    active_memberships_unmuted: DynamicMapped[List[CommentsetMembership]] = with_roles(
+    active_memberships_unmuted: DynamicMapped[CommentsetMembership] = with_roles(
         relationship(
             CommentsetMembership,
             lazy='dynamic',

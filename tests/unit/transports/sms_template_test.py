@@ -180,7 +180,7 @@ def test_validate_no_entity_template_id() -> None:
 
 
 def test_subclass_config(app: Flask, msgt: SimpleNamespace) -> None:
-    class MySubMessage(msgt.MyMessage):
+    class MySubMessage(msgt.MyMessage):  # type: ignore[name-defined]
         pass
 
     assert sms.SmsTemplate.registered_templateid is None

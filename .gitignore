@@ -9,6 +9,7 @@
 .webassets-cache
 __pycache__
 .nox
+monkeytype.sqlite3
 
 # MacOS file
 .DS_Store
