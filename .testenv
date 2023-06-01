@@ -42,7 +42,7 @@ FLASK_BOXOFFICE_SERVER='http://boxoffice:6500/api/1/'
 FLASK_IMGEE_HOST='http://imgee.test:4500'
 FLASK_IMAGE_URL_DOMAINS='["images.example.com"]'
 FLASK_IMAGE_URL_SCHEMES='["https"]'
-FLASK_SES_NOTIFICATION_TOPICS='["arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com"]'
+FLASK_SES_NOTIFICATION_TOPICS=null
 # Per app config
 APP_FUNNEL_SITE_ID=hasgeek-test
 APP_FUNNEL_SERVER_NAME=funnel.test:3002
