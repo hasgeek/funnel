@@ -321,10 +321,15 @@ class SmsTemplate:
     @classmethod
     def validate_no_entity_template_id(cls) -> None:
         """Validate that confidential information is not present in the class spec."""
-        if cls.registered_entityid is not None or cls.registered_templateid is not None:
+        if (
+            'registered_entityid' in cls.__dict__
+            or 'registered_templateid' in cls.__dict__
+        ):
             raise TypeError(
-                "Registered entity id and template id are not public information and"
-                " must be in config. Use init_app to load config"
+                f"Registered entity id and template id are not public information and"
+                f" must be in config. Use init_app to load config (class has:"
+                f" registered_entityid={cls.registered_entityid},"
+                f" registered_templateid={cls.registered_templateid})"
             )
 
     def __init_subclass__(cls) -> None:

@@ -16,6 +16,7 @@ from typing import (
 )
 from uuid import UUID
 
+from flask.typing import ResponseReturnValue
 from sqlalchemy.orm import Mapped
 from typing_extensions import ParamSpec, Protocol
 from werkzeug.wrappers import Response  # Base class for Flask Response
@@ -35,6 +36,7 @@ __all__ = [
     'WrappedFunc',
     'ReturnDecorator',
     'ResponseType',
+    'ResponseReturnValue',
 ]
 
 #: Type used to indicate type continuity within a block of code
