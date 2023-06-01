@@ -126,6 +126,7 @@ env = [
   'FLASK_CACHE_TYPE=flask_caching.backends.RedisCache',
   'FLASK_REDIS_URL=redis://localhost:6379/9',
   'FLASK_RQ_REDIS_URL=redis://localhost:6379/9',
+  'FLASK_RQ_DASHBOARD_REDIS_URL=redis://localhost:6379/9',
   'FLASK_CACHE_REDIS_URL=redis://localhost:6379/9',
   # Disable logging in tests
   'FLASK_SQLALCHEMY_ECHO=false',

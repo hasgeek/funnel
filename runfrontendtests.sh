@@ -10,6 +10,7 @@ export FLASK_WTF_CSRF_ENABLED=true
 export FLASK_CACHE_TYPE=flask_caching.backends.RedisCache
 export FLASK_REDIS_URL=redis://localhost:6379/9
 export FLASK_RQ_REDIS_URL=redis://localhost:6379/9
+export FLASK_RQ_DASHBOARD_REDIS_URL=redis://localhost:6379/9
 export FLASK_CACHE_REDIS_URL=redis://localhost:6379/9
 # Disable logging in tests
 export FLASK_SQLALCHEMY_ECHO=false
