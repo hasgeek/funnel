@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest] # TODO: Figure out macos-latest and Docker
         python-version: ['3.7', '3.11']
 
     services:
