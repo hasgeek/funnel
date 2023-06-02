@@ -28,16 +28,10 @@ pyupgrade
 reformat-gherkin
 ruff
 toml
-types-certifi
-types-cryptography
+tomli
 types-geoip2
-types-itsdangerous
-types-maxminddb
 types-python-dateutil
 types-pytz
 types-redis
 types-requests
-types-setuptools
-types-six
-types-toml
 watchdog

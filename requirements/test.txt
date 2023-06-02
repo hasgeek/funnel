@@ -74,7 +74,7 @@ pytest-env==0.8.1
     # via -r requirements/test.in
 pytest-html==3.2.0
     # via pytest-selenium
-pytest-metadata==2.0.4
+pytest-metadata==3.0.0
     # via pytest-html
 pytest-remotedata==0.4.0
     # via -r requirements/test.in
@@ -82,7 +82,7 @@ pytest-rerunfailures==11.1.2
     # via -r requirements/test.in
 pytest-selenium==4.0.1
     # via -r requirements/test.in
-pytest-variables==2.0.0
+pytest-variables==3.0.0
     # via pytest-selenium
 selenium==4.9.1
     # via pytest-selenium
