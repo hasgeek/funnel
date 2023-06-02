@@ -8,9 +8,8 @@ FLASK_DEBUG_TB_ENABLED=false
 FLASK_WTF_CSRF_ENABLED=true
 # Use Redis cache so that rate limit validation tests work, with Redis db
 FLASK_CACHE_TYPE=flask_caching.backends.RedisCache
-FLASK_REDIS_URL=redis://localhost:6379/9
-FLASK_RQ_REDIS_URL=redis://localhost:6379/9
-FLASK_RQ_DASHBOARD_REDIS_URL=redis://localhost:6379/9
+FLASK_RQ_REDIS_URL=redis://localhost:6379/8
+FLASK_RQ_DASHBOARD_REDIS_URL=redis://localhost:6379/8
 FLASK_CACHE_REDIS_URL=redis://localhost:6379/9
 # Disable logging in tests
 FLASK_SQLALCHEMY_ECHO=false
