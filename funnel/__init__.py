@@ -35,7 +35,7 @@ unsubscribeapp = Flask(__name__, static_folder=None, instance_relative_config=Tr
 mail = Mail()
 pages = FlatPages()
 
-redis_store = FlaskRedis(decode_responses=True)
+redis_store = FlaskRedis(decode_responses=True, config_prefix='CACHE_REDIS')
 rq = RQ()
 rq.job_class = 'rq.job.Job'
 rq.queues = ['funnel']  # Queues used in this app
