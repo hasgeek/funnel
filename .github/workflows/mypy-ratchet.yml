@@ -24,7 +24,6 @@ jobs:
       - name: Install Python dependencies
         run: |
           make install-python-dev
-          pip install types-all
 
       - name: Run mypy
         run: |

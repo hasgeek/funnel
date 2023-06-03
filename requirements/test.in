@@ -4,6 +4,7 @@ colorama
 coverage
 coveralls
 lxml
+Pygments
 pytest
 pytest-bdd
 pytest-cov
