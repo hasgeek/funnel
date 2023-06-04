@@ -65,10 +65,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: 'requirements/*.txt'
-      - uses: actions/cache@v3
+      - name: Cache python packages
+        uses: actions/cache@v3
         with:
           path: ${{ env.pythonLocation }}
-          key: py-packages-${{ hashFiles('requirements/base.txt') }}-${{ hashFiles('requirements.txt/test.txt') }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('requirements/base.txt') }}-${{ hashFiles('requirements.txt/test.txt') }}
       - name: Install Python dependencies
         run: make install-python-test
       - name: Install Node
