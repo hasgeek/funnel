@@ -9,6 +9,7 @@ on:
     paths:
       - '**.py'
       - '**.js'
+      - '**.scss'
       - '**.jinja2'
       - '.flaskenv'
       - '.testenv'
