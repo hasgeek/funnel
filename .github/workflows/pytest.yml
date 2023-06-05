@@ -83,26 +83,28 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: node_modules-${{ hashFiles('package-lock.json') }}
+          key: ${{ matrix.os}}-${{ matrix.python-version }}-node_modules-${{ hashFiles('package-lock.json') }}
       - name: Install Node dependencies
         run: make install-npm-ci
       - name: Cache Webpack assets build
         uses: actions/cache@v3
         with:
           path: funnel/static/build
-          key: asset-build-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
+          key: ${{ matrix.os}}-${{ matrix.python-version }}-asset-build-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
       - name: Cache .eslintcache
         uses: actions/cache@v3
         with:
           path: .eslintcache
-          key: eslintcache-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('.eslintrc.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
+          key: ${{ matrix.os}}-${{ matrix.python-version }}-eslintcache-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('.eslintrc.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
       - name: Cache .webpack_cache
+        id: webpack-cache
         uses: actions/cache@v3
         with:
           path: .webpack_cache
-          key: webpack-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
+          key: ${{ matrix.os}}-${{ matrix.python-version }}-webpack-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
       - name: Build Webpack assets
         run: make assets
+        if: steps.webpack-cache.outcome == 'success'
       - name: Annotate Pytest failures in PR
         run: pip install pytest-github-actions-annotate-failures
       - name: Setup hostnames
