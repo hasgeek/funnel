@@ -96,10 +96,10 @@ jobs:
         with:
           path: .eslintcache
           key: eslintcache-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('.eslintrc.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
-      - name: Cache .webpack_assets
+      - name: Cache .webpack_cache
         uses: actions/cache@v3
         with:
-          path: .webpack_assets
+          path: .webpack_cache
           key: webpack-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
       - name: Build Webpack assets
         run: make assets
