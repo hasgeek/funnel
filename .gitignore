@@ -2,6 +2,7 @@
 *.egg-info
 *.pyc
 .coverage
+.eslintcache
 .mypy_cache
 .pytest_cache
 .ropeproject
