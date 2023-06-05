@@ -61,26 +61,6 @@ jobs:
         uses: browser-actions/setup-firefox@latest
       - name: Install Geckodriver (for browser testing)
         uses: browser-actions/setup-geckodriver@latest
-      - name: Cache node modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: node_modules-${{ hashFiles('package-lock.json') }}
-      - name: Cache Webpack assets build
-        uses: actions/cache@v3
-        with:
-          path: funnel/static/build
-          key: asset-build-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
-      - name: Cache .eslintcache
-        uses: actions/cache@v3
-        with:
-          path: .eslintcache
-          key: eslintcache-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('.eslintrc.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
-      - name: Cache .webpack_cache
-        uses: actions/cache@v3
-        with:
-          path: .webpack_cache
-          key: webpack-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
       - name: Install Python
         uses: actions/setup-python@v4
         with:
@@ -99,8 +79,28 @@ jobs:
         with:
           node-version: latest
           cache: npm
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node_modules-${{ hashFiles('package-lock.json') }}
       - name: Install Node dependencies
         run: make install-npm-ci
+      - name: Cache Webpack assets build
+        uses: actions/cache@v3
+        with:
+          path: funnel/static/build
+          key: asset-build-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
+      - name: Cache .eslintcache
+        uses: actions/cache@v3
+        with:
+          path: .eslintcache
+          key: eslintcache-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('.eslintrc.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
+      - name: Cache .webpack_cache
+        uses: actions/cache@v3
+        with:
+          path: .webpack_cache
+          key: webpack-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
       - name: Build Webpack assets
         run: make assets
       - name: Annotate Pytest failures in PR
