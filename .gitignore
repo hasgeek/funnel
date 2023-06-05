@@ -9,6 +9,7 @@
 .sass-cache
 .sass-cache
 .webassets-cache
+.webpack_assets
 __pycache__
 monkeytype.sqlite3
 

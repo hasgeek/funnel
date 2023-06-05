@@ -90,7 +90,17 @@ jobs:
         uses: actions/cache@v3
         with:
           path: funnel/static/build
-          key: asset-build-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
+          key: asset-build-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
+      - name: Cache .eslintcache
+        uses: actions/cache@v3
+        with:
+          path: .eslintcache
+          key: eslintcache-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('.eslintrc.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
+      - name: Cache .webpack_assets
+        uses: actions/cache@v3
+        with:
+          path: .webpack_assets
+          key: webpack-${{ hashFiles('webpack.config.js') }}-${{ hashFiles('funnel/assets/**/*.js') }}-${{ hashFiles('funnel/assets/**/*.scss') }}
       - name: Build Webpack assets
         run: make assets
       - name: Annotate Pytest failures in PR

@@ -19,6 +19,7 @@ module.exports = {
   },
   cache: {
     type: 'filesystem',
+    cacheDirectory: path.resolve(__dirname, '.webpack_cache'),
   },
   devtool: 'source-map',
   externals: {
