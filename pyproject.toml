@@ -91,14 +91,16 @@ required_plugins = [
   'pytest-cov',
   'pytest-dotenv',
   'pytest-env',
-  'pytest-remotedata',
   'pytest-rerunfailures',
+  'pytest-socket',
   'requests-mock',
 ]
 addopts = [
   '--cov-report=term-missing',
   '--driver=firefox',
-  '--remote-data=any',
+  '--disable-socket',
+  '--allow-unix-socket',  # Required for Selenium driver
+  '--allow-hosts=127.0.0.1,::1',  # Add Docker IPs here
   '--strict-markers',
   # '--typeguard-packages=funnel,tests',  # This breaks on toc.py in markdown
 ]
@@ -112,8 +114,7 @@ markers = [
   'mock_config("app", config_dict): Create mock configuration for a feature'
 ]
 bdd_features_base_dir = 'tests/features/'
-remote_data_strict = true
-env = ['FLASK_ENV=testing']
+env = ['FLASK_ENV=testing', 'FLASK_TESTING=true']
 env_override_existing_values = false
 env_files = ['.env.testing', '.testenv', '.env', '.flaskenv']
 

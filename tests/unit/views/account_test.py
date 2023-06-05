@@ -59,7 +59,7 @@ def test_username_available(db_session, client, user_rincewind, csrf_token) -> N
 PWNED_PASSWORD = "thisisone1"  # nosec
 
 
-@pytest.mark.remote_data()
+@pytest.mark.enable_socket()
 def test_pwned_password(client, csrf_token, login, user_rincewind) -> None:
     """Pwned password validator will block attempt to use a compromised password."""
     login.as_(user_rincewind)

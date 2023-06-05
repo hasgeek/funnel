@@ -43,7 +43,7 @@ def test_youtube_video_delete(db_session, new_proposal) -> None:
     assert new_proposal.video_id is None
 
 
-@pytest.mark.remote_data()
+@pytest.mark.enable_socket()
 @pytest.mark.requires_config('app', 'youtube')
 @pytest.mark.usefixtures('app_context')
 def test_youtube(db_session, new_proposal) -> None:
@@ -88,7 +88,7 @@ def test_vimeo_video_delete(db_session, new_proposal) -> None:
     assert new_proposal.video_id is None
 
 
-@pytest.mark.remote_data()
+@pytest.mark.enable_socket()
 @pytest.mark.requires_config('app', 'vimeo')
 @pytest.mark.usefixtures('app_context')
 def test_vimeo(db_session, new_proposal) -> None:

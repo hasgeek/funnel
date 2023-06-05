@@ -34,7 +34,7 @@ MESSAGE = OneLineTemplate(
 )
 
 
-@pytest.mark.remote_data()
+@pytest.mark.enable_socket()
 @pytest.mark.requires_config('app', 'twilio')
 def test_twilio_success() -> None:
     """Test if message sending is a success."""
@@ -42,7 +42,7 @@ def test_twilio_success() -> None:
     assert sid
 
 
-@pytest.mark.remote_data()
+@pytest.mark.enable_socket()
 @pytest.mark.requires_config('app', 'twilio')
 def test_twilio_callback(client) -> None:
     """Test if message sending is a success when a callback is requested."""
@@ -50,7 +50,7 @@ def test_twilio_callback(client) -> None:
     assert sid
 
 
-@pytest.mark.remote_data()
+@pytest.mark.enable_socket()
 @pytest.mark.requires_config('app', 'twilio')
 def test_twilio_failures() -> None:
     """Test if message sending is a failure."""
