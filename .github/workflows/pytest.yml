@@ -12,6 +12,7 @@ on:
       - '**.jinja2'
       - '.flaskenv'
       - '.testenv'
+      - 'package-lock.json'
       - 'requirements/base.txt'
       - 'requirements/test.txt'
       - '.github/workflows/pytest.yml'
