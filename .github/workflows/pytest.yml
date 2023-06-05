@@ -85,6 +85,11 @@ jobs:
           key: node_modules-${{ hashFiles('package-lock.json') }}
       - name: Install Node dependencies
         run: make install-npm-ci
+      - name: Cache Webpack assets build
+        uses: actions/cache@v3
+        with:
+          path: funnel/static/build
+          key: asset-build-${{ hashFiles('funnel/assets/**.js') }}-${{ hashFiles('funnel/assets/**.scss') }}
       - name: Build Webpack assets
         run: make assets
       - name: Annotate Pytest failures in PR
