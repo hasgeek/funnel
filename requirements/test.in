@@ -10,9 +10,9 @@ pytest-bdd
 pytest-cov
 pytest-dotenv
 pytest-env
-pytest-remotedata
 pytest-rerunfailures
 pytest-selenium>=4.0.1
+pytest-socket
 requests-mock
 sttable
 tomlkit
