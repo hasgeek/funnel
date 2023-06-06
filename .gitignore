@@ -2,11 +2,13 @@
 *.egg-info
 *.pyc
 .coverage
+.eslintcache
 .mypy_cache
 .pytest_cache
 .ropeproject
 .sass-cache
 .webassets-cache
+.webpack_cache
 __pycache__
 .nox
 monkeytype.sqlite3

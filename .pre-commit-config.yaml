@@ -33,6 +33,8 @@ repos:
             'PYSEC-2021-13', # https://github.com/pallets-eco/flask-caching/pull/209
             '--ignore-vuln',
             'PYSEC-2022-42969', # https://github.com/pytest-dev/pytest/issues/10392
+            '--ignore-vuln',
+            'PYSEC-2023-73', # https://github.com/RedisLabs/redisraft/issues/608
           ]
         files: ^requirements/.*\.txt$
   - repo: https://github.com/charliermarsh/ruff-pre-commit
@@ -93,18 +95,22 @@ repos:
       - id: black
   # Mypy is temporarily disabled until the SQLAlchemy 2.0 migration is complete
   # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v0.991
+  #   rev: v1.3.0
   #   hooks:
   #     - id: mypy
   #       # warn-unused-ignores is unsafe with pre-commit, see
   #       # https://github.com/python/mypy/issues/2960
   #       args: ['--no-warn-unused-ignores', '--ignore-missing-imports']
   #       additional_dependencies:
+  #         - flask
   #         - lxml-stubs
   #         - sqlalchemy
   #         - toml
   #         - tomli
-  #         - types-all
+  #         - types-geoip2
+  #         - types-python-dateutil
+  #         - types-pytz
+  #         - types-requests
   #         - typing-extensions
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0

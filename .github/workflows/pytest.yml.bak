@@ -9,9 +9,11 @@ on:
     paths:
       - '**.py'
       - '**.js'
+      - '**.scss'
       - '**.jinja2'
       - '.flaskenv'
       - '.testenv'
+      - 'package-lock.json'
       - 'requirements/base.txt'
       - 'requirements/test.txt'
       - '.github/workflows/pytest.yml'
@@ -65,6 +67,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: 'requirements/*.txt'
+      - name: Cache python packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements/base.txt') }}-${{ hashFiles('requirements.txt/test.txt') }}
       - name: Install Python dependencies
         run: make install-python-test
       - name: Install Node
@@ -72,8 +79,13 @@ jobs:
         with:
           node-version: latest
           cache: npm
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ join(matrix.*, '-') }}-node_modules-${{ hashFiles('package-lock.json') }}
       - name: Install Node dependencies
-        run: make install-npm-ci
+        run: make install-npm
       - name: Build Webpack assets
         run: make assets
       - name: Annotate Pytest failures in PR

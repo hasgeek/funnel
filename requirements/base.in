@@ -42,10 +42,10 @@ premailer
 progressbar2
 psycopg[binary]
 pycountry
-Pygments
 pyIsEmail
 python-dateutil
 python-dotenv<1.0  # 1.0 drops Python 3.7 support
+python-utils<3.6.0  # Not ours; needed by progressbar2, but latest drops Python 3.7
 pytz
 PyVimeo
 qrcode
