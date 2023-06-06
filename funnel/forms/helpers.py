@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Optional, Sequence, Union
 import json
 
 from flask import flash
@@ -26,18 +26,18 @@ from ..models import (
 class ProfileSelectField(forms.AutocompleteField):
     """Render an autocomplete field for selecting an account."""
 
-    data: Optional[Profile]
+    data: Optional[Profile]  # type: ignore[assignment]
     widget = forms.Select2Widget()
     multiple = False
     widget_autocomplete = True
 
-    def _value(self):
+    def _value(self) -> str:
         """Return value for HTML rendering."""
-        if self.data:
+        if self.data is not None:
             return self.data.name
         return ''
 
-    def process_formdata(self, valuelist) -> None:
+    def process_formdata(self, valuelist: Sequence[str]) -> None:
         """Process incoming form data."""
         if valuelist:
             self.data = Profile.query.filter(
@@ -67,7 +67,7 @@ class EmailAddressAvailable:
             raise ValueError("Invalid purpose")
         self.purpose = purpose
 
-    def __call__(self, form, field) -> None:
+    def __call__(self, form: forms.Form, field: forms.Field) -> None:
         # Get actor (from existing obj, or current_auth.actor)
         actor = None
         if hasattr(form, 'edit_obj'):
@@ -160,7 +160,7 @@ class PhoneNumberAvailable:
             raise ValueError("Invalid purpose")
         self.purpose = purpose
 
-    def __call__(self, form, field) -> None:
+    def __call__(self, form: forms.Form, field: forms.Field) -> None:
         # Get actor (from existing obj, or current_auth.actor)
         actor = None
         if hasattr(form, 'edit_obj'):
@@ -219,7 +219,9 @@ def image_url_validator() -> forms.validators.ValidUrl:
     """Customise ValidUrl for hosted image URL validation."""
     return forms.validators.ValidUrl(
         allowed_schemes=lambda: app.config.get('IMAGE_URL_SCHEMES', ('https',)),
-        allowed_domains=lambda: app.config.get('IMAGE_URL_DOMAINS'),
+        allowed_domains=lambda: app.config.get(  # type: ignore[arg-type, return-value]
+            'IMAGE_URL_DOMAINS'
+        ),
         message_schemes=__("A https:// URL is required"),
         message_domains=__("Images must be hosted at images.hasgeek.com"),
     )

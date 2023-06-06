@@ -91,14 +91,16 @@ required_plugins = [
   'pytest-cov',
   'pytest-dotenv',
   'pytest-env',
-  'pytest-remotedata',
   'pytest-rerunfailures',
+  'pytest-socket',
   'requests-mock',
 ]
 addopts = [
   '--cov-report=term-missing',
   '--driver=firefox',
-  '--remote-data=any',
+  '--disable-socket',
+  '--allow-unix-socket',  # Required for Selenium driver
+  '--allow-hosts=127.0.0.1,::1',  # Add Docker IPs here
   '--strict-markers',
   # '--typeguard-packages=funnel,tests',  # This breaks on toc.py in markdown
 ]
@@ -108,19 +110,13 @@ markers = [
   'formuser("user"): User fixture for editing a form',
   'update_markdown_data: Regenerate markdown test output (dev use only)',
   'debug_markdown_output: Generate markdown debug file tests/data/markdown/output.html (dev use only)',
-  'requires_config("feature"): Run test only if specified app config is available'
+  'requires_config("app", "feature"): Run test only if app config is available',
+  'mock_config("app", config_dict): Create mock configuration for a feature'
 ]
-filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
 bdd_features_base_dir = 'tests/features/'
-remote_data_strict = true
-env = [
-  'FLASK_ENV=testing',
-  # For macOS: https://stackoverflow.com/a/52230415/78903
-  'OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES',
-  'D:HOSTALIASES={PWD}/HOSTALIASES'
-]
+env = ['FLASK_ENV=testing', 'FLASK_TESTING=true']
 env_override_existing_values = false
-env_files = ['.env', '.env.testing']
+env_files = ['.env.testing', '.testenv', '.env', '.flaskenv']
 
 [tool.pyright]
 venv = 'hasgeek'

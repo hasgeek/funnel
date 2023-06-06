@@ -17,6 +17,10 @@ module.exports = {
       path: require.resolve('path-browserify'),
     },
   },
+  cache: {
+    type: 'filesystem',
+    cacheDirectory: path.resolve(__dirname, '.webpack_cache'),
+  },
   devtool: 'source-map',
   externals: {
     jquery: 'jQuery',
@@ -98,6 +102,8 @@ module.exports = {
         loader: 'babel-loader',
         options: {
           plugins: ['@babel/plugin-syntax-dynamic-import'],
+          cacheCompression: false,
+          cacheDirectory: true,
         },
       },
       {
@@ -116,6 +122,7 @@ module.exports = {
   plugins: [
     new ESLintPlugin({
       fix: true,
+      cache: true,
     }),
     new CopyWebpackPlugin({
       patterns: [
