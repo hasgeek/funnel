@@ -85,7 +85,7 @@ jobs:
           path: node_modules
           key: ${{ join(matrix.*, '-') }}-node_modules-${{ hashFiles('package-lock.json') }}
       - name: Install Node dependencies
-        run: make install-npm-ci
+        run: make install-npm
       - name: Build Webpack assets
         run: make assets
       - name: Annotate Pytest failures in PR
