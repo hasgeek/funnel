@@ -8,6 +8,7 @@
   ) {
     // Only hash change; replace the current page and reload
     window.location.replace({{ url|tojson }});
+    window.location.reload();
   } else {
     // New page; navigate to it
     window.location.assign({{ url|tojson }});

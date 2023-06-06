@@ -16,6 +16,21 @@ TWOFLOWER_PHONE = '+12015550123'
 TWOFLOWER_PASSWORD = 'te@pwd3289'  # nosec
 
 
+def check_recaptcha_loaded(selenium):
+    wait = WebDriverWait(selenium, 10)
+    recaptcha_frame = wait.until(
+        ec.presence_of_element_located(
+            (
+                By.CSS_SELECTOR,
+                "#form-passwordlogin > div.g-recaptcha > div > div.grecaptcha-logo > iframe",
+            )
+        )
+    )
+    selenium.switch_to.frame(recaptcha_frame)
+    wait.until(ec.presence_of_element_located((By.CLASS_NAME, "rc-anchor-pt")))
+    selenium.switch_to.default_content()
+
+
 @given("Anonymous visitor is on the home page")
 def given_anonuser_home_page(live_server, selenium, db_session):
     selenium.implicitly_wait(10)
@@ -37,6 +52,7 @@ def when_anonuser_navigates_login_and_submits(
     wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'header__button'))).send_keys(
         Keys.RETURN
     )
+    check_recaptcha_loaded(selenium)
     if phone_or_email == "a phone number":
         username = '8123456789'
     elif phone_or_email == "an email address":
@@ -53,6 +69,7 @@ def when_anonuser_navigates_login_and_submits(
 @then("they are prompted for their name and the OTP, which they provide")
 def then_anonuser_prompted_name_and_otp(live_server, selenium, anon_username):
     wait = WebDriverWait(selenium, 10)
+    check_recaptcha_loaded(selenium)
     wait.until(ec.element_to_be_clickable((By.NAME, 'fullname'))).send_keys('Twoflower')
     if anon_username['phone_or_email'] == "a phone number":
         otp = live_server.transport_calls.sms[-1].vars['otp']
@@ -75,6 +92,7 @@ def then_they_are_logged_in(selenium):
         )
         is True
     )
+    selenium.close()
 
 
 @given("Twoflower visitor is on the home page")
@@ -98,6 +116,7 @@ def when_navigate_to_login_page(app, live_server, selenium):
 @when("submit an email address with password")
 def when_submit_email_password(selenium):
     wait = WebDriverWait(selenium, 10)
+    check_recaptcha_loaded(selenium)
     wait.until(ec.element_to_be_clickable((By.NAME, 'username')))
     selenium.find_element(By.NAME, 'username').send_keys('twoflower@example.org')
     selenium.find_element(By.ID, 'use-password-login').click()
@@ -117,12 +136,14 @@ def then_logged_in(selenium):
         )
         is True
     )
+    selenium.close()
 
 
 @when("they submit the phone number with password")
 @when("submit a phone number with password")
 def when_submit_phone_password(app, live_server, selenium):
     wait = WebDriverWait(selenium, 10)
+    check_recaptcha_loaded(selenium)
     wait.until(ec.element_to_be_clickable((By.NAME, 'username')))
     selenium.find_element(By.NAME, 'username').send_keys(TWOFLOWER_PHONE)
     selenium.find_element(By.ID, 'use-password-login').click()
