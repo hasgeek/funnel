@@ -1,6 +1,7 @@
 /*! GetDevicePixelRatio | Author: Tyson Matanich, 2012 | License: MIT */
-(function (n) {
-  n.getDevicePixelRatio = function () {
+(function setGlobalFn(n) {
+  /* eslint-disable no-return-assign */
+  n.getDevicePixelRatio = function getRatio() {
     let t = 1;
     return (
       n.screen.systemXDPI !== undefined &&
