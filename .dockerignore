@@ -8,6 +8,8 @@
 **/.sass-cache
 **/.webassets-cache
 **/__pycache__
+.webpack_cache
+.cache
 
 # MacOS file
 **/.DS_Store

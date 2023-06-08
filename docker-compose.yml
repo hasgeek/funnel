@@ -65,9 +65,10 @@ services:
       - redis-test
     volumes:
       - ./.cache/.npm:/home/pn/.npm
-      - ./node_modules:/home/pn/app/node_modules
-      - ./.cache/.pip:/home/pn/.pip
-      - ./.webpack_cache:/home/pn/app/.webpack_cache
+      - ./.cache/node_modules:/home/pn/app/node_modules
+      - ./.cache/.pip:/home/pn/.cache/pip
+      - ./.cache/.webpack_cache:/home/pn/app/.webpack_cache
+      - ./.cache/build:/home/pn/app/funnel/static/build
       - ./.cache/files:/home/pn/.ci-cache/files
       - ./coverage:/home/pn/app/coverage
     restart: no
