@@ -6,7 +6,7 @@ x-postgres: &postgres
   environment:
     - POSTGRES_HOST_AUTH_METHOD=trust
     - POSTGRES_USER=postgres
-  ports:
+  expose:
     - 5432
   healthcheck:
     interval: 5s
@@ -14,7 +14,7 @@ x-postgres: &postgres
     retries: 5
 x-redis: &redis
   image: redis:latest
-  ports:
+  expose:
     - 6379
   restart: always
   healthcheck:
@@ -48,12 +48,12 @@ services:
     extends:
       file: docker/compose/services.yml
       service: funnel
-    image: funnel-test
+    image: hasgeek/funnel-base-devtest:latest
     profiles:
       - test
     build:
       context: .
-      target: test
+      dockerfile: ci.Dockerfile
     depends_on:
       redis-test:
         condition: service_healthy
@@ -64,13 +64,17 @@ services:
       - db-test
       - redis-test
     volumes:
-      - ../.funnel-pip-cache:/home/pn/.cache/pip:delegated
+      - ./cache/.npm:/home/pn/.npm
+      - ./cache/node_modules:/home/pn/app/node_modules
+      - ./cache/.pip:/home/pn/.pip
+      - ./cache/.webpack_cache:/home/pn/app/.webpack_cache
+      - ./cache/files:/home/pn/.ci-cache/files
       - ./coverage:/home/pn/app/coverage
-      # https://stackoverflow.com/questions/43844639/how-do-i-add-cached-or-delegated-into-a-docker-compose-yml-volumes-list
     restart: no
     environment:
       - REDIS_HOST=redis-test
-      - POSTGRES_USER_HOST=funnel@db-test
+      - FLASK_SQLALCHEMY_DATABASE_URI=postgresql+psycopg://funnel@db-test/funnel_testing
+      - FLASK_SQLALCHEMY_BINDS__geoname=postgresql+psycopg://funnel@db-test/geoname_testing
   db-test:
     <<: *postgres
     profiles:
@@ -113,7 +117,7 @@ services:
     volumes:
       # https://stackoverflow.com/questions/43844639/how-do-i-add-cached-or-delegated-into-a-docker-compose-yml-volumes-list
       # https://forums.docker.com/t/what-happened-to-delegated-cached-ro-and-other-flags/105097/2
-      - ../.funnel-pip-cache:/home/pn/.cache/pip:delegated
+      - pip_cache:/home/pn/.cache/pip:delegated
       - .:/home/pn/app
       - node_modules:/home/pn/app/node_modules
       - ./docker/entrypoints/dev.sh:/home/pn/dev-entrypoint.sh:ro
@@ -187,6 +191,7 @@ x-tmpfs: &tmpfs
 
 volumes:
   node_modules:
+  pip_cache:
   postgres_dev:
   redis_dev:
   redis:

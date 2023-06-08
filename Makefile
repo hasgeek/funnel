@@ -111,7 +111,7 @@ install-python: install-python-pip deps-editable
 
 install-dev: deps-editable install-python-dev install-npm assets
 
-install-test: deps-editable install-python-test install-npm-ci assets
+install-test: deps-editable install-python-test install-npm assets
 
 install: deps-editable install-python install-npm-ci assets
 

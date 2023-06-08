@@ -14,7 +14,6 @@
 
 # Assets and static files
 funnel/static/build
-funnel/static/gen
 funnel/static/service-worker.js
 funnel/static/service-worker.js.map
 funnel/static/img/fa5-packed.svg
@@ -52,10 +51,7 @@ secrets.dev
 secrets.test
 newrelic.ini
 .env
-.env.testing
-.env.staging
-.env.development
-.env.production
+.env.*
 
 # Local venvs (Idea creates them)
 venv/
