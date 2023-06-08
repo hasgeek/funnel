@@ -9,3 +9,4 @@ RUN mkdir -pv /home/pn/.npm /home/pn/app/node_modules /home/pn/.pip /home/pn/app
 USER pn
 WORKDIR /home/pn/app
 COPY --chown=pn:pn . .
+ENTRYPOINT [ "/home/pn/app/docker/entrypoints/ci-test.sh" ]
