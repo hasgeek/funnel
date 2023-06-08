@@ -59,6 +59,15 @@ jobs:
           key: docker-files
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+      - name: Build funnel-test image
+        id: build-funnel-test
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ci.Dockerfile
+          tags: funnel-test:latest
+          load: true
+          push: false
       - name: Run Tests
         run: make docker-ci-test
       - name: Upload coverage report to Coveralls
