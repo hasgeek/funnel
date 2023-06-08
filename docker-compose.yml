@@ -48,7 +48,7 @@ services:
     extends:
       file: docker/compose/services.yml
       service: funnel
-    image: hasgeek/funnel-base-devtest:latest
+    image: hasgeek/funnel-test:latest
     profiles:
       - test
     build:
@@ -64,11 +64,11 @@ services:
       - db-test
       - redis-test
     volumes:
-      - ./cache/.npm:/home/pn/.npm
-      - ./cache/node_modules:/home/pn/app/node_modules
-      - ./cache/.pip:/home/pn/.pip
-      - ./cache/.webpack_cache:/home/pn/app/.webpack_cache
-      - ./cache/files:/home/pn/.ci-cache/files
+      - ./.cache/.npm:/home/pn/.npm
+      - ./node_modules:/home/pn/app/node_modules
+      - ./.cache/.pip:/home/pn/.pip
+      - ./.webpack_cache:/home/pn/app/.webpack_cache
+      - ./.cache/files:/home/pn/.ci-cache/files
       - ./coverage:/home/pn/app/coverage
     restart: no
     environment:
