@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any, Dict
+import itertools
 
 from dateutil.relativedelta import relativedelta
 from flask.cli import AppGroup
@@ -27,6 +28,36 @@ class DataSource:
 
     basequery: Any
     datecolumn: Any
+
+
+def matomo_data():
+    referrers = f'https://matomo.hasgeek.tech?module=API&method=Referrers.getWebsites&idSite=1&period=day&date=yesterday&filter_limit=-1&format=json&token_auth={app.config["MATOMO_TOKEN"]}'
+    socials = f'https://matomo.hasgeek.tech?module=API&method=Referrers.getSocials&idSite=1&period=day&date=today&filter_limit=-1&format=json&token_auth={app.config["MATOMO_TOKEN"]}'
+    pages = f'https://matomo.hasgeek.tech?module=API&method=Actions.getPageTitles&idSite=1&period=day&date=today&filter_limit=-1&format=json&token_auth={app.config["MATOMO_TOKEN"]}'
+
+    referrers = requests.get(referrers, timeout=5).json()
+    socials = requests.get(socials, timeout=5).json()
+    pages = requests.get(pages, timeout=5).json()
+
+    referrers_list = [(k['label'], k['nb_visits']) for k in referrers]
+    socials_list = [(k['label'], k['nb_visits']) for k in socials]
+    pages_list = [(k['label'], k['nb_visits']) for k in pages]
+
+    message = ""
+
+    message += "\n*Top Pages:*\n"
+    for index, i in enumerate(itertools.islice(pages_list, 7), 1):
+        message += f"{index}. {i[0][1:20]}: {i[1]}\n"
+
+    message += "\n*Referrers:*\n"
+    for index, i in enumerate(itertools.islice(referrers_list, 7), 1):
+        message += f"{index}. {i[0]}: {i[1]}\n"
+
+    message += "\n*Socials:*\n"
+    for index, i in enumerate(itertools.islice(socials_list, 7), 1):
+        message += f"{index}. {i[0]}: {i[1]}\n"
+
+    return message
 
 
 def data_sources() -> Dict[str, DataSource]:
@@ -242,6 +273,8 @@ def growthstats() -> None:
                 f" {data['month_trend']} {data['month']} month\n"
                 f"\n"
             )
+
+    message += matomo_data()
 
     requests.post(
         f'https://api.telegram.org/bot{app.config["TELEGRAM_STATS_APIKEY"]}'
