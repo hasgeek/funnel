@@ -31,9 +31,12 @@ class DataSource:
 
 
 def matomo_data():
-    referrers = f'https://matomo.hasgeek.tech?module=API&method=Referrers.getWebsites&idSite=1&period=day&date=yesterday&filter_limit=-1&format=json&token_auth={app.config["MATOMO_TOKEN"]}'
-    socials = f'https://matomo.hasgeek.tech?module=API&method=Referrers.getSocials&idSite=1&period=day&date=today&filter_limit=-1&format=json&token_auth={app.config["MATOMO_TOKEN"]}'
-    pages = f'https://matomo.hasgeek.tech?module=API&method=Actions.getPageTitles&idSite=1&period=day&date=today&filter_limit=-1&format=json&token_auth={app.config["MATOMO_TOKEN"]}'
+    tz = pytz.timezone('Asia/Kolkata')
+    now = utcnow().astimezone(tz)
+    yesterday = (now - relativedelta(days=1)).strftime('%Y-%m-%d')
+    referrers = f'https://matomo.hasgeek.tech?module=API&method=Referrers.getWebsites&idSite=1&period=day&date={yesterday}&filter_limit=-1&format=json&token_auth={app.config["MATOMO_TOKEN"]}'
+    socials = f'https://matomo.hasgeek.tech?module=API&method=Referrers.getSocials&idSite=1&period=day&date={yesterday}&filter_limit=-1&format=json&token_auth={app.config["MATOMO_TOKEN"]}'
+    pages = f'https://matomo.hasgeek.tech?module=API&method=Actions.getPageTitles&idSite=1&period=day&date={yesterday}&filter_limit=-1&format=json&token_auth={app.config["MATOMO_TOKEN"]}'
 
     referrers = requests.get(referrers, timeout=5).json()
     socials = requests.get(socials, timeout=5).json()
