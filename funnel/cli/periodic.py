@@ -31,6 +31,15 @@ class DataSource:
     datecolumn: Any
 
 
+def matomo_response_json(url):
+    try:
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.ReadTimeout as e:
+        return "Timeout error: " + e
+
+
 def matomo_data():
     tz = pytz.timezone('Asia/Kolkata')
     now = utcnow().astimezone(tz)
@@ -51,9 +60,9 @@ def matomo_data():
     socials = matomo_path.copy().add({'method': 'Referrers.getSocials'})
     pages = matomo_path.copy().add({'method': 'Actions.getPageTitles'})
 
-    referrers = requests.get(referrers, timeout=5).json()
-    socials = requests.get(socials, timeout=5).json()
-    pages = requests.get(pages, timeout=5).json()
+    referrers = matomo_response_json(referrers)
+    socials = matomo_response_json(socials)
+    pages = matomo_response_json(pages)
 
     referrers_list = [(k['label'], k['nb_visits']) for k in referrers]
     socials_list = [(k['label'], k['nb_visits']) for k in socials]
