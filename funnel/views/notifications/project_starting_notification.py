@@ -16,6 +16,8 @@ from ..notification import RenderNotification
 
 
 class ProjectStartingTemplate(SmsTemplate):
+    """DLT registered template for project starting notification."""
+
     registered_template = (
         'Reminder: {#var#} is starting soon. Join at {#var#}'
         '\n\nhttps://bye.li to stop - Hasgeek'
