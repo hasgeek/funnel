@@ -9,6 +9,7 @@ import itertools
 
 from dateutil.relativedelta import relativedelta
 from flask.cli import AppGroup
+from furl import furl
 import click
 import pytz
 import requests
@@ -34,9 +35,21 @@ def matomo_data():
     tz = pytz.timezone('Asia/Kolkata')
     now = utcnow().astimezone(tz)
     yesterday = (now - relativedelta(days=1)).strftime('%Y-%m-%d')
-    referrers = f'https://matomo.hasgeek.tech?module=API&method=Referrers.getWebsites&idSite=1&period=day&date={yesterday}&filter_limit=-1&format=json&token_auth={app.config["MATOMO_TOKEN"]}'
-    socials = f'https://matomo.hasgeek.tech?module=API&method=Referrers.getSocials&idSite=1&period=day&date={yesterday}&filter_limit=-1&format=json&token_auth={app.config["MATOMO_TOKEN"]}'
-    pages = f'https://matomo.hasgeek.tech?module=API&method=Actions.getPageTitles&idSite=1&period=day&date={yesterday}&filter_limit=-1&format=json&token_auth={app.config["MATOMO_TOKEN"]}'
+    matomo_path = furl("https://matomo.hasgeek.tech")
+    matomo_path.add(
+        {
+            'token_auth': app.config['MATOMO_TOKEN'],
+            'date': yesterday,
+            'module': 'API',
+            'idSite': 1,
+            'period': 'day',
+            'filter_limit': -1,
+            'format': 'json',
+        }
+    )
+    referrers = matomo_path.copy().add({'method': 'Referrers.getWebsites'})
+    socials = matomo_path.copy().add({'method': 'Referrers.getSocials'})
+    pages = matomo_path.copy().add({'method': 'Actions.getPageTitles'})
 
     referrers = requests.get(referrers, timeout=5).json()
     socials = requests.get(socials, timeout=5).json()
@@ -49,7 +62,7 @@ def matomo_data():
     message = ""
 
     message += "\n*Top Pages:*\n"
-    for index, i in enumerate(itertools.islice(pages_list, 7), 1):
+    for index, i in enumerate(pages_list[:7], 1):
         message += f"{index}. {i[0][1:20]}: {i[1]}\n"
 
     message += "\n*Referrers:*\n"
