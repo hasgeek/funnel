@@ -16,17 +16,12 @@ from ..notification import RenderNotification
 
 
 class ProjectStartingTemplate(SmsTemplate):
-    registered_template = 'Reminder: {#var#} is starting soon. Join at {#var#}\n\n{#var#} to stop - Hasgeek'
-    template = 'Reminder: {project} is starting soon. Join at {url}\n\n{unsubscribe_url} to stop - Hasgeek'
+    registered_template = 'Reminder: {#var#} is starting soon. Join at {#var#}\n\nhttps://bye.li to stop - Hasgeek'
+    template = 'Reminder: {project} is starting soon. Join at {url}\n\nhttps://bye.li to stop - Hasgeek'
     plaintext_template = 'Reminder: {project} is starting soon. Join at {url}'
 
     project: str
     url: str
-    unsubscribe_url: str
-
-    @property
-    def unsubscribe_url(self) -> str:
-        return "https://bye.li"
 
     def available_var_len(self):
         """Discount the two URLs from available length."""
@@ -65,7 +60,7 @@ class RenderProjectStartingNotification(RenderNotification):
             'notifications/project_starting_email.html.jinja2', view=self
         )
 
-    def sms(self):
+    def sms(self) -> SmsTemplate:
         return ProjectStartingTemplate(
             project=self.project.joined_title,
             url=shortlink(
