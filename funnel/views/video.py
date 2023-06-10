@@ -58,7 +58,7 @@ def set_video_cache(obj: VideoMixin, data: VideoData, exists: bool = True) -> No
         copied_data['uploaded_at'] = cast(
             datetime, copied_data['uploaded_at']
         ).isoformat()
-    redis_store.hset(cache_key, mapping=copied_data)
+    redis_store.hmset(cache_key, copied_data)
 
     # if video exists at source, cache for 2 days, if not, for 6 hours
     hours_to_cache = 2 * 24 if exists else 6
