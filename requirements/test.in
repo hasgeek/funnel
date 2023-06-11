@@ -6,6 +6,7 @@ coveralls
 lxml
 Pygments
 pytest
+pytest-asyncio
 pytest-bdd
 pytest-cov
 pytest-dotenv
@@ -14,6 +15,7 @@ pytest-rerunfailures
 pytest-selenium>=4.0.1
 pytest-socket
 requests-mock
+respx
 sttable
 tomlkit
 typeguard

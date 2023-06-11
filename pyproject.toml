@@ -87,6 +87,7 @@ sections = ['FUTURE', 'STDLIB', 'THIRDPARTY', 'FIRSTPARTY', 'REPO', 'LOCALFOLDER
 [tool.pytest.ini_options]
 minversion = "6.1"  # For config.rootpath
 required_plugins = [
+  'pytest-asyncio',
   'pytest-bdd',
   'pytest-cov',
   'pytest-dotenv',

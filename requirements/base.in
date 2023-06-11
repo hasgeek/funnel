@@ -2,6 +2,7 @@
 -e file:./build/dependencies/coaster
 alembic
 argon2-cffi
+asgiref
 Babel
 base58
 bcrypt
@@ -28,6 +29,7 @@ furl
 geoip2
 greenlet
 html2text
+httpx[http2]
 icalendar
 idna
 itsdangerous
@@ -45,6 +47,7 @@ pycountry
 pyIsEmail
 python-dateutil
 python-dotenv<1.0  # 1.0 drops Python 3.7 support
+python-telegram-bot
 python-utils<3.6.0  # Not ours; needed by progressbar2, but latest drops Python 3.7
 pytz
 PyVimeo
