@@ -78,19 +78,23 @@ class MatomoResponse(DataClassJsonMixin):
 
     label: str
     nb_visits: int
-    segment: str = ''
-    nb_actions: int = 0
     nb_uniq_visitors: int = 0
-    max_actions: int = 0
-    sum_visit_length: int = 0
-    bounce_count: int = 0
-    nb_visits_converted: int = 0
-    idsubdatatable: int = 0
+    nb_users: int = 0
     url: Optional[str] = None
+    segment: str = ''
 
     def get_url(self) -> Optional[str]:
-        if self.url:
-            return self.url
+        url = self.url
+        if url:
+            # If URL is a path (/path) or schemeless (//host/path), return as is
+            if url.startswith('/'):
+                return url
+            # If there's no leading `/` and no `://`, prefix `https://`
+            if '://' not in url:
+                return f'https://{url}'
+            # If neither, assume fully formed URL and return as is
+            return url
+        # If there's no URL in the data, look for a URL in the segment identifier
         if self.segment.startswith('pageUrl='):
             # Known prefixes: `pageUrl==` and `pageUrl=^` (9 chars)
             # The rest of the string is double escaped, so unquote twice
@@ -145,7 +149,7 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
     socials_url = matomo_url.copy().add({'method': 'Referrers.getSocials'})
     pages_url = matomo_url.copy().add({'method': 'Actions.getPageUrls'})
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(follow_redirects=True) as client:
         referrers, socials, pages = await asyncio.gather(
             matomo_response_json(client, str(referrers_url)),
             matomo_response_json(client, str(socials_url)),

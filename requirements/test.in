@@ -6,6 +6,7 @@ coveralls
 lxml
 Pygments
 pytest
+pytest-asyncio
 pytest-bdd
 pytest-cov
 pytest-dotenv
