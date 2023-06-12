@@ -16,10 +16,41 @@ from ...models import (
     Rsvp,
 )
 from ...transports import email
-from ...transports.sms import MessageTemplate, OneLineTemplate
+from ...transports.sms import DLT_VAR_MAX_LENGTH, MessageTemplate, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from ..schedule import schedule_ical
+
+
+class RegistrationConfirmationTemplate(SmsTemplate):
+    """DLT registered template for rsvp notificaion."""
+
+    registered_template = (
+        'You have registered for {#var#}, scheduled for {#var#}. '
+        'For more information, visit {#var#}.'
+        '\n\nhttps://bye.li to stop - Hasgeek'
+    )
+    template = (
+        'You have registered for {project}, scheduled for {datetime}. '
+        'For more information, visit {url}.\n\n'
+        'https://bye.li to stop - Hasgeek'
+    )
+    plaintext_template = (
+        'You have registered for {project}, scheduled for {datetime}.'
+        'For more information, visit {url}'
+    )
+
+    project: str
+    datetime: str
+    url: str
+
+    def truncate(self) -> None:
+        """Truncate project to fit, falling back to unjoined title if that fits."""
+        if len(self.project) > DLT_VAR_MAX_LENGTH:
+            if len(self.project_only) >= DLT_VAR_MAX_LENGTH:
+                self.project = self.project_only[: DLT_VAR_MAX_LENGTH - 1] + '…'
+            else:
+                self.project = self.project_only
 
 
 class RegistrationBase:
@@ -86,19 +117,17 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
             ),
         )
 
-    def sms(self) -> OneLineTemplate:
+    def sms(self) -> RegistrationConfirmationTemplate:
         project = self.rsvp.project
         next_at = project.next_starting_at()
         if next_at:
-            template = _("You have registered for {project}. Next session: {datetime}.")
+            _("You have registered for {project}. Next session: {datetime}.")
         else:
-            template = _("You have registered for {project}")
-        return OneLineTemplate(
-            text1=template.format(
-                project=project.joined_title,
-                datetime=datetime_filter(
-                    next_at, self.datetime_format_sms, locale=get_locale()
-                ),
+            _("You have registered for {project}")
+        return RegistrationConfirmationTemplate(
+            project=project.joined_title,
+            datetime=datetime_filter(
+                next_at, self.datetime_format_sms, locale=get_locale()
             ),
             url=shortlink(
                 project.url_for(_external=True, **self.tracking_tags('sms')),
