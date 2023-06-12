@@ -5,7 +5,14 @@ default_stages: [commit]
 # default_language_version:
 #   python: python3.9
 ci:
-  skip: ['pip-audit', 'yesqa', 'no-commit-to-branch', 'docker-compose-check']
+  skip:
+    [
+      'pip-audit',
+      'yesqa',
+      'no-commit-to-branch',
+      'hadolint-docker',
+      'docker-compose-check',
+    ]
 repos:
   - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
     rev: v1.5.1
@@ -189,7 +196,7 @@ repos:
       - id: dockerfile_lint
         files: .*Dockerfile.*
   - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.0
+    rev: v2.12.1-beta
     hooks:
       - id: hadolint-docker
   - repo: https://github.com/IamTheFij/docker-pre-commit
