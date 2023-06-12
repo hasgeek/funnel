@@ -74,6 +74,8 @@ def test_valid_phone_unaffiliated(
     )
     assert rv.status_code == 200
     data = rv.json
+    assert isinstance(data, dict)
+    assert isinstance(data['result'], dict)
     assert data['result']['number'] == VALID_PHONE
     assert 'account' not in data['result']
 
@@ -96,6 +98,8 @@ def test_valid_phone_affiliated(
     )
     assert rv.status_code == 200
     data = rv.json
+    assert isinstance(data, dict)
+    assert isinstance(data['result'], dict)
     assert data['result']['number'] == VALID_PHONE
     assert data['result']['account'] == {
         'title': user_rincewind_phone.user.fullname,
@@ -119,6 +123,8 @@ def test_valid_phone_intl(
     )
     assert rv.status_code == 200
     data = rv.json
+    assert isinstance(data, dict)
+    assert isinstance(data['result'], dict)
     assert data['result']['number'] == VALID_PHONE_INTL
     assert data['result']['account'] == {
         'title': user_twoflower_phone.user.fullname,

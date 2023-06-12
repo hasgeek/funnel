@@ -47,7 +47,7 @@ flake8-assertive==2.1.0
     # via -r requirements/dev.in
 flake8-blind-except==0.2.1
     # via -r requirements/dev.in
-flake8-bugbear==23.5.9
+flake8-bugbear==23.6.5
     # via -r requirements/dev.in
 flake8-builtins==2.1.0
     # via -r requirements/dev.in
@@ -106,7 +106,7 @@ pip-compile-multi==2.6.3
     # via -r requirements/dev.in
 pip-tools==6.13.0
     # via pip-compile-multi
-platformdirs==3.5.1
+platformdirs==3.5.3
     # via
     #   black
     #   pylint
@@ -127,11 +127,11 @@ pylint==2.17.4
     # via -r requirements/dev.in
 pyproject-hooks==1.0.0
     # via build
-pyupgrade==3.4.0
+pyupgrade==3.6.0
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
-ruff==0.0.270
+ruff==0.0.272
     # via -r requirements/dev.in
 smmap==5.0.0
     # via gitdb
@@ -139,10 +139,8 @@ snowballstemmer==2.2.0
     # via pydocstyle
 stevedore==5.1.0
     # via bandit
-tokenize-rt==5.0.0
+tokenize-rt==5.1.0
     # via pyupgrade
-tomli==2.0.1
-    # via -r requirements/dev.in
 toposort==1.10
     # via pip-compile-multi
 types-geoip2==3.0.0

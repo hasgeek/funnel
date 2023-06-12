@@ -1,5 +1,10 @@
 {
   "funnel/__init__.py": {
+    "\"Flask\" has no attribute \"assets\"  [attr-defined]": 3,
+    "\"Flask\" has no attribute \"geoip_asn\"  [attr-defined]": 2,
+    "\"Flask\" has no attribute \"geoip_city\"  [attr-defined]": 2,
+    "\"Flask\" has no attribute \"login_manager\"  [attr-defined]": 1,
+    "Argument \"theme\" to \"init_app\" of \"BaseframeBlueprint\" has incompatible type \"Literal['funnel']\"; expected \"Literal['bootstrap3', 'mui']\"  [arg-type]": 1,
     "Call to untyped function \"configure_mappers\" in typed context  [no-untyped-call]": 1,
     "Call to untyped function \"init\" in typed context  [no-untyped-call]": 1,
     "Call to untyped function \"init_app\" in typed context  [no-untyped-call]": 3,
@@ -8,41 +13,45 @@
     "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1
   },
   "funnel/cli/geodata.py": {
+    "Call to untyped function \"command\" in typed context  [no-untyped-call]": 2,
     "Non-overlapping equality check (left operand type: \"str\", right operand type: \"Literal[0]\")  [comparison-overlap]": 1,
     "Untyped decorator makes function \"download\" untyped  [misc]": 1,
     "Untyped decorator makes function \"process\" untyped  [misc]": 1
   },
   "funnel/cli/misc.py": {
+    "Call to untyped function \"command\" in typed context  [no-untyped-call]": 3,
     "Untyped decorator makes function \"baseframe_translations_path\" untyped  [misc]": 1,
     "Untyped decorator makes function \"dbconfig\" untyped  [misc]": 1,
     "Untyped decorator makes function \"dbcreate\" untyped  [misc]": 1
   },
-  "funnel/cli/periodic.py": {
+  "funnel/cli/periodic/notification.py": {
     "\"Type[Project]\" has no attribute \"starting_at\"  [attr-defined]": 1,
+    "Call to untyped function \"command\" in typed context  [no-untyped-call]": 1,
     "Call to untyped function \"dispatch_notification\" in typed context  [no-untyped-call]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1,
-    "Untyped decorator makes function \"growthstats\" untyped  [misc]": 1,
     "Untyped decorator makes function \"project_starting_alert\" untyped  [misc]": 1
   },
+  "funnel/cli/periodic/stats.py": {
+    "Call to untyped function \"command\" in typed context  [no-untyped-call]": 1,
+    "Missing type parameters for generic type \"Query\"  [type-arg]": 1,
+    "Module \"funnel.models\" does not explicitly export attribute \"Mapped\"  [attr-defined]": 1,
+    "Module \"funnel.models\" does not explicitly export attribute \"Query\"  [attr-defined]": 1,
+    "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1,
+    "Untyped decorator makes function \"dailystats\" untyped  [misc]": 1
+  },
   "funnel/cli/refresh/markdown.py": {
+    "Call to untyped function \"command\" in typed context  [no-untyped-call]": 1,
     "Missing type parameters for generic type \"MarkdownModel\"  [type-arg]": 2,
     "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1,
-    "Untyped decorator makes function \"markdown\" untyped  [misc]": 1,
-    "Value of type variable \"_M\" of \"register\" of \"MarkdownModel\" cannot be \"Comment\"  [type-var]": 1,
-    "Value of type variable \"_M\" of \"register\" of \"MarkdownModel\" cannot be \"Profile\"  [type-var]": 1,
-    "Value of type variable \"_M\" of \"register\" of \"MarkdownModel\" cannot be \"Project\"  [type-var]": 1,
-    "Value of type variable \"_M\" of \"register\" of \"MarkdownModel\" cannot be \"Proposal\"  [type-var]": 1,
-    "Value of type variable \"_M\" of \"register\" of \"MarkdownModel\" cannot be \"Session\"  [type-var]": 1,
-    "Value of type variable \"_M\" of \"register\" of \"MarkdownModel\" cannot be \"Update\"  [type-var]": 1,
-    "Value of type variable \"_M\" of \"register\" of \"MarkdownModel\" cannot be \"Venue\"  [type-var]": 1,
-    "Value of type variable \"_M\" of \"register\" of \"MarkdownModel\" cannot be \"VenueRoom\"  [type-var]": 1
+    "Untyped decorator makes function \"markdown\" untyped  [misc]": 1
   },
   "funnel/devtest.py": {
-    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 4,
+    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 2,
     "Missing type parameters for generic type \"Callable\"  [type-arg]": 3,
     "Missing type parameters for generic type \"Iterable\"  [type-arg]": 1,
     "Missing type parameters for generic type \"dict\"  [type-arg]": 2,
-    "Returning Any from function declared to return \"Iterable[bytes]\"  [no-any-return]": 1
+    "Returning Any from function declared to return \"Iterable[bytes]\"  [no-any-return]": 1,
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[str], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 1
   },
   "funnel/extapi/boxoffice.py": {
     "Call to untyped function \"get_orders\" in typed context  [no-untyped-call]": 1,
@@ -60,121 +69,47 @@
     "\"User\" has no attribute \"emailclaims\"  [attr-defined]": 1,
     "\"User\" has no attribute \"emails\"; maybe \"email\"?  [attr-defined]": 1,
     "\"User\" has no attribute \"phones\"; maybe \"phone\"?  [attr-defined]": 1,
-    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 3,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 21,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"EqualTo\"  [attr-defined]": 3,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"InputRequired\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Length\"  [attr-defined]": 11,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"StopValidation\"  [attr-defined]": 3,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"ValidationError\"  [attr-defined]": 10
+    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 3
   },
   "funnel/forms/auth_client.py": {
-    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 2,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 9,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Length\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"URL\"  [attr-defined]": 2,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"ValidationError\"  [attr-defined]": 4
-  },
-  "funnel/forms/comment.py": {
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"InputRequired\"  [attr-defined]": 1
+    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 2
   },
   "funnel/forms/helpers.py": {
-    "Argument \"allowed_domains\" to \"ValidUrl\" has incompatible type \"Callable[[], Optional[Any]]\"; expected \"Union[Iterable[str], Callable[[], Iterable[str]], None]\"  [arg-type]": 1,
-    "Function is missing a return type annotation  [no-untyped-def]": 2,
-    "Function is missing a type annotation  [no-untyped-def]": 2,
-    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 3,
-    "Incompatible return value type (got \"Optional[Any]\", expected \"Iterable[str]\")  [return-value]": 1,
-    "Incompatible types in assignment (expression has type \"Optional[Profile]\", base class \"AutocompleteField\" defined the type as \"Optional[str]\")  [assignment]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"StopValidation\"  [attr-defined]": 17
-  },
-  "funnel/forms/label.py": {
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 2,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Length\"  [attr-defined]": 2,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Optional\"  [attr-defined]": 4
+    "Returning Any from function declared to return \"str\"  [no-any-return]": 1
   },
   "funnel/forms/login.py": {
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1,
-    "Incompatible types in assignment (expression has type \"Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress, None]\", variable has type \"Union[UserEmail, UserEmailClaim, UserPhone, None]\")  [assignment]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 4,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Length\"  [attr-defined]": 2,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Optional\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"StopValidation\"  [attr-defined]": 4,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"ValidationError\"  [attr-defined]": 7
+    "Incompatible types in assignment (expression has type \"Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress, None]\", variable has type \"Union[UserEmail, UserEmailClaim, UserPhone, None]\")  [assignment]": 1
   },
   "funnel/forms/membership.py": {
-    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 3
+    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1
   },
   "funnel/forms/notification.py": {
     "\"User\" has no attribute \"notification_preferences\"  [attr-defined]": 1,
     "Function is missing a return type annotation  [no-untyped-def]": 1,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 4,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 3,
     "Returning Any from function declared to return \"bool\"  [no-any-return]": 1
   },
-  "funnel/forms/organization.py": {
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 4,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Length\"  [attr-defined]": 3,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"ValidationError\"  [attr-defined]": 5
-  },
   "funnel/forms/profile.py": {
-    "Call to untyped function \"image_url_validator\" in typed context  [no-untyped-call]": 3,
-    "Function is missing a return type annotation  [no-untyped-def]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Length\"  [attr-defined]": 5,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Optional\"  [attr-defined]": 6,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"URL\"  [attr-defined]": 1
+    "Function is missing a return type annotation  [no-untyped-def]": 1
   },
   "funnel/forms/project.py": {
     "\"Project\" has no attribute \"schedule_start_at\"  [attr-defined]": 1,
-    "Call to untyped function \"image_url_validator\" in typed context  [no-untyped-call]": 2,
     "Item \"ManagedState\" of \"Union[ManagedState, ManagedStateGroup]\" has no attribute \"transitions\"  [union-attr]": 1,
-    "Item \"ManagedStateGroup\" of \"Union[ManagedState, ManagedStateGroup]\" has no attribute \"transitions\"  [union-attr]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 10,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"InputRequired\"  [attr-defined]": 3,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Length\"  [attr-defined]": 5,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Optional\"  [attr-defined]": 7,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"StopValidation\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"URL\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"ValidationError\"  [attr-defined]": 1
+    "Item \"ManagedStateGroup\" of \"Union[ManagedState, ManagedStateGroup]\" has no attribute \"transitions\"  [union-attr]": 1
   },
   "funnel/forms/proposal.py": {
     "\"Project\" has no attribute \"labels\"  [attr-defined]": 3,
     "\"Proposal\" has no attribute \"formlabels\"  [attr-defined]": 2,
     "\"Proposal\" has no attribute \"memberships\"  [attr-defined]": 1,
-    "\"User\" has no attribute \"projects_as_editor\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 7,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"InputRequired\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Length\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Optional\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"StopValidation\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"URL\"  [attr-defined]": 1
-  },
-  "funnel/forms/session.py": {
-    "Call to untyped function \"image_url_validator\" in typed context  [no-untyped-call]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 3,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"InputRequired\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Length\"  [attr-defined]": 3,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Optional\"  [attr-defined]": 5,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"URL\"  [attr-defined]": 1
+    "\"User\" has no attribute \"projects_as_editor\"  [attr-defined]": 1
   },
   "funnel/forms/sync_ticket.py": {
     "\"Project\" has no attribute \"ticket_events\"  [attr-defined]": 1,
-    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 10,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Length\"  [attr-defined]": 5,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Optional\"  [attr-defined]": 1
-  },
-  "funnel/forms/update.py": {
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 2
+    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1
   },
   "funnel/forms/venue.py": {
-    "\"Project\" has no attribute \"venues\"  [attr-defined]": 1,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"DataRequired\"  [attr-defined]": 4,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Length\"  [attr-defined]": 9,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"Optional\"  [attr-defined]": 7,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"ValidationError\"  [attr-defined]": 1
+    "\"Project\" has no attribute \"venues\"  [attr-defined]": 1
   },
   "funnel/loginproviders/github.py": {
     "Function is missing a type annotation  [no-untyped-def]": 1
@@ -225,6 +160,8 @@
     "Returning Any from function declared to return \"str\"  [no-any-return]": 2
   },
   "funnel/models/comment.py": {
+    "\"BaseMixin\" has no attribute \"__tablename__\"  [attr-defined]": 1,
+    "\"BaseMixin\" has no attribute \"title\"  [attr-defined]": 1,
     "\"Comment\" has no attribute \"in_reply_to\"; maybe \"in_reply_to_id\"?  [attr-defined]": 2,
     "\"Commentset\" has no attribute \"comments\"  [attr-defined]": 1,
     "\"Commentset\" has no attribute \"project\"  [attr-defined]": 4,
@@ -246,7 +183,8 @@
     "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1,
     "Returning Any from function declared to return \"BaseMixin\"  [no-any-return]": 3,
     "Returning Any from function declared to return \"Optional[str]\"  [no-any-return]": 1,
-    "Returning Any from function declared to return \"str\"  [no-any-return]": 2
+    "Returning Any from function declared to return \"str\"  [no-any-return]": 1,
+    "Statement is unreachable  [unreachable]": 2
   },
   "funnel/models/commentset_membership.py": {
     "Incompatible types in assignment (expression has type \"Mapped[Commentset]\", base class \"ImmutableMembershipMixin\" defined the type as \"Mapped[Optional[Model]]\")  [assignment]": 1,
@@ -294,7 +232,6 @@
     "Module \"funnel.models\" does not explicitly export attribute \"hybrid_property\"  [attr-defined]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"relationship\"  [attr-defined]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1,
-    "Module \"sqlalchemy.orm\" does not explicitly export attribute \"mapper\"  [attr-defined]": 1,
     "Module \"sqlalchemy.orm.attributes\" does not explicitly export attribute \"NO_VALUE\"  [attr-defined]": 1,
     "Returning Any from function declared to return \"Optional[str]\"  [no-any-return]": 2,
     "Returning Any from function declared to return \"bool\"  [no-any-return]": 1
@@ -307,8 +244,7 @@
     "\"Type[GeoName]\" has no attribute \"alternate_titles\"  [attr-defined]": 1,
     "Function is missing a return type annotation  [no-untyped-def]": 1,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 2,
-    "Incompatible types in assignment (expression has type \"Optional[Any]\", target has type \"GeoName\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Optional[GeoName]\", target has type \"GeoName\")  [assignment]": 1,
+    "Incompatible types in assignment (expression has type \"Optional[GeoName]\", target has type \"GeoName\")  [assignment]": 2,
     "Item \"None\" of \"Optional[GeoAdmin1Code]\" has no attribute \"title\"  [union-attr]": 1,
     "Item \"None\" of \"Optional[GeoAdmin2Code]\" has no attribute \"title\"  [union-attr]": 1,
     "Missing type parameters for generic type \"dict\"  [type-arg]": 2,
@@ -381,6 +317,7 @@
     "Returning Any from function declared to return \"bool\"  [no-any-return]": 1
   },
   "funnel/models/notification.py": {
+    "\"UUID\" has no attribute \"in_\"  [attr-defined]": 1,
     "\"User\" has no attribute \"active_site_membership\"  [attr-defined]": 1,
     "\"User\" has no attribute \"main_notification_preferences\"  [attr-defined]": 2,
     "\"User\" has no attribute \"notification_preferences\"  [attr-defined]": 4,
@@ -389,13 +326,10 @@
     "\"User\" has no attribute \"proposal_memberships\"  [attr-defined]": 1,
     "\"User\" has no attribute \"rsvps\"  [attr-defined]": 1,
     "Argument 1 to \"column_keyed_dict\" has incompatible type \"InstrumentedAttribute[str]\"; expected \"Union[Type[Any], Callable[[Any], <nothing>]]\"  [arg-type]": 1,
-    "Argument 2 to \"transport_for\" of \"User\" has incompatible type \"Optional[ModelType]\"; expected \"Optional[Model]\"  [arg-type]": 1,
-    "Function is missing a return type annotation  [no-untyped-def]": 2,
     "Function is missing a type annotation  [no-untyped-def]": 1,
-    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 4,
-    "Incompatible return value type (got \"Optional[Type[Notification]]\", expected \"Optional[Notification]\")  [return-value]": 1,
-    "Incompatible types in assignment (expression has type \"Mapped[Notification]\", base class \"UserNotificationMixin\" defined the type as \"Union[Notification, PreviewNotification]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Optional[str]\", variable has type \"str\")  [assignment]": 1,
+    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 2,
+    "Missing type parameters for generic type \"Notification\"  [type-arg]": 9,
+    "Missing type parameters for generic type \"NotificationType\"  [type-arg]": 1,
     "Missing type parameters for generic type \"Query\"  [type-arg]": 2,
     "Missing type parameters for generic type \"Type\"  [type-arg]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"BaseMixin\"  [attr-defined]": 1,
@@ -407,29 +341,13 @@
     "Module \"funnel.models\" does not explicitly export attribute \"relationship\"  [attr-defined]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1,
     "Module \"sqlalchemy.orm.exc\" does not explicitly export attribute \"NoResultFound\"  [attr-defined]": 1,
+    "Redundant cast to \"Union[_F, _D]\"  [redundant-cast]": 1,
     "Returning Any from function declared to return \"NotificationPreferences\"  [no-any-return]": 2,
     "Returning Any from function declared to return \"bool\"  [no-any-return]": 5
   },
   "funnel/models/notification_types.py": {
-    "Cannot determine type of \"document\" in base class \"Notification\"  [misc]": 11,
-    "Definition of \"preference_context\" in base class \"DocumentHasProfile\" is incompatible with definition in base class \"Notification\"  [misc]": 7,
-    "Definition of \"preference_context\" in base class \"DocumentHasProject\" is incompatible with definition in base class \"Notification\"  [misc]": 4,
-    "Incompatible types in assignment (expression has type \"Type[CommentModeratorReport]\", base class \"Notification\" defined the type as \"Optional[Type[UuidModelType]]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Comment]\", base class \"Notification\" defined the type as \"Optional[Type[UuidModelType]]\")  [assignment]": 2,
-    "Incompatible types in assignment (expression has type \"Type[Comment]\", base class \"Notification\" defined the type as \"Type[UuidModelType]\")  [assignment]": 2,
-    "Incompatible types in assignment (expression has type \"Type[Commentset]\", base class \"Notification\" defined the type as \"Type[UuidModelType]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[OrganizationMembership]\", base class \"Notification\" defined the type as \"Optional[Type[UuidModelType]]\")  [assignment]": 2,
-    "Incompatible types in assignment (expression has type \"Type[Organization]\", base class \"Notification\" defined the type as \"Type[UuidModelType]\")  [assignment]": 2,
-    "Incompatible types in assignment (expression has type \"Type[ProjectCrewMembership]\", base class \"Notification\" defined the type as \"Optional[Type[UuidModelType]]\")  [assignment]": 2,
-    "Incompatible types in assignment (expression has type \"Type[Project]\", base class \"Notification\" defined the type as \"Type[UuidModelType]\")  [assignment]": 5,
-    "Incompatible types in assignment (expression has type \"Type[Proposal]\", base class \"Notification\" defined the type as \"Optional[Type[UuidModelType]]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Proposal]\", base class \"Notification\" defined the type as \"Type[UuidModelType]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Rsvp]\", base class \"Notification\" defined the type as \"Optional[Type[UuidModelType]]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Rsvp]\", base class \"Notification\" defined the type as \"Type[UuidModelType]\")  [assignment]": 2,
-    "Incompatible types in assignment (expression has type \"Type[Session]\", base class \"Notification\" defined the type as \"Optional[Type[UuidModelType]]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Update]\", base class \"Notification\" defined the type as \"Type[UuidModelType]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[User]\", base class \"Notification\" defined the type as \"Type[UuidModelType]\")  [assignment]": 1,
-    "Module \"funnel.models\" does not explicitly export attribute \"Mapped\"  [attr-defined]": 1
+    "Missing type parameters for generic type \"Notification\"  [type-arg]": 15,
+    "Returning Any from function declared to return \"Profile\"  [no-any-return]": 2
   },
   "funnel/models/organization_membership.py": {
     "Cannot determine type of \"__table_args__\" in base class \"ImmutableUserMembershipMixin\"  [misc]": 1,
@@ -451,7 +369,6 @@
     "Module \"funnel.models\" does not explicitly export attribute \"hybrid_property\"  [attr-defined]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"relationship\"  [attr-defined]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1,
-    "Module \"sqlalchemy.orm\" does not explicitly export attribute \"mapper\"  [attr-defined]": 1,
     "Module \"sqlalchemy.orm.attributes\" does not explicitly export attribute \"NO_VALUE\"  [attr-defined]": 1,
     "Returning Any from function declared to return \"Optional[str]\"  [no-any-return]": 1,
     "Returning Any from function declared to return \"str\"  [no-any-return]": 2
@@ -634,6 +551,7 @@
     "Incompatible types in assignment (expression has type \"None\", base class \"ImmutableMembershipMixin\" defined the type as \"Mapped[Optional[Model]]\")  [assignment]": 1,
     "Incompatible types in assignment (expression has type \"None\", base class \"ImmutableMembershipMixin\" defined the type as \"Mapped[int]\")  [assignment]": 1,
     "Missing type parameters for generic type \"tuple\"  [type-arg]": 1,
+    "Module \"funnel.models\" does not explicitly export attribute \"Mapped\"  [attr-defined]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"declared_attr\"  [attr-defined]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"relationship\"  [attr-defined]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1
@@ -712,6 +630,7 @@
     "Function is missing a return type annotation  [no-untyped-def]": 9,
     "Function is missing a type annotation  [no-untyped-def]": 3,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 5,
+    "Incompatible return value type (got \"Optional[PhoneNumber]\", expected \"PhoneNumber\")  [return-value]": 1,
     "Incompatible return value type (got \"Union[Any, InstrumentedAttribute[Any]]\", expected \"str\")  [return-value]": 1,
     "Incompatible return value type (got \"Union[ManagedStateInstance[User], bool]\", expected \"bool\")  [return-value]": 3,
     "Incompatible types in assignment (expression has type \"Mapped[EmailAddress]\", base class \"EmailAddressMixin\" defined the type as \"Callable[[Type[EmailAddressMixin]], Mapped[EmailAddress]]\")  [assignment]": 2,
@@ -734,11 +653,10 @@
     "No overload variant of \"failsafe_add\" matches argument types \"scoped_session[Session]\", \"UserEmail\", \"User\", \"EmailAddress\"  [call-overload]": 1,
     "No overload variant of \"failsafe_add\" matches argument types \"scoped_session[Session]\", \"UserPhone\", \"User\", \"PhoneNumber\"  [call-overload]": 1,
     "Returning Any from function declared to return \"Optional[str]\"  [no-any-return]": 2,
-    "Returning Any from function declared to return \"PhoneNumber\"  [no-any-return]": 1,
     "Returning Any from function declared to return \"Union[UserEmail, UserEmailClaim, None]\"  [no-any-return]": 1,
     "Returning Any from function declared to return \"Union[UserEmail, UserPhone, None]\"  [no-any-return]": 1,
     "Returning Any from function declared to return \"bool\"  [no-any-return]": 3,
-    "Returning Any from function declared to return \"str\"  [no-any-return]": 3,
+    "Returning Any from function declared to return \"str\"  [no-any-return]": 2,
     "Signature of \"name\" incompatible with supertype \"SharedProfileMixin\"  [override]": 2
   },
   "funnel/models/user_session.py": {
@@ -783,18 +701,19 @@
     "Function is missing a type annotation  [no-untyped-def]": 1
   },
   "funnel/proxies/request.py": {
-    "Call to untyped function \"has_request_context\" in typed context  [no-untyped-call]": 3,
-    "Missing type parameters for generic type \"ReturnDecorator\"  [type-arg]": 1,
-    "Returning Any from function declared to return \"bool\"  [no-any-return]": 1
+    "\"LocalProxy[RequestWants]\" has no attribute \"response_vary\"  [attr-defined]": 1,
+    "Missing type parameters for generic type \"ReturnDecorator\"  [type-arg]": 1
   },
   "funnel/registry.py": {
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1,
     "Missing type parameters for generic type \"OrderedDict\"  [type-arg]": 2,
-    "Missing type parameters for generic type \"ReturnDecorator\"  [type-arg]": 1,
-    "Returning Any from function declared to return \"Response\"  [no-any-return]": 1
+    "Missing type parameters for generic type \"ReturnDecorator\"  [type-arg]": 1
   },
   "funnel/serializers.py": {
     "Missing type parameters for generic type \"KeyRotationWrapper\"  [type-arg]": 3
+  },
+  "funnel/signals.py": {
+    "Module \"flask.signals\" does not explicitly export attribute \"Namespace\"  [attr-defined]": 1
   },
   "funnel/transports/base.py": {
     "Function is missing a return type annotation  [no-untyped-def]": 1
@@ -810,9 +729,7 @@
     "Returning Any from function declared to return \"str\"  [no-any-return]": 3
   },
   "funnel/transports/sms/template.py": {
-    "Call to untyped function \"available_var_len\" in typed context  [no-untyped-call]": 3,
-    "Function is missing a return type annotation  [no-untyped-def]": 4,
-    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 2,
+    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1,
     "Missing type parameters for generic type \"Pattern\"  [type-arg]": 1
   },
   "funnel/typing.py": {
@@ -841,11 +758,9 @@
     "Returning Any from function declared to return \"str\"  [no-any-return]": 1
   },
   "funnel/utils/markdown/mdit_plugins/footnote_ext.py": {
-    "Call to untyped function \"render_footnote_caption\" in typed context  [no-untyped-call]": 1,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1,
     "Missing type parameters for generic type \"MutableMapping\"  [type-arg]": 1,
-    "Module \"markdown_it.renderer\" does not explicitly export attribute \"OptionsDict\"  [attr-defined]": 1,
-    "Returning Any from function declared to return \"str\"  [no-any-return]": 1
+    "Module \"markdown_it.renderer\" does not explicitly export attribute \"OptionsDict\"  [attr-defined]": 1
   },
   "funnel/utils/markdown/mdit_plugins/ins_tag.py": {
     "Call to untyped function \"push\" in typed context  [no-untyped-call]": 2,
@@ -889,6 +804,8 @@
     "Missing type parameters for generic type \"List\"  [type-arg]": 1
   },
   "funnel/views/account.py": {
+    "\"Flask\" has no attribute \"geoip_asn\"  [attr-defined]": 2,
+    "\"Flask\" has no attribute \"geoip_city\"  [attr-defined]": 2,
     "\"User\" has no attribute \"active_organization_admin_memberships\"  [attr-defined]": 2,
     "\"User\" has no attribute \"active_organization_owner_memberships\"  [attr-defined]": 1,
     "\"User\" has no attribute \"emails\"; maybe \"email\"?  [attr-defined]": 2,
@@ -896,7 +813,6 @@
     "Argument \"email\" to \"get\" of \"UserEmail\" has incompatible type \"Optional[str]\"; expected \"str\"  [arg-type]": 1,
     "Argument 1 to \"add_email\" of \"User\" has incompatible type \"Optional[str]\"; expected \"str\"  [arg-type]": 1,
     "Argument 1 to \"all\" of \"UserEmailClaim\" has incompatible type \"Optional[str]\"; expected \"str\"  [arg-type]": 1,
-    "Argument 1 to \"escape\" has incompatible type \"Optional[str]\"; expected \"Union[Markup, str]\"  [arg-type]": 3,
     "Argument 1 to \"get\" of \"dict\" has incompatible type \"Optional[str]\"; expected \"str\"  [arg-type]": 1,
     "Argument 1 to \"send_email_verify_link\" has incompatible type \"UserEmailClaim\"; expected \"UserEmail\"  [arg-type]": 2,
     "Call to untyped function \"UserPhone\" in typed context  [no-untyped-call]": 1,
@@ -924,7 +840,18 @@
     "Call to untyped function \"logout_internal\" in typed context  [no-untyped-call]": 1,
     "Call to untyped function \"mark_transport_active\" in typed context  [no-untyped-call]": 1,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1,
-    "Returning Any from function declared to return \"Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]\"  [no-any-return]": 1
+    "Returning Any from function declared to return \"Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]\"  [no-any-return]": 1,
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 3,
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[str, str], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 1
+  },
+  "funnel/views/api/account.py": {
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 2
+  },
+  "funnel/views/api/email_events.py": {
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 1
+  },
+  "funnel/views/api/markdown.py": {
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 1
   },
   "funnel/views/api/oauth.py": {
     "Argument 1 to \"oauth_auth_error\" has incompatible type \"Optional[str]\"; expected \"str\"  [arg-type]": 3,
@@ -932,7 +859,11 @@
     "Missing type parameters for generic type \"Iterable\"  [type-arg]": 3,
     "No overload variant of \"failsafe_add\" matches argument types \"scoped_session[Session]\", \"AuthToken\", \"User\", \"AuthClient\"  [call-overload]": 1,
     "No overload variant of \"failsafe_add\" matches argument types \"scoped_session[Session]\", \"AuthToken\", \"UserSession\", \"AuthClient\"  [call-overload]": 1,
-    "Returning Any from function declared to return \"Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]\"  [no-any-return]": 2
+    "Redundant cast to \"Optional[str]\"  [redundant-cast]": 8,
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 2
+  },
+  "funnel/views/api/pwa.py": {
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 3
   },
   "funnel/views/api/resource.py": {
     "\"Organization\" has no attribute \"fullname\"  [attr-defined]": 1,
@@ -946,12 +877,13 @@
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 9,
     "Missing type parameters for generic type \"dict\"  [type-arg]": 7,
     "Module \"funnel.typing\" does not explicitly export attribute \"Response\"  [attr-defined]": 1,
-    "Returning Any from function declared to return \"Response\"  [no-any-return]": 1,
-    "Returning Any from function declared to return \"Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]\"  [no-any-return]": 1
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 2
   },
   "funnel/views/api/sms_events.py": {
     "Incompatible types in assignment (expression has type \"Tuple[int, Any]\", variable has type \"Union[SQLCoreOperations[int], int]\")  [assignment]": 10,
-    "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1
+    "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1,
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 1,
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[str], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 1
   },
   "funnel/views/api/support.py": {
     "\"PhoneNumber\" has no attribute \"used_in_user_phone\"  [attr-defined]": 2
@@ -966,9 +898,11 @@
     "Item \"AuthClientUserPermissions\" of \"Optional[AuthClientUserPermissions]\" has no attribute \"team\"  [union-attr]": 1,
     "Item \"None\" of \"Optional[AuthClientUserPermissions]\" has no attribute \"access_permissions\"  [union-attr]": 1,
     "Item \"None\" of \"Optional[AuthClientUserPermissions]\" has no attribute \"team\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[User]\" has no attribute \"buid\"  [union-attr]": 1
+    "Item \"None\" of \"Optional[User]\" has no attribute \"buid\"  [union-attr]": 1,
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 2
   },
   "funnel/views/auth_notify.py": {
+    "Call to untyped function \"notify_org_data_changed\" in typed context  [no-untyped-call]": 1,
     "Function is missing a type annotation  [no-untyped-def]": 4,
     "Need type annotation for \"client_users\" (hint: \"client_users: Dict[<type>, <type>] = ...\")  [var-annotated]": 1
   },
@@ -977,6 +911,7 @@
     "\"Commentset\" has no attribute \"add_subscriber\"  [attr-defined]": 4,
     "\"Commentset\" has no attribute \"remove_subscriber\"  [attr-defined]": 3,
     "\"Commentset\" has no attribute \"update_last_seen_at\"  [attr-defined]": 2,
+    "\"LocalProxy[RequestWants]\" has no attribute \"json\"  [attr-defined]": 1,
     "Call to untyped function \"dispatch_notification\" in typed context  [no-untyped-call]": 3,
     "Call to untyped function \"submit\" of \"CommentModeratorReport\" in typed context  [no-untyped-call]": 1,
     "Function is missing a type annotation  [no-untyped-def]": 3,
@@ -985,9 +920,7 @@
     "Module \"funnel.proxies\" does not explicitly export attribute \"request_wants\"  [attr-defined]": 1,
     "Returning Any from function declared to return \"Optional[Comment]\"  [no-any-return]": 1,
     "Returning Any from function declared to return \"Union[Comment, Commentset]\"  [no-any-return]": 1,
-    "Returning Any from function declared to return \"str\"  [no-any-return]": 2,
-    "Untyped decorator makes function \"update_project_commentset_membership\" untyped  [misc]": 1,
-    "Untyped decorator makes function \"update_proposal_commentset_membership\" untyped  [misc]": 1
+    "Returning Any from function declared to return \"str\"  [no-any-return]": 2
   },
   "funnel/views/contact.py": {
     "Argument \"archived\" to \"grouped_counts_for\" of \"ContactExchange\" has incompatible type \"Optional[bool]\"; expected \"bool\"  [arg-type]": 1,
@@ -1000,21 +933,30 @@
     "Returning Any from function declared to return \"Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]\"  [no-any-return]": 2
   },
   "funnel/views/decorators.py": {
+    "\"LocalProxy[RequestWants]\" has no attribute \"html_fragment\"  [attr-defined]": 1,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 3,
     "Missing type parameters for generic type \"Dict\"  [type-arg]": 1,
     "Missing type parameters for generic type \"ReturnDecorator\"  [type-arg]": 2,
     "Missing type parameters for generic type \"Set\"  [type-arg]": 1,
     "Module \"funnel.proxies\" does not explicitly export attribute \"request_wants\"  [attr-defined]": 1,
-    "Returning Any from function declared to return \"Response\"  [no-any-return]": 2
+    "Returning Any from function declared to return \"Response\"  [no-any-return]": 1
   },
   "funnel/views/email.py": {
     "\"UserEmail\" has no attribute \"verification_code\"  [attr-defined]": 1,
     "List item 0 has incompatible type \"Tuple[str, Optional[str]]\"; expected \"Union[User, Tuple[Optional[str], str], str]\"  [list-item]": 1
   },
   "funnel/views/errors.py": {
-    "Module \"funnel.proxies\" does not explicitly export attribute \"request_wants\"  [attr-defined]": 1
+    "\"LocalProxy[RequestWants]\" has no attribute \"json\"  [attr-defined]": 1,
+    "\"Response\" has no attribute \"data\"  [attr-defined]": 2,
+    "Incompatible return value type (got \"werkzeug.sansio.response.Response\", expected \"Union[Union[str, werkzeug.wrappers.response.Response, Dict[str, Any]], Tuple[Union[str, werkzeug.wrappers.response.Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, werkzeug.wrappers.response.Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, werkzeug.wrappers.response.Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]\")  [return-value]": 1,
+    "Module \"funnel.proxies\" does not explicitly export attribute \"request_wants\"  [attr-defined]": 1,
+    "Value of type variable \"T_error_handler\" of function cannot be \"Callable[[HTTPException], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 1,
+    "Value of type variable \"T_error_handler\" of function cannot be \"Callable[[NotFound], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 1
   },
   "funnel/views/helpers.py": {
+    "\"Flask\" has no attribute \"_get_current_object\"  [attr-defined]": 1,
+    "\"LocalProxy[RequestWants]\" has no attribute \"html_fragment\"  [attr-defined]": 1,
+    "\"LocalProxy[RequestWants]\" has no attribute \"json\"  [attr-defined]": 1,
     "Call to untyped function \"localize_date\" in typed context  [no-untyped-call]": 1,
     "Call to untyped function \"localize_timestamp\" in typed context  [no-untyped-call]": 1,
     "Function is missing a return type annotation  [no-untyped-def]": 3,
@@ -1022,29 +964,30 @@
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 3,
     "Missing type parameters for generic type \"dict\"  [type-arg]": 3,
     "Module \"funnel.proxies\" does not explicitly export attribute \"request_wants\"  [attr-defined]": 1,
-    "Returning Any from function declared to return \"Response\"  [no-any-return]": 3,
     "Returning Any from function declared to return \"bytes\"  [no-any-return]": 2,
-    "Returning Any from function declared to return \"str\"  [no-any-return]": 2,
-    "Untyped decorator makes function \"shortlink\" untyped  [misc]": 1
+    "Returning Any from function declared to return \"str\"  [no-any-return]": 1
   },
   "funnel/views/index.py": {
     "\"Type[Project]\" has no attribute \"next_session_at\"  [attr-defined]": 3,
     "Argument 1 has incompatible type \"Callable[[int, int], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"; expected \"Callable[..., Union[Union[Response, Mapping[str, Any]], Tuple[Union[Response, Mapping[str, Any]]], Tuple[Union[Response, Mapping[str, Any]], Union[List[Tuple[str, str]], Dict[str, str], Headers]], Tuple[Union[Response, Mapping[str, Any]], int], Tuple[Union[Response, Mapping[str, Any]], int, Union[List[Tuple[str, str]], Dict[str, str], Headers]]]]\"  [arg-type]": 1,
-    "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1
+    "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1,
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 5,
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[str], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 1
   },
   "funnel/views/jobs.py": {
+    "Argument 1 to \"parse_locations\" of \"GeoName\" has incompatible type \"Union[Any, InstrumentedAttribute[Any]]\"; expected \"str\"  [arg-type]": 1,
     "Call to untyped function \"app_context\" in typed context  [no-untyped-call]": 1,
     "Call to untyped function \"get_tickets\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"import_from_list\" in typed context  [no-untyped-call]": 2,
     "Function is missing a return type annotation  [no-untyped-def]": 1,
     "Function is missing a type annotation  [no-untyped-def]": 4,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 2,
-    "Item \"None\" of \"Optional[Any]\" has no attribute \"location\"  [union-attr]": 2,
-    "Item \"None\" of \"Optional[Any]\" has no attribute \"locations\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[Any]\" has no attribute \"parsed_location\"  [union-attr]": 1,
+    "Item \"None\" of \"Optional[Project]\" has no attribute \"location\"  [union-attr]": 2,
+    "Item \"None\" of \"Optional[Project]\" has no attribute \"locations\"  [union-attr]": 1,
+    "Item \"None\" of \"Optional[Project]\" has no attribute \"parsed_location\"  [union-attr]": 1,
+    "Item \"Project\" of \"Optional[Project]\" has no attribute \"locations\"  [union-attr]": 1,
     "Missing type parameters for generic type \"ReturnDecorator\"  [type-arg]": 1,
-    "Need type annotation for \"geonames\"  [var-annotated]": 1,
-    "Untyped decorator makes function \"forget_email_in_request_teardown\" untyped  [misc]": 1,
-    "Untyped decorator makes function \"forget_phone_in_request_teardown\" untyped  [misc]": 1
+    "Need type annotation for \"geonames\"  [var-annotated]": 1
   },
   "funnel/views/label.py": {
     "\"Label\" has no attribute \"main_label\"; maybe \"is_main_label\" or \"main_label_id\"?  [attr-defined]": 2,
@@ -1053,6 +996,8 @@
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1
   },
   "funnel/views/login.py": {
+    "\"LocalProxy[RequestWants]\" has no attribute \"html_fragment\"  [attr-defined]": 4,
+    "\"LocalProxy[RequestWants]\" has no attribute \"json\"  [attr-defined]": 2,
     "Argument 1 to \"send_email_verify_link\" has incompatible type \"UserEmailClaim\"; expected \"UserEmail\"  [arg-type]": 1,
     "Call to untyped function \"get_user_extid\" in typed context  [no-untyped-call]": 1,
     "Call to untyped function \"login_internal\" in typed context  [no-untyped-call]": 6,
@@ -1066,10 +1011,17 @@
     "Missing type parameters for generic type \"OtpSession\"  [type-arg]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1,
     "Module \"funnel.proxies\" does not explicitly export attribute \"request_wants\"  [attr-defined]": 1,
-    "Returning Any from function declared to return \"Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]\"  [no-any-return]": 8
+    "Returning Any from function declared to return \"Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]\"  [no-any-return]": 8,
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 4,
+    "Value of type variable \"T_route\" of function cannot be \"Callable[[str], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]\"  [type-var]": 2
   },
   "funnel/views/login_session.py": {
+    "\"Flask\" has no attribute \"geoip_asn\"  [attr-defined]": 2,
+    "\"Flask\" has no attribute \"geoip_city\"  [attr-defined]": 2,
+    "\"LocalProxy[RequestWants]\" has no attribute \"html_fragment\"  [attr-defined]": 1,
+    "\"LocalProxy[RequestWants]\" has no attribute \"json\"  [attr-defined]": 1,
     "\"UserSession\" has no attribute \"auth_clients\"  [attr-defined]": 2,
+    "Argument 1 to \"issubset\" of \"frozenset\" has incompatible type \"Union[Set[str], None, Any]\"; expected \"Iterable[object]\"  [arg-type]": 1,
     "Argument 1 to \"secret_is\" of \"AuthClientCredential\" has incompatible type \"Optional[str]\"; expected \"str\"  [arg-type]": 1,
     "Argument 2 to \"set\" of \"Statsd\" has incompatible type \"Union[int, UUID]\"; expected \"str\"  [arg-type]": 2,
     "Call to untyped function \"_client_login_inner\" in typed context  [no-untyped-call]": 3,
@@ -1086,6 +1038,7 @@
     "Returning Any from function declared to return \"Optional[Profile]\"  [no-any-return]": 1
   },
   "funnel/views/membership.py": {
+    "\"LocalProxy[RequestWants]\" has no attribute \"json\"  [attr-defined]": 2,
     "\"Organization\" has no attribute \"active_admin_memberships\"  [attr-defined]": 2,
     "\"Project\" has no attribute \"active_crew_memberships\"  [attr-defined]": 4,
     "Argument 1 to \"render_with\" has incompatible type \"Dict[str, Union[str, Callable[[Dict[Any, Any]], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]]]\"; expected \"Union[Dict[str, Union[str, Callable[..., Union[Union[Response, str, bytes, List[Any], Mapping[str, Any], Iterator[str], Iterator[bytes]], Tuple[Union[Response, str, bytes, List[Any], Mapping[str, Any], Iterator[str], Iterator[bytes]], Union[Headers, Mapping[str, Union[str, List[str], Tuple[str, ...]]], Sequence[Tuple[str, Union[str, List[str], Tuple[str, ...]]]]]], Tuple[Union[Response, str, bytes, List[Any], Mapping[str, Any], Iterator[str], Iterator[bytes]], int], Tuple[Union[Response, str, bytes, List[Any], Mapping[str, Any], Iterator[str], Iterator[bytes]], int, Union[Headers, Mapping[str, Union[str, List[str], Tuple[str, ...]]], Sequence[Tuple[str, Union[str, List[str], Tuple[str, ...]]]]]], Callable[[Dict[str, Any], StartResponse], Iterable[bytes]]]]]], str, None]\"  [arg-type]": 1,
@@ -1097,8 +1050,6 @@
   },
   "funnel/views/mixins.py": {
     "\"Project\" has no attribute \"is_saved_by\"  [attr-defined]": 2,
-    "Call to untyped function \"pop\" in typed context  [no-untyped-call]": 3,
-    "Call to untyped function \"update\" in typed context  [no-untyped-call]": 1,
     "Function is missing a return type annotation  [no-untyped-def]": 2,
     "Function is missing a type annotation  [no-untyped-def]": 1,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 6,
@@ -1111,29 +1062,29 @@
     "Subclass of \"Project\" and \"ProjectRedirect\" cannot exist: would have incompatible method signatures  [unreachable]": 1
   },
   "funnel/views/notification.py": {
-    "\"ModelType\" has no attribute \"title\"  [attr-defined]": 1,
+    "\"None\" has no attribute \"created_at\"  [attr-defined]": 1,
     "\"User\" has no attribute \"main_notification_preferences\"  [attr-defined]": 1,
-    "Argument 2 to \"transport_for\" of \"User\" has incompatible type \"Optional[ModelType]\"; expected \"Optional[Model]\"  [arg-type]": 1,
-    "Call to untyped function \"transport_for\" in typed context  [no-untyped-call]": 3,
     "Call to untyped function \"unsubscribe_short_url\" in typed context  [no-untyped-call]": 1,
     "Call to untyped function \"unsubscribe_token\" in typed context  [no-untyped-call]": 1,
     "Call to untyped function \"unsubscribe_url\" in typed context  [no-untyped-call]": 1,
-    "Function is missing a return type annotation  [no-untyped-def]": 7,
-    "Function is missing a type annotation  [no-untyped-def]": 11,
+    "Function is missing a return type annotation  [no-untyped-def]": 6,
+    "Function is missing a type annotation  [no-untyped-def]": 9,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 2,
-    "Item \"ABCMeta\" of \"Optional[Type[UuidModelType]]\" has no attribute \"created_at\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[Any]\" has no attribute \"dispatch\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[Any]\" has no attribute \"has_transport\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[Any]\" has no attribute \"identity\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[Any]\" has no attribute \"is_revoked\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[Any]\" has no attribute \"notification\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[Any]\" has no attribute \"rollup_previous\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[Any]\" has no attribute \"type\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[Any]\" has no attribute \"user\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[Any]\" has no attribute \"views\"  [union-attr]": 1,
+    "Item \"None\" of \"Optional[Notification[_D, _F]]\" has no attribute \"dispatch\"  [union-attr]": 1,
+    "Item \"None\" of \"Optional[Notification[_D, _F]]\" has no attribute \"type\"  [union-attr]": 1,
     "Item \"None\" of \"Optional[Query[Any]]\" has no attribute \"order_by\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[Type[UuidModelType]]\" has no attribute \"created_at\"  [union-attr]": 1,
-    "Item \"None\" of \"Optional[Type[UuidModelType]]\" has no attribute \"updated_at\"  [union-attr]": 1,
+    "Item \"None\" of \"Optional[UserNotification]\" has no attribute \"has_transport\"  [union-attr]": 1,
+    "Item \"None\" of \"Optional[UserNotification]\" has no attribute \"identity\"  [union-attr]": 1,
+    "Item \"None\" of \"Optional[UserNotification]\" has no attribute \"is_revoked\"  [union-attr]": 1,
+    "Item \"None\" of \"Optional[UserNotification]\" has no attribute \"notification\"  [union-attr]": 1,
+    "Item \"None\" of \"Optional[UserNotification]\" has no attribute \"rollup_previous\"  [union-attr]": 1,
+    "Item \"None\" of \"Optional[UserNotification]\" has no attribute \"user\"  [union-attr]": 1,
+    "Item \"None\" of \"Optional[UserNotification]\" has no attribute \"views\"  [union-attr]": 1,
+    "Item \"None\" of \"Union[Type[AuthClient], Type[Comment], Type[CommentModeratorReport], Type[Commentset], Type[ImmutableMembershipMixin], Type[Organization], Type[Profile], Type[Project], Type[Proposal], Type[Rsvp], Type[Session], Type[Team], Type[TicketParticipant], Type[Update], Type[User], Type[UserOldId], Type[UserSession], Type[Venue], Type[VenueRoom], None]\" has no attribute \"updated_at\"  [union-attr]": 1,
+    "Item \"None\" of \"Union[UserEmail, UserPhone, None]\" has no attribute \"transport_hash\"  [union-attr]": 2,
+    "Item \"datetime\" of \"Union[datetime, Any]\" has no attribute \"desc\"  [union-attr]": 1,
+    "Returning Any from function declared to return \"RenderNotification\"  [no-any-return]": 1,
+    "Returning Any from function declared to return \"str\"  [no-any-return]": 1,
     "Untyped decorator makes function \"dispatch_transport_email\" untyped  [misc]": 1
   },
   "funnel/views/notification_feed.py": {
@@ -1151,16 +1102,17 @@
     "Returning Any from function declared to return \"str\"  [no-any-return]": 13
   },
   "funnel/views/notifications/organization_membership_notification.py": {
-    "Definition of \"notification\" in base class \"RenderShared\" is incompatible with definition in base class \"RenderNotification\"  [misc]": 2
+    "Definition of \"notification\" in base class \"RenderShared\" is incompatible with definition in base class \"RenderNotification\"  [misc]": 2,
+    "Missing type parameters for generic type \"NotificationType\"  [type-arg]": 1
   },
   "funnel/views/notifications/project_crew_notification.py": {
-    "Argument 1 to \"escape\" has incompatible type \"Optional[str]\"; expected \"Union[Markup, str]\"  [arg-type]": 1,
     "Definition of \"notification\" in base class \"RenderShared\" is incompatible with definition in base class \"RenderNotification\"  [misc]": 2,
     "Function is missing a return type annotation  [no-untyped-def]": 2,
-    "Incompatible return value type (got \"Optional[User]\", expected \"User\")  [return-value]": 1
+    "Incompatible return value type (got \"Optional[User]\", expected \"User\")  [return-value]": 1,
+    "Missing type parameters for generic type \"NotificationType\"  [type-arg]": 1
   },
   "funnel/views/notifications/project_starting_notification.py": {
-    "Function is missing a return type annotation  [no-untyped-def]": 3
+    "Returning Any from function declared to return \"str\"  [no-any-return]": 2
   },
   "funnel/views/notifications/proposal_notification.py": {
     "Function is missing a return type annotation  [no-untyped-def]": 6,
@@ -1210,7 +1162,8 @@
     "\"Project\" has no attribute \"ticket_clients\"  [attr-defined]": 2,
     "\"Project\" has no attribute \"ticket_events\"  [attr-defined]": 1,
     "\"Project\" has no attribute \"ticket_types\"  [attr-defined]": 1,
-    "Argument \"referrer\" to \"get_next_url\" has incompatible type \"Optional[str]\"; expected \"bool\"  [arg-type]": 2,
+    "Argument \"draft_revision\" to \"render_form\" has incompatible type \"Optional[str]\"; expected \"Optional[int]\"  [arg-type]": 1,
+    "Argument \"referrer\" to \"get_next_url\" has incompatible type \"str\"; expected \"bool\"  [arg-type]": 2,
     "Argument 1 to \"render_with\" has incompatible type \"Dict[str, Union[str, Callable[[Dict[Any, Any]], Union[Union[str, Response, Dict[str, Any]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str]], Tuple[Union[str, Response, Dict[str, Any]], Union[Dict[str, str], List[Tuple[str, str]]]], Tuple[Union[str, Response, Dict[str, Any]], Union[int, str], Union[Dict[str, str], List[Tuple[str, str]]]]]]]]\"; expected \"Union[Dict[str, Union[str, Callable[..., Union[Union[Response, str, bytes, List[Any], Mapping[str, Any], Iterator[str], Iterator[bytes]], Tuple[Union[Response, str, bytes, List[Any], Mapping[str, Any], Iterator[str], Iterator[bytes]], Union[Headers, Mapping[str, Union[str, List[str], Tuple[str, ...]]], Sequence[Tuple[str, Union[str, List[str], Tuple[str, ...]]]]]], Tuple[Union[Response, str, bytes, List[Any], Mapping[str, Any], Iterator[str], Iterator[bytes]], int], Tuple[Union[Response, str, bytes, List[Any], Mapping[str, Any], Iterator[str], Iterator[bytes]], int, Union[Headers, Mapping[str, Union[str, List[str], Tuple[str, ...]]], Sequence[Tuple[str, Union[str, List[str], Tuple[str, ...]]]]]], Callable[[Dict[str, Any], StartResponse], Iterable[bytes]]]]]], str, None]\"  [arg-type]": 4,
     "Call to untyped function \"delete_draft\" in typed context  [no-untyped-call]": 1,
     "Call to untyped function \"dispatch_notification\" in typed context  [no-untyped-call]": 2,
@@ -1266,27 +1219,22 @@
     "Module \"sqlalchemy.orm.exc\" does not explicitly export attribute \"NoResultFound\"  [attr-defined]": 1
   },
   "funnel/views/search.py": {
-    "\"Type[SearchModelType]\" has no attribute \"created_at\"  [attr-defined]": 1,
+    "\"datetime\" has no attribute \"desc\"  [attr-defined]": 1,
+    "Argument 1 to \"load_only\" has incompatible type \"Union[int, UUID]\"; expected \"Union[str, QueryableAttribute[Any]]\"  [arg-type]": 3,
     "Function is missing a return type annotation  [no-untyped-def]": 2,
-    "Incompatible return value type (got \"InstrumentedAttribute[str]\", expected \"ColumnElement[str]\")  [return-value]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Comment]\", base class \"SearchProvider\" defined the type as \"Type[SearchModelType]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Profile]\", base class \"SearchProvider\" defined the type as \"Type[SearchModelType]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Project]\", base class \"SearchProvider\" defined the type as \"Type[SearchModelType]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Proposal]\", base class \"SearchProvider\" defined the type as \"Type[SearchModelType]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Session]\", base class \"SearchProvider\" defined the type as \"Type[SearchModelType]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Update]\", base class \"SearchProvider\" defined the type as \"Type[SearchModelType]\")  [assignment]": 1,
+    "Incompatible return value type (got \"Union[Callable[[Comment], str], str, Any]\", expected \"ColumnElement[str]\")  [return-value]": 1,
     "Incompatible types in assignment (expression has type \"sqlalchemy.orm.query.Query[Any]\", variable has type \"coaster.sqlalchemy.model.Query[Any]\")  [assignment]": 1,
     "Missing type parameters for generic type \"Function\"  [type-arg]": 33,
     "Missing type parameters for generic type \"Query\"  [type-arg]": 4,
-    "Module \"funnel.models\" does not explicitly export attribute \"Mapped\"  [attr-defined]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"Query\"  [attr-defined]": 1,
-    "Module \"funnel.models\" does not explicitly export attribute \"TSVectorType\"  [attr-defined]": 1,
     "Module \"funnel.models\" does not explicitly export attribute \"sa\"  [attr-defined]": 1,
     "Returning Any from function declared to return \"ColumnElement[str]\"  [no-any-return]": 2,
     "Returning Any from function declared to return \"int\"  [no-any-return]": 1,
     "Returning Any from function declared to return \"str\"  [no-any-return]": 1
   },
   "funnel/views/session.py": {
+    "\"LocalProxy[RequestWants]\" has no attribute \"html_fragment\"  [attr-defined]": 1,
+    "\"LocalProxy[RequestWants]\" has no attribute \"html_in_json\"  [attr-defined]": 3,
     "\"Project\" has no attribute \"rooms\"  [attr-defined]": 1,
     "\"Project\" has no attribute \"scheduled_sessions\"  [attr-defined]": 1,
     "\"Project\" has no attribute \"venues\"  [attr-defined]": 1,
@@ -1296,6 +1244,9 @@
     "Function is missing a type annotation  [no-untyped-def]": 1,
     "Module \"funnel.proxies\" does not explicitly export attribute \"request_wants\"  [attr-defined]": 1,
     "No overload variant of \"failsafe_add\" matches argument types \"scoped_session[Session]\", \"Session\", \"Union[int, UUID]\", \"int\"  [call-overload]": 1
+  },
+  "funnel/views/shortlink.py": {
+    "Module \"funnel.typing\" does not explicitly export attribute \"Response\"  [attr-defined]": 1
   },
   "funnel/views/siteadmin.py": {
     "\"Comment\" has no attribute \"is_reviewed_by\"  [attr-defined]": 1,
@@ -1318,12 +1269,12 @@
     "Untyped decorator makes function \"query_update\" untyped  [misc]": 1
   },
   "funnel/views/ticket_event.py": {
-    "\"List[TicketParticipant]\" has no attribute \"id\"  [attr-defined]": 1,
     "\"Project\" has no attribute \"ticket_clients\"  [attr-defined]": 1,
     "\"Project\" has no attribute \"ticket_events\"  [attr-defined]": 4,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 2
   },
   "funnel/views/ticket_participant.py": {
+    "\"LocalProxy[RequestWants]\" has no attribute \"json\"  [attr-defined]": 1,
     "\"Project\" has no attribute \"ticket_participants\"  [attr-defined]": 1,
     "Argument 2 to \"ticket_participant_data\" has incompatible type \"Union[int, UUID]\"; expected \"int\"  [arg-type]": 1,
     "Call to untyped function \"ticket_participant_badge_data\" in typed context  [no-untyped-call]": 4,
@@ -1812,15 +1763,15 @@
   "tests/conftest.py": {
     "\"Callable[[str], User]\" has no attribute \"usermap\"  [attr-defined]": 1,
     "Call to untyped function \"safe_repr\" in typed context  [no-untyped-call]": 10,
-    "Function is missing a return type annotation  [no-untyped-def]": 4,
-    "Function is missing a type annotation  [no-untyped-def]": 31,
-    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 61,
-    "Missing type parameters for generic type \"FlaskClient\"  [type-arg]": 2,
-    "Missing type parameters for generic type \"Iterator\"  [type-arg]": 4,
-    "Returning Any from function declared to return \"Flask\"  [no-any-return]": 2,
+    "Function is missing a return type annotation  [no-untyped-def]": 2,
+    "Function is missing a type annotation  [no-untyped-def]": 26,
+    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 57,
+    "Missing type parameters for generic type \"Iterator\"  [type-arg]": 5,
+    "Missing type parameters for generic type \"dict\"  [type-arg]": 1,
+    "No return value expected  [return-value]": 2,
+    "Returning Any from function declared to return \"Flask\"  [no-any-return]": 3,
     "Returning Any from function declared to return \"Label\"  [no-any-return]": 3,
     "Returning Any from function declared to return \"List[Any]\"  [no-any-return]": 2,
-    "Returning Any from function declared to return \"None\"  [no-any-return]": 2,
     "Returning Any from function declared to return \"Organization\"  [no-any-return]": 4,
     "Returning Any from function declared to return \"Project\"  [no-any-return]": 7,
     "Returning Any from function declared to return \"Proposal\"  [no-any-return]": 1,
@@ -1829,7 +1780,8 @@
     "Returning Any from function declared to return \"Team\"  [no-any-return]": 1,
     "Returning Any from function declared to return \"Union[Engine, Connection]\"  [no-any-return]": 3,
     "Returning Any from function declared to return \"User\"  [no-any-return]": 21,
-    "Returning Any from function declared to return \"str\"  [no-any-return]": 2
+    "Returning Any from function declared to return \"str\"  [no-any-return]": 2,
+    "Returning Any from function declared to return Module  [no-any-return]": 5
   },
   "tests/cypress/cypress_dropdb_test.py": {
     "Call to untyped function \"drop_models\" in typed context  [no-untyped-call]": 1,
@@ -1886,10 +1838,12 @@
   "tests/integration/views/project_views_test.py": {
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1
   },
+  "tests/unit/cli/periodic_stats_test.py": {
+    "Missing type parameters for generic type \"dict\"  [type-arg]": 1
+  },
   "tests/unit/forms/account_test.py": {
     "Function is missing a type annotation  [no-untyped-def]": 2,
-    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 5,
-    "Module \"baseframe.forms.validators\" does not explicitly export attribute \"StopValidation\"  [attr-defined]": 1
+    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 5
   },
   "tests/unit/forms/login_test.py": {
     "Function is missing a type annotation  [no-untyped-def]": 5,
@@ -1931,8 +1885,7 @@
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 11,
     "Missing type parameters for generic type \"Generator\"  [type-arg]": 2,
     "Module \"funnel.models\" does not explicitly export attribute \"relationship\"  [attr-defined]": 2,
-    "Name \"models.BaseMixin\" is not defined  [name-defined]": 4,
-    "Unused \"type: ignore\" comment": 2
+    "Name \"models.BaseMixin\" is not defined  [name-defined]": 4
   },
   "tests/unit/models/helpers_test.py": {
     "Call to untyped function \"spam\" in typed context  [no-untyped-call]": 1,
@@ -1953,7 +1906,7 @@
     "\"Organization\" has no attribute \"active_admin_memberships\"  [attr-defined]": 1,
     "Function is missing a type annotation  [no-untyped-def]": 8,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 9,
-    "Incompatible types in assignment (expression has type \"Type[User]\", base class \"Notification\" defined the type as \"Type[UuidModelType]\")  [assignment]": 1
+    "Missing type parameters for generic type \"Notification\"  [type-arg]": 1
   },
   "tests/unit/models/merge_team_test.py": {
     "\"User\" has no attribute \"teams\"  [attr-defined]": 3,
@@ -1965,16 +1918,24 @@
   },
   "tests/unit/models/notification_test.py": {
     "\"User\" has no attribute \"notification_preferences\"  [attr-defined]": 6,
-    "\"UuidModelType\" has no attribute \"project\"  [attr-defined]": 1,
     "Call to untyped function \"UserPhone\" in typed context  [no-untyped-call]": 1,
     "Definition of \"document\" in base class \"ProjectIsParent\" is incompatible with definition in base class \"Notification\"  [misc]": 3,
-    "Definition of \"preference_context\" in base class \"ProjectIsParent\" is incompatible with definition in base class \"Notification\"  [misc]": 3,
     "Function is missing a return type annotation  [no-untyped-def]": 1,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 9,
-    "Incompatible types in assignment (expression has type \"Type[Project]\", base class \"Notification\" defined the type as \"Type[UuidModelType]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Proposal]\", base class \"Notification\" defined the type as \"Optional[Type[UuidModelType]]\")  [assignment]": 1,
-    "Incompatible types in assignment (expression has type \"Type[Update]\", base class \"Notification\" defined the type as \"Type[UuidModelType]\")  [assignment]": 2,
-    "Returning Any from function declared to return \"Profile\"  [no-any-return]": 1
+    "Item \"AuthClient\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Item \"Comment\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Item \"CommentModeratorReport\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Item \"Commentset\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Item \"ImmutableMembershipMixin\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Item \"Organization\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Item \"Profile\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Item \"Project\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Item \"Team\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Item \"User\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Item \"UserOldId\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Item \"UserSession\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Item \"VenueRoom\" of \"Union[AuthClient, Comment, CommentModeratorReport, Commentset, ImmutableMembershipMixin, Organization, Profile, Project, Proposal, Rsvp, Session, Team, TicketParticipant, Update, User, UserOldId, UserSession, Venue, VenueRoom]\" has no attribute \"project\"  [union-attr]": 1,
+    "Missing type parameters for generic type \"Notification\"  [type-arg]": 3
   },
   "tests/unit/models/phone_number_test.py": {
     "Call to untyped function \"configure_mappers\" in typed context  [no-untyped-call]": 1,
@@ -1983,8 +1944,7 @@
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 13,
     "Missing type parameters for generic type \"Generator\"  [type-arg]": 2,
     "Module \"funnel.models\" does not explicitly export attribute \"relationship\"  [attr-defined]": 2,
-    "Name \"models.BaseMixin\" is not defined  [name-defined]": 4,
-    "Unused \"type: ignore\" comment": 2
+    "Name \"models.BaseMixin\" is not defined  [name-defined]": 4
   },
   "tests/unit/models/profile_name_test.py": {
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 10
@@ -2062,13 +2022,17 @@
     "Item \"None\" of \"Optional[UserSession]\" has no attribute \"revoked_at\"  [union-attr]": 1
   },
   "tests/unit/proxies/request_wants_test.py": {
+    "\"LocalProxy[RequestWants]\" has no attribute \"html_fragment\"  [attr-defined]": 5,
+    "\"LocalProxy[RequestWants]\" has no attribute \"html_in_json\"  [attr-defined]": 2,
+    "\"LocalProxy[RequestWants]\" has no attribute \"htmx\"  [attr-defined]": 2,
+    "\"LocalProxy[RequestWants]\" has no attribute \"json\"  [attr-defined]": 3,
     "Call to untyped function \"init_app\" in typed context  [no-untyped-call]": 1,
     "Function is missing a return type annotation  [no-untyped-def]": 3,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 7,
     "Module \"funnel.proxies\" does not explicitly export attribute \"request_wants\"  [attr-defined]": 1
   },
   "tests/unit/tests/conftest_test.py": {
-    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1
+    "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 3
   },
   "tests/unit/transports/aws_ses/ses_notices_test.py": {
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 6,
@@ -2078,9 +2042,7 @@
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 3
   },
   "tests/unit/transports/sms_template_test.py": {
-    "Call to untyped function \"available_var_len\" in typed context  [no-untyped-call]": 11,
-    "Class cannot subclass \"MyMessage\" (has type \"Any\")  [misc]": 1,
-    "Name \"msgt.MyMessage\" is not defined  [name-defined]": 1
+    "Class cannot subclass \"MyMessage\" (has type \"Any\")  [misc]": 1
   },
   "tests/unit/utils/markdown/conftest.py": {
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 1,
@@ -2103,10 +2065,8 @@
     "Function is missing a type annotation  [no-untyped-def]": 2,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 5
   },
-  "tests/unit/views/api_support_test.py": {
-    "Missing type parameters for generic type \"FlaskClient\"  [type-arg]": 5
-  },
   "tests/unit/views/helpers_test.py": {
+    "Call to untyped function \"cleanurl_filter\" in typed context  [no-untyped-call]": 18,
     "Function is missing a return type annotation  [no-untyped-def]": 2,
     "Function is missing a type annotation for one or more arguments  [no-untyped-def]": 3
   },

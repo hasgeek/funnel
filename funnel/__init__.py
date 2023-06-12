@@ -58,7 +58,6 @@ assets['funnel.js'][version] = 'js/scripts.js'
 assets['spectrum.js'][version] = 'js/libs/spectrum.js'
 assets['spectrum.css'][version] = 'css/spectrum.css'
 assets['schedules.js'][version] = 'js/schedules.js'
-assets['funnel-mui.js'][version] = 'js/libs/mui.js'
 
 try:
     with open(
@@ -149,10 +148,6 @@ executor.init_app(app)
 baseframe.init_app(
     app,
     requires=['funnel'],
-    ext_requires=[
-        'getdevicepixelratio',
-        'funnel-mui',
-    ],
     theme='funnel',
     error_handlers=False,
 )

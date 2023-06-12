@@ -13,6 +13,8 @@ import Tabs from './utils/tabs';
 import updateParsleyConfig from './utils/update_parsley_config';
 import ReadStatus from './utils/read_status';
 import LazyLoadMenu from './utils/lazyloadmenu';
+import './utils/getDevicePixelRatio';
+import 'muicss/dist/js/mui';
 
 const pace = require('pace-js');
 

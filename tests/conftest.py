@@ -7,7 +7,7 @@ from contextlib import ExitStack
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from difflib import unified_diff
-from types import MethodType, SimpleNamespace
+from types import MethodType, ModuleType, SimpleNamespace
 from unittest.mock import patch
 import re
 import typing as t
@@ -25,6 +25,7 @@ import typeguard
 if t.TYPE_CHECKING:
     from flask import Flask
     from flask.testing import FlaskClient
+    from rich.console import Console
 
     import funnel.models as funnel_models
 
@@ -32,7 +33,7 @@ if t.TYPE_CHECKING:
 # --- Pytest config --------------------------------------------------------------------
 
 
-def pytest_addoption(parser) -> None:
+def pytest_addoption(parser: pytest.Parser) -> None:
     """Allow db_session to be configured in the command line."""
     parser.addoption(
         '--dbsession',
@@ -58,7 +59,7 @@ def firefox_options(firefox_options):
     return firefox_options
 
 
-def pytest_collection_modifyitems(items) -> None:
+def pytest_collection_modifyitems(items: t.List[pytest.Function]) -> None:
     """Sort tests to run lower level before higher level."""
     test_order = (
         'tests/unit/models',
@@ -77,7 +78,11 @@ def pytest_collection_modifyitems(items) -> None:
         'tests/features',
     )
 
-    def sort_key(item) -> t.Tuple[int, str]:
+    def sort_key(item: pytest.Function) -> t.Tuple[int, str]:
+        # pytest.Function's base class pytest.Item reports the file containing the test
+        # as item.location == (file_path, line_no, function_name). However, pytest-bdd
+        # reports itself for file_path, so we can't use that and must extract the path
+        # from the test module instead
         module_file = item.module.__file__
         for counter, path in enumerate(test_order):
             if path in module_file:
@@ -88,7 +93,7 @@ def pytest_collection_modifyitems(items) -> None:
 
 
 # Adapted from https://github.com/untitaker/pytest-fixture-typecheck
-def pytest_runtest_call(item):
+def pytest_runtest_call(item: pytest.Function) -> None:
     try:
         annotations = t.get_type_hints(
             item.obj,
@@ -115,31 +120,31 @@ def pytest_runtest_call(item):
 
 
 @pytest.fixture(scope='session')
-def funnel():
+def funnel() -> ModuleType:
     """Funnel package."""
     return pytest.importorskip('funnel')
 
 
 @pytest.fixture(scope='session')
-def models(funnel):
+def models() -> ModuleType:
     """Funnel models package."""
     return pytest.importorskip('funnel.models')
 
 
 @pytest.fixture(scope='session')
-def forms(funnel):
+def forms() -> ModuleType:
     """Funnel forms package."""
     return pytest.importorskip('funnel.forms')
 
 
 @pytest.fixture(scope='session')
-def views(funnel):
+def views() -> ModuleType:
     """Funnel views package."""
     return pytest.importorskip('funnel.views')
 
 
 @pytest.fixture(scope='session')
-def funnel_devtest(funnel):
+def funnel_devtest() -> ModuleType:
     """Return devtest module as a fixture."""
     return pytest.importorskip('funnel.devtest')
 
@@ -200,7 +205,7 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
 
                 # add click method to all links
                 def _click(
-                    self, client, **kwargs
+                    self, client: FlaskClient, **kwargs: t.Any
                 ) -> None:  # pylint: disable=redefined-outer-name
                     # `self` is the `a` element here
                     path = self.attrib['href']
@@ -211,7 +216,10 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
 
                 # add submit method to all forms
                 def _submit(
-                    self, client, path=None, **kwargs
+                    self,
+                    client: FlaskClient,
+                    path: t.Optional[str] = None,
+                    **kwargs: t.Any,
                 ) -> None:  # pylint: disable=redefined-outer-name
                     # `self` is the `form` element here
                     data = dict(self.form_values())
@@ -266,7 +274,7 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
 
         @property
         def metarefresh(self) -> t.Optional[MetaRefreshContent]:
-            """Return content of Meta Refresh tag if present."""
+            """Get content of Meta Refresh tag if present."""
             meta_elements = self.html.cssselect('meta[http-equiv="refresh"]')
             if not meta_elements:
                 return None
@@ -282,7 +290,7 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
 
 
 @pytest.fixture(scope='session')
-def rich_console():
+def rich_console() -> Console:
     """Provide a rich console for color output."""
     from rich.console import Console
 
@@ -300,7 +308,7 @@ def colorama() -> t.Iterator[SimpleNamespace]:
 
 
 @pytest.fixture(scope='session')
-def colorize_code(rich_console) -> t.Callable[[str, t.Optional[str]], str]:
+def colorize_code(rich_console: Console) -> t.Callable[[str, t.Optional[str]], str]:
     """Return colorized output for a string of code, for current terminal's colors."""
 
     def no_colorize(code_string: str, lang: t.Optional[str] = 'python') -> str:
