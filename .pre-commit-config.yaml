@@ -187,19 +187,8 @@ repos:
     rev: v1.1.2
     hooks:
       - id: dockerfile_lint
-        files: Dockerfile
-        args:
-          [
-            '-f',
-            'Dockerfile',
-            '-f',
-            'ci.Dockerfile',
-            '-f',
-            'etc/nginx/Dockerfile',
-            '-f',
-            'etc/nginx-staging/Dockerfile',
-          ]
-  - repo: https://github.com/iamthefij/docker-pre-commit
+        files: .*Dockerfile.*
+  - repo: https://github.com/IamTheFij/docker-pre-commit
     rev: v3.0.1
     hooks:
       - id: docker-compose-check
