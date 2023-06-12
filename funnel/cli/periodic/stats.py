@@ -109,9 +109,19 @@ class MatomoData:
     referrers: Sequence[MatomoResponse]
     socials: Sequence[MatomoResponse]
     pages: Sequence[MatomoResponse]
+    visits: Dict
 
 
 # --- Matomo analytics -----------------------------------------------------------------
+
+
+async def matomo_visits_response(client: httpx.AsyncClient, url: str) -> Dict:
+    try:
+        response = await client.get(url, timeout=5)
+        response.raise_for_status()
+        return response.json()
+    except httpx.HTTPError:
+        return {}
 
 
 async def matomo_response_json(
@@ -132,7 +142,7 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
         or not app.config.get('MATOMO_TOKEN')
     ):
         # No Matomo config
-        return MatomoData(referrers=[], socials=[], pages=[])
+        return MatomoData(referrers=[], socials=[], pages=[], visits={})
     matomo_url = furl(app.config['MATOMO_URL'])
     matomo_url.add(
         {
@@ -148,15 +158,17 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
     referrers_url = matomo_url.copy().add({'method': 'Referrers.getWebsites'})
     socials_url = matomo_url.copy().add({'method': 'Referrers.getSocials'})
     pages_url = matomo_url.copy().add({'method': 'Actions.getPageUrls'})
+    visits_url = matomo_url.copy().add({'method': 'VisitsSummary.get'})
 
     async with httpx.AsyncClient(follow_redirects=True) as client:
-        referrers, socials, pages = await asyncio.gather(
+        referrers, socials, pages, visits = await asyncio.gather(
             matomo_response_json(client, str(referrers_url)),
             matomo_response_json(client, str(socials_url)),
             matomo_response_json(client, str(pages_url)),
+            matomo_visits_response(client, str(visits_url)),
         )
 
-    return MatomoData(referrers=referrers, socials=socials, pages=pages)
+    return MatomoData(referrers=referrers, socials=socials, pages=pages, visits=visits)
 
 
 # --- Internal database analytics ------------------------------------------------------
@@ -330,6 +342,12 @@ async def dailystats() -> None:
                 f" {data.month_trend} {data.month} month\n"
                 f"\n"
             )
+
+    if matomo_data.visits:
+        message += f"\n*Unique visits:* {matomo_data.visits['nb_uniq_visitors']}\n"
+        message += (
+            f"*Avg time spent:* {matomo_data.visits['avg_time_on_site']} seconds\n"
+        )
 
     if matomo_data.pages:
         message += "\n*Top pages:* _(by visits)_\n"
