@@ -105,7 +105,7 @@ ENV PWD=/home/pn/app
 COPY --chown=pn:pn . .
 
 COPY --chown=pn:pn --from=assets /home/pn/app/funnel/static /home/pn/app/funnel/static
-ENTRYPOINT [ "/home/pn/app/docker/entrypoints/ci-test.sh"]
+ENTRYPOINT ["/home/pn/app/docker/entrypoints/ci-test.sh"]
 FROM dev-deps as dev
 RUN --mount=type=cache,target=/home/pn/.cache/pip,uid=1000,gid=1000 cp -R /home/pn/.cache/pip /home/pn/tmp/.cache_pip
 RUN mv /home/pn/tmp/.cache_pip /home/pn/.cache/pip

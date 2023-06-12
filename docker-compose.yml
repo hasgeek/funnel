@@ -71,7 +71,7 @@ services:
       - ./.cache/build:/home/pn/app/funnel/static/build
       - ./.cache/files:/home/pn/.ci-cache/files
       - ./coverage:/home/pn/app/coverage
-    restart: no
+    restart: 'no'
     environment:
       - REDIS_HOST=redis-test
       - FLASK_SQLALCHEMY_DATABASE_URI=postgresql+psycopg://funnel@db-test/funnel_testing
@@ -128,7 +128,7 @@ services:
       - POSTGRES_USER_HOST=funnel@db-dev
       - REDIS_HOST=redis-dev
     healthcheck:
-      test: bash -c '[[ "$(curl -o /dev/null -s -w "%{http_code}\n" http://funnel.test:3000)" == "200" ]]'
+      test: bash -c '[[ "$$(curl -o /dev/null -s -w "%{http_code}\n" http://funnel.test:3000)" == "200" ]]'
       interval: 30s
       timeout: 1m
       retries: 10

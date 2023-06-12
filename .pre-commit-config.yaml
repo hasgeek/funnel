@@ -5,7 +5,7 @@ default_stages: [commit]
 # default_language_version:
 #   python: python3.9
 ci:
-  skip: ['pip-audit', 'yesqa', 'no-commit-to-branch']
+  skip: ['pip-audit', 'yesqa', 'no-commit-to-branch', 'docker-compose-check']
 repos:
   - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
     rev: v1.5.1
@@ -183,6 +183,22 @@ repos:
     hooks:
       - id: reformat-gherkin
         files: \.feature$
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-nodejs
+    rev: v1.1.2
+    hooks:
+      - id: dockerfile_lint
+        files: Dockerfile
+        args:
+          [
+            '-f',
+            'Dockerfile',
+            '-f',
+            'ci.Dockerfile',
+            '-f',
+            'etc/nginx/Dockerfile',
+            '-f',
+            'etc/nginx-staging/Dockerfile',
+          ]
   - repo: https://github.com/iamthefij/docker-pre-commit
     rev: v3.0.1
     hooks:
