@@ -155,5 +155,5 @@ def test_matomo_response_url(jsondata: dict, url: Optional[str]) -> None:
 async def test_matomo_data_noconfig() -> None:
     """Matomo stats returns an empty result when there's no config."""
     assert await cli_stats.matomo_stats() == cli_stats.MatomoData(
-        referrers=[], socials=[], pages=[], visits={}
+        referrers=[], socials=[], pages=[]
     )
