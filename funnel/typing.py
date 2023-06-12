@@ -2,32 +2,15 @@
 
 from __future__ import annotations
 
-from typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    TypeVar,
-    Union,
-)
-from uuid import UUID
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TypeVar, Union
 
-from sqlalchemy.orm import Mapped
-from typing_extensions import ParamSpec, Protocol
+from flask.typing import ResponseReturnValue
+from typing_extensions import ParamSpec
 from werkzeug.wrappers import Response  # Base class for Flask Response
-
-from coaster.sqlalchemy.model import QueryProperty
 
 __all__ = [
     'T',
     'P',
-    'ModelType',
-    'UuidModelType',
-    'Mapped',
     'OptionalMigratedTables',
     'ReturnRenderWith',
     'ReturnResponse',
@@ -35,31 +18,13 @@ __all__ = [
     'WrappedFunc',
     'ReturnDecorator',
     'ResponseType',
+    'ResponseReturnValue',
 ]
 
 #: Type used to indicate type continuity within a block of code
 T = TypeVar('T')
 #: Type used to indicate parameter continuity within a block of code
 P = ParamSpec('P')
-
-
-class ModelType(Protocol):
-    """Protocol class for models."""
-
-    __tablename__: str
-    query: ClassVar[QueryProperty]
-
-
-class IdModelType(ModelType, Protocol):
-    """Protocol class for models."""
-
-    id: Mapped[Union[int, UUID]]  # noqa: A003
-
-
-class UuidModelType(IdModelType, Protocol):
-    """Protocol class for models with UUID column."""
-
-    uuid: Mapped[UUID]
 
 
 #: Flask response headers can be a dict or list of key-value pairs

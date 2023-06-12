@@ -9,7 +9,11 @@ on:
     paths:
       - '**.py'
       - '**.js'
+      - '**.scss'
       - '**.jinja2'
+      - '.flaskenv'
+      - '.testenv'
+      - 'package-lock.json'
       - 'requirements/base.txt'
       - 'requirements/test.txt'
       - '.github/workflows/pytest.yml'
@@ -19,12 +23,13 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest] # TODO: Figure out macos-latest and Docker
         python-version: ['3.7', '3.11']
 
     services:
@@ -47,6 +52,9 @@ jobs:
           - 5432:5432
 
     steps:
+      - name: Setup Docker on macOS
+        uses: docker-practice/actions-setup-docker@1.0.11
+        if: ${{ matrix.os == 'macos-latest' }}
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Install Firefox (for browser testing)
@@ -59,6 +67,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: 'requirements/*.txt'
+      - name: Cache python packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements/base.txt') }}-${{ hashFiles('requirements.txt/test.txt') }}
       - name: Install Python dependencies
         run: make install-python-test
       - name: Install Node
@@ -66,8 +79,13 @@ jobs:
         with:
           node-version: latest
           cache: npm
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ join(matrix.*, '-') }}-node_modules-${{ hashFiles('package-lock.json') }}
       - name: Install Node dependencies
-        run: make install-npm-ci
+        run: make install-npm
       - name: Build Webpack assets
         run: make assets
       - name: Annotate Pytest failures in PR

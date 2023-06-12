@@ -2,6 +2,7 @@
 -e file:./build/dependencies/coaster
 alembic
 argon2-cffi
+asgiref
 Babel
 base58
 bcrypt
@@ -28,12 +29,13 @@ furl
 geoip2
 greenlet
 html2text
+httpx[http2]
 icalendar
 idna
 itsdangerous
 linkify-it-py
 markdown-it-py
-mdit-py-plugins
+mdit-py-plugins<0.4.0  # 0.4.0 drops Python 3.7 support
 oauth2
 oauth2client
 passlib
@@ -42,10 +44,11 @@ premailer
 progressbar2
 psycopg[binary]
 pycountry
-Pygments
 pyIsEmail
 python-dateutil
 python-dotenv<1.0  # 1.0 drops Python 3.7 support
+python-telegram-bot
+python-utils<3.6.0  # Not ours; needed by progressbar2, but latest drops Python 3.7
 pytz
 PyVimeo
 qrcode

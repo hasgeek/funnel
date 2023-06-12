@@ -7,13 +7,7 @@ from __future__ import annotations
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import (
-    DeclarativeBase,
-    DynamicMapped,
-    Mapped,
-    declarative_mixin,
-    declared_attr,
-)
+from sqlalchemy.orm import DeclarativeBase, Mapped, declarative_mixin, declared_attr
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType
 import sqlalchemy as sa
 
@@ -24,6 +18,7 @@ from coaster.sqlalchemy import (
     BaseScopedIdNameMixin,
     BaseScopedNameMixin,
     CoordinatesMixin,
+    DynamicMapped,
     ModelBase,
     NoIdMixin,
     Query,
@@ -70,7 +65,6 @@ from .user_session import *  # isort:skip
 from .email_address import *  # isort:skip
 from .phone_number import *  # isort:skip
 from .auth_client import *  # isort:skip
-from .notification import *  # isort:skip
 from .utils import *  # isort:skip
 from .comment import *  # isort:skip
 from .draft import *  # isort:skip
@@ -94,6 +88,8 @@ from .sponsor_membership import *  # isort:skip
 from .proposal_membership import *  # isort:skip
 from .site_membership import *  # isort:skip
 from .moderation import *  # isort:skip
-from .notification_types import *  # isort:skip
 from .commentset_membership import *  # isort:skip
 from .geoname import *  # isort:skip
+from .typing import *  # isort:skip
+from .notification import *  # isort:skip
+from .notification_types import *  # isort:skip

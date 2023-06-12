@@ -352,7 +352,9 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
                 # if...
                 cls.user_id.is_not(None),
                 # then...
-                sa.select(User.fullname).where(cls.user_id == User.id).as_scalar(),
+                sa.select(User.fullname)
+                .where(cls.user_id == User.id)
+                .scalar_subquery(),
             ),
             (
                 # elif...
@@ -360,7 +362,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
                 # then...
                 sa.select(Organization.title)
                 .where(cls.organization_id == Organization.id)
-                .as_scalar(),
+                .scalar_subquery(),
             ),
             else_='',
         )

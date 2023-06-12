@@ -20,7 +20,14 @@ from baseframe import __, statsd
 from coaster.auth import current_auth
 
 from .. import app
-from ..models import Notification, NotificationFor, UserNotification, db
+from ..models import (
+    Notification,
+    NotificationFor,
+    UserEmail,
+    UserNotification,
+    UserPhone,
+    db,
+)
 from ..serializers import token_serializer
 from ..transports import TransportError, email, platform_transports, sms
 from ..transports.sms import SmsTemplate
@@ -37,7 +44,7 @@ __all__ = [
 
 @UserNotification.views('render', cached_property=True)
 @NotificationFor.views('render', cached_property=True)
-def render_user_notification(obj):
+def render_user_notification(obj: UserNotification) -> RenderNotification:
     """Render web notifications for the user."""
     return Notification.renderers[obj.notification.type](obj)
 
@@ -182,7 +189,7 @@ class RenderNotification:
         if 'fragment' in self.aliases:
             setattr(self, self.aliases['fragment'], self.fragment)
 
-    def transport_for(self, transport):
+    def transport_for(self, transport: str) -> Optional[Union[UserEmail, UserPhone]]:
         """
         Return the transport address for the notification.
 

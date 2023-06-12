@@ -8,11 +8,10 @@ import click
 import rich.progress
 
 from ... import models
-from ...models import db, sa
-from ...typing import IdModelType
+from ...models import MarkdownModelUnion, db, sa
 from . import refresh
 
-_M = TypeVar('_M', bound=IdModelType)
+_M = TypeVar('_M', bound=MarkdownModelUnion)
 
 
 class MarkdownModel(Generic[_M]):
@@ -92,7 +91,9 @@ MarkdownModel.register(models.VenueRoom, {'description'})
 
 
 @refresh.command('markdown')
-@click.argument('content', type=click.Choice(MarkdownModel.registry.keys()), nargs=-1)
+@click.argument(
+    'content', type=click.Choice(list(MarkdownModel.registry.keys())), nargs=-1
+)
 @click.option(
     '-a',
     '--all',
@@ -103,7 +104,7 @@ MarkdownModel.register(models.VenueRoom, {'description'})
 @click.option(
     '-c',
     '--config',
-    type=click.Choice(MarkdownModel.config_registry.keys()),
+    type=click.Choice(list(MarkdownModel.config_registry.keys())),
     help="Reparse Markdown content using a specific configuration.",
 )
 @click.option(

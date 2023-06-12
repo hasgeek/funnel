@@ -9,6 +9,7 @@ import re
 from flask import Flask
 
 __all__ = [
+    'DLT_VAR_MAX_LENGTH',
     'SmsTemplate',
     'WebOtpTemplate',
     'OneLineTemplate',
@@ -27,7 +28,7 @@ _var_repeat_re = re.compile('({#.*?#})+')
 
 #: The maximum number of characters that can appear under one {#var#}
 #: Unclear in documentation: are exempted characters excluded from this length limit?
-VAR_MAX_LENGTH = 30
+DLT_VAR_MAX_LENGTH = 30
 
 
 class SmsTemplate:
@@ -168,7 +169,7 @@ class SmsTemplate:
         # Next, store real format field values
         self._format_kwargs.update(kwargs)
 
-    def available_var_len(self):
+    def available_var_len(self) -> int:
         """
         Available length for variable characters, to truncate as necessary.
 
@@ -237,7 +238,7 @@ class SmsTemplate:
         """Get a format variable via dictionary access, defaulting to ''."""
         return getattr(self, key, '')
 
-    def __setattr__(self, attr: str, value) -> None:
+    def __setattr__(self, attr: str, value: Any) -> None:
         """Set a format variable."""
         self._format_kwargs[attr] = value
         object.__setattr__(self, '_text', None)
@@ -270,7 +271,7 @@ class SmsTemplate:
             _var_repeat_re.sub('', cls.registered_template)
         )
         cls.registered_template_var_len = (
-            cls.registered_template.count('{#var#}') * VAR_MAX_LENGTH
+            cls.registered_template.count('{#var#}') * DLT_VAR_MAX_LENGTH
         )
 
         # 3. Create a compiled regex for the registered template that replaces
@@ -321,10 +322,15 @@ class SmsTemplate:
     @classmethod
     def validate_no_entity_template_id(cls) -> None:
         """Validate that confidential information is not present in the class spec."""
-        if cls.registered_entityid is not None or cls.registered_templateid is not None:
+        if (
+            'registered_entityid' in cls.__dict__
+            or 'registered_templateid' in cls.__dict__
+        ):
             raise TypeError(
-                "Registered entity id and template id are not public information and"
-                " must be in config. Use init_app to load config"
+                f"Registered entity id and template id are not public information and"
+                f" must be in config. Use init_app to load config (class has:"
+                f" registered_entityid={cls.registered_entityid},"
+                f" registered_templateid={cls.registered_templateid})"
             )
 
     def __init_subclass__(cls) -> None:
@@ -376,12 +382,12 @@ class WebOtpTemplate(SmsTemplate):
         ' https://has.gy/not-my-otp\n\n@hasgeek.com #{#var#}'
     )
     template = (
-        'OTP is {otp} for Hasgeek. If you did not request this, report misuse at'
-        ' https://has.gy/not-my-otp\n\n@hasgeek.com #{otp}'
+        "OTP is {otp} for Hasgeek. If you did not request this, report misuse at"
+        " https://has.gy/not-my-otp\n\n@hasgeek.com #{otp}"
     )
     plaintext_template = (
-        'OTP is {otp} for Hasgeek. If you did not request this, report misuse at'
-        ' https://has.gy/not-my-otp\n\n@hasgeek.com #{otp}'
+        "OTP is {otp} for Hasgeek. If you did not request this, report misuse at"
+        " https://has.gy/not-my-otp\n\n@hasgeek.com #{otp}"
     )
 
 
@@ -389,14 +395,14 @@ class OneLineTemplate(SmsTemplate):
     """Template for single line messages."""
 
     registered_template = '{#var#}{#var#}{#var#}{#var#}\n\n{#var#} to stop - Hasgeek'
-    template = '{text1} {url}\n\n\n{unsubscribe_url} to stop - Hasgeek'
-    plaintext_template = '{text1} {url}'
+    template = "{text1} {url}\n\n\n{unsubscribe_url} to stop - Hasgeek"
+    plaintext_template = "{text1} {url}"
 
     text1: str
     url: str
     unsubscribe_url: str
 
-    def available_var_len(self):
+    def available_var_len(self) -> int:
         """Discount the two URLs from available length."""
         return self.template_var_len - len(self.url) - len(self.unsubscribe_url)
 
@@ -413,15 +419,15 @@ class TwoLineTemplate(SmsTemplate):
     registered_template = (
         '{#var#}{#var#}\n\n{#var#}{#var#}\n\n{#var#} to stop - Hasgeek'
     )
-    template = '{text1}\n\n{text2} {url}\n\n\n{unsubscribe_url} to stop - Hasgeek'
-    plaintext_template = '{text1}\n\n{text2} {url}'
+    template = "{text1}\n\n{text2} {url}\n\n\n{unsubscribe_url} to stop - Hasgeek"
+    plaintext_template = "{text1}\n\n{text2} {url}"
 
     text1: str
     text2: str
     url: str
     unsubscribe_url: str
 
-    def available_var_len(self):
+    def available_var_len(self) -> int:
         """Discount the two URLs from available length."""
         return self.template_var_len - len(self.url) - len(self.unsubscribe_url)
 
@@ -440,13 +446,13 @@ class TwoLineTemplate(SmsTemplate):
 class MessageTemplate(OneLineTemplate):
     """Template for a message without a URL."""
 
-    template = '{message}\n\n\n{unsubscribe_url} to stop - Hasgeek'
-    plaintext_template = '{message}'
+    template = "{message}\n\n\n{unsubscribe_url} to stop - Hasgeek"
+    plaintext_template = "{message}"
 
     message: str
     unsubscribe_url: str
 
-    def available_var_len(self):
+    def available_var_len(self) -> int:
         """Discount the unsubscribe URL from available length."""
         return self.template_var_len - len(self.unsubscribe_url)
 

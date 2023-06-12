@@ -6,8 +6,7 @@ from typing import Set
 
 from werkzeug.utils import cached_property
 
-from ..typing import Mapped
-from . import Model, User, declared_attr, relationship, sa
+from . import Mapped, Model, User, declared_attr, relationship, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 

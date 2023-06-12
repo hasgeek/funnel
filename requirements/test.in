@@ -4,16 +4,18 @@ colorama
 coverage
 coveralls
 lxml
+Pygments
 pytest
+pytest-asyncio
 pytest-bdd
 pytest-cov
 pytest-dotenv
 pytest-env
-pytest-remotedata
 pytest-rerunfailures
-# pytest-selenium: https://github.com/pytest-dev/pytest-selenium/issues/305
-git+https://github.com/pytest-dev/pytest-selenium#egg=pytest-selenium==4.0.0
+pytest-selenium>=4.0.1
+pytest-socket
 requests-mock
+respx
 sttable
 tomlkit
 typeguard

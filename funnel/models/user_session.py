@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import List, Optional
+from typing import Optional
 
 from coaster.utils import utcnow
 
@@ -167,7 +167,7 @@ class UserSession(UuidMixin, BaseMixin, Model):
 
 @reopen(User)
 class __User:
-    active_user_sessions: DynamicMapped[List[UserSession]] = relationship(
+    active_user_sessions: DynamicMapped[UserSession] = relationship(
         UserSession,
         lazy='dynamic',
         primaryjoin=sa.and_(

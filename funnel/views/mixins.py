@@ -20,11 +20,12 @@ from ..models import (
     ProjectRedirect,
     Session,
     TicketEvent,
+    UuidModelUnion,
     Venue,
     VenueRoom,
     db,
 )
-from ..typing import ReturnRenderWith, ReturnView, UuidModelType
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 
 
@@ -217,10 +218,10 @@ class TicketEventViewMixin(ProfileCheckMixin):
 
 
 class DraftViewMixin:
-    obj: UuidModelType
-    model: Type[UuidModelType]
+    obj: UuidModelUnion
+    model: Type[UuidModelUnion]
 
-    def get_draft(self, obj: Optional[UuidModelType] = None) -> Optional[Draft]:
+    def get_draft(self, obj: Optional[UuidModelUnion] = None) -> Optional[Draft]:
         """
         Return the draft object for `obj`. Defaults to `self.obj`.
 
@@ -238,7 +239,7 @@ class DraftViewMixin:
             raise ValueError(_("There is no draft for the given object"))
 
     def get_draft_data(
-        self, obj: Optional[UuidModelType] = None
+        self, obj: Optional[UuidModelUnion] = None
     ) -> Union[Tuple[None, None], Tuple[int, dict]]:
         """
         Return a tuple of draft data.
@@ -250,7 +251,7 @@ class DraftViewMixin:
             return draft.revision, draft.formdata
         return None, None
 
-    def autosave_post(self, obj: Optional[UuidModelType] = None) -> ReturnRenderWith:
+    def autosave_post(self, obj: Optional[UuidModelUnion] = None) -> ReturnRenderWith:
         """Handle autosave POST requests."""
         obj = obj if obj is not None else self.obj
         if 'form.revision' not in request.form:

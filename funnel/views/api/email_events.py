@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from email.utils import parseaddr
-from typing import List
+from typing import List, Optional, Sequence
 
 from flask import current_app, request
 import requests
@@ -228,7 +228,12 @@ def process_ses_event() -> ReturnView:
 
     # Validate the message
     try:
-        validator.topics = app.config['SES_NOTIFICATION_TOPICS']
+        config_topics: Optional[Sequence[str]] = app.config.get(
+            'SES_NOTIFICATION_TOPICS'
+        )
+        if not config_topics:
+            app.logger.error("Config key SES_NOTIFICATION_TOPICS is not set")
+        validator.topics = config_topics or []
         validator.check(message)
     except SnsValidatorError:
         current_app.logger.warning("SNS/SES event failed validation: %r", message)

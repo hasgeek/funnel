@@ -2,13 +2,16 @@
 *.egg-info
 *.pyc
 .coverage
+.eslintcache
 .mypy_cache
 .pytest_cache
 .ropeproject
 .sass-cache
 .sass-cache
 .webassets-cache
+.webpack_cache
 __pycache__
+monkeytype.sqlite3
 
 # MacOS file
 .DS_Store

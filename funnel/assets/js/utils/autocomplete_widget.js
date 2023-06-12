@@ -2,7 +2,7 @@ import 'select2';
 
 const EnableAutocompleteWidgets = {
   lastuserAutocomplete(options) {
-    const assembleUsers = function (users) {
+    const assembleUsers = function getUsersMap(users) {
       return users.map((user) => {
         return { id: user.buid, text: user.label };
       });

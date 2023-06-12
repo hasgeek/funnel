@@ -9,7 +9,7 @@ import unicodedata
 from pyisemail import is_email
 from pyisemail.diagnosis import BaseDiagnosis
 from sqlalchemy import event, inspect
-from sqlalchemy.orm import mapper
+from sqlalchemy.orm import Mapper
 from sqlalchemy.orm.attributes import NO_VALUE
 from sqlalchemy.sql.expression import ColumnElement
 from typing_extensions import Literal
@@ -851,7 +851,7 @@ def _send_refcount_event_before_delete(
         emailaddress_refcount_dropping.send(target.email_address)
 
 
-@event.listens_for(mapper, 'after_configured')
+@event.listens_for(Mapper, 'after_configured')
 def _setup_refcount_events() -> None:
     for backref_name in EmailAddress.__backrefs__:
         attr = getattr(EmailAddress, backref_name)

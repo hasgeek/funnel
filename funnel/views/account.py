@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from string import capwords
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
@@ -758,17 +759,19 @@ class AccountView(ClassView):
         extid = UserExternalId.query.filter_by(
             user=current_auth.user, service=service, userid=userid
         ).one_or_404()
+        if extid.service in login_registry:
+            service_title = login_registry[extid.service].title
+        else:
+            service_title = capwords(extid.service)
         return render_delete_sqla(
             extid,
             db,
             title=_("Confirm removal"),
             message=_(
                 "Remove {service} account ‘{username}’ from your account?"
-            ).format(
-                service=login_registry[extid.service].title, username=extid.username
-            ),
+            ).format(service=service_title, username=extid.username),
             success=_("You have removed the {service} account ‘{username}’").format(
-                service=login_registry[extid.service].title, username=extid.username
+                service=service_title, username=extid.username
             ),
             next=url_for('account'),
             delete_text=_("Remove"),

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Set
+from typing import Set
 
 from werkzeug.utils import cached_property
 
@@ -159,16 +159,14 @@ class __Proposal:
 class __User:
     # pylint: disable=invalid-unary-operand-type
 
-    all_proposal_memberships: DynamicMapped[List[ProposalMembership]] = relationship(
+    all_proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
         ProposalMembership,
         lazy='dynamic',
         foreign_keys=[ProposalMembership.user_id],
         viewonly=True,
     )
 
-    noninvite_proposal_memberships: DynamicMapped[
-        List[ProposalMembership]
-    ] = relationship(
+    noninvite_proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -178,7 +176,7 @@ class __User:
         viewonly=True,
     )
 
-    proposal_memberships: DynamicMapped[List[ProposalMembership]] = relationship(
+    proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
