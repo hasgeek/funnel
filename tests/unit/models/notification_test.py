@@ -10,7 +10,6 @@ from sqlalchemy.exc import IntegrityError
 import pytest
 
 from funnel import models
-from funnel.typing import UuidModelType
 
 pytestmark = pytest.mark.filterwarnings(
     "ignore:Object of type <UserEmail> not in session"
@@ -20,7 +19,7 @@ pytestmark = pytest.mark.filterwarnings(
 @pytest.fixture(scope='session')
 def notification_types(database) -> SimpleNamespace:
     class ProjectIsParent:
-        document: UuidModelType
+        document: models.UuidModelUnion
 
         @property
         def preference_context(self) -> models.Profile:

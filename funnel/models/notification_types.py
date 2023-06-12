@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from baseframe import __
 
-from ..typing import UuidModelType
-from . import Mapped
 from .comment import Comment, Commentset
 from .moderation import CommentModeratorReport
 from .notification import Notification, notification_categories
@@ -39,38 +37,22 @@ __all__ = [
 # --- Protocol and Mixin classes -------------------------------------------------------
 
 
-class ProfileSubtype(UuidModelType):
-    """Model that links to an account (nee profile)."""
-
-    profile: Mapped[Profile]
-
-
-class ProjectSubtype(UuidModelType):
-    """Model that links to a project."""
-
-    project: Mapped[Project]
-
-
 class DocumentHasProject:
     """Mixin class for documents linked to a project."""
-
-    document: ProjectSubtype
 
     @property
     def preference_context(self) -> Profile:
         """Return document's project's account as preference context."""
-        return self.document.project.profile
+        return self.document.project.profile  # type: ignore[attr-defined]
 
 
 class DocumentHasProfile:
     """Mixin class for documents linked to an account (nee profile)."""
 
-    document: ProfileSubtype
-
     @property
     def preference_context(self) -> Profile:
         """Return document's account as preference context."""
-        return self.document.profile
+        return self.document.profile  # type: ignore[attr-defined]
 
 
 # --- Account notifications ------------------------------------------------------------
