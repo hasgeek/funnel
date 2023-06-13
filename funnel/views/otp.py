@@ -67,10 +67,6 @@ class OtpUserError(OtpError, Forbidden):
     """OTP is being used by a different user."""
 
 
-class OtpDeliveryError(OtpError):
-    """OTP could not be delivered."""
-
-
 # --- Typing ---------------------------------------------------------------------------
 
 #: Tell mypy that the type of ``OtpSession.user`` is same as ``OtpSession.make(user)``.
@@ -250,24 +246,25 @@ class OtpSession(Generic[OptionalUserType]):
             if flash_failure:
                 flash(str(exc), 'error')
             else:
-                raise OtpDeliveryError(str(exc)) from exc
+                raise
         except (TransportConnectionError, TransportTransactionError) as exc:
             message = _(
-                "Unable to send an OTP to your phone number {number} right now"
+                "Hasgeek cannot send an OTP via SMS to your phone number {number} right"
+                " now"
             ).format(number=self.display_phone)
             if flash_failure:
                 flash(message, 'error')
             else:
-                raise OtpDeliveryError(message) from exc
+                raise TransportConnectionError(message) from exc
         else:
             # Commit only if an SMS could be sent
             db.session.add(msg)
             db.session.commit()
             if flash_success:
                 flash(
-                    _("An OTP has been sent to your phone number {number}").format(
-                        number=self.display_phone
-                    ),
+                    _(
+                        "An OTP has been sent via SMS to your phone number {number}"
+                    ).format(number=self.display_phone),
                     'success',
                 )
             return msg
@@ -356,22 +353,22 @@ class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
             if flash_failure:
                 flash(message, 'error')
             else:
-                raise OtpDeliveryError(message) from exc
+                raise TransportRecipientError(message) from exc
         except (TransportConnectionError, TransportTransactionError) as exc:
             if self.user:
                 message = _(
-                    "Unable to send an OTP to your phone number {number} right now."
-                    " Use password to login, or try again later"
+                    "Hasgeek cannot send an OTP via SMS to your phone number {number}"
+                    " right now. Use password to login, or try again later"
                 ).format(number=self.display_phone)
             else:
                 message = _(
-                    "Unable to send an OTP to your phone number {number} right now."
-                    " Use an email address to register, or try again later"
+                    "Hasgeek cannot send an OTP via SMS to your phone number {number}"
+                    " right now. Use an email address to register, or try again later"
                 ).format(number=self.display_phone)
             if flash_failure:
                 flash(message, 'error')
             else:
-                raise OtpDeliveryError(message) from exc
+                raise TransportConnectionError(message) from exc
         else:
             # Commit only if an SMS could be sent
             db.session.add(msg)
@@ -408,7 +405,7 @@ class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
             if flash_failure:
                 flash(str(exc), 'error')
                 return None
-            raise OtpDeliveryError(str(exc)) from exc
+            raise
         if flash_success:
             flash(
                 _("An OTP has been sent to your email address {email}").format(
@@ -457,7 +454,7 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
             if flash_failure:
                 flash(str(exc), 'error')
                 return None
-            raise OtpDeliveryError(str(exc)) from exc
+            raise
         if flash_success:
             flash(
                 _("An OTP has been sent to your email address {email}").format(
@@ -507,7 +504,7 @@ class OtpSessionForReset(OtpSession[User], reason='reset'):
             if flash_failure:
                 flash(str(exc), 'error')
                 return None
-            raise OtpDeliveryError(str(exc)) from exc
+            raise
         if flash_success:
             flash(
                 _("An OTP has been sent to your email address {email}").format(

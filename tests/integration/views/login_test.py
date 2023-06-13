@@ -487,7 +487,7 @@ def test_sms_otp_not_sent(client, csrf_token) -> None:
             ),
         )
 
-    assert "Unable to send an OTP to your phone number" in rv1.data.decode()
+    assert "Hasgeek cannot send" in rv1.data.decode()
     assert "Use password to login" in rv1.data.decode()
 
 
@@ -652,7 +652,7 @@ def test_phone_otp_not_sent(client, csrf_token, phone_number, message_fragment) 
         )
         assert rv1.status_code == 200
         assert rv1.form('form-passwordlogin') is not None
-        assert 'Unable to send an OTP to your phone number' in rv1.data.decode()
+        assert "Hasgeek cannot send" in rv1.data.decode()
         assert message_fragment in rv1.data.decode()
 
 

@@ -59,6 +59,7 @@ from ..registry import (
 )
 from ..serializers import crossapp_serializer
 from ..signals import user_data_changed
+from ..transports import TransportError, TransportRecipientError
 from ..typing import ReturnView
 from ..utils import abort_null
 from .email import send_email_verify_link
@@ -72,7 +73,7 @@ from .login_session import (
     save_session_next_url,
     set_loginmethod_cookie,
 )
-from .otp import OtpDeliveryError, OtpSession, OtpTimeoutError
+from .otp import OtpSession, OtpTimeoutError
 
 session_timeouts['next'] = timedelta(minutes=30)
 session_timeouts['oauth_callback'] = timedelta(minutes=30)
@@ -256,11 +257,13 @@ def login() -> ReturnView:
                         url_for('login', next=next_url),
                         action_url,
                     )
-            except OtpDeliveryError as exc:
+            except TransportRecipientError as exc:
                 # If an OTP could not be sent, report the problem to the user as a form
                 # validation error. The view will flow to re-rendering the original
                 # login form
                 loginform.username.errors.append(str(exc))
+            except TransportError as exc:
+                flash(str(exc), 'error')
 
     elif request.method == 'POST' and formid == 'login-otp':
         try:
