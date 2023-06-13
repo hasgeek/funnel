@@ -15,10 +15,10 @@
 {%- block pageheaders -%}
   <link rel="stylesheet"
         type="text/css"
-        href="{{ built_asset('css/submission.scss') }}"/>
+        href="{{ built_asset('css/submission.css') }}"/>
   <link rel="stylesheet"
         type="text/css"
-        href="{{ built_asset('css/comments.scss') }}"/>
+        href="{{ built_asset('css/comments.css') }}"/>
 {%- endblock pageheaders -%}
 {%- block bodyattrs -%}
   class="bg-accent no-sticky-header mobile-header proposal-page subproject-page {% if proposal.views.video or proposal.session and proposal.session.views.video %}mobile-hide-livestream{% endif %}"
