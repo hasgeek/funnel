@@ -7,6 +7,8 @@ import sys
 from flask.cli import load_dotenv
 from werkzeug import run_simple
 
+from coaster.utils import getbool
+
 if __name__ == '__main__':
     load_dotenv()
     sys.path.insert(0, os.path.dirname(__file__))
@@ -23,7 +25,10 @@ if __name__ == '__main__':
     background_rq = None
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
         # Only start RQ worker within the reloader environment
-        background_rq = BackgroundWorker(rq.get_worker().work, mock_transports=True)
+        background_rq = BackgroundWorker(
+            rq.get_worker().work,
+            mock_transports=bool(getbool(os.environ.get('MOCK_TRANSPORTS', True))),
+        )
         background_rq.start()
 
     run_simple(
