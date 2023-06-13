@@ -72,7 +72,7 @@ from .login_session import (
     save_session_next_url,
     set_loginmethod_cookie,
 )
-from .otp import OtpSession, OtpTimeoutError
+from .otp import OtpDeliveryError, OtpSession, OtpTimeoutError
 
 session_timeouts['next'] = timedelta(minutes=30)
 session_timeouts['oauth_callback'] = timedelta(minutes=30)
@@ -249,15 +249,19 @@ def login() -> ReturnView:
                 phone=loginform.new_phone,
                 email=loginform.new_email,
             )
-            if otp_session.send():
-                return render_otp_form(
-                    get_otp_form(otp_session),
-                    url_for('login', next=next_url),
-                    action_url,
-                )
-            # If an OTP could not be sent, flash messages from otp_session.send() will
-            # be rendered and this view will fallback to the default render of the
-            # initial screen
+            try:
+                if otp_session.send(flash_failure=False):
+                    return render_otp_form(
+                        get_otp_form(otp_session),
+                        url_for('login', next=next_url),
+                        action_url,
+                    )
+            except OtpDeliveryError as exc:
+                # If an OTP could not be sent, report the problem to the user as a form
+                # validation error. The view will flow to re-rendering the original
+                # login form
+                loginform.username.errors.append(str(exc))
+
     elif request.method == 'POST' and formid == 'login-otp':
         try:
             otp_session = OtpSession.retrieve('login')
@@ -335,7 +339,7 @@ def login() -> ReturnView:
     )
 
 
-def logout_client():
+def logout_client() -> ReturnView:
     """Process auth client-initiated logout."""
     cred = AuthClientCredential.get(abort_null(request.args['client_id']))
     auth_client = cred.auth_client if cred is not None else None
