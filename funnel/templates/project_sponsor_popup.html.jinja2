@@ -1,7 +1,7 @@
 {% from "forms.html.jinja2" import renderform, widgetscripts, ajaxform %}
 {%- from "macros.html.jinja2" import faicon %}
 
-<link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
+<link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.css') }}" />
 
 <div class="modal__header">
   <a class="modal__close mui--text-dark" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size="title") }}</a>

@@ -2,6 +2,7 @@
 # pylint: disable=redefined-outer-name
 
 from datetime import timedelta
+from smtplib import SMTPRecipientsRefused
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -194,6 +195,27 @@ def test_user_register_otp_email(client, csrf_token) -> None:
         assert rv2.status_code == 303
         assert current_auth.user.fullname == "Rincewind"
         assert str(current_auth.user.email) == RINCEWIND_EMAIL
+
+
+@pytest.mark.mock_config('app', {'MAIL_SERVER': 'mocked'})
+def test_user_register_otp_email_invalid(client, csrf_token: str) -> None:
+    """Providing an invalid address that passes form validation but not SMTP."""
+    with patch('flask_mailman.message.EmailMessage.send', autospec=True) as mock:
+        mock.side_effect = SMTPRecipientsRefused(
+            {'invalid@143': (501, b'5.1.3 Bad recipient address syntax')}
+        )
+        rv = client.post(
+            '/login',
+            data=MultiDict(
+                {
+                    'csrf_token': csrf_token,
+                    'form.id': 'passwordlogin',
+                    'username': 'invalid@143',
+                    'password': '',
+                }
+            ),
+        )
+        assert "This email address is not valid" in rv.data.decode()
 
 
 def test_user_logout(client, csrf_token, login, user_rincewind) -> None:
@@ -465,7 +487,7 @@ def test_sms_otp_not_sent(client, csrf_token) -> None:
             ),
         )
 
-    assert "Unable to send an OTP to your phone number" in rv1.data.decode()
+    assert "Hasgeek cannot send" in rv1.data.decode()
     assert "Use password to login" in rv1.data.decode()
 
 
@@ -561,20 +583,6 @@ def test_service_not_in_registry(client) -> None:
     assert client.get('/login/unknown/callback').status_code == 404
 
 
-@pytest.mark.skip(reason="Test is incomplete")
-def test_logout_using_client_id(client, login, user_twoflower) -> None:
-    """Logout works using a valid client id and HTTP referrer."""
-    login.as_(user_twoflower)
-    rv1 = client.get('/logout?client_id=twoflower')
-
-    assert '_flashes' in session
-    assert rv1.status_code == 303
-
-    rv2 = client.get('/logout?next=twoflower.com')
-    assert '_flashes' in session
-    assert rv2.status_code == 303
-
-
 def test_already_logged_in(client, login, user_rincewind) -> None:
     """Login endpoint sends user away if they are already logged in."""
     login.as_(user_rincewind)
@@ -644,7 +652,7 @@ def test_phone_otp_not_sent(client, csrf_token, phone_number, message_fragment) 
         )
         assert rv1.status_code == 200
         assert rv1.form('form-passwordlogin') is not None
-        assert 'Unable to send an OTP to your phone number' in rv1.data.decode()
+        assert "Hasgeek cannot send" in rv1.data.decode()
         assert message_fragment in rv1.data.decode()
 
 
