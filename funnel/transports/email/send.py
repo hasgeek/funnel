@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from email.utils import formataddr, getaddresses, parseaddr
 from typing import Dict, List, Optional, Tuple, Union
+import smtplib
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -12,7 +13,7 @@ from flask_mailman.message import sanitize_address
 from html2text import html2text
 from premailer import transform
 
-from baseframe import statsd
+from baseframe import _, statsd
 
 from ... import app
 from ...models import EmailAddress, EmailAddressBlockedError, User
@@ -155,12 +156,30 @@ def send_email(
             EmailAddress.add(email) for name, email in getaddresses(msg.recipients())
         ]
     except EmailAddressBlockedError as exc:
-        raise TransportRecipientError(exc) from exc
+        raise TransportRecipientError(_("This email address has been blocked")) from exc
     # FIXME: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
     # catch that, remove the recipient, and notify the user via the upcoming
     # notification centre. (Raise a TransportRecipientError)
 
-    result = msg.send()
+    try:
+        result = msg.send()
+    except smtplib.SMTPRecipientsRefused as exc:
+        if len(exc.recipients) == 1:
+            if len(to) == 1:
+                message = _("This email address is not valid")
+            else:
+                message = _("This email address is not valid: {email}").format(
+                    email=list(exc.recipients.keys())[0]
+                )
+
+        else:
+            if len(to) == len(exc.recipients):
+                message = _("These email addresses are not valid")
+            else:
+                message = _("These email addresses are not valid: {emails}").format(
+                    emails=', '.join(exc.recipients.keys())
+                )
+        raise TransportRecipientError(message) from exc
 
     # After sending, mark the address as having received an email and also update the
     # statistics counters. Note that this will only track emails sent by *this app*.

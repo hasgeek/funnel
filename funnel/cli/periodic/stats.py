@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, Optional, Sequence, cast
+from typing import Dict, Optional, Sequence, Union, cast, overload
 from urllib.parse import unquote
 import asyncio
 
@@ -12,6 +12,7 @@ from asgiref.sync import async_to_sync
 from dataclasses_json import DataClassJsonMixin
 from dateutil.relativedelta import relativedelta
 from furl import furl
+from typing_extensions import Literal
 import click
 import httpx
 import pytz
@@ -76,8 +77,8 @@ class ResourceStats:
 class MatomoResponse(DataClassJsonMixin):
     """Data in Matomo's API response."""
 
-    label: str
-    nb_visits: int
+    label: str = ''
+    nb_visits: int = 0
     nb_uniq_visitors: int = 0
     nb_users: int = 0
     url: Optional[str] = None
@@ -109,20 +110,42 @@ class MatomoData:
     referrers: Sequence[MatomoResponse]
     socials: Sequence[MatomoResponse]
     pages: Sequence[MatomoResponse]
+    visits_day: Optional[MatomoResponse] = None
+    visits_week: Optional[MatomoResponse] = None
+    visits_month: Optional[MatomoResponse] = None
 
 
 # --- Matomo analytics -----------------------------------------------------------------
 
 
+@overload
 async def matomo_response_json(
-    client: httpx.AsyncClient, url: str
+    client: httpx.AsyncClient, url: str, sequence: Literal[True] = True
 ) -> Sequence[MatomoResponse]:
+    ...
+
+
+@overload
+async def matomo_response_json(
+    client: httpx.AsyncClient, url: str, sequence: Literal[False]
+) -> Optional[MatomoResponse]:
+    ...
+
+
+async def matomo_response_json(
+    client: httpx.AsyncClient, url: str, sequence: bool = True
+) -> Union[Optional[MatomoResponse], Sequence[MatomoResponse]]:
     try:
         response = await client.get(url, timeout=5)
         response.raise_for_status()
-        return [MatomoResponse.from_dict(r) for r in response.json()]
+        result = response.json()
+        if sequence:
+            if isinstance(result, list):
+                return [MatomoResponse.from_dict(r) for r in result]
+            return []  # Expected a list but didn't get one; treat as invalid response
+        return MatomoResponse.from_dict(result)
     except httpx.HTTPError:
-        return []
+        return [] if sequence else None
 
 
 async def matomo_stats(date: str = 'yesterday') -> MatomoData:
@@ -148,15 +171,19 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
     referrers_url = matomo_url.copy().add({'method': 'Referrers.getWebsites'})
     socials_url = matomo_url.copy().add({'method': 'Referrers.getSocials'})
     pages_url = matomo_url.copy().add({'method': 'Actions.getPageUrls'})
+    visits_url = matomo_url.copy().add({'method': 'VisitsSummary.get'})
 
     async with httpx.AsyncClient(follow_redirects=True) as client:
-        referrers, socials, pages = await asyncio.gather(
+        referrers, socials, pages, visits = await asyncio.gather(
             matomo_response_json(client, str(referrers_url)),
             matomo_response_json(client, str(socials_url)),
             matomo_response_json(client, str(pages_url)),
+            matomo_response_json(client, str(visits_url), sequence=False),
         )
 
-    return MatomoData(referrers=referrers, socials=socials, pages=pages)
+    return MatomoData(
+        referrers=referrers, socials=socials, pages=pages, visits_day=visits
+    )
 
 
 # --- Internal database analytics ------------------------------------------------------
@@ -308,15 +335,31 @@ async def dailystats() -> None:
         f"*Traffic #statistics for {display_date.strftime('%a, %-d %b %Y')}*\n"
         f"\n"
         f"*Active users*, of which\n"
+        f"→ logged in, and\n"
         f"↝ also using other apps, and\n"
-        f"⟳ returning new users from last period\n\n"
-        f"*{display_date.strftime('%A')}:* {user_data['user_sessions'].day}"
+        f"⟳ returning new registered users from last period\n\n"
+        f"*{display_date.strftime('%A')}:*"
+    )
+    if matomo_data.visits_day:
+        message += f' {matomo_data.visits_day.nb_uniq_visitors}'
+    message += (
+        f" → {user_data['user_sessions'].day}"
         f" ↝ {user_data['app_user_sessions'].day}"
         f" ⟳ {user_data['returning_users'].day}\n"
-        f"*Week:* {user_data['user_sessions'].week}"
+        f"*Week:*"
+    )
+    if matomo_data.visits_week:
+        message += f' {matomo_data.visits_week.nb_uniq_visitors}'
+    message += (
+        f" → {user_data['user_sessions'].week}"
         f" ↝ {user_data['app_user_sessions'].week}"
         f" ⟳ {user_data['returning_users'].week}\n"
-        f"*Month:* {user_data['user_sessions'].month}"
+        f"*Month:*"
+    )
+    if matomo_data.visits_month:
+        message += f' {matomo_data.visits_month.nb_uniq_visitors}'
+    message += (
+        f" → {user_data['user_sessions'].month}"
         f" ↝ {user_data['app_user_sessions'].month}"
         f" ⟳ {user_data['returning_users'].month}\n"
         f"\n"

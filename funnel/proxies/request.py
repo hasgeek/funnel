@@ -133,7 +133,7 @@ def _get_request_wants() -> RequestWants:
     return RequestWants()
 
 
-request_wants = LocalProxy(_get_request_wants)
+request_wants: RequestWants = LocalProxy(_get_request_wants)  # type: ignore[assignment]
 
 
 def response_varies(response: ResponseType) -> ResponseType:
