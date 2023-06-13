@@ -21,6 +21,9 @@ on:
       - 'docker/entrypoints/ci-test.sh'
       - 'docker/initdb/test.sh'
       - 'package.json'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -40,23 +43,8 @@ jobs:
       - name: Cache pip
         uses: actions/cache@v3
         with:
-          path: .cache/.pip
+          path: .cache/pip
           key: pip
-      - name: Cache .webpack_cache
-        uses: actions/cache@v3
-        with:
-          path: .webpack_cache
-          key: webpack_cache
-      - name: Cache webpack build
-        uses: actions/cache@v3
-        with:
-          path: funnel/assets/static/build
-          key: webpack-build
-      - name: Cache for single files
-        uses: actions/cache@v3
-        with:
-          path: .cache/files
-          key: docker-files
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Build funnel-test image
@@ -75,5 +63,4 @@ jobs:
         with:
           github-token: ${{ secrets.github_token }}
           path-to-lcov: coverage/funnel.lcov
-          flag-name: docker
-          parallel: true
+          flag-name: docker-3.11

@@ -48,7 +48,7 @@ services:
     extends:
       file: docker/compose/services.yml
       service: funnel
-    image: hasgeek/funnel-test:latest
+    image: funnel-test
     profiles:
       - test
     build:
@@ -60,20 +60,20 @@ services:
       db-test:
         condition: service_healthy
     working_dir: /home/pn/app
+    user: pn
     links:
       - db-test
       - redis-test
     volumes:
       - ./.cache/.npm:/home/pn/.npm
       - ./.cache/node_modules:/home/pn/app/node_modules
-      - ./.cache/.pip:/home/pn/.cache/pip
-      - ./.cache/.webpack_cache:/home/pn/app/.webpack_cache
-      - ./.cache/build:/home/pn/app/funnel/static/build
-      - ./.cache/files:/home/pn/.ci-cache/files
+      - ./.cache/pip:/home/pn/.cache/pip
+      - ./.cache/.local:/home/pn/.local
       - ./coverage:/home/pn/app/coverage
     restart: 'no'
     environment:
       - REDIS_HOST=redis-test
+      - DB_HOST=db-test
       - FLASK_SQLALCHEMY_DATABASE_URI=postgresql+psycopg://funnel@db-test/funnel_testing
       - FLASK_SQLALCHEMY_BINDS__geoname=postgresql+psycopg://funnel@db-test/geoname_testing
   db-test:
