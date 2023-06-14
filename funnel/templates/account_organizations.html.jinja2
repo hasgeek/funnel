@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import faicon, account_tabs %}
+{%- from "macros.html.jinja2" import faicon, account_tabs, img_size %}
 {% block title %}
   {% trans %}Organizations{% endtrans %}
 {% endblock title %}
@@ -34,7 +34,7 @@
                    class="nounderline">
                     <span class="profile-avatar profile-avatar--bigger margin-right">
                       {%- if orgmem.organization.profile.logo_url.url %}
-                        <img src="{{ orgmem.organization.profile.logo_url }}"
+                        <img src="{{ orgmem.organization.profile.logo_url.resize(img_size.profile_logo_small) }}"
                              alt="{{ orgmem.organization.title }}"/>
                       {% else %}
                         <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"

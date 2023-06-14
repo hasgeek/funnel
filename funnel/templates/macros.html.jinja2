@@ -1,7 +1,9 @@
-{%- set spotlight_banner = 700 %}
-{%- set card_banner = 400 %}
-{%- set profile_logo = 240 %}
-{%- set profile_logo_small = 80 %}
+{%- set img_size = namespace() %}
+{%- set img_size.spotlight_banner = 700 %}
+{%- set img_size.card_banner = 400 %}
+{%- set img_size.card_banner_small = 100 %}
+{%- set img_size.profile_logo = 240 %}
+{%- set img_size.profile_logo_small = 80 %}
 
 {%- macro faicon(icon, icon_size='body', baseline=true, css_class="") -%}
   {% assets "fa5-sprite" %}<svg class="fa5-icon {%- if icon_size %} fa5-icon--{{ icon_size }} {%- endif -%} {%- if baseline %} fa5--align-baseline {%- endif -%} {%- if css_class %} {{ css_class }} {%- endif -%}" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL|make_relative_url }}#{{ icon }}"></use></svg>{% endassets %}
@@ -145,7 +147,7 @@
       <div class="flex-wrapper flex-wrapper--center">
         <span class="profile-avatar margin-right">
           {%- if project.profile.logo_url.url %}
-            <img src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+            <img src="{{ project.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ project.profile.title }}"/>
           {% else %}
             <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ project.profile.title }}"/>
           {% endif %}
@@ -160,9 +162,9 @@
     {% endif %}
     <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
       {% if project.bg_image.url %}
-        <img class="card__image js-lazyload-img" data-src="{{ project.bg_image.resize(card_banner) }}" alt="{{ project.title }}"/>
+        <img class="card__image js-lazyload-img" data-src="{{ project.bg_image.resize(img_size.card_banner) }}" alt="{{ project.title }}"/>
         <noscript>
-          <img class="card__image" src="{{ project.bg_image.resize(card_banner) }}" alt="{{ project.title }}"/>
+          <img class="card__image" src="{{ project.bg_image.resize(img_size.card_banner) }}" alt="{{ project.title }}"/>
         </noscript>
       {% else %}
         <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ project.title }}"/>
@@ -227,7 +229,7 @@
             <div class="card card--spotlight card--spotlight--live">
               <div class="card__image-wrapper">
                 {% if featured_project.bg_image.url %}
-                  <img class="card__image" src="{{ featured_project.bg_image.resize(spotlight_banner) }}" alt="{{ featured_project.title }}"/>
+                  <img class="card__image" src="{{ featured_project.bg_image.resize(img_size.img_size.spotlight_banner) }}" alt="{{ featured_project.title }}"/>
                 {% else %}
                   <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
                   <p class="card__image__tagline">{{ featured_project.title }}</p>
@@ -285,7 +287,7 @@
                 <div class="flex-wrapper flex-wrapper--center">
                   <span class="profile-avatar margin-right">
                     {%- if featured_project.profile.logo_url.url %}
-                      <img src="{{ featured_project.profile.logo_url }}" alt="{{ featured_project.profile.title }}"/>
+                      <img src="{{ featured_project.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.profile.title }}"/>
                     {% else %}
                       <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.profile.title }}"/>
                     {% endif %}
@@ -482,7 +484,7 @@
             <div class="user__box">
               <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="nounderline">
                 {%- if sponsor.profile.logo_url.url %}
-                  <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
+                  <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ sponsor.profile.title }}"/>
                 {%- else %}
                   <div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ sponsor.profile.views.avatar_color_code }}">{{ sponsor.profile.title|initials }}</div>
                 {% endif %}
@@ -657,7 +659,7 @@
       <div>
         <span class="profile-avatar profile-avatar--bigger margin-auto">
           {%- if profile.logo_url.url %}
-            <img src="{{ profile.logo_url }}"
+            <img src="{{ profile.logo_url.resize(img_size.profile_logo_small) }}"
                  alt="{{ profile.title }}"/>
           {% else %}
             <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
