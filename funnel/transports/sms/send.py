@@ -226,7 +226,7 @@ def send_via_twilio(
             ) from exc
         app.logger.error("Unhandled Twilio error %d: %s", exc.code, exc.msg)
         raise TransportTransactionError(
-            _("Hasgeek was unable to send a message to this phone number")
+            _("Hasgeek cannot send an SMS message to this phone number at this time")
         ) from exc
 
 
