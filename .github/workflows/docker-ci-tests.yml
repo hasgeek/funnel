@@ -34,17 +34,22 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .cache/.npm
-          key: npm
+          key: docker-npm
       - name: Cache node_modules
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: node_modules-${{ hashFiles('package-lock.json') }}
+          key: docker-node_modules-${{ hashFiles('package-lock.json') }}
       - name: Cache pip
         uses: actions/cache@v3
         with:
           path: .cache/pip
-          key: pip
+          key: docker-pip
+      - name: Cache .local
+        uses: actions/cache@v3
+        with:
+          path: .cache/.local
+          key: docker-user-local
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Build funnel-test image
