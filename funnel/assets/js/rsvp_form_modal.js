@@ -17,8 +17,9 @@ const FormUI = {
         jsonForm,
       },
       methods: {
-        handleAjaxPost(formId, ajaxResponse) {
-          $(`#${formId}`).html(ajaxResponse);
+        handleAjaxPost() {
+          window.location.hash = '';
+          window.location.reload();
         },
       },
     });
