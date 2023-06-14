@@ -1,34 +1,28 @@
 # Cache files
-*.egg-info
-*.pyc
+**/*.egg-info
+**/*.pyc
 .coverage
-.eslintcache
 .mypy_cache
 .pytest_cache
 .ropeproject
-.sass-cache
-.webassets-cache
+**/.sass-cache
+**/.webassets-cache
+**/__pycache__
 .webpack_cache
-__pycache__
-.nox
-monkeytype.sqlite3
-.ci-cache
 .cache
 
 # MacOS file
-.DS_Store
+**/.DS_Store
 
 # Assets and static files
 funnel/static/build
-funnel/static/gen
 funnel/static/service-worker.js
 funnel/static/service-worker.js.map
 funnel/static/img/fa5-packed.svg
-node_modules
-*.packed.css
-*.packed.js
-.webassets-cache
-baseframe-packed.*
+**/node_modules
+**/*.packed.css
+**/*.packed.js
+**/baseframe-packed.*
 
 # Download files
 geoname_data
@@ -75,6 +69,9 @@ env/
 *.wpr
 .vscode
 *.sublime-workspace
+
+# Versioning files
+.git
 
 # Local DBs
 dump.rdb

@@ -40,6 +40,22 @@ babeljs:
 
 babel: babelpy babeljs
 
+docker-bases: docker-base docker-base-devtest
+
+docker-base:
+	docker buildx build -f docker/images/bases.Dockerfile --target base --tag hasgeek/funnel-base .
+
+docker-base-devtest:
+	docker buildx build -f docker/images/bases.Dockerfile --target base-devtest --tag hasgeek/funnel-base-devtest .
+
+docker-ci-test:
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain \
+	docker compose --profile test up --quiet-pull --no-attach db-test --no-attach redis-test --no-log-prefix
+
+docker-dev:
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 \
+	docker compose --profile dev up --abort-on-container-exit --build --force-recreate --no-attach db-dev --no-attach redis-dev --remove-orphans
+
 deps-editable: DEPS = coaster baseframe
 deps-editable:
 	@if [ ! -d "build" ]; then mkdir build; fi;
@@ -103,12 +119,15 @@ install-python: install-python-pip deps-editable
 
 install-dev: deps-editable install-python-dev install-npm assets
 
-install-test: deps-editable install-python-test install-npm-ci assets
+install-test: deps-editable install-python-test install-npm assets
 
 install: deps-editable install-python install-npm-ci assets
 
 assets:
 	npm run build
+
+assets-dev:
+	npm run build-dev
 
 debug-markdown-tests:
 	pytest -v -m debug_markdown_output
