@@ -9,14 +9,12 @@ import gc
 import inspect
 import multiprocessing
 import os
-import platform
 import signal
 import socket
 import time
 import weakref
 
 from flask import Flask
-from sqlalchemy.engine import Engine
 from typing_extensions import Protocol
 
 from . import app as main_app
@@ -25,13 +23,6 @@ from .models import db
 from .typing import ReturnView
 
 __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
-
-# Force 'fork' on macOS. The default mode of 'spawn' (from py38) causes a pickling
-# error in py39, as reported in pytest-flask:
-# https://github.com/pytest-dev/pytest-flask/pull/138
-# https://github.com/pytest-dev/pytest-flask/issues/139
-if platform.system() == 'Darwin':
-    multiprocessing = multiprocessing.get_context('fork')  # type: ignore[assignment]
 
 # --- Development and testing app multiplexer ------------------------------------------
 
@@ -174,7 +165,6 @@ def install_mock(func: Callable, mock: Callable) -> None:
 
 
 def _prepare_subprocess(
-    engines: Iterable[Engine],
     mock_transports: bool,
     calls: CapturedCalls,
     worker: Callable,
@@ -189,8 +179,9 @@ def _prepare_subprocess(
     3. Launch the worker
     """
     # https://docs.sqlalchemy.org/en/20/core/pooling.html#pooling-multiprocessing
-    for e in engines:
-        e.dispose(close=False)
+    with main_app.app_context():
+        for engine in db.engines.values():
+            engine.dispose(close=False)
 
     if mock_transports:
 
@@ -276,12 +267,9 @@ class BackgroundWorker:
         if self._process is not None:
             return
 
-        with main_app.app_context():
-            db_engines = db.engines.values()
         self._process = multiprocessing.Process(
             target=_prepare_subprocess,
             args=(
-                db_engines,
                 self.mock_transports,
                 self.calls,
                 self.worker,
