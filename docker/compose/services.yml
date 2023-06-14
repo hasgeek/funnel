@@ -9,7 +9,6 @@ services:
       - 'funnel.test:127.0.0.1'
       - 'f.test:127.0.0.1'
     environment:
-      - OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
       - FLASK_RUN_HOST=0.0.0.0
   funnel-prod:
     extends:
