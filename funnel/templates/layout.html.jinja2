@@ -355,7 +355,7 @@
     {% block footerscripts %}
     {% endblock footerscripts %}
 
-    {%- if config['GA_CODE'] -%}
+    {%- if config['GA_CODE'] and not config['DEBUG']-%}
     <!-- Google tag (gtag.js) -->
     <script defer src="https://www.googletagmanager.com/gtag/js?id={{config['GA_CODE']}}"></script>
     <script>
