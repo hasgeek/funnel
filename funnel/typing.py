@@ -8,6 +8,8 @@ from flask.typing import ResponseReturnValue
 from typing_extensions import ParamSpec
 from werkzeug.wrappers import Response  # Base class for Flask Response
 
+from coaster.views import ReturnRenderWith
+
 __all__ = [
     'T',
     'P',
@@ -41,14 +43,7 @@ ResponseTypes = Union[
 ]
 
 #: Return type for Flask views (formats accepted by :func:`~flask.make_response`)
-ReturnView = Union[
-    ResponseTypes,  # Only a response
-    Tuple[ResponseTypes, ResponseStatusCode],  # Response + status code
-    Tuple[ResponseTypes, ResponseHeaders],  # Response + headers
-    Tuple[
-        ResponseTypes, ResponseStatusCode, ResponseHeaders
-    ],  # Response + status code + headers
-]
+ReturnView = ResponseReturnValue
 
 #: Type used for functions and methods wrapped in a decorator
 WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
@@ -64,13 +59,6 @@ OptionalMigratedTables = Optional[Union[List[str], Tuple[str], Set[str]]]
 #: and Jinja2 templates require the dictionary key to be a string.
 RenderWithDict = Dict[str, object]
 
-#: Return type for @render_with decorated views, a subset of Flask view return types
-ReturnRenderWith = Union[
-    RenderWithDict,  # A dict of template variables
-    Tuple[RenderWithDict, int],  # Dict + HTTP status code
-    Tuple[RenderWithDict, int, Dict[str, str]],  # Dict + status code + HTTP headers
-    Response,  # Fully formed Response object
-]
 
 #: Return type for Response objects
 ReturnResponse = Response

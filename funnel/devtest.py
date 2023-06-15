@@ -24,6 +24,15 @@ from .typing import ReturnView
 
 __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
 
+# Devtest requires `fork`. The default `spawn` method on macOS and Windows will
+# cause pickling errors all over. `fork` is unavailable on Windows, so
+# :class:`BackgroundWorker` can't be used there either, affecting `devserver.py` and the
+# Pytest `live_server` fixture used for end-to-end tests. Fork on macOS is not
+# compatible with the Objective C framework. If you have a framework Python build and
+# experience crashes, try setting the environment variable
+# OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+mpcontext = multiprocessing.get_context('fork')
+
 # --- Development and testing app multiplexer ------------------------------------------
 
 info_app = Flask(__name__)
@@ -254,10 +263,10 @@ class BackgroundWorker:
         self.timeout = timeout
         self.clean_stop = clean_stop
         self.daemon = daemon
-        self._process: Optional[multiprocessing.Process] = None
+        self._process: Optional[multiprocessing.context.ForkProcess] = None
         self.mock_transports = mock_transports
 
-        manager = multiprocessing.Manager()
+        manager = mpcontext.Manager()
         self.calls: CapturedCalls = manager.Namespace()
         self.calls.email = manager.list()
         self.calls.sms = manager.list()
@@ -267,7 +276,7 @@ class BackgroundWorker:
         if self._process is not None:
             return
 
-        self._process = multiprocessing.Process(
+        self._process = mpcontext.Process(
             target=_prepare_subprocess,
             args=(
                 self.mock_transports,
