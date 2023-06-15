@@ -357,7 +357,7 @@
 
     {%- if config['GA_CODE'] and not config['DEBUG'] -%}
       <!-- Google tag (gtag.js) -->
-      <script async src="https://www.googletagmanager.com/gtag/js?id={{ config['GA_CODE']|tojson }}"></script>
+      <script defer src="https://www.googletagmanager.com/gtag/js?id={{ config['GA_CODE']|tojson }}"></script>
       <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
