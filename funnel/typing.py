@@ -53,13 +53,6 @@ ReturnDecorator = Callable[[WrappedFunc], WrappedFunc]
 #: Return type of the `migrate_user` and `migrate_profile` methods
 OptionalMigratedTables = Optional[Union[List[str], Tuple[str], Set[str]]]
 
-#: JSON and Jinja2 compatible dict type. Cannot be a strict definition because a JSON
-#: structure can have a nested dict with the same rules, requiring recursion. Mypy does
-#: not support recursive types: https://github.com/python/mypy/issues/731. Both JSON
-#: and Jinja2 templates require the dictionary key to be a string.
-RenderWithDict = Dict[str, object]
-
-
 #: Return type for Response objects
 ReturnResponse = Response
 
