@@ -1,4 +1,4 @@
-{%- from "macros.html.jinja2" import faicon, useravatar %}
+{%- from "macros.html.jinja2" import faicon, useravatar, img_size %}
 
 {% for membership in commentset_memberships %}
   {%- if membership %}
@@ -9,13 +9,13 @@
             <div class="user__box__banner__wrapper">
               {% if membership.parent_type == 'project' %}
                 {% if membership.parent.bg_image %}
-                  <img src="{{ membership.parent.bg_image.resize(200) }}" alt="{{ membership.parent.title }}" />
+                  <img src="{{ membership.parent.bg_image.resize(img_size.card_banner_small) }}" alt="{{ membership.parent.title }}" />
                 {% else %}
                   <img src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ membership.parent.title }}" />
                 {% endif %}
               {% else %}
                 {% if membership.parent.project.bg_image %}
-                  <img src="{{ membership.parent.project.bg_image }}" alt="{{ membership.parent.project.title }}" />
+                  <img src="{{ membership.parent.project.bg_image.resize(img_size.card_banner_small) }}" alt="{{ membership.parent.project.title }}" />
                 {% else %}
                   <img src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ membership.parent.project.title }}" />
                 {% endif %}
