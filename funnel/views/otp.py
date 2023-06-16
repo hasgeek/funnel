@@ -6,10 +6,10 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import Dict, Generic, Optional, Type, TypeVar, Union
 
+import phonenumbers
 from flask import current_app, flash, render_template, request, session, url_for
 from werkzeug.exceptions import Forbidden, RequestTimeout, TooManyRequests
 from werkzeug.utils import cached_property
-import phonenumbers
 
 from baseframe import _
 from coaster.auth import current_auth

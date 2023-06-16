@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, List, Optional, Sequence
 import base64
 import os
+from typing import Any, Iterable, List, Optional, Sequence
 
 from coaster.sqlalchemy import LazyRoleSet
 

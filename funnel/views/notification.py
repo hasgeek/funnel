@@ -9,11 +9,11 @@ from email.utils import formataddr
 from functools import wraps
 from itertools import filterfalse, zip_longest
 from typing import Any, Callable, ClassVar, Dict, List, Optional, Union
+from typing_extensions import Literal
 from uuid import uuid4
 
 from flask import url_for
 from flask_babel import force_locale
-from typing_extensions import Literal
 from werkzeug.utils import cached_property
 
 from baseframe import __, statsd

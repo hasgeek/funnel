@@ -2,22 +2,22 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime
-from decimal import Decimal
-from typing import Optional
-from urllib.parse import urljoin
 import csv
 import os
 import sys
 import time
 import zipfile
+from dataclasses import dataclass
+from datetime import datetime
+from decimal import Decimal
+from typing import Optional
+from urllib.parse import urljoin
 
-from flask.cli import AppGroup
-from unidecode import unidecode
 import click
 import requests
 import rich.progress
+from flask.cli import AppGroup
+from unidecode import unidecode
 
 from coaster.utils import getbool
 

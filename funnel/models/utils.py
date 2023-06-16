@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from typing import NamedTuple, Optional, Set, Union, overload
-
-from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 from typing_extensions import Literal
+
 import phonenumbers
+from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from .. import app
 from ..typing import OptionalMigratedTables

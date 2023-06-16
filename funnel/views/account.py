@@ -6,10 +6,10 @@ from string import capwords
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
-from flask import abort, current_app, flash, redirect, render_template, request, url_for
-from markupsafe import Markup, escape
 import geoip2.errors
 import user_agents
+from flask import abort, current_app, flash, redirect, render_template, request, url_for
+from markupsafe import Markup, escape
 
 from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message

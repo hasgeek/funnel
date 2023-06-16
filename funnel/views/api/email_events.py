@@ -5,8 +5,8 @@ from __future__ import annotations
 from email.utils import parseaddr
 from typing import List, Optional, Sequence
 
-from flask import current_app, request
 import requests
+from flask import current_app, request
 
 from baseframe import statsd
 

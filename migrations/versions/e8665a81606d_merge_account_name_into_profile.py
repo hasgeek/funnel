@@ -10,11 +10,11 @@ Create Date: 2020-04-15 02:24:49.259869
 from textwrap import dedent
 from typing import Optional, Tuple, Union
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'e8665a81606d'

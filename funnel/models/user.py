@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
-from typing import Iterable, Iterator, List, Optional, Set, Union, cast, overload
-from uuid import UUID
 import hashlib
 import itertools
+from datetime import timedelta
+from typing import Iterable, Iterator, List, Optional, Set, Union, cast, overload
+from typing_extensions import Literal
+from uuid import UUID
 
+import phonenumbers
 from passlib.hash import argon2, bcrypt
 from sqlalchemy.ext.associationproxy import association_proxy
-from typing_extensions import Literal
 from werkzeug.utils import cached_property
-import phonenumbers
 
 from baseframe import __
 from coaster.sqlalchemy import (

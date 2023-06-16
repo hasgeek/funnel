@@ -9,11 +9,11 @@ Create Date: 2020-05-08 19:16:15.324555
 from typing import Optional, Tuple, Union
 from uuid import uuid4
 
+import progressbar.widgets
+import sqlalchemy as sa
 from alembic import op
 from progressbar import ProgressBar
 from sqlalchemy.sql import column, table
-import progressbar.widgets
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '887db555cca9'

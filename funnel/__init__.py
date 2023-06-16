@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
-from typing import cast
 import json
 import logging
 import os.path
+from datetime import timedelta
+from typing import cast
 
+import geoip2.database
 from flask import Flask
 from flask_babel import get_locale
 from flask_executor import Executor
@@ -17,11 +18,10 @@ from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
 from whitenoise import WhiteNoise
-import geoip2.database
 
+import coaster.app
 from baseframe import Bundle, Version, assets, baseframe
 from baseframe.blueprint import THEME_FILES
-import coaster.app
 
 from ._version import __version__
 

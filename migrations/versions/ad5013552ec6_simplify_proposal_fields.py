@@ -9,11 +9,11 @@ Create Date: 2020-12-08 13:58:56.331436
 from textwrap import dedent
 from typing import Optional, Tuple, Union
 
+import progressbar.widgets
+import sqlalchemy as sa
 from alembic import op
 from progressbar import ProgressBar
 from sqlalchemy.sql import column, table
-import progressbar.widgets
-import sqlalchemy as sa
 
 from coaster.utils import markdown
 

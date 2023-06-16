@@ -12,11 +12,11 @@ down_revision = '19a1f7f2a365'
 
 from uuid import uuid4
 
+import progressbar.widgets
+import sqlalchemy as sa
 from alembic import op
 from progressbar import ProgressBar
 from sqlalchemy.sql import column, table
-import progressbar.widgets
-import sqlalchemy as sa
 
 from coaster.utils import buid2uuid, uuid2buid
 

@@ -6,9 +6,9 @@ from smtplib import SMTPRecipientsRefused
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import pytest
 from flask import redirect, request, session
 from werkzeug.datastructures import MultiDict
-import pytest
 
 from coaster.auth import current_auth
 from coaster.utils import utcnow

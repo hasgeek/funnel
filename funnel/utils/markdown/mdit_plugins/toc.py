@@ -12,16 +12,16 @@ Step 3: Turn the nested tree into HTML code.
 
 from __future__ import annotations
 
+import re
 from collections.abc import MutableMapping, Sequence
 from functools import reduce
 from typing import Dict, List, Optional
-import re
+from typing_extensions import TypedDict
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import OptionsDict, RendererHTML
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
-from typing_extensions import TypedDict
 
 from coaster.utils import make_name
 

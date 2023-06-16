@@ -7,16 +7,16 @@ Create Date: 2020-06-17 02:13:45.493791
 
 """
 
-from typing import Optional, Tuple, Union
 import hashlib
+from typing import Optional, Tuple, Union
 
+import idna
+import progressbar.widgets
+import sqlalchemy as sa
 from alembic import op
 from progressbar import ProgressBar
 from pyisemail import is_email
 from sqlalchemy.sql import column, table
-import idna
-import progressbar.widgets
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'e3b3ccbca3b9'

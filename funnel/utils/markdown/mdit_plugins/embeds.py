@@ -7,9 +7,9 @@ and mdit_py_plugins.colon_fence.
 
 from __future__ import annotations
 
+import re
 from collections.abc import MutableMapping, Sequence
 from math import floor
-import re
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import charCodeAt

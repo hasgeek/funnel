@@ -1,8 +1,8 @@
 """Tests for the ScopeMixin model mixin."""
 # pylint: disable=protected-access
 
-from sqlalchemy.exc import IntegrityError
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 

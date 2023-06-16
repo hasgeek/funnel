@@ -6,16 +6,16 @@ Create Date: 2020-06-11 08:01:40.108228
 
 """
 
-from typing import Optional, Tuple, Union
 import hashlib
+from typing import Optional, Tuple, Union
 
+import idna
+import progressbar.widgets
+import sqlalchemy as sa
 from alembic import op
 from progressbar import ProgressBar
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
-import idna
-import progressbar.widgets
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'ae075a249493'
