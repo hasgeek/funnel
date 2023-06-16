@@ -36,7 +36,7 @@ MESSAGE = OneLineTemplate(
 
 @pytest.mark.enable_socket()
 @pytest.mark.requires_config('app', 'twilio')
-@pytest.mark.use_fixtures('app_context')
+@pytest.mark.usefixtures('app_context')
 def test_twilio_success() -> None:
     """Test if message sending is a success."""
     sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=False)
@@ -45,7 +45,7 @@ def test_twilio_success() -> None:
 
 @pytest.mark.enable_socket()
 @pytest.mark.requires_config('app', 'twilio')
-@pytest.mark.use_fixtures('app_context')
+@pytest.mark.usefixtures('app_context')
 def test_twilio_callback() -> None:
     """Test if message sending is a success when a callback is requested."""
     sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=True)
@@ -54,7 +54,7 @@ def test_twilio_callback() -> None:
 
 @pytest.mark.enable_socket()
 @pytest.mark.requires_config('app', 'twilio')
-@pytest.mark.use_fixtures('app_context')
+@pytest.mark.usefixtures('app_context')
 def test_twilio_failures() -> None:
     """Test if message sending is a failure."""
     # Invalid Target
@@ -92,7 +92,7 @@ def test_exotel_nonce(client) -> None:
 
 
 @pytest.mark.requires_config('app', 'exotel')
-@pytest.mark.use_fixtures('app_context')
+@pytest.mark.usefixtures('app_context')
 def test_exotel_send_error() -> None:
     """Only tests if url_for works and usually fails otherwise, which is OK."""
     # Check False Path via monkey patching the requests object
