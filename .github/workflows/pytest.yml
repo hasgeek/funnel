@@ -1,4 +1,4 @@
-# This workflow will install Python dependencies and run tests with Python
+  # This workflow will install Python dependencies and run tests with Python
 # For more information see:
 # https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
@@ -84,9 +84,21 @@ jobs:
         with:
           path: node_modules
           key: ${{ join(matrix.*, '-') }}-node_modules-${{ hashFiles('package-lock.json') }}
+      - name: Cache built assets
+        uses: actions/cache@v3
+        with:
+          path: funnel/static/build
+          key: ${{ join(matrix.*, '-') }}-assets-build
+      - name: Cache .webpack_cache
+        uses: actions/cache@v3
+        with:
+          path: .webpack_cache
+          key: ${{ join(matrix.*, '-') }}-webpack_cache
       - name: Install Node dependencies
         run: make install-npm
       - name: Build Webpack assets
+        run: make assets
+      - name: Build Webpack assets again
         run: make assets
       - name: Annotate Pytest failures in PR
         run: pip install pytest-github-actions-annotate-failures
