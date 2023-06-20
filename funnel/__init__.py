@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import cast
-import json
 import logging
 import os.path
 
@@ -21,6 +19,7 @@ import geoip2.database
 
 from baseframe import Bundle, Version, assets, baseframe
 from baseframe.blueprint import THEME_FILES
+from coaster.assets import WebpackManifest
 import coaster.app
 
 from ._version import __version__
@@ -32,8 +31,11 @@ shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True
 #: Unsubscribe app at bye.li
 unsubscribeapp = Flask(__name__, static_folder=None, instance_relative_config=True)
 
+all_apps = [app, shortlinkapp, unsubscribeapp]
+
 mail = Mail()
 pages = FlatPages()
+manifest = WebpackManifest(filepath='static/build/manifest.json')
 
 redis_store = FlaskRedis(decode_responses=True, config_prefix='CACHE_REDIS')
 rq = RQ()
@@ -59,15 +61,6 @@ assets['spectrum.js'][version] = 'js/libs/spectrum.js'
 assets['spectrum.css'][version] = 'css/spectrum.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 
-try:
-    with open(
-        os.path.join(cast(str, app.static_folder), 'build/manifest.json'),
-        encoding='utf-8',
-    ) as built_manifest:
-        built_assets = json.load(built_manifest)
-except OSError:
-    built_assets = {}
-    app.logger.error("static/build/manifest.json file missing; run `make`")
 
 # --- Import rest of the app -----------------------------------------------------------
 
@@ -85,8 +78,10 @@ from .models import db, sa  # isort:skip  # pylint: disable=wrong-import-positio
 
 # --- Configuration---------------------------------------------------------------------
 
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
-app.config['SESSION_REFRESH_EACH_REQUEST'] = False
+# Config is loaded from legacy Python settings files in the instance folder and then
+# overridden with values from the environment. Python config is pending deprecation
+# All supported config values are listed in ``sample.env``. If an ``.env`` file is
+# present, it is loaded in debug and testing modes only
 coaster.app.init_app(app, ['py', 'env'], env_prefix=['FLASK', 'APP_FUNNEL'])
 coaster.app.init_app(
     shortlinkapp,
@@ -100,21 +95,34 @@ coaster.app.init_app(
     env_prefix=['FLASK', 'APP_UNSUBSCRIBE'],
     init_logging=False,
 )
-proxies.init_app(app)
-proxies.init_app(shortlinkapp)
 
-# These are app specific confguration files that must exist
-# inside the `instance/` directory. Sample config files are
-# provided as example.
+# Legacy additional config for the main app (pending deprecation)
 coaster.app.load_config_from_file(app, 'hasgeekapp.py')
+
+# Force specific config settings, overriding deployment config
 shortlinkapp.config['SERVER_NAME'] = app.config['SHORTLINK_DOMAIN']
 if app.config.get('UNSUBSCRIBE_DOMAIN'):
     unsubscribeapp.config['SERVER_NAME'] = app.config['UNSUBSCRIBE_DOMAIN']
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
+app.config['SESSION_REFRESH_EACH_REQUEST'] = False
+app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['markdown.extensions.nl2br']
+app.config['FLATPAGES_EXTENSION'] = '.md'
+app.config['EXECUTOR_PROPAGATE_EXCEPTIONS'] = True
+app.config['EXECUTOR_PUSH_APP_CONTEXT'] = True
+# Remove legacy asset manifest settings that Baseframe looks for
+app.config.pop('ASSET_MANIFEST_PATH', None)
+app.config.pop('ASSET_BASE_PATH', None)
 
-# Downgrade logging from default WARNING level to INFO
-for _logging_app in (app, shortlinkapp, unsubscribeapp):
-    if not _logging_app.debug:
-        _logging_app.logger.setLevel(logging.INFO)
+# Install common extensions on all apps
+for each_app in all_apps:
+    proxies.init_app(each_app)
+    manifest.init_app(each_app)
+    db.init_app(each_app)
+    mail.init_app(each_app)
+
+    # Downgrade logging from default WARNING level to INFO unless in debug mode
+    if not each_app.debug:
+        each_app.logger.setLevel(logging.INFO)
 
 # TODO: Move this into Baseframe
 app.jinja_env.globals['get_locale'] = get_locale
@@ -122,35 +130,15 @@ app.jinja_env.globals['get_locale'] = get_locale
 # TODO: Replace this with something cleaner. The `login_manager` attr expectation is
 # from coaster.auth. It attempts to call `current_app.login_manager._load_user`, an
 # API it borrows from the Flask-Login extension
-app.login_manager = views.login_session.LoginManager()
+app.login_manager = views.login_session.LoginManager()  # type: ignore[attr-defined]
 
-db.init_app(app)
-db.init_app(shortlinkapp)
-
+# These extensions are only required in the main app
 migrate = Migrate(app, db)
-
-mail.init_app(app)
-mail.init_app(shortlinkapp)  # Required for email error reports
-mail.init_app(unsubscribeapp)
-
-app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['markdown.extensions.nl2br']
-app.config['FLATPAGES_EXTENSION'] = '.md'
 pages.init_app(app)
-
 redis_store.init_app(app)
-
 rq.init_app(app)
-
-app.config['EXECUTOR_PROPAGATE_EXCEPTIONS'] = True
-app.config['EXECUTOR_PUSH_APP_CONTEXT'] = True
 executor.init_app(app)
-
-baseframe.init_app(
-    app,
-    requires=['funnel'],
-    theme='funnel',
-    error_handlers=False,
-)
+baseframe.init_app(app, requires=['funnel'], theme='funnel', error_handlers=False)
 
 loginproviders.init_app(app)
 
@@ -177,7 +165,7 @@ if 'GEOIP_DB_ASN' in app.config:
 transports.init()
 
 # Register JS and CSS assets on both apps
-app.assets.register(
+app.assets.register(  # type: ignore[attr-defined]
     'js_fullcalendar',
     Bundle(
         assets.require(

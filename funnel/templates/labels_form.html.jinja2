@@ -4,7 +4,7 @@
 {% block title %}{{ title }}{% endblock title %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/label_form.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/label_form.css') }}" />
 {% endblock pageheaders %}
 
 {% macro labelformfields(lform, subform=false, empty=false) %}
@@ -72,7 +72,7 @@
 
 {% block innerscripts %}
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
-  <script src="{{ built_asset('labels_form.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('labels_form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var formHtml = {{ labelformfields(emptysubform, subform=true, empty=true)|tojson|safe }};
