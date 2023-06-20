@@ -10,11 +10,11 @@ Create Date: 2018-12-07 20:21:02.169857
 revision = '69c2ced88981'
 down_revision = 'b34aa62af7fc'
 
+import progressbar.widgets
+import sqlalchemy as sa
 from alembic import op
 from progressbar import ProgressBar
 from sqlalchemy.sql import column, table
-import progressbar.widgets
-import sqlalchemy as sa
 
 from coaster.utils import buid2uuid, uuid2buid
 

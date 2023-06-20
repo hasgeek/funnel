@@ -10,9 +10,9 @@ Create Date: 2019-02-20 16:25:30.611549
 revision = 'e3bf172763bc'
 down_revision = '94ce3a9b7a3a'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy_utils import TimezoneType
-import sqlalchemy as sa
 
 
 def upgrade() -> None:

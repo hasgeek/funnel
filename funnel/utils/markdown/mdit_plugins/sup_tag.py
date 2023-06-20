@@ -7,8 +7,8 @@ https://github.com/markdown-it/markdown-it-sup/blob/master/dist/markdown-it-sup.
 
 from __future__ import annotations
 
-from collections.abc import MutableMapping, Sequence
 import re
+from collections.abc import MutableMapping, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import OptionsDict, RendererHTML

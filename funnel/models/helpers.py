@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os.path
+import re
 from dataclasses import dataclass
 from textwrap import dedent
 from typing import (
@@ -18,13 +20,10 @@ from typing import (
     TypeVar,
     cast,
 )
-import os.path
-import re
 
 from better_profanity import profanity
 from furl import furl
-from markupsafe import Markup
-from markupsafe import escape as html_escape
+from markupsafe import Markup, escape as html_escape
 from sqlalchemy.dialects.postgresql import TSQUERY
 from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,

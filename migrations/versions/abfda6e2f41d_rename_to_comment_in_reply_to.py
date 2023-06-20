@@ -8,8 +8,8 @@ Create Date: 2020-09-15 17:13:15.240427
 
 from typing import Optional, Tuple, Union
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'abfda6e2f41d'

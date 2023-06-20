@@ -1,12 +1,14 @@
 """Tests for request_wants proxy."""
 # pylint: disable=import-error,redefined-outer-name
 
+from typing import Optional
 
-from flask import Flask
 import pytest
+from flask import Flask
 
 from funnel.proxies import init_app, request_wants
 from funnel.proxies.request import RequestWants
+from funnel.typing import ReturnView
 
 
 @pytest.fixture()
@@ -16,17 +18,17 @@ def fixture_app() -> Flask:
     init_app(tapp)
 
     @tapp.route('/no-vary')
-    def no_vary():  # skipcq: PTC-W0065
+    def no_vary() -> ReturnView:  # skipcq: PTC-W0065
         return 'no-vary'
 
     @tapp.route('/fragment')
-    def fragment():  # skipcq: PTC-W0065
+    def fragment() -> ReturnView:  # skipcq: PTC-W0065
         if request_wants.html_fragment:
             return '<p>HTML fragment</p>'
         return '<html><body><p>Full HTML</p></body></html>'
 
     @tapp.route('/json_or_html')
-    def json_or_html():  # skipcq: PTC-W0065
+    def json_or_html() -> ReturnView:  # skipcq: PTC-W0065
         if request_wants.json:
             return {'status': 'ok'}
         return '<html><body><p>Status: ok</p></body></html>'
@@ -34,9 +36,7 @@ def fixture_app() -> Flask:
     return tapp
 
 
-def test_request_wants_is_an_instance(
-    request,
-) -> None:
+def test_request_wants_is_an_instance(request) -> None:
     """request_wants proxy is an instance of RequestWants class."""
     # pylint: disable=protected-access
     assert isinstance(request_wants._get_current_object(), RequestWants)
@@ -62,12 +62,12 @@ def test_request_wants_is_an_instance(
         ('*/*', False),
     ],
 )
-def test_request_wants_json(app, accept_header, result) -> None:
+def test_request_wants_json(app, accept_header: str, result: bool) -> None:
     """Request wants a JSON response."""
     with app.test_request_context(headers={'Accept': accept_header}):
         assert request_wants.json is result
-    # Without request context is always False
-    assert request_wants.json is False
+    # Without request context is always None
+    assert request_wants.json is None
 
 
 @pytest.mark.parametrize(
@@ -85,15 +85,17 @@ def test_request_wants_json(app, accept_header, result) -> None:
         (False, '*/*', False),
     ],
 )
-def test_request_wants_html_fragment_xhr(app, xhr, accept_header, result) -> None:
+def test_request_wants_html_fragment_xhr(
+    app, xhr: bool, accept_header: str, result: bool
+) -> None:
     """Request wants a HTML fragment (XmlHttpRequest version)."""
     headers = {'Accept': accept_header}
     if xhr:
         headers['X-Requested-With'] = 'xmlhttprequest'
     with app.test_request_context(headers=headers):
         assert request_wants.html_fragment is result
-    # Without request context is always False
-    assert request_wants.html_fragment is False
+    # Without request context is always None
+    assert request_wants.html_fragment is None
 
 
 @pytest.mark.parametrize(
@@ -114,7 +116,7 @@ def test_request_wants_html_fragment_xhr(app, xhr, accept_header, result) -> Non
     ],
 )
 def test_request_wants_html_fragment_htmx(
-    app, hx_request, accept_header, result
+    app, hx_request: bool, accept_header: Optional[str], result: bool
 ) -> None:
     """Request wants a HTML fragment (HTMX version)."""
     # The Accept header is not a factor in HTMX calls.
@@ -125,8 +127,8 @@ def test_request_wants_html_fragment_htmx(
         headers['HX-Request'] = 'true'
     with app.test_request_context(headers=headers):
         assert request_wants.html_fragment is result
-    # Without request context is always False
-    assert request_wants.html_fragment is False
+    # Without request context is always None
+    assert request_wants.html_fragment is None
 
 
 @pytest.mark.parametrize(
@@ -137,12 +139,12 @@ def test_request_wants_html_fragment_htmx(
         ('*/*', False),
     ],
 )
-def test_request_wants_html_in_json(app, accept_header, result) -> None:
+def test_request_wants_html_in_json(app, accept_header: str, result: bool) -> None:
     """Request wants a HTML fragment embedded in a JSON response."""
     with app.test_request_context(headers={'Accept': accept_header}):
         assert request_wants.html_in_json is result
-    # Without request context is always False
-    assert request_wants.html_in_json is False
+    # Without request context is always None
+    assert request_wants.html_in_json is None
 
 
 def test_request_wants_htmx(app) -> None:

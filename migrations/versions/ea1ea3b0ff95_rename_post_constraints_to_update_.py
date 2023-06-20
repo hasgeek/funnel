@@ -9,8 +9,8 @@ Create Date: 2020-08-08 08:40:19.751509
 from textwrap import dedent
 from typing import Optional, Tuple, Union
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'ea1ea3b0ff95'

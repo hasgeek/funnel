@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from secrets import token_urlsafe
-from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Optional, Tuple
 import atexit
 import gc
 import inspect
@@ -13,12 +11,13 @@ import signal
 import socket
 import time
 import weakref
-
-from flask import Flask
+from secrets import token_urlsafe
+from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Optional, Tuple
 from typing_extensions import Protocol
 
-from . import app as main_app
-from . import shortlinkapp, transports, unsubscribeapp
+from flask import Flask
+
+from . import app as main_app, shortlinkapp, transports, unsubscribeapp
 from .models import db
 from .typing import ReturnView
 

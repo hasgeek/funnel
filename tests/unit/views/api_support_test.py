@@ -5,9 +5,9 @@ from __future__ import annotations
 
 import secrets
 
+import pytest
 from flask import Flask, url_for
 from flask.testing import FlaskClient
-import pytest
 
 from funnel import models
 

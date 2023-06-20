@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Optional
 import re
+from typing import Optional
 
 from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import AvailableName

@@ -1,7 +1,7 @@
 """Test login session helpers."""
 
-from flask import session
 import pytest
+from flask import session
 
 from funnel.views.login_session import save_session_next_url
 

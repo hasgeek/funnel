@@ -3,8 +3,8 @@
 
 from urllib.parse import urlsplit
 
-from flask import url_for
 import pytest
+from flask import url_for
 
 from funnel import models
 

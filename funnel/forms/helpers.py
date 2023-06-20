@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from typing import Optional, Sequence
+from typing_extensions import Literal
 
 from flask import flash
-from typing_extensions import Literal
 
 from baseframe import _, __, forms
 from coaster.auth import current_auth

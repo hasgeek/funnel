@@ -3,24 +3,24 @@
 
 from __future__ import annotations
 
+import re
+import typing as t
+import warnings
 from contextlib import ExitStack
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from difflib import unified_diff
 from types import MethodType, ModuleType, SimpleNamespace
 from unittest.mock import patch
-import re
-import typing as t
-import warnings
 
-from flask import session
-from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy.session import Session as FsaSession
-from sqlalchemy.orm import Session as DatabaseSessionClass
 import flask_wtf.csrf
 import pytest
 import sqlalchemy as sa
 import typeguard
+from flask import session
+from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy.session import Session as FsaSession
+from sqlalchemy.orm import Session as DatabaseSessionClass
 
 if t.TYPE_CHECKING:
     from flask import Flask
@@ -349,8 +349,8 @@ def colorize_code(rich_console: Console) -> t.Callable[[str, t.Optional[str]], s
 @pytest.fixture(scope='session')
 def print_stack(pytestconfig, colorama, colorize_code) -> t.Callable[[int, int], None]:
     """Print a stack trace up to an outbound call from within this repository."""
-    from inspect import stack as inspect_stack
     import os.path
+    from inspect import stack as inspect_stack
 
     boundary_path = str(pytestconfig.rootpath)
     if not boundary_path.endswith('/'):

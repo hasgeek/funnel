@@ -10,8 +10,8 @@ Create Date: 2019-05-09 19:01:53.976390
 revision = '111c9755ae39'
 down_revision = 'e679554261b2'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 migrate_table_columns = [
     ('attendee', 'created_at'),

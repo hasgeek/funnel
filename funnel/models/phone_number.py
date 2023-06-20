@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Set, Type, Union, overload
 import hashlib
+from typing import Any, Optional, Set, Type, Union, overload
+from typing_extensions import Literal
 
+import base58
+import phonenumbers
 from sqlalchemy import event, inspect
 from sqlalchemy.orm import Mapper
 from sqlalchemy.orm.attributes import NO_VALUE
 from sqlalchemy.sql.expression import ColumnElement
-from typing_extensions import Literal
 from werkzeug.utils import cached_property
-import base58
-import phonenumbers
 
 from baseframe import _
 from coaster.sqlalchemy import immutable, with_roles

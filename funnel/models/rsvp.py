@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from typing import Dict, Optional, Tuple, Union, cast, overload
+from typing_extensions import Literal
 
 from flask import current_app
-from typing_extensions import Literal
 from werkzeug.utils import cached_property
 
 from baseframe import __

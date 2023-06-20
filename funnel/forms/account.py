@@ -5,8 +5,8 @@ from __future__ import annotations
 from hashlib import sha1
 from typing import Dict, Iterable, Optional
 
-from flask_babel import ngettext
 import requests
+from flask_babel import ngettext
 
 from baseframe import _, __, forms
 from coaster.utils import sorted_timezones

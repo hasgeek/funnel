@@ -10,8 +10,8 @@ Create Date: 2018-11-13 13:40:54.744756
 revision = 'ccfad4d5e383'
 down_revision = '488077138ee4'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # (old, new)
 renamed_tables = [
