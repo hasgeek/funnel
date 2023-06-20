@@ -98,8 +98,6 @@ jobs:
         run: make install-npm
       - name: Build Webpack assets
         run: make assets
-      - name: Build Webpack assets again
-        run: make assets
       - name: Annotate Pytest failures in PR
         run: pip install pytest-github-actions-annotate-failures
       - name: Setup hostnames
