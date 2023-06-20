@@ -9,7 +9,7 @@
 **/.webassets-cache
 **/__pycache__
 .webpack_cache
-.cache
+.eslintcache
 
 # MacOS file
 **/.DS_Store
