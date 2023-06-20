@@ -36,7 +36,7 @@ from baseframe import cache, statsd
 from coaster.sqlalchemy import RoleMixin
 from coaster.utils import utcnow
 
-from .. import app, built_assets, shortlinkapp
+from .. import app, shortlinkapp
 from ..forms import supported_locales
 from ..models import Shortlink, User, db, profanity
 from ..proxies import request_wants
@@ -574,12 +574,6 @@ def shortlink(url: str, actor: Optional[User] = None, shorter: bool = True) -> s
     db.session.add(sl)
     g.require_db_commit = True
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
-
-
-@app.context_processor
-def template_context() -> Dict[str, Any]:
-    """Add template context items."""
-    return {'built_asset': lambda assetname: built_assets[assetname]}
 
 
 # --- Request/response handlers --------------------------------------------------------
