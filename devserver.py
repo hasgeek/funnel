@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Development server with multi-app switching."""
 
+from typing import Any
 import os
 import sys
 
@@ -9,6 +10,14 @@ from werkzeug import run_simple
 
 from coaster.utils import getbool
 
+
+def rq_background_worker(*args: Any, **kwargs: Any) -> Any:
+    """Import, create and start a new RQ worker in the background process."""
+    from funnel import rq  # pylint: disable=import-outside-toplevel
+
+    return rq.get_worker().work(*args, **kwargs)
+
+
 if __name__ == '__main__':
     load_dotenv()
     sys.path.insert(0, os.path.dirname(__file__))
@@ -16,7 +25,6 @@ if __name__ == '__main__':
     os.environ.setdefault('FLASK_DEBUG', '1')
     debug_mode = os.environ['FLASK_DEBUG'].lower() not in {'0', 'false', 'no'}
 
-    from funnel import rq
     from funnel.devtest import BackgroundWorker, devtest_app
 
     # Set debug mode on apps
@@ -26,7 +34,7 @@ if __name__ == '__main__':
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
         # Only start RQ worker within the reloader environment
         background_rq = BackgroundWorker(
-            rq.get_worker().work,
+            rq_background_worker,
             mock_transports=bool(getbool(os.environ.get('MOCK_TRANSPORTS', True))),
         )
         background_rq.start()
