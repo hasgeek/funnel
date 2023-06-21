@@ -18,6 +18,15 @@ RUN --mount=type=cache,target=/home/node/app/.webpack_cache/,uid=1000,gid=1000 \
 FROM python:3.11-bullseye as app
 LABEL maintainer="Hasgeek"
 RUN chsh -s /usr/sbin/nologin root
+# hadolint ignore=DL3008
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    apt-get update -yqq \
+    && apt-get install -yqq --no-install-recommends supervisor \
+    && apt-get autoclean -yqq \
+    && apt-get autoremove -yqq \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -pv /var/log/supervisor
+COPY ./docker/supervisord/supervisord.conf /etc/supervisor/supervisord.conf
 RUN addgroup --gid 1000 funnel && adduser --uid 1000 --gid 1000 funnel
 ENV PATH "$PATH:/home/funnel/.local/bin"
 USER funnel
