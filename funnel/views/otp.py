@@ -306,7 +306,10 @@ class OtpSession(Generic[OptionalUserType]):
 
     def mark_transport_active(self) -> None:
         """Mark email and/or phone as active based on user activity."""
-        # FIXME: Potential future scenario where email AND phone are sent an OTP
+        if self.phone and self.email:
+            # FIXME: Potential future scenario where email AND phone are sent an OTP.
+            # We don't know which is active and it's not safe to assume, so do nothing
+            return
         if self.phone:
             try:
                 phone_number = PhoneNumber.get(self.phone)
