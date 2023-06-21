@@ -115,7 +115,7 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
 @reopen(User)
 class __User:
     # Singular, as only one can be active
-    active_site_membership = relationship(
+    active_site_membership: Mapped[SiteMembership] = relationship(
         SiteMembership,
         lazy='select',
         primaryjoin=sa.and_(

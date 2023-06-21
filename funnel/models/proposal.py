@@ -504,7 +504,9 @@ class ProposalSuuidRedirect(BaseMixin, Model):
 
 @reopen(Commentset)
 class __Commentset:
-    proposal = relationship(Proposal, uselist=False, back_populates='commentset')
+    proposal: Mapped[Proposal] = relationship(
+        Proposal, uselist=False, back_populates='commentset'
+    )
 
 
 @reopen(Project)
