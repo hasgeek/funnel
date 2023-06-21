@@ -343,8 +343,8 @@
           // Setup a listener to track Add to Homescreen events.
           window.addEventListener('beforeinstallprompt', event => {
             event.userChoice.then(choice => {
-              if (window.ga) {
-                window.ga('send', 'event', 'Add to Home', choice.outcome);
+              if (gtag) {
+                gtag('event', 'Add to Home', choice.outcome);
               }
             });
           });
@@ -355,15 +355,20 @@
     {% block footerscripts %}
     {% endblock footerscripts %}
 
-    {%- if config['GA_CODE'] and not config['DEBUG']-%}
+    {%- if config['GA_CODE'] -%}
     <!-- Google tag (gtag.js) -->
-    <script defer src="https://www.googletagmanager.com/gtag/js?id={{config['GA_CODE']}}"></script>
+    <script type="text/javascript" defer src="https://www.googletagmanager.com/gtag/js?id={{config['GA_CODE']}}"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
-      gtag('config', {{ config['GA_CODE']|tojson }});
+      var pixelRatio = window.getDevicePixelRatio();
+      gtag('config', {{ config['GA_CODE']|tojson }}, {
+        page_path: {{ request.path|tojson }} ,
+        page_title: {{ self.titleblock()|e }},
+        'metric1': pixelRatio,
+        'dimension1': {{ request.endpoint|tojson }}
+      });
     </script>
     {%- endif -%}
   </body>
