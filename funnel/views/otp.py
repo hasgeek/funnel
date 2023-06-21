@@ -6,10 +6,10 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import Dict, Generic, Optional, Type, TypeVar, Union
 
+import phonenumbers
 from flask import current_app, flash, render_template, request, session, url_for
 from werkzeug.exceptions import Forbidden, RequestTimeout, TooManyRequests
 from werkzeug.utils import cached_property
-import phonenumbers
 
 from baseframe import _
 from coaster.auth import current_auth
@@ -245,23 +245,26 @@ class OtpSession(Generic[OptionalUserType]):
         except TransportRecipientError as exc:
             if flash_failure:
                 flash(str(exc), 'error')
-        except (TransportConnectionError, TransportTransactionError):
+            else:
+                raise
+        except (TransportConnectionError, TransportTransactionError) as exc:
+            message = _(
+                "Hasgeek cannot send an OTP via SMS to your phone number {number} right"
+                " now"
+            ).format(number=self.display_phone)
             if flash_failure:
-                flash(
-                    _(
-                        "Unable to send an OTP to your phone number {number} right now"
-                    ).format(number=self.display_phone),
-                    'error',
-                )
+                flash(message, 'error')
+            else:
+                raise TransportConnectionError(message) from exc
         else:
             # Commit only if an SMS could be sent
             db.session.add(msg)
             db.session.commit()
             if flash_success:
                 flash(
-                    _("An OTP has been sent to your phone number {number}").format(
-                        number=self.display_phone
-                    ),
+                    _(
+                        "An OTP has been sent via SMS to your phone number {number}"
+                    ).format(number=self.display_phone),
                     'success',
                 )
             return msg
@@ -301,7 +304,7 @@ class OtpSession(Generic[OptionalUserType]):
             return bool(self.send_email(flash_success, flash_failure))
         return False
 
-    def mark_transport_active(self):
+    def mark_transport_active(self) -> None:
         """Mark email and/or phone as active based on user activity."""
         # FIXME: Potential future scenario where email AND phone are sent an OTP
         if self.phone:
@@ -336,42 +339,36 @@ class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
             msg.transactionid = sms.send(
                 phone=msg.phone_number, message=template_message
             )
-        except TransportRecipientError:
+        except TransportRecipientError as exc:
+            if self.user:
+                message = _(
+                    "Your phone number {number} is not supported for SMS. Use"
+                    " password to login"
+                ).format(number=self.display_phone)
+            else:
+                message = _(
+                    "Your phone number {number} is not supported for SMS. Use"
+                    " an email address to register"
+                ).format(number=self.display_phone)
             if flash_failure:
-                if self.user:
-                    flash(
-                        _(
-                            "Your phone number {number} is not supported for SMS. Use"
-                            " password to login"
-                        ).format(number=self.display_phone),
-                        'error',
-                    )
-                else:
-                    flash(
-                        _(
-                            "Your phone number {number} is not supported for SMS. Use"
-                            " an email address to register"
-                        ).format(number=self.display_phone),
-                        'error',
-                    )
-        except (TransportConnectionError, TransportTransactionError):
+                flash(message, 'error')
+            else:
+                raise TransportRecipientError(message) from exc
+        except (TransportConnectionError, TransportTransactionError) as exc:
+            if self.user:
+                message = _(
+                    "Hasgeek cannot send an OTP via SMS to your phone number {number}"
+                    " right now. Use password to login, or try again later"
+                ).format(number=self.display_phone)
+            else:
+                message = _(
+                    "Hasgeek cannot send an OTP via SMS to your phone number {number}"
+                    " right now. Use an email address to register, or try again later"
+                ).format(number=self.display_phone)
             if flash_failure:
-                if self.user:
-                    flash(
-                        _(
-                            "Unable to send an OTP to your phone number {number} right"
-                            " now. Use password to login, or try again later"
-                        ).format(number=self.display_phone),
-                        'error',
-                    )
-                else:
-                    flash(
-                        _(
-                            "Unable to send an OTP to your phone number {number} right"
-                            " now. Use an email address to register, or try again later"
-                        ).format(number=self.display_phone),
-                        'error',
-                    )
+                flash(message, 'error')
+            else:
+                raise TransportConnectionError(message) from exc
         else:
             # Commit only if an SMS could be sent
             db.session.add(msg)
@@ -402,6 +399,13 @@ class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
             fullname=fullname,
             otp=self.otp,
         )
+        try:
+            result = send_email(subject, [(fullname, self.email)], content)
+        except TransportRecipientError as exc:
+            if flash_failure:
+                flash(str(exc), 'error')
+                return None
+            raise
         if flash_success:
             flash(
                 _("An OTP has been sent to your email address {email}").format(
@@ -409,7 +413,7 @@ class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
                 ),
                 'success',
             )
-        return send_email(subject, [(fullname, self.email)], content)
+        return result
 
 
 class OtpSessionForSudo(OtpSession[User], reason='sudo'):
@@ -444,6 +448,13 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
             fullname=self.user.fullname,
             otp=self.otp,
         )
+        try:
+            result = send_email(subject, [(self.user.fullname, self.email)], content)
+        except TransportRecipientError as exc:
+            if flash_failure:
+                flash(str(exc), 'error')
+                return None
+            raise
         if flash_success:
             flash(
                 _("An OTP has been sent to your email address {email}").format(
@@ -451,7 +462,7 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
                 ),
                 'success',
             )
-        return send_email(subject, [(self.user.fullname, self.email)], content)
+        return result
 
 
 @dataclass  # Required since this subclass has a __post_init__
@@ -487,6 +498,13 @@ class OtpSessionForReset(OtpSession[User], reason='reset'):
             jsonld=jsonld,
             otp=self.otp,
         )
+        try:
+            result = send_email(subject, [(self.user.fullname, self.email)], content)
+        except TransportRecipientError as exc:
+            if flash_failure:
+                flash(str(exc), 'error')
+                return None
+            raise
         if flash_success:
             flash(
                 _("An OTP has been sent to your email address {email}").format(
@@ -494,7 +512,7 @@ class OtpSessionForReset(OtpSession[User], reason='reset'):
                 ),
                 'success',
             )
-        return send_email(subject, [(self.user.fullname, self.email)], content)
+        return result
 
 
 class OtpSessionForNewPhone(OtpSession[User], reason='add-phone'):

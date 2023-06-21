@@ -8,9 +8,9 @@ Create Date: 2021-06-19 17:05:32.356693
 
 from typing import Optional, Tuple, Union
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '7d5b77aada1e'

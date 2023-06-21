@@ -5,12 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, List, Optional, Tuple, Union, cast
 
-from flask import url_for
-from twilio.base.exceptions import TwilioRestException
-from twilio.rest import Client
 import itsdangerous
 import phonenumbers
 import requests
+from flask import url_for
+from twilio.base.exceptions import TwilioRestException
+from twilio.rest import Client
 
 from baseframe import _
 
@@ -226,7 +226,7 @@ def send_via_twilio(
             ) from exc
         app.logger.error("Unhandled Twilio error %d: %s", exc.code, exc.msg)
         raise TransportTransactionError(
-            _("Hasgeek was unable to send a message to this phone number")
+            _("Hasgeek cannot send an SMS message to this phone number at this time")
         ) from exc
 
 

@@ -4,9 +4,9 @@
 {% block title %}{{ title }}{% endblock title %}
 
 {% block layoutheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/login_form.scss') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/app.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/form.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/login_form.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/app.css') }}" />
 {% endblock layoutheaders %}
 
 {% block bodyattrs %}class="login-page no-sticky-header"{% endblock bodyattrs %}
@@ -49,14 +49,14 @@
 
 {% block footerscripts %}
   {{ widget_ext_scripts(form) }}
-  <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       {{ widgetscripts(form, script=false, ref_id=ref_id, force=ajax) }}
     });
   </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
-  <script src="{{ built_asset('account_form.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('account_form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var usernameField;

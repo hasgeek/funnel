@@ -9,9 +9,9 @@ Create Date: 2019-02-07 09:58:40.632722
 revision = 'e417a13e136d'
 down_revision = 'c3069d33419a'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 project = table('project', column('id', sa.Integer()))
 

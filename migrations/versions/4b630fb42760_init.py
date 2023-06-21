@@ -12,8 +12,8 @@ from typing import Optional
 revision = '4b630fb42760'
 down_revision: Optional[str] = None
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
 def upgrade() -> None:

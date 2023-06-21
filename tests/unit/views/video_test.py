@@ -1,11 +1,11 @@
 """Test embedded video view helpers."""
 
-from datetime import datetime
 import logging
+from datetime import datetime
 
-from pytz import utc
 import pytest
 import requests
+from pytz import utc
 
 from funnel import models
 

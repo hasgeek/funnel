@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Optional, Union, cast
+from typing_extensions import TypedDict
 
+import requests
+import vimeo
 from flask import current_app
 from pytz import utc
 from sentry_sdk import capture_exception
-from typing_extensions import TypedDict
-import requests
-import vimeo
 
 from coaster.utils import parse_duration, parse_isoformat
 

@@ -34,4 +34,3 @@ types-python-dateutil
 types-pytz
 types-redis
 types-requests
-watchdog

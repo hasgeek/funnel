@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import urllib.parse
 from datetime import timedelta
 from secrets import token_urlsafe
 from typing import TYPE_CHECKING, Union
-import urllib.parse
 
+import itsdangerous
 from flask import (
     abort,
     current_app,
@@ -17,7 +18,6 @@ from flask import (
     session,
     url_for,
 )
-import itsdangerous
 
 from baseframe import _, __, forms, statsd
 from baseframe.forms import render_message
@@ -59,6 +59,7 @@ from ..registry import (
 )
 from ..serializers import crossapp_serializer
 from ..signals import user_data_changed
+from ..transports import TransportError, TransportRecipientError
 from ..typing import ReturnView
 from ..utils import abort_null
 from .email import send_email_verify_link
@@ -249,15 +250,21 @@ def login() -> ReturnView:
                 phone=loginform.new_phone,
                 email=loginform.new_email,
             )
-            if otp_session.send():
-                return render_otp_form(
-                    get_otp_form(otp_session),
-                    url_for('login', next=next_url),
-                    action_url,
-                )
-            # If an OTP could not be sent, flash messages from otp_session.send() will
-            # be rendered and this view will fallback to the default render of the
-            # initial screen
+            try:
+                if otp_session.send(flash_failure=False):
+                    return render_otp_form(
+                        get_otp_form(otp_session),
+                        url_for('login', next=next_url),
+                        action_url,
+                    )
+            except TransportRecipientError as exc:
+                # If an OTP could not be sent, report the problem to the user as a form
+                # validation error. The view will flow to re-rendering the original
+                # login form
+                loginform.username.errors.append(str(exc))
+            except TransportError as exc:
+                flash(str(exc), 'error')
+
     elif request.method == 'POST' and formid == 'login-otp':
         try:
             otp_session = OtpSession.retrieve('login')
@@ -335,7 +342,7 @@ def login() -> ReturnView:
     )
 
 
-def logout_client():
+def logout_client() -> ReturnView:
     """Process auth client-initiated logout."""
     cred = AuthClientCredential.get(abort_null(request.args['client_id']))
     auth_client = cred.auth_client if cred is not None else None

@@ -6,14 +6,14 @@ Create Date: 2023-01-17 22:58:23.556730
 
 """
 
-from typing import Optional, Tuple, Union
 import hashlib
+from typing import Optional, Tuple, Union
 
-from alembic import op
-from sqlalchemy.sql import column, table
 import phonenumbers
 import rich.progress
 import sqlalchemy as sa
+from alembic import op
+from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision: str = '63c44675b6cd'

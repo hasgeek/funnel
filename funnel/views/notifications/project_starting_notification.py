@@ -10,12 +10,13 @@ from baseframe import _, __
 from baseframe.filters import time_filter
 
 from ...models import Project, ProjectStartingNotification, Session
-from ...transports.sms import DLT_VAR_MAX_LENGTH, SmsTemplate
+from ...transports.sms import SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
+from .mixins import ProjectTemplateMixin
 
 
-class ProjectStartingTemplate(SmsTemplate):
+class ProjectStartingTemplate(ProjectTemplateMixin, SmsTemplate):
     """DLT registered template for project starting notification."""
 
     registered_template = (
@@ -23,22 +24,13 @@ class ProjectStartingTemplate(SmsTemplate):
         '\n\nhttps://bye.li to stop - Hasgeek'
     )
     template = (
-        "Reminder: {project} is starting soon. Join at {url}"
+        "Reminder: {project_title} is starting soon. Join at {url}"
         "\n\nhttps://bye.li to stop - Hasgeek"
     )
-    plaintext_template = "Reminder: {project} is starting soon. Join at {url}"
+    plaintext_template = "Reminder: {project_title} is starting soon. Join at {url}"
 
-    project: str
     project_only: str
     url: str
-
-    def truncate(self) -> None:
-        """Truncate project to fit, falling back to unjoined title if that fits."""
-        if len(self.project) > DLT_VAR_MAX_LENGTH:
-            if len(self.project_only) >= DLT_VAR_MAX_LENGTH:
-                self.project = self.project_only[: DLT_VAR_MAX_LENGTH - 1] + '…'
-            else:
-                self.project = self.project_only
 
 
 @ProjectStartingNotification.renderer
@@ -75,8 +67,7 @@ class RenderProjectStartingNotification(RenderNotification):
 
     def sms(self) -> ProjectStartingTemplate:
         return ProjectStartingTemplate(
-            project=self.project.joined_title,
-            project_only=self.project.title,
+            project=self.project,
             url=shortlink(
                 self.project.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,

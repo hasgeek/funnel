@@ -2,8 +2,8 @@
 {%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, projectcard, featured_section, upcoming_section, open_cfp_section, all_projects_section, useravatar, proposal_card, past_projects_section %}
 
 {%- block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/index.scss') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/profile.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/index.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/profile.css') }}" />
   <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
   <script type="application/ld+json">
     {
@@ -194,7 +194,7 @@
 {% endblock basecontent %}
 
 {% block footerscripts %}
-  <script src="{{ built_asset('index.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('index.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       window.Hasgeek.homeInit('.markdown');

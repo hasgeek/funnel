@@ -1,9 +1,9 @@
 """Views for projects."""
 
-from dataclasses import dataclass
-from types import SimpleNamespace
 import csv
 import io
+from dataclasses import dataclass
+from types import SimpleNamespace
 
 from flask import Response, abort, current_app, flash, render_template, request
 from flask_babel import format_number

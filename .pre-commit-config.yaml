@@ -5,7 +5,13 @@ default_stages: [commit]
 # default_language_version:
 #   python: python3.9
 ci:
-  skip: ['pip-audit', 'yesqa', 'no-commit-to-branch']
+  skip: [
+      'pip-audit',
+      'yesqa',
+      'no-commit-to-branch',
+      # 'hadolint-docker',
+      'docker-compose-check',
+    ]
 repos:
   - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
     rev: v1.5.1
@@ -33,6 +39,8 @@ repos:
             'PYSEC-2021-13', # https://github.com/pallets-eco/flask-caching/pull/209
             '--ignore-vuln',
             'PYSEC-2022-42969', # https://github.com/pytest-dev/pytest/issues/10392
+            '--ignore-vuln',
+            'PYSEC-2023-73', # https://github.com/RedisLabs/redisraft/issues/608
           ]
         files: ^requirements/.*\.txt$
   - repo: https://github.com/charliermarsh/ruff-pre-commit
@@ -54,7 +62,7 @@ repos:
             '--remove-duplicate-keys',
           ]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.6.0
+    rev: v3.7.0
     hooks:
       - id: pyupgrade
         args:
@@ -181,3 +189,16 @@ repos:
     hooks:
       - id: reformat-gherkin
         files: \.feature$
+  # - repo: https://github.com/Lucas-C/pre-commit-hooks-nodejs
+  #   rev: v1.1.2
+  #   hooks:
+  #     - id: dockerfile_lint
+  #       files: .*Dockerfile.*
+  # - repo: https://github.com/hadolint/hadolint
+  #   rev: v2.12.1-beta
+  #   hooks:
+  #     - id: hadolint-docker
+  - repo: https://github.com/IamTheFij/docker-pre-commit
+    rev: v3.0.1
+    hooks:
+      - id: docker-compose-check

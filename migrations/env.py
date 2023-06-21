@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import logging
 from logging.config import fileConfig
 from typing import List
-import logging
 
 from alembic import context
 from flask import current_app

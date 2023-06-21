@@ -5,9 +5,9 @@
 from types import SimpleNamespace
 from typing import Generator
 
-from sqlalchemy.exc import IntegrityError
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 

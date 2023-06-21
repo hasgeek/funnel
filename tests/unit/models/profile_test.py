@@ -1,8 +1,8 @@
 """Tests for Account (nee Profile) model."""
 
+import pytest
 from furl import furl
 from sqlalchemy.exc import StatementError
-import pytest
 
 from coaster.sqlalchemy import StateTransitionError
 

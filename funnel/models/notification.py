@@ -100,12 +100,12 @@ from typing import (
     Union,
     cast,
 )
+from typing_extensions import Protocol
 from uuid import UUID, uuid4
 
 from sqlalchemy import event
 from sqlalchemy.orm import column_keyed_dict
 from sqlalchemy.orm.exc import NoResultFound
-from typing_extensions import Protocol
 from werkzeug.utils import cached_property
 
 from baseframe import __

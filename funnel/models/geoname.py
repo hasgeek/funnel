@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import re
 from decimal import Decimal
 from typing import Collection, Dict, List, Optional, Union, cast
-import re
 
 from sqlalchemy.dialects.postgresql import ARRAY
 

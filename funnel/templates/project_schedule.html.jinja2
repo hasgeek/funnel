@@ -35,7 +35,7 @@
 {%- block pageheaders -%}
   <link rel="stylesheet"
         type="text/css"
-        href="{{ built_asset('css/schedule.scss') }}"/>
+        href="{{ manifest('css/schedule.css') }}"/>
   {%- if project.start_at %}
     <script type="application/ld+json">
       {
@@ -108,7 +108,7 @@
   </div>
 {%- endblock left_col -%}
 {%- block footerinnerscripts -%}
-  <script src="{{ built_asset('schedule_view.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('schedule_view.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     window.Hasgeek.subpageTitle = {{ self.title()|tojson }};
     window.Hasgeek.subpageHasVideo = false;
