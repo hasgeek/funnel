@@ -163,26 +163,56 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
             'date': date,
             'module': 'API',
             'idSite': app.config['MATOMO_ID'],
-            'period': 'day',
             'filter_limit': 10,  # Get top 10
             'format': 'json',
         }
     )
-    referrers_url = matomo_url.copy().add({'method': 'Referrers.getWebsites'})
-    socials_url = matomo_url.copy().add({'method': 'Referrers.getSocials'})
-    pages_url = matomo_url.copy().add({'method': 'Actions.getPageUrls'})
-    visits_url = matomo_url.copy().add({'method': 'VisitsSummary.get'})
+    referrers_url = matomo_url.copy().add(
+        {
+            'method': 'Referrers.getWebsites',
+            'period': 'day',
+        }
+    )
+    socials_url = matomo_url.copy().add(
+        {'method': 'Referrers.getSocials', 'period': 'day'}
+    )
+    pages_url = matomo_url.copy().add(
+        {'method': 'Actions.getPageUrls', 'period': 'day'}
+    )
+    visits_day_url = matomo_url.copy().add(
+        {'method': 'VisitsSummary.get', 'period': 'day'}
+    )
+    visits_week_url = matomo_url.copy().add(
+        {'method': 'VisitsSummary.get', 'period': 'week'}
+    )
+    visits_month_url = matomo_url.copy().add(
+        {'method': 'VisitsSummary.get', 'period': 'month'}
+    )
 
     async with httpx.AsyncClient(follow_redirects=True) as client:
-        referrers, socials, pages, visits = await asyncio.gather(
+        (
+            referrers,
+            socials,
+            pages,
+            visits_day,
+            visits_week,
+            visits_month,
+        ) = await asyncio.gather(
             matomo_response_json(client, str(referrers_url)),
             matomo_response_json(client, str(socials_url)),
             matomo_response_json(client, str(pages_url)),
-            matomo_response_json(client, str(visits_url), sequence=False),
+            matomo_response_json(client, str(visits_day_url), sequence=False),
+            matomo_response_json(client, str(visits_week_url), sequence=False),
+            matomo_response_json(client, str(visits_month_url), sequence=False),
         )
 
     return MatomoData(
-        referrers=referrers, socials=socials, pages=pages, visits_day=visits
+        referrers=referrers,
+        socials=socials,
+        pages=pages,
+        visits_day=visits_day,
+        visits_week=visits_week,
+        visits_month=visits_month,
     )
 
 
