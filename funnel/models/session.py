@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 
 from flask_babel import format_date, get_locale
 from isoweek import Week
@@ -280,7 +280,7 @@ add_search_trigger(Session, 'search_vector')
 
 @reopen(VenueRoom)
 class __VenueRoom:
-    scheduled_sessions = relationship(
+    scheduled_sessions: Mapped[List[Session]] = relationship(
         Session,
         primaryjoin=sa.and_(
             Session.venue_room_id == VenueRoom.id,

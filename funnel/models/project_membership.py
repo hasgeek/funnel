@@ -252,7 +252,7 @@ class __User:
 
     # This relationship is only useful to check if the user has ever been a crew member.
     # Most operations will want to use one of the active membership relationships.
-    projects_as_crew_memberships = relationship(
+    projects_as_crew_memberships: DynamicMapped[ProjectCrewMembership] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         foreign_keys=[ProjectCrewMembership.user_id],
@@ -260,7 +260,9 @@ class __User:
     )
 
     # This is used to determine if it is safe to purge the subject's database record
-    projects_as_crew_noninvite_memberships = relationship(
+    projects_as_crew_noninvite_memberships: DynamicMapped[
+        ProjectCrewMembership
+    ] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -269,7 +271,9 @@ class __User:
         ),
         viewonly=True,
     )
-    projects_as_crew_active_memberships = relationship(
+    projects_as_crew_active_memberships: DynamicMapped[
+        ProjectCrewMembership
+    ] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -283,7 +287,9 @@ class __User:
         'projects_as_crew_active_memberships', 'project'
     )
 
-    projects_as_editor_active_memberships = relationship(
+    projects_as_editor_active_memberships: DynamicMapped[
+        ProjectCrewMembership
+    ] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
