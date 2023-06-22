@@ -6,6 +6,8 @@ from unittest.mock import patch
 import pytest
 from werkzeug.datastructures import MultiDict
 
+from coaster.utils import newpin
+
 from funnel import models
 
 PATCH_EMAIL_VALIDATOR = (
@@ -30,6 +32,14 @@ def userphone_rincewind(user_rincewind: models.User) -> models.UserPhone:
     return user_rincewind.add_phone(TEST_NEW_PHONE)
 
 
+def get_wrong_otp(reference: str) -> str:
+    """Return a random value that does not match the reference value."""
+    result = reference
+    while result == reference:
+        result = newpin(len(reference))
+    return result
+
+
 def test_add_email_wrong_otp(
     client, csrf_token, login, user_rincewind: models.User
 ) -> None:
@@ -48,7 +58,9 @@ def test_add_email_wrong_otp(
 
         rv2 = client.post(
             rv1.location,
-            data=MultiDict({'csrf_token': csrf_token, 'otp': caught_otp[::-1]}),
+            data=MultiDict(
+                {'csrf_token': csrf_token, 'otp': get_wrong_otp(caught_otp)}
+            ),
         )
         assert 'OTP is incorrect' in rv2.data.decode()
 
@@ -121,7 +133,7 @@ def test_add_phone_wrong_otp(
 
     rv2 = client.post(
         rv1.location,
-        data=MultiDict({'csrf_token': csrf_token, 'otp': caught_otp[::-1]}),
+        data=MultiDict({'csrf_token': csrf_token, 'otp': get_wrong_otp(caught_otp)}),
     )
     assert 'OTP is incorrect' in rv2.data.decode()
 
