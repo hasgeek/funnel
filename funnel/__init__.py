@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os.path
 from datetime import timedelta
+from email.utils import parseaddr
 
 import geoip2.database
 from flask import Flask
@@ -115,6 +116,10 @@ app.config.pop('ASSET_BASE_PATH', None)
 
 # Install common extensions on all apps
 for each_app in all_apps:
+    # If MAIL_DEFAULT_SENDER is in the form "Name <email>", extract email
+    each_app.config['MAIL_DEFAULT_SENDER_ADDR'] = parseaddr(
+        app.config['MAIL_DEFAULT_SENDER']
+    )[1]
     proxies.init_app(each_app)
     manifest.init_app(each_app)
     db.init_app(each_app)
