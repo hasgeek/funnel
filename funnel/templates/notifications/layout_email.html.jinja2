@@ -362,7 +362,7 @@
             <table align="left">
                 <tr>
                     <td class="header-container">
-                        <img src="https://images.hasgeek.com/embed/file/31201189911f47d2a3c1bec9dd63ab8a?size=140x30" class="header-image" width="120px" height="" alt="alt_text" border="0">
+                        <img src="https://images.hasgeek.com/embed/file/31201189911f47d2a3c1bec9dd63ab8a?size=140x30" class="header-image" width="120px" height="" alt="Hasgeek" border="0" />
                     </td>
                 </tr>
             </table>
@@ -431,7 +431,7 @@
                                 <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                                     {% if view %}
                                         {# Hero image centered : BEGIN #}
-                                        {{ hero_image(view.hero_image) }}
+                                        {{ hero_image(view.hero_image, view.email_heading) }}
                                         {# Hero image centered : END #}
 
                                         {# Email body : BEGIN #}
@@ -510,10 +510,11 @@
         <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">{% block footer %}
             <tr>
                 <td class="footer">
-                    <b>{% trans %}Hasgeek Learning Private Limited</b><br>For general enquiries, email us at <a href="mailto: info@hasgeek.com">info@hasgeek.com</a>.<br>For priority support requests, use <a href="mailto: support@hasgeek.com">support@hasgeek.com</a><br><a href="tel:+917676332020"><b>+91 7676 33 2020{% endtrans %}</b></a>
+                    <b>{% trans %}Hasgeek Learning Private Limited{% endtrans %}</b><br/>
+                    {% trans %}Need help?{% endtrans %} <a href="mailto:{{ config['SITE_SUPPORT_EMAIL'] }}">{{ config['SITE_SUPPORT_EMAIL'] }}</a> &bull; <a href="tel:{{ config['SITE_SUPPORT_PHONE'] }}">{{ config['SITE_SUPPORT_PHONE_FORMATTED'] }}</a>
                     {%- if view %}
-                    <br><br>
-                    <a class="unsubscribe" href="{{ view.unsubscribe_url_email }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>
+                    <br/><br/>
+                    {{ view.reason_email }} &bull; <a class="unsubscribe" href="{{ view.unsubscribe_url_email }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>
                     {%- endif %}
                 </td>
             </tr>
