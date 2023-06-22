@@ -520,7 +520,7 @@ def dispatch_transport_email(
         to=[(user_notification.user.fullname, str(address))],
         content=content,
         attachments=attachments,
-        from_email=(view.email_from(), app.config['MAIL_DEFAULT_SENDER']),
+        from_email=(view.email_from(), app.config['MAIL_DEFAULT_SENDER_ADDR']),
         headers={
             'List-Id': formataddr(
                 (
