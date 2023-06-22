@@ -88,7 +88,12 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         ),
         read={'all'},
         # If account grants an 'admin' role, make it 'profile_admin' here
-        grants_via={None: {'admin': 'profile_admin'}},
+        grants_via={
+            None: {
+                'admin': 'profile_admin',
+                'account_participant': 'account_participant',
+            }
+        },
         # `profile` only appears in the 'primary' dataset. It must not be included in
         # 'related' or 'without_parent' as it is the parent
         datasets={'primary'},
@@ -758,14 +763,17 @@ add_search_trigger(Project, 'search_vector')
 class __Profile:
     id: Mapped[int]  # noqa: A003
 
-    listed_projects: DynamicMapped[Project] = relationship(
-        Project,
-        lazy='dynamic',
-        primaryjoin=sa.and_(
-            Profile.id == Project.profile_id,
-            Project.state.PUBLISHED,
+    listed_projects: DynamicMapped[Project] = with_roles(
+        relationship(
+            Project,
+            lazy='dynamic',
+            primaryjoin=sa.and_(
+                Profile.id == Project.profile_id,
+                Project.state.PUBLISHED,
+            ),
+            viewonly=True,
         ),
-        viewonly=True,
+        grants_via={None: {'participant': {'account_participant'}}},
     )
     draft_projects: DynamicMapped[Project] = relationship(
         Project,

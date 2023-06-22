@@ -98,6 +98,18 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     )
     parent: Mapped[Project] = sa.orm.synonym('project')
 
+    _project_when_unrestricted: Mapped[Project] = with_roles(
+        relationship(
+            Project,
+            viewonly=True,
+            uselist=False,
+            primaryjoin=sa.and_(
+                project_id == Project.id, _visibility_state == VISIBILITY_STATE.PUBLIC
+            ),
+        ),
+        grants_via={None: {'account_participant': 'account_participant'}},
+    )
+
     body, body_text, body_html = MarkdownCompositeDocument.create(
         'body', nullable=False
     )
