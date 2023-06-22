@@ -120,8 +120,12 @@ def send_via_exotel(
         'Body': str(message),
         'DltEntityId': message.registered_entityid,
     }
-    if message.registered_templateid:
-        payload['DltTemplateId'] = message.registered_templateid
+    if not message.registered_templateid:
+        app.logger.warning(
+            "Dropping SMS message with unknown template id: %s", str(message)
+        )
+        return ''
+    payload['DltTemplateId'] = message.registered_templateid
     if callback:
         payload['StatusCallback'] = url_for(
             'process_exotel_event',
