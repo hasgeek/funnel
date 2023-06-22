@@ -379,7 +379,7 @@ class EmailAddress(BaseMixin, Model):
         )
 
     def is_available_for(self, owner: Optional[User]) -> bool:
-        """Return True if this EmailAddress is available for the given owner."""
+        """Return True if this EmailAddress is available for the proposed owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
                 curr_owner = getattr(related_obj, related_obj.__email_for__)
@@ -615,9 +615,10 @@ class EmailAddress(BaseMixin, Model):
         ],
     ]:
         """
-        Validate whether the email address is available to the given owner.
+        Validate whether the email address is available to the proposed owner.
 
-        Returns None if available without issues, or a string value indicating the concern:
+        Returns None if available without issues, or a string value indicating the
+        concern:
 
         1. 'taken': Email address has another owner
         2. 'nomx': Email address is available, but has no MX records

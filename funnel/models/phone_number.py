@@ -436,7 +436,7 @@ class PhoneNumber(BaseMixin, Model):
         )
 
     def is_available_for(self, owner: Optional[User]) -> bool:
-        """Return True if this PhoneNumber is available for the given owner."""
+        """Return True if this PhoneNumber is available for the proposed owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
                 curr_owner = getattr(related_obj, related_obj.__phone_for__)
@@ -670,10 +670,10 @@ class PhoneNumber(BaseMixin, Model):
         new: bool = False,
     ) -> Optional[Literal['taken', 'invalid', 'not_new', 'blocked']]:
         """
-        Validate whether the phone number is available to the given owner.
+        Validate whether the phone number is available to the proposed owner.
 
-        Returns False if the number is blocked or in use by another owner, True if
-        available without issues, or a string value indicating the concern:
+        Returns None if available without issues, or a string value indicating the
+        concern:
 
         1. 'taken': Phone number has another owner
         2. 'not_new': Phone number is already attached to owner (if `new` is True)
