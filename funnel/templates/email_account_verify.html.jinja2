@@ -2,14 +2,23 @@
 {%- from "notifications/macros_email.html.jinja2" import cta_button -%}
 
 {% block content -%}
-
-  <p>{% trans %}Hello {{ fullname }},{% endtrans %}</p>
-
+  <tr align="center">
+    <td>
+      <p>{% trans %}Hello {{ fullname }},{% endtrans %}</p><br>
+    </td>
+  </tr>
   {# Button : BEGIN #}
   {{ cta_button(url, gettext("Confirm your email address") )}}
   {# Button : END #}
-
-  <br>
-  <p>{% trans %}If you did not ask for this, you may safely ignore this email.{% endtrans %}</p>
-
+  <tr>
+    <td class="spacer-16px"></td>
+  </tr>
+  <tr>
+    <td class="line-separator"></td>
+  </tr>
+  <tr>
+    <td class="footer-text">
+      <p>{% trans %}If you did not ask for this, you may safely ignore this email.{% endtrans %}</p>
+    </td>
+  </tr>
 {%- endblock %}

@@ -1,15 +1,28 @@
 {% extends "notifications/layout_email.html.jinja2" %}
 {% block content -%}
 
-  {%- if fullname %}
-    <p>{% trans %}Hello {{ fullname }},{% endtrans %}</p>
-  {%- else %}
-    <p>{% trans %}Hello!{% endtrans %}</p>
-  {%- endif %}
-  <p>{% trans %}This login OTP is valid for 15 minutes.{% endtrans %}</p>
+  <tr>
+    <td>
+      {%- if fullname %}
+        <p>{% trans %}Hello {{ fullname }},{% endtrans %}</p>
+      {%- else %}
+        <p>{% trans %}Hello!{% endtrans %}</p>
+      {%- endif %}
+      <p>{% trans %}This login OTP is valid for 15 minutes.{% endtrans %}</p>
 
-  <p><big>{% trans %}OTP:{% endtrans %} <strong>{{ otp }}</strong></big></p>
+      <p><big>{% trans %}OTP:{% endtrans %} <strong>{{ otp }}</strong></big></p>
+    </td>
+  </tr>
 
-  <p>{% trans %}If you did not ask for this, you may safely ignore this email.{% endtrans %}</p>
-
+  <tr>
+    <td class="spacer-16px"></td>
+  </tr>
+  <tr>
+    <td class="line-separator"></td>
+  </tr>
+  <tr>
+    <td class="footer-text">
+      <p>{% trans %}If you did not ask for this, you may safely ignore this email.{% endtrans %}</p>
+    </td>
+  </tr>
 {%- endblock %}
