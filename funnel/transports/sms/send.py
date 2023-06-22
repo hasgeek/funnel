@@ -246,7 +246,14 @@ sender_registry = [
 ]
 
 #: Available senders as per config
-senders_by_prefix: List[Tuple[str, Callable[[str, SmsTemplate, bool], str]]] = []
+senders_by_prefix: List[
+    Tuple[
+        str,
+        Callable[
+            [Union[str, phonenumbers.PhoneNumber, PhoneNumber], SmsTemplate, bool], str
+        ],
+    ]
+] = []
 
 
 def init() -> bool:

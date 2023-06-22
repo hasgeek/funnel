@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import unicodedata
-from typing import Any, List, Optional, Set, Type, Union, cast, overload
+from typing import TYPE_CHECKING, Any, List, Optional, Set, Type, Union, cast, overload
 from typing_extensions import Literal
 
 import base58
@@ -378,7 +378,7 @@ class EmailAddress(BaseMixin, Model):
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: EmailAddressMixin) -> bool:
+    def is_available_for(self, owner: Optional[User]) -> bool:
         """Return True if this EmailAddress is available for the given owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -577,7 +577,7 @@ class EmailAddress(BaseMixin, Model):
         return new_email
 
     @classmethod
-    def add_for(cls, owner: Optional[EmailAddressMixin], email: str) -> EmailAddress:
+    def add_for(cls, owner: Optional[User], email: str) -> EmailAddress:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -598,29 +598,35 @@ class EmailAddress(BaseMixin, Model):
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[EmailAddressMixin],
+        owner: Optional[User],
         email: str,
         check_dns: bool = False,
         new: bool = False,
-    ) -> Union[
-        bool,
+    ) -> Optional[
         Literal[
-            'nomx', 'not_new', 'soft_fail', 'hard_fail', 'invalid', 'nullmx', 'blocked'
+            'taken',
+            'nomx',
+            'not_new',
+            'soft_fail',
+            'hard_fail',
+            'invalid',
+            'nullmx',
+            'blocked',
         ],
     ]:
         """
         Validate whether the email address is available to the given owner.
 
-        Returns False if the address is blocked or in use by another owner, True if
-        available without issues, or a string value indicating the concern:
+        Returns None if available without issues, or a string value indicating the concern:
 
-        1. 'nomx': Email address is available, but has no MX records
-        2. 'not_new': Email address is already attached to owner (if `new` is True)
-        3. 'soft_fail': Known to be soft bouncing, requiring a warning message
-        4. 'hard_fail': Known to be hard bouncing, usually a validation failure
-        5. 'invalid': Available, but failed syntax validation
-        6. 'nullmx': Available, but host explicitly says they will not accept email
-        7. 'blocked': Email address is blocked from use
+        1. 'taken': Email address has another owner
+        2. 'nomx': Email address is available, but has no MX records
+        3. 'not_new': Email address is already attached to owner (if `new` is True)
+        4. 'soft_fail': Known to be soft bouncing, requiring a warning message
+        5. 'hard_fail': Known to be hard bouncing, usually a validation failure
+        6. 'invalid': Available, but failed syntax validation
+        7. 'nullmx': Available, but host explicitly says they will not accept email
+        8. 'blocked': Email address is blocked from use
 
         :param owner: Proposed owner of this email address (may be None)
         :param email: Email address to validate
@@ -636,8 +642,8 @@ class EmailAddress(BaseMixin, Model):
                 email, check_dns=check_dns, diagnose=True
             )
             if diagnosis is True:
-                # No problems
-                return True
+                # There is no existing record, and the email address has no problems
+                return None
             # get_canonical won't return False when diagnose=True. Tell mypy:
             if cast(BaseDiagnosis, diagnosis).diagnosis_type == 'NO_MX_RECORD':
                 return 'nomx'
@@ -646,10 +652,10 @@ class EmailAddress(BaseMixin, Model):
             return 'invalid'
         # There's an existing? Is it available for this owner?
         if not existing.is_available_for(owner):
-            # Not available, so return False
-            return False
+            # Already taken by another owner
+            return 'taken'
 
-        # Available. Any other concerns?
+        # There is an existing but it's available for this owner. Any other concerns?
         if new:
             # Caller is asking to confirm this is not already belonging to this owner
             if existing.is_exclusive():
@@ -660,7 +666,7 @@ class EmailAddress(BaseMixin, Model):
             return 'soft_fail'
         if existing.delivery_state.HARD_FAIL:
             return 'hard_fail'
-        return True
+        return None
 
     @staticmethod
     def is_valid_email_address(
@@ -878,3 +884,7 @@ def _email_address_mixin_configure_events(
 ) -> None:
     event.listen(cls.email_address, 'set', _email_address_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)
+
+
+if TYPE_CHECKING:
+    from .user import User

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Union
 
-from baseframe import __, forms
+from baseframe import _, __, forms
 
 from ..models import (
     PASSWORD_MAX_LENGTH,
@@ -30,6 +30,7 @@ __all__ = [
     'LogoutForm',
     'RegisterWithOtp',
     'OtpForm',
+    'EmailOtpForm',
     'RegisterOtpForm',
 ]
 
@@ -291,6 +292,14 @@ class OtpForm(forms.Form):
         """Confirm OTP is as expected."""
         if field.data != self.valid_otp:
             raise forms.validators.StopValidation(MSG_INCORRECT_OTP)
+
+
+class EmailOtpForm(OtpForm):
+    """Verify an OTP sent to email."""
+
+    def set_queries(self) -> None:
+        super().set_queries()
+        self.otp.description = _("One-time password sent to your email address")
 
 
 class RegisterOtpForm(forms.Form):

@@ -4,26 +4,34 @@
 
 {% macro accountinfo(user) %}
   <ul class="list--aligned mui--text-subhead">
-    <li><span class="text-bold">{% trans %}Name:{% endtrans %}</span> {{ user.fullname }}</li>
-    <li><span class="text-bold">{% trans %}Username:{% endtrans %}</span> {% if user.username %}{{ user.username }}{% else %}{% trans %}(none){% endtrans %}{% endif %}</li>
-    <li>
-      <ul>
-        {%- for useremail in user.emails %}
-          <li><span class="text-bold">{% trans %}Email addresses:{% endtrans %}</span> {{ useremail.email }}</li>
-        {%- else %}
-          <li><span class="text-bold">{% trans %}Email addresses:{% endtrans %}</span> <em>{% trans %}(none){% endtrans %}</em></li>
-        {%- endfor %}
-      </ul>
-    </li>
-    <li><span class="text-bold">{% trans %}Connected accounts:{% endtrans %}</span>
-      <ul>
-        {%- for extid in user.externalids %}
-          <li><span class="text-bold">{{ login_registry[extid.service].title }}:</span> {{ extid.username }}</li>
-        {%- else %}
-          <li><em>(none)</em></li>
-        {%- endfor %}
-      </ul>
-    </li>
+    <li><span class="text-bold">{% trans %}Name:{% endtrans %}</span> {{ user.pickername }}</li>
+    {%- if user.emails %}
+      <li><span class="text-bold">{% trans %}Email addresses:{% endtrans %}</span>
+        <ul>
+          {%- for useremail in user.emails %}
+            <li>{{ useremail.email }}</li>
+          {%- endfor %}
+        </ul>
+      </li>
+    {%- endif %}
+    {%- if user.phones %}
+      <li><span class="text-bold">{% trans %}Phone numbers:{% endtrans %}</span>
+        <ul>
+          {%- for userphone in user.phones %}
+            <li>{{ userphone.formatted }}</li>
+          {%- endfor %}
+        </ul>
+      </li>
+    {%- endif %}
+    {%- if user.externalids %}
+      <li><span class="text-bold">{% trans %}Connected accounts:{% endtrans %}</span>
+        <ul>
+          {%- for extid in user.externalids %}
+            <li><span class="text-bold">{% if extid.service in login_registry %}{{ login_registry[extid.service].title }}{% else %}{{ extid.service|capitalize }}{% endif %}:</span> {{ extid.username }}</li>
+          {%- endfor %}
+        </ul>
+      </li>
+    {%- endif %}
   </ul>
 {% endmacro %}
 
