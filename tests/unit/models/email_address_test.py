@@ -647,17 +647,17 @@ def test_email_address_validate_for(email_models, db_session) -> None:
     db_session.add_all([user1, user2])
 
     # A new email address is available to all
-    assert models.EmailAddress.validate_for(user1, 'example@example.com') is True
-    assert models.EmailAddress.validate_for(user2, 'example@example.com') is True
-    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is True
+    assert models.EmailAddress.validate_for(user1, 'example@example.com') is None
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') is None
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is None
 
     # Once it's assigned to a user, availability changes
     link = email_models.EmailLink(emailuser=user1, email='example@example.com')
     db_session.add(link)
 
-    assert models.EmailAddress.validate_for(user1, 'example@example.com') is True
-    assert models.EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(user1, 'example@example.com') is None
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') == 'taken'
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') == 'taken'
 
     # An address in use is not available to claim as new
     assert (
@@ -666,11 +666,11 @@ def test_email_address_validate_for(email_models, db_session) -> None:
     )
     assert (
         models.EmailAddress.validate_for(user2, 'example@example.com', new=True)
-        is False
+        == 'taken'
     )
     assert (
         models.EmailAddress.validate_for(anon_user, 'example@example.com', new=True)
-        is False
+        == 'taken'
     )
 
     # When delivery state changes, validate_for's result changes too
@@ -679,21 +679,21 @@ def test_email_address_validate_for(email_models, db_session) -> None:
 
     ea.mark_sent()
     assert ea.delivery_state.SENT
-    assert models.EmailAddress.validate_for(user1, 'example@example.com') is True
-    assert models.EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(user1, 'example@example.com') is None
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') == 'taken'
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') == 'taken'
 
     ea.mark_soft_fail()
     assert ea.delivery_state.SOFT_FAIL
     assert models.EmailAddress.validate_for(user1, 'example@example.com') == 'soft_fail'
-    assert models.EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') == 'taken'
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') == 'taken'
 
     ea.mark_hard_fail()
     assert ea.delivery_state.HARD_FAIL
     assert models.EmailAddress.validate_for(user1, 'example@example.com') == 'hard_fail'
-    assert models.EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') == 'taken'
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') == 'taken'
 
     # A blocked address is available to no one
     db_session.add(models.EmailAddress('blocked@example.com'))
@@ -721,9 +721,9 @@ def test_email_address_existing_but_unused_validate_for(
 
     assert (
         models.EmailAddress.validate_for(user, 'unclaimed@example.com', new=True)
-        is True
+        is None
     )
-    assert models.EmailAddress.validate_for(user, 'unclaimed@example.com') is True
+    assert models.EmailAddress.validate_for(user, 'unclaimed@example.com') is None
 
 
 @pytest.mark.flaky(reruns=1)  # Re-run in case DNS times out

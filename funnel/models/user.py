@@ -1567,6 +1567,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, Model):
 
     # Tell mypy that these are not optional
     email_address: Mapped[EmailAddress]  # type: ignore[assignment]
+    email: str
 
     user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user: Mapped[User] = relationship(
