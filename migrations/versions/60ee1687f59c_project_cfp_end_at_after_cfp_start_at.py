@@ -8,9 +8,9 @@ Create Date: 2021-06-03 15:34:31.913604
 
 from typing import Optional, Tuple, Union
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column
-import sqlalchemy as sa
 
 cfp_start_at = column('start_at', sa.TIMESTAMP)
 cfp_end_at = column('end_at', sa.TIMESTAMP)

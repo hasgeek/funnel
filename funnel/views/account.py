@@ -6,10 +6,19 @@ from string import capwords
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
-from flask import abort, current_app, flash, redirect, render_template, request, url_for
-from markupsafe import Markup, escape
 import geoip2.errors
 import user_agents
+from flask import (
+    abort,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
+from markupsafe import Markup, escape
 
 from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -21,6 +30,7 @@ from .. import app
 from ..forms import (
     AccountDeleteForm,
     AccountForm,
+    EmailOtpForm,
     EmailPrimaryForm,
     LogoutForm,
     NewEmailAddressForm,
@@ -98,7 +108,7 @@ def user_locale(obj: User) -> str:
 def user_timezone(obj: User) -> str:
     """Human-friendly identifier for user's timezone, defaulting to timezone name."""
     return timezone_identifiers.get(
-        str(obj.timezone) if obj.timezone else None, obj.timezone
+        str(obj.timezone) if obj.timezone else '', obj.timezone
     )
 
 
@@ -353,9 +363,9 @@ class AccountView(ClassView):
         )
 
     # FIXME: Don't modify db on GET. Autosubmit via JS and process on POST
-    @route('confirm/<email_hash>/<secret>', endpoint='confirm_email')
-    def confirm_email(self, email_hash: str, secret: str) -> ReturnView:
-        """Confirm an email address using a verification link."""
+    @route('confirm/<email_hash>/<secret>', endpoint='confirm_email_legacy')
+    def confirm_email_legacy(self, email_hash: str, secret: str) -> ReturnView:
+        """Confirm an email address using a legacy verification link."""
         try:
             emailclaim = UserEmailClaim.get_by(
                 verification_code=secret, email_hash=email_hash
@@ -475,27 +485,67 @@ class AccountView(ClassView):
 
     @route('email/new', methods=['GET', 'POST'], endpoint='add_email')
     def add_email(self) -> ReturnView:
-        """Add a new email address using a confirmation link (legacy, pre-OTP)."""
+        """Add a new email address using an OTP."""
         form = NewEmailAddressForm(edit_user=current_auth.user)
         if form.validate_on_submit():
-            useremail = UserEmailClaim.get_for(
-                user=current_auth.user, email=form.email.data
+            otp_session = OtpSession.make(
+                'add-email', user=current_auth.user, anchor=None, email=form.email.data
             )
-            if useremail is None:
-                useremail = UserEmailClaim(
-                    user=current_auth.user, email=form.email.data
+            if otp_session.send():
+                current_auth.user.main_notification_preferences.by_email = (
+                    form.enable_notifications.data
                 )
-                db.session.add(useremail)
-            send_email_verify_link(useremail)
-            db.session.commit()
-            flash(_("We sent you an email to confirm your address"), 'success')
-            user_data_changed.send(current_auth.user, changes=['email-claim'])
-            return render_redirect(url_for('account'))
+                return render_redirect(url_for('verify_email'))
         return render_form(
             form=form,
             title=_("Add an email address"),
             formid='email_add',
-            submit=_("Add email"),
+            submit=_("Verify email"),
+            ajax=False,
+            template='account_formlayout.html.jinja2',
+        )
+
+    @route('email/verify', methods=['GET', 'POST'], endpoint='verify_email')
+    def verify_email(self) -> ReturnView:
+        """Verify an email address with an OTP."""
+        try:
+            otp_session = OtpSession.retrieve('add-email')
+        except OtpTimeoutError:
+            flash(_("This OTP has expired"), category='error')
+            return render_redirect(url_for('add_email'))
+
+        form = EmailOtpForm(valid_otp=otp_session.otp)
+        if form.is_submitted():
+            # Allow 5 guesses per 60 seconds
+            validate_rate_limit('account_email-otp', otp_session.token, 5, 60)
+        if form.validate_on_submit():
+            OtpSession.delete()
+            if TYPE_CHECKING:
+                assert otp_session.email is not None  # nosec B101
+            existing = UserEmail.get(otp_session.email)
+            if existing is None:
+                # This email address is available to claim. If there are no other email
+                # addresses in this account, this will be a primary
+                primary = not current_auth.user.emails
+                useremail = UserEmail(user=current_auth.user, email=otp_session.email)
+                useremail.primary = primary
+                db.session.add(useremail)
+                useremail.email_address.mark_active()
+                db.session.commit()
+                flash(_("Your email address has been verified"), 'success')
+                user_data_changed.send(current_auth.user, changes=['email'])
+                return render_redirect(
+                    get_next_url(session=True, default=url_for('account'))
+                )
+            # Already linked to another account, but we have verified the ownership, so
+            # proceed to merge account flow here
+            session['merge_buid'] = existing.user.buid
+            return render_redirect(url_for('account_merge'), 303)
+        return render_form(
+            form=form,
+            title=_("Verify email address"),
+            formid='email_verify',
+            submit=_("Verify"),
             ajax=False,
             template='account_formlayout.html.jinja2',
         )
@@ -606,9 +656,9 @@ class AccountView(ClassView):
     @route(
         'email/<email_hash>/verify',
         methods=['GET', 'POST'],
-        endpoint='verify_email',
+        endpoint='verify_email_legacy',
     )
-    def verify_email(self, email_hash: str) -> ReturnView:
+    def verify_email_legacy(self, email_hash: str) -> ReturnView:
         """
         Allow user to resend an email verification link if original is lost.
 
@@ -691,9 +741,11 @@ class AccountView(ClassView):
         if form.validate_on_submit():
             OtpSession.delete()
             if TYPE_CHECKING:
-                assert otp_session.phone is not None  # nosec
-            if UserPhone.get(otp_session.phone) is None:
-                # If there are no existing phone numbers, this will be a primary
+                assert otp_session.phone is not None  # nosec B101
+            existing = UserPhone.get(otp_session.phone)
+            if existing is None:
+                # This phone number is available to claim. If there are no other
+                # phone numbers in this account, this will be a primary
                 primary = not current_auth.user.phones
                 userphone = UserPhone(user=current_auth.user, phone=otp_session.phone)
                 userphone.primary = primary
@@ -705,11 +757,10 @@ class AccountView(ClassView):
                 return render_redirect(
                     get_next_url(session=True, default=url_for('account'))
                 )
-            flash(
-                _("This phone number has already been claimed by another user"),
-                'danger',
-            )
-            return render_redirect(url_for('add_phone'))
+            # Already linked to another user, but we have verified the ownership, so
+            # proceed to merge account flow here
+            session['merge_buid'] = existing.user.buid
+            return render_redirect(url_for('account_merge'), 303)
         return render_form(
             form=form,
             title=_("Verify phone number"),

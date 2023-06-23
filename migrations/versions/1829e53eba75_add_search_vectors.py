@@ -12,9 +12,9 @@ down_revision = '752dee4ae101'
 
 from textwrap import dedent
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy_utils import TSVectorType
-import sqlalchemy as sa
 
 
 def upgrade() -> None:

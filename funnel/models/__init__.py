@@ -4,12 +4,12 @@
 
 from __future__ import annotations
 
+import sqlalchemy as sa
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import DeclarativeBase, Mapped, declarative_mixin, declared_attr
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType
-import sqlalchemy as sa
 
 from coaster.sqlalchemy import (
     BaseIdNameMixin,

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """Development server with multi-app switching."""
 
-from typing import Any
 import os
 import sys
+from typing import Any
 
 from flask.cli import load_dotenv
 from werkzeug import run_simple

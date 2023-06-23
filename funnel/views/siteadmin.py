@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+import csv
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import timedelta
 from functools import wraps
 from io import StringIO
-from typing import Any, Dict, Optional, cast
-import csv
+from typing import Any, Callable, Dict, Optional
 
 from flask import abort, current_app, flash, render_template, request, url_for
 from sqlalchemy.dialects.postgresql import INTERVAL
@@ -36,7 +36,7 @@ from ..models import (
     db,
     sa,
 )
-from ..typing import ReturnRenderWith, ReturnResponse, ReturnView, WrappedFunc
+from ..typing import P, ReturnRenderWith, ReturnResponse, ReturnView, T
 from ..utils import abort_null
 from .helpers import render_redirect
 from .login_session import requires_login
@@ -71,64 +71,64 @@ class ReportCounter:
     frequency: int
 
 
-def requires_siteadmin(f: WrappedFunc) -> WrappedFunc:
+def requires_siteadmin(f: Callable[P, T]) -> Callable[P, T]:
     """Decorate a view to require siteadmin privilege."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         if not current_auth.user or not current_auth.user.is_site_admin:
             abort(403)
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def requires_site_editor(f: WrappedFunc) -> WrappedFunc:
+def requires_site_editor(f: Callable[P, T]) -> Callable[P, T]:
     """Decorate a view to require site editor privilege."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         if not current_auth.user or not current_auth.user.is_site_editor:
             abort(403)
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def requires_user_moderator(f: WrappedFunc) -> WrappedFunc:
+def requires_user_moderator(f: Callable[P, T]) -> Callable[P, T]:
     """Decorate a view to require user moderator privilege."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         if not current_auth.user or not current_auth.user.is_user_moderator:
             abort(403)
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def requires_comment_moderator(f: WrappedFunc) -> WrappedFunc:
+def requires_comment_moderator(f: Callable[P, T]) -> Callable[P, T]:
     """Decorate a view to require comment moderator privilege."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         if not current_auth.user or not current_auth.user.is_comment_moderator:
             abort(403)
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def requires_sysadmin(f: WrappedFunc) -> WrappedFunc:
+def requires_sysadmin(f: Callable[P, T]) -> Callable[P, T]:
     """Decorate a view to require sysadmin privilege."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
         if not current_auth.user or not current_auth.user.is_sysadmin:
             abort(403)
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
 @route('/siteadmin')

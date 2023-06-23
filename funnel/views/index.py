@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import os.path
+from dataclasses import dataclass
 
 from flask import Response, g, render_template
 from markupsafe import Markup

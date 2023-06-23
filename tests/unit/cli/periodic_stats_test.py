@@ -5,9 +5,9 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional, Union
 
-from respx import MockRouter
 import httpx
 import pytest
+from respx import MockRouter
 
 from funnel.cli.periodic import stats as cli_stats
 

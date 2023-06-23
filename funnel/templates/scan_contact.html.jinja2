@@ -10,7 +10,7 @@
       overflow: hidden;
     }
   </style>
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/scan_badge.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/scan_badge.css') }}" />
 {% endblock pageheaders %}
 
 {% block bodyattrs %}class="bg-primary tabs-navbar"{% endblock bodyattrs %}
@@ -28,7 +28,7 @@
 {% endblock basecontent %}
 
 {% block footerscripts %}
-  <script src="{{ built_asset('scan_contact.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('scan_contact.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var scanConfig = {

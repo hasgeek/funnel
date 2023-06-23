@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from typing import List
 import itertools
+from typing import List
 
 from sqlalchemy.ext.orderinglist import ordering_list
 

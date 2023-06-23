@@ -6,8 +6,8 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Dict, List, Set
 
-from sqlalchemy.exc import IntegrityError
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 

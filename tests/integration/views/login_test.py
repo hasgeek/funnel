@@ -6,9 +6,9 @@ from smtplib import SMTPRecipientsRefused
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import pytest
 from flask import redirect, request, session
 from werkzeug.datastructures import MultiDict
-import pytest
 
 from coaster.auth import current_auth
 from coaster.utils import utcnow
@@ -24,7 +24,7 @@ pytestmark = pytest.mark.filterwarnings(
 
 # User fixture's details
 RINCEWIND_USERNAME = 'rincewind'
-RINCEWIND_PHONE = '+917676332020'
+RINCEWIND_PHONE = '+918123456789'
 RINCEWIND_EMAIL = 'rincewind@example.com'
 LOGIN_USERNAMES = [RINCEWIND_USERNAME, RINCEWIND_EMAIL, RINCEWIND_PHONE]
 

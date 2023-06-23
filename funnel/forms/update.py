@@ -27,5 +27,5 @@ class UpdateForm(forms.Form):
         __("Pin this update above other updates"), default=False
     )
     is_restricted = forms.BooleanField(
-        __("Limit visibility to participants only"), default=False
+        __("Limit access to current participants only"), default=False
     )

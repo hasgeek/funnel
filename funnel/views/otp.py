@@ -6,10 +6,10 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import Dict, Generic, Optional, Type, TypeVar, Union
 
+import phonenumbers
 from flask import current_app, flash, render_template, request, session, url_for
 from werkzeug.exceptions import Forbidden, RequestTimeout, TooManyRequests
 from werkzeug.utils import cached_property
-import phonenumbers
 
 from baseframe import _
 from coaster.auth import current_auth
@@ -306,7 +306,10 @@ class OtpSession(Generic[OptionalUserType]):
 
     def mark_transport_active(self) -> None:
         """Mark email and/or phone as active based on user activity."""
-        # FIXME: Potential future scenario where email AND phone are sent an OTP
+        if self.phone and self.email:
+            # FIXME: Potential future scenario where email AND phone are sent an OTP.
+            # We don't know which is active and it's not safe to assume, so do nothing
+            return
         if self.phone:
             try:
                 phone_number = PhoneNumber.get(self.phone)
@@ -520,6 +523,44 @@ class OtpSessionForNewPhone(OtpSession[User], reason='add-phone'):
 
     def send_email(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> Optional[str]:
+    ) -> None:
         """OTP for phone does not require email."""
         return None
+
+
+class OtpSessionForNewEmail(OtpSession[User], reason='add-email'):
+    """OtpSession variant for adding an email address."""
+
+    email: str
+    user: User
+
+    @cached_property
+    def display_email(self) -> str:
+        """Return a display email address."""
+        return self.email
+
+    def send_email(
+        self, flash_success: bool = True, flash_failure: bool = True
+    ) -> Optional[str]:
+        """Email an OTP to the user to confirm their email address."""
+        subject = _("OTP {otp} to verify your email address").format(otp=self.otp)
+        content = render_template(
+            'email_add_otp.html.jinja2',
+            fullname=self.user.fullname,
+            otp=self.otp,
+        )
+        try:
+            result = send_email(subject, [(self.user.fullname, self.email)], content)
+        except TransportRecipientError as exc:
+            if flash_failure:
+                flash(str(exc), 'error')
+                return None
+            raise
+        if flash_success:
+            flash(
+                _("An OTP has been sent to your email address {email}").format(
+                    email=self.display_email
+                ),
+                'success',
+            )
+        return result
