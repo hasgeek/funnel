@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import hashlib
-from typing import Any, Optional, Set, Type, Union, overload
+from typing import TYPE_CHECKING, Any, Optional, Set, Type, Union, overload
 from typing_extensions import Literal
 
 import base58
@@ -435,8 +435,8 @@ class PhoneNumber(BaseMixin, Model):
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: PhoneNumberMixin) -> bool:
-        """Return True if this PhoneNumber is available for the given owner."""
+    def is_available_for(self, owner: Optional[User]) -> bool:
+        """Return True if this PhoneNumber is available for the proposed owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
                 curr_owner = getattr(related_obj, related_obj.__phone_for__)
@@ -637,7 +637,7 @@ class PhoneNumber(BaseMixin, Model):
     @classmethod
     def add_for(
         cls,
-        owner: Optional[PhoneNumberMixin],
+        owner: Optional[User],
         phone: Union[str, phonenumbers.PhoneNumber],
     ) -> PhoneNumber:
         """
@@ -665,19 +665,20 @@ class PhoneNumber(BaseMixin, Model):
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[PhoneNumberMixin],
+        owner: Optional[User],
         phone: Union[str, phonenumbers.PhoneNumber],
         new: bool = False,
-    ) -> Union[bool, Literal['invalid', 'not_new', 'blocked']]:
+    ) -> Optional[Literal['taken', 'invalid', 'not_new', 'blocked']]:
         """
-        Validate whether the phone number is available to the given owner.
+        Validate whether the phone number is available to the proposed owner.
 
-        Returns False if the number is blocked or in use by another owner, True if
-        available without issues, or a string value indicating the concern:
+        Returns None if available without issues, or a string value indicating the
+        concern:
 
-        1. 'not_new': Phone number is already attached to owner (if `new` is True)
-        2. 'invalid': Invalid syntax and therefore unusable
-        3. 'blocked': Phone number has been blocked from use
+        1. 'taken': Phone number has another owner
+        2. 'not_new': Phone number is already attached to owner (if `new` is True)
+        3. 'invalid': Invalid syntax and therefore unusable
+        4. 'blocked': Phone number has been blocked from use
 
         :param owner: Proposed owner of this phone number (may be None)
         :param phone: Phone number to validate
@@ -689,20 +690,20 @@ class PhoneNumber(BaseMixin, Model):
             return 'invalid'
         existing = cls.get(phone)
         if existing is None:
-            return True
+            return None
         # There's an existing? Is it blocked?
         if existing.is_blocked:
             return 'blocked'
         # Is the existing phone mumber available for this owner?
         if not existing.is_available_for(owner):
             # Not available, so return False
-            return False
+            return 'taken'
         # Caller is asking to confirm this is not already belonging to this owner
         if new and existing.is_exclusive():
             # It's in an exclusive relationship, and we're already determined it's
             # available to this owner, so it must be exclusive to them
             return 'not_new'
-        return True
+        return None
 
 
 @declarative_mixin
@@ -890,3 +891,7 @@ def _phone_number_mixin_configure_events(
 ) -> None:
     event.listen(cls.phone_number, 'set', _phone_number_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)
+
+
+if TYPE_CHECKING:
+    from .user import User
