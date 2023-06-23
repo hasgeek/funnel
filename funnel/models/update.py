@@ -98,6 +98,13 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     )
     parent: Mapped[Project] = sa.orm.synonym('project')
 
+    # Relationship to project that exists only when the Update is not restricted, for
+    # the purpose of inheriting the account_participant role. We do this because
+    # RoleMixin does not have a mechanism for conditional grant of roles. A relationship
+    # marked as `grants_via` will always grant the role unconditionally, so the only
+    # control at the moment is to make the relationship itself conditional. The affected
+    # mechanism is not `roles_for` but `actors_with`, which is currently not meant to be
+    # redefined in a subclass
     _project_when_unrestricted: Mapped[Project] = with_roles(
         relationship(
             Project,
