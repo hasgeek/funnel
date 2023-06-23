@@ -91,7 +91,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         grants_via={
             None: {
                 'admin': 'profile_admin',
-                'account_participant': 'account_participant',
+                'follower': 'account_participant',
             }
         },
         # `profile` only appears in the 'primary' dataset. It must not be included in
@@ -773,7 +773,9 @@ class __Profile:
             ),
             viewonly=True,
         ),
-        grants_via={None: {'participant': {'account_participant'}}},
+        # This grant of follower from Project participant is interim until Account gets
+        # it's own follower membership model
+        grants_via={None: {'participant': {'follower'}}},
     )
     draft_projects: DynamicMapped[Project] = relationship(
         Project,
