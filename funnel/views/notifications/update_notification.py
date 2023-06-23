@@ -19,7 +19,10 @@ class RenderNewUpdateNotification(RenderNotification):
     update: Update
     aliases = {'document': 'update'}
     emoji_prefix = "📰 "
-    reason = __("You are receiving this because you have registered for this project")
+    reason = __(
+        "You are receiving this because you have registered for this or related"
+        " projects"
+    )
     hero_image = 'https://images.hasgeek.com/embed/file/75ed65706ad942c6bc71514f4701af47?size=196x190'
     email_heading = __("New update!")
 
