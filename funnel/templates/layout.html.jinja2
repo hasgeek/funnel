@@ -19,9 +19,9 @@
           {%- endif -%}
         {%- endblock titleblock -%}
       </title>
-      <meta name="DC.title" content="{{ self.titleblock()|e }}" />
-      <meta property="og:title" content="{{ self.titleblock()|e }}" />
-      <meta name="twitter:title" content="{{ self.titleblock()|e }}" />
+      <meta name="DC.title" content="{{ self.title()|e }}" />
+      <meta property="og:title" content="{{ self.title()|e }}" />
+      <meta name="twitter:title" content="{{ self.title()|e }}" />
     {%- endblock titletags %}
     <meta property="og:type" content="website" />
     <meta name="description"
@@ -355,20 +355,22 @@
     {% block footerscripts %}
     {% endblock footerscripts %}
 
-    {%- if config['GA_CODE'] and not config['DEBUG'] -%}
-      <script type="text/javascript" defer src="https://www.googletagmanager.com/gtag/js?id={{config['GA_CODE']}}"></script>
-      <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        var pixelRatio = window.getDevicePixelRatio();
-        gtag('config', {{ config['GA_CODE']|tojson }}, {
-          'page_path': {{ request.path|tojson }} ,
-          'page_title': "{{ self.titleblock()|e }}",
-          'metric1': pixelRatio,
-          'dimension1': {{ request.endpoint|tojson }}
-        });
-      </script>
-    {%- endif -%}
+    {%- with ga_code = config['GA_CODE'] %}
+      {% if ga_code -%}
+        <script type="text/javascript" defer src="https://www.googletagmanager.com/gtag/js?id={{ ga_code }}"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          var pixelRatio = window.getDevicePixelRatio();
+          gtag('config', {{ ga_code|tojson }}, {
+            'page_path': {{ request.path|tojson }},
+            'page_title': {{ self.title()|tojson }},
+            'metric1': pixelRatio,
+            'dimension1': {{ request.endpoint|tojson }}
+          });
+        </script>
+      {%- endif -%}
+    {%- endwith %}
   </body>
 </html>
