@@ -38,3 +38,5 @@ RUN --mount=type=cache,target=/home/funnel/.cache/pip,uid=1000,gid=1000 make ins
 
 COPY --chown=funnel:funnel . .
 COPY --from=assets --chown=funnel:funnel /home/node/app/funnel/static/built/ funnel/static/build
+RUN mkdir -pv /home/funnel/app/logs
+ENTRYPOINT [ "uwsgi", "--ini" ]

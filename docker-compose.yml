@@ -1,210 +1,50 @@
 name: funnel
-x-postgres: &postgres
-  image: postgres:latest
-  restart: always
-  user: postgres
-  environment:
-    - POSTGRES_HOST_AUTH_METHOD=trust
-    - POSTGRES_USER=postgres
-  expose:
-    - 5432
-  healthcheck:
-    interval: 5s
-    timeout: 5s
-    retries: 5
-x-redis: &redis
-  image: redis:latest
-  expose:
-    - 6379
-  restart: always
-  healthcheck:
-    test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
-x-app: &app
-  extends:
-    file: docker/compose/services.yml
-    service: funnel-prod
-  build:
-    context: .
-    target: production
-  image: funnel
-  profiles:
-    - production
-  depends_on:
-    - redis
-  environment:
-    - REDIS_HOST=redis
-x-test: &test-app
-  extends:
-    file: docker/compose/services.yml
-    service: funnel
-  image: funnel-test
-  profiles:
-    - test
-  build:
-    context: .
-    dockerfile: ci.Dockerfile
-  working_dir: /home/pn/app
-  user: pn
-  volumes:
-    - ./.cache/.npm:/home/pn/.npm
-    - ./.cache/node_modules:/home/pn/app/node_modules
-    - ./.cache/pip:/home/pn/.cache/pip
-    - ./.cache/.local:/home/pn/.local
-    - ./coverage:/home/pn/app/coverage
-  restart: 'no'
 services:
-  app:
-    <<: *app
-    volumes:
-      - ./instance/settings.py:/home/pn/app/instance/settings.py
-      - ./docker/uwsgi/funnel.ini:/home/pn/funnel.ini:ro
-    command: ../funnel.ini
+  main: &main-app
+    image: funnel
+    build:
+      context: .
+      target: app
+    logging:
+      driver: json-file
+      options:
+        max-size: 200k
+        max-file: 10
+    links:
+      - redis
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=redis
+      - FLASK_RUN_HOST=host.docker.internal
+    command: ['docker/uwsgi/funnel.ini']
     expose:
       - 6400
     ports:
       - 6400:6400
-  pre-test:
-    <<: *test-app
-    user: root
-    entrypoint: ['/home/pn/app/docker/entrypoints/ci-pre-test.sh']
-  test:
-    <<: *test-app
-    depends_on:
-      pre-test:
-        condition: service_completed_successfully
-      redis-test:
-        condition: service_healthy
-      db-test:
-        condition: service_healthy
-    links:
-      - db-test
-      - redis-test
-    environment:
-      - REDIS_HOST=redis-test
-      - DB_HOST=db-test
-      - FLASK_SQLALCHEMY_DATABASE_URI=postgresql+psycopg://funnel@db-test/funnel_testing
-      - FLASK_SQLALCHEMY_BINDS__geoname=postgresql+psycopg://funnel@db-test/geoname_testing
-  db-test:
-    <<: *postgres
-    profiles:
-      - test
-    volumes:
-      - postgres_test:/var/lib/postgresql/data
-      - ./docker/initdb/test.sh:/docker-entrypoint-initdb.d/test.sh:ro
-    healthcheck:
-      test: ['CMD-SHELL', 'psql funnel_testing']
-  redis-test:
-    <<: *redis
-    profiles:
-      - test
-    volumes:
-      - redis_test:/data
-  dev:
-    extends:
-      file: docker/compose/services.yml
-      service: funnel
-    image: funnel-dev
-    container_name: funnel-dev
-    profiles:
-      - dev
-      - dev-no-watch
-    build:
-      context: .
-      target: dev
-    depends_on:
-      redis-dev:
-        condition: service_healthy
-      db-dev:
-        condition: service_healthy
-    working_dir: /home/pn/app
-    entrypoint: /home/pn/dev-entrypoint.sh
+  shortlink:
+    <<: *main-app
+    command: ['docker/uwsgi/shortlink.ini']
+    expose:
+      - 6410
     ports:
-      - 3000:3000
-    links:
-      - db-dev
-      - redis-dev
-    volumes:
-      # https://stackoverflow.com/questions/43844639/how-do-i-add-cached-or-delegated-into-a-docker-compose-yml-volumes-list
-      # https://forums.docker.com/t/what-happened-to-delegated-cached-ro-and-other-flags/105097/2
-      - pip_cache:/home/pn/.cache/pip:delegated
-      - .:/home/pn/app
-      - node_modules:/home/pn/app/node_modules
-      - ./docker/entrypoints/dev.sh:/home/pn/dev-entrypoint.sh:ro
-      - ./instance/settings.py:/home/pn/app/instance/settings.py
-    environment:
-      - DB_HOST=db-dev
-      - POSTGRES_USER_HOST=funnel@db-dev
-      - REDIS_HOST=redis-dev
-    healthcheck:
-      test: bash -c '[[ "$$(curl -o /dev/null -s -w "%{http_code}\n" http://funnel.test:3000)" == "200" ]]'
-      interval: 30s
-      timeout: 1m
-      retries: 10
-      start_period: 30s
-  asset-watcher:
-    extends:
-      file: docker/compose/services.yml
-      service: funnel
-    image: funnel-dev-asset-watcher
-    container_name: funnel-dev-asset-watcher
+      - 6410:6410
+  bash:
+    <<: *main-app
+    entrypoint: ['']
     profiles:
-      - dev
-    build:
-      context: .
-      target: dev-assets
-    working_dir: /home/pn/app
-    entrypoint: npx webpack --mode development --watch
-    volumes:
-      - .:/home/pn/app
-      - node_modules:/home/pn/app/node_modules
-    environment:
-      - NODE_ENV=development
-    depends_on:
-      dev:
-        condition: service_healthy
-    healthcheck:
-      test: bash -c "[[ -f /home/pn/app/funnel/static/build/manifest.json ]]"
-      interval: 10s
-      timeout: 30s
-      retries: 60
-      start_period: 1m
-  db-dev:
-    <<: *postgres
-    profiles:
-      - dev
-      - dev-no-watch
-    volumes:
-      - postgres_dev:/var/lib/postgresql/data
-      - ./docker/initdb/dev.sh:/docker-entrypoint-initdb.d/dev.sh:ro
-    healthcheck:
-      test: ['CMD-SHELL', 'psql funnel']
-  redis-dev:
-    <<: *redis
-    profiles:
-      - dev
-      - dev-no-watch
-    volumes:
-      - redis_dev:/data
+      - maintenance
   redis:
-    <<: *redis
-    profiles:
-      - production
+    image: redis:latest
+    expose:
+      - 6379
+    restart: always
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
     volumes:
       - redis:/data
-x-tmpfs: &tmpfs
-  driver: local
-  driver_opts:
-    type: tmpfs
-    device: tmpfs
-    o: 'uid=999,gid=999' # uid:gid is 999:999 for both postgres and redis
 
 volumes:
-  node_modules:
-  pip_cache:
-  postgres_dev:
-  redis_dev:
   redis:
-  postgres_test:
-    <<: *tmpfs
-  redis_test:
-    <<: *tmpfs
