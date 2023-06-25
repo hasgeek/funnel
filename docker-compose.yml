@@ -45,15 +45,5 @@ services:
       test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
     volumes:
       - redis:/data
-  postfix:
-    image: wildwildangel/postfix-relay:latest
-    env_file:
-      # https://github.com/sjinks/docker-alpine-postfix-relay
-      - .env.postfix
-    environment:
-      - SERVER_HOSTNAME=postfix
-    volumes:
-      - postfix:/var/spool/postfix
 volumes:
   redis:
-  postfix:
