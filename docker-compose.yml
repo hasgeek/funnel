@@ -52,5 +52,8 @@ services:
       - .env.postfix
     environment:
       - SERVER_HOSTNAME=postfix
+    volumes:
+      - postfix:/var/spool/postfix
 volumes:
   redis:
+  postfix:
