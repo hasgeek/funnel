@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1.4
 
+# https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md
+
 FROM node:lts-alpine as assets
 USER node
 WORKDIR /home/node/app
