@@ -23,6 +23,10 @@ services:
       - DB_FUNNEL=funnel
       - FLASK_SQLALCHEMY_DATABASE_URI=postgresql+psycopg://funnel@db/funnel
       - FLASK_SQLALCHEMY_BINDS__geoname=postgresql+psycopg://funnel@db/geoname
+    extra_hosts:
+      - funnel.test:127.0.0.1
+      - f.test:127.0.0.1
+      - bye.test:127.0.0.1
   redis:
     image: redis:latest
     expose:
