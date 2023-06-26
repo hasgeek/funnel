@@ -46,7 +46,7 @@ ENTRYPOINT [ "uwsgi", "--ini" ]
 FROM app as ci
 USER root
 ENV PYTHONUNBUFFERED=1
-RUN chown -R funnel:funnel /home/funnel/.cache
+RUN mkdir -pv /home/funnel/app/coverage && chown -R 1000:1000 /home/funnel/.cache /home/funnel/app/coverage
 # hadolint ignore=DL3008,DL4006,SC2046
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update -yqq \
@@ -60,7 +60,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     | grep -o 'http.*\.gz') \
     | tar -xvz -C /usr/local/bin
 USER funnel
-RUN mkdir -pv /home/funnel/app/coverage
 COPY --chown=funnel:funnel requirements/base.txt requirements/test.txt ./requirements/
 RUN --mount=type=cache,target=/home/funnel/.cache/pip,uid=1000,gid=1000 make install-python-test
 ENTRYPOINT [ "/home/funnel/app/docker/entrypoints/ci.sh" ]
