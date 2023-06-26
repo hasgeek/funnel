@@ -19,8 +19,8 @@ services:
     environment:
       - REDIS_HOST=redis
       - FLASK_RUN_HOST=host.docker.internal
-      - DB_HOST=host.docker.internal
-      - DB_FUNNEL=funnels
+      - DB_HOST=localhost
+      - DB_FUNNEL=funnel
       - FLASK_SQLALCHEMY_DATABASE_URI=postgresql+psycopg://funnel@db/funnel
       - FLASK_SQLALCHEMY_BINDS__geoname=postgresql+psycopg://funnel@db/geoname
     extra_hosts:
