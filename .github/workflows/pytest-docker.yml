@@ -1,4 +1,4 @@
-name: 'Pytest on docker'
+name: 'Pytest Docker'
 
 on:
   push:
@@ -12,15 +12,17 @@ on:
       - '**.jinja2'
       - 'requirements/base.txt'
       - 'requirements/test.txt'
-      - '.github/workflows/docker-ci-tests.yml'
+      - '.github/workflows/pytest-docker.yml'
       - 'Dockerfile'
+      - 'Makefile'
       - 'pyproject.toml'
       - '.eslintrc.js'
       - 'docker-compose.yml'
-      - 'docker/compose/services.yml'
-      - 'docker/entrypoints/ci-test.sh'
-      - 'docker/initdb/test.sh'
+      - 'docker-compose.ci.yml'
+      - 'docker/entrypoints/ci.sh'
+      - 'docker/initdb.sh'
       - 'package.json'
+      - 'package-lock.json'
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -30,26 +32,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Cache npm
-        uses: actions/cache@v3
-        with:
-          path: .cache/.npm
-          key: docker-npm
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: docker-node_modules-${{ hashFiles('package-lock.json') }}
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: .cache/pip
-          key: docker-pip
-      - name: Cache .local
-        uses: actions/cache@v3
-        with:
-          path: .cache/.local
-          key: docker-user-local
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Build funnel-test image
@@ -57,8 +39,9 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ci.Dockerfile
-          tags: funnel-test:latest
+          file: Dockerfile
+          target: ci
+          tags: funnel-ci
           load: true
           push: false
       - name: Run Tests

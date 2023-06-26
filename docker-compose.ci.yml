@@ -1,0 +1,62 @@
+name: funnel-ci
+services:
+  main:
+    image: funnel-ci
+    build:
+      context: .
+      target: ci
+    links:
+      - db
+      - redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: no
+    volumes:
+      - ./coverage:/home/funnel/app/coverage
+    environment:
+      - REDIS_HOST=redis
+      - FLASK_RUN_HOST=host.docker.internal
+      - DB_HOST=host.docker.internal
+      - DB_FUNNEL=funnel
+      - FLASK_SQLALCHEMY_DATABASE_URI=postgresql+psycopg://funnel@db/funnel
+      - FLASK_SQLALCHEMY_BINDS__geoname=postgresql+psycopg://funnel@db/geoname
+  redis:
+    image: redis:latest
+    expose:
+      - 6379
+    restart: always
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+    volumes:
+      - redis:/data
+  db:
+    image: postgres:latest
+    restart: always
+    user: postgres
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_USER=postgres
+    healthcheck:
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      test: ['CMD-SHELL', 'psql funnel']
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./docker/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh:ro
+volumes:
+  redis:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: 'uid=999,gid=999' # uid:gid is 999:999 for redis
+  db:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: 'uid=999,gid=999' # uid:gid is 999:999 for redis

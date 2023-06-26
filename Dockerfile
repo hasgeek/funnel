@@ -42,3 +42,25 @@ COPY --chown=funnel:funnel . .
 COPY --from=assets --chown=funnel:funnel /home/node/app/funnel/static/built/ funnel/static/build
 RUN mkdir -pv /home/funnel/app/logs
 ENTRYPOINT [ "uwsgi", "--ini" ]
+
+FROM app as ci
+USER root
+ENV PYTHONUNBUFFERED=1
+RUN mkdir -pv /home/funnel/app/coverage && chown -R funnel:funnel /home/funnel/.cache /home/funnel/app/coverage
+# hadolint ignore=DL3008,DL4006,SC2046
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    apt-get update -yqq \
+    && apt-get install -yqq --no-install-recommends xvfb firefox-esr \
+    && apt-get autoclean -yqq \
+    && apt-get autoremove -yqq \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL $(curl -fsSL https://api.github.com/repos/mozilla/geckodriver/releases/latest \
+    | grep browser_download_url \
+    | grep 'linux64.tar.gz\"' \
+    | grep -o 'http.*\.gz') \
+    | tar -xvz -C /usr/local/bin
+USER funnel
+COPY --chown=funnel:funnel requirements/base.txt requirements/test.txt ./requirements/
+RUN --mount=type=cache,target=/home/funnel/.cache/pip,uid=1000,gid=1000 make install-python-test
+RUN env
+ENTRYPOINT [ "/home/funnel/app/docker/entrypoints/ci.sh" ]

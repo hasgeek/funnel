@@ -15,7 +15,7 @@ services:
     depends_on:
       - redis
     env_file:
-      - .env
+      - .env.production
     environment:
       - REDIS_HOST=redis
       - FLASK_RUN_HOST=host.docker.internal
