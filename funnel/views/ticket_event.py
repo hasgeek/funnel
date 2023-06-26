@@ -231,7 +231,7 @@ class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
     }
     obj: TicketType
 
-    def loader(self, profile, project, name) -> TicketType:
+    def loader(self, profile: str, project: str, name: str) -> TicketType:
         return (
             TicketType.query.join(Project)
             .join(Profile)
@@ -310,14 +310,16 @@ class TicketClientView(ProfileCheckMixin, UrlForView, ModelView):
     }
     obj: TicketClient
 
-    def loader(self, profile, project, client_id) -> TicketClient:
+    def loader(self, profile: str, project: str, client_id: str) -> TicketClient:
+        if not client_id.isdigit():
+            abort(404)
         return (
             TicketClient.query.join(Project)
             .join(Profile)
             .filter(
                 Profile.name_is(profile),
                 Project.name == project,
-                TicketClient.id == client_id,
+                TicketClient.id == int(client_id),
             )
             .first_or_404()
         )
