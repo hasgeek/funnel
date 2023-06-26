@@ -114,7 +114,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
     }
     obj: Label
 
-    def loader(self, profile, project, label) -> Label:
+    def loader(self, profile: str, project: str, label: str) -> Label:
         return (
             Label.query.join(Project, Label.project_id == Project.id)
             .join(Profile, Project.profile_id == Profile.id)
