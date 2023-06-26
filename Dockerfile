@@ -62,5 +62,4 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 USER funnel
 COPY --chown=funnel:funnel requirements/base.txt requirements/test.txt ./requirements/
 RUN --mount=type=cache,target=/home/funnel/.cache/pip,uid=1000,gid=1000 make install-python-test
-RUN env
 ENTRYPOINT [ "/home/funnel/app/docker/entrypoints/ci.sh" ]
