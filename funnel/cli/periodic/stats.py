@@ -136,7 +136,7 @@ async def matomo_response_json(
     client: httpx.AsyncClient, url: str, sequence: bool = True
 ) -> Union[Optional[MatomoResponse], Sequence[MatomoResponse]]:
     try:
-        response = await client.get(url, timeout=5)
+        response = await client.get(url, timeout=30)
         response.raise_for_status()
         result = response.json()
         if sequence:
