@@ -144,8 +144,9 @@ export async function activateFormWidgets() {
   );
 
   if (
-    $('textarea.markdown:not([style*="display: none"]:not(.activating):not(.activated)')
-      .length
+    $(
+      'textarea.markdown:not([style*="display: none"], .activating, .activated, .no-codemirror)'
+    ).length
   ) {
     const { default: codemirrorHelper } = await import('./codemirror');
     $('textarea.markdown:not([style*="display: none"]').each(
