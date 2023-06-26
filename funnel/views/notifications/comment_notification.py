@@ -33,7 +33,7 @@ class RenderCommentReportReceivedNotification(RenderNotification):
     aliases = {'document': 'comment', 'fragment': 'report'}
     emoji_prefix = "💩 "
     reason = __("You are receiving this because you are a site admin")
-    hero_image = 'https://images.hasgeek.com/embed/file/109de9ccc034441cad37a07f2dba9254?size=190x150'
+    hero_image = 'https://images.hasgeek.com/embed/file/f0458e8de65b4aca87633b45b410e7fb?size=190x150'
     email_heading = __("Spam alert!")
 
     def web(self) -> str:
@@ -72,7 +72,7 @@ class CommentNotification(RenderNotification):
     comment: Comment
     aliases = {'fragment': 'comment'}
     emoji_prefix = "💬 "
-    hero_image = 'https://images.hasgeek.com/embed/file/6c376ef0a69742a9b707ee549f098e32?size=196x165'
+    hero_image = 'https://images.hasgeek.com/embed/file/3a9ffa34bbe54655ba88c8e4e77cfde9?size=196x165'
     email_heading = __("New comment!")
 
     @property

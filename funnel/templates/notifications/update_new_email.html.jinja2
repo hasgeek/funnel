@@ -2,19 +2,17 @@
 {%- from "notifications/macros_email.html.jinja2" import cta_button -%}
 {%- block content -%}
 
-    <tr align="center">
-        <td class="text-accent text-content">
+    <tr>
+        <td align="center" class="text-accent text-content">
             <p>{% trans actor=view.actor.pickername, project=view.update.project.joined_title, project_url=view.update.project.url_for() %}{{ actor }} posted an update in <a href="{{ project_url }}">{{ project }}</a>:{% endtrans %}</p>
         </td>
     </tr>
     <tr>
         <td class="text-content line-separator"></td>
     </tr>
+    <br>
     <tr>
-        <td class="spacer-16px"></td>
-    </tr>
-    <tr align="center">
-        <td class="text-content">
+        <td align="left" class="text-content">
             <h3 class="text-content"><a href="{{ view.update.url_for(_external=true, **view.tracking_tags()) }}">{% trans update_title=view.update.title %}{{ update_title }}{% endtrans %}</a></h3>
             {% trans update_body=view.update.body %}{{ update_body }}{% endtrans %}
         </td>

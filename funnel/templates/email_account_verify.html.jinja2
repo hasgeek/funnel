@@ -2,9 +2,9 @@
 {%- from "notifications/macros_email.html.jinja2" import cta_button -%}
 
 {% block content -%}
-  <tr align="center">
-    <td>
-      <p>{% trans %}Hello {{ fullname }},{% endtrans %}</p><br>
+  <tr>
+    <td align="center">
+      <p>{% trans %}Hello {{ fullname }}{% endtrans %}</p><br>
     </td>
   </tr>
   {# Button : BEGIN #}
@@ -17,7 +17,7 @@
     <td class="line-separator"></td>
   </tr>
   <tr>
-    <td class="footer-text">
+    <td class="footer-text footer-align">
       <p>{% trans %}If you did not ask for this, you may safely ignore this email.{% endtrans %}</p>
     </td>
   </tr>

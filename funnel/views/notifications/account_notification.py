@@ -20,7 +20,7 @@ class RenderAccountPasswordNotification(RenderNotification):
     user: User
     aliases = {'document': 'user'}
     emoji_prefix = "⚠️ "
-    hero_image = 'https://images.hasgeek.com/embed/file/cedbb6eb10ef448185c02820abf873bb?size=196x134'
+    hero_image = 'https://images.hasgeek.com/embed/file/7a06845297f1416bb497fbcb2d167294?size=196x134'
     email_heading = __("Password updated!")
 
     @property

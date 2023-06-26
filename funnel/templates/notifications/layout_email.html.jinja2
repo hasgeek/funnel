@@ -133,6 +133,12 @@
                 min-width: 414px !important;
             }
         }
+        /* Adjust typography on small screens to improve readability */
+        @media only screen and (max-width: 600px) {
+            .email-container p {
+                font-size: 17px !important;
+            }
+        }
 
     </style>
     {# CSS Reset : END #}
@@ -145,7 +151,7 @@
         .button-a {
             border-radius: 4px;
             background-color: #4d5763;
-        transition: all 100ms ease-in;
+            transition: all 100ms ease-in;
             font-family: sans-serif;
             font-size: 15px;
             line-height: 15px;
@@ -162,16 +168,6 @@
             background-color: #1f2d3d !important;
             border-color: #1f2d3d !important;
         }
-
-        /* Media Queries */
-        @media screen and (max-width: 600px) {
-
-            /* What it does: Adjust typography on small screens to improve readability */
-            .email-container p {
-                font-size: 17px !important;
-            }
-        }
-
         p {
             margin: 0 !important;
             padding: 0;
@@ -218,7 +214,7 @@
         }
         .header-container {
             padding: 16px 0;
-            text-align: left;
+            text-align: left !important;
         }
         .header-image{
             height: auto;
@@ -312,11 +308,20 @@
             font-size: 12px !important;
             line-height: 20px !important;
             padding: 8px 0 0 !important;
+            text-align: left;
             color: #4d5763;
         }
         .footer-link {
             padding: 0 !important;
             color: #4d5763 !important;
+        }
+        .footer-align {
+            text-align: center !important;
+        }
+        .otp {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
         }
         .unsubscribe {
             color: #4d5763;
@@ -341,7 +346,7 @@
 
     <center role="article" aria-roledescription="email" lang="en">
     <!--[if mso | IE]>
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f0f0f0;">
+    <table class="header-container" align="left" role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f0f0f0; text-align: left";>
     <tr>
     <td>
     <![endif]-->
@@ -351,9 +356,9 @@
             1. max-width for all clients except Desktop Windows Outlook, allowing the email to squish on narrow but never go wider than 600px.
             2. MSO tags for Desktop Windows Outlook enforce a 600px width.
         #}
-        <div align="center" class="email-container">
+        <div align="left" class="email-container">
             <!--[if mso]>
-            <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600">
+            <table class="header-container" align="left" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="text-align: left">
             <tr>
             <td>
             <![endif]-->
@@ -362,7 +367,7 @@
             <table align="left">
                 <tr>
                     <td class="header-container">
-                        <img src="https://images.hasgeek.com/embed/file/31201189911f47d2a3c1bec9dd63ab8a?size=140x30" class="header-image" width="120px" height="" alt="Hasgeek" border="0" />
+                        <img src="https://images.hasgeek.com/embed/file/e3f3fd3678ae4a72aa60b4af2acb4bf2" class="header-image" width="36px" height="36" border="0">
                     </td>
                 </tr>
             </table>
@@ -431,7 +436,7 @@
                                 <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                                     {% if view %}
                                         {# Hero image centered : BEGIN #}
-                                        {{ hero_image(view.hero_image, view.email_heading) }}
+                                        {{ hero_image(view.hero_image) }}
                                         {# Hero image centered : END #}
 
                                         {# Email body : BEGIN #}
@@ -510,11 +515,10 @@
         <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">{% block footer %}
             <tr>
                 <td class="footer">
-                    <b>{% trans %}Hasgeek Learning Private Limited{% endtrans %}</b><br/>
-                    {% trans %}Need help?{% endtrans %} <a href="mailto:{{ config['SITE_SUPPORT_EMAIL'] }}">{{ config['SITE_SUPPORT_EMAIL'] }}</a> &bull; <a href="tel:{{ config['SITE_SUPPORT_PHONE'] }}">{{ config['SITE_SUPPORT_PHONE_FORMATTED'] }}</a>
+                    <b>{% trans %}Hasgeek Learning Private Limited</b><br>For general enquiries, email us at <a href="mailto: info@hasgeek.com">info@hasgeek.com</a>.<br>For priority support requests, use <a href="mailto: support@hasgeek.com">support@hasgeek.com</a><br><a href="tel:+917676332020"><b>+91 7676 33 2020{% endtrans %}</b></a>
                     {%- if view %}
-                    <br/><br/>
-                    {{ view.reason_email }} &bull; <a class="unsubscribe" href="{{ view.unsubscribe_url_email }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>
+                    <br><br>
+                    <a class="unsubscribe" href="{{ view.unsubscribe_url_email }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>
                     {%- endif %}
                 </td>
             </tr>

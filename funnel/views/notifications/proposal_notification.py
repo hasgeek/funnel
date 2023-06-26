@@ -27,7 +27,7 @@ class RenderProposalReceivedNotification(RenderNotification):
     aliases = {'document': 'project', 'fragment': 'proposal'}
     emoji_prefix = "📥 "
     reason = __("You are receiving this because you are an editor of this project")
-    hero_image = 'https://images.hasgeek.com/embed/file/156d5c2be3214ee99151265d6a9a8055?size=196x151'
+    hero_image = 'https://images.hasgeek.com/embed/file/6fbd959c2e0b471581ccb4a402261151?size=196x151'
     email_heading = __("New submission!")
 
     fragments_order_by = [Proposal.datetime.desc()]
@@ -79,7 +79,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
     aliases = {'document': 'proposal'}
     emoji_prefix = "📤 "
     reason = __("You are receiving this because you made this submission")
-    hero_image = 'https://images.hasgeek.com/embed/file/b1aeafaac2f64a71ab9ae143b5a22d08?size=196x130'
+    hero_image = 'https://images.hasgeek.com/embed/file/05b9bd5c30c343f6964ad6f17822e268?size=196x130'
     email_heading = __("Proposal sumbitted!")
 
     def web(self):

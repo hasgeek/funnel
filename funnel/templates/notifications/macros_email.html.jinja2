@@ -8,11 +8,13 @@
             <td class="spacer-16px"></td>
         </tr>
         <tr>
-            <p class="text-accent">
-            {%- trans number=update.number|numberformat -%}Update #{{ number }}{%- endtrans %} &bull; {% trans age=update.published_at|age, editor=update.user.pickername -%}Posted by {{ editor }} {{ age }}{%- endtrans -%}
-            </p>
-            <h2><a class="unstyle-auto-detected-links" href="{{ update.url_for(_external=true, **view.tracking_tags()) }}">{{ update.title }}</a></h2>
-            {{ update.body }}
+            <td align="left">
+                <p class="text-accent">
+                    {%- trans number=update.number|numberformat -%}Update #{{ number }}{%- endtrans %} &bull; {% trans age=update.published_at|age, editor=update.user.pickername -%}Posted by {{ editor }} {{ age }}{%- endtrans -%}
+                </p>
+                <h2><a class="unstyle-auto-detected-links" href="{{ update.url_for(_external=true, **view.tracking_tags()) }}">{{ update.title }}</a></h2>
+                {{ update.body }}
+            </td>
         </tr>
         {%- endif -%}
     {%- endwith -%}
