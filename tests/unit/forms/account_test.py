@@ -37,6 +37,7 @@ def form(request):
 @pytest.mark.formdata()
 def test_password_policy_form_no_data(form) -> None:
     """Test form validation for missing password."""
+    pytest.fail('Deliberate failure for testing CI')
     assert form.validate() is False
 
 
