@@ -11,6 +11,7 @@ pytest-bdd
 pytest-cov
 pytest-dotenv
 pytest-env
+pytest-github-actions-annotate-failures
 pytest-rerunfailures
 pytest-selenium>=4.0.1
 pytest-socket

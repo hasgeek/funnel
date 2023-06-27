@@ -61,8 +61,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 USER funnel
 ENV PYTHONUNBUFFERED=1
 ENV GITHUB_ACTIONS=true
-# hadolint ignore=DL3013,DL3042
-RUN --mount=type=cache,target=/home/funnel/.cache/pip,uid=1000,gid=1000 pip install pytest-github-actions-annotate-failures
 COPY --chown=funnel:funnel requirements/base.txt requirements/test.txt ./requirements/
 RUN --mount=type=cache,target=/home/funnel/.cache/pip,uid=1000,gid=1000 make install-python-test
 ENTRYPOINT [ "/home/funnel/app/docker/entrypoints/ci.sh" ]
