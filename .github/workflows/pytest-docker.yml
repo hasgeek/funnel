@@ -2,22 +2,19 @@ name: 'Pytest Docker'
 
 on:
   push:
-    branches: ['main']
-  pull_request:
-    branches: ['main']
     paths:
       - '**.py'
       - '**.js'
       - '**.scss'
       - '**.jinja2'
+      - '.flaskenv'
+      - '.testenv'
       - 'requirements/base.txt'
       - 'requirements/test.txt'
       - '.github/workflows/pytest-docker.yml'
       - 'Dockerfile'
       - 'Makefile'
       - 'pyproject.toml'
-      - '.eslintrc.js'
-      - 'docker-compose.yml'
       - 'docker-compose.ci.yml'
       - 'docker/entrypoints/ci.sh'
       - 'docker/initdb.sh'
