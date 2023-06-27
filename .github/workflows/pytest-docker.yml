@@ -45,11 +45,11 @@ jobs:
           load: true
           push: false
       - name: Set permissions for coverage
-        run: docker compose -f docker-compose.ci.yml run -u root --quiet-pull main chown -R 1000:1000 coverage
+        run: docker compose -f docker-compose.ci.yml run -u root --quiet-pull main "chown -R 1000:1000 coverage"
       - name: Test with pytest
-        run: docker compose -f docker-compose.ci.yml run main pytest --allow-hosts=127.0.0.1,::1,$(hostname -i),$(getent ahosts $DB_HOST | awk '/STREAM/ { print $1}'),$(getent ahosts $REDIS_HOST | awk '/STREAM/ { print $1}') --gherkin-terminal-reporter -vv --showlocals --cov=funnel
+        run: docker compose -f docker-compose.ci.yml run main "pytest --allow-hosts=127.0.0.1,::1,$(hostname -i),$(getent ahosts $DB_HOST | awk '/STREAM/ { print $1}'),$(getent ahosts $REDIS_HOST | awk '/STREAM/ { print $1}') --gherkin-terminal-reporter -vv --showlocals --cov=funnel"
       - name: Prepare coverage report
-        run: docker compose -f docker-compose.ci.yml run main coverage lcov -o coverage/funnel.lcov
+        run: docker compose -f docker-compose.ci.yml run main "coverage lcov -o coverage/funnel.lcov"
       - name: Upload coverage report to Coveralls
         uses: coverallsapp/github-action@master
         with:
