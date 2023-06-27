@@ -69,7 +69,6 @@ def when_anonuser_navigates_login_and_submits(
 @then("they are prompted for their name and the OTP, which they provide")
 def then_anonuser_prompted_name_and_otp(live_server, selenium, anon_username):
     wait = WebDriverWait(selenium, 10)
-    check_recaptcha_loaded(selenium)
     wait.until(ec.element_to_be_clickable((By.NAME, 'fullname'))).send_keys('Twoflower')
     if anon_username['phone_or_email'] == "a phone number":
         otp = live_server.transport_calls.sms[-1].vars['otp']
@@ -84,6 +83,11 @@ def then_anonuser_prompted_name_and_otp(live_server, selenium, anon_username):
 @then("they get an account and are logged in")
 def then_they_are_logged_in(selenium):
     wait = WebDriverWait(selenium, 10)
+    wait.until(
+        ec.text_to_be_present_in_element(
+            (By.CLASS_NAME, "alert__text"), "You are now one of us. Welcome aboard!"
+        )
+    )
     assert (
         wait.until(
             ec.text_to_be_present_in_element(
@@ -170,7 +174,7 @@ def when_they_click_follow(selenium):
 @then("a register modal appears")
 def then_register_modal_appear(selenium):
     wait = WebDriverWait(selenium, 10)
-    wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="passwordform"]/p[2]')))
+    wait.until(ec.element_to_be_clickable((By.ID, 'get-otp-btn')))
     assert (
         # FIXME: Don't use xpath
         selenium.find_element(By.XPATH, '//*[@id="passwordform"]/p[2]').text
@@ -184,23 +188,13 @@ def then_register_modal_appear(selenium):
 )
 def when_they_enter_email(selenium, phone_or_email):
     wait = WebDriverWait(selenium, 10)
+    check_recaptcha_loaded(selenium)
     if phone_or_email == "a phone number":
         username = '8123456789'
     elif phone_or_email == "an email address":
         username = 'anon@example.com'
     else:
         pytest.fail("Unknown username type")
-    recaptcha_frame = wait.until(
-        ec.presence_of_element_located(
-            (
-                By.CSS_SELECTOR,
-                "#form-passwordlogin > div.g-recaptcha > div > div.grecaptcha-logo > iframe",
-            )
-        )
-    )
-    selenium.switch_to.frame(recaptcha_frame)
-    wait.until(ec.presence_of_element_located((By.CLASS_NAME, "rc-anchor-pt")))
-    selenium.switch_to.default_content()
     wait.until(ec.element_to_be_clickable((By.NAME, 'username'))).send_keys(username)
     wait.until(ec.element_to_be_clickable((By.ID, 'get-otp-btn'))).click()
     return {'phone_or_email': phone_or_email, 'username': username}
