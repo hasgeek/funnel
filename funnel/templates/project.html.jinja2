@@ -5,7 +5,7 @@
   {% extends "project_spa_layout.html.jinja2" %}
   {%- from "project_layout.html.jinja2" import pinned_update, project_about with context %}
 {% endif %}
-{% block titleblock %}{{ project.title }}{%- endblock titleblock %}
+{% block titleblock %}{% block title %}{{ project.title }}{%- endblock title %}{%- endblock titleblock %}
 {%- from "macros.html.jinja2" import proposal_card, video_thumbnail %}
 
 {%- block pageheaders %}
