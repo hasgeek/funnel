@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "watch": "webpack --mode development --progress --watch",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "build-dev": "webpack --mode development --progress"
   },
   "author": "Hasgeek team",
   "license": "AGPLv3",

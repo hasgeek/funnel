@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import smtplib
 from dataclasses import dataclass
 from email.utils import formataddr, getaddresses, parseaddr
 from typing import Dict, List, Optional, Tuple, Union
-import smtplib
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives

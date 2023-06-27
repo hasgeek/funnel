@@ -1,9 +1,9 @@
 """Test shortlink API views."""
 # pylint: disable=redefined-outer-name
 
+import pytest
 from flask import url_for
 from furl import furl
-import pytest
 
 from funnel import models
 

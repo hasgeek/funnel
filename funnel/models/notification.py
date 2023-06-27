@@ -100,12 +100,12 @@ from typing import (
     Union,
     cast,
 )
+from typing_extensions import Protocol
 from uuid import UUID, uuid4
 
 from sqlalchemy import event
 from sqlalchemy.orm import column_keyed_dict
 from sqlalchemy.orm.exc import NoResultFound
-from typing_extensions import Protocol
 from werkzeug.utils import cached_property
 
 from baseframe import __
@@ -1371,7 +1371,7 @@ class __User:
     )
 
     # This relationship is wrapped in a property that creates it on first access
-    _main_notification_preferences = relationship(
+    _main_notification_preferences: Mapped[NotificationPreferences] = relationship(
         NotificationPreferences,
         primaryjoin=sa.and_(
             NotificationPreferences.user_id == User.id,

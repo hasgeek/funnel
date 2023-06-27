@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
+import re
 from html import unescape as html_unescape
 from typing import Any, Dict, List, Optional, Type, TypeVar
+from typing_extensions import TypedDict
 from urllib.parse import quote as urlquote
-import re
 
 from flask import request, url_for
 from markupsafe import Markup
 from sqlalchemy.sql import expression
-from typing_extensions import TypedDict
 
 from baseframe import __
 from coaster.views import (

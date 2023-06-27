@@ -3,8 +3,8 @@
 
 from types import SimpleNamespace
 
-from flask import Flask
 import pytest
+from flask import Flask
 
 from funnel.transports import sms
 

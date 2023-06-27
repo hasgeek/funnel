@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import requests
 from flask import current_app, redirect, request, session
 from oauth2client import client
 from sentry_sdk import capture_exception
-import requests
 
 from baseframe import _
 

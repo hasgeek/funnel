@@ -5,10 +5,10 @@ from datetime import datetime, timedelta
 from types import SimpleNamespace
 from typing import Dict, List, Optional
 
-from pytz import utc
-from sqlalchemy.exc import IntegrityError
 import pytest
 import sqlalchemy as sa
+from pytz import utc
+from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 

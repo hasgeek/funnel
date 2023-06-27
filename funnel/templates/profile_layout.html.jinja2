@@ -1,4 +1,5 @@
 {% extends "layout.html.jinja2" %}
+{%- from "macros.html.jinja2" import img_size %}
 {% block title %}{{ profile.title }}{% endblock title %}
 
 {% macro profile_admin_buttons(profile) %}
@@ -44,7 +45,7 @@
       <div class="profile__banner">
         <div class="profile__banner__box">
           {%- if profile.banner_image_url.url %}
-            <img class="profile__banner__box__img" src="{{ profile.banner_image_url.resize(spotlight_banner) }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
+            <img class="profile__banner__box__img" src="{{ profile.banner_image_url.resize(img_size.spotlight_banner) }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
           {% else %}
             <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}" alt="{{ profile.title }}"/>
           {% endif %}
@@ -57,7 +58,7 @@
               {% endif %}
               <div class="profile__logo">
                 {%- if profile.logo_url.url %}
-                  <img class="profile__logo__img" src="{{ profile.logo_url.resize(profile_logo) }}" alt="{{ profile.title }}"/>
+                  <img class="profile__logo__img" src="{{ profile.logo_url.resize(img_size.profile_logo) }}" alt="{{ profile.title }}"/>
                 {% else %}
                   <span class="profile__logo__nologo">{{ faicon(icon='user-solid', css_class="profile__logo__icon") }}</span>
                 {% endif %}

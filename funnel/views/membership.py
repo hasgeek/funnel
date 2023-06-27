@@ -165,7 +165,7 @@ class OrganizationMembershipView(
     route_model_map = {'profile': 'organization.name', 'membership': 'uuid_b58'}
     obj: OrganizationMembership
 
-    def loader(self, profile, membership) -> OrganizationMembership:
+    def loader(self, profile: str, membership: str) -> OrganizationMembership:
         return OrganizationMembership.query.filter(
             OrganizationMembership.uuid_b58 == membership,
         ).first_or_404()
@@ -399,7 +399,9 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
     }
     obj: ProjectCrewMembership
 
-    def loader(self, profile, project, membership) -> ProjectCrewMembership:
+    def loader(
+        self, profile: str, project: str, membership: str
+    ) -> ProjectCrewMembership:
         return (
             ProjectCrewMembership.query.join(Project)
             .join(Profile)
@@ -421,7 +423,9 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
 class ProjectCrewMembershipInviteView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):
-    def loader(self, profile, project, membership) -> ProjectCrewMembership:
+    def loader(
+        self, profile: str, project: str, membership: str
+    ) -> ProjectCrewMembership:
         obj = super().loader(profile, project, membership)
         if not obj.is_invite or obj.user != current_auth.user:
             abort(404)

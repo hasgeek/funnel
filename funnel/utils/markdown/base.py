@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import (
     Any,
@@ -14,12 +15,11 @@ from typing import (
     Union,
     overload,
 )
-import re
+from typing_extensions import Literal
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
 from mdit_py_plugins import anchors, container, deflist, footnote, tasklists
-from typing_extensions import Literal
 
 from coaster.utils import make_name
 from coaster.utils.text import normalize_spaces_multiline

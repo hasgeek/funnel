@@ -1,14 +1,14 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown, useravatar, add_submission_btn %}
+{%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown, useravatar, add_submission_btn, img_size %}
 {%- set header_banner = 700 %}
 {% block title %}{{ project.title }}{% endblock title %}
 {% block description %}{{ project.tagline }}{% endblock description %}
 {% block twitter_card %}summary_large_image{% endblock twitter_card %}
 
 {% block layoutheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/app.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/project.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/app.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/project.css') }}" />
 {% endblock layoutheaders %}
 
 {% block bodyattrs %}class="bg-accent no-sticky-header mobile-header project-page {% if current_page != 'project' %}subproject-page{%- endif %}"{% endblock bodyattrs %}
@@ -96,7 +96,7 @@
             </p>
           </div>
         {%- elif project.bg_image.url %}
-          <img class="project-banner__box__image" src="{{ project.bg_image.resize(header_banner) }}" alt="{{ project.title }}" data-cy="bg_image"/>
+          <img class="project-banner__box__image" src="{{ project.bg_image.resize(img_size.header_banner) }}" alt="{{ project.title }}" data-cy="bg_image"/>
         {%- else %}
           <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ project.title }}"/>
         {% endif %}
@@ -108,7 +108,7 @@
       <div class="project-banner__profile-details">
         {%- if project.profile.logo_url.url %}
           <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
-            <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+            <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ project.profile.title }}"/>
           </a>
         {% endif %}
         <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
@@ -299,7 +299,7 @@
           <div class="user__box">
             <a href="{{ project.profile.url_for() }}" class="nounderline">
               {%- if project.profile.logo_url.url %}
-                <img class="user__box__gravatar" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+                <img class="user__box__gravatar" src="{{ project.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ project.profile.title }}"/>
               {%- else %}
                 <div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ project.profile.views.avatar_color_code }}">{{ project.profile.title|initials }}</div>
               {% endif %}
@@ -339,7 +339,7 @@
               <div class="user__box">
                 <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="nounderline">
                   {%- if sponsor.profile.logo_url.url %}
-                    <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
+                    <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ sponsor.profile.title }}"/>
                   {%- else %}
                     <div class="user__box__gravatar user__box__gravatar--initials">{{ sponsor.profile.title|initials }}</div>
                   {% endif %}
@@ -497,7 +497,7 @@
 {% endblock basecontent %}
 
 {% block footerscripts %}
-  <script src="{{ built_asset('project_header.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('project_header.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var projectTitle = {{ project.title|tojson }};

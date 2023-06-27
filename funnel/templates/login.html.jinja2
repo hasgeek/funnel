@@ -7,7 +7,7 @@
 {% from "forms.html.jinja2" import recaptcha %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/login_form.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/login_form.css') }}" />
 {% endblock pageheaders %}
 
 {% block bodyattrs %}class="login-page login-page--artwork no-sticky-header"{% endblock bodyattrs %}

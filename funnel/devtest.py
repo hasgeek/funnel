@@ -2,36 +2,35 @@
 
 from __future__ import annotations
 
-from secrets import token_urlsafe
-from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Optional, Tuple
 import atexit
 import gc
 import inspect
 import multiprocessing
 import os
-import platform
 import signal
 import socket
 import time
 import weakref
-
-from flask import Flask
-from sqlalchemy.engine import Engine
+from secrets import token_urlsafe
+from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Optional, Tuple
 from typing_extensions import Protocol
 
-from . import app as main_app
-from . import shortlinkapp, transports, unsubscribeapp
+from flask import Flask
+
+from . import app as main_app, shortlinkapp, transports, unsubscribeapp
 from .models import db
 from .typing import ReturnView
 
 __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
 
-# Force 'fork' on macOS. The default mode of 'spawn' (from py38) causes a pickling
-# error in py39, as reported in pytest-flask:
-# https://github.com/pytest-dev/pytest-flask/pull/138
-# https://github.com/pytest-dev/pytest-flask/issues/139
-if platform.system() == 'Darwin':
-    multiprocessing = multiprocessing.get_context('fork')  # type: ignore[assignment]
+# Devtest requires `fork`. The default `spawn` method on macOS and Windows will
+# cause pickling errors all over. `fork` is unavailable on Windows, so
+# :class:`BackgroundWorker` can't be used there either, affecting `devserver.py` and the
+# Pytest `live_server` fixture used for end-to-end tests. Fork on macOS is not
+# compatible with the Objective C framework. If you have a framework Python build and
+# experience crashes, try setting the environment variable
+# OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+mpcontext = multiprocessing.get_context('fork')
 
 # --- Development and testing app multiplexer ------------------------------------------
 
@@ -174,7 +173,6 @@ def install_mock(func: Callable, mock: Callable) -> None:
 
 
 def _prepare_subprocess(
-    engines: Iterable[Engine],
     mock_transports: bool,
     calls: CapturedCalls,
     worker: Callable,
@@ -189,8 +187,9 @@ def _prepare_subprocess(
     3. Launch the worker
     """
     # https://docs.sqlalchemy.org/en/20/core/pooling.html#pooling-multiprocessing
-    for e in engines:
-        e.dispose(close=False)
+    with main_app.app_context():
+        for engine in db.engines.values():
+            engine.dispose(close=False)
 
     if mock_transports:
 
@@ -263,10 +262,10 @@ class BackgroundWorker:
         self.timeout = timeout
         self.clean_stop = clean_stop
         self.daemon = daemon
-        self._process: Optional[multiprocessing.Process] = None
+        self._process: Optional[multiprocessing.context.ForkProcess] = None
         self.mock_transports = mock_transports
 
-        manager = multiprocessing.Manager()
+        manager = mpcontext.Manager()
         self.calls: CapturedCalls = manager.Namespace()
         self.calls.email = manager.list()
         self.calls.sms = manager.list()
@@ -276,12 +275,9 @@ class BackgroundWorker:
         if self._process is not None:
             return
 
-        with main_app.app_context():
-            db_engines = db.engines.values()
-        self._process = multiprocessing.Process(
+        self._process = mpcontext.Process(
             target=_prepare_subprocess,
             args=(
-                db_engines,
                 self.mock_transports,
                 self.calls,
                 self.worker,

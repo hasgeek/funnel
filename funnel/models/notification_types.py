@@ -114,7 +114,7 @@ class NewUpdateNotification(DocumentHasProject, Notification, type='update_new')
     )
 
     document_model = Update
-    roles = ['project_crew', 'project_participant']
+    roles = ['project_crew', 'project_participant', 'account_participant']
     exclude_actor = False  # Send to everyone including the actor
 
 

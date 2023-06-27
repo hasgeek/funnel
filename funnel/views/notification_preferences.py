@@ -5,8 +5,8 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Optional
 
-from flask import abort, current_app, flash, redirect, request, session, url_for
 import itsdangerous
+from flask import abort, current_app, flash, redirect, request, session, url_for
 
 from baseframe import _, __
 from baseframe.forms import render_form, render_message

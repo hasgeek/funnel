@@ -127,6 +127,7 @@ $(() => {
 
     const markdownId = $(`#${formId}`).find('textarea.markdown').attr('id');
     codemirrorHelper(markdownId, updatePreview);
+    initEmbed(markdownPreviewElem);
 
     $('#title')
       .keypress((event) => {

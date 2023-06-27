@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import urllib.parse
 from datetime import datetime, timedelta
 from hashlib import blake2b, sha256
 from typing import (
@@ -15,7 +16,6 @@ from typing import (
     cast,
     overload,
 )
-import urllib.parse
 
 from sqlalchemy.orm import attribute_keyed_dict, load_only
 from sqlalchemy.orm.query import Query as QueryBaseClass
@@ -23,8 +23,7 @@ from werkzeug.utils import cached_property
 
 from baseframe import _
 from coaster.sqlalchemy import with_roles
-from coaster.utils import buid as make_buid
-from coaster.utils import newsecret, require_one_of, utcnow
+from coaster.utils import buid as make_buid, newsecret, require_one_of, utcnow
 
 from ..typing import OptionalMigratedTables
 from . import (
@@ -357,11 +356,13 @@ class AuthClientCredential(BaseMixin, Model):
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<AuthClientCredential {self.name} {self.title!r}>'
 
-    def secret_is(self, candidate: str, upgrade_hash: bool = False):
+    def secret_is(self, candidate: Optional[str], upgrade_hash: bool = False) -> bool:
         """Test if the candidate secret matches."""
+        if not candidate:
+            return False
         if self.secret_hash.startswith('blake2b$32$'):
             return (
                 self.secret_hash

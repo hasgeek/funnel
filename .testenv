@@ -8,9 +8,10 @@ FLASK_DEBUG_TB_ENABLED=false
 FLASK_WTF_CSRF_ENABLED=true
 # Use Redis cache so that rate limit validation tests work, with Redis db
 FLASK_CACHE_TYPE=flask_caching.backends.RedisCache
-FLASK_RQ_REDIS_URL=redis://localhost:6379/9
-FLASK_RQ_DASHBOARD_REDIS_URL=redis://localhost:6379/9
-FLASK_CACHE_REDIS_URL=redis://localhost:6379/9
+REDIS_HOST=localhost
+FLASK_RQ_REDIS_URL=redis://${REDIS_HOST}:6379/9
+FLASK_RQ_DASHBOARD_REDIS_URL=redis://${REDIS_HOST}:6379/9
+FLASK_CACHE_REDIS_URL=redis://${REDIS_HOST}:6379/9
 # Disable logging in tests
 FLASK_SQLALCHEMY_ECHO=false
 FLASK_LOGFILE=/dev/null
@@ -34,8 +35,10 @@ FLASK_LASTUSER_COOKIE_DOMAIN='.funnel.test:3002'
 FLASK_SITE_TITLE='Test Hasgeek'
 FLASK_SITE_SUPPORT_EMAIL=test-support-email
 FLASK_SITE_SUPPORT_PHONE=test-support-phone
-FLASK_SQLALCHEMY_DATABASE_URI='postgresql+psycopg://localhost/funnel_testing'
-FLASK_SQLALCHEMY_BINDS__geoname='postgresql+psycopg://localhost/geoname_testing'
+FLASK_MAIL_DEFAULT_SENDER="Funnel <no-reply@funnel.test>"
+DB_HOST=localhost
+FLASK_SQLALCHEMY_DATABASE_URI='postgresql+psycopg://${DB_HOST}/funnel_testing'
+FLASK_SQLALCHEMY_BINDS__geoname='postgresql+psycopg://${DB_HOST}/geoname_testing'
 FLASK_TIMEZONE='Asia/Kolkata'
 FLASK_BOXOFFICE_SERVER='http://boxoffice:6500/api/1/'
 FLASK_IMGEE_HOST='http://imgee.test:4500'

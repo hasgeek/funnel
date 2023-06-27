@@ -1,12 +1,12 @@
 """Test account registration."""
 
 
+import pytest
 from pytest_bdd import given, parsers, scenarios, then, when
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait
-import pytest
 
 scenarios('account/register.feature')
 pytestmark = pytest.mark.usefixtures('live_server')

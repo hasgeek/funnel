@@ -7,11 +7,13 @@
 .pytest_cache
 .ropeproject
 .sass-cache
-.sass-cache
 .webassets-cache
 .webpack_cache
 __pycache__
+.nox
 monkeytype.sqlite3
+.ci-cache
+.cache
 
 # MacOS file
 .DS_Store
@@ -57,10 +59,7 @@ secrets.dev
 secrets.test
 newrelic.ini
 .env
-.env.testing
-.env.staging
-.env.development
-.env.production
+.env.*
 
 # Local venvs (Idea creates them)
 venv/

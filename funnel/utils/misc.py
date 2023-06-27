@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from hashlib import blake2b
-from typing import List, Optional, Union, overload
 import io
 import urllib.parse
+from hashlib import blake2b
+from typing import List, Optional, Union, overload
 
-from flask import abort
 import phonenumbers
 import qrcode
 import qrcode.image.svg
+from flask import abort
 
 __all__ = [
     'blake2b160_hex',
