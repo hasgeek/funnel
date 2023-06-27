@@ -65,4 +65,4 @@ ENV GITHUB_ACTIONS=true
 RUN --mount=type=cache,target=/home/funnel/.cache/pip,uid=1000,gid=1000 pip install pytest-github-actions-annotate-failures
 COPY --chown=funnel:funnel requirements/base.txt requirements/test.txt ./requirements/
 RUN --mount=type=cache,target=/home/funnel/.cache/pip,uid=1000,gid=1000 make install-python-test
-ENTRYPOINT [ "" ]
+ENTRYPOINT [ "/home/funnel/app/docker/entrypoints/ci.sh" ]
