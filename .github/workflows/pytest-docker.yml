@@ -48,8 +48,6 @@ jobs:
         run: docker compose -f docker-compose.ci.yml run -u root --entrypoint "" --no-deps --quiet-pull main chown -R 1000:1000 coverage
       - name: Test with pytest
         run: docker compose -f docker-compose.ci.yml up --quiet-pull --no-attach db --no-attach redis --no-log-prefix --exit-code-from main
-      - name: Prepare coverage report
-        run: docker compose -f docker-compose.ci.yml run --entrypoint "" main coverage lcov -o coverage/funnel.lcov
       - name: Upload coverage report to Coveralls
         uses: coverallsapp/github-action@master
         with:
