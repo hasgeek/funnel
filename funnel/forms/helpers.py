@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import json
 from typing import Optional, Sequence
 from typing_extensions import Literal
-import json
 
 from flask import flash
 

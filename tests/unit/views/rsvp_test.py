@@ -3,8 +3,8 @@
 import datetime
 import json
 
-from werkzeug.datastructures import MultiDict
 import pytest
+from werkzeug.datastructures import MultiDict
 
 valid_schema = {
     'fields': [
