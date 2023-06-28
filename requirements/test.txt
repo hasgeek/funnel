@@ -39,11 +39,11 @@ parse==1.19.1
     #   pytest-bdd
 parse-type==0.6.0
     # via pytest-bdd
-pluggy==1.0.0
+pluggy==1.2.0
     # via pytest
 py==1.11.0
     # via pytest-html
-pytest==7.3.2
+pytest==7.4.0
     # via
     #   -r requirements/test.in
     #   pytest-asyncio
@@ -89,7 +89,7 @@ requests-mock==1.11.0
     # via -r requirements/test.in
 respx==0.20.1
     # via -r requirements/test.in
-selenium==4.9.1
+selenium==4.10.0
     # via pytest-selenium
 sortedcontainers==2.4.0
     # via trio
