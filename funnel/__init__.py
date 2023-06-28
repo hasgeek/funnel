@@ -30,10 +30,10 @@ app = Flask(__name__, instance_relative_config=True)
 app.name = 'funnel'
 #: Shortlink app at has.gy
 shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True)
-app.name = 'shortlink'
+shortlinkapp.name = 'shortlink'
 #: Unsubscribe app at bye.li
 unsubscribeapp = Flask(__name__, static_folder=None, instance_relative_config=True)
-app.name = 'unsubscribe'
+unsubscribeapp.name = 'unsubscribe'
 
 all_apps = [app, shortlinkapp, unsubscribeapp]
 
