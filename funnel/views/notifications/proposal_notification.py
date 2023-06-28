@@ -94,7 +94,7 @@ class RenderProposalReceivedNotification(RenderNotification):
             project=self.project,
         )
 
-    def sms(self):
+    def sms(self) -> ProposalReceivedTemplate:
         return ProposalReceivedTemplate(
             project=self.project.joined_title,
             actor=self.proposal.user.name,
@@ -135,7 +135,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
             project=self.proposal.project,
         )
 
-    def sms(self):
+    def sms(self) -> ProposalSubmittedTemplate:
         return ProposalSubmittedTemplate(
             project=self.proposal.project.joined_title,
             url=shortlink(
