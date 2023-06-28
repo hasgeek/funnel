@@ -13,9 +13,47 @@ from ...models import (
     ProposalSubmittedNotification,
     sa,
 )
-from ...transports.sms import TwoLineTemplate
+from ...transports.sms import SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
+from .mixins import ProjectTemplateMixin
+
+
+class ProposalReceivedTemplate(ProjectTemplateMixin, SmsTemplate):
+    """DLT registered template for RSVP without a next session."""
+
+    registered_template = (
+        "There's a new submission from {#var#} in {#var#}. "
+        "Read it here: {#var#}\n\nhttps://bye.li to stop -Hasgeek"
+    )
+    template = (
+        "There's a new submission from {actor} in {project}. "
+        "Read it here: {url}\n\nhttps://bye.li to stop -Hasgeek"
+    )
+    plaintext_template = (
+        "There's a new submission from {actor} in {project}. Read it here: {url}"
+    )
+
+    actor: str
+    url: str
+
+
+class ProposalSubmittedTemplate(ProjectTemplateMixin, SmsTemplate):
+    """DLT registered template for RSVP without a next session."""
+
+    registered_template = (
+        "{#var#} has received your submission. Here's the link to share: {#var#}\n\n"
+        "https://bye.li to stop -Hasgeek"
+    )
+    template = (
+        "{project} has received your submission. Here's the link to share: {url}\n\n"
+        "https://bye.li to stop -Hasgeek"
+    )
+    plaintext_template = (
+        "{project} has received your submission. Here's the link to share: {url}"
+    )
+
+    url: str
 
 
 @ProposalReceivedNotification.renderer
@@ -56,12 +94,10 @@ class RenderProposalReceivedNotification(RenderNotification):
             project=self.project,
         )
 
-    def sms(self) -> TwoLineTemplate:
-        return TwoLineTemplate(
-            text1=_("New submission in {project}:").format(
-                project=self.project.joined_title
-            ),
-            text2=self.proposal.title,
+    def sms(self):
+        return ProposalReceivedTemplate(
+            project=self.project.joined_title,
+            actor=self.proposal.user.name,
             url=shortlink(
                 self.proposal.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,
@@ -99,12 +135,9 @@ class RenderProposalSubmittedNotification(RenderNotification):
             project=self.proposal.project,
         )
 
-    def sms(self) -> TwoLineTemplate:
-        return TwoLineTemplate(
-            text1=_("Your submission has been received in {project}:").format(
-                project=self.proposal.project.joined_title
-            ),
-            text2=self.proposal.title,
+    def sms(self):
+        return ProposalSubmittedTemplate(
+            project=self.proposal.project.joined_title,
             url=shortlink(
                 self.proposal.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,
