@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
 import logging
 import os.path
+from datetime import timedelta
+from email.utils import parseaddr
 
+import geoip2.database
 from flask import Flask
 from flask_babel import get_locale
 from flask_executor import Executor
@@ -15,21 +17,23 @@ from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
 from whitenoise import WhiteNoise
-import geoip2.database
 
+import coaster.app
 from baseframe import Bundle, Version, assets, baseframe
 from baseframe.blueprint import THEME_FILES
 from coaster.assets import WebpackManifest
-import coaster.app
 
 from ._version import __version__
 
 #: Main app for hasgeek.com
 app = Flask(__name__, instance_relative_config=True)
+app.name = 'funnel'
 #: Shortlink app at has.gy
 shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True)
+shortlinkapp.name = 'shortlink'
 #: Unsubscribe app at bye.li
 unsubscribeapp = Flask(__name__, static_folder=None, instance_relative_config=True)
+unsubscribeapp.name = 'unsubscribe'
 
 all_apps = [app, shortlinkapp, unsubscribeapp]
 
@@ -83,17 +87,9 @@ from .models import db, sa  # isort:skip  # pylint: disable=wrong-import-positio
 # All supported config values are listed in ``sample.env``. If an ``.env`` file is
 # present, it is loaded in debug and testing modes only
 coaster.app.init_app(app, ['py', 'env'], env_prefix=['FLASK', 'APP_FUNNEL'])
+coaster.app.init_app(shortlinkapp, ['py', 'env'], env_prefix=['FLASK', 'APP_SHORTLINK'])
 coaster.app.init_app(
-    shortlinkapp,
-    ['py', 'env'],
-    env_prefix=['FLASK', 'APP_SHORTLINK'],
-    init_logging=False,
-)
-coaster.app.init_app(
-    unsubscribeapp,
-    ['py', 'env'],
-    env_prefix=['FLASK', 'APP_UNSUBSCRIBE'],
-    init_logging=False,
+    unsubscribeapp, ['py', 'env'], env_prefix=['FLASK', 'APP_UNSUBSCRIBE']
 )
 
 # Legacy additional config for the main app (pending deprecation)
@@ -115,6 +111,10 @@ app.config.pop('ASSET_BASE_PATH', None)
 
 # Install common extensions on all apps
 for each_app in all_apps:
+    # If MAIL_DEFAULT_SENDER is in the form "Name <email>", extract email
+    each_app.config['MAIL_DEFAULT_SENDER_ADDR'] = parseaddr(
+        app.config['MAIL_DEFAULT_SENDER']
+    )[1]
     proxies.init_app(each_app)
     manifest.init_app(each_app)
     db.init_app(each_app)

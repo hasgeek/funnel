@@ -1,10 +1,11 @@
 """Python to SQLAlchemy type mappings."""
 
+from typing_extensions import Annotated, TypeAlias
+
+import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import mapped_column
 from sqlalchemy_json import mutable_json_type
-from typing_extensions import Annotated, TypeAlias
-import sqlalchemy as sa
 
 from coaster.sqlalchemy import (
     bigint,

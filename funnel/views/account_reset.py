@@ -5,10 +5,10 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
+import itsdangerous
 from flask import current_app, flash, redirect, request, session, url_for
 from flask_babel import ngettext
 from markupsafe import Markup, escape
-import itsdangerous
 
 from baseframe import _
 from baseframe.forms import render_form, render_message

@@ -177,7 +177,7 @@
                   {% for useremail in current_auth.user.emailclaims %}
                     <li>
                       <input type="radio" disabled="disabled" class="margin-right"/>
-                      <span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.transport_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
+                      <span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email_legacy', email_hash=useremail.transport_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
                       <a href="{{ url_for('remove_email', email_hash=useremail.transport_hash) }}"
                          aria-label="{% trans %}Remove{% endtrans %}"
                          class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}</a>

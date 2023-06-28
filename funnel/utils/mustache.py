@@ -1,9 +1,9 @@
 """Mustache templating support."""
 
-from copy import copy
-from typing import Callable
 import functools
 import types
+from copy import copy
+from typing import Callable
 
 from chevron import render
 from markupsafe import escape as html_escape

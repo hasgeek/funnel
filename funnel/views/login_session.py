@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from datetime import timedelta
 from functools import wraps
-from typing import Any, Callable, Optional, Type, cast
+from typing import Callable, Optional, Type, Union
 
+import geoip2.errors
+import itsdangerous
 from flask import (
     Response,
     abort,
@@ -20,8 +22,6 @@ from flask import (
     url_for,
 )
 from furl import furl
-import geoip2.errors
-import itsdangerous
 
 from baseframe import _, statsd
 from baseframe.forms import render_form
@@ -48,7 +48,7 @@ from ..models import (
 from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
-from ..typing import ResponseType, ReturnDecorator, WrappedFunc
+from ..typing import P, ResponseType, ReturnResponse, T
 from ..utils import abort_null
 from .helpers import (
     app_context,
@@ -305,7 +305,7 @@ def set_lastuser_cookie(response: ResponseType) -> ResponseType:
             and current_auth.get('suppress_empty_cookie', False)
         )
     ):
-        response.vary.add('Cookie')  # type: ignore[union-attr]
+        response.vary.add('Cookie')
         expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
         response.set_cookie(
             'lastuser',
@@ -392,7 +392,7 @@ def save_session_next_url() -> bool:
     return False
 
 
-def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
+def reload_for_cookies(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
     """
     Decorate a view to reload to obtain SameSite=strict cookies.
 
@@ -408,7 +408,7 @@ def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
         if 'lastuser' not in request.cookies:
             add_auth_attribute('suppress_empty_cookie', True)
             attempt = request.args.get('cookiereload')
@@ -425,19 +425,19 @@ def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
             # If both attempts fail, there is no 'lastuser' cookie forthcoming
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
 def requires_user_not_spammy(
-    get_current: Optional[Callable[..., str]] = None
-) -> ReturnDecorator:
+    get_current: Optional[Callable[P, str]] = None
+) -> Callable[[Callable[P, T]], Callable[P, Union[T, ReturnResponse]]]:
     """Decorate a view to require the user to prove they are not likely a spammer."""
 
-    def decorator(f: WrappedFunc) -> WrappedFunc:
+    def decorator(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
         """Apply decorator using the specified :attr:`get_current` function."""
 
         @wraps(f)
-        def wrapper(*args, **kwargs) -> Any:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
             """Validate user rights in a view."""
             if not current_auth.is_authenticated:
                 flash(_("You need to be logged in for that page"), 'info')
@@ -455,16 +455,16 @@ def requires_user_not_spammy(
 
             return f(*args, **kwargs)
 
-        return cast(WrappedFunc, wrapper)
+        return wrapper
 
     return decorator
 
 
-def requires_login(f: WrappedFunc) -> WrappedFunc:
+def requires_login(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
     """Decorate a view to require login."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
@@ -474,10 +474,12 @@ def requires_login(f: WrappedFunc) -> WrappedFunc:
             )
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def requires_login_no_message(f: WrappedFunc) -> WrappedFunc:
+def requires_login_no_message(
+    f: Callable[P, T]
+) -> Callable[P, Union[T, ReturnResponse]]:
     """
     Decorate a view to require login, without displaying a friendly message.
 
@@ -485,7 +487,7 @@ def requires_login_no_message(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
             return render_redirect(
@@ -494,7 +496,7 @@ def requires_login_no_message(f: WrappedFunc) -> WrappedFunc:
             )
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
 def save_sudo_preference_context() -> None:
@@ -523,7 +525,7 @@ def del_sudo_preference_context() -> None:
     session.pop('sudo_context', None)
 
 
-def requires_sudo(f: WrappedFunc) -> WrappedFunc:
+def requires_sudo(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
     """
     Decorate a view to require the current user to have re-authenticated recently.
 
@@ -535,7 +537,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
         """Prompt for re-authentication to proceed."""
         add_auth_attribute('login_required', True)
         # If the user is not logged in, require login first
@@ -566,7 +568,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
             )
 
         if not GET_AND_POST.issubset(
-            request.url_rule.methods  # type: ignore[union-attr]
+            request.url_rule.methods or set()  # type: ignore[union-attr]
         ):
             # This view does not support GET or POST methods, which we need. Send the
             # user off to the sudo endpoint for authentication.
@@ -676,23 +678,23 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
             template='account_formlayout.html.jinja2',
         )
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def requires_site_editor(f: WrappedFunc) -> WrappedFunc:
+def requires_site_editor(f: Callable[P, T]) -> Callable[P, T]:
     """Decorate a view to require site editor permission."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         add_auth_attribute('login_required', True)
         if not current_auth.user or not current_auth.user.is_site_editor:
             abort(403)
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def _client_login_inner():
+def _client_login_inner() -> Optional[ReturnResponse]:
     if request.authorization is None or not request.authorization.username:
         return Response(
             'Client credentials required',
@@ -715,20 +717,22 @@ def _client_login_inner():
     return None
 
 
-def requires_client_login(f: WrappedFunc) -> WrappedFunc:
+def requires_client_login(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
     """Decorate a view to require a client login via HTTP Basic Authorization."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
         result = _client_login_inner()
         if result is None:
             return f(*args, **kwargs)
         return result
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def requires_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
+def requires_user_or_client_login(
+    f: Callable[P, T]
+) -> Callable[P, Union[T, ReturnResponse]]:
     """
     Decorate a view to require a user or client login.
 
@@ -736,7 +740,7 @@ def requires_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
         add_auth_attribute('login_required', True)
         # Check for user first:
         if current_auth.is_authenticated:
@@ -747,10 +751,12 @@ def requires_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
             return f(*args, **kwargs)
         return result
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def requires_client_id_or_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
+def requires_client_id_or_user_or_client_login(
+    f: Callable[P, T]
+) -> Callable[P, Union[T, ReturnResponse]]:
     """
     Decorate view to require a client_id and session, or a user, or client login.
 
@@ -759,7 +765,7 @@ def requires_client_id_or_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
         add_auth_attribute('login_required', True)
 
         # Is there a user? Go right ahead
@@ -796,10 +802,14 @@ def requires_client_id_or_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
             return f(*args, **kwargs)
         return result
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def login_internal(user, user_session=None, login_service=None):
+def login_internal(
+    user: User,
+    user_session: Optional[UserSession] = None,
+    login_service: Optional[str] = None,
+):
     """
     Login a user and create a session.
 
@@ -820,7 +830,7 @@ def login_internal(user, user_session=None, login_service=None):
     user_login.send(user)
 
 
-def logout_internal():
+def logout_internal() -> None:
     """Logout current user (helper function)."""
     add_auth_attribute('user', None)
     user_session = current_auth.get('session')

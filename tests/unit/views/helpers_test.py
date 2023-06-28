@@ -7,10 +7,10 @@ from typing import Any
 from unittest.mock import patch
 from urllib.parse import urlsplit
 
+import pytest
 from flask import Flask, request
 from furl import furl
 from werkzeug.routing import BuildError
-import pytest
 
 import funnel.views.helpers as vhelpers
 

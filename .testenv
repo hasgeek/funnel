@@ -35,6 +35,7 @@ FLASK_LASTUSER_COOKIE_DOMAIN='.funnel.test:3002'
 FLASK_SITE_TITLE='Test Hasgeek'
 FLASK_SITE_SUPPORT_EMAIL=test-support-email
 FLASK_SITE_SUPPORT_PHONE=test-support-phone
+FLASK_MAIL_DEFAULT_SENDER="Funnel <no-reply@funnel.test>"
 DB_HOST=localhost
 FLASK_SQLALCHEMY_DATABASE_URI='postgresql+psycopg://${DB_HOST}/funnel_testing'
 FLASK_SQLALCHEMY_BINDS__geoname='postgresql+psycopg://${DB_HOST}/geoname_testing'

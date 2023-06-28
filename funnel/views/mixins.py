@@ -57,7 +57,9 @@ class ProjectViewMixin(ProfileCheckMixin):
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
-    def loader(self, profile, project, session=None) -> Union[Project, ProjectRedirect]:
+    def loader(
+        self, profile: str, project: str, session: Optional[str] = None
+    ) -> Union[Project, ProjectRedirect]:
         obj = (
             Project.query.join(Profile, Project.profile_id == Profile.id)
             .filter(Profile.name_is(profile), Project.name == project)
@@ -100,7 +102,7 @@ class ProfileViewMixin(ProfileCheckMixin):
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
-    def loader(self, profile) -> Profile:
+    def loader(self, profile: str) -> Profile:
         profile = Profile.get(profile)
         if profile is None:
             abort(404)
@@ -121,7 +123,7 @@ class SessionViewMixin(ProfileCheckMixin):
     obj: Session
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, profile, project, session) -> Session:
+    def loader(self, profile: str, project: str, session: str) -> Session:
         return (
             Session.query.join(Project)
             .join(Profile)
@@ -147,7 +149,7 @@ class VenueViewMixin(ProfileCheckMixin):
     }
     obj: Venue
 
-    def loader(self, profile, project, venue) -> Venue:
+    def loader(self, profile: str, project: str, venue: str) -> Venue:
         return (
             Venue.query.join(Project)
             .join(Profile)
@@ -172,7 +174,7 @@ class VenueRoomViewMixin(ProfileCheckMixin):
     }
     obj: VenueRoom
 
-    def loader(self, profile, project, venue, room) -> VenueRoom:
+    def loader(self, profile: str, project: str, venue: str, room: str) -> VenueRoom:
         return (
             VenueRoom.query.join(Venue)
             .join(Project)
@@ -200,7 +202,7 @@ class TicketEventViewMixin(ProfileCheckMixin):
     }
     obj: TicketEvent
 
-    def loader(self, profile, project, name) -> TicketEvent:
+    def loader(self, profile: str, project: str, name: str) -> TicketEvent:
         return (
             TicketEvent.query.join(Project)
             .join(Profile)

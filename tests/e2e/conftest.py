@@ -1,8 +1,8 @@
 """Feature test configuration."""
 # pylint: disable=redefined-outer-name
 
-from pytest_socket import enable_socket
 import pytest
+from pytest_socket import enable_socket
 
 
 @pytest.fixture()

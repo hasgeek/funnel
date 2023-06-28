@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
+import hashlib
+import re
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from os import urandom
 from typing import Any, Iterable, Optional, Union, overload
-import hashlib
-import re
+from typing_extensions import Literal
 
 from furl import furl
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.hybrid import Comparator
-from typing_extensions import Literal
 
 from coaster.sqlalchemy import immutable, with_roles
 

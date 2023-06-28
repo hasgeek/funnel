@@ -5,8 +5,8 @@ from __future__ import annotations
 import gettext
 import re
 
-from flask_babel import get_locale
 import pycountry
+from flask_babel import get_locale
 
 from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import QuerySelectField

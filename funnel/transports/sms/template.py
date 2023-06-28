@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import re
 from string import Formatter
 from typing import Any, ClassVar, Dict, Optional, Pattern, cast
-import re
 
 from flask import Flask
 

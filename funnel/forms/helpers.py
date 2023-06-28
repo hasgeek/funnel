@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from typing import Optional, Sequence
+from typing_extensions import Literal
 
 from flask import flash
-from typing_extensions import Literal
 
 from baseframe import _, __, forms
 from coaster.auth import current_auth
@@ -15,6 +15,7 @@ from ..models import (
     EmailAddress,
     PhoneNumber,
     Profile,
+    User,
     UserEmailClaim,
     canonical_phone_number,
     parse_phone_number,
@@ -67,23 +68,25 @@ class EmailAddressAvailable:
         self.purpose = purpose
 
     def __call__(self, form: forms.Form, field: forms.Field) -> None:
-        # Get actor (from existing obj, or current_auth.actor)
-        actor = None
-        if hasattr(form, 'edit_obj'):
-            obj = form.edit_obj
-            if obj and hasattr(obj, '__email_for__'):
-                actor = getattr(obj, obj.__email_for__)
+        # Get actor (from form, or current_auth.actor)
+        actor: Optional[User] = None
+        if hasattr(form, 'edit_user'):
+            actor = form.edit_user
         if actor is None:
             actor = current_auth.actor
 
         # Call validator
-        is_valid = EmailAddress.validate_for(
+        has_error = EmailAddress.validate_for(
             actor, field.data, check_dns=True, new=self.purpose != 'use'
         )
 
         # Interpret code
-        if not is_valid:
+        if has_error == 'taken':
             if actor is not None:
+                if self.purpose == 'claim':
+                    # Allow a claim on an existing ownership -- if verified, it will
+                    # lead to account merger
+                    return
                 raise forms.validators.StopValidation(
                     _("This email address is linked to another account")
                 )
@@ -93,11 +96,11 @@ class EmailAddressAvailable:
                     " logging in or resetting your password"
                 )
             )
-        if is_valid in ('invalid', 'nullmx'):
+        if has_error in ('invalid', 'nullmx'):
             raise forms.validators.StopValidation(
                 _("This does not appear to be a valid email address")
             )
-        if is_valid == 'nomx':
+        if has_error == 'nomx':
             raise forms.validators.StopValidation(
                 _(
                     "The domain name of this email address is missing a DNS MX record."
@@ -105,11 +108,11 @@ class EmailAddressAvailable:
                     " spam. Please ask your tech person to add MX to DNS"
                 )
             )
-        if is_valid == 'not_new':
+        if has_error == 'not_new':
             raise forms.validators.StopValidation(
                 _("You have already registered this email address")
             )
-        if is_valid == 'soft_fail':
+        if has_error == 'soft_fail':
             # XXX: In the absence of support for warnings in WTForms, we can only use
             # flash messages to communicate
             flash(
@@ -120,21 +123,21 @@ class EmailAddressAvailable:
                 'warning',
             )
             return
-        if is_valid == 'hard_fail':
+        if has_error == 'hard_fail':
             raise forms.validators.StopValidation(
                 _(
                     "This email address is no longer valid. If you believe this to be"
                     " incorrect, email {support} asking for the address to be activated"
                 ).format(support=app.config['SITE_SUPPORT_EMAIL'])
             )
-        if is_valid == 'blocked':
+        if has_error == 'blocked':
             raise forms.validators.StopValidation(
                 _("This email address has been blocked from use")
             )
-        if is_valid is not True:
-            app.logger.error("Unknown email address validation code: %r", is_valid)
+        if has_error is not None:
+            app.logger.error("Unknown email address validation code: %r", has_error)
 
-        if is_valid and self.purpose == 'register':
+        if has_error is None and self.purpose == 'register':
             # One last check: is there an existing claim? If so, stop the user from
             # making a dupe account
             if UserEmailClaim.all(email=field.data).notempty():
@@ -161,11 +164,9 @@ class PhoneNumberAvailable:
 
     def __call__(self, form: forms.Form, field: forms.Field) -> None:
         # Get actor (from existing obj, or current_auth.actor)
-        actor = None
-        if hasattr(form, 'edit_obj'):
-            obj = form.edit_obj
-            if obj and hasattr(obj, '__phone_for__'):
-                actor = getattr(obj, obj.__phone_for__)
+        actor: Optional[User] = None
+        if hasattr(form, 'edit_user'):
+            actor = form.edit_user
         if actor is None:
             actor = current_auth.actor
 
@@ -178,14 +179,21 @@ class PhoneNumberAvailable:
             raise forms.validators.StopValidation(
                 _("This does not appear to be a valid phone number")
             )
+
+        # Save the parsed number back to the form field
+        field.data = canonical_phone_number(parsed_number)
         # Call validator
-        is_valid = PhoneNumber.validate_for(
+        has_error = PhoneNumber.validate_for(
             actor, parsed_number, new=self.purpose != 'use'
         )
 
         # Interpret code
-        if not is_valid:
+        if has_error == 'taken':
             if actor is not None:
+                if self.purpose == 'claim':
+                    # Allow a claim on an existing ownership -- if verified, it will
+                    # lead to account merger.
+                    return
                 raise forms.validators.StopValidation(
                     _("This phone number is linked to another account")
                 )
@@ -195,23 +203,22 @@ class PhoneNumberAvailable:
                     " logging in or resetting your password"
                 )
             )
-        if is_valid == 'invalid':
+        if has_error == 'invalid':
             raise forms.validators.StopValidation(
                 _("This does not appear to be a valid phone number")
             )
-        if is_valid == 'not_new':
+        if has_error == 'not_new':
             raise forms.validators.StopValidation(
                 _("You have already registered this phone number")
             )
-        if is_valid == 'blocked':
+        if has_error == 'blocked':
             raise forms.validators.StopValidation(
                 _("This phone number has been blocked from use")
             )
-        if is_valid is not True:
+        if has_error is not None:
             app.logger.error(  # type: ignore[unreachable]
-                "Unknown phone number validation code: %r", is_valid
+                "Unknown phone number validation code: %r", has_error
             )
-        field.data = canonical_phone_number(parsed_number)
 
 
 def image_url_validator() -> forms.validators.ValidUrl:

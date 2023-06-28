@@ -8,9 +8,9 @@ Create Date: 2020-05-05 01:32:02.241787
 
 from typing import Optional, Tuple, Union
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 from coaster.gfm import markdown
 

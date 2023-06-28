@@ -10,8 +10,8 @@
 from typing import Any
 from unittest.mock import patch
 
-from furl import furl
 import pytest
+from furl import furl
 
 from funnel import models
 

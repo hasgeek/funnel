@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import urllib.parse
 from datetime import timedelta
 from secrets import token_urlsafe
 from typing import TYPE_CHECKING, Union
-import urllib.parse
 
+import itsdangerous
 from flask import (
     abort,
     current_app,
@@ -17,7 +18,6 @@ from flask import (
     session,
     url_for,
 )
-import itsdangerous
 
 from baseframe import _, __, forms, statsd
 from baseframe.forms import render_message

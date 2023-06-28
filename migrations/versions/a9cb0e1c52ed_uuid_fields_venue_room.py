@@ -12,9 +12,9 @@ down_revision = 'e417a13e136d'
 
 from uuid import uuid4
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 venue_room = table('venue_room', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 

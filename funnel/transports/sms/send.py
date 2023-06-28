@@ -5,12 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, List, Optional, Tuple, Union, cast
 
-from flask import url_for
-from twilio.base.exceptions import TwilioRestException
-from twilio.rest import Client
 import itsdangerous
 import phonenumbers
 import requests
+from flask import url_for
+from twilio.base.exceptions import TwilioRestException
+from twilio.rest import Client
 
 from baseframe import _
 
@@ -120,8 +120,12 @@ def send_via_exotel(
         'Body': str(message),
         'DltEntityId': message.registered_entityid,
     }
-    if message.registered_templateid:
-        payload['DltTemplateId'] = message.registered_templateid
+    if not message.registered_templateid:
+        app.logger.warning(
+            "Dropping SMS message with unknown template id: %s", str(message)
+        )
+        return ''
+    payload['DltTemplateId'] = message.registered_templateid
     if callback:
         payload['StatusCallback'] = url_for(
             'process_exotel_event',
@@ -246,7 +250,14 @@ sender_registry = [
 ]
 
 #: Available senders as per config
-senders_by_prefix: List[Tuple[str, Callable[[str, SmsTemplate, bool], str]]] = []
+senders_by_prefix: List[
+    Tuple[
+        str,
+        Callable[
+            [Union[str, phonenumbers.PhoneNumber, PhoneNumber], SmsTemplate, bool], str
+        ],
+    ]
+] = []
 
 
 def init() -> bool:

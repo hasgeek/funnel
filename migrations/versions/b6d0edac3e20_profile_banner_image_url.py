@@ -8,8 +8,8 @@ Create Date: 2020-06-19 12:30:25.891325
 
 from typing import Optional, Tuple, Union
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 from coaster.sqlalchemy import UrlType
 

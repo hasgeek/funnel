@@ -10,9 +10,9 @@ Create Date: 2019-06-08 10:58:13.772112
 revision = 'c11dc931b903'
 down_revision = '56ba15eff9ad'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 project = table(
     'project',

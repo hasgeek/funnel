@@ -63,6 +63,8 @@ newrelic.ini
 venv/
 env/
 .python-version
+.venv
+.envrc
 
 # Editors
 .idea/
