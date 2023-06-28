@@ -53,12 +53,24 @@ jobs:
           github-token: ${{ secrets.github_token }}
           path-to-lcov: coverage/funnel.lcov
           flag-name: docker-3.11
+      - name: Set short git commit SHA
+        if: ${{ github.ref_name == 'main' || github.ref_name == 'docker' }}
+        id: sha
+        run: |
+          short_sha=$(git rev-parse --short ${{ github.sha }})
+          echo "::set-output name=short::$short_sha"
       - name: Build funnel image
+        if: ${{ github.ref_name == 'main' || github.ref_name == 'docker' }}
         id: build-funnel
         uses: docker/build-push-action@v4
         with:
           context: .
           file: Dockerfile
           target: app
-          tags: funnel
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            hasgeek/funnel:${{ github.ref_name }}
+            hasgeek/funnel:sha-${{ steps.sha.outputs.short }}
           push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
