@@ -148,7 +148,7 @@ def send_email(
         to=to,
         body=body,
         from_email=from_email,
-        headers=headers,
+        headers=dict(headers),  # Flask-Mailman<=0.3.0 will trip on a Headers object
         alternatives=[(html, 'text/html')],
     )
     if attachments:
