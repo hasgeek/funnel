@@ -53,3 +53,12 @@ jobs:
           github-token: ${{ secrets.github_token }}
           path-to-lcov: coverage/funnel.lcov
           flag-name: docker-3.11
+      - name: Build funnel image
+        id: build-funnel
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile
+          target: app
+          tags: funnel
+          push: false
