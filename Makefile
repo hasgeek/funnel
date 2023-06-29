@@ -49,8 +49,8 @@ docker-base-devtest:
 	docker buildx build -f docker/images/bases.Dockerfile --target base-devtest --tag hasgeek/funnel-base-devtest .
 
 docker-ci-test:
-	docker compose -f docker-compose.ci.yml run -u root --entrypoint "" main chown -R 1000:1000 coverage && \
-	docker compose -f docker-compose.ci.yml up --quiet-pull --no-attach db --no-attach redis --exit-code-from main
+	docker compose -f docker-compose.ci.yml run --rm -u root --entrypoint "" --no-deps --quiet-pull main chown -R 1000:1000 coverage && \
+	docker compose -f docker-compose.ci.yml up --quiet-pull --no-attach db --no-attach redis --no-log-prefix --exit-code-from main
 
 docker-dev:
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 \
