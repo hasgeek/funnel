@@ -23,7 +23,7 @@
 {%- macro hero_image(img_url, alt_text) -%}
     <tr>
         <td align="center">
-            <img src="{{ url_for('static', filename=img_url) }}" width="196px" height="" alt="{{ alt_text }}" border="0" class="card-bg header-image g-img" />
+            <img src="{{ url_for('static', filename=img_url, _external=true) }}" width="196px" height="" alt="{{ alt_text }}" border="0" class="card-bg header-image g-img" />
         </td>
     </tr>
 {%- endmacro -%}

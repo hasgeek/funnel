@@ -6,13 +6,13 @@
         <td class="text-content">
             <p class="body-content">{% trans project=view.rsvp.project.joined_title %}You have registered for <b>{{ project }}</b>{% endtrans %}</p>
             {% with next_session_at=view.rsvp.project.next_session_at %}{% if next_session_at -%}
-            <p class="card-zeromargin">{% trans date_and_time=next_session_at|datetime(view.datetime_format) %}The next session in the schedule starts {{ date_and_time }}{% endtrans %}</p><br>
+            <p class="card-zeromargin">{% trans date_and_time=next_session_at|datetime(view.datetime_format) %}The next session in the schedule starts {{ date_and_time }}{% endtrans %}</p><br/>
             {%- endif %}{% endwith %}
         </td>
     </tr>
 
     {# Button : BEGIN #}
-    {{ cta_button(view.rsvp.project.url_for(_external=true, **view.tracking_tags()), gettext("Project page") )}}
+    {{ cta_button(view.rsvp.project.url_for(_external=true, **view.tracking_tags()), view.rsvp.project.joined_title )}}
     {# Button : END #}
 
     {{ pinned_update(view, view.rsvp.project) }}

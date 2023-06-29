@@ -4,12 +4,12 @@
 
     <tr align="center">
         <td class="text-content">
-            <p class="body-content">{% trans project=view.rsvp.project.joined_title %}You have cancelled your registration for <b>{{ project }}</b>.<br>If this was accidental, you can register again.{% endtrans %}</p><br>
+            <p class="body-content">{% trans project=view.rsvp.project.joined_title %}You have cancelled your registration for <b>{{ project }}</b>{% endtrans %}</p>
         </td>
     </tr>
 
     {# Button : BEGIN #}
-    {{ cta_button(view.rsvp.project.url_for(_external=true, **view.tracking_tags()), gettext("Project page") )}}
+    {{ cta_button(view.rsvp.project.url_for(_external=true, **view.tracking_tags()), view.rsvp.project.joined_title )}}
     {# Button : END #}
 
     {# Email body footer : BEGIN #}
