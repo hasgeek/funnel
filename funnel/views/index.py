@@ -202,7 +202,7 @@ def not_my_otp() -> ReturnView:
             _(
                 "If you’ve received an OTP without requesting it, someone may have made"
                 " a typo in their own phone number and accidentally used yours. They"
-                " will not gain access to your account without the OTP.<br><br>"
+                " will not gain access to your account without the OTP.<br/><br/>"
                 "However, if you suspect misbehaviour of any form, please report it"
                 " to us. Email:"
                 ' <a href="mailto:{email}">{email}</a>, phone:'

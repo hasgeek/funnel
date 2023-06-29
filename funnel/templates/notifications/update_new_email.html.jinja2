@@ -4,20 +4,20 @@
 
     <tr>
         <td align="center" class="text-accent text-content">
-            <p>{% trans actor=view.actor.pickername, project=view.update.project.joined_title, project_url=view.update.project.url_for() %}{{ actor }} posted an update in <a href="{{ project_url }}">{{ project }}</a>:{% endtrans %}</p>
+            <p>{% trans actor=view.actor.pickername, project=view.update.project.joined_title, project_url=view.update.project.url_for(_external=true, **view.tracking_tags()) %}{{ actor }} posted an update in <a href="{{ project_url }}">{{ project }}</a>:{% endtrans %}</p>
         </td>
     </tr>
     <tr>
         <td class="text-content line-separator"></td>
     </tr>
-    <br>
+    <br/>
     <tr>
         <td align="left" class="text-content">
             <h3 class="text-content"><a href="{{ view.update.url_for(_external=true, **view.tracking_tags()) }}">{% trans update_title=view.update.title %}{{ update_title }}{% endtrans %}</a></h3>
             {% trans update_body=view.update.body %}{{ update_body }}{% endtrans %}
         </td>
     </tr>
-    <br>
+    <br/>
 
     {# Button : BEGIN #}
     {{ cta_button(view.update.url_for(_external=true, **view.tracking_tags()), gettext("Read on the website") )}}

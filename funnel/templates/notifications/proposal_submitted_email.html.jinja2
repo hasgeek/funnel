@@ -7,7 +7,7 @@
             <p class="body-content">{% trans project=project.joined_title, proposal=proposal.title %}You have submitted <b>{{ proposal }}</b> to the project <b>{{ project }}</b>{% endtrans %}</p>
         </td>
     </tr>
-    <br>
+    <br/>
 
     {# Button : BEGIN #}
     {{ cta_button(proposal.url_for(_external=true, **view.tracking_tags()), gettext("View submission") )}}

@@ -7,7 +7,7 @@
             <p class="body-content">{%- trans %}A comment has been reported as spam{% endtrans -%}</p>
         </td>
     </tr>
-    <br>
+    <br/>
 
     {# Button : BEGIN #}
     {{ cta_button(url_for('siteadmin_review_comment', report=view.report.uuid_b58), gettext("Review comment") )}}
