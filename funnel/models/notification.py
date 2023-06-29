@@ -100,7 +100,7 @@ from typing import (
     Union,
     cast,
 )
-from typing_extensions import Protocol
+from typing_extensions import Protocol, get_args, get_origin, get_original_bases
 from uuid import UUID, uuid4
 
 from sqlalchemy import event
@@ -155,7 +155,9 @@ __all__ = [
 # Document generic type
 _D = TypeVar('_D', bound=UuidModelUnion)
 # Fragment generic type
-_F = TypeVar('_F', bound=UuidModelUnion)
+_F = TypeVar('_F', bound=Optional[UuidModelUnion])
+# Type of None (required to detect Optional)
+NoneType = type(None)
 
 # --- Registries -----------------------------------------------------------------------
 
@@ -480,6 +482,39 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
         if '__mapper_args__' not in cls.__dict__:
             cls.__mapper_args__ = {}
         cls.__mapper_args__['polymorphic_identity'] = type
+
+        # Get document and fragment models from type hints
+        for base in get_original_bases(cls):
+            if get_origin(base) is Notification:
+                document_model, fragment_model = get_args(base)
+                if fragment_model is NoneType:
+                    fragment_model = None
+                elif get_origin(fragment_model) is Optional:
+                    fragment_model = get_args(fragment_model)[0]
+                elif get_origin(fragment_model) is Union:
+                    _union_args = get_args(fragment_model)
+                    if len(_union_args) == 2 and _union_args[1] is NoneType:
+                        fragment_model = _union_args[0]
+                    else:
+                        raise TypeError(
+                            f"Unsupported notification fragment: {fragment_model}"
+                        )
+                if 'document_model' in cls.__dict__:
+                    if cls.document_model != document_model:
+                        raise TypeError(f"{cls} has a conflicting document_model")
+                else:
+                    cls.document_model = document_model
+                if 'fragment_model' in cls.__dict__:
+                    if cls.fragment_model != fragment_model:
+                        raise TypeError(f"{cls} has a conflicting fragment_model")
+                else:
+                    cls.fragment_model = fragment_model
+                break
+
+        cls.document_type = cls.document_model.__tablename__
+        cls.fragment_type = (
+            cls.fragment_model.__tablename__ if cls.fragment_model else None
+        )
 
         # For notification type identification and preference management
         cls.cls_type = type
@@ -1409,16 +1444,12 @@ auto_init_default(Notification.eventid)
 def _register_notification_types(mapper_: Any, cls: Type[Notification]) -> None:
     # Don't register the base class itself, or inactive types
     if cls is not Notification:
-        # Populate cls with helper attributes
+        # Add the subclass to the registry
 
         if cls.document_model is None:
             raise TypeError(
                 f"Notification subclass {cls!r} must specify document_model"
             )
-        cls.document_type = cls.document_model.__tablename__
-        cls.fragment_type = (
-            cls.fragment_model.__tablename__ if cls.fragment_model else None
-        )
 
         # Exclude inactive notifications in the registry. It is used to populate the
         # user's notification preferences screen.
