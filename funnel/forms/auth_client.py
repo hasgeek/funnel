@@ -156,7 +156,7 @@ class AuthClientCredentialForm(forms.Form):
     )
 
 
-def permission_validator(form, field) -> None:
+def permission_validator(form: forms.Form, field: forms.Field) -> None:
     """Validate permission strings to be appropriately named."""
     permlist = field.data.split()
     for perm in permlist:
@@ -202,7 +202,7 @@ class TeamPermissionAssignForm(forms.Form):
         validators=[forms.validators.DataRequired(), permission_validator],
     )
 
-    def validate_team_id(self, field) -> None:
+    def validate_team_id(self, field: forms.Field) -> None:
         """Validate selected team to belong to this organization."""
         # FIXME: Replace with QuerySelectField using RadioWidget.
         teams = [team for team in self.organization.teams if team.buid == field.data]

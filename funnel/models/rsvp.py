@@ -13,7 +13,7 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import Model, NoIdMixin, UuidMixin, db, relationship, sa
+from . import Mapped, Model, NoIdMixin, UuidMixin, db, relationship, sa, types
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
@@ -43,6 +43,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         ),
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
+        datasets={'primary'},
     )
     user_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=False, primary_key=True
@@ -53,6 +54,13 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         ),
         read={'owner', 'project_promoter'},
         grants={'owner'},
+        datasets={'primary', 'without_parent'},
+    )
+    form: Mapped[Optional[types.jsonb]] = with_roles(
+        sa.orm.mapped_column(),
+        rw={'owner'},
+        read={'project_promoter'},
+        datasets={'primary', 'without_parent', 'related'},
     )
 
     _state = sa.orm.mapped_column(
@@ -72,18 +80,16 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         'project_promoter': {'read': {'created_at', 'updated_at'}},
     }
 
-    __datasets__ = {
-        'primary': {'project', 'user', 'response'},
-        'without_parent': {'user', 'response'},
-        'related': {'response'},
-    }
-
     @property
     def response(self):
         """Return RSVP response as a raw value."""
         return self._state
 
-    with_roles(response, read={'owner', 'project_promoter'})
+    with_roles(
+        response,
+        read={'owner', 'project_promoter'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
 
     @with_roles(call={'owner'})
     @state.transition(

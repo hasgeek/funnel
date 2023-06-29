@@ -167,7 +167,8 @@ $(() => {
     saveProjectConfig = '',
     tickets = '',
     toggleId = '',
-    sort = ''
+    sort = '',
+    rsvpModalHash = 'register-modal'
   ) => {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);
@@ -189,10 +190,16 @@ $(() => {
     }
 
     $('a.js-register-btn').click(function showRegistrationModal() {
-      $(this).modal('show');
+      window.history.pushState(
+        {
+          openModal: true,
+        },
+        '',
+        `#${rsvpModalHash}`
+      );
     });
 
-    if (window.location.hash.includes('register-modal')) {
+    if (window.location.hash.includes(rsvpModalHash)) {
       $('a.js-register-btn').modal('show');
     }
 
