@@ -11,6 +11,11 @@
             <th data-sorted="true">{% trans %}Name{% endtrans %}</th>
             <th data-sorted="true">{% trans %}Email/Phone{% endtrans %}</th>
             <th data-sorted="true" data-type="numeric">{% trans %}Responded at{% endtrans %}</th>
+            {% if rsvp_form_fields -%}
+              {% for field_name in rsvp_form_fields %}
+                <th>{{ field_name }}</th>
+              {% endfor %}
+            {%- endif %}
           </tr>
         </thead>
         <tbody>
@@ -26,6 +31,11 @@
                 {%- endwith %}
               </td>
               <td data-cy="user" data-value="{{ rsvp.updated_at|timestamp }}">{{ rsvp.updated_at|datetime }}</td>
+              {% if rsvp_form_fields -%}
+                {% for field_name in rsvp_form_fields %}
+                  <td>{{ rsvp.form.get(field_name, '') }}</td>
+                {% endfor %}
+              {%- endif %}
             </tr>
           {%- else %}
             <tr><td colspan="2"><em>{% trans %}No users{% endtrans %}</em></td></tr>

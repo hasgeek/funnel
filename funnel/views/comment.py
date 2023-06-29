@@ -174,7 +174,7 @@ class CommentsetView(UrlForView, ModelView):
     route_model_map = {'commentset': 'uuid_b58'}
     obj: Commentset
 
-    def loader(self, commentset) -> Commentset:
+    def loader(self, commentset: str) -> Commentset:
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
 
     @route('', methods=['GET'])
@@ -278,7 +278,7 @@ class CommentView(UrlForView, ModelView):
     route_model_map = {'commentset': 'commentset.uuid_b58', 'comment': 'uuid_b58'}
     obj: Comment
 
-    def loader(self, commentset, comment) -> Union[Comment, Commentset]:
+    def loader(self, commentset: str, comment: str) -> Union[Comment, Commentset]:
         comment = (
             Comment.query.join(Commentset)
             .filter(Commentset.uuid_b58 == commentset, Comment.uuid_b58 == comment)

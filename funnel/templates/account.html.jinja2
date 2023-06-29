@@ -196,7 +196,7 @@
                   </button>
                 {% endif %}
                 <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent"
-                   href="{{ url_for('add_email') }}">{% trans %}Add an email address{% endtrans %}</a>
+                   href="{{ url_for('add_email') }}" data-cy="add-new-email">{% trans %}Add an email address{% endtrans %}</a>
                 <span class="loading mui--hide"></span>
               </div>
             </form>
@@ -247,7 +247,7 @@
                   </button>
                 {% endif %}
                 <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent"
-                   href="{{ url_for('add_phone') }}">{% trans %}Add a mobile number{% endtrans %}</a>
+                   href="{{ url_for('add_phone') }}" data-cy="add-new-phone">{% trans %}Add a mobile number{% endtrans %}</a>
                 <span class="loading mui--hide"></span>
               </div>
             </form>

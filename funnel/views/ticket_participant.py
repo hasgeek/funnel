@@ -180,7 +180,9 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
     }
     obj: TicketParticipant
 
-    def loader(self, profile, project, ticket_participant) -> TicketParticipant:
+    def loader(
+        self, profile: str, project: str, ticket_participant: str
+    ) -> TicketParticipant:
         return (
             TicketParticipant.query.join(Project)
             .join(Profile)

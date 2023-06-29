@@ -144,17 +144,35 @@ export async function activateFormWidgets() {
   );
 
   if (
-    $('textarea.markdown:not([style*="display: none"]:not(.activating):not(.activated)')
-      .length
+    $(
+      'textarea.markdown:not([style*="display: none"], .activating, .activated, .no-codemirror)'
+    ).length
   ) {
     const { default: codemirrorHelper } = await import('./codemirror');
-    $('textarea.markdown:not([style*="display: none"]').each(
-      function enableCodemirror() {
-        const markdownId = $(this).attr('id');
-        $(`#${markdownId}`).addClass('activating');
-        codemirrorHelper(markdownId);
-      }
+    $(
+      'textarea.markdown:not([style*="display: none"]:not(.activating):not(.activated)'
+    ).each(function enableCodemirror() {
+      const markdownId = $(this).attr('id');
+      $(`#${markdownId}`).addClass('activating');
+      codemirrorHelper(markdownId);
+    });
+  }
+
+  if (
+    $(
+      'textarea.stylesheet:not([style*="display: none"]:not(.activating):not(.activated)'
+    ).length
+  ) {
+    const { default: codemirrorStylesheetHelper } = await import(
+      './codemirror_stylesheet'
     );
+    $(
+      'textarea.stylesheet:not([style*="display: none"]:not(.activating):not(.activated)'
+    ).each(function enableCodemirrorForStylesheet() {
+      const textareaId = $(this).attr('id');
+      $(`#${textareaId}`).addClass('activating');
+      codemirrorStylesheetHelper(textareaId);
+    });
   }
 }
 

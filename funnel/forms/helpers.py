@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Optional, Sequence
+import json
+from typing import Optional, Sequence, Union
 from typing_extensions import Literal
 
 from flask import flash
@@ -261,5 +262,27 @@ def tostr(value: object) -> str:
     return ''
 
 
+def format_json(data: Union[dict, str, None]) -> str:
+    """Return a dict as a formatted JSON string, and return a string unchanged."""
+    if data:
+        if isinstance(data, str):
+            return data
+        return json.dumps(data, indent=2, sort_keys=True)
+    return ''
+
+
+def validate_and_convert_json(form: forms.Form, field: forms.Field) -> None:
+    """Confirm form data is valid JSON, and store it back as a parsed dict."""
+    try:
+        field.data = json.loads(field.data)
+    except ValueError:
+        raise forms.validators.StopValidation(_("Invalid JSON")) from None
+
+
 strip_filters = [tostr, forms.filters.strip()]
 nullable_strip_filters = [tostr, forms.filters.strip(), forms.filters.none_if_empty()]
+nullable_json_filters = [
+    format_json,
+    forms.filters.strip(),
+    forms.filters.none_if_empty(),
+]

@@ -9,7 +9,7 @@ Prism.plugins.autoloader.languages_path = '/static/build/js/prismjs/components/'
 const PrismEmbed = {
   activatePrism() {
     this.container
-      .find('code[class*=language-]:not(.activated):not(.activating)')
+      .find('code[class*=language-]:not(.activated, .activating)')
       .each(function activate() {
         Prism.highlightElement(this);
       });
@@ -17,7 +17,7 @@ const PrismEmbed = {
   init(container) {
     this.container = $(container || 'body');
     if (
-      this.container.find('code[class*=language-]:not(.activated):not(.activating)')
+      this.container.find('code[class*=language-]:not(.activated, .activating)')
         .length > 0
     ) {
       Prism.hooks.add('before-sanity-check', (env) => {

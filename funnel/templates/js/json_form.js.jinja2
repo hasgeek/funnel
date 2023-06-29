@@ -1,0 +1,50 @@
+{% macro json_form_template() %}
+  {% raw %}
+    <script type="text/x-template" id="form-template">
+      <div>
+        <p v-if="title">{{ title }}</p>
+        <div v-for="field in jsonschema.fields" :set="id = getFieldId()">
+          <div class="mui-form__fields listwidget" :id="`field-${id}`">
+            <div class="mui-form__controls">
+              <div class="mui-textfield" v-if="field.type == 'select' && 'choices' in field && field.choices.length < 4">
+                <label :for="`radio-${id}`" class="mui-form__label">{{ field.title }}</label>
+                <ul :id="`radio-${id}`">
+                  <li v-for="option in field.choices" :set="optionId = getFieldId()">
+                    <input :id="`choice-${optionId}`" :name="`${field.name}`" type="radio" :value="option">
+                    <label :for="`choice-${optionId}`">{{ option }}</label>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="mui-select" v-else-if="field.type == 'select' && 'choices' in field">
+                <select :id="`select-${id}`" :name="`${field.name}`" >
+                  <option value="">{{ gettext('Select an option') }}</option>
+                  <option v-for="option in field.choices" :value="option">
+                    {{ option }}
+                  </option>
+                </select>
+                <label :for="`select-${id}`">{{ field.title }}</label>
+                <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
+              </div>
+
+              <div class="mui-textfield mui-textfield--float-label" v-else-if="field.type == 'string'">
+                <input :id="`input-${id}`" type="text" :name="`${field.name}`" value="" />
+                <label :for="`input-${id}`">{{ field.title }}</label>
+                <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
+              </div>
+
+              <div class="mui-checkbox" v-else-if="field.type == 'boolean'">
+                <label>
+                  <input :id="`checkbox-${id}`" type="checkbox" :name="`${field.name}`" />
+                  {{ field.title }}
+                </label>
+                <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </script>
+  {% endraw %}
+{%- endmacro %}
