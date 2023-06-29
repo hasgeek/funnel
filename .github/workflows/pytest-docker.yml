@@ -82,7 +82,6 @@ jobs:
           context: .
           file: Dockerfile
           target: app
-          platforms: linux/amd64,linux/arm64
           tags: |
             hasgeek/funnel:${{ github.ref_name }}
             hasgeek/funnel:sha-${{ steps.sha.outputs.short }}
