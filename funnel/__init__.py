@@ -27,10 +27,13 @@ from ._version import __version__
 
 #: Main app for hasgeek.com
 app = Flask(__name__, instance_relative_config=True)
+app.name = 'funnel'
 #: Shortlink app at has.gy
 shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True)
+shortlinkapp.name = 'shortlink'
 #: Unsubscribe app at bye.li
 unsubscribeapp = Flask(__name__, static_folder=None, instance_relative_config=True)
+unsubscribeapp.name = 'unsubscribe'
 
 all_apps = [app, shortlinkapp, unsubscribeapp]
 
@@ -84,17 +87,9 @@ from .models import db, sa  # isort:skip  # pylint: disable=wrong-import-positio
 # All supported config values are listed in ``sample.env``. If an ``.env`` file is
 # present, it is loaded in debug and testing modes only
 coaster.app.init_app(app, ['py', 'env'], env_prefix=['FLASK', 'APP_FUNNEL'])
+coaster.app.init_app(shortlinkapp, ['py', 'env'], env_prefix=['FLASK', 'APP_SHORTLINK'])
 coaster.app.init_app(
-    shortlinkapp,
-    ['py', 'env'],
-    env_prefix=['FLASK', 'APP_SHORTLINK'],
-    init_logging=False,
-)
-coaster.app.init_app(
-    unsubscribeapp,
-    ['py', 'env'],
-    env_prefix=['FLASK', 'APP_UNSUBSCRIBE'],
-    init_logging=False,
+    unsubscribeapp, ['py', 'env'], env_prefix=['FLASK', 'APP_UNSUBSCRIBE']
 )
 
 # Legacy additional config for the main app (pending deprecation)
