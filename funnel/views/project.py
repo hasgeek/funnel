@@ -235,7 +235,7 @@ def project_registration_text(obj: Project) -> str:
 
 
 @Project.views('register_button_text')
-def project_register_button_text(obj: Project, alt_text=False) -> str:
+def project_register_button_text(obj: Project) -> str:
     custom_text = (
         obj.boxoffice_data.get('register_button_txt') if obj.boxoffice_data else None
     )
@@ -245,13 +245,9 @@ def project_register_button_text(obj: Project, alt_text=False) -> str:
 
     if obj.features.follow_mode():
         if rsvp is not None and rsvp.state.YES:
-            if alt_text:
-                return _("Unfollow")
             return _("Following")
         return _("Follow")
     if rsvp is not None and rsvp.state.YES:
-        if alt_text:
-            return _("Cancel registration")
         return _("Registered")
     return _("Register")
 
