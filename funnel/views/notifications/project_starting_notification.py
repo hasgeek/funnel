@@ -13,10 +13,10 @@ from ...models import Project, ProjectStartingNotification, Session
 from ...transports.sms import SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
-from .mixins import ProjectTemplateMixin
+from .mixins import TemplateVarMixin
 
 
-class ProjectStartingTemplate(ProjectTemplateMixin, SmsTemplate):
+class ProjectStartingTemplate(TemplateVarMixin, SmsTemplate):
     """DLT registered template for project starting notification."""
 
     registered_template = (
@@ -24,10 +24,10 @@ class ProjectStartingTemplate(ProjectTemplateMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop - Hasgeek'
     )
     template = (
-        "Reminder: {project_title} is starting soon. Join at {url}"
+        "Reminder: {project} is starting soon. Join at {url}"
         "\n\nhttps://bye.li to stop - Hasgeek"
     )
-    plaintext_template = "Reminder: {project_title} is starting soon. Join at {url}"
+    plaintext_template = "Reminder: {project} is starting soon. Join at {url}"
 
     project_only: str
     url: str

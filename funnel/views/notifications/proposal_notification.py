@@ -16,10 +16,10 @@ from ...models import (
 from ...transports.sms import SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
-from .mixins import ProjectTemplateMixin
+from .mixins import TemplateVarMixin
 
 
-class ProposalReceivedTemplate(ProjectTemplateMixin, SmsTemplate):
+class ProposalReceivedTemplate(TemplateVarMixin, SmsTemplate):
     """DLT registered template for RSVP without a next session."""
 
     registered_template = (
@@ -27,18 +27,18 @@ class ProposalReceivedTemplate(ProjectTemplateMixin, SmsTemplate):
         " Read it here: {#var#}\n\nhttps://bye.li to stop -Hasgeek"
     )
     template = (
-        "There's a new submission from {actor} in {project_title}."
+        "There's a new submission from {actor} in {project}."
         " Read it here: {url}\n\nhttps://bye.li to stop -Hasgeek"
     )
     plaintext_template = (
-        "There's a new submission from {actor} in {project_title}. Read it here: {url}"
+        "There's a new submission from {actor} in {project}. Read it here: {url}"
     )
 
     actor: str
     url: str
 
 
-class ProposalSubmittedTemplate(ProjectTemplateMixin, SmsTemplate):
+class ProposalSubmittedTemplate(TemplateVarMixin, SmsTemplate):
     """DLT registered template for RSVP without a next session."""
 
     registered_template = (
@@ -46,11 +46,11 @@ class ProposalSubmittedTemplate(ProjectTemplateMixin, SmsTemplate):
         "\n\nhttps://bye.li to stop -Hasgeek"
     )
     template = (
-        "{project_title} has received your submission. Here's the link to share: {url}"
+        "{project} has received your submission. Here's the link to share: {url}"
         "\n\nhttps://bye.li to stop -Hasgeek"
     )
     plaintext_template = (
-        "{project_title} has received your submission. Here's the link to share: {url}"
+        "{project} has received your submission. Here's the link to share: {url}"
     )
 
     url: str
@@ -97,7 +97,7 @@ class RenderProposalReceivedNotification(RenderNotification):
     def sms(self) -> ProposalReceivedTemplate:
         return ProposalReceivedTemplate(
             project=self.project,
-            actor=self.proposal.user.pickername,
+            actor=self.proposal.user,
             url=shortlink(
                 self.proposal.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,

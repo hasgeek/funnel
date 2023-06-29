@@ -20,10 +20,10 @@ from ...transports.sms import MessageTemplate, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from ..schedule import schedule_ical
-from .mixins import ProjectTemplateMixin
+from .mixins import TemplateVarMixin
 
 
-class RegistrationConfirmationTemplate(ProjectTemplateMixin, SmsTemplate):
+class RegistrationConfirmationTemplate(TemplateVarMixin, SmsTemplate):
     """DLT registered template for RSVP without a next session."""
 
     registered_template = (
@@ -31,16 +31,16 @@ class RegistrationConfirmationTemplate(ProjectTemplateMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop - Hasgeek'
     )
     template = (
-        "You have registered for {project_title}. For more information, visit {url}."
+        "You have registered for {project}. For more information, visit {url}."
         "\n\nhttps://bye.li to stop - Hasgeek"
     )
-    plaintext_template = "You have registered for {project_title} {url}"
+    plaintext_template = "You have registered for {project} {url}"
 
     datetime: str
     url: str
 
 
-class RegistrationConfirmationWithNextTemplate(ProjectTemplateMixin, SmsTemplate):
+class RegistrationConfirmationWithNextTemplate(TemplateVarMixin, SmsTemplate):
     """DLT registered template for RSVP with a next session."""
 
     registered_template = (
@@ -49,12 +49,12 @@ class RegistrationConfirmationWithNextTemplate(ProjectTemplateMixin, SmsTemplate
         '\n\nhttps://bye.li to stop - Hasgeek'
     )
     template = (
-        "You have registered for {project_title}, scheduled for {datetime}."
+        "You have registered for {project}, scheduled for {datetime}."
         " For more information, visit {url}."
         "\n\nhttps://bye.li to stop - Hasgeek"
     )
     plaintext_template = (
-        "You have registered for {project_title}, scheduled for {datetime}. {url}"
+        "You have registered for {project}, scheduled for {datetime}. {url}"
     )
 
     datetime: str
