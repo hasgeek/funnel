@@ -3,6 +3,7 @@
 import csv
 import io
 from dataclasses import dataclass
+from json import JSONDecodeError
 from types import SimpleNamespace
 
 from flask import Response, abort, current_app, flash, render_template, request
@@ -622,8 +623,16 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     def register(self) -> ReturnView:
         """Register for project as a participant."""
+        try:
+            formdata = (
+                request.json.get('form', {})  # type: ignore[union-attr]
+                if request.is_json
+                else app.json.loads(request.form.get('form', '{}'))
+            )
+        except JSONDecodeError:
+            abort(400)
         rsvp_form = ProjectRegisterForm(
-            obj=SimpleNamespace(form=request.json.get('form', {})),
+            obj=SimpleNamespace(form=formdata),
             schema=self.obj.boxoffice_data.get('register_form_schema', {}),
         )
         if rsvp_form.validate_on_submit():
