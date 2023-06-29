@@ -14,11 +14,11 @@ FLASK_RQ_DASHBOARD_REDIS_URL=redis://${REDIS_HOST}:6379/9
 FLASK_CACHE_REDIS_URL=redis://${REDIS_HOST}:6379/9
 # Disable logging in tests
 FLASK_SQLALCHEMY_ECHO=false
-FLASK_LOGFILE=/dev/null
-FLASK_ADMINS='[]'
-FLASK_TELEGRAM_ERROR_CHATID=null
-FLASK_TELEGRAM_ERROR_APIKEY=null
-FLASK_SLACK_LOGGING_WEBHOOKS='[]'
+FLASK_LOG_FILE=null
+FLASK_LOG_EMAIL_TO='[]'
+FLASK_LOG_TELEGRAM_CHATID=null
+FLASK_LOG_TELEGRAM_APIKEY=null
+FLASK_LOG_SLACK_WEBHOOKS='[]'
 # Run RQ jobs inline in tests
 FLASK_RQ_ASYNC=false
 # Recaptcha keys from https://developers.google.com/recaptcha/docfaq#id-like-to-run-automated-tests-with-recaptcha.-what-should-i-do
