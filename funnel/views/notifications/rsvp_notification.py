@@ -102,7 +102,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you have registered for this project")
-    hero_image = 'https://images.hasgeek.com/embed/file/c9ccfc1899614d56b90b4fa4d0453ff0?size=196x138'
+    hero_image = 'img/email/chars-v1/registration-confirmed.png'
     email_heading = __("Registration confirmed!")
 
     datetime_format = "EEE, dd MMM yyyy, hh:mm a"
@@ -155,7 +155,7 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you had registered for this project")
-    hero_image = 'https://images.hasgeek.com/embed/file/3d92f4f213644d50ae11cc2039d3fbc9?size=196x133'
+    hero_image = 'img/email/chars-v1/registration-cancelled.png'
     email_heading = __("Registration cancelled")
 
     def web(self) -> str:
