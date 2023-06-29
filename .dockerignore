@@ -73,6 +73,9 @@ env/
 # Versioning files
 .git
 
+# github workflow files
+.github
+
 # Local DBs
 dump.rdb
 test.db
