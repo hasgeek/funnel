@@ -1,15 +1,24 @@
 {% extends "notifications/layout_email.html.jinja2" -%}
-{%- from "notifications/macros_email.html.jinja2" import pinned_update -%}
+{%- from "notifications/macros_email.html.jinja2" import pinned_update, cta_button, rsvp_footer -%}
 {%- block content -%}
 
-<p>{% trans project=view.rsvp.project.joined_title %}You have registered for <b>{{ project }}</b>{% endtrans %}</p>
+    <tr align="center">
+        <td class="text-content">
+            <p class="body-content">{% trans project=view.rsvp.project.joined_title %}You have registered for <b>{{ project }}</b>{% endtrans %}</p>
+            {% with next_session_at=view.rsvp.project.next_session_at %}{% if next_session_at -%}
+            <p class="card-zeromargin">{% trans date_and_time=next_session_at|datetime(view.datetime_format) %}The next session in the schedule starts {{ date_and_time }}{% endtrans %}</p><br/>
+            {%- endif %}{% endwith %}
+        </td>
+    </tr>
 
-{% with next_session_at=view.rsvp.project.next_session_at %}{% if next_session_at -%}
-  <p>{% trans date_and_time=next_session_at|datetime(view.datetime_format) %}The next session in the schedule starts {{ date_and_time }}{% endtrans %}</p>
-{%- endif %}{% endwith %}
+    {# Button : BEGIN #}
+    {{ cta_button(view.rsvp.project.url_for(_external=true, **view.tracking_tags()), view.rsvp.project.joined_title )}}
+    {# Button : END #}
 
-<p class="btn-bar"><a class="btn" href="{{ view.rsvp.project.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Project page{% endtrans %}</a></p>
+    {{ pinned_update(view, view.rsvp.project) }}
 
-{{ pinned_update(view, view.rsvp.project) }}
+    {# Email body footer : BEGIN #}
+    {{ rsvp_footer(view, gettext("Cancel registration")) }}
+    {# Email body footer : END #}
 
 {%- endblock content -%}

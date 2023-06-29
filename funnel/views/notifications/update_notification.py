@@ -23,6 +23,8 @@ class RenderNewUpdateNotification(RenderNotification):
         "You are receiving this because you have registered for this or related"
         " projects"
     )
+    hero_image = 'img/email/chars-v1/update.png'
+    email_heading = __("New update!")
 
     @property
     def actor(self):

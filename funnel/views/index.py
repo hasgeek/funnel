@@ -202,11 +202,15 @@ def not_my_otp() -> ReturnView:
             _(
                 "If you’ve received an OTP without requesting it, someone may have made"
                 " a typo in their own phone number and accidentally used yours. They"
-                " will not gain access to your account without the OTP.<br><br>"
+                " will not gain access to your account without the OTP.<br/><br/>"
                 "However, if you suspect misbehaviour of any form, please report it"
                 " to us. Email:"
-                ' <a href="mailto:support@hasgeek.com">support@hasgeek.com</a>, phone:'
-                ' <a href="tel:+917676332020">+91 7676 33 2020</a>.'
+                ' <a href="mailto:{email}">{email}</a>, phone:'
+                ' <a href="tel:{phone}">{phone_formatted}</a>.'
+            ).format(
+                email=app.config['SITE_SUPPORT_EMAIL'],
+                phone=app.config['SITE_SUPPORT_PHONE'],
+                phone_formatted=app.config['SITE_SUPPORT_PHONE_FORMATTED'],
             )
         ),
     )

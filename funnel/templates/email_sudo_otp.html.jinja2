@@ -1,10 +1,10 @@
 {% extends "notifications/layout_email.html.jinja2" %}
 {% block content -%}
-
-  <p>{% trans %}Hello {{ fullname }},{% endtrans %}</p>
-
-  <p>{% trans %}You are about to perform a critical action. This OTP serves as your confirmation to proceed and is valid for 15 minutes.{% endtrans %}</p>
-
-  <p><big>{% trans %}OTP:{% endtrans %} <strong>{{ otp }}</strong></big></p>
-
+  <tr>
+    <td><br/>
+      <p class="otp"><b>{{ otp }}</b></p>
+      <br/>
+      <p align="center">{% trans %}You are about to perform a critical action. This OTP serves as your confirmation to proceed and is valid for 15 minutes.{% endtrans %}</p>
+    </td>
+  </tr>
 {%- endblock %}

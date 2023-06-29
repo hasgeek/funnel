@@ -158,17 +158,21 @@ const Form = {
     }
   },
   ajaxFormSubmit(formId, url, onSuccess, onError, config) {
+    const formData = $(`#${formId}`).serialize();
     $.ajax({
       url,
       type: 'POST',
-      data: $(`#${formId}`).serialize(),
+      data: config.formData ? config.formData : formData,
       dataType: config.dataType ? config.dataType : 'json',
+      contentType: config.contentType
+        ? config.contentType
+        : 'application/x-www-form-urlencoded',
       beforeSend() {
         Form.preventDoubleSubmit(formId);
         if (config.beforeSend) config.beforeSend();
       },
       success(responseData) {
-        onSuccess(responseData);
+        if (onSuccess) onSuccess(responseData);
       },
       error(xhr) {
         onError(xhr);
