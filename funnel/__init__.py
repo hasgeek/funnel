@@ -8,6 +8,7 @@ from datetime import timedelta
 from email.utils import parseaddr
 
 import geoip2.database
+import phonenumbers
 from flask import Flask
 from flask_babel import get_locale
 from flask_executor import Executor
@@ -115,6 +116,10 @@ for each_app in all_apps:
     each_app.config['MAIL_DEFAULT_SENDER_ADDR'] = parseaddr(
         app.config['MAIL_DEFAULT_SENDER']
     )[1]
+    each_app.config['SITE_SUPPORT_PHONE_FORMATTED'] = phonenumbers.format_number(
+        phonenumbers.parse(each_app.config['SITE_SUPPORT_PHONE']),
+        phonenumbers.PhoneNumberFormat.INTERNATIONAL,
+    )
     proxies.init_app(each_app)
     manifest.init_app(each_app)
     db.init_app(each_app)

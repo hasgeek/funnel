@@ -1,15 +1,22 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
-{%- from "notifications/macros_email.html.jinja2" import pinned_update -%}
+{%- from "notifications/macros_email.html.jinja2" import pinned_update, cta_button, rsvp_footer -%}
 {%- block content -%}
 
-<p>
-  {%- trans project=view.project.joined_title, start_time=(view.session or view.project).start_at_localized|time -%}
-    <b>{{ project }}</b> starts at {{ start_time }}
-  {%- endtrans -%}
-</p>
+    <tr align="center">
+        <td class="text-content">
+            <p class="body-content">{%- trans project=view.project.joined_title, start_time=(view.session or view.project).start_at_localized|time -%}<b>{{ project }}</b> starts at {{ start_time }}{%- endtrans -%}</p>
+        </td>
+    </tr>
+    <br/>
 
-<p class="btn-bar"><a class="btn" href="{{ view.project.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Join now{% endtrans %}</a></p>
+    {# Button : BEGIN #}
+    {{ cta_button(view.project.url_for(_external=true, **view.tracking_tags()), gettext("Join now") )}}
+    {# Button : END #}
 
-{{ pinned_update(view, view.project) }}
+    {{ pinned_update(view, view.rsvp.project) }}
+
+    {# Email body footer : BEGIN #}
+    {{ rsvp_footer(view, gettext("Cancel registration")) }}
+    {# Email body footer : END #}
 
 {%- endblock content -%}

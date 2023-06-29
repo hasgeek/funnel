@@ -102,6 +102,8 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you have registered for this project")
+    hero_image = 'img/email/chars-v1/registration-confirmed.png'
+    email_heading = __("Registration confirmed!")
 
     datetime_format = "EEE, dd MMM yyyy, hh:mm a"
     datetime_format_sms = "EEE, dd MMM, hh:mm a"
@@ -153,6 +155,8 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you had registered for this project")
+    hero_image = 'img/email/chars-v1/registration-cancelled.png'
+    email_heading = __("Registration cancelled")
 
     def web(self) -> str:
         return render_template('notifications/rsvp_no_web.html.jinja2', view=self)

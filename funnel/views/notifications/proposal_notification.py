@@ -65,6 +65,8 @@ class RenderProposalReceivedNotification(RenderNotification):
     aliases = {'document': 'project', 'fragment': 'proposal'}
     emoji_prefix = "📥 "
     reason = __("You are receiving this because you are an editor of this project")
+    hero_image = 'img/email/chars-v1/new-submission.png'
+    email_heading = __("New submission!")
 
     fragments_order_by = [Proposal.datetime.desc()]
     fragments_query_options = [
@@ -113,6 +115,8 @@ class RenderProposalSubmittedNotification(RenderNotification):
     aliases = {'document': 'proposal'}
     emoji_prefix = "📤 "
     reason = __("You are receiving this because you made this submission")
+    hero_image = 'img/email/chars-v1/sent-submission.png'
+    email_heading = __("Proposal sumbitted!")
 
     def web(self) -> str:
         return render_template(

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from flask import render_template, url_for
 
-from baseframe import _
+from baseframe import _, __
 
 from ... import app
 from ...models import AccountPasswordNotification, User
@@ -20,6 +20,8 @@ class RenderAccountPasswordNotification(RenderNotification):
     user: User
     aliases = {'document': 'user'}
     emoji_prefix = "⚠️ "
+    hero_image = 'img/email/chars-v1/password.png'
+    email_heading = __("Password updated!")
 
     @property
     def actor(self):

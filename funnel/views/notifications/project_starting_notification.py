@@ -42,6 +42,8 @@ class RenderProjectStartingNotification(RenderNotification):
     aliases = {'document': 'project', 'fragment': 'session'}
     emoji_prefix = "⏰ "
     reason = __("You are receiving this because you have registered for this project")
+    hero_image = 'img/email/chars-v1/session-starting.png'
+    email_heading = __("Session starting soon!")
 
     def web(self) -> str:
         return render_template(

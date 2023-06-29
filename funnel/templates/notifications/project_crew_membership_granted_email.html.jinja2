@@ -1,10 +1,16 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
+{%- from "notifications/macros_email.html.jinja2" import cta_button -%}
 {%- block content -%}
-  <p>{{ view.activity_html() }}</p>
-  <p class="btn-bar">
-    <a class="btn"
-       href="{{ view.project.url_for('crew', _external=true, **view.tracking_tags()) }}">
-      {%- trans %}See all crew members{% endtrans -%}
-    </a>
-  </p>
+
+    <tr align="center">
+        <td class="text-content">
+            <p class="body-content">{{ view.activity_html() }}</p>
+        </td>
+    </tr>
+    <br/>
+
+    {# Button : BEGIN #}
+    {{ cta_button(view.project.url_for('crew', _external=true, **view.tracking_tags()), gettext("See all crew members") )}}
+    {# Button : END #}
+
 {%- endblock content -%}
