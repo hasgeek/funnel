@@ -367,7 +367,7 @@
             <table align="left">
                 <tr>
                     <td class="header-container">
-                        <img src="{{ url_for('img/email/logo-puzzle.png') }}" class="header-image" width="36px" height="36" border="0" alt="" />
+                        <img src="{{ url_for('static', filename='img/email/logo-puzzle.png') }}" class="header-image" width="36px" height="36" border="0" alt="" />
                     </td>
                 </tr>
             </table>
@@ -517,10 +517,11 @@
         <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">{% block footer %}
             <tr>
                 <td class="footer">
-                    <b>{% trans %}Hasgeek Learning Private Limited</b><br>For general enquiries, email us at <a href="mailto: info@hasgeek.com">info@hasgeek.com</a>.<br>For priority support requests, use <a href="mailto: support@hasgeek.com">support@hasgeek.com</a><br><a href="tel:+917676332020"><b>+91 7676 33 2020{% endtrans %}</b></a>
-                    {%- if view %}
-                    <br><br>
-                    <a class="unsubscribe" href="{{ view.unsubscribe_url_email }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>
+                    <b>{% trans %}Hasgeek Learning Private Limited{% endtrans %}</b><br/>
+                    {% trans %}Need help?{% endtrans %} <a href="mailto:{{ config['SITE_SUPPORT_EMAIL'] }}">{{ config['SITE_SUPPORT_EMAIL'] }}</a> &bull; <a href="tel:{{ config['SITE_SUPPORT_PHONE'] }}">{{ config['SITE_SUPPORT_PHONE_FORMATTED'] }}</a>
+                    {%- if view %}{# Notification view #}
+                    <br/><br/>
+                    {% if view.reason_email %} {{ view.reason_email }} &bull; {% endif %}<a class="unsubscribe" href="{{ view.unsubscribe_url_email }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>
                     {%- endif %}
                 </td>
             </tr>

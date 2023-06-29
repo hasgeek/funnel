@@ -2,17 +2,11 @@
 {%- from "notifications/macros_email.html.jinja2" import cta_button -%}
 
 {% block content -%}
-    <tr>
-      <td  align="center"><br>
-        <p class="otp"><b>{{ otp }}</b></p>
-        <br>
-        <p>{% trans %}You – or someone claiming to be you – asked for your password to be reset. This OTP is valid for 15 minutes.{% endtrans %}</p>
-      </td>
-  </tr>
-  <br>
   <tr>
     <td  align="center">
-      <p>{% trans %}You can also use this link:{% endtrans %}</p>
+      <p class="otp"><b>{{ otp }}</b></p>
+      <br/>
+      <p>{% trans %}This OTP to reset your password is valid for 15 minutes.<br/>Or use this link:{% endtrans %}</p><br/>
     </td>
   </tr>
   {# Button : BEGIN #}
