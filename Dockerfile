@@ -28,7 +28,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get autoremove -yqq \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -pv /var/log/supervisor
-COPY ./docker/supervisord/supervisord.conf /etc/supervisor/supervisord.conf
 RUN addgroup --gid 1000 funnel && adduser --uid 1000 --gid 1000 funnel
 ENV PATH "$PATH:/home/funnel/.local/bin"
 USER funnel

@@ -31,6 +31,12 @@ services:
       - 6410
     ports:
       - 6410:6410
+  rq:
+    <<: *main-app
+    entrypoint: ['supervisord']
+    command: ['-c', 'docker/supervisor/rq.conf']
+    expose: []
+    ports: []
   bash:
     <<: *main-app
     entrypoint: ['']
