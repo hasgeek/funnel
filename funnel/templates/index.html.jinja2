@@ -1,6 +1,6 @@
-{% extends "layout.html.jinja2" %}
+{% extends "profile_layout.html.jinja2" %}
 {% block title %}{{ config['SITE_TITLE'] }}{% endblock title %}
-{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, featured_section, upcoming_section, open_cfp_section, all_projects_section, past_projects_section, profilecard %}
+{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, profilecard %}
 
 {%- block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ manifest('css/index.css') }}" />
@@ -91,7 +91,17 @@
   <script src="{{ manifest('index.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      window.Hasgeek.homeInit();
+      var tickets;
+      {% if featured_project.features.tickets() -%}
+        tickets = {
+          boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
+          widgetElem: "#boxoffice-widget",
+          org: {{ featured_project.boxoffice_data.org|tojson }},
+          itemCollectionId: {{ featured_project.boxoffice_data.item_collection_id|tojson }},
+          itemCollectionTitle: {{ featured_project.title|tojson }}
+        };
+      {%- endif %}
+      window.Hasgeek.homeInit('.markdown', tickets);
     });
 
     if ('serviceWorker' in navigator) {

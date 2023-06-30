@@ -4,6 +4,7 @@
 @import '../components/switch';
 @import '../components/footable';
 @import '../components/draggablebox';
+@import '../components/ticket-modal';
 @import 'leaflet';
 
 @media (min-width: 768px) {
@@ -534,64 +535,6 @@
 
 .about {
   padding-bottom: $mui-grid-padding;
-}
-
-.tickets-wrapper {
-  .tickets-wrapper__modal {
-    display: none;
-  }
-
-  .tickets-wrapper__modal__back {
-    display: none;
-  }
-
-  .tickets-wrapper__modal__body__close {
-    display: none;
-  }
-
-  .tickets-wrapper__modal--show {
-    position: fixed;
-    top: 52px;
-    background: $mui-bg-color-primary;
-    left: 0;
-    right: 0;
-    padding: $mui-grid-padding;
-    z-index: 1001;
-    bottom: 0;
-    overflow: auto;
-
-    .tickets-wrapper__modal__back {
-      display: block;
-    }
-  }
-}
-
-@media (min-width: 768px) {
-  .tickets-wrapper {
-    .tickets-wrapper__modal {
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.75);
-    }
-
-    .tickets-wrapper__modal__body {
-      max-width: 500px;
-      margin: auto;
-      width: 90%;
-      padding: 0;
-      min-height: auto;
-      border-radius: 16px;
-      background-color: $mui-bg-color-primary;
-      overflow: auto;
-      .tickets-wrapper__modal__body__close {
-        display: block;
-        float: right;
-        margin-right: $mui-grid-padding * 0.5;
-        margin-top: $mui-grid-padding * 0.5;
-      }
-    }
-  }
 }
 
 .about .rsvp-wrapper {
