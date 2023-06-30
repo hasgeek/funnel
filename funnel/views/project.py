@@ -689,8 +689,8 @@ class ProjectView(  # type: ignore[misc]
                 field.get('name', '')
                 for field in self.obj.boxoffice_data['register_form_schema']['fields']
             ]
-            if self.obj.boxoffice_data['register_form_schema']
-            and 'fields' in self.obj.boxoffice_data['register_form_schema']
+            if self.obj.boxoffice_data.get('register_form_schema', {})
+            and 'fields' in self.obj.boxoffice_data.get('register_form_schema', {})
             else None,
         }
 
