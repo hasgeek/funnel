@@ -55,6 +55,7 @@ module.exports = {
     submission_form: path.resolve(__dirname, 'funnel/assets/js/submission_form.js'),
     labels_form: path.resolve(__dirname, 'funnel/assets/js/labels_form.js'),
     cfp_form: path.resolve(__dirname, 'funnel/assets/js/cfp_form.js'),
+    rsvp_form_modal: path.resolve(__dirname, 'funnel/assets/js/rsvp_form_modal.js'),
     app_css: path.resolve(__dirname, 'funnel/assets/sass/app.scss'),
     form_css: path.resolve(__dirname, 'funnel/assets/sass/form.scss'),
     index_css: path.resolve(__dirname, 'funnel/assets/sass/pages/index.scss'),

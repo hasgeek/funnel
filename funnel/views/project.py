@@ -3,6 +3,7 @@
 import csv
 import io
 from dataclasses import dataclass
+from json import JSONDecodeError
 from types import SimpleNamespace
 
 from flask import Response, abort, current_app, flash, render_template, request
@@ -33,6 +34,7 @@ from ..forms import (
     ProjectForm,
     ProjectLivestreamForm,
     ProjectNameForm,
+    ProjectRegisterForm,
     ProjectTransitionForm,
 )
 from ..models import (
@@ -237,10 +239,16 @@ def project_register_button_text(obj: Project) -> str:
     custom_text = (
         obj.boxoffice_data.get('register_button_txt') if obj.boxoffice_data else None
     )
-    if obj.features.follow_mode():
-        return _("Follow")
-    if custom_text:
+    rsvp = obj.rsvp_for(current_auth.user)
+    if custom_text and (rsvp is None or not rsvp.state.YES):
         return custom_text
+
+    if obj.features.follow_mode():
+        if rsvp is not None and rsvp.state.YES:
+            return _("Following")
+        return _("Follow")
+    if rsvp is not None and rsvp.state.YES:
+        return _("Registered")
     return _("Register")
 
 
@@ -303,6 +311,7 @@ class ProjectView(  # type: ignore[misc]
                 _p.current_access(datasets=('without_parent', 'related'))
                 for _p in self.obj.proposals.filter_by(featured=True)
             ],
+            'rsvp': self.obj.rsvp_for(current_auth.user),
         }
 
     @route('sub')
@@ -522,6 +531,7 @@ class ProjectView(  # type: ignore[misc]
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
                 allow_rsvp=self.obj.allow_rsvp,
                 is_subscription=boxoffice_data.get('is_subscription', True),
+                register_form_schema=boxoffice_data.get('register_form_schema'),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
             ),
             model=Project,
@@ -531,6 +541,9 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
+            self.obj.boxoffice_data[
+                'register_form_schema'
+            ] = form.register_form_schema.data
             self.obj.boxoffice_data[
                 'register_button_txt'
             ] = form.register_button_txt.data
@@ -588,16 +601,43 @@ class ProjectView(  # type: ignore[misc]
             'error_description': _("Invalid form submission"),
         }
 
+    @route('rsvp_modal', methods=['GET'])
+    @render_with('rsvp_modal.html.jinja2')
+    @requires_login
+    def rsvp_modal(self) -> ReturnRenderWith:
+        """Edit project banner."""
+        form = ProjectRegisterForm(
+            schema=self.obj.boxoffice_data.get('register_form_schema', {})
+        )
+        return {
+            'project': self.obj.current_access(datasets=('primary',)),
+            'form': form,
+            'json_schema': self.obj.boxoffice_data.get('register_form_schema'),
+        }
+
     @route('register', methods=['POST'])
     @requires_login
     def register(self) -> ReturnView:
         """Register for project as a participant."""
-        form = forms.Form()
-        if form.validate_on_submit():
+        try:
+            formdata = (
+                request.json.get('form', {})  # type: ignore[union-attr]
+                if request.is_json
+                else app.json.loads(request.form.get('form', '{}'))
+            )
+        except JSONDecodeError:
+            abort(400)
+        rsvp_form = ProjectRegisterForm(
+            obj=SimpleNamespace(form=formdata),
+            schema=self.obj.boxoffice_data.get('register_form_schema', {}),
+        )
+        if rsvp_form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
-            if not rsvp.state.YES:
-                rsvp.rsvp_yes()
-                db.session.commit()
+            new_registration = not rsvp.state.YES
+            rsvp.rsvp_yes()
+            rsvp.form = rsvp_form.form.data
+            db.session.commit()
+            if new_registration:
                 project_role_change.send(
                     self.obj, actor=current_auth.user, user=current_auth.user
                 )
@@ -607,7 +647,7 @@ class ProjectView(  # type: ignore[misc]
                 )
         else:
             flash(_("Were you trying to register? Try again to confirm"), 'error')
-        return render_redirect(get_next_url(referrer=request.referrer))
+        return render_redirect(self.obj.url_for())
 
     @route('deregister', methods=['POST'])
     @requires_login
@@ -631,7 +671,7 @@ class ProjectView(  # type: ignore[misc]
                 _("Were you trying to cancel your registration? Try again to confirm"),
                 'error',
             )
-        return render_redirect(get_next_url(referrer=request.referrer))
+        return render_redirect(self.obj.url_for())
 
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
@@ -645,6 +685,13 @@ class ProjectView(  # type: ignore[misc]
                 _r.current_access(datasets=('without_parent', 'related', 'related'))
                 for _r in self.obj.rsvps_with(RSVP_STATUS.YES)
             ],
+            'rsvp_form_fields': [
+                field.get('name', '')
+                for field in self.obj.boxoffice_data['register_form_schema']['fields']
+            ]
+            if self.obj.boxoffice_data.get('register_form_schema', {})
+            and 'fields' in self.obj.boxoffice_data.get('register_form_schema', {})
+            else None,
         }
 
     def get_rsvp_state_csv(self, state):

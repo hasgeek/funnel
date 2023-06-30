@@ -20,10 +20,10 @@ from ...transports.sms import MessageTemplate, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from ..schedule import schedule_ical
-from .mixins import ProjectTemplateMixin
+from .mixins import TemplateVarMixin
 
 
-class RegistrationConfirmationTemplate(ProjectTemplateMixin, SmsTemplate):
+class RegistrationConfirmationTemplate(TemplateVarMixin, SmsTemplate):
     """DLT registered template for RSVP without a next session."""
 
     registered_template = (
@@ -31,16 +31,16 @@ class RegistrationConfirmationTemplate(ProjectTemplateMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop - Hasgeek'
     )
     template = (
-        "You have registered for {project_title}. For more information, visit {url}."
+        "You have registered for {project}. For more information, visit {url}."
         "\n\nhttps://bye.li to stop - Hasgeek"
     )
-    plaintext_template = "You have registered for {project_title} {url}"
+    plaintext_template = "You have registered for {project} {url}"
 
     datetime: str
     url: str
 
 
-class RegistrationConfirmationWithNextTemplate(ProjectTemplateMixin, SmsTemplate):
+class RegistrationConfirmationWithNextTemplate(TemplateVarMixin, SmsTemplate):
     """DLT registered template for RSVP with a next session."""
 
     registered_template = (
@@ -49,12 +49,12 @@ class RegistrationConfirmationWithNextTemplate(ProjectTemplateMixin, SmsTemplate
         '\n\nhttps://bye.li to stop - Hasgeek'
     )
     template = (
-        "You have registered for {project_title}, scheduled for {datetime}."
+        "You have registered for {project}, scheduled for {datetime}."
         " For more information, visit {url}."
         "\n\nhttps://bye.li to stop - Hasgeek"
     )
     plaintext_template = (
-        "You have registered for {project_title}, scheduled for {datetime}. {url}"
+        "You have registered for {project}, scheduled for {datetime}. {url}"
     )
 
     datetime: str
@@ -102,6 +102,8 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you have registered for this project")
+    hero_image = 'img/email/chars-v1/registration-confirmed.png'
+    email_heading = __("Registration confirmed!")
 
     datetime_format = "EEE, dd MMM yyyy, hh:mm a"
     datetime_format_sms = "EEE, dd MMM, hh:mm a"
@@ -153,6 +155,8 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you had registered for this project")
+    hero_image = 'img/email/chars-v1/registration-cancelled.png'
+    email_heading = __("Registration cancelled")
 
     def web(self) -> str:
         return render_template('notifications/rsvp_no_web.html.jinja2', view=self)

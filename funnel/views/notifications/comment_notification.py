@@ -33,6 +33,8 @@ class RenderCommentReportReceivedNotification(RenderNotification):
     aliases = {'document': 'comment', 'fragment': 'report'}
     emoji_prefix = "💩 "
     reason = __("You are receiving this because you are a site admin")
+    hero_image = 'img/email/chars-v1/admin-report.png'
+    email_heading = __("Spam alert!")
 
     def web(self) -> str:
         return render_template(
@@ -70,6 +72,8 @@ class CommentNotification(RenderNotification):
     comment: Comment
     aliases = {'fragment': 'comment'}
     emoji_prefix = "💬 "
+    hero_image = 'img/email/chars-v1/comment.png'
+    email_heading = __("New comment!")
 
     @property
     def actor(self) -> Union[User, DuckTypeUser]:

@@ -1,14 +1,16 @@
-{%- extends "notifications/layout_email.html.jinja2" %}
+{%- extends "notifications/layout_email.html.jinja2" -%}
+{%- from "notifications/macros_email.html.jinja2" import cta_button -%}
 {%- block content -%}
 
-  <p>
-    {%- trans %}A comment has been reported as spam{% endtrans -%}
-  </p>
+    <tr align="center">
+        <td class="text-content">
+            <p class="body-content">{%- trans %}A comment has been reported as spam{% endtrans -%}</p>
+        </td>
+    </tr>
+    <br/>
 
-  <p class="btn-bar">
-    <a class="btn" href="{{ url_for('siteadmin_review_comment', report=view.report.uuid_b58) }}">
-      {%- trans %}Review comment{% endtrans -%}
-    </a>
-  </p>
+    {# Button : BEGIN #}
+    {{ cta_button(url_for('siteadmin_review_comment', report=view.report.uuid_b58), gettext("Review comment") )}}
+    {# Button : END #}
 
 {%- endblock content -%}

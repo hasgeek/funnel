@@ -26,37 +26,36 @@ def notification_types(database) -> SimpleNamespace:
             return self.document.project.profile
 
     class TestNewUpdateNotification(
-        ProjectIsParent, models.Notification, type='update_new_test'
+        ProjectIsParent,
+        models.Notification[models.Update, None],
+        type='update_new_test',
     ):
         """Notifications of new updates (test edition)."""
 
         category = models.notification_categories.participant
         description = "When a project posts an update"
 
-        document_model = models.Update
         roles = ['project_crew', 'project_participant']
 
     class TestEditedUpdateNotification(
         ProjectIsParent,
-        models.Notification,
+        models.Notification[models.Update, None],
         type='update_edit_test',
         shadows=TestNewUpdateNotification,
     ):
         """Notifications of edited updates (test edition)."""
 
-        document_model = models.Update
         roles = ['project_crew', 'project_participant']
 
     class TestProposalReceivedNotification(
-        ProjectIsParent, models.Notification, type='proposal_received_test'
+        ProjectIsParent,
+        models.Notification[models.Project, models.Proposal],
+        type='proposal_received_test',
     ):
         """Notifications of new proposals (test edition)."""
 
         category = models.notification_categories.project_crew
         description = "When my project receives a new proposal"
-
-        document_model = models.Project
-        fragment_model = models.Proposal
         roles = ['project_editor']
 
     database.configure_mappers()

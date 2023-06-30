@@ -13,7 +13,9 @@ from ..models import Profile, Project, Rsvp, SavedProject
 from .helpers import (
     ProfileSelectField,
     image_url_validator,
+    nullable_json_filters,
     nullable_strip_filters,
+    validate_and_convert_json,
     video_url_list_validator,
 )
 
@@ -29,6 +31,7 @@ __all__ = [
     'ProjectSponsorForm',
     'RsvpTransitionForm',
     'SavedProjectForm',
+    'ProjectRegisterForm',
 ]
 
 double_quote_re = re.compile(r'["“”]')
@@ -349,3 +352,33 @@ class RsvpTransitionForm(forms.Form):
             (transition_name, getattr(Rsvp, transition_name))
             for transition_name in Rsvp.state.statemanager.transitions
         ]
+
+
+@Project.forms('rsvp')
+class ProjectRegisterForm(forms.Form):
+    """Register for a project with an optional custom JSON form."""
+
+    __expects__ = ('schema',)
+    schema: Optional[dict]
+
+    form = forms.TextAreaField(
+        __("Form"),
+        filters=nullable_json_filters,
+        validators=[validate_and_convert_json],
+    )
+
+    def validate_form(self, field: forms.Field) -> None:
+        if self.form.data and not self.schema:
+            raise forms.validators.StopValidation(
+                _("This registration is not expecting any form fields")
+            )
+        if self.schema:
+            form_keys = set(self.form.data.keys())
+            schema_keys = {i['name'] for i in self.schema['fields']}
+            if not form_keys.issubset(schema_keys):
+                invalid_keys = form_keys.difference(schema_keys)
+                raise forms.validators.StopValidation(
+                    _("The form is not expecting these fields: {fields}").format(
+                        fields=', '.join(invalid_keys)
+                    )
+                )

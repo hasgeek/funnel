@@ -1,8 +1,19 @@
 {% extends "notifications/layout_email.html.jinja2" %}
+{%- from "notifications/macros_email.html.jinja2" import cta_button, rsvp_footer -%}
 {% block content -%}
 
-<p>{% trans project=view.rsvp.project.joined_title %}You have cancelled your registration for <b>{{ project }}</b>. If this was accidental, you can register again.{% endtrans %}</p>
+    <tr align="center">
+        <td class="text-content">
+            <p class="body-content">{% trans project=view.rsvp.project.joined_title %}You have cancelled your registration for <b>{{ project }}</b>{% endtrans %}</p>
+        </td>
+    </tr>
 
-<p class="btn-bar"><a class="btn" href="{{ view.rsvp.project.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Project page{% endtrans %}</a></p>
+    {# Button : BEGIN #}
+    {{ cta_button(view.rsvp.project.url_for(_external=true, **view.tracking_tags()), view.rsvp.project.joined_title )}}
+    {# Button : END #}
+
+    {# Email body footer : BEGIN #}
+    {{ rsvp_footer(view, gettext("Register again")) }}
+    {# Email body footer : END #}
 
 {%- endblock content %}
