@@ -5,7 +5,7 @@ from __future__ import annotations
 import os.path
 from dataclasses import dataclass
 
-from flask import Response, g, render_template, current_app
+from flask import Response, current_app, g, render_template
 from markupsafe import Markup
 
 from baseframe import _, __
@@ -95,7 +95,8 @@ class IndexView(ClassView):
             .all()
         )
         featured_profiles = (
-            Profile.query.filter_by(name=p).first() for p in current_app.config['FEATURED_PROFILES']
+            Profile.query.filter_by(name=p).first()
+            for p in current_app.config['FEATURED_PROFILES']
         )
 
         return {
@@ -119,7 +120,9 @@ class IndexView(ClassView):
                 else None
             ),
             'featured_profiles': [
-                p.access_for(roles={'all'}, datasets=('primary', 'related')) for p in featured_profiles if p
+                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                for p in featured_profiles
+                if p
             ],
         }
 
