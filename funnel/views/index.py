@@ -5,7 +5,7 @@ from __future__ import annotations
 import os.path
 from dataclasses import dataclass
 
-from flask import Response, g, render_template
+from flask import Response, g, render_template, current_app
 from markupsafe import Markup
 
 from baseframe import _, __
@@ -94,6 +94,9 @@ class IndexView(ClassView):
             .order_by(Project.next_session_at.asc())
             .all()
         )
+        featured_profiles = (
+            Profile.query.filter_by(name=p).first() for p in current_app.config['FEATURED_PROFILES']
+        )
 
         return {
             'all_projects': [
@@ -116,13 +119,7 @@ class IndexView(ClassView):
                 else None
             ),
             'featured_profiles': [
-                p.current_access(datasets=('primary', 'related'))
-                for p in Profile.query.filter(
-                    Profile.is_verified.is_(True),
-                    Profile.organization_id.is_not(None),
-                )
-                .order_by(sa.func.random())
-                .limit(6)
+                p.access_for(roles={'all'}, datasets=('primary', 'related')) for p in featured_profiles if p
             ],
         }
 
