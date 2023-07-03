@@ -140,7 +140,7 @@
   </div>
 {% endmacro %}
 
-{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, include_profile=true, include_details=true, save_form_id_prefix='spf_', add_bookmark=true, snippet_html=none, ticket_widget_html='') %}
+{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, include_profile=true, include_details=true, save_form_id_prefix='spf_', add_bookmark=true, snippet_html=none) %}
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-ga="View project">
     {%- if include_profile %}
     <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left">
@@ -202,67 +202,7 @@
         {% endif %}
       </div>
     {% endif %}
-    {% if ticket_widget_html and not project.state.PAST and project.features.tickets() -%}
-      {{ ticket_widget_html }}
-    {% endif %}
   </a>
-
-    <div class="projects-wrapper">
-      <div class="spotlight">
-        {% if heading %}
-          <div class="mui-container">
-            <div class="grid">
-              <div class="grid__col-12">
-                <h2 class="mui--text-headline text-bold project-headline">{% trans %}Spotlight{% endtrans %}</h2>
-              </div>
-            </div>
-          </div>
-        {% endif %}
-
-        <div class="mui-container mui--hidden-lg mui--hidden-xl">
-          <div class="grid flex-wrapper--center">
-            <div class="grid__col-12" data-cy="spotlight-project">
-              {{ projectcard(featured_project, include_profile=true, include_details=true, save_form_id_prefix='spotlight_spfm_', add_bookmark=true) }}
-            </div>
-          </div>
-        </div>
-
-        <div class="mui-container mui--hidden-xs mui--hidden-sm mui--hidden-md spotlight-container">
-          <div class="grid flex-wrapper--start" data-cy="spotlight-project">
-            <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details">
-              <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
-                <div class="flex-wrapper flex-wrapper--center">
-                  <span class="profile-avatar margin-right">
-                    {%- if featured_project.profile.logo_url.url %}
-                      <img src="{{ featured_project.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.profile.title }}"/>
-                    {% else %}
-                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.profile.title }}"/>
-                    {% endif %}
-                  </span>
-                  <span class="profile-avatar-title mui--text-subhead text-bold mui--text-dark">{{ featured_project.profile.title }}</span>
-                </div>
-                {%- if not current_auth.is_anonymous %}
-                  {% set save_form_id = "spotlight_spfm_desktop_" + featured_project.uuid_b58 %}
-                  <div>{{ saveprojectform(featured_project, formid=save_form_id) }}</div>
-                {% endif %}
-              </div>
-              <h3 class="mui--text-headline text-bold">{{ featured_project.title }}</h3>
-              <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
-              <div class="bottom-padding mui--text-light">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
-              <a href="{{ featured_project.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
-            </div>
-            <div class="grid__col-md-1 grid__col-lg-1">
-            </div>
-            <div class="grid__col-md-5 grid__col-lg-4">
-              {{ projectcard(featured_project, include_profile=false, include_details=false, add_bookmark=false) }}
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-  {% endif %}
 {% endmacro %}
 
 {% macro page_footer() %}

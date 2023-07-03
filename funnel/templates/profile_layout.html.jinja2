@@ -1,30 +1,6 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import img_size, projectcard %}
+{%- from "macros.html.jinja2" import img_size, saveprojectform, calendarwidget, projectcard %}
 {% block title %}{{ profile.title }}{% endblock title %}
-
-{% macro ticket_widget(project) %}
-  {% if project.features.tickets() %}
-    <div class="register-block__content top-padding bottom-padding mui--pull-right right-padding">
-      <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
-        {% if project.features.subscription %}
-          <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Join{% endtrans %}</span>
-        {%- else %}
-          <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Get tickets{% endtrans %}</span>
-        {% endif %}
-        <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
-        <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
-      </button>
-    </div>
-    <div class="tickets-wrapper">
-      <div class="tickets-wrapper__modal">
-        <div id="tickets" class="tickets-wrapper__modal__body">
-          <span aria-label="{% trans %}Back to the project{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Back to the project page">{{ faicon(icon='times', baseline=false, icon_size='title') }}</span>
-          <div id="boxoffice-widget"><p class="mui--text-body2">{% trans %}Loading…{% endtrans %}</p></div>
-        </div>
-      </div>
-    </div>
-  {%- endif %}
-{% endmacro %}
 
 {% macro featured_section(featured_project, heading=true) %}
   {% if featured_project %}
@@ -93,27 +69,20 @@
           </div>
         {% endif %}
 
-        <div class="mui-container mui--hidden-lg mui--hidden-xl">
-          <div class="grid flex-wrapper--center">
-            <div class="grid__col-12" data-cy="spotlight-project">
-              {{ projectcard(featured_project, include_profile=true, include_details=true, save_form_id_prefix='spotlight_spfm_', add_bookmark=true, ticket_widget_html=ticket_widget(featured_project)) }}
-            </div>
-          </div>
-        </div>
-
-        <div class="mui-container mui--hidden-xs mui--hidden-sm mui--hidden-md spotlight-container">
-          <div class="grid flex-wrapper--start" data-cy="spotlight-project">
-            <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details">
+        <div class="mui-container">
+          <div class="grid flex-wrapper--start spotlight-container" data-cy="spotlight-project">
+            <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
               <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
                 <div class="flex-wrapper flex-wrapper--center">
-                  <span class="profile-avatar margin-right">
+                    <a href="{{ featured_project.profile.url_for() }}" class="profile-avatar margin-right" data-ga="View profile">
                     {%- if featured_project.profile.logo_url.url %}
                       <img src="{{ featured_project.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.profile.title }}"/>
                     {% else %}
                       <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.profile.title }}"/>
                     {% endif %}
-                  </span>
-                  <span class="profile-avatar-title mui--text-subhead text-bold mui--text-dark">{{ featured_project.profile.title }}</span>
+                    </a>
+                    <a href="{{ featured_project.profile.url_for() }}" class="profile-avatar-title mui--text-subhead text-bold mui--text-dark nounderline" data-ga="View profile">{{ featured_project.profile.title }}</a>
+                  </a>
                 </div>
                 {%- if not current_auth.is_anonymous %}
                   {% set save_form_id = "spotlight_spfm_desktop_" + featured_project.uuid_b58 %}
@@ -122,17 +91,86 @@
               </div>
               <h3 class="mui--text-headline text-bold">{{ featured_project.title }}</h3>
               <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
-              <div class="bottom-padding mui--text-light">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
+              <div class="bottom-padding mui--text-light mui--hidden-lg mui--hidden-xl">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
               <a href="{{ featured_project.profile.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
             </div>
-            <div class="grid__col-md-1 grid__col-lg-1">
+            <div class="grid__col-md-1 grid__col-lg-1 mui--hidden-xs mui--hidden-sm mui--hidden-md spotlight-container">
             </div>
-            <div class="grid__col-md-5 grid__col-lg-4">
-              {{ projectcard(featured_project, include_profile=false, include_details=false, add_bookmark=false, ticket_widget_html=ticket_widget(featured_project)) }}
+            <div class="grid__col-12 grid__col-md-5 grid__col-lg-4" data-cy="spotlight-project">
+              <a class="card card--upcoming clickable-card" href="{{ featured_project.url_for() }}" aria-label="{{ featured_project.title }}" data-cy-title="{{ featured_project.title }}" data-ga="View project">
+                <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left mui--hidden-lg mui--hidden-xl">
+                  <div class="flex-wrapper flex-wrapper--center">
+                    <span class="profile-avatar margin-right">
+                      {%- if featured_project.profile.logo_url.url %}
+                        <img src="{{ featured_project.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.profile.title }}"/>
+                      {% else %}
+                        <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.profile.title }}"/>
+                      {% endif %}
+                    </span>
+                    <span class="profile-avatar-title mui--text-body2 text-bold mui--text-dark">{{ featured_project.profile.title }}</span>
+                  </div>
+                  {%- if not current_auth.is_anonymous and add_bookmark %}
+                    {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
+                    <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(featured_project, formid=save_form_id) }}</div>
+                  {% endif %}
+                </div>
+                <div class="card__image-wrapper {% if not featured_project.bg_image.url %}card__image-wrapper--default{% endif %}">
+                  {% if featured_project.bg_image.url %}
+                    <img class="card__image js-lazyload-img" data-src="{{ featured_project.bg_image.resize(img_size.card_banner) }}" alt="{{ featured_project.title }}"/>
+                    <noscript>
+                      <img class="card__image" src="{{ featured_project.bg_image.resize(img_size.card_banner) }}" alt="{{ featured_project.title }}"/>
+                    </noscript>
+                  {% else %}
+                    <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
+                    <p class="card__image__tagline mui--text-body2">{{ featured_project.title }}</p>
+                  {% endif %}
+                </div>
+                {%- if (featured_project.start_at is not none and featured_project.calendar_weeks_full.weeks and featured_project.calendar_weeks_full.weeks|length > 0) %}
+                  <div class="card__body">
+                    {% if calendarwidget_compact and featured_project.start_at and featured_project.calendar_weeks_compact.weeks and featured_project.calendar_weeks_compact.weeks|length > 0 %}
+                      <div aria-label="{{ featured_project.datelocation }}">
+                        {{ calendarwidget(featured_project.calendar_weeks_compact) }}
+                      </div>
+                    {% elif featured_project.start_at and featured_project.calendar_weeks_full.weeks and featured_project.calendar_weeks_full.weeks|length > 0 %}
+                      <div aria-label="{{ featured_project.datelocation }}">
+                        {{ calendarwidget(featured_project.calendar_weeks_full, compact=false) }}
+                      </div>
+                    {% endif %}
+                    <div class="mui--hidden-lg mui--hidden-xl">
+                      <h3 class="card__body__title mui--text-subhead {% if not featured_project.start_at %} card__body__subtitle {% endif %}"><span class="text-bold">{{ featured_project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</span></h3>
+                    </div>
+                    <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between top-padding">
+                      <div class="card__body__location mui--text-light">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
+                      {% if featured_project.features.tickets() %}
+                        <div>
+                          <div class="register-block__content">
+                            <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
+                              {% if featured_project.features.subscription %}
+                                <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Join{% endtrans %}</span>
+                              {%- else %}
+                                <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Get tickets{% endtrans %}</span>
+                              {% endif %}
+                              <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
+                              <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
+                            </button>
+                          </div>
+                          <div class="tickets-wrapper">
+                            <div class="tickets-wrapper__modal">
+                              <div id="tickets" class="tickets-wrapper__modal__body">
+                                <span aria-label="{% trans %}Back to the project{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Back to the project page">{{ faicon(icon='times', baseline=false, icon_size='title') }}</span>
+                                <div id="boxoffice-widget"><p class="mui--text-body2">{% trans %}Loading…{% endtrans %}</p></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {%- endif %}
+                    </div>
+                  </div>
+                {% endif %}
+              </a>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
