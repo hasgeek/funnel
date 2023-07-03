@@ -160,7 +160,6 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
     matomo_url.add(
         {
             'token_auth': app.config['MATOMO_TOKEN'],
-            'date': date,
             'module': 'API',
             'idSite': app.config['MATOMO_ID'],
             'filter_limit': 10,  # Get top 10
@@ -171,22 +170,43 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
         {
             'method': 'Referrers.getWebsites',
             'period': 'day',
+            'date': date,
         }
     )
     socials_url = matomo_url.copy().add(
-        {'method': 'Referrers.getSocials', 'period': 'day'}
+        {
+            'method': 'Referrers.getSocials',
+            'period': 'day',
+            'date': date,
+        }
     )
     pages_url = matomo_url.copy().add(
-        {'method': 'Actions.getPageUrls', 'period': 'day'}
+        {
+            'method': 'Actions.getPageUrls',
+            'period': 'day',
+            'date': date,
+        }
     )
     visits_day_url = matomo_url.copy().add(
-        {'method': 'VisitsSummary.get', 'period': 'day'}
+        {
+            'method': 'VisitsSummary.get',
+            'period': 'day',
+            'date': date,
+        }
     )
     visits_week_url = matomo_url.copy().add(
-        {'method': 'VisitsSummary.get', 'period': 'week'}
+        {
+            'method': 'VisitsSummary.get',
+            'period': 'week',
+            'date': 'lastWeek',
+        }
     )
     visits_month_url = matomo_url.copy().add(
-        {'method': 'VisitsSummary.get', 'period': 'month'}
+        {
+            'method': 'VisitsSummary.get',
+            'period': 'month',
+            'date': 'lastMonth',
+        }
     )
 
     async with httpx.AsyncClient(follow_redirects=True) as client:
