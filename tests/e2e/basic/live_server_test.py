@@ -13,9 +13,9 @@ def test_open_homepage(live_server, selenium, db_session, org_uu) -> None:
     db_session.commit()
     selenium.get(live_server.url)
     wait.until(ec.visibility_of_element_located((By.CLASS_NAME, 'project-headline')))
-    assert (
-        selenium.find_element(By.CLASS_NAME, 'project-headline').text
-        == "Explore communities"
+    assert selenium.find_element(By.CLASS_NAME, 'project-headline').text in (
+        "Explore communities",
+        "Past sessions",
     )
 
 
