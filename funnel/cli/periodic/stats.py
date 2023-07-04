@@ -152,10 +152,10 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
     # Dates in report timezone (for display)
     tz = pytz.timezone(app.config['TIMEZONE'])
     now = utcnow().astimezone(tz)
-    # Dates cast into UTC (for db queries)
     today = midnight_to_utc(now)
-    last_week = today - relativedelta(weeks=1)
-    last_month = today - relativedelta(months=1)
+    yesterday = today - relativedelta(days=1)
+    last_week = yesterday - relativedelta(weeks=1)
+    last_month = yesterday - relativedelta(months=1)
     week_range = f'{last_week.strftime("%Y-%m-%d")},{today.strftime("%Y-%m-%d")}'
     month_range = f'{last_month.strftime("%Y-%m-%d")},{today.strftime("%Y-%m-%d")}'
     if (
