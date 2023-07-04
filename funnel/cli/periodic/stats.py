@@ -149,6 +149,15 @@ async def matomo_response_json(
 
 
 async def matomo_stats(date: str = 'yesterday') -> MatomoData:
+    # Dates in report timezone (for display)
+    tz = pytz.timezone(app.config['TIMEZONE'])
+    now = utcnow().astimezone(tz)
+    # Dates cast into UTC (for db queries)
+    today = midnight_to_utc(now)
+    last_week = today - relativedelta(weeks=1)
+    last_month = today - relativedelta(months=1)
+    week_range = f'{last_week.strftime("%Y-%m-%d")},{today.strftime("%Y-%m-%d")}'
+    month_range = f'{last_month.strftime("%Y-%m-%d")},{today.strftime("%Y-%m-%d")}'
     if (
         not app.config.get('MATOMO_URL')
         or not app.config.get('MATOMO_ID')
@@ -197,15 +206,15 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
     visits_week_url = matomo_url.copy().add(
         {
             'method': 'VisitsSummary.get',
-            'period': 'week',
-            'date': 'lastWeek',
+            'period': 'range',
+            'date': week_range,
         }
     )
     visits_month_url = matomo_url.copy().add(
         {
             'method': 'VisitsSummary.get',
-            'period': 'month',
-            'date': 'lastMonth',
+            'period': 'range',
+            'date': month_range,
         }
     )
 
@@ -225,7 +234,6 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
             matomo_response_json(client, str(visits_week_url), sequence=False),
             matomo_response_json(client, str(visits_month_url), sequence=False),
         )
-
     return MatomoData(
         referrers=referrers,
         socials=socials,
