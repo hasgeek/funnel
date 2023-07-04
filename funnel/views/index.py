@@ -94,7 +94,9 @@ class IndexView(ClassView):
             .order_by(Project.next_session_at.asc())
             .all()
         )
-        featured_profiles = Profile.query.filter(Profile.name_in(app.config.get('FEATURED_ACCOUNTS', []))).all()
+        featured_profiles = Profile.query.filter(
+            Profile.name_in(app.config.get('FEATURED_ACCOUNTS', []))
+        ).all()
 
         return {
             'all_projects': [
