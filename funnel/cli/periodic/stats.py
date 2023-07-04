@@ -135,6 +135,7 @@ async def matomo_response_json(
 async def matomo_response_json(
     client: httpx.AsyncClient, url: str, sequence: bool = True
 ) -> Union[Optional[MatomoResponse], Sequence[MatomoResponse]]:
+    """Process Matomo's JSON response."""
     try:
         response = await client.get(url, timeout=30)
         response.raise_for_status()
@@ -148,8 +149,8 @@ async def matomo_response_json(
         return [] if sequence else None
 
 
-async def matomo_stats(date: str = 'yesterday') -> MatomoData:
-    # Dates in report timezone (for display)
+async def matomo_stats() -> MatomoData:
+    """Get stats from Matomo."""
     tz = pytz.timezone(app.config['TIMEZONE'])
     now = utcnow().astimezone(tz)
     today = midnight_to_utc(now)
@@ -179,28 +180,28 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
         {
             'method': 'Referrers.getWebsites',
             'period': 'day',
-            'date': date,
+            'date': 'yesterday',
         }
     )
     socials_url = matomo_url.copy().add(
         {
             'method': 'Referrers.getSocials',
             'period': 'day',
-            'date': date,
+            'date': 'yesterday',
         }
     )
     pages_url = matomo_url.copy().add(
         {
             'method': 'Actions.getPageUrls',
             'period': 'day',
-            'date': date,
+            'date': 'yesterday',
         }
     )
     visits_day_url = matomo_url.copy().add(
         {
             'method': 'VisitsSummary.get',
             'period': 'day',
-            'date': date,
+            'date': 'yesterday',
         }
     )
     visits_week_url = matomo_url.copy().add(
