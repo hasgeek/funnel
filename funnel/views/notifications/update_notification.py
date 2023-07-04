@@ -7,9 +7,24 @@ from flask import render_template
 from baseframe import _, __
 
 from ...models import NewUpdateNotification, Update
-from ...transports.sms import TwoLineTemplate
+from ...transports.sms import SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
+from .mixins import TemplateVarMixin
+
+
+class UpdateTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for Updates."""
+
+    registered_template = (
+        "There is an update in {#var#}: {#var#}\n\nhttps://bye.li to stop -Hasgeek"
+    )
+    template = (
+        "There is an update in {project}: {url}\n\nhttps://bye.li to stop -Hasgeek"
+    )
+    plaintext_template = "There is an update in {project}: {url}"
+
+    url: str
 
 
 @NewUpdateNotification.renderer
@@ -48,12 +63,9 @@ class RenderNewUpdateNotification(RenderNotification):
     def email_content(self):
         return render_template('notifications/update_new_email.html.jinja2', view=self)
 
-    def sms(self) -> TwoLineTemplate:
-        return TwoLineTemplate(
-            text1=_("Update in {project}:").format(
-                project=self.update.project.joined_title
-            ),
-            text2=self.update.title,
+    def sms(self) -> UpdateTemplate:
+        return UpdateTemplate(
+            project=self.update.project,
             url=shortlink(
                 self.update.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,
