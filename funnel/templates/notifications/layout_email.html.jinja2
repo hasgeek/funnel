@@ -346,7 +346,7 @@
 
     <center role="article" aria-roledescription="email" lang="en">
     <!--[if mso | IE]>
-    <table class="header-container" align="left" role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f0f0f0; text-align: left";>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f0f0f0;">
     <tr>
     <td>
     <![endif]-->
@@ -356,9 +356,9 @@
             1. max-width for all clients except Desktop Windows Outlook, allowing the email to squish on narrow but never go wider than 600px.
             2. MSO tags for Desktop Windows Outlook enforce a 600px width.
         #}
-        <div align="left" class="email-container">
+        <div align="center" class="email-container">
             <!--[if mso]>
-            <table class="header-container" align="left" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="text-align: left">
+            <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600">
             <tr>
             <td>
             <![endif]-->
@@ -434,7 +434,7 @@
 
                                 {# Email content : BEGIN #}
                                 <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                                    {% if view %}
+                                    {% if view.hero_image %}
                                         {# Hero image centered : BEGIN #}
                                         {{ hero_image(view.hero_image) }}
                                         {# Hero image centered : END #}

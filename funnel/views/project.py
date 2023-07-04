@@ -39,6 +39,7 @@ from ..models import (
     RSVP_STATUS,
     Profile,
     Project,
+    ProjectPublishedNotification,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
     Rsvp,
@@ -559,6 +560,7 @@ class ProjectView(  # type: ignore[misc]
             transition()  # call the transition
             db.session.commit()
             flash(transition.data['message'], 'success')
+            dispatch_notification(ProjectPublishedNotification(document=self.obj))
         else:
             flash(_("Invalid transition for this project"), 'error')
             abort(403)
