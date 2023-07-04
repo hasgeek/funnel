@@ -156,8 +156,8 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
     yesterday = today - relativedelta(days=1)
     last_week = yesterday - relativedelta(weeks=1)
     last_month = yesterday - relativedelta(months=1)
-    week_range = f'{last_week.strftime("%Y-%m-%d")},{today.strftime("%Y-%m-%d")}'
-    month_range = f'{last_month.strftime("%Y-%m-%d")},{today.strftime("%Y-%m-%d")}'
+    week_range = f'{last_week.strftime("%Y-%m-%d")},{yesterday.strftime("%Y-%m-%d")}'
+    month_range = f'{last_month.strftime("%Y-%m-%d")},{yesterday.strftime("%Y-%m-%d")}'
     if (
         not app.config.get('MATOMO_URL')
         or not app.config.get('MATOMO_ID')
