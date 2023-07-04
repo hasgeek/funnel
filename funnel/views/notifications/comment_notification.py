@@ -29,14 +29,14 @@ class CommentReplyTemplate(TemplateVarMixin, SmsTemplate):
     """DLT registered template for RSVP without a next session."""
 
     registered_template = (
-        "{#var#} has replied to your comment: {#var#}"
-        "\n\nhttps://bye.li to stop -Hasgeek"
+        '{#var#} has replied to your comment: {#var#}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
     )
     template = (
-        "{actor} has replied to your comment: {url}"
-        "\n\nhttps://bye.li to stop -Hasgeek"
+        '{actor} has replied to your comment: {url}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
     )
-    plaintext_template = "{actor} has replied to your comment: {url}"
+    plaintext_template = '{actor} has replied to your comment: {url}'
 
     actor: str
     url: str
@@ -46,14 +46,14 @@ class CommentProposalTemplate(TemplateVarMixin, SmsTemplate):
     """DLT registered template for RSVP without a next session."""
 
     registered_template = (
-        "{#var#} commented on your submission: {#var#}"
-        "\n\nhttps://bye.li to stop -Hasgeek"
+        '{#var#} commented on your submission: {#var#}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
     )
     template = (
-        "{actor} commented on your submission: {url}"
-        "\n\nhttps://bye.li to stop -Hasgeek"
+        '{actor} commented on your submission: {url}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
     )
-    plaintext_template = "{actor} commented on your submission: {url}"
+    plaintext_template = '{actor} commented on your submission: {url}'
 
     actor: str
     url: str
@@ -63,14 +63,14 @@ class CommentProjectTemplate(TemplateVarMixin, SmsTemplate):
     """DLT registered template for RSVP without a next session."""
 
     registered_template = (
-        "{#var#} commented on a project you are in: {#var#}"
-        "\n\nhttps://bye.li to stop -Hasgeek"
+        '{#var#} commented on a project you are in: {#var#}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
     )
     template = (
-        "{actor} commented on a project you are in: {url}"
-        "\n\nhttps://bye.li to stop -Hasgeek"
+        '{actor} commented on a project you are in: {url}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
     )
-    plaintext_template = "{actor} commented on a project you are in: {url}"
+    plaintext_template = '{actor} commented on a project you are in: {url}'
 
     actor: str
     url: str
