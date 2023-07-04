@@ -6,7 +6,7 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import NewUpdateNotification, Update
+from ...models import NewUpdateNotification, Update, User
 from ...transports.sms import SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -17,7 +17,7 @@ class UpdateTemplate(TemplateVarMixin, SmsTemplate):
     """DLT registered template for Updates."""
 
     registered_template = (
-        "There is an update in {#var#}: {#var#}\n\nhttps://bye.li to stop -Hasgeek"
+        'There is an update in {#var#}: {#var#}\n\nhttps://bye.li to stop -Hasgeek'
     )
     template = (
         "There is an update in {project}: {url}\n\nhttps://bye.li to stop -Hasgeek"
@@ -42,7 +42,7 @@ class RenderNewUpdateNotification(RenderNotification):
     email_heading = __("New update!")
 
     @property
-    def actor(self):
+    def actor(self) -> User:
         """
         Return author of the update.
 
@@ -52,15 +52,15 @@ class RenderNewUpdateNotification(RenderNotification):
         """
         return self.update.user
 
-    def web(self):
+    def web(self) -> str:
         return render_template('notifications/update_new_web.html.jinja2', view=self)
 
-    def email_subject(self):
+    def email_subject(self) -> str:
         return self.emoji_prefix + _("{update} ({project})").format(
             update=self.update.title, project=self.update.project.joined_title
         )
 
-    def email_content(self):
+    def email_content(self) -> str:
         return render_template('notifications/update_new_email.html.jinja2', view=self)
 
     def sms(self) -> UpdateTemplate:

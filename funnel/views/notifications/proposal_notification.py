@@ -34,7 +34,6 @@ class ProposalReceivedTemplate(TemplateVarMixin, SmsTemplate):
         "There's a new submission from {actor} in {project}. Read it here: {url}"
     )
 
-    actor: str
     url: str
 
 
