@@ -100,9 +100,9 @@ class IndexView(ClassView):
         ).all()
         # This list will not be ordered, so we have to re-sort
         featured_account_sort_key = {
-            _n: _i for _i, _n in enumerate(app.config['FEATURED_ACCOUNTS'])
+            _n.lower(): _i for _i, _n in enumerate(app.config['FEATURED_ACCOUNTS'])
         }
-        featured_accounts.sort(key=lambda a: featured_account_sort_key[a.name])
+        featured_accounts.sort(key=lambda a: featured_account_sort_key[a.name.lower()])
 
         return {
             'all_projects': [
