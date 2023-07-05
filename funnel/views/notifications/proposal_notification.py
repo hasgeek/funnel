@@ -20,7 +20,7 @@ from .mixins import TemplateVarMixin
 
 
 class ProposalReceivedTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for RSVP without a next session."""
+    """DLT registered template for Proposal received."""
 
     registered_template = (
         "There's a new submission from {#var#} in {#var#}."
@@ -34,12 +34,11 @@ class ProposalReceivedTemplate(TemplateVarMixin, SmsTemplate):
         "There's a new submission from {actor} in {project}. Read it here: {url}"
     )
 
-    actor: str
     url: str
 
 
 class ProposalSubmittedTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for RSVP without a next session."""
+    """DLT registered template for Proposal submitted."""
 
     registered_template = (
         "{#var#} has received your submission. Here's the link to share: {#var#}"

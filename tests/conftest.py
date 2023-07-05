@@ -24,7 +24,7 @@ from sqlalchemy.orm import Session as DatabaseSessionClass
 
 if t.TYPE_CHECKING:
     from flask import Flask
-    from flask.testing import FlaskClient
+    from flask.testing import FlaskClient, TestResponse
     from rich.console import Console
 
     import funnel.models as funnel_models
@@ -205,8 +205,8 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
 
                 # add click method to all links
                 def _click(
-                    self, client: FlaskClient, **kwargs: t.Any
-                ) -> None:  # pylint: disable=redefined-outer-name
+                    self: HtmlElement, client: FlaskClient, **kwargs: t.Any
+                ) -> TestResponse:
                     # `self` is the `a` element here
                     path = self.attrib['href']
                     return client.get(path, **kwargs)
@@ -216,11 +216,11 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
 
                 # add submit method to all forms
                 def _submit(
-                    self,
+                    self: FormElement,
                     client: FlaskClient,
                     path: t.Optional[str] = None,
                     **kwargs: t.Any,
-                ) -> None:  # pylint: disable=redefined-outer-name
+                ) -> TestResponse:
                     # `self` is the `form` element here
                     data = dict(self.form_values())
                     if 'data' in kwargs:

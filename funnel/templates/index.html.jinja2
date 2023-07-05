@@ -59,7 +59,7 @@
   {{ featured_section(featured_project, heading=false) }}
   {{ upcoming_section(upcoming_projects) }}
 
-  {% if featured_profiles %}
+  {% if featured_accounts %}
     <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
@@ -71,9 +71,9 @@
       <div class="featured-profiles">
         <div class="mui-container">
           <ul class="grid projects flex-wrapper flex-wrapper--nowrap" role="list">
-            {% for profile in featured_profiles %}
+            {% for account in featured_accounts %}
               <li class="grid__col-12 grid-no-right-padding" role="listitem">
-                {{ profilecard(profile) }}
+                {{ profilecard(account) }}
               </li>
             {%- endfor -%}
           </ul>
