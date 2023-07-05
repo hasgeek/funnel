@@ -89,15 +89,15 @@
                   <div>{{ saveprojectform(featured_project, formid=save_form_id) }}</div>
                 {% endif %}
               </div>
-              <h3 class="mui--text-headline text-bold">{{ featured_project.title }}</h3>
+              <h3 class="mui--text-headline text-bold"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline">{{ featured_project.title }}</a></h3>
               <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
               <div class="bottom-padding mui--text-light mui--hidden-lg mui--hidden-xl">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
-              <a href="{{ featured_project.profile.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
+              <a href="{{ featured_project.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
             </div>
             <div class="grid__col-md-1 grid__col-lg-1 mui--hidden-xs mui--hidden-sm mui--hidden-md spotlight-container">
             </div>
             <div class="grid__col-12 grid__col-md-5 grid__col-lg-4" data-cy="spotlight-project">
-              <a class="card card--upcoming clickable-card" href="{{ featured_project.url_for() }}" aria-label="{{ featured_project.title }}" data-cy-title="{{ featured_project.title }}" data-ga="View project">
+              <div class="card card--upcoming clickable-card">
                 <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left mui--hidden-lg mui--hidden-xl">
                   <div class="flex-wrapper flex-wrapper--center">
                     <span class="profile-avatar margin-right">
@@ -115,6 +115,7 @@
                   {% endif %}
                 </div>
                 <div class="card__image-wrapper {% if not featured_project.bg_image.url %}card__image-wrapper--default{% endif %}">
+                  <a href="{{ featured_project.url_for() }}" data-cy-title="{{ featured_project.title }}" data-ga="View featured project">
                   {% if featured_project.bg_image.url %}
                     <img class="card__image js-lazyload-img" data-src="{{ featured_project.bg_image.resize(img_size.card_banner) }}" alt="{{ featured_project.title }}"/>
                     <noscript>
@@ -124,6 +125,7 @@
                     <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
                     <p class="card__image__tagline mui--text-body2">{{ featured_project.title }}</p>
                   {% endif %}
+                  </a>
                 </div>
                 {%- if (featured_project.start_at is not none and featured_project.calendar_weeks_full.weeks and featured_project.calendar_weeks_full.weeks|length > 0) %}
                   <div class="card__body">
@@ -137,7 +139,7 @@
                       </div>
                     {% endif %}
                     <div class="mui--hidden-lg mui--hidden-xl">
-                      <h3 class="card__body__title mui--text-subhead {% if not featured_project.start_at %} card__body__subtitle {% endif %}"><span class="text-bold">{{ featured_project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</span></h3>
+                      <h3 class="card__body__title mui--text-subhead {% if not featured_project.start_at %} card__body__subtitle {% endif %}"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline"><span class="text-bold">{{ featured_project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</span></a></h3>
                     </div>
                     <div class="flex-wrapper flex-wrapper--end flex-wrapper--space-between top-padding">
                       <div class="card__body__location mui--text-light zero-bottom-margin">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
@@ -165,7 +167,7 @@
                     </div>
                   </div>
                 {% endif %}
-              </a>
+              </div>
             </div>
           </div>
         </div>
