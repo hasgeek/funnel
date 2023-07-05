@@ -20,7 +20,7 @@ from flask_rq2 import RQ
 from whitenoise import WhiteNoise
 
 import coaster.app
-from baseframe import Bundle, Version, assets, baseframe
+from baseframe import Bundle, Version, __, assets, baseframe
 from baseframe.blueprint import THEME_FILES
 from coaster.assets import WebpackManifest
 
@@ -29,6 +29,7 @@ from ._version import __version__
 #: Main app for hasgeek.com
 app = Flask(__name__, instance_relative_config=True)
 app.name = 'funnel'
+app.config['SITE_TITLE'] = __("Hasgeek")
 #: Shortlink app at has.gy
 shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True)
 shortlinkapp.name = 'shortlink'
@@ -146,6 +147,10 @@ executor.init_app(app)
 baseframe.init_app(app, requires=['funnel'], theme='funnel', error_handlers=False)
 
 loginproviders.init_app(app)
+
+# Ensure FEATURED_ACCOUNTS is a list, not None
+if not app.config.get('FEATURED_ACCOUNTS'):
+    app.config['FEATURED_ACCOUNTS'] = []
 
 # Load GeoIP2 databases
 app.geoip_city = None

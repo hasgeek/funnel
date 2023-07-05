@@ -94,6 +94,15 @@ class IndexView(ClassView):
             .order_by(Project.next_session_at.asc())
             .all()
         )
+        # Get featured accounts
+        featured_accounts = Profile.query.filter(
+            Profile.name_in(app.config['FEATURED_ACCOUNTS'])
+        ).all()
+        # This list will not be ordered, so we have to re-sort
+        featured_account_sort_key = {
+            _n.lower(): _i for _i, _n in enumerate(app.config['FEATURED_ACCOUNTS'])
+        }
+        featured_accounts.sort(key=lambda a: featured_account_sort_key[a.name.lower()])
 
         return {
             'all_projects': [
@@ -115,14 +124,9 @@ class IndexView(ClassView):
                 if featured_project
                 else None
             ),
-            'featured_profiles': [
-                p.current_access(datasets=('primary', 'related'))
-                for p in Profile.query.filter(
-                    Profile.is_verified.is_(True),
-                    Profile.organization_id.is_not(None),
-                )
-                .order_by(sa.func.random())
-                .limit(6)
+            'featured_accounts': [
+                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                for p in featured_accounts
             ],
         }
 

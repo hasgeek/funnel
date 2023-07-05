@@ -40,8 +40,9 @@ class SmsTemplate:
     validated to match each other when the class is created::
 
         class MyTemplate(SmsTemplate):
-            registered_template = "Insert {#var#} here"
+            registered_template = 'Insert {#var#} here'
             template = "Insert {var} here"
+            plaintext_template = "Simplified template also embedding {var}"
 
             var: str  # Declare variable type like this
 
@@ -131,11 +132,11 @@ class SmsTemplate:
     # Type hints for mypy. These attributes are set in __init__
     _text: Optional[str]
     _plaintext: Optional[str]
-    _format_kwargs: Dict[str, object]
+    _format_kwargs: Dict[str, Any]
     template_static_len: ClassVar[int]
     template_var_len: int
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         """Initialize template with variables."""
         object.__setattr__(self, '_text', None)
         object.__setattr__(self, '_plaintext', None)
@@ -169,7 +170,9 @@ class SmsTemplate:
             - self.template_static_len,
         )
         # Next, store real format field values
-        self._format_kwargs.update(kwargs)
+        for arg, value in kwargs.items():
+            # Use setattr so subclasses can define special behaviour
+            setattr(self, arg, value)
 
     def available_var_len(self) -> int:
         """
@@ -242,12 +245,18 @@ class SmsTemplate:
 
     def __setattr__(self, attr: str, value: Any) -> None:
         """Set a format variable."""
-        self._format_kwargs[attr] = value
-        object.__setattr__(self, '_text', None)
-        # We do not reset `_plaintext` here as the `plaintext` property checks only
-        # `_text`. This is because `format()` calls `truncate()`, which may update a
-        # variable, which will call `__setattr__`. At this point `_plaintext` has
-        # already been set by `.format()` and should not be reset.
+        clsattr = getattr(self.__class__, attr, None)
+        if clsattr is not None:
+            # If this attr is from the class, handover processing to object
+            object.__setattr__(self, attr, value)
+        else:
+            # If not, assume template variable
+            self._format_kwargs[attr] = value
+            object.__setattr__(self, '_text', None)
+            # We do not reset `_plaintext` here as the `plaintext` property checks only
+            # `_text`. This is because `format()` calls `truncate()`, which may update a
+            # variable, which will call `__setattr__`. At this point `_plaintext` has
+            # already been set by `.format()` and should not be reset.
 
     def vars(self) -> Dict[str, Any]:  # noqa: A003
         """Return a dictionary of variables in the template."""
