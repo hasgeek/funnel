@@ -1,4 +1,4 @@
-"""MDIT plugin to modify output of https://mdit-py-plugins.readthedocs.io/en/latest/#heading-anchors."""
+"""MDIT plugin to modify the token stream output of mdit-py-plugin heading-anchors."""
 
 from __future__ import annotations
 
