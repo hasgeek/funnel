@@ -199,7 +199,7 @@
   <script type="text/javascript">
     $(function() {
       var tickets;
-      {% if featured_project.features.tickets() -%}
+      {% if featured_project and featured_project.features.tickets() -%}
         tickets = {
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
