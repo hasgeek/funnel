@@ -43,10 +43,12 @@
   }
 }
 
-.spotlight-container {
-  padding: 0 40px;
-  .spotlight-container__details {
-    margin-top: 40px;
+@media (min-width: 768px) {
+  .spotlight-container {
+    padding: 0 40px;
+    .spotlight-container__details {
+      margin-top: 40px;
+    }
   }
 }
 

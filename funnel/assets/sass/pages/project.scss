@@ -71,35 +71,15 @@
       margin-bottom: $mui-grid-padding * 0.25;
     }
     .register-block__btn {
-      width: 100%;
-      font-size: 10px;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0 0 2px;
-      justify-content: center;
-      height: 42px;
+      @extend .price-btn;
       .register-block__btn__txt {
-        display: block;
-        width: 100%;
-        font-size: 12px;
-        line-height: 16px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
+        @extend .price-btn__txt;
       }
       .register-block__btn__txt--hover--show {
         display: none;
       }
       .register-block__btn__txt--smaller {
-        font-size: 10px;
-        line-height: 16px;
-        text-transform: initial;
-        font-weight: 400;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: auto;
+        @extend .price-btn__txt--smaller;
       }
       &:hover .register-block__btn__txt--hover {
         display: none;
