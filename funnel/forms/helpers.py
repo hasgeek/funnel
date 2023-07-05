@@ -23,6 +23,19 @@ from ..models import (
     parse_video_url,
 )
 
+# --- Error messages -------------------------------------------------------------------
+
+MSG_EMAIL_INVALID = _("This does not appear to be a valid email address")
+MSG_EMAIL_BLOCKED = __("This email address has been blocked from use")
+MSG_INCORRECT_PASSWORD = __("Incorrect password")
+MSG_NO_ACCOUNT = __(
+    "This account could not be identified. Try with a phone number or email address"
+)
+MSG_INCORRECT_OTP = __("OTP is incorrect")
+MSG_NO_LOGIN_SESSION = __("That does not appear to be a valid login session")
+MSG_PHONE_NO_SMS = __("This phone number cannot receive SMS messages")
+MSG_PHONE_BLOCKED = __("This phone number has been blocked from use")
+
 
 class ProfileSelectField(forms.AutocompleteField):
     """Render an autocomplete field for selecting an account."""
@@ -98,9 +111,7 @@ class EmailAddressAvailable:
                 )
             )
         if has_error in ('invalid', 'nullmx'):
-            raise forms.validators.StopValidation(
-                _("This does not appear to be a valid email address")
-            )
+            raise forms.validators.StopValidation(MSG_EMAIL_INVALID)
         if has_error == 'nomx':
             raise forms.validators.StopValidation(
                 _(
@@ -132,9 +143,7 @@ class EmailAddressAvailable:
                 ).format(support=app.config['SITE_SUPPORT_EMAIL'])
             )
         if has_error == 'blocked':
-            raise forms.validators.StopValidation(
-                _("This email address has been blocked from use")
-            )
+            raise forms.validators.StopValidation(MSG_EMAIL_BLOCKED)
         if has_error is not None:
             app.logger.error("Unknown email address validation code: %r", has_error)
 

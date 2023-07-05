@@ -197,6 +197,22 @@ def test_user_register_otp_email(client, csrf_token) -> None:
         assert str(current_auth.user.email) == RINCEWIND_EMAIL
 
 
+def test_user_register_otp_email_malformed(client, csrf_token: str) -> None:
+    """Having an @ does not always make it an email."""
+    rv = client.post(
+        '/login',
+        data=MultiDict(
+            {
+                'csrf_token': csrf_token,
+                'form.id': 'passwordlogin',
+                'username': '"quantcom123@example.com "',
+                'password': '',
+            }
+        ),
+    )
+    assert "This does not appear to be a valid email address" in rv.data.decode()
+
+
 @pytest.mark.mock_config('app', {'MAIL_SERVER': 'mocked'})
 def test_user_register_otp_email_invalid(client, csrf_token: str) -> None:
     """Providing an invalid address that passes form validation but not SMTP."""
