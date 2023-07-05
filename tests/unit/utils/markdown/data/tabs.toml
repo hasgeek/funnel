@@ -480,7 +480,7 @@ This tab is going to have a table!<br />
 ::::</li>
 </ol>
 """
-document = """<h2 id="h:tabs-using-containers-plugin">Tabs using containers plugin <a class="header-anchor" href="#h:tabs-using-containers-plugin">#</a></h2>
+document = """<h2 id="h:tabs-using-containers-plugin"><a href="#h:tabs-using-containers-plugin">Tabs using containers plugin</a></h2>
 <p>Let us see if we can use the containers plugin to render tabs.</p>
 <div id="md-tabset-1" class="md-tabset"><ul role="tablist"><li role="presentation" class="md-tab-active"><a role="tab" href="javascript:void(0)" id="md-tab-1" aria-controls="md-tab-1-panel" tabindex="0" aria-selected="true">Code</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-2" aria-controls="md-tab-2-panel" tabindex="-1" aria-selected="false">Tab 2</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-3" aria-controls="md-tab-3-panel" tabindex="-1" aria-selected="false">Embeds</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-4" aria-controls="md-tab-4-panel" tabindex="-1" aria-selected="false">Table Tab</a></li></ul><div role="tabpanel" class="md-tab-active" id="md-tab-1-panel" aria-labelledby="md-tab-1" tabindex="0"><p><strong>The next tab has a blank title.<br />
 The tab for it should render in the format “Tab &lt;n&gt;”.</strong></p>

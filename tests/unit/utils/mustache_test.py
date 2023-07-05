@@ -119,17 +119,17 @@ config_template_output['basic-document'] = (
     """<p>Name: Unseen<br />
 <strong>Bold Name</strong>: **Unseen** University<br />
 Organization: `Unseen` University, ~~Unknown~~Ankh-Morpork</p>
-<h2 id="h:organization-details">Organization Details <a class="header-anchor" href="#h:organization-details">#</a></h2>
+<h2 id="h:organization-details"><a href="#h:organization-details">Organization Details</a></h2>
 <p>Name: `Unseen` University<br />
 City: ~~Unknown~~Ankh-Morpork</p>
-<h3 id="h:people">People <a class="header-anchor" href="#h:people">#</a></h3>
+<h3 id="h:people"><a href="#h:people">People</a></h3>
 <ul>
 <li>Alberto Malich</li>
 <li>Mustrum Ridcully (Archchancellor)</li>
 <li>The Librarian</li>
 <li>Ponder Stibbons</li>
 </ul>
-<h3 id="h:vendors">Vendors <a class="header-anchor" href="#h:vendors">#</a></h3>
+<h3 id="h:vendors"><a href="#h:vendors">Vendors</a></h3>
 <blockquote>
 <p>No vendors</p>
 </blockquote>

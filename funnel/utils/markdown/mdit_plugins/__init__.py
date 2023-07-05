@@ -2,6 +2,7 @@
 # flake8: noqa
 
 from .abbr import *
+from .anchors_ext import *
 from .block_code_ext import *
 from .del_tag import *
 from .embeds import *
