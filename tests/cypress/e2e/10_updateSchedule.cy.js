@@ -87,7 +87,6 @@ describe('Add schedule and livestream', () => {
     cy.get('input#featured-project').click({ force: true });
     cy.get('a[data-cy="home-desktop"]').click();
     cy.get('[data-cy="spotlight-project"]:visible')
-      .find('.card--upcoming')
       .contains(project.title)
       .click();
     cy.get('a[data-cy="site-editor-menu"]').click();

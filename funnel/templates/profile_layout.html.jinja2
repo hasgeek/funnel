@@ -70,7 +70,7 @@
         {% endif %}
 
         <div class="mui-container">
-          <div class="grid flex-wrapper--start spotlight-container" data-cy="spotlight-project">
+          <div class="grid flex-wrapper--start spotlight-container">
             <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
               <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
                 <div class="flex-wrapper flex-wrapper--center">
@@ -89,7 +89,7 @@
                   <div>{{ saveprojectform(featured_project, formid=save_form_id) }}</div>
                 {% endif %}
               </div>
-              <h3 class="mui--text-headline text-bold"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline">{{ featured_project.title }}</a></h3>
+              <h3 class="mui--text-headline text-bold" data-cy="spotlight-project"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline">{{ featured_project.title }}</a></h3>
               <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
               <div class="bottom-padding mui--text-light mui--hidden-lg mui--hidden-xl">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
               <a href="{{ featured_project.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
