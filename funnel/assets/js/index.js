@@ -1,9 +1,10 @@
 import SaveProject from './utils/bookmark';
 import 'htmx.org';
 import initEmbed from './utils/initembed';
+import Ticketing from './utils/ticket_widget';
 
 $(() => {
-  window.Hasgeek.homeInit = function homeInit(markdownContainer) {
+  window.Hasgeek.homeInit = function homeInit(markdownContainer, tickets = '') {
     // Expand CFP section
     $('.jquery-show-all').click(function showAll(event) {
       event.preventDefault();
@@ -20,5 +21,9 @@ $(() => {
       SaveProject(projectSaveConfig);
     });
     initEmbed(markdownContainer);
+
+    if (tickets) {
+      Ticketing.init(tickets);
+    }
   };
 });
