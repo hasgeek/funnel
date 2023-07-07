@@ -19,9 +19,61 @@ from ...models import (
     NewCommentNotification,
     User,
 )
-from ...transports.sms import OneLineTemplate
+from ...transports.sms import OneLineTemplate, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
+from .mixins import TemplateVarMixin
+
+
+class CommentReplyTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for RSVP without a next session."""
+
+    registered_template = (
+        '{#var#} has replied to your comment: {#var#}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    template = (
+        '{actor} has replied to your comment: {url}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    plaintext_template = '{actor} has replied to your comment: {url}'
+
+    actor: str
+    url: str
+
+
+class CommentProposalTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for RSVP without a next session."""
+
+    registered_template = (
+        '{#var#} commented on your submission: {#var#}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    template = (
+        '{actor} commented on your submission: {url}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    plaintext_template = '{actor} commented on your submission: {url}'
+
+    actor: str
+    url: str
+
+
+class CommentProjectTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for RSVP without a next session."""
+
+    registered_template = (
+        '{#var#} commented on a project you are in: {#var#}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    template = (
+        '{actor} commented on a project you are in: {url}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    plaintext_template = '{actor} commented on a project you are in: {url}'
+
+    actor: str
+    url: str
 
 
 @CommentReportReceivedNotification.renderer
@@ -164,11 +216,15 @@ class CommentNotification(RenderNotification):
             'notifications/comment_received_email.html.jinja2', view=self
         )
 
-    def sms(self) -> OneLineTemplate:
-        return OneLineTemplate(
-            text1=self.activity_template_inline().format(actor=self.actor.pickername),
-            url=shortlink(
-                self.comment.url_for(_external=True, **self.tracking_tags('sms')),
-                shorter=True,
-            ),
+    def sms(self):
+        url = shortlink(
+            self.comment.url_for(_external=True, **self.tracking_tags('sms'))
         )
+        if self.document_type == 'comment':
+            return CommentReplyTemplate(actor=self.actor, url=url)
+        if self.document_type == 'project':
+            return CommentProjectTemplate(actor=self.actor, url=url)
+        if self.document_type == 'proposal':
+            return CommentProposalTemplate(actor=self.actor, url=url)
+        # Unknown document type
+        return CommentReplyTemplate(actor=self.actor, url=url)

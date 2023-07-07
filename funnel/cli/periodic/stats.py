@@ -135,6 +135,7 @@ async def matomo_response_json(
 async def matomo_response_json(
     client: httpx.AsyncClient, url: str, sequence: bool = True
 ) -> Union[Optional[MatomoResponse], Sequence[MatomoResponse]]:
+    """Process Matomo's JSON response."""
     try:
         response = await client.get(url, timeout=30)
         response.raise_for_status()
@@ -148,7 +149,16 @@ async def matomo_response_json(
         return [] if sequence else None
 
 
-async def matomo_stats(date: str = 'yesterday') -> MatomoData:
+async def matomo_stats() -> MatomoData:
+    """Get stats from Matomo."""
+    tz = pytz.timezone(app.config['TIMEZONE'])
+    now = utcnow().astimezone(tz)
+    today = midnight_to_utc(now)
+    yesterday = today - relativedelta(days=1)
+    last_week = yesterday - relativedelta(weeks=1)
+    last_month = yesterday - relativedelta(months=1)
+    week_range = f'{last_week.strftime("%Y-%m-%d")},{yesterday.strftime("%Y-%m-%d")}'
+    month_range = f'{last_month.strftime("%Y-%m-%d")},{yesterday.strftime("%Y-%m-%d")}'
     if (
         not app.config.get('MATOMO_URL')
         or not app.config.get('MATOMO_ID')
@@ -160,7 +170,6 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
     matomo_url.add(
         {
             'token_auth': app.config['MATOMO_TOKEN'],
-            'date': date,
             'module': 'API',
             'idSite': app.config['MATOMO_ID'],
             'filter_limit': 10,  # Get top 10
@@ -171,22 +180,43 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
         {
             'method': 'Referrers.getWebsites',
             'period': 'day',
+            'date': 'yesterday',
         }
     )
     socials_url = matomo_url.copy().add(
-        {'method': 'Referrers.getSocials', 'period': 'day'}
+        {
+            'method': 'Referrers.getSocials',
+            'period': 'day',
+            'date': 'yesterday',
+        }
     )
     pages_url = matomo_url.copy().add(
-        {'method': 'Actions.getPageUrls', 'period': 'day'}
+        {
+            'method': 'Actions.getPageUrls',
+            'period': 'day',
+            'date': 'yesterday',
+        }
     )
     visits_day_url = matomo_url.copy().add(
-        {'method': 'VisitsSummary.get', 'period': 'day'}
+        {
+            'method': 'VisitsSummary.get',
+            'period': 'day',
+            'date': 'yesterday',
+        }
     )
     visits_week_url = matomo_url.copy().add(
-        {'method': 'VisitsSummary.get', 'period': 'week'}
+        {
+            'method': 'VisitsSummary.get',
+            'period': 'range',
+            'date': week_range,
+        }
     )
     visits_month_url = matomo_url.copy().add(
-        {'method': 'VisitsSummary.get', 'period': 'month'}
+        {
+            'method': 'VisitsSummary.get',
+            'period': 'range',
+            'date': month_range,
+        }
     )
 
     async with httpx.AsyncClient(follow_redirects=True) as client:
@@ -205,7 +235,6 @@ async def matomo_stats(date: str = 'yesterday') -> MatomoData:
             matomo_response_json(client, str(visits_week_url), sequence=False),
             matomo_response_json(client, str(visits_month_url), sequence=False),
         )
-
     return MatomoData(
         referrers=referrers,
         socials=socials,

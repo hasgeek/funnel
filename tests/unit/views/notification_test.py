@@ -9,6 +9,7 @@ import pytest
 from flask import url_for
 
 from funnel import models
+from funnel.transports.sms import SmsTemplate
 from funnel.views.notifications.mixins import TemplateVarMixin
 
 
@@ -182,3 +183,39 @@ def test_template_var_mixin() -> None:
         t1.project  # pylint: disable=pointless-statement
     with pytest.raises(AttributeError):
         del t1.project
+
+
+class VarMessage(TemplateVarMixin, SmsTemplate):
+    """Test case for TemplateVarMixin."""
+
+    registered_template = '{#var#} shared {#var#} with {#var#}: {#var#}'
+    template = "{actor} shared {project} with {user}: {url}"
+    plaintext_template = template
+
+    url: str
+
+
+def test_template_var_mixin_in_template(
+    project_expo2010: models.Project,
+    user_vetinari: models.User,
+    user_twoflower: models.User,
+) -> None:
+    """Confirm TemplateVarMixin performs interpolations correctly."""
+    assert VarMessage.project is not None
+    assert VarMessage.project.__set__ is not None
+    msg = VarMessage(
+        project=project_expo2010,
+        actor=user_vetinari,
+        user=user_twoflower,
+        url=project_expo2010.url_for(_external=False),
+    )
+    assert msg.project == 'Ankh-Morpork 2010'
+    assert msg.actor == 'Havelock Vetinari (@vetinari)'
+    assert msg.user == 'Twoflower'
+    assert msg.url == '/ankh_morpork/2010/'
+    assert msg.vars().keys() == {'url'}  # Only 'url' was processed by SmsTemplate
+    assert (
+        str(msg)
+        == 'Havelock Vetinari (@vetinari) shared Ankh-Morpork 2010 with Twoflower:'
+        ' /ankh_morpork/2010/'
+    )

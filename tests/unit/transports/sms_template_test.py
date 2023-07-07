@@ -21,7 +21,7 @@ def app() -> Flask:
 @pytest.fixture(scope='session')
 def msgt() -> SimpleNamespace:
     class MyMessage(sms.SmsTemplate):
-        registered_template = "Insert {#var#} here"
+        registered_template = 'Insert {#var#} here'
         template = "Insert {var} here"
         plaintext_template = "{var} here"
 
@@ -60,19 +60,19 @@ def test_template_lengths() -> None:
     """Static and variable character lengths are calculated automatically."""
 
     class OneVarTemplate(sms.SmsTemplate):
-        registered_template = "This has one {#var#}"
+        registered_template = 'This has one {#var#}'
         template = "This has one {var}"
 
     class TwoVarTemplate(sms.SmsTemplate):
-        registered_template = "This has two {#var#}{#var#}"
+        registered_template = 'This has two {#var#}{#var#}'
         template = "This has two {var}"
 
     class ThreeVarTemplate(sms.SmsTemplate):
-        registered_template = "{#var#} this has three {#var#}{#var#}"
+        registered_template = '{#var#} this has three {#var#}{#var#}'
         template = "{var} this has three {var}"
 
     class MismatchTemplate(sms.SmsTemplate):
-        registered_template = "This has two {#var#}{#var#}"
+        registered_template = 'This has two {#var#}{#var#}'
         template = "This has two  {var}"  # Extra space here
 
     assert OneVarTemplate.registered_template_static_len == len("This has one ") == 13
@@ -155,13 +155,13 @@ def test_validate_template() -> None:
     ):
 
         class TemplateVarReserved(sms.SmsTemplate):
-            registered_template = "{#var#}"
+            registered_template = '{#var#}'
             template = "{text}"
 
     with pytest.raises(ValueError, match='Templates cannot have positional fields'):
 
         class TemplateVarPositional(sms.SmsTemplate):
-            registered_template = "{#var#}"
+            registered_template = '{#var#}'
             template = "{}"
 
 
