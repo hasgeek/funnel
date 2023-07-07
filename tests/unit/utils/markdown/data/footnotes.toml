@@ -42,7 +42,7 @@ basic = """<h2>Footnotes</h2>
 <hr />
 <p>This is some more random text to test whether the footnotes are placed after this text.</p>
 """
-document = """<h2 id="h:footnotes">Footnotes <a class="header-anchor" href="#h:footnotes">#</a></h2>
+document = """<h2 id="h:footnotes"><a href="#h:footnotes">Footnotes</a></h2>
 <p>Here is some random text!</p>
 <p>Footnote 1 link<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup>.</p>
 <p>Footnote 2 link<sup class="footnote-ref"><a href="#fn2" id="fnref2">2</a></sup>.</p>

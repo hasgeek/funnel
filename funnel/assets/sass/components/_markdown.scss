@@ -17,19 +17,6 @@
       color: $mui-text-dark;
       text-decoration: none;
     }
-    a.header-anchor {
-      display: none;
-    }
-    &:hover a.header-anchor {
-      display: inline;
-      color: $mui-text-accent;
-    }
-    @media (any-pointer: coarse) {
-      a.header-anchor {
-        display: inline;
-        color: $mui-text-accent;
-      }
-    }
   }
 
   img {
