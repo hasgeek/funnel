@@ -10,8 +10,6 @@
   .tickets-wrapper__modal__body__close {
     display: block;
     float: right;
-    margin-right: $mui-grid-padding * 0.5;
-    margin-top: $mui-grid-padding * 0.5;
   }
 
   .tickets-wrapper__modal__body__close--hide {
@@ -56,6 +54,10 @@
       border-radius: 16px;
       background-color: $mui-bg-color-primary;
       overflow: auto;
+      .tickets-wrapper__modal__body__close {
+        margin-right: $mui-grid-padding * 0.5;
+        margin-top: $mui-grid-padding * 0.5;
+      }
     }
   }
 }
