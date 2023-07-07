@@ -5,17 +5,17 @@ from __future__ import annotations
 from markdown_it import MarkdownIt
 from markdown_it.rules_inline import StateInline
 
-__all__ = ['anchors_extend_plugin']
+__all__ = ['heading_anchors_fix_plugin']
 
 
-def anchors_ext(state: StateInline) -> None:
+def heading_anchors_fix(state: StateInline) -> None:
     prev_token = None
 
     for token in state.tokens:
         if prev_token is None:
             prev_token = token
             continue
-        if token.type == 'inline' and prev_token.type == 'heading_open':  # type: ignore
+        if token.type == 'inline' and prev_token.type == 'heading_open':  # type: ignore[unreachable]
             tree = token.children
             header_anchor_index = 0
             for inline_token in tree:
@@ -40,6 +40,6 @@ def anchors_ext(state: StateInline) -> None:
         prev_token = token
 
 
-def anchors_extend_plugin(md: MarkdownIt, **opts) -> None:
+def heading_anchors_fix_plugin(md: MarkdownIt, **opts) -> None:
     if 'anchor' in md.get_active_rules()['core']:
-        md.core.ruler.after('anchor', 'anchors_ext', anchors_ext)
+        md.core.ruler.after('anchor', 'heading_anchors_fix', heading_anchors_fix)

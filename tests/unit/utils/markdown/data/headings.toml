@@ -31,10 +31,10 @@ preset = "default"
 options_update = {"breaks" = true}
 plugins = [ "heading_anchors"]
 
-[config.custom_profiles.anchors_ext]
+[config.custom_profiles.heading_anchors_fix]
 preset = "default"
 options_update = {"breaks" = true}
-plugins = [ "heading_anchors", "anchors_ext"]
+plugins = [ "heading_anchors", "heading_anchors_fix"]
 
 [expected_output]
 basic = """<p>Using the heading-anchors plugin with its default config:</p>
@@ -94,7 +94,7 @@ Only the specified headings in extension defaults should get linked.</p>
 ######h6 Heading</p>
 <h2 id="h:text-with-2-or-more-hyphens-below-it-converts-to-h">Text with 2 or more hyphens below it converts to H2<a class="header-anchor" href="#h:text-with-2-or-more-hyphens-below-it-converts-to-h">#</a></h2>
 """
-anchors_ext = """<p>Using the heading-anchors plugin with its default config:</p>
+heading_anchors_fix = """<p>Using the heading-anchors plugin with its default config:</p>
 <p>The below headings should convert and get linked.<br>
 Only the specified headings in extension defaults should get linked.</p>
 <h1 id="h:h1-heading"><a href="#h:h1-heading">h1 Heading</a></h1>

@@ -26,11 +26,11 @@ from coaster.utils.text import normalize_spaces_multiline
 
 from .mdit_plugins import (  # toc_plugin,
     abbr_plugin,
-    anchors_extend_plugin,
     block_code_extend_plugin,
     del_plugin,
     embeds_plugin,
     footnote_extend_plugin,
+    heading_anchors_fix_plugin,
     ins_plugin,
     mark_plugin,
     sub_plugin,
@@ -255,11 +255,11 @@ MarkdownPlugin('vega-lite', embeds_plugin, {'name': 'vega-lite'})
 MarkdownPlugin('mermaid', embeds_plugin, {'name': 'mermaid'})
 MarkdownPlugin('block_code_ext', block_code_extend_plugin)
 MarkdownPlugin('footnote_ext', footnote_extend_plugin)
-# The anchors_ext plugin modifies the token stream output of heading_anchors plugin to
+# The heading_anchors_fix plugin modifies the token stream output of heading_anchors plugin to
 # make the heading a permalink instead of a separate permalink. It eliminates the extra
 # character and strips any links inside the heading that may have been introduced by the
 # author.
-MarkdownPlugin('anchors_ext', anchors_extend_plugin)
+MarkdownPlugin('heading_anchors_fix', heading_anchors_fix_plugin)
 # MarkdownPlugin('toc', toc_plugin)
 
 # --- Markdown configurations ----------------------------------------------------------
@@ -287,7 +287,7 @@ MarkdownConfig(
         'footnote',
         'footnote_ext',  # Must be after 'footnote' to take effect
         'heading_anchors',
-        'anchors_ext',  # Must be after 'heading_anchors' to take effect
+        'heading_anchors_fix',  # Must be after 'heading_anchors' to take effect
         'tasklists',
         'ins',
         'del',
