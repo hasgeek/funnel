@@ -21,6 +21,16 @@ from ..models import (
     getuser,
     parse_phone_number,
 )
+from .helpers import (
+    MSG_EMAIL_BLOCKED,
+    MSG_EMAIL_INVALID,
+    MSG_INCORRECT_OTP,
+    MSG_INCORRECT_PASSWORD,
+    MSG_NO_ACCOUNT,
+    MSG_NO_LOGIN_SESSION,
+    MSG_PHONE_BLOCKED,
+    MSG_PHONE_NO_SMS,
+)
 
 __all__ = [
     'LoginPasswordResetException',
@@ -34,17 +44,6 @@ __all__ = [
     'RegisterOtpForm',
 ]
 
-# --- Error messages -------------------------------------------------------------------
-
-MSG_EMAIL_BLOCKED = __("This email address has been blocked from use")
-MSG_INCORRECT_PASSWORD = __("Incorrect password")
-MSG_NO_ACCOUNT = __(
-    "This account could not be identified. Try with a phone number or email address"
-)
-MSG_INCORRECT_OTP = __("OTP is incorrect")
-MSG_NO_LOGIN_SESSION = __("That does not appear to be a valid login session")
-MSG_PHONE_NO_SMS = __("This phone number cannot receive SMS messages")
-MSG_PHONE_BLOCKED = __("This phone number has been blocked from use")
 
 # --- Exceptions -----------------------------------------------------------------------
 
@@ -173,6 +172,8 @@ class LoginForm(forms.RecaptchaForm):
                     self.new_email = str(email_address)
                 except EmailAddressBlockedError as exc:
                     raise forms.validators.ValidationError(MSG_EMAIL_BLOCKED) from exc
+                except ValueError as exc:
+                    raise forms.validators.StopValidation(MSG_EMAIL_INVALID) from exc
                 return
             phone = parse_phone_number(field.data, sms=True)
             if phone is False:
