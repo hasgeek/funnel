@@ -74,14 +74,14 @@
             <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
               <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
                 <div class="flex-wrapper flex-wrapper--center">
-                    <a href="{{ featured_project.profile.url_for() }}" class="profile-avatar margin-right" data-ga="View profile">
+                    <a href="{{ featured_project.profile.url_for() }}" class="profile-avatar margin-right" data-ga="View account">
                     {%- if featured_project.profile.logo_url.url %}
                       <img src="{{ featured_project.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.profile.title }}"/>
                     {% else %}
                       <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.profile.title }}"/>
                     {% endif %}
                     </a>
-                    <a href="{{ featured_project.profile.url_for() }}" class="profile-avatar-title mui--text-subhead text-bold mui--text-dark nounderline" data-ga="View profile">{{ featured_project.profile.title }}</a>
+                    <a href="{{ featured_project.profile.url_for() }}" class="profile-avatar-title mui--text-subhead text-bold mui--text-dark nounderline" data-ga="View account">{{ featured_project.profile.title }}</a>
                   </a>
                 </div>
                 {%- if not current_auth.is_anonymous %}
@@ -157,7 +157,7 @@
                           <div class="tickets-wrapper">
                             <div class="tickets-wrapper__modal">
                               <div id="tickets" class="tickets-wrapper__modal__body">
-                                <span aria-label="{% trans %}Back to the profile{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Back to the profile page">{{ faicon(icon='times', baseline=false, icon_size='title') }}</span>
+                                <span aria-label="{% trans %}Back to the profile{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Back to the account page">{{ faicon(icon='times', baseline=false, icon_size='title') }}</span>
                                 <div id="boxoffice-widget"><p class="mui--text-body2">{% trans %}Loading…{% endtrans %}</p></div>
                               </div>
                             </div>

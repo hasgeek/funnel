@@ -107,7 +107,7 @@
     <div class="top-padding bottom-padding project-details__box__title">
       <div class="project-banner__profile-details">
         {%- if project.profile.logo_url.url %}
-          <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View profile">
+          <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View account">
             <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ project.profile.title }}"/>
           </a>
         {% endif %}
