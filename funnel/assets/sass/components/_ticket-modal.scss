@@ -8,12 +8,19 @@
   }
 
   .tickets-wrapper__modal__body__close {
+    display: block;
+    float: right;
+    margin-right: $mui-grid-padding * 0.5;
+    margin-top: $mui-grid-padding * 0.5;
+  }
+
+  .tickets-wrapper__modal__body__close--hide {
     display: none;
   }
 
   .tickets-wrapper__modal--show {
     position: fixed;
-    top: 52px;
+    top: 0;
     background: $mui-bg-color-primary;
     left: 0;
     right: 0;
@@ -25,6 +32,9 @@
     .tickets-wrapper__modal__back {
       display: block;
     }
+  }
+  .tickets-wrapper__modal--project-page.tickets-wrapper__modal--show {
+    top: 52px; // Below the header
   }
 }
 
@@ -46,12 +56,6 @@
       border-radius: 16px;
       background-color: $mui-bg-color-primary;
       overflow: auto;
-      .tickets-wrapper__modal__body__close {
-        display: block;
-        float: right;
-        margin-right: $mui-grid-padding * 0.5;
-        margin-top: $mui-grid-padding * 0.5;
-      }
     }
   }
 }

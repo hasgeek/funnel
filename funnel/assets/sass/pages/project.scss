@@ -72,6 +72,7 @@
     }
     .register-block__btn {
       @extend .price-btn;
+      width: 100%;
       .register-block__btn__txt {
         @extend .price-btn__txt;
       }

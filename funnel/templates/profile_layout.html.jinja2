@@ -69,8 +69,8 @@
           </div>
         {% endif %}
 
-        <div class="mui-container">
-          <div class="grid flex-wrapper--start spotlight-container">
+        <div class="mui-container spotlight-container">
+          <div class="grid flex-wrapper--start">
             <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
               <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
                 <div class="flex-wrapper flex-wrapper--center">
@@ -97,7 +97,7 @@
             <div class="grid__col-md-1 grid__col-lg-1 mui--hidden-xs mui--hidden-sm mui--hidden-md spotlight-container">
             </div>
             <div class="grid__col-12 grid__col-md-5 grid__col-lg-4" data-cy="spotlight-project">
-              <div class="card card--upcoming clickable-card">
+              <div class="card card--upcoming">
                 <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left mui--hidden-lg mui--hidden-xl">
                   <div class="flex-wrapper flex-wrapper--center">
                     <span class="profile-avatar margin-right">
@@ -157,7 +157,7 @@
                           <div class="tickets-wrapper">
                             <div class="tickets-wrapper__modal">
                               <div id="tickets" class="tickets-wrapper__modal__body">
-                                <span aria-label="{% trans %}Back to the project{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Back to the project page">{{ faicon(icon='times', baseline=false, icon_size='title') }}</span>
+                                <span aria-label="{% trans %}Back to the profile{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Back to the profile page">{{ faicon(icon='times', baseline=false, icon_size='title') }}</span>
                                 <div id="boxoffice-widget"><p class="mui--text-body2">{% trans %}Loading…{% endtrans %}</p></div>
                               </div>
                             </div>
