@@ -41,6 +41,8 @@ markdown_unescape_re = re.compile(r"""\\([\[\\\]{|}\(\)`~!@#$%^&*=+;:'"<>/,.?_-]
 
 
 class _MarkdownEscapeFormatter(string.Formatter):
+    """Support class for :meth:`MarkdownString.format`."""
+
     __slots__ = ('escape',)
 
     def __init__(self, escape: Callable[[Any], MarkdownString]) -> None:
