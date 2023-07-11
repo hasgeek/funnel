@@ -34,7 +34,7 @@ from zxcvbn import zxcvbn
 
 from .. import app
 from ..typing import T
-from ..utils import MarkdownConfig, markdown_escape
+from ..utils import MarkdownConfig, MarkdownString, markdown_escape
 from . import Model, UrlType, sa
 
 __all__ = [
@@ -341,7 +341,7 @@ def pgquote(identifier: str) -> str:
     return f'"{identifier}"' if identifier in POSTGRESQL_RESERVED_WORDS else identifier
 
 
-def quote_autocomplete_like(prefix, midway=False) -> str:
+def quote_autocomplete_like(prefix: str, midway: bool = False) -> str:
     """
     Construct a LIKE query string for prefix-based matching (autocomplete).
 
@@ -521,17 +521,25 @@ class MessageComposite:
         self.text = text
         self.tag = tag
 
-    def __markdown__(self) -> str:
+    def __markdown__(self) -> MarkdownString:
         """Return Markdown source (for escaper)."""
         return markdown_escape(self.text)
 
-    def __html__(self) -> str:
+    def __markdown_format__(self, format_spec: str) -> str:
+        """Implement format_spec support as required by MarkdownString."""
+        return self.__markdown__().__markdown_format__(format_spec)
+
+    def __html__(self) -> Markup:
         """Return HTML version of string."""
         # Localize lazy string on demand
         tag = self.tag
         if tag:
-            return f'<p><{tag}>{html_escape(self.text)}</{tag}></p>'
-        return f'<p>{html_escape(self.text)}</p>'
+            return Markup(f'<p><{tag}>{html_escape(self.text)}</{tag}></p>')
+        return Markup(f'<p>{html_escape(self.text)}</p>')
+
+    def __html_format__(self, format_spec: str) -> str:
+        """Implement format_spec support as required by Markup."""
+        return self.__html__().__html_format__(format_spec)
 
     @property
     def html(self) -> Markup:
@@ -565,7 +573,7 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
     url_parser = ImgeeFurl
     cache_ok = True
 
-    def process_bind_param(self, value, dialect):
+    def process_bind_param(self, value: Any, dialect: Any):
         value = super().process_bind_param(value, dialect)
         if value:
             allowed_domains = app.config.get('IMAGE_URL_DOMAINS', [])
@@ -596,9 +604,8 @@ class MarkdownCompositeBase(MutableComposite):
             self._text = text
             self._html: Optional[str] = html
 
-    # Return column values for SQLAlchemy to insert into the database
     def __composite_values__(self) -> Tuple[Optional[str], Optional[str]]:
-        """Return composite values."""
+        """Return composite values for SQLAlchemy."""
         return (self._text, self._html)
 
     # Return a string representation of the text (see class decorator)
@@ -610,10 +617,17 @@ class MarkdownCompositeBase(MutableComposite):
         """Return source Markdown (for escaper)."""
         return self._text or ''
 
-    # Return a HTML representation of the text
+    def __markdown_format__(self, format_spec: str) -> str:
+        """Implement format_spec support as required by MarkdownString."""
+        return self.__markdown__().__format__(format_spec)
+
     def __html__(self) -> str:
         """Return HTML representation."""
         return self._html or ''
+
+    def __html_format__(self, format_spec: str) -> str:
+        """Implement format_spec support as required by Markup."""
+        return self.__html__().__format__(format_spec)
 
     # Return a Markup string of the HTML
     @property
@@ -637,11 +651,12 @@ class MarkdownCompositeBase(MutableComposite):
         """Return JSON-compatible rendering of composite."""
         return {'text': self._text, 'html': self._html}
 
-    # Compare text value
     def __eq__(self, other: Any) -> bool:
         """Compare for equality."""
-        return isinstance(other, self.__class__) and (
-            self.__composite_values__() == other.__composite_values__()
+        return (
+            isinstance(other, self.__class__)
+            and (self.__composite_values__() == other.__composite_values__())
+            or self._text == other
         )
 
     def __ne__(self, other: Any) -> bool:

@@ -1,11 +1,12 @@
+"""Tests for Mustache templates on Markdown documents."""
+# pylint: disable=not-callable
 # mypy: disable-error-code=index
-"""Tests for the mustache template escaper."""
 
 from typing import Dict, Tuple
 
 import pytest
 
-from funnel.utils.markdown.base import MarkdownConfig
+from funnel.utils.markdown import MarkdownConfig
 from funnel.utils.mustache import mustache_md
 
 test_data = {
@@ -28,6 +29,7 @@ test_data = {
 
 #: Dict of {test_name: (template, output)}
 templates_and_output: Dict[str, Tuple[str, str]] = {}
+#: Dict of {test_name: (template, config_name, output)}
 config_template_output: Dict[str, Tuple[str, str, str]] = {}
 
 templates_and_output['basic'] = (
@@ -86,9 +88,8 @@ templates_and_output['escaped-sequence'] = (
     templates_and_output.values(),
     ids=templates_and_output.keys(),
 )
-def test_mustache_md(template, expected_output):
-    output = mustache_md(template, test_data)  # pylint: disable=not-callable
-    assert expected_output == output
+def test_mustache_md(template: str, expected_output: str) -> None:
+    assert mustache_md(template, test_data) == expected_output
 
 
 config_template_output['basic-basic'] = (
@@ -174,7 +175,8 @@ config_template_output['escaped-sequence-document'] = (
     config_template_output.values(),
     ids=config_template_output.keys(),
 )
-def test_mustache_md_markdown(template, config, expected_output):
-    assert expected_output == MarkdownConfig.registry[config].render(
-        mustache_md(template, test_data)  # pylint: disable=not-callable
+def test_mustache_md_markdown(template: str, config: str, expected_output: str) -> None:
+    assert (
+        MarkdownConfig.registry[config].render(mustache_md(template, test_data))
+        == expected_output
     )
