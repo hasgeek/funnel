@@ -64,7 +64,7 @@ $(() => {
   }
 
   // Detect timezone for login
-  if ($.cookie('timezone') === null) {
+  if (!$.cookie('timezone')) {
     $.cookie('timezone', jstz.determine().name(), { path: '/' });
   }
 
