@@ -1,0 +1,127 @@
+{%- extends "notifications/layout_email.html.jinja2" -%}
+{%- from "notifications/macros_email.html.jinja2" import cta_button, rsvp_footer, pinned_update -%}
+
+{% block stylesheet %}
+<style>
+a {
+  text-decoration: none;
+  font-weight: bold;
+  color: #1f2d3d;
+}
+.project-banner__box__image {
+  position: relative;
+  transform: translate(0, -8px);
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+.mui-list--unstyled {
+  padding-left: 0;
+  list-style: none;
+}
+.mui--align-middle {
+  vertical-align: middle !important;
+}
+.fa-icon--right-margin {
+  margin-right: 8px;
+}
+.project_time {
+  margin: 8px 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: right !important;
+}
+.mui--text-light {
+  color: #4d5763;
+}
+.button-td,
+.button-a {
+    border-radius: 4px;
+    background-color: #4d5763;
+    transition: all 100ms ease-in;
+    font-family: sans-serif;
+    font-size: 15px;
+    line-height: 15px;
+    text-decoration: none;
+}
+.button-a {
+    border: 1px solid #4d5763;
+    padding: 13px 17px;
+    color: #ffffff;
+    display: block;
+}
+.button-td-primary:hover,
+.button-a-primary:hover {
+    background-color: #1f2d3d !important;
+    border-color: #1f2d3d !important;
+}
+.project-banner__profile-details {
+  display: -webkit-box-flex;
+  display: -ms-flexbox;
+  display: flex;
+  line-height: 30px;
+  margin-left: 0;
+}
+.project_title {
+  line-height: 1rem;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.project_details {
+  padding: 0;
+}
+.profile-details__text {
+  margin-left: 4px;
+}
+</style>
+{% endblock stylesheet %}
+{%- block content -%}
+
+  <tr>
+    <td>
+      {%- if view.project.bg_image.url %}
+        <img class="project-banner__box__image" src="{{ view.project.bg_image.resize(700) }}" alt="{{ view.project.title }}"/>
+      {%- else %}
+        <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ view.project.title }}"/>
+      {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <td class="project_details" align="left">
+      <div class="project-banner__profile-details">
+        {%- if view.project.profile.logo_url.url %}
+          <a href="{{ view.project.profile.url_for() }}">
+            <img src="{{ view.project.profile.logo_url.resize(30) }}" alt="{{ view.project.profile.title }}"/>
+          </a>
+        {% endif %}
+        <a href="{{ view.project.profile.url_for() }}" class="profile-details__text">{{ view.project.profile.title }}</a>
+      </div>
+    </td>
+  </tr>
+  <tr width="100%">
+    <td align="left">
+      <h2 class="project_title"><a href="{{ view.project.url_for() }}">{{ view.project.title }}</a></h2>
+      <p class="project_time">{{ view.project.start_at|datetime(format='dd MMM YYYY') }} | {{ view.project.start_at|datetime(format='HH:MM') }}</p>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      {{ view.project.description.html }}
+    </td>
+  </tr>
+  <br>
+
+  {# Button : BEGIN #}
+  {{ cta_button(view.project.url_for(_external=true), gettext("Register") )}}
+  {# Button : END #}
+
+  {# {{ pinned_update(view, project) }} #}
+
+  <tr>
+    <td class="line-separator"></td>
+  </tr>
+  <tr>
+    <td class="footer-text">{{ view.reason }}</td>
+  </tr>
+
+{%- endblock content -%}

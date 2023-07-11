@@ -32,6 +32,7 @@ __all__ = [
     'RegistrationCancellationNotification',
     'RegistrationConfirmationNotification',
     'ProjectStartingNotification',
+    'ProjectPublishedNotification',
     'OrganizationAdminMembershipNotification',
     'OrganizationAdminMembershipRevokedNotification',
 ]
@@ -151,6 +152,22 @@ class ProjectStartingNotification(
 
     roles = ['project_crew', 'project_participant']
     # This is a notification triggered without an actor
+
+
+class ProjectPublishedNotification(
+    DocumentHasProfile, Notification, type='project_published'
+):
+    """Notifications of a newly published project."""
+
+    category = notification_categories.participant
+    title = __("When a project is published")
+    description = __(
+        "Notifies all members of a profile when a new project is published"
+    )
+
+    document_model = Project
+    roles = ['project_crew', 'project_participant', 'account_participant']
+    exclude_actor = False  # Send to everyone including the actor
 
 
 # --- Comment notifications ------------------------------------------------------------
