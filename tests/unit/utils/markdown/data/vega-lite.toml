@@ -354,9 +354,9 @@ markdown = """
 [config]
 profiles = [ "basic", "document",]
 
-[config.custom_profiles.vega-lite]
+[config.custom_profiles.vega_lite]
 preset = "default"
-plugins = [ "vega-lite",]
+plugins = [ "vega_lite",]
 
 [expected_output]
 basic = """<h1>vega-lite tests</h1>
