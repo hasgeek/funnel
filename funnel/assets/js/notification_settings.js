@@ -1,8 +1,28 @@
 import toastr from 'toastr';
 import Form from './utils/formhelper';
+import ScrollHelper from './utils/scrollhelper';
 
 $(() => {
   window.Hasgeek.notificationSettings = (config) => {
+    let tab;
+    const headerHeight =
+      ScrollHelper.getPageHeaderHeight() + $('.tabs-wrapper').height();
+    if (window.location.hash) {
+      tab = window.location.hash.split('#').pop();
+      ScrollHelper.animateScrollTo($(window.location.hash).offset().top - headerHeight);
+    } else {
+      tab = config.defaultTab;
+      window.location.hash = tab;
+    }
+    $(`.js-pills-tab-${tab}`).addClass('mui--is-active');
+    $(`.js-pills-tab-${tab}`).find('a').attr('tabindex', 1).attr('aria-selected', true);
+    $(`.js-tabs-pane-${tab}`).addClass('mui--is-active');
+
+    $('.js-tab-anchor').on('click', function scrollToTabpane() {
+      const tabPane = $('.js-tab-anchor').attr('href');
+      ScrollHelper.animateScrollTo($(tabPane).offset().top - headerHeight);
+    });
+
     $('.js-toggle-switch').on('change', function toggleNotifications() {
       const checkbox = $(this);
       const transport = $(this).attr('id');
