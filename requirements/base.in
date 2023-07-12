@@ -27,6 +27,7 @@ Flask-SQLAlchemy
 Flask-WTF
 furl
 geoip2
+grapheme
 greenlet
 gunicorn
 html2text

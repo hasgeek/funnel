@@ -277,7 +277,6 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     This decorator is intended to aid legibility of bi-directional relationships in
     SQLAlchemy models, specifically where a basic backref is augmented with methods or
     properties that do more processing.
-
     """
 
     def decorator(temp_cls: TempType) -> ReopenedType:
@@ -573,7 +572,7 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
     url_parser = ImgeeFurl
     cache_ok = True
 
-    def process_bind_param(self, value: Any, dialect: Any):
+    def process_bind_param(self, value: Any, dialect: Any) -> furl:
         value = super().process_bind_param(value, dialect)
         if value:
             allowed_domains = app.config.get('IMAGE_URL_DOMAINS', [])
@@ -619,6 +618,8 @@ class MarkdownCompositeBase(MutableComposite):
 
     def __markdown_format__(self, format_spec: str) -> str:
         """Implement format_spec support as required by MarkdownString."""
+        # This call's MarkdownString's __format__ instead of __markdown_format__ as the
+        # content has not been manipulated from the source string
         return self.__markdown__().__format__(format_spec)
 
     def __html__(self) -> str:
@@ -627,6 +628,8 @@ class MarkdownCompositeBase(MutableComposite):
 
     def __html_format__(self, format_spec: str) -> str:
         """Implement format_spec support as required by Markup."""
+        # This call's Markup's __format__ instead of __html_format__ as the
+        # content has not been manipulated from the source string
         return self.__html__().__format__(format_spec)
 
     # Return a Markup string of the HTML
@@ -692,19 +695,31 @@ class MarkdownCompositeBase(MutableComposite):
         cls: Type[_MC],
         name: str,
         deferred: bool = False,
-        group: Optional[str] = None,
+        deferred_group: Optional[str] = None,
         **kwargs,
     ) -> Tuple[sa.orm.Composite[_MC], Mapped[str], Mapped[str]]:
         """Create a composite column and backing individual columns."""
-        col_text = sa.orm.mapped_column(name + '_text', sa.UnicodeText, **kwargs)
-        col_html = sa.orm.mapped_column(name + '_html', sa.UnicodeText, **kwargs)
+        col_text = sa.orm.mapped_column(
+            name + '_text',
+            sa.UnicodeText,
+            deferred=deferred,
+            deferred_group=deferred_group,
+            **kwargs,
+        )
+        col_html = sa.orm.mapped_column(
+            name + '_html',
+            sa.UnicodeText,
+            deferred=deferred,
+            deferred_group=deferred_group,
+            **kwargs,
+        )
         return (
             composite(
                 cls,
                 col_text,
                 col_html,
                 deferred=deferred,
-                group=group or name,
+                group=deferred_group,
             ),
             col_text,
             col_html,

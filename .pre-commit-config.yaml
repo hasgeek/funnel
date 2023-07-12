@@ -115,6 +115,7 @@ repos:
   #         - sqlalchemy
   #         - toml
   #         - tomli
+  #         - types-chevron
   #         - types-geoip2
   #         - types-python-dateutil
   #         - types-pytz
