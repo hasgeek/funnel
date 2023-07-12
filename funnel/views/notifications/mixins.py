@@ -3,6 +3,8 @@
 from typing import Callable, Generic, Optional, Type, TypeVar, Union, overload
 from typing_extensions import Self
 
+import grapheme
+
 from ...models import Project, User
 
 _T = TypeVar('_T')  # Host type for SetVar
@@ -69,9 +71,11 @@ class TemplateVarMixin:
         """Set project joined title or title, truncated to fit the length limit."""
         if len(project.joined_title) <= self.var_max_length:
             return project.joined_title
-        if len(project.title) <= self.var_max_length:
-            return project.title
-        return project.title[: self.var_max_length - 1] + '…'
+        title = project.title
+        if len(title) <= self.var_max_length:
+            return title
+        index = grapheme.safe_split_index(title, self.var_max_length - 1)
+        return title[:index] + '…'
 
     @SetVar
     def user(self, user: User) -> str:
@@ -82,6 +86,7 @@ class TemplateVarMixin:
         fullname = user.fullname
         if len(fullname) <= self.var_max_length:
             return fullname
-        return fullname[: self.var_max_length - 1] + '…'
+        index = grapheme.safe_split_index(fullname, self.var_max_length - 1)
+        return fullname[:index] + '…'
 
-    actor = user
+    actor = user  # This will trigger cloning in SetVar.__set_name__
