@@ -12,9 +12,8 @@ from ..typing import Response
 from .helpers import app_url_for
 
 
-@shortlinkapp.route('/')
-@unsubscribeapp.route('/')
-def index() -> Response:
+@shortlinkapp.route('/', endpoint='index')
+def shortlink_index() -> Response:
     return redirect(app_url_for(app, 'index'), 301)
 
 
@@ -39,6 +38,11 @@ def link(name: str) -> Response:
     response.headers['Referrer-Policy'] = 'unsafe-url'
     # TODO: Perform analytics here: log client, set session cookie, etc
     return response
+
+
+@unsubscribeapp.route('/', endpoint='index')
+def unsubscribe_index() -> Response:
+    return redirect(app_url_for(app, 'notification_preferences', utm_medium='sms'), 301)
 
 
 @unsubscribeapp.route('/<token>')
