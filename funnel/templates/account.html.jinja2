@@ -369,20 +369,28 @@
         </form>
       </div>
     </div>
-  </div>
-  {# Disabled until feature is ready for public use
     <div class="grid__col-xs-12">
       <div class="card">
-        <div class="card__header">
-          <h3 class="mui--text-title text-bold">{% trans %}Delete{% endtrans %}</h3>
+        <div class="card__header--danger flex-wrapper flex-wrapper--baseline flex-wrapper--space-between">
+          <h3 class="mui--text-title text-bold mui--text-danger">{% trans %}Delete account{% endtrans %}</h3>
+          {{ faicon(icon='exclamation-triangle', icon_size='subhead', baseline=true, css_class="mui--text-danger input-align-icon") }}
         </div>
         <div class="card__body">
-          <p>{%- trans %}{% endtrans %}</p>
-          <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--danger" href="{{ url_for('account_delete') }}" data-cy="change-password">{% trans %}Delete my account{% endtrans %}</a>
+            <p>{%- trans %}Deleting your account will:{% endtrans %}</p>
+          <ul>
+            {%- trans %}
+            <li>Log you out on all devices</li>
+            <li>Delete all your account information</li>
+            {% endtrans %}
+          </ul>
+        </div>
+        <div class="mui-divider"></div>
+        <div class="card__footer">
+          <a class="mui-btn mui-btn--small mui-btn--danger" href="{{ url_for('account_delete') }}" data-cy="change-password">{% trans %}Delete my account{% endtrans %}</a>
         </div>
       </div>
     </div>
-#}
+  </div>
 </div>
 {%- endblock basecontent %}
 {% block footerscripts -%}

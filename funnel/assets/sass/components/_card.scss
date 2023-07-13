@@ -25,6 +25,10 @@
     width: 80%;
   }
 
+  .card__header--danger {
+    padding: $mui-grid-padding;
+    background: $mui-danger-color;
+  }
   .card__body {
     padding: $mui-grid-padding * 0.5 $mui-grid-padding;
     word-break: break-word;
