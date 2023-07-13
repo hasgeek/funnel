@@ -95,7 +95,7 @@
     $(function() {
       var config = {
         url: {{ url_for('set_notification_preference')|tojson }},
-        defaultTab: {{ transports[0]|tojson  }},
+        tabs: {{ transports|tojson  }},
       }
       window.Hasgeek.notificationSettings(config);
     });
