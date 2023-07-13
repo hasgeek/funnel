@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from functools import wraps
-from typing import Callable, Optional, Type, Union
+from typing import Callable, Optional, Type, Union, overload
 
 import geoip2.errors
 import itsdangerous
@@ -23,7 +23,7 @@ from flask import (
 )
 from furl import furl
 
-from baseframe import _, statsd
+from baseframe import _, __, statsd
 from baseframe.forms import render_form
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
@@ -440,7 +440,7 @@ def requires_user_not_spammy(
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
             """Validate user rights in a view."""
             if not current_auth.is_authenticated:
-                flash(_("You need to be logged in for that page"), 'info')
+                flash(_("Confirm your phone number to continue"), 'info')
                 return render_redirect(
                     url_for('login', next=get_current_url()),
                     302 if request.method == 'GET' else 303,
@@ -460,43 +460,64 @@ def requires_user_not_spammy(
     return decorator
 
 
-def requires_login(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
-    """Decorate a view to require login."""
-
-    @wraps(f)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
-        add_auth_attribute('login_required', True)
-        if not current_auth.is_authenticated:
-            flash(_("You need to be logged in for that page"), 'info')
-            return render_redirect(
-                url_for('login', next=get_current_url()),
-                302 if request.method == 'GET' else 303,
-            )
-        return f(*args, **kwargs)
-
-    return wrapper
+@overload
+def requires_login(
+    __p: str,
+) -> Callable[[Callable[P, T]], Callable[P, Union[T, ReturnResponse]]]:
+    ...
 
 
-def requires_login_no_message(
-    f: Callable[P, T]
-) -> Callable[P, Union[T, ReturnResponse]]:
+@overload
+def requires_login(__p: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
+    ...
+
+
+def requires_login(
+    __p: Union[str, Callable[P, T]]
+) -> Union[
+    Callable[[Callable[P, T]], Callable[P, Union[T, ReturnResponse]]],
+    Callable[P, Union[T, ReturnResponse]],
+]:
     """
-    Decorate a view to require login, without displaying a friendly message.
+    Decorate a view to require login, with a customisable message.
 
-    Used on views where the user is informed in advance that login is required.
+    Usage::
+
+        @requires_login
+        def view_requiring_login():
+            ...
+
+        @requires_login(__("Message to be shown"))
+        def view_requiring_login_with_custom_message():
+            ...
+
+        @requires_login('')
+        def view_requiring_login_with_no_message():
+            ...
     """
+    if callable(__p):
+        message = __("You need to be logged in for that page")
+    else:
+        message = __p
 
-    @wraps(f)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
-        add_auth_attribute('login_required', True)
-        if not current_auth.is_authenticated:
-            return render_redirect(
-                url_for('login', next=get_current_url()),
-                302 if request.method == 'GET' else 303,
-            )
-        return f(*args, **kwargs)
+    def decorator(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
+        @wraps(f)
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
+            add_auth_attribute('login_required', True)
+            if not current_auth.is_authenticated:
+                if message:  # Setting an empty message will disable it
+                    flash(message, 'info')
+                return render_redirect(
+                    url_for('login', next=get_current_url()),
+                    302 if request.method == 'GET' else 303,
+                )
+            return f(*args, **kwargs)
 
-    return wrapper
+        return wrapper
+
+    if callable(__p):
+        return decorator(__p)
+    return decorator
 
 
 def save_sudo_preference_context() -> None:
