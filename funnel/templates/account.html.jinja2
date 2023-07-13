@@ -109,7 +109,7 @@
       <div class="grid__col-xs-12 grid__col-sm-6">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title text-bold">{% trans %}Connected accounts{% endtrans %}</h3>
+            <h3 class="card__header__title mui--text-title text-bold">{% trans %}Connected accounts{% endtrans %}</h3>
           </div>
           <div class="card__body card__body--lgtext mui--text-subhead">
             <ol class="list--aligned list--border zero-bottom-margin">
@@ -145,7 +145,7 @@
         <div class="grid__col-xs-12 grid__col-sm-6">
           <div class="card">
             <div class="card__header">
-              <h3 class="mui--text-title text-bold">{% trans %}Email addresses{% endtrans %}</h3>
+              <h3 class="card__header__title mui--text-title text-bold">{% trans %}Email addresses{% endtrans %}</h3>
             </div>
             <form action="{{ url_for('make_email_primary') }}"
                   method="post"
@@ -205,7 +205,7 @@
         <div class="grid__col-xs-12 grid__col-sm-6">
           <div class="card">
             <div class="card__header">
-              <h3 class="mui--text-title text-bold">{% trans %}Mobile numbers{% endtrans %}</h3>
+              <h3 class="card__header__title mui--text-title text-bold">{% trans %}Mobile numbers{% endtrans %}</h3>
             </div>
             <form action="{{ url_for('make_phone_primary') }}"
                   method="post"
@@ -258,7 +258,7 @@
         <div class="grid__col-xs-12">
           <div class="card">
             <div class="card__header">
-              <h3 class="mui--text-title text-bold">
+              <h3 class="card__header__title mui--text-title text-bold">
                 {% trans %}Connected apps{% endtrans %}
               </h3>
             </div>
@@ -306,7 +306,7 @@
       <div class="grid__col-xs-12">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title text-bold">
+            <h3 class="card__header__title mui--text-title text-bold">
               {% trans %}Login sessions{% endtrans %}
             </h3>
           </div>
@@ -372,21 +372,17 @@
     <div class="grid__col-xs-12">
       <div class="card">
         <div class="card__header--danger flex-wrapper flex-wrapper--baseline flex-wrapper--space-between">
-          <h3 class="mui--text-title text-bold mui--text-danger">{% trans %}Delete account{% endtrans %}</h3>
+          <h3 class="card__header__title mui--text-title text-bold mui--text-danger">{% trans %}Delete account{% endtrans %}</h3>
           {{ faicon(icon='exclamation-triangle', icon_size='subhead', baseline=true, css_class="mui--text-danger input-align-icon") }}
         </div>
         <div class="card__body">
-            <p>{%- trans %}Deleting your account will:{% endtrans %}</p>
-          <ul>
-            {%- trans %}
-            <li>Log you out on all devices</li>
-            <li>Delete all your account information</li>
-            {% endtrans %}
-          </ul>
+            <p>{% trans -%}
+            If you no longer need this account, you can delete it. If you have a duplicate account, you can merge it by adding the same phone number or email address here. No deletion necessary.
+            {%- endtrans %}</p>
         </div>
         <div class="mui-divider"></div>
         <div class="card__footer">
-          <a class="mui-btn mui-btn--small mui-btn--danger" href="{{ url_for('account_delete') }}" data-cy="change-password">{% trans %}Delete my account{% endtrans %}</a>
+          <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--danger" href="{{ url_for('account_delete') }}" data-cy="change-password">{% trans %}Delete this account{% endtrans %}</a>
         </div>
       </div>
     </div>
