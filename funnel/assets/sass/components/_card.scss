@@ -23,8 +23,14 @@
 
   .card__header__title {
     width: 80%;
+    margin-top: 8px;
+    margin-bottom: 8px;
   }
 
+  .card__header--danger {
+    padding: $mui-grid-padding;
+    background: $mui-danger-color;
+  }
   .card__body {
     padding: $mui-grid-padding * 0.5 $mui-grid-padding;
     word-break: break-word;
