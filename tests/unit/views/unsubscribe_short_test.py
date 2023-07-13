@@ -13,7 +13,9 @@ def test_unsubscribe_app_index(app: Flask, unsubscribeapp: Flask) -> None:
     redirect_url: str = rv.location
     assert redirect_url.startswith(('http://', 'https://'))
     assert (
-        app.url_for('notification_preferences', utm_medium='sms', _external=True)
+        app.url_for(
+            'notification_preferences', utm_medium='sms', _anchor='sms', _external=True
+        )
         == redirect_url
     )
 
