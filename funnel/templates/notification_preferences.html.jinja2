@@ -24,17 +24,16 @@
       <div class="grid__col-xs-12">
         <ul class="mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps text-capitalize" role="tablist">
           {% for transport in transports %}
-            <li role="presentation"{%- if loop.first %} class="mui--is-active"{% endif %}>
-              <a class="mui--text-body2" href="#" onclick="return false;" role="tab" data-mui-toggle="tab" id="tab-{{ transport }}"
-                data-mui-controls="pane-justified-{{ transport }}" aria-controls="pane-justified-{{ transport }}"
-                {%- if loop.first %}tabindex="0" aria-selected="true"{% else %}tabindex="-1" aria-selected="false"{% endif %}
+            <li role="presentation" class="js-pills-tab-{{ transport }}">
+              <a class="mui--text-body2 js-tab-anchor" href="#{{ transport }}" role="tab" data-mui-toggle="tab" id="tab-{{ transport }}"
+                data-mui-controls="{{ transport }}" aria-controls="{{ transport }}" tabindex="-1" aria-selected="false"
               >{{ transport_details[transport]['title'] }}</a>
             </li>
           {%- endfor %}
         </ul>
         {% for transport in transports %}
-          <div role="tabpanel" class="preference mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}"
-            id="pane-justified-{{ transport }}" aria-labelledby="tab-{{ transport }}" tabindex="0">
+          <div role="tabpanel" class="preference mui-tabs__pane js-tabs-pane-{{ transport }}"
+            id="{{ transport }}" aria-labelledby="{{ transport }}" tabindex="0">
             <div class="preference__switch mui--clearfix">
               {% if transport_details[transport]['available'] %}
                 <form method="post" class="js-autosubmit-form right-padding">
@@ -96,6 +95,7 @@
     $(function() {
       var config = {
         url: {{ url_for('set_notification_preference')|tojson }},
+        tabs: {{ transports|tojson  }},
       }
       window.Hasgeek.notificationSettings(config);
     });
