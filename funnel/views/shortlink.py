@@ -14,11 +14,13 @@ from .helpers import app_url_for
 
 @shortlinkapp.route('/', endpoint='index')
 def shortlink_index() -> Response:
+    """Shortlink app doesn't have a page, so redirect to main app's index."""
     return redirect(app_url_for(app, 'index'), 301)
 
 
 @shortlinkapp.route('/<name>')
 def link(name: str) -> Response:
+    """Redirect from a shortlink to the full link."""
     sl = Shortlink.get(name, True)
     if sl is None:
         abort(404)
@@ -42,7 +44,11 @@ def link(name: str) -> Response:
 
 @unsubscribeapp.route('/', endpoint='index')
 def unsubscribe_index() -> Response:
-    return redirect(app_url_for(app, 'notification_preferences', utm_medium='sms'), 301)
+    """Redirect to SMS notification preferences."""
+    return redirect(
+        app_url_for(app, 'notification_preferences', utm_medium='sms', _anchor='sms'),
+        301,
+    )
 
 
 @unsubscribeapp.route('/<token>')

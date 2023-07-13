@@ -661,7 +661,7 @@ def account_merge() -> ReturnView:
 #     3. Redirect user to `app` /login/hasjob?code={code}
 
 # 2. `app` /login/hasjob does:
-#     1. Ask user to login if required (@requires_login_no_message)
+#     1. Ask user to login if required (@requires_login(''))
 #     2. Verify signature of code
 #     3. Create a timestamped token using (nonce, user_session.buid)
 #     4. Redirect user to `hasjobapp` /login/callback?token={token}
@@ -703,7 +703,7 @@ def hasjob_login(cookietest: bool = False) -> ReturnView:
 
 # @app.route('/login/hasjob')
 # @reload_for_cookies
-# @requires_login_no_message  # 1. Ensure user login
+# @requires_login('')  # 1. Ensure user login
 # @requestargs('code')
 # def login_hasjob(code):
 #     """Process a request for login initiated from Hasjob."""
