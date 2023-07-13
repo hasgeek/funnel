@@ -7,9 +7,27 @@ from flask import render_template
 from baseframe import _, __
 
 from ...models import Project, ProjectPublishedNotification
-from ...transports.sms import TwoLineTemplate
+from ...transports.sms import SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
+from .mixins import TemplateVarMixin
+
+
+class ProjectPublishedTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for Project published."""
+
+    registered_template = (
+        "{#var#}, whose event you previously registered for, has just announced"
+        " {#var#}. Details here: {#var#}\n\nhttps://bye.li to stop -Hasgeek"
+    )
+    template = (
+        "{profile}, whose event you previously registered for, has just announced"
+        "{project}. Details here: {url}\n\nhttps://bye.li to stop -Hasgeek"
+    )
+    plaintext_template = "{profile} has published a new project: {url}"
+
+    url: str
+    profile: str
 
 
 @ProjectPublishedNotification.renderer
@@ -41,10 +59,10 @@ class RenderProjectPublishedNotification(RenderNotification):
             'notifications/project_published_email.html.jinja2', view=self
         )
 
-    def sms(self) -> TwoLineTemplate:
-        return TwoLineTemplate(
-            text1=_("Update in {project}:").format(project=self.project.joined_title),
-            text2=self.project.title,
+    def sms(self) -> ProjectPublishedTemplate:
+        return ProjectPublishedTemplate(
+            profile=self.project.profile,
+            project=self.project,
             url=shortlink(
                 self.update.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,
