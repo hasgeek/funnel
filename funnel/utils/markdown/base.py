@@ -37,7 +37,14 @@ from .mdit_plugins import (  # toc_plugin,
 )
 from .tabs import render_tab
 
-__all__ = ['MarkdownPlugin', 'MarkdownConfig']
+__all__ = [
+    'MarkdownPlugin',
+    'MarkdownConfig',
+    'markdown_basic',
+    'markdown_document',
+    'markdown_mailer',
+    'markdown_inline',
+]
 
 
 # --- Markdown dataclasses -------------------------------------------------------------
@@ -129,8 +136,11 @@ class MarkdownConfig:
         if text is None:
             return None
 
-        # Replace invisible characters with spaces
-        text = normalize_spaces_multiline(text)
+        # Recast MarkdownString as a plain string and normalize all space chars
+        text = normalize_spaces_multiline(str(text))
+        # XXX: this also replaces a tab with a single space. This will be a problem if
+        # the tab char has semantic meaning, such as in an embedded code block for a
+        # tab-sensitive syntax like a Makefile
 
         md = MarkdownIt(self.preset, self.options_update or {})
 
