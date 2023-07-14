@@ -573,7 +573,11 @@ class ProjectView(  # type: ignore[misc]
             transition()  # call the transition
             db.session.commit()
             flash(transition.data['message'], 'success')
-            dispatch_notification(ProjectPublishedNotification(document=self.obj))
+            dispatch_notification(
+                ProjectPublishedNotification(
+                    document=self.obj.profile, fragment=self.obj
+                )
+            )
         else:
             flash(_("Invalid transition for this project"), 'error')
             abort(403)

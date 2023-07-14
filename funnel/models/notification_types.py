@@ -155,7 +155,7 @@ class ProjectStartingNotification(
 
 
 class ProjectPublishedNotification(
-    DocumentHasProfile, Notification, type='project_published'
+    DocumentHasProfile, Notification[Profile, Project], type='project_published'
 ):
     """Notifications of a newly published project."""
 
@@ -165,7 +165,6 @@ class ProjectPublishedNotification(
         "Notifies all members of a profile when a new project is published"
     )
 
-    document_model = Project
     roles = ['project_crew', 'project_participant', 'account_participant']
     exclude_actor = False  # Send to everyone including the actor
 

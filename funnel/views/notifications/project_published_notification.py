@@ -22,7 +22,7 @@ class ProjectPublishedTemplate(TemplateVarMixin, SmsTemplate):
     )
     template = (
         "{profile}, whose event you previously registered for, has just announced"
-        "{project}. Details here: {url}\n\nhttps://bye.li to stop -Hasgeek"
+        " {project}. Details here: {url}\n\nhttps://bye.li to stop -Hasgeek"
     )
     plaintext_template = "{profile} has published a new project: {url}"
 
@@ -35,7 +35,7 @@ class RenderProjectPublishedNotification(RenderNotification):
     """Notify account followers when a new project is published."""
 
     project: Project
-    aliases = {'document': 'project'}
+    aliases = {'document': 'profile', 'fragment': 'project'}
     emoji_prefix = "📰 "
     reason = __(
         "You are receiving this because you have registered for this or related"
