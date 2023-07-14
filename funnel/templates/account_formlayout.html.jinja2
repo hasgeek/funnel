@@ -81,7 +81,7 @@
     });
   </script>
   {{ ajaxform(ref_id=ref_id, request=request, force=ajax) }}
-  {%- if form and form.recaptcha is defined %}
+  {%- if form and 'recaptcha' in form %}
     {% block recaptcha %}{{ recaptcha(ref_id=ref_id) }}{% endblock recaptcha %}
   {%- endif %}
 {% endblock footerscripts %}
