@@ -31,7 +31,7 @@
     {%- if with_chrome -%}
       {{ ajaxform(ref_id=ref_id, request=request, force=true) }}
     {%- endif -%}
-    {%- if form and form.recaptcha is defined %}
+    {%- if form and 'recaptcha' in form %}
       {% block recaptcha %}{% endblock recaptcha %}
     {%- endif %}
   {% endblock innerscripts %}
