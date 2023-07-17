@@ -12,10 +12,6 @@
     float: right;
   }
 
-  .tickets-wrapper__modal__body__close--hide {
-    display: none;
-  }
-
   .tickets-wrapper__modal--show {
     position: fixed;
     top: 0;
@@ -34,6 +30,9 @@
   .tickets-wrapper__modal--project-page.tickets-wrapper__modal--show {
     top: 52px; // Below the header
   }
+  .tickets-wrapper__modal--project-page .tickets-wrapper__modal__body__close {
+    display: none;
+  }
 }
 
 @media (min-width: 768px) {
@@ -43,6 +42,12 @@
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0, 0.75);
+    }
+    .tickets-wrapper__modal--project-page.tickets-wrapper__modal--show {
+      top: 0;
+    }
+    .tickets-wrapper__modal--project-page .tickets-wrapper__modal__body__close {
+      display: block;
     }
 
     .tickets-wrapper__modal__body {
