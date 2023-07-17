@@ -44,7 +44,7 @@ repos:
           ]
         files: ^requirements/.*\.txt$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.277
+    rev: v0.0.278
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
@@ -96,7 +96,7 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
       - id: black
   # Mypy is temporarily disabled until the SQLAlchemy 2.0 migration is complete
