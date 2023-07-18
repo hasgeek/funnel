@@ -477,14 +477,17 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         message=__("Submissions will be accepted until the optional closing date"),
         type='success',
     )
-    def open_cfp(self):
+    def open_cfp(self) -> bool:
         """Change state to accept submissions."""
+        first_opened = False
         # If closing date is in the past, remove it
         if self.cfp_end_at is not None and self.cfp_end_at <= utcnow():
             self.cfp_end_at = None
         # If opening date is not set, set it
         if self.cfp_start_at is None:
             self.cfp_start_at = sa.func.utcnow()
+            first_opened = True
+        return first_opened
 
     @with_roles(call={'editor'})  # skipcq: PTC-W0049
     @cfp_state.transition(
@@ -494,7 +497,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         message=__("Submissions will no longer be accepted"),
         type='success',
     )
-    def close_cfp(self):
+    def close_cfp(self) -> None:
         """Change state to not accept submissions."""
 
     @with_roles(call={'editor'})
@@ -522,7 +525,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         message=__("The project has been withdrawn and is no longer listed"),
         type='success',
     )
-    def withdraw(self):
+    def withdraw(self) -> None:
         """Withdraw a project."""
 
     @property

@@ -5,6 +5,7 @@ import io
 from dataclasses import dataclass
 from json import JSONDecodeError
 from types import SimpleNamespace
+from typing import Optional
 
 from flask import Response, abort, current_app, flash, render_template, request
 from flask_babel import format_number
@@ -564,20 +565,22 @@ class ProjectView(  # type: ignore[misc]
     def transition(self) -> ReturnView:
         """Change project's state."""
         transition_form = ProjectTransitionForm(obj=self.obj)
-        if (
-            transition_form.validate_on_submit()
-        ):  # check if the provided transition is valid
+        # Check if the provided transition is valid
+        if transition_form.validate_on_submit():
             transition = getattr(
                 self.obj.current_access(), transition_form.transition.data
             )
-            transition()  # call the transition
+            first_time_flag: Optional[bool] = transition()  # call the transition
             db.session.commit()
             flash(transition.data['message'], 'success')
-            dispatch_notification(
-                ProjectPublishedNotification(
-                    document=self.obj.profile, fragment=self.obj
+            if transition_form.transition.data == 'publish' and first_time_flag:
+                dispatch_notification(
+                    ProjectPublishedNotification(
+                        document=self.obj.profile, fragment=self.obj
+                    )
                 )
-            )
+            # If there's a future notification for CFP open, it can be dispatched here
+            # elif transition_form.transition.data == 'open_cfp' and first_time_flag:
         else:
             flash(_("Invalid transition for this project"), 'error')
             abort(403)
