@@ -6,13 +6,16 @@ from typing import Optional
 
 from flask import Flask
 from geoip2.database import Reader
+from geoip2.errors import AddressNotFoundError, GeoIP2Error
 from geoip2.models import ASN, City
 
-__all__ = ['GeoIP', 'geoip']
+__all__ = ['GeoIP', 'geoip', 'GeoIP2Error', 'AddressNotFoundError']
 
 
 @dataclass
 class GeoIP:
+    """Wrapper for GeoIP2 Reader."""
+
     city_db: Optional[Reader] = None
     asn_db: Optional[Reader] = None
 

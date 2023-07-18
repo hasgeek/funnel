@@ -6,7 +6,6 @@ from datetime import timedelta
 from functools import wraps
 from typing import Callable, Optional, Type, Union, overload
 
-import geoip2.errors
 import itsdangerous
 from flask import (
     Response,
@@ -31,7 +30,7 @@ from coaster.views import get_current_url, get_next_url
 
 from .. import app
 from ..forms import OtpForm, PasswordForm
-from ..geoip import geoip
+from ..geoip import GeoIP2Error, geoip
 from ..models import (
     USER_SESSION_VALIDITY_PERIOD,
     AuthClient,
@@ -264,7 +263,7 @@ def session_mark_accessed(
                             city_lookup.subdivisions.most_specific.geoname_id
                         )
                         obj.geonameid_country = city_lookup.country.geoname_id
-            except (ValueError, geoip2.errors.GeoIP2Error):
+            except (ValueError, GeoIP2Error):
                 obj.geonameid_city = None
                 obj.geonameid_subdivision = None
                 obj.geonameid_country = None
@@ -273,7 +272,7 @@ def session_mark_accessed(
                     asn_lookup = geoip.asn(ipaddr)
                     if asn_lookup:
                         obj.geoip_asn = asn_lookup.autonomous_system_number
-            except (ValueError, geoip2.errors.GeoIP2Error):
+            except (ValueError, GeoIP2Error):
                 obj.geoip_asn = None
             # Save IP address and user agent if they've changed
             if ipaddr != obj.ipaddr:

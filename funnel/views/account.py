@@ -6,7 +6,6 @@ from string import capwords
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
-import geoip2.errors
 import user_agents
 from flask import (
     abort,
@@ -43,7 +42,7 @@ from ..forms import (
     supported_locales,
     timezone_identifiers,
 )
-from ..geoip import geoip
+from ..geoip import GeoIP2Error, geoip
 from ..models import (
     AccountPasswordNotification,
     AuthClient,
@@ -251,7 +250,7 @@ def user_session_location(obj: UserSession) -> str:
     try:
         city_lookup = geoip.city(obj.ipaddr)
         asn_lookup = geoip.asn(obj.ipaddr)
-    except geoip2.errors.GeoIP2Error:
+    except GeoIP2Error:
         return _("Unknown location")
 
     # ASN is not ISP, but GeoLite2 only has an ASN database. The ISP db is commercial.
