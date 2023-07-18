@@ -13,7 +13,7 @@
     {{ cta_button(view.project.url_for(_external=true, **view.tracking_tags()), gettext("Join now") )}}
     {# Button : END #}
 
-    {{ pinned_update(view, view.rsvp.project) }}
+    {{ pinned_update(view, view.project) }}
 
     {# Email body footer : BEGIN #}
     {{ rsvp_footer(view, gettext("Cancel registration")) }}

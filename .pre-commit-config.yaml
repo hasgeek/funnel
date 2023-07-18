@@ -43,8 +43,8 @@ repos:
             'PYSEC-2023-73', # https://github.com/RedisLabs/redisraft/issues/608
           ]
         files: ^requirements/.*\.txt$
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.275
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.278
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
@@ -62,7 +62,7 @@ repos:
             '--remove-duplicate-keys',
           ]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.8.0
+    rev: v3.9.0
     hooks:
       - id: pyupgrade
         args:
@@ -96,7 +96,7 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
       - id: black
   # Mypy is temporarily disabled until the SQLAlchemy 2.0 migration is complete
@@ -113,6 +113,7 @@ repos:
   #         - sqlalchemy
   #         - toml
   #         - tomli
+  #         - types-chevron
   #         - types-geoip2
   #         - types-python-dateutil
   #         - types-pytz
@@ -178,7 +179,7 @@ repos:
       - id: trailing-whitespace
         args: ['--markdown-linebreak-ext=md']
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.9-for-vscode
+    rev: v3.0.0
     hooks:
       - id: prettier
         args:

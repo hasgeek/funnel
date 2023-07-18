@@ -139,8 +139,7 @@ warn_redundant_casts = false
 check_untyped_defs = false
 
 [[tool.mypy.overrides]]
-# This override doesn't seem to work
-module = ['tests']
+module = 'tests.*'
 check_untyped_defs = true
 warn_unreachable = false
 
