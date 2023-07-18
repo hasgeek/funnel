@@ -31,6 +31,7 @@ from coaster.views import get_current_url, get_next_url
 
 from .. import app
 from ..forms import OtpForm, PasswordForm
+from ..geoip import geoip
 from ..models import (
     USER_SESSION_VALIDITY_PERIOD,
     AuthClient,
@@ -255,25 +256,23 @@ def session_mark_accessed(
             ipaddr = (request.remote_addr or '') if ipaddr is None else ipaddr
             # Attempt to save geonameid and ASN from IP address
             try:
-                if app.geoip_city is not None and (
-                    obj.geonameid_city is None or ipaddr != obj.ipaddr
-                ):
-                    city_lookup = app.geoip_city.city(ipaddr)
-                    obj.geonameid_city = city_lookup.city.geoname_id
-                    obj.geonameid_subdivision = (
-                        city_lookup.subdivisions.most_specific.geoname_id
-                    )
-                    obj.geonameid_country = city_lookup.country.geoname_id
+                if obj.geonameid_city is None or ipaddr != obj.ipaddr:
+                    city_lookup = geoip.city(ipaddr)
+                    if city_lookup:
+                        obj.geonameid_city = city_lookup.city.geoname_id
+                        obj.geonameid_subdivision = (
+                            city_lookup.subdivisions.most_specific.geoname_id
+                        )
+                        obj.geonameid_country = city_lookup.country.geoname_id
             except (ValueError, geoip2.errors.GeoIP2Error):
                 obj.geonameid_city = None
                 obj.geonameid_subdivision = None
                 obj.geonameid_country = None
             try:
-                if app.geoip_asn is not None and (
-                    obj.geoip_asn is None or ipaddr != obj.ipaddr
-                ):
-                    asn_lookup = app.geoip_asn.asn(ipaddr)
-                    obj.geoip_asn = asn_lookup.autonomous_system_number
+                if obj.geoip_asn is None or ipaddr != obj.ipaddr:
+                    asn_lookup = geoip.asn(ipaddr)
+                    if asn_lookup:
+                        obj.geoip_asn = asn_lookup.autonomous_system_number
             except (ValueError, geoip2.errors.GeoIP2Error):
                 obj.geoip_asn = None
             # Save IP address and user agent if they've changed
@@ -287,10 +286,8 @@ def session_mark_accessed(
             if user_agent != obj.user_agent:
                 obj.user_agent = user_agent
 
-    # Use integer id instead of uuid_b58 here because statsd documentation is
-    # unclear on what data types a set accepts. Applies to both etsy's and telegraf.
-    statsd.set('users.active_sessions', obj.id, rate=1)
-    statsd.set('users.active_users', obj.user.id, rate=1)
+    statsd.set('users.active_sessions', str(obj.uuid), rate=1)
+    statsd.set('users.active_users', str(obj.user.uuid), rate=1)
 
 
 # Also add future hasjob app here
