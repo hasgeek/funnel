@@ -58,6 +58,15 @@ class DocumentHasProfile:
         return self.document.profile  # type: ignore[attr-defined]
 
 
+class DocumentIsProfile:
+    """Mixin class for notifications on the profile."""
+
+    @property
+    def preference_context(self) -> Profile:
+        """Return the document as the preference context."""
+        return self.document  # type: ignore[attr-defined]
+
+
 # --- Account notifications ------------------------------------------------------------
 
 
@@ -155,9 +164,9 @@ class ProjectStartingNotification(
 
 
 class ProjectPublishedNotification(
-    DocumentHasProfile, Notification[Profile, Project], type='project_published'
+    DocumentIsProfile, Notification[Profile, Project], type='project_published'
 ):
-    """Notifications of a newly published project."""
+    """Notification of a newly published project."""
 
     category = notification_categories.participant
     title = __("When a project is published")
