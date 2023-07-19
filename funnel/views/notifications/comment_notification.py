@@ -165,11 +165,11 @@ class CommentNotification(RenderNotification):
         if comment is None:
             comment = self.comment
         if self.document_type == 'comment':
-            return _("{actor} replied to your comment")
+            return _("{actor} replied to your comment in {project}")
         if self.document_type == 'project':
-            return _("{actor} commented on a project you are in")
+            return _("{actor} posted a commented in {project}")
         if self.document_type == 'proposal':
-            return _("{actor} commented on your submission")
+            return _("{actor} commented on your submission in {project}")
         # Unknown document type
         return _("{actor} replied to you")
 
@@ -178,11 +178,11 @@ class CommentNotification(RenderNotification):
         if comment is None:
             comment = self.comment
         if self.document_type == 'comment':
-            return _("{actor} replied to your comment:")
+            return _("{actor} replied to your comment in {project}:")
         if self.document_type == 'project':
-            return _("{actor} commented on a project you are in:")
+            return _("{actor} commented in {project}:")
         if self.document_type == 'proposal':
-            return _("{actor} commented on your submission:")
+            return _("{actor} commented on your submission in {project}:")
         # Unknown document type
         return _("{actor} replied to you:")
 
@@ -197,6 +197,10 @@ class CommentNotification(RenderNotification):
             )
             if self.actor.profile_url
             else escape(self.actor.pickername),
+            project=Markup(
+                f'<a href="{escape(self.project.absolute_url)}">'
+                f'{escape(self.project.joined_title)}</a>'
+            ),
         )
 
     def web(self) -> str:
@@ -208,7 +212,7 @@ class CommentNotification(RenderNotification):
 
     def email_subject(self) -> str:
         return self.emoji_prefix + self.activity_template_standalone().format(
-            actor=self.actor.pickername
+            actor=self.actor.pickername, project=self.project.joined_title
         )
 
     def email_content(self) -> str:
