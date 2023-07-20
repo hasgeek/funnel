@@ -101,10 +101,13 @@ async def get_mnrl_json_file_numbers(
     ) as response:
         response.raise_for_status()
         # The JSON structure is {"payload": [{"n": "number"}, ...]}
+        # The 'item' in 'payload.item' is ijson's code for array elements
         return filename, {
-            row['n']
-            async for row in ijson.items(AsyncStreamAsFile(response), 'payload')
-            if row['n'] is not None
+            value
+            async for key, value in ijson.kvitems(
+                AsyncStreamAsFile(response), 'payload.item'
+            )
+            if key == 'n' and value is not None
         }
 
 
