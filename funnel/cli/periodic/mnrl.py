@@ -122,6 +122,9 @@ async def forget_phone_numbers(phone_numbers: Set[str], prefix: str) -> None:
             # function will create notifications and return them, leaving dispatch to
             # the outermost function
             click.echo(f"Deleting {userphone}")
+            # TODO: MNRL isn't foolproof. Don't delete! Instead, notify the user and
+            # only delete if they don't respond (How? Maybe delete and send them a
+            # re-add token?)
             # db.session.delete(userphone)
         phone_number = PhoneNumber.get(number)
         if phone_number is not None:
