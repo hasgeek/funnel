@@ -75,11 +75,16 @@ deps-python: deps-editable
 	pip install --upgrade pip pip-tools pip-compile-multi
 	pip-compile-multi --backtracking --use-cache
 
+deps-python-37: deps-editable
+	# pip 23.2 breaks pip-tools 6, but pip-tools 7 doesn't support Python 3.7
+	pip install --upgrade 'pip<23.2' pip-tools pip-compile-multi
+	pip-compile-multi --backtracking --use-cache -o py37.txt
+
 deps-python-noup:
 	pip-compile-multi --backtracking --use-cache --no-upgrade
 
 deps-python-rebuild: deps-editable
-	pip-compile-multi --backtracking
+	pip-compile-multi --backtracking --live
 
 deps-python-base: deps-editable
 	pip-compile-multi -t requirements/base.in --backtracking --use-cache
@@ -117,6 +122,15 @@ install-python-test: install-python-pip deps-editable
 
 install-python: install-python-pip deps-editable
 	pip install --use-pep517 -r requirements/base.txt
+
+install-python-dev-37: install-python-pip deps-editable
+	pip install --use-pep517 -r requirements/dev.py37.txt
+
+install-python-test-37: install-python-pip deps-editable
+	pip install --use-pep517 -r requirements/test.py37.txt
+
+install-python-37: install-python-pip deps-editable
+	pip install --use-pep517 -r requirements/base.py37.txt
 
 install-dev: deps-editable install-python-dev install-npm assets
 

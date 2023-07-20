@@ -77,7 +77,11 @@ jobs:
           path: ${{ env.pythonLocation }}
           key: ${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements/base.txt') }}-${{ hashFiles('requirements.txt/test.txt') }}
       - name: Install Python dependencies
+        if: ${{ matrix.python-version != '3.7' }}
         run: make install-python-test
+      - name: Install Python dependencies (3.7)
+        if: ${{ matrix.python-version == '3.7' }}
+        run: make install-python-test-37
       - name: Install Node
         uses: actions/setup-node@v3
         with:
@@ -123,7 +127,7 @@ jobs:
           psql -h localhost -U postgres geoname_testing -c "grant all privileges on schema public to $(whoami); grant all privileges on all tables in schema public to $(whoami); grant all privileges on all sequences in schema public to $(whoami);"
       - name: Test with pytest
         run: |
-          pytest --gherkin-terminal-reporter -vv --showlocals --cov=funnel
+          pytest --disable-warnings --gherkin-terminal-reporter -vv --showlocals --cov=funnel
       - name: Prepare coverage report
         run: |
           mkdir -p coverage
