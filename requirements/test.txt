@@ -12,8 +12,6 @@
     # via
     #   -r requirements/base.in
     #   baseframe
-async-generator==1.10
-    # via trio
 beautifulsoup4==4.12.2
     # via -r requirements/test.in
 colorama==0.4.6
@@ -35,7 +33,7 @@ parse==1.19.1
     # via
     #   parse-type
     #   pytest-bdd
-parse-type==0.6.0
+parse-type==0.6.2
     # via pytest-bdd
 pluggy==1.2.0
     # via pytest
@@ -56,7 +54,7 @@ pytest==7.4.0
     #   pytest-selenium
     #   pytest-socket
     #   pytest-variables
-pytest-asyncio==0.21.0
+pytest-asyncio==0.21.1
     # via -r requirements/test.in
 pytest-base-url==2.0.0
     # via pytest-selenium
@@ -72,7 +70,7 @@ pytest-html==3.2.0
     # via pytest-selenium
 pytest-metadata==3.0.0
     # via pytest-html
-pytest-rerunfailures==11.1.2
+pytest-rerunfailures==12.0
     # via -r requirements/test.in
 pytest-selenium==4.0.1
     # via -r requirements/test.in
@@ -102,7 +100,7 @@ tomli==2.0.1
     #   pytest
 tomlkit==0.11.8
     # via -r requirements/test.in
-trio==0.22.0
+trio==0.22.2
     # via
     #   selenium
     #   trio-websocket

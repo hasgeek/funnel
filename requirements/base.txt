@@ -11,7 +11,7 @@
     # via
     #   -r requirements/base.in
     #   baseframe
-aiohttp==3.8.4
+aiohttp==3.8.5
     # via
     #   aiohttp-retry
     #   geoip2
@@ -27,7 +27,7 @@ alembic==1.11.1
     #   flask-migrate
 aniso8601==9.0.1
     # via coaster
-anyio==3.7.0
+anyio==3.7.1
     # via httpcore
 argon2-cffi==21.3.0
     # via -r requirements/base.in
@@ -64,9 +64,9 @@ blinker==1.6.2
     #   -r requirements/base.in
     #   baseframe
     #   coaster
-boto3==1.26.163
+boto3==1.28.7
     # via -r requirements/base.in
-botocore==1.29.163
+botocore==1.31.7
     # via
     #   boto3
     #   s3transfer
@@ -86,13 +86,13 @@ cffi==1.15.1
     # via
     #   argon2-cffi-bindings
     #   cryptography
-charset-normalizer==3.1.0
+charset-normalizer==3.2.0
     # via
     #   aiohttp
     #   requests
 chevron==0.14.0
     # via -r requirements/base.in
-click==8.1.3
+click==8.1.6
     # via
     #   -r requirements/base.in
     #   flask
@@ -100,7 +100,7 @@ click==8.1.3
     #   rq
 crontab==1.0.1
     # via rq-scheduler
-cryptography==41.0.1
+cryptography==41.0.2
     # via -r requirements/base.in
 cssmin==0.2.0
     # via baseframe
@@ -108,16 +108,16 @@ cssselect==1.2.0
     # via premailer
 cssutils==2.7.1
     # via premailer
-dataclasses-json==0.5.8
+dataclasses-json==0.5.12
     # via -r requirements/base.in
-dnspython==2.3.0
+dnspython==2.4.0
     # via
     #   baseframe
     #   mxsniff
     #   pyisemail
 emoji==2.6.0
     # via baseframe
-exceptiongroup==1.1.1
+exceptiongroup==1.1.2
     # via anyio
 filelock==3.12.2
     # via tldextract
@@ -174,7 +174,7 @@ flask-wtf==1.1.1
     #   baseframe
 freezegun==1.2.2
     # via rq-scheduler
-frozenlist==1.3.3
+frozenlist==1.4.0
     # via
     #   aiohttp
     #   aiosignal
@@ -205,8 +205,10 @@ html5lib==1.1
     # via
     #   baseframe
     #   coaster
-httpcore==0.17.2
-    # via httpx
+httpcore==0.17.3
+    # via
+    #   dnspython
+    #   httpx
 httplib2==0.22.0
     # via
     #   oauth2
@@ -227,7 +229,7 @@ idna==3.4
     #   requests
     #   tldextract
     #   yarl
-importlib-metadata==6.7.0
+importlib-metadata==6.8.0
     # via
     #   flask
     #   markdown
@@ -247,11 +249,11 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
-joblib==1.3.0
+joblib==1.3.1
     # via nltk
 linkify-it-py==2.0.2
     # via -r requirements/base.in
-lxml==4.9.2
+lxml==4.9.3
     # via premailer
 mako==1.2.4
     # via alembic
@@ -274,10 +276,6 @@ markupsafe==2.1.3
     #   werkzeug
     #   wtforms
 marshmallow==3.19.0
-    # via
-    #   dataclasses-json
-    #   marshmallow-enum
-marshmallow-enum==1.5.1
     # via dataclasses-json
 maxminddb==2.4.0
     # via geoip2
@@ -311,7 +309,7 @@ packaging==23.1
     # via marshmallow
 passlib==1.7.4
     # via -r requirements/base.in
-phonenumbers==8.13.15
+phonenumbers==8.13.16
     # via -r requirements/base.in
 premailer==3.10.0
     # via -r requirements/base.in
@@ -341,9 +339,9 @@ pyisemail==2.0.1
     #   -r requirements/base.in
     #   baseframe
     #   mxsniff
-pyjwt==2.7.0
+pyjwt==2.8.0
     # via twilio
-pymdown-extensions==10.0.1
+pymdown-extensions==10.1
     # via coaster
 pyparsing==3.1.0
     # via httplib2
@@ -362,7 +360,7 @@ python-dateutil==2.8.2
     #   rq-scheduler
 python-dotenv==0.21.1
     # via -r requirements/base.in
-python-telegram-bot==20.3
+python-telegram-bot==20.4
     # via -r requirements/base.in
 python-utils==3.5.2
     # via
@@ -378,7 +376,7 @@ pytz==2023.3
     #   twilio
 pyvimeo==1.1.0
     # via -r requirements/base.in
-pyyaml==6.0
+pyyaml==6.0.1
     # via
     #   flask-flatpages
     #   pymdown-extensions
@@ -436,7 +434,7 @@ semantic-version==2.10.0
     # via
     #   baseframe
     #   coaster
-sentry-sdk==1.26.0
+sentry-sdk==1.28.1
     # via baseframe
 six==1.16.0
     # via
@@ -449,14 +447,14 @@ six==1.16.0
     #   orderedmultidict
     #   python-dateutil
     #   requests-file
-    #   sqlalchemy-json
     #   tuspy
 sniffio==1.3.0
     # via
     #   anyio
+    #   dnspython
     #   httpcore
     #   httpx
-sqlalchemy==2.0.17
+sqlalchemy==2.0.19
     # via
     #   -r requirements/base.in
     #   alembic
@@ -465,7 +463,7 @@ sqlalchemy==2.0.17
     #   sqlalchemy-json
     #   sqlalchemy-utils
     #   wtforms-sqlalchemy
-sqlalchemy-json==0.5.0
+sqlalchemy-json==0.6.0
     # via -r requirements/base.in
 sqlalchemy-utils==0.41.1
     # via
@@ -487,9 +485,9 @@ tuspy==1.0.1
     # via pyvimeo
 tweepy==4.14.0
     # via -r requirements/base.in
-twilio==8.4.0
+twilio==8.5.0
     # via -r requirements/base.in
-typing-extensions==4.7.0
+typing-extensions==4.7.1
     # via
     #   -r requirements/base.in
     #   alembic
@@ -502,7 +500,7 @@ typing-extensions==4.7.0
     #   typing-inspect
 typing-inspect==0.9.0
     # via dataclasses-json
-ua-parser==0.16.1
+ua-parser==0.18.0
     # via user-agents
 uc-micro-py==1.0.2
     # via linkify-it-py
@@ -541,7 +539,7 @@ wtforms-sqlalchemy==0.3
     # via baseframe
 yarl==1.9.2
     # via aiohttp
-zipp==3.15.0
+zipp==3.16.2
     # via importlib-metadata
 zxcvbn==4.4.28
     # via -r requirements/base.in

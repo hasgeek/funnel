@@ -72,6 +72,7 @@ deps-editable:
 	done;
 
 deps-python: deps-editable
+	pip install --upgrade pip pip-tools pip-compile-multi
 	pip-compile-multi --backtracking --use-cache
 
 deps-python-noup:

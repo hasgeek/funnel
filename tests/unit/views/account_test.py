@@ -161,7 +161,10 @@ def test_pwned_password_mock_endpoint_down(
             'Mozilla/5.0 (iPhone; CPU iPhone OS 15_6_1 like Mac OS X)'
             ' AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0'
             ' EdgiOS/100.1185.50 Mobile/15E148 Safari/605.1.15',
-            {'browser': 'Mobile Safari 15.0', 'os_device': 'Apple iPhone (iOS 15.6.1)'},
+            {
+                'browser': 'Edge Mobile 100.1185.50',
+                'os_device': 'Apple iPhone (iOS 15.6.1)',
+            },
         ),
         (
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64; Xbox; Xbox One)'
