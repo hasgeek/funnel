@@ -14,6 +14,7 @@ chevron
 click
 cryptography
 dataclasses-json
+dnspython<2.4.0  # Not ours; 2.4.0 drops Python 3.7 support
 Flask<2.3  # Flask 2.3 drops Python 3.7 support ahead of schedule
 Flask-Assets
 Flask-Babel
