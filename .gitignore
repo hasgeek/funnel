@@ -29,7 +29,8 @@ node_modules
 baseframe-packed.*
 
 # Download files
-geoname_data
+geoname_data/
+download/
 
 # Dependencies
 build/dependencies

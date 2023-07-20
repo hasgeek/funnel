@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import logging
-import os.path
 from datetime import timedelta
 from email.utils import parseaddr
 
-import geoip2.database
 import phonenumbers
 from flask import Flask
 from flask_babel import get_locale
@@ -71,14 +69,15 @@ assets['schedules.js'][version] = 'js/schedules.js'
 # --- Import rest of the app -----------------------------------------------------------
 
 from . import (  # isort:skip  # noqa: F401  # pylint: disable=wrong-import-position
-    models,
-    signals,
-    forms,
+    geoip,
+    proxies,
     loginproviders,
+    signals,
+    models,
     transports,
+    forms,
     views,
     cli,
-    proxies,
 )
 from .models import db, sa  # isort:skip  # pylint: disable=wrong-import-position
 
@@ -88,11 +87,10 @@ from .models import db, sa  # isort:skip  # pylint: disable=wrong-import-positio
 # overridden with values from the environment. Python config is pending deprecation
 # All supported config values are listed in ``sample.env``. If an ``.env`` file is
 # present, it is loaded in debug and testing modes only
-coaster.app.init_app(app, ['py', 'env'], env_prefix=['FLASK', 'APP_FUNNEL'])
-coaster.app.init_app(shortlinkapp, ['py', 'env'], env_prefix=['FLASK', 'APP_SHORTLINK'])
-coaster.app.init_app(
-    unsubscribeapp, ['py', 'env'], env_prefix=['FLASK', 'APP_UNSUBSCRIBE']
-)
+for each_app in all_apps:
+    coaster.app.init_app(
+        each_app, ['py', 'env'], env_prefix=['FLASK', f'APP_{each_app.name.upper()}']
+    )
 
 # Legacy additional config for the main app (pending deprecation)
 coaster.app.load_config_from_file(app, 'hasgeekapp.py')
@@ -144,32 +142,17 @@ pages.init_app(app)
 redis_store.init_app(app)
 rq.init_app(app)
 executor.init_app(app)
+geoip.geoip.init_app(app)
+
+# Baseframe is required for apps with UI ('funnel' theme is registered above)
 baseframe.init_app(app, requires=['funnel'], theme='funnel', error_handlers=False)
 
+# Initialize available login providers from app config
 loginproviders.init_app(app)
 
 # Ensure FEATURED_ACCOUNTS is a list, not None
 if not app.config.get('FEATURED_ACCOUNTS'):
     app.config['FEATURED_ACCOUNTS'] = []
-
-# Load GeoIP2 databases
-app.geoip_city = None
-app.geoip_asn = None
-if 'GEOIP_DB_CITY' in app.config:
-    if not os.path.exists(app.config['GEOIP_DB_CITY']):
-        app.logger.warning(
-            "GeoIP city database missing at %s", app.config['GEOIP_DB_CITY']
-        )
-    else:
-        app.geoip_city = geoip2.database.Reader(app.config['GEOIP_DB_CITY'])
-
-if 'GEOIP_DB_ASN' in app.config:
-    if not os.path.exists(app.config['GEOIP_DB_ASN']):
-        app.logger.warning(
-            "GeoIP ASN database missing at %s", app.config['GEOIP_DB_ASN']
-        )
-    else:
-        app.geoip_asn = geoip2.database.Reader(app.config['GEOIP_DB_ASN'])
 
 # Turn on supported notification transports
 transports.init()

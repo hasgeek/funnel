@@ -14,7 +14,7 @@ chevron
 click
 cryptography
 dataclasses-json
-Flask<2.3  # Flask 2.3 drops Python 3.7 support ahead of schedule
+Flask
 Flask-Assets
 Flask-Babel
 Flask-Executor
@@ -27,15 +27,16 @@ Flask-SQLAlchemy
 Flask-WTF
 furl
 geoip2
-greenlet
+grapheme
+gunicorn
 html2text
 httpx[http2]
 icalendar
 idna
 itsdangerous
 linkify-it-py
-markdown-it-py
-mdit-py-plugins<0.4.0  # 0.4.0 drops Python 3.7 support
+markdown-it-py<3.0  # Breaks our plugins, needs refactoring
+mdit-py-plugins
 oauth2
 oauth2client
 passlib
@@ -46,17 +47,15 @@ psycopg[binary]
 pycountry
 pyIsEmail
 python-dateutil
-python-dotenv<1.0  # 1.0 drops Python 3.7 support
+python-dotenv
 python-telegram-bot
-python-utils<3.6.0  # Not ours; needed by progressbar2, but latest drops Python 3.7
 pytz
 PyVimeo
 qrcode
-regex<2023.3.22  # Not our requirement; this version drops Python 3.7 support
 requests
 rich
 rq
-git+https://github.com/jace/rq-dashboard#egg=rq-dashboard==0.6.0
+rq-dashboard @ git+https://github.com/jace/rq-dashboard
 SQLAlchemy
 sqlalchemy-json
 SQLAlchemy-Utils
@@ -64,9 +63,7 @@ toml
 tweepy
 twilio
 typing-extensions
-urllib3[socks]  # Not our requirement; removing this will cause a pip-audit dupe error
 user-agents
-uwsgi
-werkzeug<2.3  # Werkzeug 2.3 drops Python 3.7 support ahead of schedule
+werkzeug
 whitenoise
 zxcvbn

@@ -66,7 +66,9 @@ class AccountNotificationView(ClassView):
     current_section = 'account'
 
     @route('', endpoint='notification_preferences')
-    @requires_login
+    @requires_login(
+        __("Your phone number or email address is required to change your preferences")
+    )
     @render_with('notification_preferences.html.jinja2')
     def notification_preferences(self) -> ReturnRenderWith:
         """View for notification preferences."""

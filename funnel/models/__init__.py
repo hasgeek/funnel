@@ -15,6 +15,7 @@ from coaster.sqlalchemy import (
     BaseIdNameMixin,
     BaseMixin,
     BaseNameMixin,
+    BaseScopedIdMixin,
     BaseScopedIdNameMixin,
     BaseScopedNameMixin,
     CoordinatesMixin,
@@ -81,6 +82,7 @@ from .session import *  # isort:skip
 from .shortlink import *  # isort:skip
 from .venue import *  # isort:skip
 from .video_mixin import *  # isort:skip
+from .mailer import *  # isort:skip
 from .membership_mixin import *  # isort:skip
 from .organization_membership import *  # isort:skip
 from .project_membership import *  # isort:skip

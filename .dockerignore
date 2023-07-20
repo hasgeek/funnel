@@ -25,7 +25,8 @@ funnel/static/img/fa5-packed.svg
 **/baseframe-packed.*
 
 # Download files
-geoname_data
+geoname_data/
+download/
 
 # Dependencies
 build/dependencies

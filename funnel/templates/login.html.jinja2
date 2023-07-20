@@ -32,7 +32,7 @@
 {% endblock afterloginbox %}
 
 {% block recaptcha %}
-  {%- if form and form.recaptcha is defined %}
+  {%- if form and 'recaptcha' in form %}
     {{ recaptcha(ref_id, formWrapperId='loginformwrapper', ajax=true) }}
   {%- endif %}
 {% endblock recaptcha %}
