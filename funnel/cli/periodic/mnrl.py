@@ -54,7 +54,6 @@ class AsyncStreamAsFile:
     """Provide a :meth:`read` interface to a HTTPX async stream response for ijson."""
 
     def __init__(self, response: httpx.Response) -> None:
-        self.response = response
         self.data = response.aiter_bytes()
 
     async def read(self, size: int) -> bytes:
