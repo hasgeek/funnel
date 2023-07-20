@@ -14,9 +14,9 @@ MNRL_JSON_URL = 'https://mnrl.trai.gov.in/api/mnrl/json/{filename}/{apikey}'
 
 
 @pytest.fixture(scope='module')
-def mnrl_files_response() -> str:
+def mnrl_files_response() -> bytes:
     """Sample response for MNRL files API."""
-    return ""
+    return b''
 
 
 @pytest.fixture(scope='module')
