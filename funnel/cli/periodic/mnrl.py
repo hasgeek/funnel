@@ -72,7 +72,6 @@ async def get_mnrl_json_file_numbers(
     client: httpx.AsyncClient, apikey: str, filename: str
 ) -> Tuple[str, Set[str]]:
     """Return phone numbers from an MNRL JSON file URL."""
-    click.echo(f"Downloading {filename}...")
     response = await client.get(
         f'https://mnrl.trai.gov.in/api/mnrl/json/{filename}/{apikey}', timeout=30
     )
@@ -93,10 +92,12 @@ async def forget_phone_numbers(phone_numbers: Set[str], prefix: str) -> None:
             # backup contact phone number may also have expired. That means this
             # function will create notifications and return them, leaving dispatch to
             # the outermost function
-            db.session.delete(userphone)
+            click.echo(f"Deleting {userphone}")
+            # db.session.delete(userphone)
         phone_number = PhoneNumber.get(number)
         if phone_number is not None:
-            phone_number.mark_forgotten()
+            click.echo(f"Forgetting {phone_number}")
+            # phone_number.mark_forgotten()
     db.session.commit()
 
 
@@ -132,7 +133,6 @@ async def process_mnrl_files(
                 try:
                     filename, mnrl_set = await future
                 except httpx.HTTPError as exc:
-                    app.logger.error("MNRL API error (JSON file): %s", repr(exc))
                     failures += 1
                     # Extract filename from the URL (ends with /filename/apikey) as we
                     # can't get any context from asyncio.as_completed's future
@@ -184,7 +184,6 @@ async def process_mnrl(apikey: str) -> None:
         with console.status("Getting the list of files from the MNRL API..."):
             mnrl_filenames = await task_files
     except httpx.HTTPError as exc:
-        app.logger.error("MNRL API error (list of files): %s", repr(exc))
         raise click.ClickException(
             f"{exc!r} in MNRL API when when getting the list of files"
         )
