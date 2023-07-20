@@ -41,12 +41,35 @@ from typing import List, Set, Tuple
 
 import click
 import httpx
+import ijson
 from rich.console import Console
 from rich.progress import Progress
 
 from ... import app
 from ...models import PhoneNumber, UserPhone, db
 from . import periodic
+
+
+class AsyncStreamAsFile:
+    """Provide a :meth:`read` interface to a HTTPX async stream response for ijson."""
+
+    def __init__(self, response: httpx.Response) -> None:
+        self.response = response
+        self.data = response.aiter_bytes()
+
+    async def read(self, size: int) -> bytes:
+        """Async read method for ijson (which expects this to be 'read' not 'aread')."""
+        if size == 0:
+            # ijson calls with size 0 and expect b'', using it only to
+            # print a warning if the return value is '' (str instead of bytes)
+            return b''
+        # Python >= 3.10 supports `return await anext(self.data, b'')` but for older
+        # versions we need this try/except block
+        try:
+            # Ignore size parameter since anext doesn't take it
+            return await self.data.__anext__()
+        except StopAsyncIteration:
+            return b''
 
 
 async def get_existing_phone_numbers(prefix: str) -> Set[str]:
@@ -61,8 +84,8 @@ async def get_mnrl_json_file_list(apikey: str) -> List[str]:
     TRAI publishes the MNRL as a monthly series of files in Excel, PDF and JSON
     formats, of which we'll use JSON (plaintext format isn't offered).
     """
-    response = await httpx.AsyncClient().get(
-        f'https://mnrl.trai.gov.in/api/mnrl/files/{apikey}', timeout=30
+    response = await httpx.AsyncClient(http2=True).get(
+        f'https://mnrl.trai.gov.in/api/mnrl/files/{apikey}', timeout=300
     )
     response.raise_for_status()
     return [i['file_name'] for i in response.json()['mnrl_files']['json']]
@@ -72,11 +95,18 @@ async def get_mnrl_json_file_numbers(
     client: httpx.AsyncClient, apikey: str, filename: str
 ) -> Tuple[str, Set[str]]:
     """Return phone numbers from an MNRL JSON file URL."""
-    response = await client.get(
-        f'https://mnrl.trai.gov.in/api/mnrl/json/{filename}/{apikey}', timeout=30
-    )
-    response.raise_for_status()
-    return filename, {row['n'] for row in response.json()['payload']}
+    async with client.stream(
+        'GET',
+        f'https://mnrl.trai.gov.in/api/mnrl/json/{filename}/{apikey}',
+        timeout=300,
+    ) as response:
+        response.raise_for_status()
+        # The JSON structure is {"payload": [{"n": "number"}, ...]}
+        return filename, {
+            row['n']
+            async for row in ijson.items(AsyncStreamAsFile(response), 'payload')
+            if row['n'] is not None
+        }
 
 
 async def forget_phone_numbers(phone_numbers: Set[str], prefix: str) -> None:
@@ -129,10 +159,10 @@ async def process_mnrl_files(
                     for filename in mnrl_filenames
                 ]
             ):
-                progress.advance(ptask)
                 try:
                     filename, mnrl_set = await future
                 except httpx.HTTPError as exc:
+                    progress.advance(ptask)
                     failures += 1
                     # Extract filename from the URL (ends with /filename/apikey) as we
                     # can't get any context from asyncio.as_completed's future
@@ -146,19 +176,26 @@ async def process_mnrl_files(
                     else:
                         console.print(f"[red]{filename}: Failed with {exc!r}")
                 else:
+                    progress.advance(ptask)
                     mnrl_total_count += len(mnrl_set)
                     progress.update(ptask, description=f"Processing {filename}...")
                     found_expired = existing_phone_numbers.intersection(mnrl_set)
                     if found_expired:
                         revoked_phone_numbers.update(found_expired)
                         console.print(
-                            f"[blue]Found {len(found_expired):,} expired in {filename}"
+                            f"[blue]{filename}: {len(found_expired):,} matches in"
+                            f" {len(mnrl_set):,} total"
                         )
                         async_tasks.add(
                             asyncio.create_task(
                                 forget_phone_numbers(found_expired, phone_prefix)
                             )
                         )
+                    else:
+                        console.print(
+                            f"[cyan]{filename}: No matches in {len(mnrl_set):,} total"
+                        )
+
     # Await all the background tasks
     for task in async_tasks:
         try:
@@ -181,12 +218,12 @@ async def process_mnrl(apikey: str) -> None:
         f"Evaluating {len(existing_phone_numbers):,} phone numbers for expiry"
     )
     try:
-        with console.status("Getting the list of files from the MNRL API..."):
+        with console.status("Getting MNRL download list..."):
             mnrl_filenames = await task_files
     except httpx.HTTPError as exc:
-        raise click.ClickException(
-            f"{exc!r} in MNRL API when when getting the list of files"
-        )
+        err = f"{exc!r} in MNRL API getting download list"
+        console.print(f"[red]{err}")
+        raise click.ClickException(err)
 
     revoked_phone_numbers, mnrl_total_count, failures = await process_mnrl_files(
         apikey, existing_phone_numbers, phone_prefix, mnrl_filenames, console
