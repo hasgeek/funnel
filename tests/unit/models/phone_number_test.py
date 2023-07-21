@@ -532,6 +532,32 @@ def test_phone_number_blocked() -> None:
     assert pn1.formatted == EXAMPLE_NUMBER_IN_FORMATTED
 
 
+def test_get_numbers(db_session) -> None:
+    """Get phone numbers in bulk."""
+    for number in (
+        EXAMPLE_NUMBER_IN,
+        EXAMPLE_NUMBER_GB,
+        EXAMPLE_NUMBER_CA,
+        EXAMPLE_NUMBER_DE,
+        EXAMPLE_NUMBER_US,
+    ):
+        models.PhoneNumber.add(number)
+    assert models.PhoneNumber.get_numbers(prefix='+91') == {
+        EXAMPLE_NUMBER_IN_UNPREFIXED
+    }
+    assert models.PhoneNumber.get_numbers(prefix='+1', remove=False) == {
+        EXAMPLE_NUMBER_CA,
+        EXAMPLE_NUMBER_US,
+    }
+    assert models.PhoneNumber.get_numbers('+', False) == {
+        EXAMPLE_NUMBER_IN,
+        EXAMPLE_NUMBER_GB,
+        EXAMPLE_NUMBER_CA,
+        EXAMPLE_NUMBER_DE,
+        EXAMPLE_NUMBER_US,
+    }
+
+
 def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-statements
     phone_models, db_session
 ) -> None:

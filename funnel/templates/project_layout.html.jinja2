@@ -396,7 +396,7 @@
       </div>
     </div>
 
-    {% if not project.state.PAST and project.features.tickets() -%}
+    {% if project.features.tickets() -%}
       <div class="tickets-wrapper">
         <div class="tickets-wrapper__modal tickets-wrapper__modal--project-page">
           <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl tickets-wrapper__modal__back mobile-nav-wrapper">
