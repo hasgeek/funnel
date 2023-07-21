@@ -82,6 +82,8 @@ jobs:
       - name: Install Python dependencies (3.7)
         if: ${{ matrix.python-version == '3.7' }}
         run: make install-python-test-37
+      - name: Ensure browsers are installed
+        run: python -m playwright install --with-deps
       - name: Install Node
         uses: actions/setup-node@v3
         with:
