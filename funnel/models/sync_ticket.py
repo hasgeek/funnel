@@ -591,7 +591,9 @@ class __Project:
         relationship(
             TicketParticipant, lazy='dynamic', cascade='all', back_populates='project'
         ),
-        grants_via={'user': {'participant'}},
+        grants_via={
+            'user': {'participant', 'project_participant', 'ticket_participant'}
+        },
     )
 
 

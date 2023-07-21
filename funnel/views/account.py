@@ -6,7 +6,6 @@ from string import capwords
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
-import geoip2.errors
 import user_agents
 from flask import (
     abort,
@@ -43,6 +42,7 @@ from ..forms import (
     supported_locales,
     timezone_identifiers,
 )
+from ..geoip import GeoIP2Error, geoip
 from ..models import (
     AccountPasswordNotification,
     AuthClient,
@@ -243,25 +243,32 @@ def user_agent_details(obj: UserSession) -> Dict[str, str]:
 @UserSession.views('location')
 def user_session_location(obj: UserSession) -> str:
     """Return user's location and ISP as determined from their IP address."""
-    if not app.geoip_city or not app.geoip_asn:
+    if obj.ipaddr == '127.0.0.1':
+        return _("This device")
+    if not geoip:
         return _("Unknown location")
     try:
-        city_lookup = app.geoip_city.city(obj.ipaddr)
-        asn_lookup = app.geoip_asn.asn(obj.ipaddr)
-    except geoip2.errors.GeoIP2Error:
+        city_lookup = geoip.city(obj.ipaddr)
+        asn_lookup = geoip.asn(obj.ipaddr)
+    except GeoIP2Error:
         return _("Unknown location")
 
     # ASN is not ISP, but GeoLite2 only has an ASN database. The ISP db is commercial.
-    return (
-        ((city_lookup.city.name + ", ") if city_lookup.city.name else '')
-        + (
-            (city_lookup.subdivisions.most_specific.iso_code + ", ")
-            if city_lookup.subdivisions.most_specific.iso_code
-            else ''
+    if city_lookup:
+        result = (
+            ((city_lookup.city.name + ", ") if city_lookup.city.name else '')
+            + (
+                (city_lookup.subdivisions.most_specific.iso_code + ", ")
+                if city_lookup.subdivisions.most_specific.iso_code
+                else ''
+            )
+            + ((city_lookup.country.name + "; ") if city_lookup.country.name else '')
         )
-        + ((city_lookup.country.name + "; ") if city_lookup.country.name else '')
-        + (asn_lookup.autonomous_system_organization or _("Unknown ISP"))
-    )
+    else:
+        result = ''
+    if asn_lookup:
+        result += asn_lookup.autonomous_system_organization or _("Unknown ISP")
+    return result
 
 
 @UserSession.views('login_service')

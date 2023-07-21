@@ -5,7 +5,7 @@
 #
 #    pip-compile-multi
 #
--r test.txt
+-r test.py37.txt
 -e file:./build/dependencies/baseframe
     # via -r requirements/base.in
 -e file:./build/dependencies/coaster
@@ -16,7 +16,7 @@ astroid==2.15.6
     # via pylint
 bandit==1.7.5
     # via -r requirements/dev.in
-black==23.7.0
+black==23.3.0
     # via -r requirements/dev.in
 build==0.10.0
     # via pip-tools
@@ -28,7 +28,7 @@ dill==0.3.6
     # via pylint
 distlib==0.3.7
     # via virtualenv
-flake8==6.0.0
+flake8==3.9.2
     # via
     #   -r requirements/dev.in
     #   flake8-annotations
@@ -41,17 +41,17 @@ flake8==6.0.0
     #   flake8-mutable
     #   flake8-print
     #   pep8-naming
-flake8-annotations==3.0.1
+flake8-annotations==2.9.1
     # via -r requirements/dev.in
 flake8-assertive==2.1.0
     # via -r requirements/dev.in
 flake8-blind-except==0.2.1
     # via -r requirements/dev.in
-flake8-bugbear==23.7.10
+flake8-bugbear==23.3.12
     # via -r requirements/dev.in
 flake8-builtins==2.1.0
     # via -r requirements/dev.in
-flake8-comprehensions==3.14.0
+flake8-comprehensions==3.13.0
     # via -r requirements/dev.in
 flake8-docstrings==1.7.0
     # via -r requirements/dev.in
@@ -75,9 +75,9 @@ gitdb==4.0.10
     # via gitpython
 gitpython==3.1.32
     # via bandit
-identify==2.5.25
+identify==2.5.24
     # via pre-commit
-isort==5.12.0
+isort==5.11.5
     # via
     #   -r requirements/dev.in
     #   flake8-isort
@@ -86,7 +86,7 @@ lazy-object-proxy==1.9.0
     # via astroid
 lxml-stubs==0.4.0
     # via -r requirements/dev.in
-mccabe==0.7.0
+mccabe==0.6.1
     # via
     #   flake8
     #   pylint
@@ -100,11 +100,11 @@ pathspec==0.11.1
     # via black
 pbr==5.11.1
     # via stevedore
-pep8-naming==0.13.3
+pep8-naming==0.13.2
     # via -r requirements/dev.in
 pip-compile-multi==2.6.3
     # via -r requirements/dev.in
-pip-tools==7.1.0
+pip-tools==6.14.0
     # via pip-compile-multi
 platformdirs==3.9.1
     # via
@@ -113,21 +113,21 @@ platformdirs==3.9.1
     #   virtualenv
 po2json==0.2.2
     # via -r requirements/dev.in
-pre-commit==3.3.3
+pre-commit==2.21.0
     # via -r requirements/dev.in
-pycodestyle==2.10.0
+pycodestyle==2.7.0
     # via
     #   flake8
     #   flake8-print
-pydocstyle==6.3.0
+pydocstyle==6.1.1
     # via flake8-docstrings
-pyflakes==3.0.1
+pyflakes==2.3.1
     # via flake8
 pylint==2.17.4
     # via -r requirements/dev.in
 pyproject-hooks==1.0.0
     # via build
-pyupgrade==3.9.0
+pyupgrade==3.3.2
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
@@ -137,12 +137,18 @@ smmap==5.0.0
     # via gitdb
 snowballstemmer==2.2.0
     # via pydocstyle
-stevedore==5.1.0
+stevedore==3.5.2
     # via bandit
-tokenize-rt==5.1.0
+tokenize-rt==5.0.0
     # via pyupgrade
 toposort==1.10
     # via pip-compile-multi
+typed-ast==1.5.5
+    # via
+    #   astroid
+    #   black
+    #   flake8-annotations
+    #   mypy
 types-chevron==0.14.2.5
     # via -r requirements/dev.in
 types-geoip2==3.0.0
