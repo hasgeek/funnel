@@ -85,6 +85,7 @@ class AsyncStreamAsFile:
 
 async def get_existing_phone_numbers(prefix: str) -> Set[str]:
     """Async wrapper for PhoneNumber.get_numbers."""
+    # TODO: This is actually an async-blocking call. We need full stack async here.
     return PhoneNumber.get_numbers(prefix=prefix, remove=True)
 
 
