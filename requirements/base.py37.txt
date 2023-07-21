@@ -41,12 +41,18 @@ async-timeout==4.0.2
     # via
     #   aiohttp
     #   redis
+asynctest==0.13.0
+    # via aiohttp
 attrs==23.1.0
     # via aiohttp
 babel==2.12.1
     # via
     #   -r requirements/base.in
     #   flask-babel
+backports-zoneinfo==0.2.1
+    # via
+    #   icalendar
+    #   psycopg
 base58==2.1.1
     # via
     #   -r requirements/base.in
@@ -64,7 +70,6 @@ blinker==1.6.2
     #   -r requirements/base.in
     #   baseframe
     #   coaster
-    #   flask
 boto3==1.28.7
     # via -r requirements/base.in
 botocore==1.31.7
@@ -111,7 +116,7 @@ cssutils==2.7.1
     # via premailer
 dataclasses-json==0.5.12
     # via -r requirements/base.in
-dnspython==2.4.0
+dnspython==2.3.0
     # via
     #   baseframe
     #   mxsniff
@@ -122,7 +127,7 @@ exceptiongroup==1.1.2
     # via anyio
 filelock==3.12.2
     # via tldextract
-flask==2.3.2
+flask==2.2.5
     # via
     #   -r requirements/base.in
     #   baseframe
@@ -175,7 +180,7 @@ flask-wtf==1.1.1
     #   baseframe
 freezegun==1.2.2
     # via rq-scheduler
-frozenlist==1.4.0
+frozenlist==1.3.3
     # via
     #   aiohttp
     #   aiosignal
@@ -192,6 +197,8 @@ grapheme==0.6.0
     # via
     #   -r requirements/base.in
     #   baseframe
+greenlet==2.0.2
+    # via sqlalchemy
 gunicorn==21.2.0
     # via -r requirements/base.in
 h11==0.14.0
@@ -207,9 +214,7 @@ html5lib==1.1
     #   baseframe
     #   coaster
 httpcore==0.17.3
-    # via
-    #   dnspython
-    #   httpx
+    # via httpx
 httplib2==0.22.0
     # via
     #   oauth2
@@ -230,10 +235,21 @@ idna==3.4
     #   requests
     #   tldextract
     #   yarl
-importlib-metadata==6.8.0
+importlib-metadata==6.7.0
     # via
+    #   alembic
+    #   attrs
+    #   click
+    #   cssutils
     #   flask
+    #   gunicorn
+    #   mako
     #   markdown
+    #   redis
+    #   sqlalchemy
+    #   sqlalchemy-utils
+importlib-resources==5.12.0
+    # via alembic
 isoweek==1.3.3
     # via coaster
 itsdangerous==2.1.2
@@ -280,7 +296,7 @@ marshmallow==3.19.0
     # via dataclasses-json
 maxminddb==2.4.0
     # via geoip2
-mdit-py-plugins==0.4.0
+mdit-py-plugins==0.3.5
     # via -r requirements/base.in
 mdurl==0.1.2
     # via markdown-it-py
@@ -359,15 +375,16 @@ python-dateutil==2.8.2
     #   freezegun
     #   icalendar
     #   rq-scheduler
-python-dotenv==1.0.0
+python-dotenv==0.21.1
     # via -r requirements/base.in
-python-telegram-bot==20.4
+python-telegram-bot==20.3
     # via -r requirements/base.in
-python-utils==3.7.0
+python-utils==3.5.2
     # via progressbar2
 pytz==2023.3
     # via
     #   -r requirements/base.in
+    #   babel
     #   baseframe
     #   coaster
     #   flask-babel
@@ -448,7 +465,6 @@ six==1.16.0
 sniffio==1.3.0
     # via
     #   anyio
-    #   dnspython
     #   httpcore
     #   httpx
 sqlalchemy==2.0.19
@@ -487,15 +503,27 @@ twilio==8.5.0
 typing-extensions==4.7.1
     # via
     #   -r requirements/base.in
+    #   aiohttp
     #   alembic
+    #   anyio
+    #   argon2-cffi
+    #   arrow
     #   asgiref
+    #   async-timeout
     #   baseframe
     #   coaster
+    #   h11
+    #   importlib-metadata
+    #   markdown-it-py
     #   psycopg
+    #   pyjwt
     #   python-utils
     #   qrcode
+    #   redis
+    #   rich
     #   sqlalchemy
     #   typing-inspect
+    #   yarl
 typing-inspect==0.9.0
     # via dataclasses-json
 ua-parser==0.18.0
@@ -517,7 +545,7 @@ webencodings==0.5.1
     # via
     #   bleach
     #   html5lib
-werkzeug==2.3.6
+werkzeug==2.2.3
     # via
     #   -r requirements/base.in
     #   baseframe
@@ -534,8 +562,10 @@ wtforms-sqlalchemy==0.3
     # via baseframe
 yarl==1.9.2
     # via aiohttp
-zipp==3.16.2
-    # via importlib-metadata
+zipp==3.15.0
+    # via
+    #   importlib-metadata
+    #   importlib-resources
 zxcvbn==4.4.28
     # via -r requirements/base.in
 
