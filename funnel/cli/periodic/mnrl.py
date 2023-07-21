@@ -72,7 +72,7 @@ class AsyncStreamAsFile:
 
 
 async def get_existing_phone_numbers(prefix: str) -> Set[str]:
-    """Get existing phone numbers with the given prefix."""
+    """Async wrapper for PhoneNumber.get_numbers."""
     return PhoneNumber.get_numbers(prefix=prefix, remove=True)
 
 
