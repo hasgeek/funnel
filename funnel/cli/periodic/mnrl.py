@@ -42,12 +42,24 @@ from typing import List, Set, Tuple
 import click
 import httpx
 import ijson
-from rich.console import Console
+from rich import get_console, print as rprint
 from rich.progress import Progress
 
 from ... import app
 from ...models import PhoneNumber, UserPhone, db
 from . import periodic
+
+
+class KeyInvalidError(ValueError):
+    """MNRL API key is invalid."""
+
+    message = "MNRL API key is invalid"
+
+
+class KeyExpiredError(ValueError):
+    """MNRL API key has expired."""
+
+    message = "MNRL API key has expired"
 
 
 class AsyncStreamAsFile:
@@ -86,8 +98,19 @@ async def get_mnrl_json_file_list(apikey: str) -> List[str]:
     response = await httpx.AsyncClient(http2=True).get(
         f'https://mnrl.trai.gov.in/api/mnrl/files/{apikey}', timeout=300
     )
+    if response.status_code == 401:
+        raise KeyInvalidError()
+    if response.status_code == 407:
+        raise KeyExpiredError()
     response.raise_for_status()
-    return [i['file_name'] for i in response.json()['mnrl_files']['json']]
+
+    result = response.json()
+    # Fallback tests for non-200 status codes in a 200 response (current API behaviour)
+    if result['status'] == 401:
+        raise KeyInvalidError()
+    if result['status'] == 407:
+        raise KeyExpiredError()
+    return [row['file_name'] for row in result['mnrl_files']['json']]
 
 
 async def get_mnrl_json_file_numbers(
@@ -124,14 +147,14 @@ async def forget_phone_numbers(phone_numbers: Set[str], prefix: str) -> None:
             # backup contact phone number may also have expired. That means this
             # function will create notifications and return them, leaving dispatch to
             # the outermost function
-            click.echo(f"Deleting {userphone}")
+            rprint(f"Deleting {userphone}")
             # TODO: MNRL isn't foolproof. Don't delete! Instead, notify the user and
             # only delete if they don't respond (How? Maybe delete and send them a
             # re-add token?)
             # db.session.delete(userphone)
         phone_number = PhoneNumber.get(number)
         if phone_number is not None:
-            click.echo(f"Forgetting {phone_number}")
+            rprint(f"Forgetting {phone_number}")
             # phone_number.mark_forgotten()
     db.session.commit()
 
@@ -141,7 +164,6 @@ async def process_mnrl_files(
     existing_phone_numbers: Set[str],
     phone_prefix: str,
     mnrl_filenames: List[str],
-    console: Console,
 ) -> Tuple[Set[str], int, int]:
     """
     Scan all MNRL files and return a tuple of results.
@@ -153,11 +175,13 @@ async def process_mnrl_files(
     mnrl_total_count = 0
     failures = 0
     async_tasks: Set[asyncio.Task] = set()
-    with Progress(console=console, transient=True) as progress:
+    with Progress(transient=True) as progress:
         ptask = progress.add_task(
             f"Processing {len(mnrl_filenames)} MNRL files", total=len(mnrl_filenames)
         )
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(
+            http2=True, limits=httpx.Limits(max_connections=3)
+        ) as client:
             for future in asyncio.as_completed(
                 [
                     get_mnrl_json_file_numbers(client, apikey, filename)
@@ -174,12 +198,12 @@ async def process_mnrl_files(
                     filename = exc.request.url.path.split('/')[-2]
                     progress.update(ptask, description=f"Error in {filename}...")
                     if isinstance(exc, httpx.HTTPStatusError):
-                        console.print(
+                        rprint(
                             f"[red]{filename}: Server returned HTTP status code"
                             f" {exc.response.status_code}"
                         )
                     else:
-                        console.print(f"[red]{filename}: Failed with {exc!r}")
+                        rprint(f"[red]{filename}: Failed with {exc!r}")
                 else:
                     progress.advance(ptask)
                     mnrl_total_count += len(mnrl_set)
@@ -187,7 +211,7 @@ async def process_mnrl_files(
                     found_expired = existing_phone_numbers.intersection(mnrl_set)
                     if found_expired:
                         revoked_phone_numbers.update(found_expired)
-                        console.print(
+                        rprint(
                             f"[blue]{filename}: {len(found_expired):,} matches in"
                             f" {len(mnrl_set):,} total"
                         )
@@ -197,7 +221,7 @@ async def process_mnrl_files(
                             )
                         )
                     else:
-                        console.print(
+                        rprint(
                             f"[cyan]{filename}: No matches in {len(mnrl_set):,} total"
                         )
 
@@ -213,27 +237,25 @@ async def process_mnrl_files(
 
 async def process_mnrl(apikey: str) -> None:
     """Process MNRL data using the API key."""
-    console = Console()
+    console = get_console()
     phone_prefix = '+91'
     task_numbers = asyncio.create_task(get_existing_phone_numbers(phone_prefix))
     task_files = asyncio.create_task(get_mnrl_json_file_list(apikey))
     with console.status("Loading phone numbers..."):
         existing_phone_numbers = await task_numbers
-    console.print(
-        f"Evaluating {len(existing_phone_numbers):,} phone numbers for expiry"
-    )
+    rprint(f"Evaluating {len(existing_phone_numbers):,} phone numbers for expiry")
     try:
         with console.status("Getting MNRL download list..."):
             mnrl_filenames = await task_files
     except httpx.HTTPError as exc:
         err = f"{exc!r} in MNRL API getting download list"
-        console.print(f"[red]{err}")
+        rprint(f"[red]{err}")
         raise click.ClickException(err)
 
     revoked_phone_numbers, mnrl_total_count, failures = await process_mnrl_files(
-        apikey, existing_phone_numbers, phone_prefix, mnrl_filenames, console
+        apikey, existing_phone_numbers, phone_prefix, mnrl_filenames
     )
-    console.print(
+    rprint(
         f"Processed {mnrl_total_count:,} expired phone numbers in MNRL with"
         f" {failures:,} failure(s) and revoked {len(revoked_phone_numbers):,} phone"
         f" numbers"
@@ -246,4 +268,8 @@ def periodic_mnrl() -> None:
     apikey = app.config.get('MNRL_API_KEY')
     if not apikey:
         raise click.UsageError("App config is missing `MNRL_API_KEY`")
-    asyncio.run(process_mnrl(apikey))
+    try:
+        asyncio.run(process_mnrl(apikey))
+    except (KeyInvalidError, KeyExpiredError) as exc:
+        app.logger.error(exc.message)
+        raise click.ClickException(exc.message) from exc
