@@ -147,14 +147,17 @@ async def forget_phone_numbers(phone_numbers: Set[str], prefix: str) -> None:
             # backup contact phone number may also have expired. That means this
             # function will create notifications and return them, leaving dispatch to
             # the outermost function
-            rprint(f"Deleting {userphone}")
+            rprint(f"{userphone} - owned by {userphone.user.pickername}")
             # TODO: MNRL isn't foolproof. Don't delete! Instead, notify the user and
             # only delete if they don't respond (How? Maybe delete and send them a
             # re-add token?)
             # db.session.delete(userphone)
         phone_number = PhoneNumber.get(number)
         if phone_number is not None:
-            rprint(f"Forgetting {phone_number}")
+            rprint(
+                f"{phone_number} - since {phone_number.created_at:%Y-%m-%d}, updated"
+                f" {phone_number.updated_at:%Y-%m-%d}"
+            )
             # phone_number.mark_forgotten()
     db.session.commit()
 
