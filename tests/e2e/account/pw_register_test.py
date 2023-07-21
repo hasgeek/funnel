@@ -1,7 +1,6 @@
 """Test account registration."""
 
 import re
-import time
 
 import pytest
 from playwright.sync_api import expect
@@ -64,9 +63,8 @@ def then_anonuser_prompted_name_and_otp(live_server, anon_username, page):
 
 @then("they get an account and are logged in")
 def then_they_are_logged_in(live_server, page):
-    time.sleep(0.2)
     assert (
-        page.wait_for_selector(".alert__text").inner_text()
+        page.get_by_text("You are now one of us. Welcome aboard!").inner_text()
         == "You are now one of us. Welcome aboard!"
     )
 
