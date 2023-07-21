@@ -4,10 +4,10 @@
 {% block top_title %}
   <div class="mui--text-center">
     <img src="{{ url_for('static', filename='img/error-403.svg') }}" class="emoticon" alt="{% trans %}Unavailable{% endtrans %}"/>
-    <h1 class="mui--text-light mui--text-display1">{% trans %}Forbidden{% endtrans %}</h1>
+    <h1 class="mui--text-light mui--text-display1">{% trans %}Unavailable{% endtrans %}</h1>
   </div>
 {% endblock top_title %}
 
 {% block content %}
-  <p class="mui--text-subhead mui--text-center">{% trans %}You do not have access to this page{% endtrans %}</p>
+  <p class="mui--text-subhead mui--text-center">{% trans %}This page is private and you do not have access{% endtrans %}</p>
 {% endblock content %}
