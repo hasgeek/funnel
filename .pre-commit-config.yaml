@@ -42,10 +42,7 @@ repos:
             '--ignore-vuln',
             'PYSEC-2023-73', # https://github.com/RedisLabs/redisraft/issues/608
             '--ignore-vuln',
-            'PYSEC-2023-101', # Remove once selenium can be upgraded beyond 4.10 or more
-            # https://github.com/pytest-dev/pytest-selenium/issues/310
-            '--ignore-vuln',
-            'PYSEC-2023-112', # Remove once cryptography has been upgraded to 41.0.2
+            'PYSEC-2023-101', # https://github.com/pytest-dev/pytest-selenium/issues/310
           ]
         files: ^requirements/.*\.txt$
   - repo: https://github.com/astral-sh/ruff-pre-commit
