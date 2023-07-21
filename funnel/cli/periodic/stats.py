@@ -13,7 +13,6 @@ import click
 import httpx
 import pytz
 import telegram
-from asgiref.sync import async_to_sync
 from dataclasses_json import DataClassJsonMixin
 from dateutil.relativedelta import relativedelta
 from furl import furl
@@ -371,8 +370,6 @@ async def user_stats() -> Dict[str, ResourceStats]:
 # --- Commands -------------------------------------------------------------------------
 
 
-@periodic.command('dailystats')
-@async_to_sync
 async def dailystats() -> None:
     """Publish daily stats to Telegram."""
     if (
@@ -461,3 +458,9 @@ async def dailystats() -> None:
         disable_web_page_preview=True,
         message_thread_id=app.config.get('TELEGRAM_STATS_THREADID'),
     )
+
+
+@periodic.command('dailystats')
+def periodic_dailystats() -> None:
+    """Publish daily stats to Telegram (midnight)."""
+    asyncio.run(dailystats())
