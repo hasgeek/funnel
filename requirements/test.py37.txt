@@ -84,7 +84,7 @@ pytest-variables==3.0.0
     # via pytest-selenium
 requests-mock==1.11.0
     # via -r requirements/test.in
-respx==0.20.1
+respx==0.20.2
     # via -r requirements/test.in
 selenium==4.9.1
     # via

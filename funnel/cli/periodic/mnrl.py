@@ -78,6 +78,7 @@ class AsyncStreamAsFile:
         # versions we need this try/except block
         try:
             # Ignore size parameter since anext doesn't take it
+            # pylint: disable=unnecessary-dunder-call
             return await self.data.__anext__()
         except StopAsyncIteration:
             return b''
