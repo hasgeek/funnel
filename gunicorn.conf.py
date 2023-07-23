@@ -1,15 +1,8 @@
-"""Gunicorn configuration."""
+"""Gunicorn default configuration."""
+# The settings in this file may be overriden using env var `GUNICORN_CMD_ARGS` or
+# directly on the command line to `gunicorn`
 
 import multiprocessing
-import os
 
-from dotenv import load_dotenv
-
+bind = '127.0.0.1:3000'
 workers = 2 * multiprocessing.cpu_count() + 1
-
-# TODO: If multiple entry paths depend on reading .env, maybe it should be part of the
-# app init and not reproduced in each place separately
-for env_file in ('.env', '.flaskenv'):
-    env = os.path.join(os.getcwd(), env_file)
-    if os.path.exists(env):
-        load_dotenv(env)
