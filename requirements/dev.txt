@@ -141,6 +141,8 @@ stevedore==5.1.0
     # via bandit
 tokenize-rt==5.1.0
     # via pyupgrade
+tomli==2.0.1
+    # via -r requirements/dev.in
 toposort==1.10
     # via pip-compile-multi
 types-chevron==0.14.2.5
