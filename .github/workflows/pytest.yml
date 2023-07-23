@@ -83,7 +83,7 @@ jobs:
         if: ${{ matrix.python-version == '3.7' }}
         run: make install-python-test-37
       - name: Install Playwright browser
-        run: playwright install firefox --with-deps
+        run: make install-playwright
       - name: Install Node
         uses: actions/setup-node@v3
         with:
