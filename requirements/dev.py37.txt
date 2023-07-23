@@ -24,7 +24,7 @@ cattrs==22.1.0
     # via reformat-gherkin
 cfgv==3.3.1
     # via pre-commit
-dill==0.3.6
+dill==0.3.7
     # via pylint
 distlib==0.3.7
     # via virtualenv
@@ -131,7 +131,7 @@ pyupgrade==3.3.2
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
-ruff==0.0.278
+ruff==0.0.280
     # via -r requirements/dev.in
 smmap==5.0.0
     # via gitdb
@@ -175,7 +175,7 @@ virtualenv==20.24.1
     # via pre-commit
 wcwidth==0.2.6
     # via reformat-gherkin
-wheel==0.40.0
+wheel==0.41.0
     # via pip-tools
 wrapt==1.15.0
     # via astroid

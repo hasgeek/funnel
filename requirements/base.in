@@ -63,6 +63,7 @@ toml
 tweepy
 twilio
 typing-extensions
+urllib3[socks]  # Not required here, but the [socks] extra shows up in test.txt
 user-agents
 werkzeug
 whitenoise

@@ -41,8 +41,6 @@ pluggy==1.2.0
     # via pytest
 py==1.11.0
     # via pytest-html
-pysocks==1.7.1
-    # via urllib3
 pytest==7.4.0
     # via
     #   -r requirements/test.in
@@ -112,12 +110,6 @@ trio-websocket==0.10.3
     # via selenium
 typeguard==4.0.0
     # via -r requirements/test.in
-urllib3[socks]==1.26.16
-    # via
-    #   botocore
-    #   requests
-    #   selenium
-    #   sentry-sdk
 wsproto==1.2.0
     # via trio-websocket
 
