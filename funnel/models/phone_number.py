@@ -705,6 +705,19 @@ class PhoneNumber(BaseMixin, Model):
             return 'not_new'
         return None
 
+    @classmethod
+    def get_numbers(cls, prefix: str, remove: bool = True) -> Set[str]:
+        """Get all numbers with the given prefix as a Python set."""
+        query = (
+            cls.query.filter(cls.number.startswith(prefix))
+            .options(sa.orm.load_only(cls.number))
+            .yield_per(1000)
+        )
+        if remove:
+            skip = len(prefix)
+            return {r.number[skip:] for r in query}
+        return {r.number for r in query}
+
 
 @declarative_mixin
 class PhoneNumberMixin:
