@@ -4,6 +4,7 @@ colorama
 coverage
 coveralls
 lxml
+mock;python_version=="3.7"
 Pygments
 pytest
 pytest-asyncio
