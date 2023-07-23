@@ -7,6 +7,7 @@ all:
 	@echo
 	@echo "For testing and CI:"
 	@echo "  make install-test  # Install everything needed for a test environment"
+	@echo "  make install-playwright  # Install browsers for Playwright-based tests"
 	@echo
 	@echo "For development:"
 	@echo "  make install-dev   # For first time setup and after dependency upgrades"
@@ -132,9 +133,18 @@ install-python-test-37: install-python-pip deps-editable
 install-python-37: install-python-pip deps-editable
 	pip install --use-pep517 -r requirements/base.py37.txt
 
-install-dev: deps-editable install-python-dev install-npm assets
+install-playwright:
+	@if command -v playwright > /dev/null; then\
+		echo "playwright install --with-deps";\
+		playwright install --with-deps;\
+	else\
+		echo "Install Playwright first: make install-python-test";\
+		exit 1;\
+	fi
 
-install-test: deps-editable install-python-test install-npm assets
+install-dev: deps-editable install-python-dev install-playwright install-npm assets
+
+install-test: deps-editable install-python-test install-playwright install-npm assets
 
 install: deps-editable install-python install-npm-ci assets
 

@@ -5,6 +5,7 @@ coverage
 coveralls
 lxml
 mock;python_version=="3.7"
+playwright
 Pygments
 pytest
 pytest-asyncio
@@ -12,6 +13,7 @@ pytest-bdd
 pytest-cov
 pytest-dotenv
 pytest-env
+pytest-playwright
 pytest-rerunfailures
 pytest-selenium>=4.0.1
 pytest-socket
