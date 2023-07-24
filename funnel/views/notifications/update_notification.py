@@ -25,7 +25,6 @@ class UpdateTemplate(TemplateVarMixin, SmsTemplate):
     plaintext_template = "There is an update in {profile}: {url}"
 
     url: str
-    profile: str
 
 
 @NewUpdateNotification.renderer
@@ -66,7 +65,7 @@ class RenderNewUpdateNotification(RenderNotification):
 
     def sms(self) -> UpdateTemplate:
         return UpdateTemplate(
-            profile=self.update.profile,
+            profile=self.update.project.profile,
             url=shortlink(
                 self.update.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,

@@ -221,6 +221,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
                 'uuid_b58',
                 'name',
                 'title',
+                'pickername',
                 'tagline',
                 'description',
                 'website',
