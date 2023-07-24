@@ -94,7 +94,6 @@
 
     .schedule__row--sticky {
       display: flex;
-      align-items: center;
       overflow-x: auto;
       position: sticky;
       position: -webkit-sticky;
@@ -225,6 +224,7 @@
           .schedule__row__column--time--header {
             display: block;
             padding: $mui-grid-padding * 0.5 0;
+            align-self: center;
           }
         }
         .schedule__row--calendar {
