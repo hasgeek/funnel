@@ -283,7 +283,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
         return f'<Profile "{self.name}">'
 
     @property
-    def owner(self) -> Union[User, Organization]:
+    def owner(self) -> Optional[Union[User, Organization]]:
         """Return the user or organization that owns this account."""
         return self.user or self.organization
 
