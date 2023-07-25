@@ -5,7 +5,7 @@ from typing_extensions import Self
 
 import grapheme
 
-from ...models import Project, User
+from ...models import Organization, Profile, Project, User
 
 _T = TypeVar('_T')  # Host type for SetVar
 _I = TypeVar('_I')  # Input type for SetVar's setter
@@ -78,15 +78,16 @@ class TemplateVarMixin:
         return title[:index] + '…'
 
     @SetVar
-    def user(self, user: User) -> str:
-        """Set user's display name, truncated to fit."""
-        pickername = user.pickername
+    def account(self, account: Union[User, Organization, Profile]) -> str:
+        """Set account's display name, truncated to fit."""
+        pickername = account.pickername
         if len(pickername) <= self.var_max_length:
             return pickername
-        fullname = user.fullname
-        if len(fullname) <= self.var_max_length:
-            return fullname
-        index = grapheme.safe_split_index(fullname, self.var_max_length - 1)
-        return fullname[:index] + '…'
+        title = account.title
+        if len(title) <= self.var_max_length:
+            return title
+        index = grapheme.safe_split_index(title, self.var_max_length - 1)
+        return title[:index] + '…'
 
-    actor = user  # This will trigger cloning in SetVar.__set_name__
+    # This will trigger cloning in SetVar.__set_name__
+    actor = user = organization = profile = account

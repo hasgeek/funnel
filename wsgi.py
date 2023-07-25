@@ -3,9 +3,14 @@
 import os.path
 import sys
 
-__all__ = ['application', 'shortlinkapp']
+from flask.cli import load_dotenv
+from flask.helpers import get_load_dotenv
+
+__all__ = ['application', 'shortlinkapp', 'unsubscribeapp']
 
 sys.path.insert(0, os.path.dirname(__file__))
+if get_load_dotenv():
+    load_dotenv()
+
 # pylint: disable=wrong-import-position
-from funnel import app as application  # isort:skip
-from funnel import shortlinkapp  # isort:skip
+from funnel import app as application, shortlinkapp, unsubscribeapp  # isort:skip

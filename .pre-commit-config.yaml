@@ -27,6 +27,7 @@ repos:
     hooks:
       - id: pip-audit
         args: [
+            '--disable-pip',
             '--no-deps',
             '--skip-editable',
             '-r',
@@ -41,10 +42,12 @@ repos:
             'PYSEC-2022-42969', # https://github.com/pytest-dev/pytest/issues/10392
             '--ignore-vuln',
             'PYSEC-2023-73', # https://github.com/RedisLabs/redisraft/issues/608
+            '--ignore-vuln',
+            'PYSEC-2023-101', # https://github.com/pytest-dev/pytest-selenium/issues/310
           ]
         files: ^requirements/.*\.txt$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.278
+    rev: v0.0.280
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
