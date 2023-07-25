@@ -15,8 +15,11 @@ from ...models import (
     CommentModeratorReport,
     CommentReplyNotification,
     CommentReportReceivedNotification,
+    Commentset,
     DuckTypeUser,
     NewCommentNotification,
+    Project,
+    Proposal,
     User,
 )
 from ...transports.sms import OneLineTemplate, SmsTemplate
@@ -118,6 +121,7 @@ class RenderCommentReportReceivedNotification(RenderNotification):
 class CommentNotification(RenderNotification):
     """Render comment notifications for various document types."""
 
+    document: Union[Commentset, Comment]
     comment: Comment
     aliases = {'fragment': 'comment'}
     emoji_prefix = "💬 "
@@ -143,6 +147,20 @@ class CommentNotification(RenderNotification):
         return users
 
     @property
+    def project(self) -> Optional[Project]:
+        if self.document_type == 'project':
+            return self.document.project
+        if self.document_type == 'proposal':
+            return self.document.proposal.project
+        return None
+
+    @property
+    def proposal(self) -> Optional[Proposal]:
+        if self.document_type == 'proposal':
+            return self.document.proposal
+        return None
+
+    @property
     def document_type(self) -> str:
         """Return type of document this comment is on ('comment' for replies)."""
         if self.notification.document_type == 'comment':
@@ -166,7 +184,7 @@ class CommentNotification(RenderNotification):
         if self.document_type == 'project':
             return _("{actor} commented in {project}")
         if self.document_type == 'proposal':
-            return _("{actor} commented on your submission in {project}")
+            return _("{actor} commented on {proposal}")
         # Unknown document type
         return _("{actor} replied to you")
 
@@ -179,7 +197,7 @@ class CommentNotification(RenderNotification):
         if self.document_type == 'project':
             return _("{actor} commented in {project}:")
         if self.document_type == 'proposal':
-            return _("{actor} commented on your submission in {project}:")
+            return _("{actor} commented on {proposal}:")
         # Unknown document type
         return _("{actor} replied to you:")
 
@@ -187,17 +205,38 @@ class CommentNotification(RenderNotification):
         """Activity template rendered into HTML, for use in web and email templates."""
         if comment is None:
             comment = self.comment
-        return Markup(self.activity_template_inline(comment)).format(
-            actor=Markup(
+
+        actor_markup = (
+            Markup(
                 f'<a href="{escape(self.actor.profile_url)}">'
                 f'{escape(self.actor.pickername)}</a>'
             )
             if self.actor.profile_url
-            else escape(self.actor.pickername),
-            project=Markup(
-                f'<a href="{escape(self.project.absolute_url)}">'
-                f'{escape(self.project.joined_title)}</a>'
-            ),
+            else escape(self.actor.pickername)
+        )
+        project = self.project
+        project_markup = (
+            Markup(
+                f'<a href="{escape(project.absolute_url)}">'
+                f'{escape(project.joined_title)}</a>'
+            )
+            if project is not None
+            else Markup('')
+        )
+        proposal = self.proposal
+        proposal_markup = (
+            Markup(
+                f'<a href="{escape(proposal.absolute_url)}">'
+                f'{escape(proposal.title)}</a>'
+            )
+            if proposal is not None
+            else Markup('')
+        )
+
+        return Markup(self.activity_template_inline(comment)).format(
+            actor=actor_markup,
+            project=project_markup,
+            proposal=proposal_markup,
         )
 
     def web(self) -> str:
@@ -208,8 +247,12 @@ class CommentNotification(RenderNotification):
         )
 
     def email_subject(self) -> str:
+        project = self.project
+        proposal = self.proposal
         return self.emoji_prefix + self.activity_template_standalone().format(
-            actor=self.actor.pickername, project=self.project.joined_title
+            actor=self.actor.pickername,
+            project=project.joined_title if project else '',
+            proposal=proposal.title if proposal else '',
         )
 
     def email_content(self) -> str:

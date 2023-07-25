@@ -469,6 +469,14 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         """Represent :class:`Project` as a string."""
         return f'<Project {self.profile.name}/{self.name} "{self.title}">'
 
+    def __str__(self) -> str:
+        return self.joined_title
+
+    def __format__(self, format_spec: str) -> str:
+        if not format_spec:
+            return self.joined_title
+        return self.joined_title.__format__(format_spec)
+
     @with_roles(call={'editor'})
     @cfp_state.transition(
         cfp_state.OPENABLE,

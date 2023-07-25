@@ -282,6 +282,14 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
         """Represent :class:`Profile` as a string."""
         return f'<Profile "{self.name}">'
 
+    def __str__(self) -> str:
+        return self.pickername
+
+    def __format__(self, format_spec: str) -> str:
+        if not format_spec:
+            return self.pickername
+        return self.pickername.__format__(format_spec)
+
     @property
     def owner(self) -> Optional[Union[User, Organization]]:
         """Return the user or organization that owns this account."""
