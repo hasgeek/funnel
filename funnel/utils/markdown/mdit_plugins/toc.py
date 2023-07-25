@@ -27,7 +27,7 @@ from coaster.utils import make_name
 
 __all__ = ['toc_plugin']
 
-SQUARE_BRACKET_OPEN_CHAR = 0x5B  # ASCII value for `[`
+SQUARE_BRACKET_OPEN_CHAR = '['
 
 defaults: Dict = {
     'include_level': [1, 2, 3, 4, 5, 6],
@@ -197,7 +197,7 @@ def toc_plugin(md: MarkdownIt, **opts) -> None:
 
     def toc(state: StateInline, silent: bool) -> bool:
         # Reject if the token does not start with [
-        if state.srcCharCode[state.pos] != SQUARE_BRACKET_OPEN_CHAR:
+        if state.src[state.pos] != SQUARE_BRACKET_OPEN_CHAR:
             return False
         if silent:
             return False
