@@ -38,7 +38,6 @@ class CommentReplyTemplate(TemplateVarMixin, SmsTemplate):
     )
     plaintext_template = '{actor} has replied to your comment: {url}'
 
-    actor: str
     url: str
 
 
@@ -55,7 +54,6 @@ class CommentProposalTemplate(TemplateVarMixin, SmsTemplate):
     )
     plaintext_template = '{actor} commented on your submission: {url}'
 
-    actor: str
     url: str
 
 
@@ -72,7 +70,6 @@ class CommentProjectTemplate(TemplateVarMixin, SmsTemplate):
     )
     plaintext_template = '{actor} commented on a project you are in: {url}'
 
-    actor: str
     url: str
 
 
@@ -167,7 +164,7 @@ class CommentNotification(RenderNotification):
         if self.document_type == 'comment':
             return _("{actor} replied to your comment in {project}")
         if self.document_type == 'project':
-            return _("{actor} posted a commented in {project}")
+            return _("{actor} commented in {project}")
         if self.document_type == 'proposal':
             return _("{actor} commented on your submission in {project}")
         # Unknown document type
