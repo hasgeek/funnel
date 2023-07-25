@@ -94,7 +94,7 @@
               <div class="bottom-padding mui--text-light mui--hidden-lg mui--hidden-xl">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
               <a href="{{ featured_project.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
             </div>
-            <div class="grid__col-md-1 grid__col-lg-1 mui--hidden-xs mui--hidden-sm mui--hidden-md spotlight-container">
+            <div class="grid__col-md-1 grid__col-lg-1 mui--hidden-xs mui--hidden-sm mui--hidden-md">
             </div>
             <div class="grid__col-12 grid__col-md-5 grid__col-lg-4" data-cy="spotlight-project">
               <div class="card card--upcoming">
@@ -109,8 +109,8 @@
                     </span>
                     <span class="profile-avatar-title mui--text-body2 text-bold mui--text-dark">{{ featured_project.profile.title }}</span>
                   </div>
-                  {%- if not current_auth.is_anonymous and add_bookmark %}
-                    {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
+                  {%- if not current_auth.is_anonymous %}
+                    {% set save_form_id = "spotlight_spfm_mobile_" + featured_project.uuid_b58 %}
                     <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(featured_project, formid=save_form_id) }}</div>
                   {% endif %}
                 </div>
