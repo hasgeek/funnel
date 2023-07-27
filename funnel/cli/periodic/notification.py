@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import date, datetime, timedelta
 
 from ... import models
 from ...models import db, sa
@@ -42,5 +42,35 @@ def project_starting_alert() -> None:
             models.ProjectStartingNotification(
                 document=project,
                 fragment=project.next_session_from(use_now + timedelta(minutes=10)),
+            )
+        )
+
+
+@periodic.command('project_starting_tomorrow_alert')
+def project_starting_tomorrow_alert() -> None:
+    """Send notifications for projects starting the next day."""
+    today = date.today()
+    tomorrow = today + timedelta(days=1)
+    start_time = datetime.combine(tomorrow, datetime.min.time())
+
+    db.session.query(
+        sa.func.date_trunc('hour', sa.func.utcnow())
+        + sa.cast(sa.func.date_part('minute', sa.func.utcnow()), sa.Integer)
+        / 5
+        * timedelta(minutes=5)
+    ).scalar()
+
+    # Find all projects that have a session starting the next day
+    for project in (
+        models.Project.starting_at(
+            start_time, timedelta(hours=24), timedelta(minutes=10)
+        )
+        .options(sa.orm.load_only(models.Project.uuid))
+        .all()
+    ):
+        dispatch_notification(
+            models.ProjectStartingNotification(
+                document=project,
+                fragment=project.next_session_from(start_time),
             )
         )

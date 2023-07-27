@@ -33,6 +33,46 @@ class ProjectStartingTemplate(TemplateVarMixin, SmsTemplate):
     url: str
 
 
+class ProjectStartingTomorrowVenueTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for project starting notification."""
+
+    registered_template = (
+        'Reminder: {#var#} has an in-person event tomorrow at {#var#}.'
+        ' Details here: {#var#}\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    template = (
+        'Reminder: {account} has an in-person event tomorrow at {venue}.'
+        ' Details here: {url}\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    plaintext_template = (
+        'Reminder: {account} has an in-person event tomorrow at {venue}.'
+        ' Details here: {url}'
+    )
+
+    venue: str
+    url: str
+
+
+class ProjectStartingTomorrowCityTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for project starting notification."""
+
+    registered_template = (
+        'Reminder: {#var#} has an in-person event tomorrow in {#var#}.'
+        ' Details here: {#var#}\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    template = (
+        'Reminder: {account} has an in-person event tomorrow in {venue}.'
+        ' Details here: {url}\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    plaintext_template = (
+        'Reminder: {account} has an in-person event tomorrow in {venue}.'
+        ' Details here: {url}'
+    )
+
+    venue: str
+    url: str
+
+
 @ProjectStartingNotification.renderer
 class RenderProjectStartingNotification(RenderNotification):
     """Notify crew and participants when the project's schedule is about to start."""
