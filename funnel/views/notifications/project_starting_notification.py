@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Union
 
 from flask import render_template
 
 from baseframe import _, __
 from baseframe.filters import time_filter
 
-from ...models import Project, ProjectStartingNotification, Session
+from ...models import (
+    Project,
+    ProjectStartingNotification,
+    ProjectTomorrowNotification,
+    Session,
+)
 from ...transports.sms import SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -29,12 +34,11 @@ class ProjectStartingTemplate(TemplateVarMixin, SmsTemplate):
     )
     plaintext_template = "Reminder: {project} is starting soon. Join at {url}"
 
-    project_only: str
     url: str
 
 
 class ProjectStartingTomorrowVenueTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for project starting notification."""
+    """DLT registered template for in-person event notification."""
 
     registered_template = (
         'Reminder: {#var#} has an in-person event tomorrow at {#var#}.'
@@ -49,28 +53,32 @@ class ProjectStartingTomorrowVenueTemplate(TemplateVarMixin, SmsTemplate):
         ' Details here: {url}'
     )
 
-    venue: str
     url: str
 
 
-class ProjectStartingTomorrowCityTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for project starting notification."""
+class ProjectStartingTomorrowLocationTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for in-person event notification."""
 
     registered_template = (
         'Reminder: {#var#} has an in-person event tomorrow in {#var#}.'
         ' Details here: {#var#}\n\nhttps://bye.li to stop -Hasgeek'
     )
     template = (
-        'Reminder: {account} has an in-person event tomorrow in {venue}.'
+        'Reminder: {account} has an in-person event tomorrow in {location}.'
         ' Details here: {url}\n\nhttps://bye.li to stop -Hasgeek'
     )
     plaintext_template = (
-        'Reminder: {account} has an in-person event tomorrow in {venue}.'
+        'Reminder: {account} has an in-person event tomorrow in {location}.'
         ' Details here: {url}'
     )
 
-    venue: str
+    location: str
     url: str
+
+    def truncate(self) -> None:
+        """Truncate location to fit within template size limit."""
+        if len(self.location) > self.var_max_length:
+            self.location = self.location[: self.var_max_length - 1] + '…'
 
 
 @ProjectStartingNotification.renderer
@@ -108,6 +116,57 @@ class RenderProjectStartingNotification(RenderNotification):
     def sms(self) -> ProjectStartingTemplate:
         return ProjectStartingTemplate(
             project=self.project,
+            url=shortlink(
+                self.project.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
+            ),
+        )
+
+
+@ProjectTomorrowNotification.renderer
+class RenderProjectTomorrowNotification(RenderProjectStartingNotification):
+    """Renderer for previous-day notice of an in-person session."""
+
+    email_heading = __("In-person event tomorrow!")
+
+    def web(self) -> str:
+        return render_template(
+            'notifications/project_tomorrow_web.html.jinja2', view=self
+        )
+
+    def email_subject(self) -> str:
+        start_time = (self.session or self.project).start_at_localized
+        if start_time is not None:
+            return self.emoji_prefix + _("{project} starts at {time}").format(
+                project=self.project.joined_title, time=time_filter(start_time)
+            )
+        return self.emoji_prefix + _("{project} is starting soon").format(
+            project=self.project.joined_title
+        )
+
+    def email_content(self) -> str:
+        return render_template(
+            'notifications/project_tomorrow_email.html.jinja2', view=self
+        )
+
+    def sms(  # type: ignore[override]
+        self,
+    ) -> Union[
+        ProjectStartingTomorrowVenueTemplate, ProjectStartingTomorrowLocationTemplate
+    ]:
+        venue = self.project.primary_venue
+        if venue is not None:
+            return ProjectStartingTomorrowVenueTemplate(
+                project=self.project,
+                venue=venue,
+                url=shortlink(
+                    self.project.url_for(_external=True, **self.tracking_tags('sms')),
+                    shorter=True,
+                ),
+            )
+        return ProjectStartingTomorrowLocationTemplate(
+            project=self.project,
+            location=self.project.location,
             url=shortlink(
                 self.project.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,

@@ -1,0 +1,14 @@
+{% extends "notifications/layout_web.html.jinja2" %}
+{%- from "macros.html.jinja2" import useravatar %}
+
+{%- block avatar %}
+  {{ useravatar(view.project.profile.owner) }}
+{%- endblock avatar -%}
+
+{%- block content -%}
+  <p>
+    {% trans project=view.project.joined_title, url=view.project.url_for(), start_datetime=(view.session or view.project).start_at_localized|datetime, venue=project.primary_venue.title -%}
+      <a href="{{ url }}">{{ project }}</a> has an in-person session at {{ venue }}, starting {{ start_datetime }}
+    {%- endtrans %}
+  </p>
+{%- endblock content -%}

@@ -5,7 +5,7 @@ from typing_extensions import Self
 
 import grapheme
 
-from ...models import Organization, Profile, Project, User
+from ...models import Organization, Profile, Project, User, Venue
 
 _T = TypeVar('_T')  # Host type for SetVar
 _I = TypeVar('_I')  # Input type for SetVar's setter
@@ -91,3 +91,16 @@ class TemplateVarMixin:
 
     # This will trigger cloning in SetVar.__set_name__
     actor = user = organization = profile = account
+
+    @SetVar
+    def venue(self, venue: Venue) -> str:
+        """Set venue title and city."""
+        if venue.city:
+            text = f"{venue.title}, {venue.city}"
+            if len(text) <= self.var_max_length:
+                return text
+        text = venue.title
+        if len(text) <= self.var_max_length:
+            return text
+        index = grapheme.safe_split_index(text, self.var_max_length - 1)
+        return text[:index] + '…'
