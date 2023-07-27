@@ -1,9 +1,11 @@
 * text=auto eol=lf
 
+*.gif binary
 *.ico binary
 *.jpg binary
 *.mo binary
 *.png binary
+*.webp binary
 
 .coveragerc text eol=lf
 .env text eol=lf
