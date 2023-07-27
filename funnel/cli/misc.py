@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Dict
 
 import click
+from dotenv import dotenv_values
 
 from baseframe import baseframe_translations
 
@@ -45,3 +47,13 @@ def dbcreate() -> None:
 def baseframe_translations_path() -> None:
     """Show path to Baseframe translations."""
     click.echo(list(baseframe_translations.translation_directories)[0])
+
+
+@app.cli.command('checkenv')
+@click.argument('file', type=click.Path(exists=True, path_type=Path), default='.env')
+def check_env(file: Path) -> None:
+    """Compare environment file with sample.env and lists variables that do not exist."""
+    env = dotenv_values(file)
+    for var in dotenv_values('sample.env'):
+        if var not in env:
+            click.echo(var + ' does not exist')
