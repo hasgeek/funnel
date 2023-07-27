@@ -8,8 +8,6 @@
 *.webp binary
 
 .coveragerc text eol=lf
-.env text eol=lf
-.env.* text eol=lf
 .dockerignore text eol=lf
 .flaskenv text eol=lf
 .gitattributes text eol=lf
