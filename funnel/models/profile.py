@@ -307,6 +307,8 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
             raise ValueError(value)
         self.reserved = False
 
+    with_roles(owner, grants_via={None: {'owner', 'admin'}})
+
     @hybrid_property
     def is_user_profile(self) -> bool:
         """Test if this is a user account."""
@@ -392,10 +394,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
         self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         """Identify roles for the given actor."""
-        if self.owner:
-            roles = self.owner.roles_for(actor, anchors)
-        else:
-            roles = super().roles_for(actor, anchors)
+        roles = super().roles_for(actor, anchors)
         if self.state.PUBLIC:
             roles.add('reader')
         return roles

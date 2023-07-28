@@ -771,19 +771,14 @@ add_search_trigger(Project, 'search_vector')
 class __Profile:
     id: Mapped[int]  # noqa: A003
 
-    listed_projects: DynamicMapped[Project] = with_roles(
-        relationship(
-            Project,
-            lazy='dynamic',
-            primaryjoin=sa.and_(
-                Profile.id == Project.profile_id,
-                Project.state.PUBLISHED,
-            ),
-            viewonly=True,
+    listed_projects: DynamicMapped[Project] = relationship(
+        Project,
+        lazy='dynamic',
+        primaryjoin=sa.and_(
+            Profile.id == Project.profile_id,
+            Project.state.PUBLISHED,
         ),
-        # This grant of follower from Project participant is interim until Account gets
-        # it's own follower membership model
-        grants_via={None: {'participant': {'follower'}}},
+        viewonly=True,
     )
     draft_projects: DynamicMapped[Project] = relationship(
         Project,

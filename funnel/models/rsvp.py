@@ -13,8 +13,9 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import Mapped, Model, NoIdMixin, UuidMixin, db, relationship, sa, types
+from . import Mapped, Model, NoIdMixin, Query, UuidMixin, db, relationship, sa, types
 from .helpers import reopen
+from .profile import Profile
 from .project import Project
 from .project_membership import project_child_role_map
 from .user import User, UserEmail, UserEmailClaim, UserPhone
@@ -249,3 +250,18 @@ class __Project:
             .filter(User.state.ACTIVE, Rsvp.state.YES)
             .count()
         )
+
+
+@reopen(Profile)
+class __Profile:
+    @property
+    def rsvp_followers(self) -> Query[User]:
+        """All users with an active RSVP in a project."""
+        return (
+            User.query.filter(User.state.ACTIVE)
+            .join(Rsvp, Rsvp.user_id == User.id)
+            .join(Project, Rsvp.project_id == Project.id)
+            .filter(Rsvp.state.YES, Project.state.PUBLISHED, Project.profile == self)
+        )
+
+    with_roles(rsvp_followers, grants={'follower'})
