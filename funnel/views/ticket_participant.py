@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, flash, request, url_for
+from flask import flash, request, url_for
 from sqlalchemy.exc import IntegrityError
 
 from baseframe import _, forms
@@ -325,7 +325,6 @@ class TicketEventParticipantCheckinView(ClassView):
     def checkin_puk(
         self, profile: str, project: str, event: str, puk: str
     ) -> ReturnView:
-
         checked_in = getbool(  # type: ignore[unreachable]
             request.form.get('checkin', 't')
         )
