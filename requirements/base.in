@@ -52,6 +52,7 @@ python-telegram-bot
 pytz
 PyVimeo
 qrcode
+regex>=2023.6.3;python_version=="3.7"
 requests
 rich
 rq
