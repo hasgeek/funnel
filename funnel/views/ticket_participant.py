@@ -316,7 +316,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
 TicketEventParticipantView.init_app(app)
 
 
-# FIXME: make this endpoint use uuid_b58 instead of puk, along with badge generation
+# TODO: make this endpoint use uuid_b58 instead of puk, along with badge generation
 @route('/<profile>/<project>/event/<event>/ticket_participant/<puk>')
 class TicketEventParticipantCheckinView(ClassView):
     __decorators__ = [requires_login]
@@ -325,7 +325,6 @@ class TicketEventParticipantCheckinView(ClassView):
     def checkin_puk(
         self, profile: str, project: str, event: str, puk: str
     ) -> ReturnView:
-        abort(403)
 
         checked_in = getbool(  # type: ignore[unreachable]
             request.form.get('checkin', 't')
