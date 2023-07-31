@@ -1,7 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown, useravatar, add_submission_btn, img_size %}
-{%- set header_banner = 700 %}
 {% block title %}{{ project.title }}{% endblock title %}
 {% block description %}{{ project.tagline }}{% endblock description %}
 {% block twitter_card %}summary_large_image{% endblock twitter_card %}
@@ -96,7 +95,7 @@
             </p>
           </div>
         {%- elif project.bg_image.url %}
-          <img class="project-banner__box__image" src="{{ project.bg_image.resize(img_size.header_banner) }}" alt="{{ project.title }}" data-cy="bg_image"/>
+          <img class="project-banner__box__image" src="{{ project.bg_image.resize(img_size.spotlight_banner) }}" alt="{{ project.title }}" data-cy="bg_image"/>
         {%- else %}
           <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ project.title }}"/>
         {% endif %}
