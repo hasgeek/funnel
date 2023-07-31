@@ -26,7 +26,7 @@
             <div class="card card--spotlight card--spotlight--live">
               <div class="card__image-wrapper">
                 {% if featured_project.bg_image.url %}
-                  <img class="card__image" src="{{ featured_project.bg_image.resize(img_size.profile_banner) }}" alt="{{ featured_project.title }}"/>
+                  <img class="card__image" src="{{ featured_project.bg_image.resize(img_size.spotlight_banner) }}" alt="{{ featured_project.title }}"/>
                 {% else %}
                   <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
                   <p class="card__image__tagline">{{ featured_project.title }}</p>
@@ -320,7 +320,7 @@
       <div class="profile__banner">
         <div class="profile__banner__box">
           {%- if profile.banner_image_url.url %}
-            <img class="profile__banner__box__img" src="{{ profile.banner_image_url.resize(img_size.spotlight_banner) }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
+            <img class="profile__banner__box__img" src="{{ profile.banner_image_url.resize(img_size.profile_banner) }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
           {% else %}
             <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}" alt="{{ profile.title }}"/>
           {% endif %}
