@@ -23,7 +23,7 @@ repos:
       - id: pip-compile-multi-verify
         files: ^requirements/.*\.(in|txt)$
   - repo: https://github.com/pypa/pip-audit
-    rev: v2.6.0
+    rev: v2.6.1
     hooks:
       - id: pip-audit
         args: [

@@ -221,6 +221,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
                 'uuid_b58',
                 'name',
                 'title',
+                'pickername',
                 'tagline',
                 'description',
                 'website',
@@ -281,8 +282,16 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
         """Represent :class:`Profile` as a string."""
         return f'<Profile "{self.name}">'
 
+    def __str__(self) -> str:
+        return self.pickername
+
+    def __format__(self, format_spec: str) -> str:
+        if not format_spec:
+            return self.pickername
+        return self.pickername.__format__(format_spec)
+
     @property
-    def owner(self) -> Union[User, Organization]:
+    def owner(self) -> Optional[Union[User, Organization]]:
         """Return the user or organization that owns this account."""
         return self.user or self.organization
 
@@ -297,6 +306,8 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
         else:
             raise ValueError(value)
         self.reserved = False
+
+    with_roles(owner, grants_via={None: {'owner', 'admin'}})
 
     @hybrid_property
     def is_user_profile(self) -> bool:
@@ -383,10 +394,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, Model):
         self, actor: Optional[User] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         """Identify roles for the given actor."""
-        if self.owner:
-            roles = self.owner.roles_for(actor, anchors)
-        else:
-            roles = super().roles_for(actor, anchors)
+        roles = super().roles_for(actor, anchors)
         if self.state.PUBLIC:
             roles.add('reader')
         return roles

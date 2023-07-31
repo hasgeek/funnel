@@ -14,6 +14,7 @@ from . import (
     DynamicMapped,
     Mapped,
     Model,
+    Query,
     UuidMixin,
     db,
     relationship,
@@ -22,6 +23,7 @@ from . import (
 )
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import reopen
+from .profile import Profile
 from .project import Project
 from .project_membership import project_child_role_map
 from .user import User, UserEmail
@@ -595,6 +597,21 @@ class __Project:
             'user': {'participant', 'project_participant', 'ticket_participant'}
         },
     )
+
+
+@reopen(Profile)
+class __Profile:
+    @property
+    def ticket_followers(self) -> Query[User]:
+        """All users with a ticket in a project."""
+        return (
+            User.query.filter(User.state.ACTIVE)
+            .join(TicketParticipant, TicketParticipant.user_id == User.id)
+            .join(Project, TicketParticipant.project_id == Project.id)
+            .filter(Project.state.PUBLISHED, Project.profile == self)
+        )
+
+    with_roles(ticket_followers, grants={'follower'})
 
 
 # Tail imports to avoid cyclic dependency errors, for symbols used only in methods

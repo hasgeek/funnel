@@ -227,6 +227,7 @@ class Proposal(  # type: ignore[misc]
     __roles__ = {
         'all': {
             'read': {
+                'absolute_url',  # From UrlForMixin
                 'urls',
                 'uuid_b58',
                 'url_name_uuid_b58',
@@ -284,6 +285,14 @@ class Proposal(  # type: ignore[misc]
             f'<Proposal "{self.title}" in project "{self.project.title}"'
             f' by "{self.user.fullname}">'
         )
+
+    def __str__(self) -> str:
+        return self.title
+
+    def __format__(self, format_spec: str) -> str:
+        if not format_spec:
+            return self.title
+        return self.title.__format__(format_spec)
 
     # State transitions
     state.add_conditional_state(

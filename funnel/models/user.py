@@ -398,8 +398,12 @@ class User(SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, 
             return f"<User {self.uuid_b64} {self.fullname!r}>"
 
     def __str__(self) -> str:
-        """Return picker name for user."""
         return self.pickername
+
+    def __format__(self, format_spec: str) -> str:
+        if not format_spec:
+            return self.pickername
+        return self.pickername.__format__(format_spec)
 
     @property
     def pickername(self) -> str:
@@ -1043,8 +1047,12 @@ class DuckTypeUser(RoleMixin):
         self.fullname = self.title = self.pickername = representation
 
     def __str__(self) -> str:
-        """Represent user account as a string."""
         return self.pickername
+
+    def __format__(self, format_spec: str) -> str:
+        if not format_spec:
+            return self.pickername
+        return self.pickername.__format__(format_spec)
 
     def url_for(self, *args, **kwargs) -> Literal['']:
         """Return blank URL for anything to do with this user."""
@@ -1208,6 +1216,14 @@ class Organization(
             if 'profile' in self.__dict__:
                 return f"<Organization {self.name} {self.title!r}>"
             return f"<Organization {self.uuid_b64} {self.title!r}>"
+
+    def __str__(self) -> str:
+        return self.pickername
+
+    def __format__(self, format_spec: str) -> str:
+        if not format_spec:
+            return self.pickername
+        return self.pickername.__format__(format_spec)
 
     @property
     def pickername(self) -> str:

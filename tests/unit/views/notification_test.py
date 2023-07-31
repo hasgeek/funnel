@@ -146,9 +146,9 @@ def test_template_var_mixin() -> None:
         title='Ankh-Morpork 2010', joined_title='Ankh-Morpork / Ankh-Morpork 2010'
     )
     u1 = SimpleNamespace(
-        pickername='Havelock Vetinari (@vetinari)', fullname='Havelock Vetinari'
+        pickername='Havelock Vetinari (@vetinari)', title='Havelock Vetinari'
     )
-    u2 = SimpleNamespace(pickername='Twoflower', fullname='Twoflower')
+    u2 = SimpleNamespace(pickername='Twoflower', title='Twoflower')
     t1.project = cast(models.Project, p1)
     t1.user = cast(models.User, u2)
     t1.actor = cast(models.User, u1)

@@ -13,7 +13,6 @@ from coaster.utils import LabeledEnum
 from . import (
     BaseScopedIdNameMixin,
     Mapped,
-    MarkdownCompositeDocument,
     Model,
     Query,
     TimestampMixin,
@@ -24,7 +23,12 @@ from . import (
     sa,
 )
 from .comment import SET_TYPE, Commentset
-from .helpers import add_search_trigger, reopen, visual_field_delimiter
+from .helpers import (
+    MarkdownCompositeDocument,
+    add_search_trigger,
+    reopen,
+    visual_field_delimiter,
+)
 from .project import Project
 from .user import User
 

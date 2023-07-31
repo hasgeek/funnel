@@ -96,7 +96,7 @@ sttable==0.0.1
     # via -r requirements/test.in
 tenacity==8.2.2
     # via pytest-selenium
-tomlkit==0.11.8
+tomlkit==0.12.1
     # via -r requirements/test.in
 trio==0.22.2
     # via
@@ -104,7 +104,7 @@ trio==0.22.2
     #   trio-websocket
 trio-websocket==0.10.3
     # via selenium
-typeguard==4.0.0
+typeguard==4.0.1
     # via -r requirements/test.in
 wsproto==1.2.0
     # via trio-websocket
