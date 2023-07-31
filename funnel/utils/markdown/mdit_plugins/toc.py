@@ -20,6 +20,7 @@ from typing_extensions import TypedDict
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import OptionsDict, RendererHTML
+from markdown_it.rules_core import StateCore
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
 
@@ -253,7 +254,7 @@ def toc_plugin(md: MarkdownIt, **opts) -> None:
         html = toc_item_to_html(toc, opts, md)
         return html
 
-    def grab_state(state: StateInline):
+    def grab_state(state: StateCore):
         state.env['gstate'] = state
 
     md.core.ruler.push('grab_state', grab_state)
