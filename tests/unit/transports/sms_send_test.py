@@ -8,7 +8,7 @@ from flask import Response
 
 from funnel.transports import TransportConnectionError, TransportRecipientError
 from funnel.transports.sms import (
-    OneLineTemplate,
+    WebOtpTemplate,
     make_exotel_token,
     send,
     validate_exotel_token,
@@ -27,11 +27,7 @@ EXOTEL_TO = "+919999999999"
 EXOTEL_CALLBACK_TO = "09999999999"
 
 # Dummy Message
-MESSAGE = OneLineTemplate(
-    text1="Test Message",
-    url='https://example.com/',
-    unsubscribe_url='https://unsubscribe.example/',
-)
+MESSAGE = WebOtpTemplate(otp="1234")
 
 
 @pytest.mark.enable_socket()
@@ -92,7 +88,8 @@ def test_exotel_nonce(client) -> None:
 
 
 @pytest.mark.requires_config('app', 'exotel')
-@pytest.mark.usefixtures('app_context')
+@pytest.mark.usefixtures('app_context', 'db_session')
+@patch.object(WebOtpTemplate, 'registered_templateid', 'test')
 def test_exotel_send_error() -> None:
     """Only tests if url_for works and usually fails otherwise, which is OK."""
     # Check False Path via monkey patching the requests object
