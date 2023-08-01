@@ -36,7 +36,7 @@ editorconfig==0.12.3
     # via
     #   cssbeautifier
     #   jsbeautifier
-flake8==6.0.0
+flake8==6.1.0
     # via
     #   -r requirements/dev.in
     #   flake8-annotations
@@ -114,7 +114,7 @@ mypy-json-report==1.0.4
     # via -r requirements/dev.in
 nodeenv==1.8.0
     # via pre-commit
-pathspec==0.11.1
+pathspec==0.11.2
     # via
     #   black
     #   djlint
@@ -126,7 +126,7 @@ pip-compile-multi==2.6.3
     # via -r requirements/dev.in
 pip-tools==7.1.0
     # via pip-compile-multi
-platformdirs==3.9.1
+platformdirs==3.10.0
     # via
     #   black
     #   pylint
@@ -135,23 +135,23 @@ po2json==0.2.2
     # via -r requirements/dev.in
 pre-commit==3.3.3
     # via -r requirements/dev.in
-pycodestyle==2.10.0
+pycodestyle==2.11.0
     # via
     #   flake8
     #   flake8-print
 pydocstyle==6.3.0
     # via flake8-docstrings
-pyflakes==3.0.1
+pyflakes==3.1.0
     # via flake8
 pylint==2.17.5
     # via -r requirements/dev.in
 pyproject-hooks==1.0.0
     # via build
-pyupgrade==3.9.0
+pyupgrade==3.10.1
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
-ruff==0.0.280
+ruff==0.0.281
     # via -r requirements/dev.in
 smmap==5.0.0
     # via gitdb
@@ -159,7 +159,7 @@ snowballstemmer==2.2.0
     # via pydocstyle
 stevedore==5.1.0
     # via bandit
-tokenize-rt==5.1.0
+tokenize-rt==5.2.0
     # via pyupgrade
 toposort==1.10
     # via pip-compile-multi

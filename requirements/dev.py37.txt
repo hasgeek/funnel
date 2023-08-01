@@ -98,7 +98,7 @@ mypy-json-report==1.0.4
     # via -r requirements/dev.in
 nodeenv==1.8.0
     # via pre-commit
-pathspec==0.11.1
+pathspec==0.11.2
     # via black
 pbr==5.11.1
     # via stevedore
@@ -108,7 +108,7 @@ pip-compile-multi==2.6.3
     # via -r requirements/dev.in
 pip-tools==6.14.0
     # via pip-compile-multi
-platformdirs==3.9.1
+platformdirs==3.10.0
     # via
     #   black
     #   pylint
@@ -133,7 +133,7 @@ pyupgrade==3.3.2
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
-ruff==0.0.280
+ruff==0.0.281
     # via -r requirements/dev.in
 smmap==5.0.0
     # via gitdb
