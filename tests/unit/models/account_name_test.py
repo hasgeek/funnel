@@ -1,7 +1,7 @@
 """Tests for Account name."""
 
-from sqlalchemy.exc import IntegrityError
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 

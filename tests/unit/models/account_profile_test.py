@@ -1,8 +1,8 @@
 """Tests for Account model's profile features."""
 
+import pytest
 from furl import furl
 from sqlalchemy.exc import StatementError
-import pytest
 
 from coaster.sqlalchemy import StateTransitionError
 
