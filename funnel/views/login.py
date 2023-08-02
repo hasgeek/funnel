@@ -70,6 +70,7 @@ from .login_session import (
     register_internal,
     reload_for_cookies,
     requires_login,
+    requires_sudo,
     save_session_next_url,
     set_loginmethod_cookie,
 )
@@ -609,7 +610,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 
 
 @app.route('/account/merge', methods=['GET', 'POST'])
-@requires_login
+@requires_sudo
 def account_merge() -> ReturnView:
     """Merge two accounts."""
     if 'merge_buid' not in session:
