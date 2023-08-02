@@ -453,7 +453,7 @@ class EmailAddress(BaseMixin, Model):
         email: Optional[str],
         blake2b160: Optional[bytes],
         email_hash: Optional[str],
-    ) -> sa.ColumnElement[bool]:
+    ) -> Optional[sa.ColumnElement[bool]]:
         ...
 
     @classmethod

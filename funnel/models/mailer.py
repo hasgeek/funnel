@@ -450,5 +450,5 @@ class MailerRecipient(BaseScopedIdMixin, Model):
 @reopen(Account)
 class __Account:
     mailers: Mapped[List[Mailer]] = relationship(
-        Mailer, back_populates='account', order_by='Mailer.updated_at.desc()'
+        Mailer, back_populates='user', order_by='Mailer.updated_at.desc()'
     )

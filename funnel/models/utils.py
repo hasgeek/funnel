@@ -63,22 +63,26 @@ def getuser(
     """
     Get an account with a matching name, email address or phone number.
 
-    Optionally returns an anchor (phone or email) instead of the account.
+    Optionally returns an anchor (phone or email) along with the account.
     """
+    accountemail: Optional[Union[AccountEmail, AccountEmailClaim]] = None
+    accountphone: Optional[AccountPhone] = None
     # Treat an '@' or '~' prefix as a username lookup, removing the prefix
     if name.startswith('@') or name.startswith('~'):
         name = name[1:]
     # If there's an '@' in the middle, treat as an email address
     elif '@' in name:
-        accountemail: Union[None, AccountEmail, AccountEmailClaim]
         accountemail = AccountEmail.get(email=name)
         if accountemail is None:
             # If there's no verified email address, look for a claim.
-            accountemail = (
-                AccountEmailClaim.all(email=name)
-                .order_by(AccountEmailClaim.created_at)
-                .first()
-            )
+            try:
+                accountemail = (
+                    AccountEmailClaim.all(email=name)
+                    .order_by(AccountEmailClaim.created_at)
+                    .first()
+                )
+            except ValueError:
+                accountemail = None
         if accountemail is not None and accountemail.account.state.ACTIVE:
             # Return user only if in active state
             if anchor:

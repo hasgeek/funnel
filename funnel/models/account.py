@@ -147,7 +147,7 @@ class Account(UuidMixin, BaseMixin, Model):
 
     #: The optional "username", used in the URL stub, with a unique constraint on the
     #: lowercase value (defined in __table_args__ below)
-    name: Mapped[str] = with_roles(
+    name: Mapped[Optional[str]] = with_roles(
         sa.orm.mapped_column(
             sa.Unicode(__name_length__),
             sa.CheckConstraint("name <> ''"),
@@ -1092,18 +1092,19 @@ class Account(UuidMixin, BaseMixin, Model):
             # Query has an @ in the middle. Match email address (exact match only).
             # Use param `prefix` instead of `like_query` because it's not a LIKE query.
             # Combine results with regular user search
-            users = (
-                cls.query.join(AccountEmail)
-                .join(EmailAddress)
-                .filter(
-                    EmailAddress.get_filter(email=prefix),
-                    cls.state.ACTIVE,
+            email_filter = EmailAddress.get_filter(email=prefix)
+            if email_filter is not None:
+                users = (
+                    cls.query.join(AccountEmail)
+                    .join(EmailAddress)
+                    .filter(email_filter, cls.state.ACTIVE)
+                    .options(*cls._defercols())
+                    .limit(20)
+                    # .union(base_users)  # FIXME: Broken in SQLAlchemy 1.4.17
+                    .all()
                 )
-                .options(*cls._defercols())
-                .limit(20)
-                # .union(base_users)  # FIXME: Broken in SQLAlchemy 1.4.17
-                .all()
-            )
+            else:
+                users = []
         else:
             # No '@' in the query, so do a regular autocomplete
             try:
@@ -1564,15 +1565,12 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         :param blake2b160: 160-bit blake2b of email address to look up
         :param email_hash: blake2b hash rendered in Base58
         """
-        return (
-            cls.query.join(EmailAddress)
-            .filter(
-                EmailAddress.get_filter(
-                    email=email, blake2b160=blake2b160, email_hash=email_hash
-                )
-            )
-            .one_or_none()
+        email_filter = EmailAddress.get_filter(
+            email=email, blake2b160=blake2b160, email_hash=email_hash
         )
+        if email_filter is None:
+            return None
+        return cls.query.join(EmailAddress).filter(email_filter).one_or_none()
 
     @overload
     @classmethod
@@ -1621,13 +1619,16 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         :param blake2b160: 160-bit blake2b of email address
         :param email_hash: blake2b hash rendered in Base58
         """
+        email_filter = EmailAddress.get_filter(
+            email=email, blake2b160=blake2b160, email_hash=email_hash
+        )
+        if email_filter is None:
+            return None
         return (
             cls.query.join(EmailAddress)
             .filter(
                 cls.account == user,
-                EmailAddress.get_filter(
-                    email=email, blake2b160=blake2b160, email_hash=email_hash
-                ),
+                email_filter,
             )
             .one_or_none()
         )
@@ -1758,13 +1759,16 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         :param bytes blake2b160: 160-bit blake2b of email address to look up
         :param str email_hash: Base58 rendering of 160-bit blake2b hash
         """
+        email_filter = EmailAddress.get_filter(
+            email=email, blake2b160=blake2b160, email_hash=email_hash
+        )
+        if email_filter is None:
+            return None
         return (
             cls.query.join(EmailAddress)
             .filter(
                 cls.account == user,
-                EmailAddress.get_filter(
-                    email=email, blake2b160=blake2b160, email_hash=email_hash
-                ),
+                email_filter,
             )
             .one_or_none()
         )
@@ -1809,13 +1813,16 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         email_hash: Optional[str] = None,
     ) -> Optional[AccountEmailClaim]:
         """Return an instance given verification code and email or hash."""
+        email_filter = EmailAddress.get_filter(
+            email=email, blake2b160=blake2b160, email_hash=email_hash
+        )
+        if email_filter is None:
+            return None
         return (
             cls.query.join(EmailAddress)
             .filter(
                 cls.verification_code == verification_code,
-                EmailAddress.get_filter(
-                    email=email, blake2b160=blake2b160, email_hash=email_hash
-                ),
+                email_filter,
             )
             .one_or_none()
         )

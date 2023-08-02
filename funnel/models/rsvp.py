@@ -26,7 +26,6 @@ from . import (
 )
 from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
 from .helpers import reopen
-from .profile import Profile
 from .project import Project
 from .project_membership import project_child_role_map
 
@@ -258,8 +257,8 @@ class __Project:
         )
 
 
-@reopen(Profile)
-class __Profile:
+@reopen(Account)
+class __Account:
     @property
     def rsvp_followers(self) -> Query[Account]:
         """All users with an active RSVP in a project."""
@@ -267,7 +266,7 @@ class __Profile:
             Account.query.filter(Account.state.ACTIVE)
             .join(Rsvp, Rsvp.user_id == Account.id)
             .join(Project, Rsvp.project_id == Project.id)
-            .filter(Rsvp.state.YES, Project.state.PUBLISHED, Project.profile == self)
+            .filter(Rsvp.state.YES, Project.state.PUBLISHED, Project.account == self)
         )
 
     with_roles(rsvp_followers, grants={'follower'})
