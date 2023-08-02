@@ -111,7 +111,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         #: Parent object
         parent: Mapped[Optional[Model]]
         #: Subject of this membership (subclasses must define)
-        subject: Mapped[Account]
+        member: Mapped[Account]
 
     #: Should an active membership record be revoked when the member is soft-deleted?
     #: (Hard deletes will cascade and also delete all membership records.)

@@ -167,13 +167,12 @@ def parse_phone_number(
         for region in PHONE_LOOKUP_REGIONS:
             parsed_number = phonenumbers.parse(candidate, region)
             if phonenumbers.is_valid_number(parsed_number):
-                if sms:
-                    if phonenumbers.number_type(parsed_number) not in (
-                        phonenumbers.PhoneNumberType.MOBILE,
-                        phonenumbers.PhoneNumberType.FIXED_LINE_OR_MOBILE,
-                    ):
-                        sms_invalid = True
-                        continue  # Not valid for SMS, continue searching regions
+                if sms and phonenumbers.number_type(parsed_number) not in (
+                    phonenumbers.PhoneNumberType.MOBILE,
+                    phonenumbers.PhoneNumberType.FIXED_LINE_OR_MOBILE,
+                ):
+                    sms_invalid = True
+                    continue  # Not valid for SMS, continue searching regions
                 if parsed:
                     return parsed_number
                 return phonenumbers.format_number(

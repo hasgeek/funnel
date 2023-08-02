@@ -1168,9 +1168,8 @@ class Account(UuidMixin, BaseMixin, Model):
             value.lower() in self.reserved_names or not valid_account_name(value)
         ):
             raise ValueError("Invalid account name: " + value)
-        if not value:
-            if self.name and not self.state.GONE:
-                raise ValueError("Account name cannot be unset")
+        if not value and self.name and not self.state.GONE:
+            raise ValueError("Account name cannot be unset")
         # We don't check for existence in the db since this validator only
         # checks for valid syntax. To confirm the name is actually available,
         # the caller must call :meth:`is_available_name` or attempt to commit
