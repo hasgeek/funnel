@@ -3,18 +3,30 @@
 from __future__ import annotations
 
 from typing import Dict, Optional, Tuple, Union, cast, overload
+from typing_extensions import Literal
 
 from flask import current_app
-from typing_extensions import Literal
 from werkzeug.utils import cached_property
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import Mapped, Model, NoIdMixin, UuidMixin, backref, db, relationship, sa
+from . import (
+    Mapped,
+    Model,
+    NoIdMixin,
+    Query,
+    UuidMixin,
+    backref,
+    db,
+    relationship,
+    sa,
+    types,
+)
 from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
 from .helpers import reopen
+from .profile import Profile
 from .project import Project
 from .project_membership import project_child_role_map
 
@@ -40,6 +52,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         relationship(Project, backref=backref('rsvps', cascade='all', lazy='dynamic')),
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
+        datasets={'primary'},
     )
     user_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, primary_key=True
@@ -48,6 +61,13 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         relationship(Account, backref=backref('rsvps', cascade='all', lazy='dynamic')),
         read={'owner', 'project_promoter'},
         grants={'owner'},
+        datasets={'primary', 'without_parent'},
+    )
+    form: Mapped[Optional[types.jsonb]] = with_roles(
+        sa.orm.mapped_column(),
+        rw={'owner'},
+        read={'project_promoter'},
+        datasets={'primary', 'without_parent', 'related'},
     )
 
     _state = sa.orm.mapped_column(
@@ -67,18 +87,16 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         'project_promoter': {'read': {'created_at', 'updated_at'}},
     }
 
-    __datasets__ = {
-        'primary': {'project', 'user', 'response'},
-        'without_parent': {'user', 'response'},
-        'related': {'response'},
-    }
-
     @property
     def response(self):
         """Return RSVP response as a raw value."""
         return self._state
 
-    with_roles(response, read={'owner', 'project_promoter'})
+    with_roles(
+        response,
+        read={'owner', 'project_promoter'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
 
     @with_roles(call={'owner'})
     @state.transition(
@@ -238,3 +256,18 @@ class __Project:
             .filter(Account.state.ACTIVE, Rsvp.state.YES)
             .count()
         )
+
+
+@reopen(Profile)
+class __Profile:
+    @property
+    def rsvp_followers(self) -> Query[Account]:
+        """All users with an active RSVP in a project."""
+        return (
+            Account.query.filter(Account.state.ACTIVE)
+            .join(Rsvp, Rsvp.user_id == Account.id)
+            .join(Project, Rsvp.project_id == Project.id)
+            .filter(Rsvp.state.YES, Project.state.PUBLISHED, Project.profile == self)
+        )
+
+    with_roles(rsvp_followers, grants={'follower'})

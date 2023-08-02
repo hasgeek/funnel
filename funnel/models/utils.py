@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from typing import NamedTuple, Optional, Set, Union, overload
-
-from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 from typing_extensions import Literal
+
 import phonenumbers
+from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from .. import app
 from ..typing import OptionalMigratedTables
@@ -143,7 +143,9 @@ def merge_accounts(
     app.logger.info(
         "Preparing to merge accounts %s and %s", current_account, other_account
     )
-    # Always keep the older account and merge from the newer account
+    # Always keep the older account and merge from the newer account. This keeps the
+    # UUID stable when there are multiple mergers as new accounts are easy to create,
+    # but old accounts cannot be created.
     current_account_date = current_account.joined_at or current_account.created_at
     other_account_date = other_account.joined_at or other_account.created_at
     if current_account_date < other_account_date:

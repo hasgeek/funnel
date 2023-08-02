@@ -1,14 +1,15 @@
 """Helper functions for account delete validation."""
 
 from dataclasses import dataclass
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, TypeVar
 
 from baseframe import __
 
 from ..models import Account
-from ..typing import ReturnDecorator, WrappedFunc
 
 # --- Delete validator registry --------------------------------------------------------
+
+ValidatorFunc = TypeVar('ValidatorFunc', bound=Callable[[Account], bool])
 
 
 @dataclass
@@ -28,10 +29,10 @@ account_delete_validators: List[DeleteValidator] = []
 
 def delete_validator(
     title: str, message: str, name: Optional[str] = None
-) -> ReturnDecorator:
+) -> Callable[[ValidatorFunc], ValidatorFunc]:
     """Register an account delete validator."""
 
-    def decorator(func: WrappedFunc) -> WrappedFunc:
+    def decorator(func: ValidatorFunc) -> ValidatorFunc:
         """Create a DeleteValidator."""
         account_delete_validators.append(
             DeleteValidator(func, name or func.__name__, title, message)

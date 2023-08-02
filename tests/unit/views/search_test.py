@@ -9,8 +9,8 @@ corpus of searchable data in fixtures.
 
 from typing import cast
 
-from flask import url_for
 import pytest
+from flask import url_for
 
 from funnel.models import Query
 from funnel.views.search import (

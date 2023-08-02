@@ -20,11 +20,12 @@ from ..models import (
     ProjectRedirect,
     Session,
     TicketEvent,
+    UuidModelUnion,
     Venue,
     VenueRoom,
     db,
 )
-from ..typing import ReturnRenderWith, ReturnView, UuidModelType
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 
 
@@ -56,7 +57,9 @@ class ProjectViewMixin(AccountCheckMixin):
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
-    def loader(self, account, project, session=None) -> Union[Project, ProjectRedirect]:
+    def loader(
+        self, account: str, project: str, session: Optional[str] = None
+    ) -> Union[Project, ProjectRedirect]:
         obj = (
             Project.query.join(Account, Project.account)
             .filter(Account.name_is(account), Project.name == project)
@@ -97,11 +100,11 @@ class AccountViewMixin(AccountCheckMixin):
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
-    def loader(self, account) -> Account:
-        account = Account.get(name=account)
-        if account is None:
+    def loader(self, account: str) -> Account:
+        obj = Account.get(name=account)
+        if obj is None:
             abort(404)
-        return account
+        return obj
 
     def after_loader(self) -> Optional[ReturnView]:
         self.account = self.obj
@@ -118,7 +121,7 @@ class SessionViewMixin(AccountCheckMixin):
     obj: Session
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, account, project, session) -> Session:
+    def loader(self, account: str, project: str, session: str) -> Session:
         return (
             Session.query.join(Project, Session.project_id == Project.id)
             .join(Account, Project.account)
@@ -144,7 +147,7 @@ class VenueViewMixin(AccountCheckMixin):
     }
     obj: Venue
 
-    def loader(self, account, project, venue) -> Venue:
+    def loader(self, account: str, project: str, venue: str) -> Venue:
         return (
             Venue.query.join(Project)
             .join(Account, Project.account)
@@ -169,7 +172,7 @@ class VenueRoomViewMixin(AccountCheckMixin):
     }
     obj: VenueRoom
 
-    def loader(self, account, project, venue, room) -> VenueRoom:
+    def loader(self, account: str, project: str, venue: str, room: str) -> VenueRoom:
         return (
             VenueRoom.query.join(Venue)
             .join(Project)
@@ -197,7 +200,7 @@ class TicketEventViewMixin(AccountCheckMixin):
     }
     obj: TicketEvent
 
-    def loader(self, account, project, name) -> TicketEvent:
+    def loader(self, account: str, project: str, name: str) -> TicketEvent:
         return (
             TicketEvent.query.join(Project)
             .join(Account, Project.account)
@@ -215,10 +218,10 @@ class TicketEventViewMixin(AccountCheckMixin):
 
 
 class DraftViewMixin:
-    obj: UuidModelType
-    model: Type[UuidModelType]
+    obj: UuidModelUnion
+    model: Type[UuidModelUnion]
 
-    def get_draft(self, obj: Optional[UuidModelType] = None) -> Optional[Draft]:
+    def get_draft(self, obj: Optional[UuidModelUnion] = None) -> Optional[Draft]:
         """
         Return the draft object for `obj`. Defaults to `self.obj`.
 
@@ -236,7 +239,7 @@ class DraftViewMixin:
             raise ValueError(_("There is no draft for the given object"))
 
     def get_draft_data(
-        self, obj: Optional[UuidModelType] = None
+        self, obj: Optional[UuidModelUnion] = None
     ) -> Union[Tuple[None, None], Tuple[int, dict]]:
         """
         Return a tuple of draft data.
@@ -248,7 +251,7 @@ class DraftViewMixin:
             return draft.revision, draft.formdata
         return None, None
 
-    def autosave_post(self, obj: Optional[UuidModelType] = None) -> ReturnRenderWith:
+    def autosave_post(self, obj: Optional[UuidModelUnion] = None) -> ReturnRenderWith:
         """Handle autosave POST requests."""
         obj = obj if obj is not None else self.obj
         if 'form.revision' not in request.form:

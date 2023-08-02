@@ -3,13 +3,13 @@
 
 from types import SimpleNamespace
 
-from flask_babel import lazy_gettext
-from sqlalchemy.exc import StatementError
 import pytest
 import sqlalchemy as sa
+from flask_babel import lazy_gettext
+from sqlalchemy.exc import StatementError
 
-from funnel import models
 import funnel.models.helpers as mhelpers
+from funnel import models
 
 
 def test_valid_name() -> None:

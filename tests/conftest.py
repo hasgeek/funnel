@@ -3,28 +3,29 @@
 
 from __future__ import annotations
 
+import re
+import typing as t
+import warnings
 from contextlib import ExitStack
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from difflib import unified_diff
-from types import MethodType, SimpleNamespace
+from types import MethodType, ModuleType, SimpleNamespace
 from unittest.mock import patch
-import re
-import typing as t
-import warnings
 
-from flask import session
-from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy.session import Session as FsaSession
-from sqlalchemy.orm import Session as DatabaseSessionClass
 import flask_wtf.csrf
 import pytest
 import sqlalchemy as sa
 import typeguard
+from flask import session
+from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy.session import Session as FsaSession
+from sqlalchemy.orm import Session as DatabaseSessionClass
 
 if t.TYPE_CHECKING:
     from flask import Flask
-    from flask.testing import FlaskClient
+    from flask.testing import FlaskClient, TestResponse
+    from rich.console import Console
 
     import funnel.models as funnel_models
 
@@ -32,7 +33,7 @@ if t.TYPE_CHECKING:
 # --- Pytest config --------------------------------------------------------------------
 
 
-def pytest_addoption(parser) -> None:
+def pytest_addoption(parser: pytest.Parser) -> None:
     """Allow db_session to be configured in the command line."""
     parser.addoption(
         '--dbsession',
@@ -58,7 +59,7 @@ def firefox_options(firefox_options):
     return firefox_options
 
 
-def pytest_collection_modifyitems(items) -> None:
+def pytest_collection_modifyitems(items: t.List[pytest.Function]) -> None:
     """Sort tests to run lower level before higher level."""
     test_order = (
         'tests/unit/models',
@@ -77,7 +78,11 @@ def pytest_collection_modifyitems(items) -> None:
         'tests/features',
     )
 
-    def sort_key(item) -> t.Tuple[int, str]:
+    def sort_key(item: pytest.Function) -> t.Tuple[int, str]:
+        # pytest.Function's base class pytest.Item reports the file containing the test
+        # as item.location == (file_path, line_no, function_name). However, pytest-bdd
+        # reports itself for file_path, so we can't use that and must extract the path
+        # from the test module instead
         module_file = item.module.__file__
         for counter, path in enumerate(test_order):
             if path in module_file:
@@ -88,7 +93,7 @@ def pytest_collection_modifyitems(items) -> None:
 
 
 # Adapted from https://github.com/untitaker/pytest-fixture-typecheck
-def pytest_runtest_call(item):
+def pytest_runtest_call(item: pytest.Function) -> None:
     try:
         annotations = t.get_type_hints(
             item.obj,
@@ -115,31 +120,31 @@ def pytest_runtest_call(item):
 
 
 @pytest.fixture(scope='session')
-def funnel():
+def funnel() -> ModuleType:
     """Funnel package."""
     return pytest.importorskip('funnel')
 
 
 @pytest.fixture(scope='session')
-def models(funnel):
+def models() -> ModuleType:
     """Funnel models package."""
     return pytest.importorskip('funnel.models')
 
 
 @pytest.fixture(scope='session')
-def forms(funnel):
+def forms() -> ModuleType:
     """Funnel forms package."""
     return pytest.importorskip('funnel.forms')
 
 
 @pytest.fixture(scope='session')
-def views(funnel):
+def views() -> ModuleType:
     """Funnel views package."""
     return pytest.importorskip('funnel.views')
 
 
 @pytest.fixture(scope='session')
-def funnel_devtest(funnel):
+def funnel_devtest() -> ModuleType:
     """Return devtest module as a fixture."""
     return pytest.importorskip('funnel.devtest')
 
@@ -200,8 +205,8 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
 
                 # add click method to all links
                 def _click(
-                    self, client, **kwargs
-                ) -> None:  # pylint: disable=redefined-outer-name
+                    self: HtmlElement, client: FlaskClient, **kwargs: t.Any
+                ) -> TestResponse:
                     # `self` is the `a` element here
                     path = self.attrib['href']
                     return client.get(path, **kwargs)
@@ -211,8 +216,11 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
 
                 # add submit method to all forms
                 def _submit(
-                    self, client, path=None, **kwargs
-                ) -> None:  # pylint: disable=redefined-outer-name
+                    self: FormElement,
+                    client: FlaskClient,
+                    path: t.Optional[str] = None,
+                    **kwargs: t.Any,
+                ) -> TestResponse:
                     # `self` is the `form` element here
                     data = dict(self.form_values())
                     if 'data' in kwargs:
@@ -266,7 +274,7 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
 
         @property
         def metarefresh(self) -> t.Optional[MetaRefreshContent]:
-            """Return content of Meta Refresh tag if present."""
+            """Get content of Meta Refresh tag if present."""
             meta_elements = self.html.cssselect('meta[http-equiv="refresh"]')
             if not meta_elements:
                 return None
@@ -282,7 +290,7 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
 
 
 @pytest.fixture(scope='session')
-def rich_console():
+def rich_console() -> Console:
     """Provide a rich console for color output."""
     from rich.console import Console
 
@@ -300,7 +308,7 @@ def colorama() -> t.Iterator[SimpleNamespace]:
 
 
 @pytest.fixture(scope='session')
-def colorize_code(rich_console) -> t.Callable[[str, t.Optional[str]], str]:
+def colorize_code(rich_console: Console) -> t.Callable[[str, t.Optional[str]], str]:
     """Return colorized output for a string of code, for current terminal's colors."""
 
     def no_colorize(code_string: str, lang: t.Optional[str] = 'python') -> str:
@@ -341,8 +349,8 @@ def colorize_code(rich_console) -> t.Callable[[str, t.Optional[str]], str]:
 @pytest.fixture(scope='session')
 def print_stack(pytestconfig, colorama, colorize_code) -> t.Callable[[int, int], None]:
     """Print a stack trace up to an outbound call from within this repository."""
-    from inspect import stack as inspect_stack
     import os.path
+    from inspect import stack as inspect_stack
 
     boundary_path = str(pytestconfig.rootpath)
     if not boundary_path.endswith('/'):
@@ -391,15 +399,22 @@ def print_stack(pytestconfig, colorama, colorize_code) -> t.Callable[[int, int],
 @pytest.fixture(scope='session')
 def app(funnel) -> Flask:
     """App fixture with testing flag set."""
-    funnel.app.config['TESTING'] = True
+    assert funnel.app.config['TESTING']
     return funnel.app
 
 
 @pytest.fixture(scope='session')
 def shortlinkapp(funnel) -> Flask:
     """Shortlink app with testing flag set."""
-    funnel.shortlinkapp.config['TESTING'] = True
+    assert funnel.shortlinkapp.config['TESTING']
     return funnel.shortlinkapp
+
+
+@pytest.fixture(scope='session')
+def unsubscribeapp(funnel) -> Flask:
+    """Unsubscribe URL app with testing flag set."""
+    assert funnel.unsubscribeapp.config['TESTING']
+    return funnel.unsubscribeapp
 
 
 @pytest.fixture()
@@ -432,20 +447,85 @@ config_test_keys: t.Dict[str, t.Set[str]] = {
     'telegram-notify': {'TELEGRAM_NOTIFY_APIKEY'},
     'telegram-stats': {'TELEGRAM_STATS_APIKEY', 'TELEGRAM_STATS_CHATID'},
     'telegram-error': {'TELEGRAM_ERROR_APIKEY', 'TELEGRAM_ERROR_CHATID'},
+    'support-apikey': {'INTERNAL_SUPPORT_API_KEY'},
 }
 
 
+_mock_config_syntax = (
+    "Syntax: @pytest.mark.mock_config('app', {'KEY': value_or_callable},"
+    " KEY=value_or_callable)"
+)
+
+
 @pytest.fixture(autouse=True)
-def _requires_config(request) -> None:
+def _mock_config(request: pytest.FixtureRequest) -> t.Iterator:
+    """Mock app config (using ``mock_config`` mark)."""
+
+    def backup_and_apply_config(
+        app_name: str, app_fixture: Flask, saved_config: dict, key: str, value: t.Any
+    ) -> None:
+        if key in saved_config:
+            pytest.fail(f"Duplicate mock for {app_name}.config[{key!r}]")
+        if key in app_fixture.config:
+            saved_config[key] = app_fixture.config[key]
+        else:
+            saved_config[key] = ...  # Sentinel value
+        if callable(value):
+            value = value()
+        if value is ...:
+            app_fixture.config.pop(key, None)
+        else:
+            app_fixture.config[key] = value
+
+    if request.node.get_closest_marker('mock_config'):
+        saved_app_config: t.Dict[str, t.Any] = {}
+        for mark in request.node.iter_markers('mock_config'):
+            if len(mark.args) < 1:
+                pytest.fail(_mock_config_syntax)
+            app_fixture = request.getfixturevalue(mark.args[0])
+            saved_app_config[app_fixture] = {}
+            for config in mark.args[1:]:
+                if not isinstance(config, dict):
+                    pytest.fail(_mock_config_syntax)
+                for key, value in config.items():
+                    backup_and_apply_config(
+                        mark.args[0],
+                        app_fixture,
+                        saved_app_config[app_fixture],
+                        key,
+                        value,
+                    )
+            for key, value in mark.kwargs.items():
+                backup_and_apply_config(
+                    mark.args[0], app_fixture, saved_app_config[app_fixture], key, value
+                )
+        yield
+        # Restore config after test
+        for app_fixture, config in saved_app_config.items():
+            for key, value in config.items():
+                if value is ...:  # Sentinel value for config to be removed
+                    app_fixture.config.pop(key, None)
+                else:
+                    app_fixture.config[key] = value
+    else:
+        yield  # 'yield' is required in all code paths in a generator
+
+
+@pytest.fixture(autouse=True)
+def _requires_config(request: pytest.FixtureRequest) -> None:
     """Skip test if app is missing config (using ``requires_config`` mark)."""
     if request.node.get_closest_marker('requires_config'):
-        app = request.getfixturevalue('app')
         for mark in request.node.iter_markers('requires_config'):
-            for config in mark.args:
+            if len(mark.args) < 2:
+                pytest.fail(
+                    "Syntax: @pytest.mark.requires_config('app', 'feature', ...)"
+                )
+            app_fixture = request.getfixturevalue(mark.args[0])
+            for config in mark.args[1:]:
                 if config not in config_test_keys:
                     pytest.fail(f"Unknown required config {config}")
                 for setting_key in config_test_keys[config]:
-                    if not app.config.get(setting_key):
+                    if not app_fixture.config.get(setting_key):
                         pytest.skip(
                             f"Skipped due to missing config for {config} in app.config:"
                             f" {setting_key}"

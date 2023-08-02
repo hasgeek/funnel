@@ -14,7 +14,7 @@ def send_email_verify_link(emailclaim: AccountEmailClaim) -> str:
     """Mail a verification link to the user."""
     subject = _("Verify your email address")
     url = url_for(
-        'confirm_email',
+        'confirm_email_legacy',
         _external=True,
         email_hash=emailclaim.email_address.email_hash,
         secret=emailclaim.verification_code,

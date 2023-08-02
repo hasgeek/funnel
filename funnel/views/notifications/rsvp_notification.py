@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from flask import render_template
 from flask_babel import get_locale
@@ -16,10 +16,49 @@ from ...models import (
     Rsvp,
 )
 from ...transports import email
-from ...transports.sms import MessageTemplate, OneLineTemplate
+from ...transports.sms import MessageTemplate, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from ..schedule import schedule_ical
+from .mixins import TemplateVarMixin
+
+
+class RegistrationConfirmationTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for RSVP without a next session."""
+
+    registered_template = (
+        'You have registered for {#var#}. For more information, visit {#var#}.'
+        '\n\nhttps://bye.li to stop - Hasgeek'
+    )
+    template = (
+        "You have registered for {project}. For more information, visit {url}."
+        "\n\nhttps://bye.li to stop - Hasgeek"
+    )
+    plaintext_template = "You have registered for {project} {url}"
+
+    datetime: str
+    url: str
+
+
+class RegistrationConfirmationWithNextTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for RSVP with a next session."""
+
+    registered_template = (
+        'You have registered for {#var#}, scheduled for {#var#}.'
+        ' For more information, visit {#var#}.'
+        '\n\nhttps://bye.li to stop - Hasgeek'
+    )
+    template = (
+        "You have registered for {project}, scheduled for {datetime}."
+        " For more information, visit {url}."
+        "\n\nhttps://bye.li to stop - Hasgeek"
+    )
+    plaintext_template = (
+        "You have registered for {project}, scheduled for {datetime}. {url}"
+    )
+
+    datetime: str
+    url: str
 
 
 class RegistrationBase:
@@ -63,6 +102,8 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you have registered for this project")
+    hero_image = 'img/email/chars-v1/registration-confirmed.png'
+    email_heading = __("Registration confirmed!")
 
     datetime_format = "EEE, dd MMM yyyy, hh:mm a"
     datetime_format_sms = "EEE, dd MMM, hh:mm a"
@@ -86,25 +127,25 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
             ),
         )
 
-    def sms(self) -> OneLineTemplate:
+    def sms(
+        self,
+    ) -> Union[
+        RegistrationConfirmationTemplate, RegistrationConfirmationWithNextTemplate
+    ]:
         project = self.rsvp.project
         next_at = project.next_starting_at()
+        url = shortlink(
+            project.url_for(_external=True, **self.tracking_tags('sms')), shorter=True
+        )
         if next_at:
-            template = _("You have registered for {project}. Next session: {datetime}.")
-        else:
-            template = _("You have registered for {project}")
-        return OneLineTemplate(
-            text1=template.format(
-                project=project.joined_title,
+            return RegistrationConfirmationWithNextTemplate(
+                project=project,
                 datetime=datetime_filter(
                     next_at, self.datetime_format_sms, locale=get_locale()
                 ),
-            ),
-            url=shortlink(
-                project.url_for(_external=True, **self.tracking_tags('sms')),
-                shorter=True,
-            ),
-        )
+                url=url,
+            )
+        return RegistrationConfirmationTemplate(project=project, url=url)
 
 
 @RegistrationCancellationNotification.renderer
@@ -114,16 +155,18 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you had registered for this project")
+    hero_image = 'img/email/chars-v1/registration-cancelled.png'
+    email_heading = __("Registration cancelled")
 
-    def web(self):
+    def web(self) -> str:
         return render_template('notifications/rsvp_no_web.html.jinja2', view=self)
 
-    def email_subject(self):
+    def email_subject(self) -> str:
         return self.emoji_prefix + _("Registration cancelled for {project}").format(
             project=self.rsvp.project.joined_title
         )
 
-    def email_content(self):
+    def email_content(self) -> str:
         return render_template(
             'notifications/rsvp_no_email.html.jinja2',
             view=self,

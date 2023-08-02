@@ -1,4 +1,4 @@
-{%- from "macros.html.jinja2" import faicon, useravatar, csrf_tag %}
+{%- from "macros.html.jinja2" import faicon, useravatar, csrf_tag, img_size  %}
 {%- if current_auth -%}
   {% if current_auth.user.name %}
     <li class="bg-accent">
@@ -48,7 +48,7 @@
              class="header__dropdown__item header__dropdown__item--flex header__dropdown__item--morepadding mui--text-dark nounderline">
             <span class="profile-avatar margin-right">
               {%- if orgmem.account.logo_url.url %}
-                <img src="{{ orgmem.account.logo_url }}"
+                <img src="{{ orgmem.account.logo_url.resize(img_size.profile_logo_small) }}"
                      alt="{{ orgmem.account.title }}"/>
               {% else %}
                 <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
@@ -66,7 +66,7 @@
             {%- for orgmem in orgmemlist.overflow %}
               <span class="profile-avatar margin-right">
                 {%- if orgmem.account.logo_url.url %}
-                  <img src="{{ orgmem.account.logo_url }}"
+                  <img src="{{ orgmem.account.logo_url.resize(img_size.profile_logo_small) }}"
                        alt="{{ orgmem.account.title }}"/>
                 {% else %}
                   <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"

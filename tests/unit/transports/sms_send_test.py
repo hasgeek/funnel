@@ -2,13 +2,13 @@
 
 from unittest.mock import patch
 
-from flask import Response
 import pytest
 import requests
+from flask import Response
 
 from funnel.transports import TransportConnectionError, TransportRecipientError
 from funnel.transports.sms import (
-    OneLineTemplate,
+    WebOtpTemplate,
     make_exotel_token,
     send,
     validate_exotel_token,
@@ -27,31 +27,30 @@ EXOTEL_TO = "+919999999999"
 EXOTEL_CALLBACK_TO = "09999999999"
 
 # Dummy Message
-MESSAGE = OneLineTemplate(
-    text1="Test Message",
-    url='https://example.com/',
-    unsubscribe_url='https://unsubscribe.example/',
-)
+MESSAGE = WebOtpTemplate(otp="1234")
 
 
-@pytest.mark.remote_data()
-@pytest.mark.requires_config('twilio')
+@pytest.mark.enable_socket()
+@pytest.mark.requires_config('app', 'twilio')
+@pytest.mark.usefixtures('app_context')
 def test_twilio_success() -> None:
     """Test if message sending is a success."""
     sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=False)
     assert sid
 
 
-@pytest.mark.remote_data()
-@pytest.mark.requires_config('twilio')
-def test_twilio_callback(client) -> None:
+@pytest.mark.enable_socket()
+@pytest.mark.requires_config('app', 'twilio')
+@pytest.mark.usefixtures('app_context')
+def test_twilio_callback() -> None:
     """Test if message sending is a success when a callback is requested."""
     sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=True)
     assert sid
 
 
-@pytest.mark.remote_data()
-@pytest.mark.requires_config('twilio')
+@pytest.mark.enable_socket()
+@pytest.mark.requires_config('app', 'twilio')
+@pytest.mark.usefixtures('app_context')
 def test_twilio_failures() -> None:
     """Test if message sending is a failure."""
     # Invalid Target
@@ -88,8 +87,10 @@ def test_exotel_nonce(client) -> None:
     assert data['status'] == 'ok'
 
 
-@pytest.mark.requires_config('exotel')
-def test_exotel_send_error(client) -> None:
+@pytest.mark.requires_config('app', 'exotel')
+@pytest.mark.usefixtures('app_context', 'db_session')
+@patch.object(WebOtpTemplate, 'registered_templateid', 'test')
+def test_exotel_send_error() -> None:
     """Only tests if url_for works and usually fails otherwise, which is OK."""
     # Check False Path via monkey patching the requests object
     with patch.object(requests, 'post') as mock_method:

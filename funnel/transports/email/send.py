@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import smtplib
 from dataclasses import dataclass
-from email.utils import formataddr, getaddresses, parseaddr
+from email.utils import formataddr, getaddresses, make_msgid, parseaddr
 from typing import Dict, List, Optional, Tuple, Union
 
 from flask import current_app
@@ -11,8 +12,9 @@ from flask_mailman import EmailMultiAlternatives
 from flask_mailman.message import sanitize_address
 from html2text import html2text
 from premailer import transform
+from werkzeug.datastructures import Headers
 
-from baseframe import statsd
+from baseframe import _, statsd
 
 from ... import app
 from ...models import Account, EmailAddress, EmailAddressBlockedError
@@ -115,7 +117,7 @@ def send_email(
     content: str,
     attachments: Optional[List[EmailAttachment]] = None,
     from_email: Optional[EmailRecipient] = None,
-    headers: Optional[dict] = None,
+    headers: Optional[Union[dict, Headers]] = None,
 ) -> str:
     """
     Send an email.
@@ -134,12 +136,19 @@ def send_email(
         from_email = process_recipient(from_email)
     body = html2text(content)
     html = transform(content, base_url=f'https://{app.config["DEFAULT_DOMAIN"]}/')
+    headers = Headers() if headers is None else Headers(headers)
+
+    # Amazon SES will replace Message-ID, so we keep our original in an X- header
+    headers['Message-ID'] = headers['X-Original-Message-ID'] = make_msgid(
+        domain=current_app.config['DEFAULT_DOMAIN']
+    )
+
     msg = EmailMultiAlternatives(
         subject=subject,
         to=to,
         body=body,
         from_email=from_email,
-        headers=headers,
+        headers=dict(headers),  # Flask-Mailman<=0.3.0 will trip on a Headers object
         alternatives=[(html, 'text/html')],
     )
     if attachments:
@@ -155,12 +164,30 @@ def send_email(
             EmailAddress.add(email) for name, email in getaddresses(msg.recipients())
         ]
     except EmailAddressBlockedError as exc:
-        raise TransportRecipientError(exc) from exc
+        raise TransportRecipientError(_("This email address has been blocked")) from exc
     # FIXME: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
     # catch that, remove the recipient, and notify the user via the upcoming
     # notification centre. (Raise a TransportRecipientError)
 
-    result = msg.send()
+    try:
+        msg.send()
+    except smtplib.SMTPRecipientsRefused as exc:
+        if len(exc.recipients) == 1:
+            if len(to) == 1:
+                message = _("This email address is not valid")
+            else:
+                message = _("This email address is not valid: {email}").format(
+                    email=list(exc.recipients.keys())[0]
+                )
+
+        else:
+            if len(to) == len(exc.recipients):
+                message = _("These email addresses are not valid")
+            else:
+                message = _("These email addresses are not valid: {emails}").format(
+                    emails=', '.join(exc.recipients.keys())
+                )
+        raise TransportRecipientError(message) from exc
 
     # After sending, mark the address as having received an email and also update the
     # statistics counters. Note that this will only track emails sent by *this app*.
@@ -170,5 +197,4 @@ def send_email(
     for ea in emails:
         ea.mark_sent()
 
-    # FIXME: 'result' is a number. Why? We need message-id
-    return str(result)
+    return headers['Message-ID']

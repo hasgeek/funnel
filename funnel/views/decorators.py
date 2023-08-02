@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from functools import wraps
 from hashlib import blake2b
-from typing import Any, Callable, Dict, Optional, Set, Union, cast
+from typing import Callable, Dict, Optional, Set, Union, cast
 
 from flask import Response, make_response, request, url_for
 
@@ -13,28 +13,28 @@ from baseframe import cache
 from coaster.auth import current_auth
 
 from ..proxies import request_wants
-from ..typing import ReturnDecorator, ReturnResponse, WrappedFunc
+from ..typing import P, ReturnResponse, ReturnView, T
 from .helpers import compress_response, render_redirect
 
 
-def xml_response(f: WrappedFunc) -> WrappedFunc:
+def xml_response(f: Callable[P, str]) -> Callable[P, Response]:
     """Wrap the view result in a :class:`Response` with XML mimetype."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Response:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Response:
         return Response(f(*args, **kwargs), mimetype='application/xml')
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
 def xhr_only(
-    redirect_to: Union[str, Callable[[], str], None] = None
-) -> ReturnDecorator:
+    redirect_to: Optional[Union[str, Callable[[], str]]] = None
+) -> Callable[[Callable[P, T]], Callable[P, Union[T, ReturnResponse]]]:
     """Render a view only when it's an XHR request."""
 
-    def decorator(f: WrappedFunc) -> WrappedFunc:
+    def decorator(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
         @wraps(f)
-        def wrapper(*args, **kwargs) -> Any:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
             if not request_wants.html_fragment:
                 if redirect_to is None:
                     destination = url_for('index')
@@ -47,7 +47,7 @@ def xhr_only(
                 )
             return f(*args, **kwargs)
 
-        return cast(WrappedFunc, wrapper)
+        return wrapper
 
     return decorator
 
@@ -58,7 +58,7 @@ def etag_cache_for_user(
     timeout: int,
     max_age: Optional[int] = None,
     query_params: Optional[Set] = None,
-) -> ReturnDecorator:
+) -> Callable[[Callable[P, ReturnView]], Callable[P, Response]]:
     """
     Cache and compress a response, and add an ETag header for browser cache.
 
@@ -71,9 +71,9 @@ def etag_cache_for_user(
     if max_age is None:
         max_age = timeout
 
-    def decorator(f: WrappedFunc) -> Callable[..., Response]:
+    def decorator(f: Callable[P, ReturnView]) -> Callable[P, Response]:
         @wraps(f)
-        def wrapper(*args, **kwargs) -> ReturnResponse:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> ReturnResponse:
             # No ETag or cache storage if the request is not GET or HEAD
             if request.method not in ('GET', 'HEAD'):
                 return f(*args, **kwargs)
@@ -145,7 +145,7 @@ def etag_cache_for_user(
                 )
                 if content_encoding:
                     response.headers['Content-Encoding'] = content_encoding
-                response.vary.add('Accept-Encoding')  # type: ignore[union-attr]
+                response.vary.add('Accept-Encoding')
             else:
                 # 3b. If the cache was unusable (missing, malformed), call the view to
                 # to get a fresh response and put it in the cache.
@@ -183,6 +183,6 @@ def etag_cache_for_user(
 
             return response.make_conditional(request)
 
-        return cast(WrappedFunc, wrapper)
+        return wrapper
 
     return decorator

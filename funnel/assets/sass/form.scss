@@ -88,7 +88,8 @@
   }
 
   // Codemirror editor will be initialized
-  textarea.markdown {
+  textarea.markdown,
+  textarea.stylesheet {
     display: none;
   }
 

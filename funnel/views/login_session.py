@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from datetime import timedelta
 from functools import wraps
-from typing import Any, Callable, Optional, Type, cast
+from typing import Callable, Optional, Type, Union, overload
 
+import itsdangerous
 from flask import (
     Response,
     abort,
@@ -20,10 +21,8 @@ from flask import (
     url_for,
 )
 from furl import furl
-import geoip2.errors
-import itsdangerous
 
-from baseframe import _, statsd
+from baseframe import _, __, statsd
 from baseframe.forms import render_form
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
@@ -31,6 +30,7 @@ from coaster.views import get_current_url, get_next_url
 
 from .. import app
 from ..forms import OtpForm, PasswordForm
+from ..geoip import GeoIP2Error, geoip
 from ..models import (
     USER_SESSION_VALIDITY_PERIOD,
     Account,
@@ -48,7 +48,7 @@ from ..models import (
 from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
-from ..typing import ResponseType, ReturnDecorator, WrappedFunc
+from ..typing import P, ResponseType, ReturnResponse, T
 from ..utils import abort_null
 from .helpers import (
     app_context,
@@ -255,26 +255,24 @@ def session_mark_accessed(
             ipaddr = (request.remote_addr or '') if ipaddr is None else ipaddr
             # Attempt to save geonameid and ASN from IP address
             try:
-                if app.geoip_city is not None and (
-                    obj.geonameid_city is None or ipaddr != obj.ipaddr
-                ):
-                    city_lookup = app.geoip_city.city(ipaddr)
-                    obj.geonameid_city = city_lookup.city.geoname_id
-                    obj.geonameid_subdivision = (
-                        city_lookup.subdivisions.most_specific.geoname_id
-                    )
-                    obj.geonameid_country = city_lookup.country.geoname_id
-            except (ValueError, geoip2.errors.GeoIP2Error):
+                if obj.geonameid_city is None or ipaddr != obj.ipaddr:
+                    city_lookup = geoip.city(ipaddr)
+                    if city_lookup:
+                        obj.geonameid_city = city_lookup.city.geoname_id
+                        obj.geonameid_subdivision = (
+                            city_lookup.subdivisions.most_specific.geoname_id
+                        )
+                        obj.geonameid_country = city_lookup.country.geoname_id
+            except (ValueError, GeoIP2Error):
                 obj.geonameid_city = None
                 obj.geonameid_subdivision = None
                 obj.geonameid_country = None
             try:
-                if app.geoip_asn is not None and (
-                    obj.geoip_asn is None or ipaddr != obj.ipaddr
-                ):
-                    asn_lookup = app.geoip_asn.asn(ipaddr)
-                    obj.geoip_asn = asn_lookup.autonomous_system_number
-            except (ValueError, geoip2.errors.GeoIP2Error):
+                if obj.geoip_asn is None or ipaddr != obj.ipaddr:
+                    asn_lookup = geoip.asn(ipaddr)
+                    if asn_lookup:
+                        obj.geoip_asn = asn_lookup.autonomous_system_number
+            except (ValueError, GeoIP2Error):
                 obj.geoip_asn = None
             # Save IP address and user agent if they've changed
             if ipaddr != obj.ipaddr:
@@ -287,10 +285,8 @@ def session_mark_accessed(
             if user_agent != obj.user_agent:
                 obj.user_agent = user_agent
 
-    # Use integer id instead of uuid_b58 here because statsd documentation is
-    # unclear on what data types a set accepts. Applies to both etsy's and telegraf.
-    statsd.set('users.active_sessions', obj.id, rate=1)
-    statsd.set('users.active_users', obj.user.id, rate=1)
+    statsd.set('users.active_sessions', str(obj.uuid), rate=1)
+    statsd.set('users.active_users', str(obj.user.uuid), rate=1)
 
 
 # Also add future hasjob app here
@@ -305,7 +301,7 @@ def set_lastuser_cookie(response: ResponseType) -> ResponseType:
             and current_auth.get('suppress_empty_cookie', False)
         )
     ):
-        response.vary.add('Cookie')  # type: ignore[union-attr]
+        response.vary.add('Cookie')
         expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
         response.set_cookie(
             'lastuser',
@@ -392,7 +388,7 @@ def save_session_next_url() -> bool:
     return False
 
 
-def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
+def reload_for_cookies(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
     """
     Decorate a view to reload to obtain SameSite=strict cookies.
 
@@ -408,7 +404,7 @@ def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
         if 'lastuser' not in request.cookies:
             add_auth_attribute('suppress_empty_cookie', True)
             attempt = request.args.get('cookiereload')
@@ -425,22 +421,22 @@ def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
             # If both attempts fail, there is no 'lastuser' cookie forthcoming
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
 def requires_user_not_spammy(
-    get_current: Optional[Callable[..., str]] = None
-) -> ReturnDecorator:
+    get_current: Optional[Callable[P, str]] = None
+) -> Callable[[Callable[P, T]], Callable[P, Union[T, ReturnResponse]]]:
     """Decorate a view to require the user to prove they are not likely a spammer."""
 
-    def decorator(f: WrappedFunc) -> WrappedFunc:
+    def decorator(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
         """Apply decorator using the specified :attr:`get_current` function."""
 
         @wraps(f)
-        def wrapper(*args, **kwargs) -> Any:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
             """Validate user rights in a view."""
             if not current_auth.is_authenticated:
-                flash(_("You need to be logged in for that page"), 'info')
+                flash(_("Confirm your phone number to continue"), 'info')
                 return render_redirect(
                     url_for('login', next=get_current_url()),
                     302 if request.method == 'GET' else 303,
@@ -455,46 +451,69 @@ def requires_user_not_spammy(
 
             return f(*args, **kwargs)
 
-        return cast(WrappedFunc, wrapper)
+        return wrapper
 
     return decorator
 
 
-def requires_login(f: WrappedFunc) -> WrappedFunc:
-    """Decorate a view to require login."""
-
-    @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
-        add_auth_attribute('login_required', True)
-        if not current_auth.is_authenticated:
-            flash(_("You need to be logged in for that page"), 'info')
-            return render_redirect(
-                url_for('login', next=get_current_url()),
-                302 if request.method == 'GET' else 303,
-            )
-        return f(*args, **kwargs)
-
-    return cast(WrappedFunc, wrapper)
+@overload
+def requires_login(
+    __p: str,
+) -> Callable[[Callable[P, T]], Callable[P, Union[T, ReturnResponse]]]:
+    ...
 
 
-def requires_login_no_message(f: WrappedFunc) -> WrappedFunc:
+@overload
+def requires_login(__p: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
+    ...
+
+
+def requires_login(
+    __p: Union[str, Callable[P, T]]
+) -> Union[
+    Callable[[Callable[P, T]], Callable[P, Union[T, ReturnResponse]]],
+    Callable[P, Union[T, ReturnResponse]],
+]:
     """
-    Decorate a view to require login, without displaying a friendly message.
+    Decorate a view to require login, with a customisable message.
 
-    Used on views where the user is informed in advance that login is required.
+    Usage::
+
+        @requires_login
+        def view_requiring_login():
+            ...
+
+        @requires_login(__("Message to be shown"))
+        def view_requiring_login_with_custom_message():
+            ...
+
+        @requires_login('')
+        def view_requiring_login_with_no_message():
+            ...
     """
+    if callable(__p):
+        message = __("You need to be logged in for that page")
+    else:
+        message = __p
 
-    @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
-        add_auth_attribute('login_required', True)
-        if not current_auth.is_authenticated:
-            return render_redirect(
-                url_for('login', next=get_current_url()),
-                302 if request.method == 'GET' else 303,
-            )
-        return f(*args, **kwargs)
+    def decorator(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
+        @wraps(f)
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
+            add_auth_attribute('login_required', True)
+            if not current_auth.is_authenticated:
+                if message:  # Setting an empty message will disable it
+                    flash(message, 'info')
+                return render_redirect(
+                    url_for('login', next=get_current_url()),
+                    302 if request.method == 'GET' else 303,
+                )
+            return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+        return wrapper
+
+    if callable(__p):
+        return decorator(__p)
+    return decorator
 
 
 def save_sudo_preference_context() -> None:
@@ -523,7 +542,7 @@ def del_sudo_preference_context() -> None:
     session.pop('sudo_context', None)
 
 
-def requires_sudo(f: WrappedFunc) -> WrappedFunc:
+def requires_sudo(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
     """
     Decorate a view to require the current user to have re-authenticated recently.
 
@@ -535,7 +554,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
         """Prompt for re-authentication to proceed."""
         add_auth_attribute('login_required', True)
         # If the user is not logged in, require login first
@@ -566,7 +585,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
             )
 
         if not GET_AND_POST.issubset(
-            request.url_rule.methods  # type: ignore[union-attr]
+            request.url_rule.methods or set()  # type: ignore[union-attr]
         ):
             # This view does not support GET or POST methods, which we need. Send the
             # user off to the sudo endpoint for authentication.
@@ -676,23 +695,23 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
             template='account_formlayout.html.jinja2',
         )
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def requires_site_editor(f: WrappedFunc) -> WrappedFunc:
+def requires_site_editor(f: Callable[P, T]) -> Callable[P, T]:
     """Decorate a view to require site editor permission."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         add_auth_attribute('login_required', True)
         if not current_auth.user or not current_auth.user.is_site_editor:
             abort(403)
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def _client_login_inner():
+def _client_login_inner() -> Optional[ReturnResponse]:
     if request.authorization is None or not request.authorization.username:
         return Response(
             'Client credentials required',
@@ -715,20 +734,22 @@ def _client_login_inner():
     return None
 
 
-def requires_client_login(f: WrappedFunc) -> WrappedFunc:
+def requires_client_login(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
     """Decorate a view to require a client login via HTTP Basic Authorization."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
         result = _client_login_inner()
         if result is None:
             return f(*args, **kwargs)
         return result
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def requires_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
+def requires_user_or_client_login(
+    f: Callable[P, T]
+) -> Callable[P, Union[T, ReturnResponse]]:
     """
     Decorate a view to require a user or client login.
 
@@ -736,7 +757,7 @@ def requires_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
         add_auth_attribute('login_required', True)
         # Check for user first:
         if current_auth.is_authenticated:
@@ -747,10 +768,12 @@ def requires_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
             return f(*args, **kwargs)
         return result
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def requires_client_id_or_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
+def requires_client_id_or_user_or_client_login(
+    f: Callable[P, T]
+) -> Callable[P, Union[T, ReturnResponse]]:
     """
     Decorate view to require a client_id and session, or a user, or client login.
 
@@ -759,7 +782,7 @@ def requires_client_id_or_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
         add_auth_attribute('login_required', True)
 
         # Is there a user? Go right ahead
@@ -796,10 +819,14 @@ def requires_client_id_or_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
             return f(*args, **kwargs)
         return result
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def login_internal(user, user_session=None, login_service=None):
+def login_internal(
+    user: User,
+    user_session: Optional[UserSession] = None,
+    login_service: Optional[str] = None,
+):
     """
     Login a user and create a session.
 
@@ -820,7 +847,7 @@ def login_internal(user, user_session=None, login_service=None):
     user_login.send(user)
 
 
-def logout_internal():
+def logout_internal() -> None:
     """Logout current user (helper function)."""
     add_auth_attribute('user', None)
     user_session = current_auth.get('session')

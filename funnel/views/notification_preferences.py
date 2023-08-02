@@ -5,8 +5,8 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Optional
 
-from flask import abort, current_app, flash, redirect, request, session, url_for
 import itsdangerous
+from flask import abort, current_app, flash, redirect, request, session, url_for
 
 from baseframe import _, __
 from baseframe.forms import render_form, render_message
@@ -66,7 +66,9 @@ class AccountNotificationView(ClassView):
     current_section = 'account'
 
     @route('', endpoint='notification_preferences')
-    @requires_login
+    @requires_login(
+        __("Your phone number or email address is required to change your preferences")
+    )
     @render_with('notification_preferences.html.jinja2')
     def notification_preferences(self) -> ReturnRenderWith:
         """View for notification preferences."""

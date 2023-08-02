@@ -16,12 +16,64 @@ from ...models import (
     CommentModeratorReport,
     CommentReplyNotification,
     CommentReportReceivedNotification,
+    Commentset,
     DuckTypeAccount,
     NewCommentNotification,
+    Project,
+    Proposal,
 )
-from ...transports.sms import OneLineTemplate
+from ...transports.sms import OneLineTemplate, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
+from .mixins import TemplateVarMixin
+
+
+class CommentReplyTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for RSVP without a next session."""
+
+    registered_template = (
+        '{#var#} has replied to your comment: {#var#}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    template = (
+        '{actor} has replied to your comment: {url}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    plaintext_template = '{actor} has replied to your comment: {url}'
+
+    url: str
+
+
+class CommentProposalTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for RSVP without a next session."""
+
+    registered_template = (
+        '{#var#} commented on your submission: {#var#}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    template = (
+        '{actor} commented on your submission: {url}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    plaintext_template = '{actor} commented on your submission: {url}'
+
+    url: str
+
+
+class CommentProjectTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for RSVP without a next session."""
+
+    registered_template = (
+        '{#var#} commented on a project you are in: {#var#}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    template = (
+        '{actor} commented on a project you are in: {url}'
+        '\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    plaintext_template = '{actor} commented on a project you are in: {url}'
+
+    url: str
 
 
 @CommentReportReceivedNotification.renderer
@@ -33,6 +85,8 @@ class RenderCommentReportReceivedNotification(RenderNotification):
     aliases = {'document': 'comment', 'fragment': 'report'}
     emoji_prefix = "💩 "
     reason = __("You are receiving this because you are a site admin")
+    hero_image = 'img/email/chars-v1/admin-report.png'
+    email_heading = __("Spam alert!")
 
     def web(self) -> str:
         return render_template(
@@ -67,9 +121,12 @@ class RenderCommentReportReceivedNotification(RenderNotification):
 class CommentNotification(RenderNotification):
     """Render comment notifications for various document types."""
 
+    document: Union[Commentset, Comment]
     comment: Comment
     aliases = {'fragment': 'comment'}
     emoji_prefix = "💬 "
+    hero_image = 'img/email/chars-v1/comment.png'
+    email_heading = __("New comment!")
 
     @property
     def actor(self) -> Union[Account, DuckTypeAccount]:
@@ -88,6 +145,20 @@ class CommentNotification(RenderNotification):
                 users.append(comment.user)
                 user_ids.add(comment.user.uuid)
         return users
+
+    @property
+    def project(self) -> Optional[Project]:
+        if self.document_type == 'project':
+            return self.document.project
+        if self.document_type == 'proposal':
+            return self.document.proposal.project
+        return None
+
+    @property
+    def proposal(self) -> Optional[Proposal]:
+        if self.document_type == 'proposal':
+            return self.document.proposal
+        return None
 
     @property
     def document_type(self) -> str:
@@ -109,11 +180,11 @@ class CommentNotification(RenderNotification):
         if comment is None:
             comment = self.comment
         if self.document_type == 'comment':
-            return _("{actor} replied to your comment")
+            return _("{actor} replied to your comment in {project}")
         if self.document_type == 'project':
-            return _("{actor} commented on a project you are in")
+            return _("{actor} commented in {project}")
         if self.document_type == 'proposal':
-            return _("{actor} commented on your submission")
+            return _("{actor} commented on {proposal}")
         # Unknown document type
         return _("{actor} replied to you")
 
@@ -122,11 +193,11 @@ class CommentNotification(RenderNotification):
         if comment is None:
             comment = self.comment
         if self.document_type == 'comment':
-            return _("{actor} replied to your comment:")
+            return _("{actor} replied to your comment in {project}:")
         if self.document_type == 'project':
-            return _("{actor} commented on a project you are in:")
+            return _("{actor} commented in {project}:")
         if self.document_type == 'proposal':
-            return _("{actor} commented on your submission:")
+            return _("{actor} commented on {proposal}:")
         # Unknown document type
         return _("{actor} replied to you:")
 
@@ -134,13 +205,38 @@ class CommentNotification(RenderNotification):
         """Activity template rendered into HTML, for use in web and email templates."""
         if comment is None:
             comment = self.comment
-        return Markup(self.activity_template_inline(comment)).format(
-            actor=Markup(
+
+        actor_markup = (
+            Markup(
                 f'<a href="{escape(self.actor.profile_url)}">'
                 f'{escape(self.actor.pickername)}</a>'
             )
             if self.actor.profile_url
-            else escape(self.actor.pickername),
+            else escape(self.actor.pickername)
+        )
+        project = self.project
+        project_markup = (
+            Markup(
+                f'<a href="{escape(project.absolute_url)}">'
+                f'{escape(project.joined_title)}</a>'
+            )
+            if project is not None
+            else Markup('')
+        )
+        proposal = self.proposal
+        proposal_markup = (
+            Markup(
+                f'<a href="{escape(proposal.absolute_url)}">'
+                f'{escape(proposal.title)}</a>'
+            )
+            if proposal is not None
+            else Markup('')
+        )
+
+        return Markup(self.activity_template_inline(comment)).format(
+            actor=actor_markup,
+            project=project_markup,
+            proposal=proposal_markup,
         )
 
     def web(self) -> str:
@@ -151,8 +247,12 @@ class CommentNotification(RenderNotification):
         )
 
     def email_subject(self) -> str:
+        project = self.project
+        proposal = self.proposal
         return self.emoji_prefix + self.activity_template_standalone().format(
-            actor=self.actor.pickername
+            actor=self.actor.pickername,
+            project=project.joined_title if project else '',
+            proposal=proposal.title if proposal else '',
         )
 
     def email_content(self) -> str:
@@ -160,11 +260,15 @@ class CommentNotification(RenderNotification):
             'notifications/comment_received_email.html.jinja2', view=self
         )
 
-    def sms(self) -> OneLineTemplate:
-        return OneLineTemplate(
-            text1=self.activity_template_inline().format(actor=self.actor.pickername),
-            url=shortlink(
-                self.comment.url_for(_external=True, **self.tracking_tags('sms')),
-                shorter=True,
-            ),
+    def sms(self):
+        url = shortlink(
+            self.comment.url_for(_external=True, **self.tracking_tags('sms'))
         )
+        if self.document_type == 'comment':
+            return CommentReplyTemplate(actor=self.actor, url=url)
+        if self.document_type == 'project':
+            return CommentProjectTemplate(actor=self.actor, url=url)
+        if self.document_type == 'proposal':
+            return CommentProposalTemplate(actor=self.actor, url=url)
+        # Unknown document type
+        return CommentReplyTemplate(actor=self.actor, url=url)

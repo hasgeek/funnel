@@ -5,9 +5,9 @@ from __future__ import annotations
 
 import secrets
 
+import pytest
 from flask import Flask, url_for
 from flask.testing import FlaskClient
-import pytest
 
 from funnel import models
 
@@ -16,6 +16,11 @@ VALID_PHONE_UNPREFIXED = '8123456789'
 VALID_PHONE_ZEROPREFIXED = '08123456789'
 VALID_PHONE_INTL = '+12015550123'
 VALID_PHONE_INTL_ZEROPREFIXED = '0012015550123'
+
+
+def mock_api_key() -> str:
+    """Mock API key."""
+    return secrets.token_urlsafe()
 
 
 @pytest.fixture()
@@ -36,14 +41,7 @@ def unaffiliated_phone_number() -> models.PhoneNumber:
     return models.PhoneNumber.add(VALID_PHONE)
 
 
-@pytest.fixture()
-def support_api_key(app: Flask) -> str:
-    """Random support API key."""
-    key = secrets.token_urlsafe()
-    app.config['INTERNAL_SUPPORT_API_KEY'] = key
-    return key
-
-
+@pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': ...})
 def test_api_key_not_configured(app: Flask, client: FlaskClient) -> None:
     """Server must be configured with an API key."""
     app.config.pop('INTERNAL_SUPPORT_API_KEY', None)
@@ -51,7 +49,8 @@ def test_api_key_not_configured(app: Flask, client: FlaskClient) -> None:
     assert rv.status_code == 501
 
 
-def test_api_key_mismatch(client: FlaskClient, support_api_key: str) -> None:
+@pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': mock_api_key})
+def test_api_key_mismatch(client: FlaskClient) -> None:
     """Client must supply the correct API key."""
     rv = client.post(
         url_for('support_callerid'),
@@ -61,29 +60,33 @@ def test_api_key_mismatch(client: FlaskClient, support_api_key: str) -> None:
     assert rv.status_code == 403
 
 
+@pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': mock_api_key})
 def test_valid_phone_unaffiliated(
+    app: Flask,
     client: FlaskClient,
-    support_api_key: str,
     unaffiliated_phone_number: models.PhoneNumber,
 ) -> None:
     """Test phone number not affiliated with a user account."""
     rv = client.post(
         url_for('support_callerid'),
         data={'number': VALID_PHONE},
-        headers={'Authorization': f'Bearer {support_api_key}'},
+        headers={'Authorization': f'Bearer {app.config["INTERNAL_SUPPORT_API_KEY"]}'},
     )
     assert rv.status_code == 200
     data = rv.json
+    assert isinstance(data, dict)
+    assert isinstance(data['result'], dict)
     assert data['result']['number'] == VALID_PHONE
     assert 'account' not in data['result']
 
 
+@pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': mock_api_key})
 @pytest.mark.parametrize(
     'number', [VALID_PHONE, VALID_PHONE_UNPREFIXED, VALID_PHONE_ZEROPREFIXED]
 )
 def test_valid_phone_affiliated(
+    app: Flask,
     client: FlaskClient,
-    support_api_key: str,
     user_rincewind_phone: models.AccountPhone,
     number: str,
 ) -> None:
@@ -91,10 +94,12 @@ def test_valid_phone_affiliated(
     rv = client.post(
         url_for('support_callerid'),
         data={'number': number},
-        headers={'Authorization': f'Bearer {support_api_key}'},
+        headers={'Authorization': f'Bearer {app.config["INTERNAL_SUPPORT_API_KEY"]}'},
     )
     assert rv.status_code == 200
     data = rv.json
+    assert isinstance(data, dict)
+    assert isinstance(data['result'], dict)
     assert data['result']['number'] == VALID_PHONE
     assert data['result']['account'] == {
         'title': user_rincewind_phone.user.fullname,
@@ -102,10 +107,11 @@ def test_valid_phone_affiliated(
     }
 
 
+@pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': mock_api_key})
 @pytest.mark.parametrize('number', [VALID_PHONE_INTL, VALID_PHONE_INTL_ZEROPREFIXED])
 def test_valid_phone_intl(
+    app: Flask,
     client: FlaskClient,
-    support_api_key: str,
     user_twoflower_phone: models.AccountPhone,
     number: str,
 ) -> None:
@@ -113,10 +119,12 @@ def test_valid_phone_intl(
     rv = client.post(
         url_for('support_callerid'),
         data={'number': number},
-        headers={'Authorization': f'Bearer {support_api_key}'},
+        headers={'Authorization': f'Bearer {app.config["INTERNAL_SUPPORT_API_KEY"]}'},
     )
     assert rv.status_code == 200
     data = rv.json
+    assert isinstance(data, dict)
+    assert isinstance(data['result'], dict)
     assert data['result']['number'] == VALID_PHONE_INTL
     assert data['result']['account'] == {
         'title': user_twoflower_phone.user.fullname,

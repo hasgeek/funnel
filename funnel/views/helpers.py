@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import gzip
+import zlib
 from base64 import urlsafe_b64encode
 from contextlib import nullcontext
 from datetime import datetime, timedelta
@@ -9,9 +11,8 @@ from hashlib import blake2b
 from os import urandom
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 from urllib.parse import unquote, urljoin, urlsplit
-import gzip
-import zlib
 
+import brotli
 from flask import (
     Flask,
     Response,
@@ -26,19 +27,16 @@ from flask import (
     url_for,
 )
 from furl import furl
-from pytz import common_timezones
-from pytz import timezone as pytz_timezone
-from pytz import utc
+from pytz import common_timezones, timezone as pytz_timezone, utc
 from werkzeug.exceptions import MethodNotAllowed, NotFound
 from werkzeug.routing import BuildError, RequestRedirect
 from werkzeug.urls import url_quote
-import brotli
 
 from baseframe import cache, statsd
 from coaster.sqlalchemy import RoleMixin
 from coaster.utils import utcnow
 
-from .. import app, built_assets, shortlinkapp
+from .. import app, shortlinkapp
 from ..forms import supported_locales
 from ..models import Account, Shortlink, db, profanity
 from ..proxies import request_wants
@@ -489,7 +487,7 @@ def compress_response(response: ResponseType) -> None:
         if algorithm is not None:
             response.set_data(compress(response.get_data(), algorithm))
             response.headers['Content-Encoding'] = algorithm
-            response.vary.add('Accept-Encoding')  # type: ignore[union-attr]
+            response.vary.add('Accept-Encoding')
 
 
 # --- Template helpers -----------------------------------------------------------------
@@ -576,12 +574,6 @@ def shortlink(url: str, actor: Optional[Account] = None, shorter: bool = True) -
     db.session.add(sl)
     g.require_db_commit = True
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
-
-
-@app.context_processor
-def template_context() -> Dict[str, Any]:
-    """Add template context items."""
-    return {'built_asset': lambda assetname: built_assets[assetname]}
 
 
 # --- Request/response handlers --------------------------------------------------------

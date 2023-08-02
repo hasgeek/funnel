@@ -5,7 +5,13 @@ default_stages: [commit]
 # default_language_version:
 #   python: python3.9
 ci:
-  skip: ['pip-audit', 'yesqa', 'no-commit-to-branch']
+  skip: [
+      'pip-audit',
+      'yesqa',
+      'no-commit-to-branch',
+      # 'hadolint-docker',
+      'docker-compose-check',
+    ]
 repos:
   - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
     rev: v1.5.1
@@ -17,10 +23,11 @@ repos:
       - id: pip-compile-multi-verify
         files: ^requirements/.*\.(in|txt)$
   - repo: https://github.com/pypa/pip-audit
-    rev: v2.5.6
+    rev: v2.6.1
     hooks:
       - id: pip-audit
         args: [
+            '--disable-pip',
             '--no-deps',
             '--skip-editable',
             '-r',
@@ -33,10 +40,14 @@ repos:
             'PYSEC-2021-13', # https://github.com/pallets-eco/flask-caching/pull/209
             '--ignore-vuln',
             'PYSEC-2022-42969', # https://github.com/pytest-dev/pytest/issues/10392
+            '--ignore-vuln',
+            'PYSEC-2023-73', # https://github.com/RedisLabs/redisraft/issues/608
+            '--ignore-vuln',
+            'PYSEC-2023-101', # https://github.com/pytest-dev/pytest-selenium/issues/310
           ]
         files: ^requirements/.*\.txt$
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.270
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.281
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
@@ -54,13 +65,13 @@ repos:
             '--remove-duplicate-keys',
           ]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.4.0
+    rev: v3.10.1
     hooks:
       - id: pyupgrade
         args:
           ['--keep-runtime-typing', '--py3-plus', '--py36-plus', '--py37-plus']
   - repo: https://github.com/asottile/yesqa
-    rev: v1.4.0
+    rev: v1.5.0
     hooks:
       - id: yesqa
         additional_dependencies: &flake8deps
@@ -88,26 +99,31 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
       - id: black
   # Mypy is temporarily disabled until the SQLAlchemy 2.0 migration is complete
   # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v0.991
+  #   rev: v1.3.0
   #   hooks:
   #     - id: mypy
   #       # warn-unused-ignores is unsafe with pre-commit, see
   #       # https://github.com/python/mypy/issues/2960
   #       args: ['--no-warn-unused-ignores', '--ignore-missing-imports']
   #       additional_dependencies:
+  #         - flask
   #         - lxml-stubs
   #         - sqlalchemy
   #         - toml
   #         - tomli
-  #         - types-all
+  #         - types-chevron
+  #         - types-geoip2
+  #         - types-python-dateutil
+  #         - types-pytz
+  #         - types-requests
   #         - typing-extensions
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
+    rev: 6.1.0
     hooks:
       - id: flake8
         additional_dependencies: *flake8deps
@@ -166,7 +182,7 @@ repos:
       - id: trailing-whitespace
         args: ['--markdown-linebreak-ext=md']
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.9-for-vscode
+    rev: v3.0.0
     hooks:
       - id: prettier
         args:
@@ -177,3 +193,16 @@ repos:
     hooks:
       - id: reformat-gherkin
         files: \.feature$
+  # - repo: https://github.com/Lucas-C/pre-commit-hooks-nodejs
+  #   rev: v1.1.2
+  #   hooks:
+  #     - id: dockerfile_lint
+  #       files: .*Dockerfile.*
+  # - repo: https://github.com/hadolint/hadolint
+  #   rev: v2.12.1-beta
+  #   hooks:
+  #     - id: hadolint-docker
+  - repo: https://github.com/IamTheFij/docker-pre-commit
+    rev: v3.0.1
+    hooks:
+      - id: docker-compose-check

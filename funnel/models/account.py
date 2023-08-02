@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
-from typing import Iterable, Iterator, List, Optional, Set, Union, cast, overload
-from uuid import UUID
 import hashlib
 import itertools
+from datetime import datetime, timedelta
+from typing import Iterable, Iterator, List, Optional, Set, Union, cast, overload
+from typing_extensions import Literal
+from uuid import UUID
 
+import phonenumbers
 from babel import Locale
 from furl import furl
 from passlib.hash import argon2, bcrypt
@@ -15,11 +17,8 @@ from pytz.tzinfo import BaseTzInfo
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.ext.hybrid import Comparator
 from sqlalchemy.sql.expression import ColumnElement
-from typing_extensions import Literal
 from werkzeug.utils import cached_property
-from zbase32 import decode as zbase32_decode
-from zbase32 import encode as zbase32_encode
-import phonenumbers
+from zbase32 import decode as zbase32_decode, encode as zbase32_encode
 
 from baseframe import __
 from coaster.sqlalchemy import (
@@ -401,6 +400,11 @@ class Account(UuidMixin, BaseMixin, Model):
     def __str__(self) -> str:
         """Return picker name for account."""
         return self.pickername
+
+    def __format__(self, format_spec: str) -> str:
+        if not format_spec:
+            return self.pickername
+        return self.pickername.__format__(format_spec)
 
     @property
     def pickername(self) -> str:
@@ -1306,8 +1310,12 @@ class DuckTypeAccount(RoleMixin):
         self.fullname = self.title = self.pickername = representation
 
     def __str__(self) -> str:
-        """Represent user account as a string."""
         return self.pickername
+
+    def __format__(self, format_spec: str) -> str:
+        if not format_spec:
+            return self.pickername
+        return self.pickername.__format__(format_spec)
 
     def url_for(self, *args, **kwargs) -> Literal['']:
         """Return blank URL for anything to do with this user."""
@@ -1467,7 +1475,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
     __email_for__ = 'account'
 
     # Tell mypy that these are not optional
-    email_address: Mapped[EmailAddress]
+    email_address: Mapped[EmailAddress]  # type: ignore[assignment]
 
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
@@ -1649,7 +1657,8 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
     __email_is_exclusive__ = False
 
     # Tell mypy that these are not optional
-    email_address: Mapped[EmailAddress]
+    email_address: Mapped[EmailAddress]  # type: ignore[assignment]
+    email: str
 
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False

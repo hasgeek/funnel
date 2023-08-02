@@ -179,7 +179,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
 
     event = Event()
     event.add('summary', session.title)
-    organizer = vCalAddress(f'MAILTO:no-reply@{current_app.config["DEFAULT_DOMAIN"]}')
+    organizer = vCalAddress(f'MAILTO:{current_app.config["MAIL_DEFAULT_SENDER_ADDR"]}')
     organizer.params['cn'] = vText(session.project.account.title)
     event['organizer'] = organizer
     if rsvp:

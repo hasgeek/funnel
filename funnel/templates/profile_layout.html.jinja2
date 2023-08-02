@@ -1,5 +1,256 @@
 {% extends "layout.html.jinja2" %}
+{%- from "macros.html.jinja2" import img_size, saveprojectform, calendarwidget, projectcard %}
 {% block title %}{{ profile.title }}{% endblock title %}
+
+{% macro featured_section(featured_project, heading=true) %}
+  {% if featured_project %}
+    <div class="bg-primary">
+    {% with current_sessions = featured_project.current_sessions() if
+    featured_project is not none else none %}
+    {% if current_sessions and current_sessions.sessions|length > 0 %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline text-bold project-headline">
+              {% if not featured_project.livestream_urls and current_sessions.sessions|length > 0 %}
+                {% trans %}Live schedule{% endtrans %}
+              {% elif featured_project.livestream_urls and not current_sessions.sessions|length > 0 %}
+                {% trans %}Livestream{% endtrans %}
+              {% elif featured_project.livestream_urls and current_sessions.sessions|length > 0 %}
+                {% trans %}Livestream and schedule{% endtrans %}
+              {% endif %}
+            </h2>
+          </div>
+          <div class="grid__col-xs-12">
+            <div class="card card--spotlight card--spotlight--live">
+              <div class="card__image-wrapper">
+                {% if featured_project.bg_image.url %}
+                  <img class="card__image" src="{{ featured_project.bg_image.resize(img_size.spotlight_banner) }}" alt="{{ featured_project.title }}"/>
+                {% else %}
+                  <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
+                  <p class="card__image__tagline">{{ featured_project.title }}</p>
+                {% endif %}
+              </div>
+              <div class="card__body">
+                <h3 class="card__body__title mui--text-headline text-bold zero-top-margin">
+                  <a class="clickable-card" href="{{ featured_project.url_for() }}">{{ featured_project.title }}</a>
+                </h3>
+                <p class="mui--text-title text-bold primary-color-txt zero-bottom-margin">{% trans %}Live{% endtrans %}</p>
+                {% if current_sessions.sessions|length > 0 %}
+                  <p class="mui--text-subhead mui--text-light">{{ faicon(icon='clock') }} {% trans session=current_sessions.sessions[0].start_at_localized|time %}Session starts at {{ session }}{% endtrans %}</p>
+                {% endif %}
+                <div>
+                  {%- if featured_project.livestream_urls %}
+                    <a class="mui-btn mui-btn--primary mui-btn--raised" aria-label="{% trans %}Watch livestream{% endtrans %}" href="{{ featured_project.url_for() }}">{% trans %}Livestream{% endtrans %}</a>
+                  {%- endif %}
+                  {%- if current_sessions.sessions|length > 0 %}
+                    <a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ featured_project.url_for('schedule') }}">{% trans %}Schedule{% endtrans %}</a>
+                  {%- endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="projects-wrapper">
+      <div class="spotlight">
+        {% if heading %}
+          <div class="mui-container">
+            <div class="grid">
+              <div class="grid__col-12">
+                <h2 class="mui--text-headline text-bold project-headline">{% trans %}Spotlight{% endtrans %}</h2>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="mui-container spotlight-container">
+          <div class="grid flex-wrapper--start">
+            <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
+              <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
+                <div class="flex-wrapper flex-wrapper--center">
+                    <a href="{{ featured_project.account.profile_url }}" class="profile-avatar margin-right" data-ga="View account">
+                    {%- if featured_project.account.logo_url.url %}
+                      <img src="{{ featured_project.account.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.account.title }}"/>
+                    {% else %}
+                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.account.title }}"/>
+                    {% endif %}
+                    </a>
+                    <a href="{{ featured_project.account.profile_url }}" class="profile-avatar-title mui--text-subhead text-bold mui--text-dark nounderline" data-ga="View account">{{ featured_project.account.title }}</a>
+                  </a>
+                </div>
+                {%- if not current_auth.is_anonymous %}
+                  {% set save_form_id = "spotlight_spfm_desktop_" + featured_project.uuid_b58 %}
+                  <div>{{ saveprojectform(featured_project, formid=save_form_id) }}</div>
+                {% endif %}
+              </div>
+              <h3 class="mui--text-headline text-bold" data-cy="spotlight-project"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline">{{ featured_project.title }}</a></h3>
+              <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
+              <div class="bottom-padding mui--text-light mui--hidden-lg mui--hidden-xl">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
+              <a href="{{ featured_project.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
+            </div>
+            <div class="grid__col-md-1 grid__col-lg-1 mui--hidden-xs mui--hidden-sm mui--hidden-md">
+            </div>
+            <div class="grid__col-12 grid__col-md-5 grid__col-lg-4" data-cy="spotlight-project">
+              <div class="card card--upcoming">
+                <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left mui--hidden-lg mui--hidden-xl">
+                  <div class="flex-wrapper flex-wrapper--center">
+                    <span class="profile-avatar margin-right">
+                      {%- if featured_project.account.logo_url.url %}
+                        <img src="{{ featured_project.account.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.account.title }}"/>
+                      {% else %}
+                        <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.account.title }}"/>
+                      {% endif %}
+                    </span>
+                    <span class="profile-avatar-title mui--text-body2 text-bold mui--text-dark">{{ featured_project.account.title }}</span>
+                  </div>
+                  {%- if not current_auth.is_anonymous %}
+                    {% set save_form_id = "spotlight_spfm_mobile_" + featured_project.uuid_b58 %}
+                    <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(featured_project, formid=save_form_id) }}</div>
+                  {% endif %}
+                </div>
+                <div class="card__image-wrapper {% if not featured_project.bg_image.url %}card__image-wrapper--default{% endif %}">
+                  <a href="{{ featured_project.url_for() }}" data-cy-title="{{ featured_project.title }}" data-ga="View featured project">
+                  {% if featured_project.bg_image.url %}
+                    <img class="card__image js-lazyload-img" data-src="{{ featured_project.bg_image.resize(img_size.card_banner) }}" alt="{{ featured_project.title }}"/>
+                    <noscript>
+                      <img class="card__image" src="{{ featured_project.bg_image.resize(img_size.card_banner) }}" alt="{{ featured_project.title }}"/>
+                    </noscript>
+                  {% else %}
+                    <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
+                    <p class="card__image__tagline mui--text-body2">{{ featured_project.title }}</p>
+                  {% endif %}
+                  </a>
+                </div>
+                {%- if (featured_project.start_at is not none and featured_project.calendar_weeks_full.weeks and featured_project.calendar_weeks_full.weeks|length > 0) %}
+                  <div class="card__body">
+                    {% if calendarwidget_compact and featured_project.start_at and featured_project.calendar_weeks_compact.weeks and featured_project.calendar_weeks_compact.weeks|length > 0 %}
+                      <div aria-label="{{ featured_project.datelocation }}">
+                        {{ calendarwidget(featured_project.calendar_weeks_compact) }}
+                      </div>
+                    {% elif featured_project.start_at and featured_project.calendar_weeks_full.weeks and featured_project.calendar_weeks_full.weeks|length > 0 %}
+                      <div aria-label="{{ featured_project.datelocation }}">
+                        {{ calendarwidget(featured_project.calendar_weeks_full, compact=false) }}
+                      </div>
+                    {% endif %}
+                    <div class="mui--hidden-lg mui--hidden-xl">
+                      <h3 class="card__body__title mui--text-subhead {% if not featured_project.start_at %} card__body__subtitle {% endif %}"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline"><span class="text-bold">{{ featured_project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</span></a></h3>
+                    </div>
+                    <div class="flex-wrapper flex-wrapper--end flex-wrapper--space-between top-padding">
+                      <div class="card__body__location mui--text-light zero-bottom-margin">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
+                      {% if featured_project.features.tickets() %}
+                        <div>
+                          <button class="js-open-ticket-widget mui-btn mui-btn--primary price-btn zero-bottom-margin zero-top-margin">
+                            {% if featured_project.features.subscription %}
+                              <span class="price-btn__txt" data-cy="unregistered">{% trans %}Join{% endtrans %}</span>
+                            {%- else %}
+                              <span class="price-btn__txt" data-cy="unregistered">{% trans %}Get tickets{% endtrans %}</span>
+                            {% endif %}
+                            <span class="price-btn__txt price-btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
+                            <span class="price-btn__txt price-btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
+                          </button>
+                          <div class="tickets-wrapper">
+                            <div class="tickets-wrapper__modal">
+                              <div id="tickets" class="tickets-wrapper__modal__body">
+                                <span role="button" aria-label="{% trans %}Close tickets{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Close tickets">{{ faicon(icon='times', baseline=false, icon_size='title') }}</span>
+                                <div id="boxoffice-widget"><p class="mui--text-body2">{% trans %}Loading…{% endtrans %}</p></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {%- endif %}
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro upcoming_section(upcoming_projects, heading=true) %}
+  {% if upcoming_projects|length > 0 %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        {% if heading %}
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline text-bold project-headline">{% trans %}Upcoming{% endtrans %}</h2>
+          </div>
+        </div>
+        {% endif %}
+        <ul class="mui-list--unstyled grid upcoming" role="list">
+          {% for project in upcoming_projects %}
+          <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4" role="listitem">
+            {{ projectcard(project, save_form_id_prefix='upcoming_spf_') }}
+          </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro open_cfp_section(open_cfp_projects, heading=true) %}
+  {% if open_cfp_projects %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        {% if heading %}
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline text-bold project-headline">{% trans %}Accepting submissions{% endtrans %}</h2>
+          </div>
+        </div>
+        {% endif %}
+        <ul class="grid projects" role="list">
+          {% for project in open_cfp_projects %}
+            <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4 grid__col-lg-3 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}"
+              role="listitem">
+              {{ projectcard(project, include_calendar=false, save_form_id_prefix='open_spf_') }}
+            </li>
+          {%- endfor -%}
+        </ul>
+        {% if open_cfp_projects|length > 4 %}
+          <div class="mui--text-center">
+            <a href="#" onclick="return false;" data-target="show all cfp projects" class="jquery-show-all text-uppercase" data-projects="js-cfp-projects" data-ga="Show all cfp projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro all_projects_section(all_projects, heading=true) %}
+  {% if all_projects %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        {% if heading %}
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline text-bold project-headline">{% trans %}All projects{% endtrans %}</h2>
+          </div>
+        </div>
+        {% endif %}
+        <ul class="grid projects" role="list">
+          {% for project in all_projects %}
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(project, save_form_id_prefix='all_spf_') }}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+{% endmacro %}
 
 {% macro profile_admin_buttons(profile) %}
   <div class="mui-dropdown display-inlineblock">
@@ -30,6 +281,31 @@
   </div>
 {% endmacro %}
 
+{% macro past_projects_section(profile) %}
+  <div class="projects-wrapper" id="past-project-table">
+    <div class="mui-container">
+      <div class="grid projects">
+        <div class="grid__col-12">
+          <h2 class="mui--text-headline project-headline">{% trans %}Past sessions{% endtrans %}</h2>
+        </div>
+        <div class="grid__col-12 mui-table--responsive-wrapper">
+          <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
+            <thead class="bg-primary-dark">
+              <tr>
+                <th class="mui--text-subhead text-capitalize">{% trans %}Date{% endtrans %}</th>
+                <th class="mui--text-subhead text-capitalize">{% trans %}Project{% endtrans %}</th>
+                <th class="mui--text-subhead text-capitalize">{% trans %}Location{% endtrans %}</th>
+              </tr>
+            </thead>
+            <tbody {% if profile %} hx-get="{{ profile.url_for('past_projects', page=1) }}" {%- else -%} hx-get="{{ url_for('past_projects', page=1) }}" {%- endif %} hx-trigger="intersect" hx-swap="innerHTML">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
 {% macro profile_header(profile, class="", current_page='profile', title="") %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
@@ -44,7 +320,7 @@
       <div class="profile__banner">
         <div class="profile__banner__box">
           {%- if profile.banner_image_url.url %}
-            <img class="profile__banner__box__img" src="{{ profile.banner_image_url.resize(spotlight_banner) }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
+            <img class="profile__banner__box__img" src="{{ profile.banner_image_url.resize(img_size.profile_banner) }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
           {% else %}
             <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}" alt="{{ profile.title }}"/>
           {% endif %}
@@ -57,7 +333,7 @@
               {% endif %}
               <div class="profile__logo">
                 {%- if profile.logo_url.url %}
-                  <img class="profile__logo__img" src="{{ profile.logo_url.resize(profile_logo) }}" alt="{{ profile.title }}"/>
+                  <img class="profile__logo__img" src="{{ profile.logo_url.resize(img_size.profile_logo) }}" alt="{{ profile.title }}"/>
                 {% else %}
                   <span class="profile__logo__nologo">{{ faicon(icon='user-solid', css_class="profile__logo__icon") }}</span>
                 {% endif %}

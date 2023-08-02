@@ -1,9 +1,9 @@
 """Test comment moderation views."""
 # pylint: disable=too-many-locals
 
+import pytest
 from flask import url_for
 from werkzeug.datastructures import MultiDict
-import pytest
 
 from funnel import models
 

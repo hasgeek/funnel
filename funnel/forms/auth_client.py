@@ -12,7 +12,6 @@ from ..models import (
     Account,
     AuthClient,
     AuthClientCredential,
-    AuthClientTeamPermissions,
     AuthClientUserPermissions,
     valid_name,
 )
@@ -150,7 +149,7 @@ class AuthClientCredentialForm(forms.Form):
     )
 
 
-def permission_validator(form, field) -> None:
+def permission_validator(form: forms.Form, field: forms.Field) -> None:
     """Validate permission strings to be appropriately named."""
     permlist = field.data.split()
     for perm in permlist:
@@ -179,7 +178,6 @@ class UserPermissionAssignForm(forms.Form):
 
 
 @AuthClientUserPermissions.forms('edit')
-@AuthClientTeamPermissions.forms('edit')
 class AuthClientPermissionEditForm(forms.Form):
     """Edit a user or team's permissions."""
 

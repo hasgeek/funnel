@@ -62,7 +62,7 @@ class ProfileForm(OrganizationForm):
         """Prepare form for use."""
         self.logo_url.profile = self.account.name or self.account.buid
 
-    def make_for_user(self):
+    def make_for_user(self) -> None:
         """Customise form for a user account."""
         self.title.label.text = __("Your name")
         self.title.description = __(

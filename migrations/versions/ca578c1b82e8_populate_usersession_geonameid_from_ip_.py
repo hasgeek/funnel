@@ -9,11 +9,11 @@ Create Date: 2021-04-28 18:02:29.867574
 from types import SimpleNamespace
 from typing import Optional, Tuple, Union
 
+import progressbar.widgets
+import sqlalchemy as sa
 from alembic import op
 from progressbar import ProgressBar
 from sqlalchemy.sql import column, table
-import progressbar.widgets
-import sqlalchemy as sa
 
 try:
     import geoip2.database as geoip2_database

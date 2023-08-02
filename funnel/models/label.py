@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Union
+from typing import List, Union
 
-from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 
 from coaster.sqlalchemy import with_roles
 
@@ -13,7 +13,6 @@ from . import (
     Mapped,
     Model,
     TSVectorType,
-    backref,
     hybrid_property,
     relationship,
     sa,
@@ -69,10 +68,12 @@ class Label(BaseScopedNameMixin, Model):
         index=True,
         nullable=True,
     )
+    main_label: Mapped[Label] = relationship(
+        remote_side='Label.id', back_populates='options'
+    )
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
-    options = relationship(
-        'Label',
-        backref=backref('main_label', remote_side='Label.id'),
+    options: Mapped[OrderingList[Label]] = relationship(
+        back_populates='main_label',
         order_by='Label.seq',
         passive_deletes=True,
         collection_class=ordering_list('seq', count_from=1),
@@ -129,7 +130,7 @@ class Label(BaseScopedNameMixin, Model):
     )
 
     #: Proposals that this label is attached to
-    proposals: Mapped[Proposal] = relationship(
+    proposals: Mapped[List[Proposal]] = relationship(
         Proposal, secondary=proposal_label, back_populates='labels'
     )
 
@@ -207,7 +208,7 @@ class Label(BaseScopedNameMixin, Model):
                 cls.main_label_id.is_not(None),
                 sa.select(Label._restricted)
                 .where(Label.id == cls.main_label_id)
-                .as_scalar(),
+                .scalar_subquery(),
             ),
             else_=cls._restricted,
         )
@@ -236,7 +237,7 @@ class Label(BaseScopedNameMixin, Model):
                 cls.main_label_id.is_not(None),
                 sa.select(Label._archived)
                 .where(Label.id == cls.main_label_id)
-                .as_scalar(),
+                .scalar_subquery(),
             ),
             else_=cls._archived,
         )
@@ -400,7 +401,7 @@ class ProposalLabelProxy:
 
 @reopen(Project)
 class __Project:
-    labels = relationship(
+    labels: Mapped[List[Label]] = relationship(
         Label,
         primaryjoin=sa.and_(
             Label.project_id == Project.id,
@@ -410,7 +411,7 @@ class __Project:
         order_by=Label.seq,
         viewonly=True,
     )
-    all_labels = relationship(
+    all_labels: Mapped[List[Label]] = relationship(
         Label,
         collection_class=ordering_list('seq', count_from=1),
         back_populates='project',
@@ -422,7 +423,7 @@ class __Proposal:
     #: For reading and setting labels from the edit form
     formlabels = ProposalLabelProxy()
 
-    labels = with_roles(
+    labels: Mapped[List[Label]] = with_roles(
         relationship(Label, secondary=proposal_label, back_populates='proposals'),
         read={'all'},
     )

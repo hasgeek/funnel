@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, flash, request, url_for
+from flask import flash, request, url_for
 from sqlalchemy.exc import IntegrityError
 
 from baseframe import _, forms
@@ -180,7 +180,9 @@ class TicketParticipantView(AccountCheckMixin, UrlForView, ModelView):
     }
     obj: TicketParticipant
 
-    def loader(self, account, project, ticket_participant) -> TicketParticipant:
+    def loader(
+        self, account: str, project: str, ticket_participant: str
+    ) -> TicketParticipant:
         return (
             TicketParticipant.query.join(Project)
             .join(Account, Project.account)
@@ -314,7 +316,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
 TicketEventParticipantView.init_app(app)
 
 
-# FIXME: make this endpoint use uuid_b58 instead of puk, along with badge generation
+# TODO: make this endpoint use uuid_b58 instead of puk, along with badge generation
 @route('/<account>/<project>/event/<event>/ticket_participant/<puk>')
 class TicketEventParticipantCheckinView(ClassView):
     __decorators__ = [requires_login]
@@ -323,8 +325,6 @@ class TicketEventParticipantCheckinView(ClassView):
     def checkin_puk(
         self, account: str, project: str, event: str, puk: str
     ) -> ReturnView:
-        abort(403)
-
         checked_in = getbool(  # type: ignore[unreachable]
             request.form.get('checkin', 't')
         )

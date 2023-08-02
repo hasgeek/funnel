@@ -160,7 +160,9 @@ class ProposalForm(forms.Form):
         filters=[forms.filters.strip()],
     )
     body = forms.MarkdownField(
-        __("Content"), validators=[forms.validators.DataRequired()]
+        __("Content"),
+        validators=[forms.validators.DataRequired()],
+        render_kw={'class': 'no-codemirror'},
     )
     video_url = forms.URLField(
         __("Video"),

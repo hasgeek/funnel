@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import os.path
+from dataclasses import dataclass
 
 from flask import Response, g, render_template
 from markupsafe import Markup
@@ -94,6 +94,15 @@ class IndexView(ClassView):
             .order_by(Project.next_session_at.asc())
             .all()
         )
+        # Get featured accounts
+        featured_accounts = Account.query.filter(
+            Account.name_in(app.config['FEATURED_ACCOUNTS'])
+        ).all()
+        # This list will not be ordered, so we have to re-sort
+        featured_account_sort_key = {
+            _n.lower(): _i for _i, _n in enumerate(app.config['FEATURED_ACCOUNTS'])
+        }
+        featured_accounts.sort(key=lambda a: featured_account_sort_key[a.name.lower()])
 
         return {
             'all_projects': [
@@ -115,13 +124,9 @@ class IndexView(ClassView):
                 if featured_project
                 else None
             ),
-            'featured_profiles': [
-                p.current_access(datasets=('primary', 'related'))
-                for p in Account.query.filter(
-                    Account.is_verified.is_(True),
-                )
-                .order_by(sa.func.random())
-                .limit(6)
+            'featured_accounts': [
+                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                for p in featured_accounts
             ],
         }
 
@@ -201,11 +206,15 @@ def not_my_otp() -> ReturnView:
             _(
                 "If you’ve received an OTP without requesting it, someone may have made"
                 " a typo in their own phone number and accidentally used yours. They"
-                " will not gain access to your account without the OTP.<br><br>"
+                " will not gain access to your account without the OTP.<br/><br/>"
                 "However, if you suspect misbehaviour of any form, please report it"
                 " to us. Email:"
-                ' <a href="mailto:support@hasgeek.com">support@hasgeek.com</a>, phone:'
-                ' <a href="tel:+917676332020">+91 7676 33 2020</a>.'
+                ' <a href="mailto:{email}">{email}</a>, phone:'
+                ' <a href="tel:{phone}">{phone_formatted}</a>.'
+            ).format(
+                email=app.config['SITE_SUPPORT_EMAIL'],
+                phone=app.config['SITE_SUPPORT_PHONE'],
+                phone_formatted=app.config['SITE_SUPPORT_PHONE_FORMATTED'],
             )
         ),
     )

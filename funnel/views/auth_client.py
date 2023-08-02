@@ -105,7 +105,7 @@ class AuthClientView(UrlForView, ModelView):
     route_model_map = {'client': 'buid'}
     obj: AuthClient
 
-    def loader(self, client) -> AuthClient:
+    def loader(self, client: str) -> AuthClient:
         return AuthClient.query.filter(AuthClient.buid == client).one_or_404()
 
     @route('', methods=['GET'])
@@ -269,7 +269,7 @@ class AuthClientCredentialView(UrlForView, ModelView):
     route_model_map = {'client': 'auth_client.buid', 'name': 'name'}
     obj: AuthClientCredential
 
-    def loader(self, client, name) -> AuthClientCredential:
+    def loader(self, client: str, name: str) -> AuthClientCredential:
         return (
             AuthClientCredential.query.join(AuthClient)
             .filter(AuthClient.buid == client, AuthClientCredential.name == name)

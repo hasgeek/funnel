@@ -1,0 +1,103 @@
+.tickets-wrapper {
+  .tickets-wrapper__modal {
+    display: none;
+  }
+
+  .tickets-wrapper__modal__back {
+    display: none;
+  }
+
+  .tickets-wrapper__modal__body__close {
+    display: block;
+    float: right;
+  }
+
+  .tickets-wrapper__modal--show {
+    position: fixed;
+    top: 0;
+    background: $mui-bg-color-primary;
+    left: 0;
+    right: 0;
+    padding: $mui-grid-padding;
+    z-index: 1001;
+    bottom: 0;
+    overflow: auto;
+
+    .tickets-wrapper__modal__back {
+      display: block;
+    }
+  }
+  .tickets-wrapper__modal--project-page.tickets-wrapper__modal--show {
+    top: 52px; // Below the header
+  }
+  .tickets-wrapper__modal--project-page .tickets-wrapper__modal__body__close {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .tickets-wrapper {
+    .tickets-wrapper__modal {
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.75);
+    }
+    .tickets-wrapper__modal--project-page.tickets-wrapper__modal--show {
+      top: 0;
+    }
+    .tickets-wrapper__modal--project-page .tickets-wrapper__modal__body__close {
+      display: block;
+    }
+
+    .tickets-wrapper__modal__body {
+      max-width: 500px;
+      margin: auto;
+      width: 90%;
+      padding: 0;
+      min-height: auto;
+      border-radius: 16px;
+      background-color: $mui-bg-color-primary;
+      overflow: auto;
+      .tickets-wrapper__modal__body__close {
+        margin-right: $mui-grid-padding * 0.5;
+        margin-top: $mui-grid-padding * 0.5;
+      }
+    }
+  }
+}
+
+.price-btn {
+  min-width: 150px;
+  font-size: inherit;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 0 2px;
+  justify-content: center;
+  height: 42px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.price-btn__txt {
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.price-btn__txt--smaller {
+  font-size: 12px;
+  line-height: 16px;
+  text-transform: initial;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: auto;
+}

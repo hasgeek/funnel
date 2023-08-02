@@ -14,12 +14,11 @@ from typing import (
     Union,
     overload,
 )
-import re
+from typing_extensions import Literal, Self
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
 from mdit_py_plugins import anchors, container, deflist, footnote, tasklists
-from typing_extensions import Literal
 
 from coaster.utils import make_name
 from coaster.utils.text import normalize_spaces_multiline
@@ -30,6 +29,7 @@ from .mdit_plugins import (  # toc_plugin,
     del_plugin,
     embeds_plugin,
     footnote_extend_plugin,
+    heading_anchors_fix_plugin,
     ins_plugin,
     mark_plugin,
     sub_plugin,
@@ -37,72 +37,14 @@ from .mdit_plugins import (  # toc_plugin,
 )
 from .tabs import render_tab
 
-__all__ = ['MarkdownPlugin', 'MarkdownConfig', 'MarkdownString', 'markdown_escape']
-
-# --- Markdown escaper and string ------------------------------------------------------
-
-#: Based on the ASCII punctuation list in the CommonMark spec at
-#: https://spec.commonmark.org/0.30/#backslash-escapes
-markdown_escape_re = re.compile(r"""([\[\\\]{|}\(\)`~!@#$%^&*=+;:'"<>/,.?_-])""")
-
-
-def markdown_escape(text: str) -> MarkdownString:
-    """
-    Escape all Markdown formatting characters and strip whitespace at ends.
-
-    As per the CommonMark spec, all ASCII punctuation can be escaped with a backslash
-    and compliant parsers will then render the punctuation mark as a literal character.
-    However, escaping any other character will cause the backslash to be rendered. This
-    escaper therefore targets only ASCII punctuation characters listed in the spec.
-
-    Edge whitespace is significant in Markdown and must be stripped when escaping:
-
-    * Four spaces at the start will initiate a code block
-    * Two spaces at the end will cause a line-break in non-GFM Markdown
-
-    Replacing these spaces with &nbsp; is not suitable because non-breaking spaces
-    affect HTML rendering, specifically the CSS ``white-space: normal`` sequence
-    collapsing behaviour.
-
-    :returns: Escaped text as an instance of :class:`MarkdownString`, to avoid
-        double-escaping
-    """
-    if hasattr(text, '__markdown__'):
-        return MarkdownString(text.__markdown__())
-    return MarkdownString(markdown_escape_re.sub(r'\\\1', text).strip())
-
-
-class MarkdownString(str):
-    """Markdown string, implements a __markdown__ method."""
-
-    __slots__ = ()
-
-    def __new__(
-        cls, base: Any = '', encoding: Optional[str] = None, errors: str = 'strict'
-    ) -> MarkdownString:
-        if hasattr(base, '__markdown__'):
-            base = base.__markdown__()
-
-        if encoding is None:
-            return super().__new__(cls, base)
-
-        return super().__new__(cls, base, encoding, errors)
-
-    def __markdown__(self) -> MarkdownString:
-        """Return a markdown source string."""
-        return self
-
-    @classmethod
-    def escape(cls, text: str) -> MarkdownString:
-        """Escape a string."""
-        rv = markdown_escape(text)
-
-        if rv.__class__ is not cls:
-            return cls(rv)
-
-        return rv
-
-    # TODO: Implement other methods supported by markupsafe
+__all__ = [
+    'MarkdownPlugin',
+    'MarkdownConfig',
+    'markdown_basic',
+    'markdown_document',
+    'markdown_mailer',
+    'markdown_inline',
+]
 
 
 # --- Markdown dataclasses -------------------------------------------------------------
@@ -117,17 +59,19 @@ class MarkdownPlugin:
     #: Registry of instances
     registry: ClassVar[Dict[str, MarkdownPlugin]] = {}
 
-    #: Optional name for this config, for adding to the registry
-    name: str
+    #: Optional name for this config
+    name: Optional[str]
     func: Callable
     config: Optional[Dict[str, Any]] = None
 
-    def __post_init__(self) -> None:
-        # If this plugin+configuration has a name, add it to the registry
-        if self.name is not None:
-            if self.name in self.registry:
-                raise NameError(f"Plugin {self.name} has already been registered")
-            self.registry[self.name] = self
+    @classmethod
+    def register(cls, name: str, *args, **kwargs) -> Self:
+        """Create a new instance and add it to the registry."""
+        if name in cls.registry:
+            raise NameError(f"MarkdownPlugin {name} has already been registered")
+        obj = cls(name, *args, **kwargs)
+        cls.registry[name] = obj
+        return obj
 
 
 @dataclass
@@ -170,11 +114,14 @@ class MarkdownConfig:
         except KeyError as exc:
             raise TypeError(f"Unknown Markdown plugin {exc.args[0]}") from None
 
-        # If this plugin+configuration has a name, add it to the registry
-        if self.name is not None:
-            if self.name in self.registry:
-                raise NameError(f"Config {self.name} has already been registered")
-            self.registry[self.name] = self
+    @classmethod
+    def register(cls, name: str, *args, **kwargs) -> Self:
+        """Create a new instance and add it to the registry."""
+        if name in cls.registry:
+            raise NameError(f"MarkdownConfig {name} has already been registered")
+        obj = cls(name, *args, **kwargs)
+        cls.registry[name] = obj
+        return obj
 
     @overload
     def render(self, text: None) -> None:
@@ -189,8 +136,11 @@ class MarkdownConfig:
         if text is None:
             return None
 
-        # Replace invisible characters with spaces
-        text = normalize_spaces_multiline(text)
+        # Recast MarkdownString as a plain string and normalize all space chars
+        text = normalize_spaces_multiline(str(text))
+        # XXX: this also replaces a tab with a single space. This will be a problem if
+        # the tab char has semantic meaning, such as in an embedded code block for a
+        # tab-sensitive syntax like a Makefile
 
         md = MarkdownIt(self.preset, self.options_update or {})
 
@@ -218,10 +168,10 @@ class MarkdownConfig:
 # --- Markdown plugins -----------------------------------------------------------------
 
 
-MarkdownPlugin('abbr', abbr_plugin)
-MarkdownPlugin('deflists', deflist.deflist_plugin)
-MarkdownPlugin('footnote', footnote.footnote_plugin)
-MarkdownPlugin(
+MarkdownPlugin.register('abbr', abbr_plugin)
+MarkdownPlugin.register('deflists', deflist.deflist_plugin)
+MarkdownPlugin.register('footnote', footnote.footnote_plugin)
+MarkdownPlugin.register(
     'heading_anchors',
     anchors.anchors_plugin,
     {
@@ -230,40 +180,48 @@ MarkdownPlugin(
         'slug_func': lambda x: 'h:' + make_name(x),
         'permalink': True,
         'permalinkSymbol': '#',
+        'permalinkSpace': False,
     },
 )
-MarkdownPlugin(
+# The heading_anchors_fix plugin modifies the token stream output of heading_anchors
+# plugin to make the heading a permalink instead of a separate permalink. It eliminates
+# the extra character and strips any links inside the heading that may have been
+# introduced by the author.
+MarkdownPlugin.register('heading_anchors_fix', heading_anchors_fix_plugin)
+
+MarkdownPlugin.register(
     'tasklists',
     tasklists.tasklists_plugin,
     {'enabled': True, 'label': True, 'label_after': False},
 )
-MarkdownPlugin('ins', ins_plugin)
-MarkdownPlugin('del', del_plugin)
-MarkdownPlugin('sub', sub_plugin)
-MarkdownPlugin('sup', sup_plugin)
-MarkdownPlugin('mark', mark_plugin)
+MarkdownPlugin.register('ins', ins_plugin)
+MarkdownPlugin.register('del', del_plugin)
+MarkdownPlugin.register('sub', sub_plugin)
+MarkdownPlugin.register('sup', sup_plugin)
+MarkdownPlugin.register('mark', mark_plugin)
 
-MarkdownPlugin(
+MarkdownPlugin.register(
     'tab_container',
     container.container_plugin,
     {'name': 'tab', 'marker': ':', 'render': render_tab},
 )
-MarkdownPlugin('markmap', embeds_plugin, {'name': 'markmap'})
-MarkdownPlugin('vega-lite', embeds_plugin, {'name': 'vega-lite'})
-MarkdownPlugin('mermaid', embeds_plugin, {'name': 'mermaid'})
-MarkdownPlugin('block_code_ext', block_code_extend_plugin)
-MarkdownPlugin('footnote_ext', footnote_extend_plugin)
-# MarkdownPlugin('toc', toc_plugin)
+MarkdownPlugin.register('markmap', embeds_plugin, {'name': 'markmap'})
+MarkdownPlugin.register('vega_lite', embeds_plugin, {'name': 'vega-lite'})
+MarkdownPlugin.register('mermaid', embeds_plugin, {'name': 'mermaid'})
+MarkdownPlugin.register('block_code_ext', block_code_extend_plugin)
+MarkdownPlugin.register('footnote_ext', footnote_extend_plugin)
+# The TOC plugin isn't yet working
+# MarkdownPlugin.register('toc', toc_plugin)
 
 # --- Markdown configurations ----------------------------------------------------------
 
-MarkdownConfig(
+markdown_basic = MarkdownConfig.register(
     name='basic',
     options_update={'html': False, 'breaks': True},
     plugins=['block_code_ext'],
 )
 
-MarkdownConfig(
+markdown_document = MarkdownConfig.register(
     name='document',
     preset='gfm-like',
     options_update={
@@ -280,6 +238,7 @@ MarkdownConfig(
         'footnote',
         'footnote_ext',  # Must be after 'footnote' to take effect
         'heading_anchors',
+        'heading_anchors_fix',  # Must be after 'heading_anchors' to take effect
         'tasklists',
         'ins',
         'del',
@@ -287,11 +246,25 @@ MarkdownConfig(
         'sup',
         'mark',
         'markmap',
-        'vega-lite',
+        'vega_lite',
         'mermaid',
         # 'toc',
     ],
     enable_rules={'smartquotes'},
+)
+
+markdown_mailer = MarkdownConfig.register(
+    name='mailer',
+    preset='gfm-like',
+    options_update={
+        'html': True,
+        'linkify': True,
+        'typographer': True,
+        'breaks': True,
+    },
+    plugins=markdown_document.plugins,
+    enable_rules={'smartquotes'},
+    linkify_fuzzy_email=True,
 )
 
 #: This profile is meant for inline fields (like Title) and allows for only inline
@@ -302,7 +275,7 @@ MarkdownConfig(
 #: Unicode characters for bold/italic/sub/sup, but found this unsuitable as these
 #: character ranges are not comprehensive. Instead, plaintext use will include the
 #: Markdown formatting characters as-is.
-MarkdownConfig(
+markdown_inline = MarkdownConfig.register(
     name='inline',
     preset='zero',
     options_update={'html': False, 'breaks': False, 'typographer': True},

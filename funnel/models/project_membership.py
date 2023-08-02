@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Set, Union
+from typing import Dict, Set, Union
 
 from werkzeug.utils import cached_property
 
@@ -246,16 +246,16 @@ class __Account:
 
     # This relationship is only useful to check if the user has ever been a crew member.
     # Most operations will want to use one of the active membership relationships.
-    projects_as_crew_memberships = relationship(
+    projects_as_crew_memberships: DynamicMapped[ProjectCrewMembership] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         foreign_keys=[ProjectCrewMembership.member_id],
         viewonly=True,
     )
 
-    # This is used to determine if it is safe to purge the member's database record
+    # This is used to determine if it is safe to purge the subject's database record
     projects_as_crew_noninvite_memberships: DynamicMapped[
-        List[ProjectCrewMembership]
+        ProjectCrewMembership
     ] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
@@ -265,7 +265,9 @@ class __Account:
         ),
         viewonly=True,
     )
-    projects_as_crew_active_memberships = relationship(
+    projects_as_crew_active_memberships: DynamicMapped[
+        ProjectCrewMembership
+    ] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
@@ -279,7 +281,9 @@ class __Account:
         'projects_as_crew_active_memberships', 'project'
     )
 
-    projects_as_editor_active_memberships = relationship(
+    projects_as_editor_active_memberships: DynamicMapped[
+        ProjectCrewMembership
+    ] = relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(

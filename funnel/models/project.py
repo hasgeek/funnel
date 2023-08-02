@@ -86,7 +86,12 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         ),
         read={'all'},
         # If account grants an 'admin' role, make it 'account_admin' here
-        grants_via={None: {'admin': 'account_admin'}},
+        grants_via={
+            None: {
+                'admin': 'account_admin',
+                'follower': 'account_participant',
+            }
+        },
         # `account` only appears in the 'primary' dataset. It must not be included in
         # 'related' or 'without_parent' as it is the parent
         datasets={'primary'},
@@ -461,6 +466,14 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     def __repr__(self) -> str:
         """Represent :class:`Project` as a string."""
         return f'<Project {self.account.urlname}/{self.name} "{self.title}">'
+
+    def __str__(self) -> str:
+        return self.joined_title
+
+    def __format__(self, format_spec: str) -> str:
+        if not format_spec:
+            return self.joined_title
+        return self.joined_title.__format__(format_spec)
 
     @with_roles(call={'editor'})
     @cfp_state.transition(

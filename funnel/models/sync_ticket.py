@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, List, Optional, Sequence
 import base64
 import os
+from typing import Any, Iterable, List, Optional, Sequence
 
 from coaster.sqlalchemy import LazyRoleSet
 
@@ -14,6 +14,7 @@ from . import (
     DynamicMapped,
     Mapped,
     Model,
+    Query,
     UuidMixin,
     backref,
     db,
@@ -590,8 +591,25 @@ class __Project:
         relationship(
             TicketParticipant, lazy='dynamic', cascade='all', back_populates='project'
         ),
-        grants_via={'user': {'participant'}},
+        grants_via={
+            'user': {'participant', 'project_participant', 'ticket_participant'}
+        },
     )
+
+
+@reopen(Account)
+class __Account:
+    @property
+    def ticket_followers(self) -> Query[Account]:
+        """All users with a ticket in a project."""
+        return (
+            Account.query.filter(Account.state.ACTIVE)
+            .join(TicketParticipant, TicketParticipant.user_id == Account.id)
+            .join(Project, TicketParticipant.project_id == Project.id)
+            .filter(Project.state.PUBLISHED, Project.account == self)
+        )
+
+    with_roles(ticket_followers, grants={'follower'})
 
 
 # Tail imports to avoid cyclic dependency errors, for symbols used only in methods

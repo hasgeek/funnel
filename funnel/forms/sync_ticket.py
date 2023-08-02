@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from typing import Optional
+
+from flask import Markup
 
 from baseframe import __, forms
 
@@ -15,8 +18,10 @@ from ..models import (
     TicketParticipant,
     db,
 )
+from .helpers import nullable_json_filters, validate_and_convert_json
 
 __all__ = [
+    'FORM_SCHEMA_PLACEHOLDER',
     'ProjectBoxofficeForm',
     'TicketClientForm',
     'TicketEventForm',
@@ -25,7 +30,30 @@ __all__ = [
     'TicketTypeForm',
 ]
 
+
 BOXOFFICE_DETAILS_PLACEHOLDER = {'org': 'hasgeek', 'item_collection_id': ''}
+
+FORM_SCHEMA_PLACEHOLDER = {
+    'fields': [
+        {
+            'name': 'field_name',
+            'title': "Field label shown to user",
+            'description': "An explanation for this field",
+            'type': "string",
+        },
+        {
+            'name': 'has_checked',
+            'title': "I accept the terms",
+            'type': 'boolean',
+        },
+        {
+            'name': 'choice',
+            'title': "Choose one",
+            'type': 'select',
+            'choices': ["First choice", "Second choice", "Third choice"],
+        },
+    ]
+}
 
 
 @Project.forms('boxoffice')
@@ -42,20 +70,33 @@ class ProjectBoxofficeForm(forms.Form):
         filters=[forms.filters.strip()],
     )
     allow_rsvp = forms.BooleanField(
-        __("Allow rsvp"),
+        __("Allow free registrations"),
         default=False,
-        description=__("If checked, both free and buy tickets will shown on project"),
     )
     is_subscription = forms.BooleanField(
-        __("This is a subscription"),
+        __("Paid tickets are for a subscription"),
         default=True,
-        description=__("If not checked, buy tickets button will be shown"),
     )
     register_button_txt = forms.StringField(
         __("Register button text"),
         filters=[forms.filters.strip()],
         description=__("Optional – Use with care to replace the button text"),
     )
+    register_form_schema = forms.StylesheetField(
+        __("Registration form"),
+        description=__("Optional – Specify fields as JSON (limited support)"),
+        filters=nullable_json_filters,
+        validators=[forms.validators.Optional(), validate_and_convert_json],
+    )
+
+    def set_queries(self):
+        """Set form schema description."""
+        self.register_form_schema.description = Markup(
+            '<p>{description}</p><pre><code>{schema}</code></pre>'
+        ).format(
+            description=self.register_form_schema.description,
+            schema=json.dumps(FORM_SCHEMA_PLACEHOLDER, indent=2),
+        )
 
 
 @TicketEvent.forms('main')

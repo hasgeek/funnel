@@ -6,19 +6,21 @@ from datetime import datetime, timedelta
 
 from flask import abort, redirect
 
-from .. import app, shortlinkapp
+from .. import app, shortlinkapp, unsubscribeapp
 from ..models import Shortlink
-from ..typing import ReturnView
+from ..typing import Response
 from .helpers import app_url_for
 
 
-@shortlinkapp.route('/')
-def index() -> ReturnView:
+@shortlinkapp.route('/', endpoint='index')
+def shortlink_index() -> Response:
+    """Shortlink app doesn't have a page, so redirect to main app's index."""
     return redirect(app_url_for(app, 'index'), 301)
 
 
 @shortlinkapp.route('/<name>')
-def link(name: str) -> ReturnView:
+def link(name: str) -> Response:
+    """Redirect from a shortlink to the full link."""
     sl = Shortlink.get(name, True)
     if sl is None:
         abort(404)
@@ -34,7 +36,28 @@ def link(name: str) -> ReturnView:
     # send it again to the destination URL
 
     # Needs Werkzeug >= 2.0.2
-    response.content_security_policy['referrer'] = 'always'  # type: ignore
+    response.content_security_policy['referrer'] = 'always'
     response.headers['Referrer-Policy'] = 'unsafe-url'
     # TODO: Perform analytics here: log client, set session cookie, etc
+    return response
+
+
+@unsubscribeapp.route('/', endpoint='index')
+def unsubscribe_index() -> Response:
+    """Redirect to SMS notification preferences."""
+    return redirect(
+        app_url_for(app, 'notification_preferences', utm_medium='sms', _anchor='sms'),
+        301,
+    )
+
+
+@unsubscribeapp.route('/<token>')
+def unsubscribe_short(token: str) -> Response:
+    """Redirect to full length unsubscribe URL."""
+    response = redirect(
+        app_url_for(app, 'notification_unsubscribe_short', token=token), 301
+    )
+    # Set referrer as in the shortlink app
+    response.content_security_policy['referrer'] = 'always'
+    response.headers['Referrer-Policy'] = 'unsafe-url'
     return response

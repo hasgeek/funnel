@@ -1,11 +1,11 @@
 """Test for processing AWS SES notices received via AWS SNS."""
 
-from typing import cast
 import json
 import os
+from typing import cast
 
-from flask import Response
 import pytest
+from flask import Response
 
 # Data Directory which contains JSON Files
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')

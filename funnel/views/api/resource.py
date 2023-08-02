@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from typing import Any, Container, Dict, List, Optional, Union, cast
+from typing_extensions import Literal
 
 from flask import abort, jsonify, render_template, request
-from typing_extensions import Literal
+from werkzeug.datastructures import MultiDict
 
 from baseframe import __
 from coaster.auth import current_auth
@@ -42,7 +43,7 @@ def get_userinfo(
     auth_client: AuthClient,
     scope: Container[str] = (),
     user_session: Optional[UserSession] = None,
-    get_permissions=True,
+    get_permissions: bool = True,
 ) -> ReturnResource:
     """Return userinfo for a given user, auth client and scope."""
     if '*' in scope or 'id' in scope or 'id/*' in scope:
@@ -458,7 +459,9 @@ def login_beacon_json(client_id: str) -> ReturnView:
 
 @app.route('/api/1/id')
 @resource_registry.resource('id', __("Read your name and basic account data"))
-def resource_id(authtoken: AuthToken, args: dict, files=None) -> ReturnResource:
+def resource_id(
+    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+) -> ReturnResource:
     """Return user's basic identity."""
     if 'all' in args and getbool(args['all']):
         return get_userinfo(
@@ -477,7 +480,9 @@ def resource_id(authtoken: AuthToken, args: dict, files=None) -> ReturnResource:
 
 @app.route('/api/1/session/verify', methods=['POST'])
 @resource_registry.resource('session/verify', __("Verify user session"), scope='id')
-def session_verify(authtoken: AuthToken, args: dict, files=None) -> ReturnResource:
+def session_verify(
+    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+) -> ReturnResource:
     """Verify a UserSession."""
     sessionid = abort_null(args['sessionid'])
     user_session = UserSession.authenticate(buid=sessionid, silent=True)
@@ -497,7 +502,9 @@ def session_verify(authtoken: AuthToken, args: dict, files=None) -> ReturnResour
 
 @app.route('/api/1/email')
 @resource_registry.resource('email', __("Read your email address"))
-def resource_email(authtoken: AuthToken, args: dict, files=None) -> ReturnResource:
+def resource_email(
+    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+) -> ReturnResource:
     """Return user's email addresses."""
     if 'all' in args and getbool(args['all']):
         return {
@@ -513,7 +520,9 @@ def resource_email(authtoken: AuthToken, args: dict, files=None) -> ReturnResour
 
 @app.route('/api/1/phone')
 @resource_registry.resource('phone', __("Read your phone number"))
-def resource_phone(authtoken: AuthToken, args: dict, files=None) -> ReturnResource:
+def resource_phone(
+    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+) -> ReturnResource:
     """Return user's phone numbers."""
     if 'all' in args and getbool(args['all']):
         return {
@@ -530,7 +539,7 @@ def resource_phone(authtoken: AuthToken, args: dict, files=None) -> ReturnResour
     trusted=True,
 )
 def resource_login_providers(
-    authtoken: AuthToken, args: dict, files=None
+    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
 ) -> ReturnResource:
     """Return user's login providers' data."""
     service: Optional[str] = abort_null(args.get('service'))
@@ -552,7 +561,7 @@ def resource_login_providers(
     'organizations', __("Read the organizations you are a member of")
 )
 def resource_organizations(
-    authtoken: AuthToken, args: dict, files=None
+    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
 ) -> ReturnResource:
     """Return user's organizations and teams that they are a member of."""
     return get_userinfo(
@@ -565,7 +574,9 @@ def resource_organizations(
 
 @app.route('/api/1/teams')
 @resource_registry.resource('teams', __("Read the list of teams in your organizations"))
-def resource_teams(authtoken: AuthToken, args: dict, files=None) -> ReturnResource:
+def resource_teams(
+    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+) -> ReturnResource:
     """Return user's organizations' teams."""
     return get_userinfo(
         authtoken.effective_user,

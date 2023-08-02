@@ -13,10 +13,10 @@ from funnel import models
 
 @pytest.fixture(scope='session')
 def fixture_notification_type(database) -> Any:
-    class MergeTestNotification(models.Notification, type='merge_test'):
+    class MergeTestNotification(
+        models.Notification[models.User, None], type='merge_test'
+    ):
         """Test notification."""
-
-        document_model = models.User
 
     database.configure_mappers()
     return MergeTestNotification

@@ -6,11 +6,10 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Dict, List, Set
 
-from sqlalchemy.exc import IntegrityError
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 from funnel import models
-from funnel.typing import UuidModelType
 
 pytestmark = pytest.mark.filterwarnings(
     "ignore:Object of type <AccountEmail> not in session"
@@ -20,44 +19,43 @@ pytestmark = pytest.mark.filterwarnings(
 @pytest.fixture(scope='session')
 def notification_types(database) -> SimpleNamespace:
     class ProjectIsParent:
-        document: UuidModelType
+        document: models.UuidModelUnion
 
         @property
         def preference_context(self) -> models.Account:
             return self.document.project.account
 
     class TestNewUpdateNotification(
-        ProjectIsParent, models.Notification, type='update_new_test'
+        ProjectIsParent,
+        models.Notification[models.Update, None],
+        type='update_new_test',
     ):
         """Notifications of new updates (test edition)."""
 
         category = models.notification_categories.participant
         description = "When a project posts an update"
 
-        document_model = models.Update
         roles = ['project_crew', 'project_participant']
 
     class TestEditedUpdateNotification(
         ProjectIsParent,
-        models.Notification,
+        models.Notification[models.Update, None],
         type='update_edit_test',
         shadows=TestNewUpdateNotification,
     ):
         """Notifications of edited updates (test edition)."""
 
-        document_model = models.Update
         roles = ['project_crew', 'project_participant']
 
     class TestProposalReceivedNotification(
-        ProjectIsParent, models.Notification, type='proposal_received_test'
+        ProjectIsParent,
+        models.Notification[models.Project, models.Proposal],
+        type='proposal_received_test',
     ):
         """Notifications of new proposals (test edition)."""
 
         category = models.notification_categories.project_crew
         description = "When my project receives a new proposal"
-
-        document_model = models.Project
-        fragment_model = models.Proposal
         roles = ['project_editor']
 
     database.configure_mappers()

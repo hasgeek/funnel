@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-from enum import Enum, IntFlag
-from typing import Dict, Pattern, Sequence, cast
 import base64
 import re
+from enum import Enum, IntFlag
+from typing import Dict, Pattern, Sequence, cast
 
+import requests
 from cryptography import x509
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from cryptography.hazmat.primitives.hashes import SHA1
-import requests
 
 __all__ = [
     'SnsNotificationType',

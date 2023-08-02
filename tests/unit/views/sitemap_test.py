@@ -2,10 +2,10 @@
 
 from datetime import datetime, timedelta
 
+import pytest
 from dateutil.relativedelta import relativedelta
 from pytz import utc
 from werkzeug.exceptions import NotFound
-import pytest
 
 from coaster.utils import utcnow
 

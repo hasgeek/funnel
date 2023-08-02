@@ -70,15 +70,16 @@ image_alt = true
 tabindex_no_positive = true
 
 [tool.isort]
+# Some isort functionality is replicated in ruff, which should have matching config
 profile = 'black'
 multi_line_output = 3
 include_trailing_comma = true
 line_length = 88
 order_by_type = true
 use_parentheses = true
-from_first = true
-# add_imports = 'from __future__ import annotations'
-known_future_library = ['__future__', 'six']
+combine_as_imports = true
+split_on_trailing_comma = false
+extra_standard_library = ['typing_extensions']
 known_repo = ['funnel']
 known_first_party = ['baseframe', 'coaster', 'flask_lastuser']
 default_section = 'THIRDPARTY'
@@ -87,18 +88,21 @@ sections = ['FUTURE', 'STDLIB', 'THIRDPARTY', 'FIRSTPARTY', 'REPO', 'LOCALFOLDER
 [tool.pytest.ini_options]
 minversion = "6.1"  # For config.rootpath
 required_plugins = [
+  'pytest-asyncio',
   'pytest-bdd',
   'pytest-cov',
   'pytest-dotenv',
   'pytest-env',
-  'pytest-remotedata',
   'pytest-rerunfailures',
+  'pytest-socket',
   'requests-mock',
 ]
 addopts = [
   '--cov-report=term-missing',
   '--driver=firefox',
-  '--remote-data=any',
+  '--disable-socket',
+  '--allow-unix-socket',  # Required for Selenium driver
+  '--allow-hosts=127.0.0.1,::1',  # Add Docker IPs here
   '--strict-markers',
   # '--typeguard-packages=funnel,tests',  # This breaks on toc.py in markdown
 ]
@@ -108,19 +112,13 @@ markers = [
   'formuser("user"): User fixture for editing a form',
   'update_markdown_data: Regenerate markdown test output (dev use only)',
   'debug_markdown_output: Generate markdown debug file tests/data/markdown/output.html (dev use only)',
-  'requires_config("feature"): Run test only if specified app config is available'
+  'requires_config("app", "feature"): Run test only if app config is available',
+  'mock_config("app", config_dict): Create mock configuration for a feature'
 ]
-filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
 bdd_features_base_dir = 'tests/features/'
-remote_data_strict = true
-env = [
-  'FLASK_ENV=testing',
-  # For macOS: https://stackoverflow.com/a/52230415/78903
-  'OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES',
-  'D:HOSTALIASES={PWD}/HOSTALIASES'
-]
+env = ['FLASK_ENV=testing', 'FLASK_TESTING=true']
 env_override_existing_values = false
-env_files = ['.env', '.env.testing']
+env_files = ['.env.testing', '.testenv', '.env', '.flaskenv']
 
 [tool.mypy]
 files = '**/*.py'
@@ -133,8 +131,7 @@ warn_redundant_casts = false
 check_untyped_defs = false
 
 [[tool.mypy.overrides]]
-# This override doesn't seem to work
-module = ['tests']
+module = 'tests.*'
 check_untyped_defs = true
 warn_unreachable = false
 
@@ -168,7 +165,8 @@ disable = [
   'too-many-lines',  # We have large files that include all related functionality
   'too-many-public-methods',  # Models and views have many public methods
   'unused-argument',  # Arguments required for spec compatibility aren't always used
-  'wrong-import-position',  # Let black and isort handle this
+  'wrong-import-order',  # Let isort and ruff handle this
+  'wrong-import-position',  # Let black, isort and ruff handle this
 
   # Temporarily disabled pending audit and fixes
   'missing-class-docstring',
@@ -206,26 +204,26 @@ unfixable = []
 
 # Exclude a variety of commonly ignored directories.
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
 ]
 
 # Same as Black.
@@ -240,3 +238,17 @@ target-version = "py37"
 [tool.ruff.mccabe]
 # Unlike Flake8, default to a complexity level of 10.
 max-complexity = 10
+
+[tool.ruff.isort]
+# These config options should match isort config above under [tool.isort]
+combine-as-imports = true
+extra-standard-library = ['typing_extensions']
+split-on-trailing-comma = false
+relative-imports-order = 'furthest-to-closest'
+known-first-party = ['baseframe', 'coaster', 'flask_lastuser']
+section-order = [
+  'future', 'standard-library', 'third-party', 'first-party', 'repo', 'local-folder'
+]
+
+[tool.ruff.isort.sections]
+repo = ['funnel']

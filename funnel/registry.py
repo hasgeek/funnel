@@ -2,19 +2,20 @@
 
 from __future__ import annotations
 
+import re
 from collections import OrderedDict
 from dataclasses import dataclass
 from functools import wraps
-from typing import Callable, Collection, List, NoReturn, Optional, Tuple, cast
-import re
+from typing import Any, Callable, Collection, List, NoReturn, Optional, Tuple
 
 from flask import Response, abort, jsonify, request
+from werkzeug.datastructures import MultiDict
 
 from baseframe import _
 from baseframe.signals import exception_catchall
 
 from .models import AccountExternalId, AuthToken
-from .typing import ReturnDecorator, ReturnResponse, WrappedFunc
+from .typing import P, ReturnResponse
 
 # Bearer token, as per
 # http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
@@ -30,7 +31,7 @@ class ResourceRegistry(OrderedDict):
         description: Optional[str] = None,
         trusted: bool = False,
         scope: Optional[str] = None,
-    ) -> ReturnDecorator:
+    ) -> Callable[[Callable[P, Any]], Callable[[], ReturnResponse]]:
         """
         Decorate a resource function.
 
@@ -56,7 +57,9 @@ class ResourceRegistry(OrderedDict):
                 },
             )
 
-        def decorator(f: WrappedFunc) -> Callable[..., ReturnResponse]:
+        def decorator(
+            f: Callable[[AuthToken, MultiDict, MultiDict], Any]
+        ) -> Callable[[], ReturnResponse]:
             @wraps(f)
             def wrapper() -> ReturnResponse:
                 if request.method == 'GET':
@@ -133,7 +136,7 @@ class ResourceRegistry(OrderedDict):
                 'trusted': trusted,
                 'f': f,
             }
-            return cast(WrappedFunc, wrapper)
+            return wrapper
 
         return decorator
 

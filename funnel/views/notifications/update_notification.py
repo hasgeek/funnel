@@ -6,10 +6,25 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import NewUpdateNotification, Update
-from ...transports.sms import TwoLineTemplate
+from ...models import NewUpdateNotification, Update, User
+from ...transports.sms import SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
+from .mixins import TemplateVarMixin
+
+
+class UpdateTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for Updates."""
+
+    registered_template = (
+        'There is an update in {#var#}: {#var#}\n\nhttps://bye.li to stop -Hasgeek'
+    )
+    template = (
+        "There is an update in {profile}: {url}\n\nhttps://bye.li to stop -Hasgeek"
+    )
+    plaintext_template = "There is an update in {profile}: {url}"
+
+    url: str
 
 
 @NewUpdateNotification.renderer
@@ -19,10 +34,15 @@ class RenderNewUpdateNotification(RenderNotification):
     update: Update
     aliases = {'document': 'update'}
     emoji_prefix = "📰 "
-    reason = __("You are receiving this because you have registered for this project")
+    reason = __(
+        "You are receiving this because you have registered for this or related"
+        " projects"
+    )
+    hero_image = 'img/email/chars-v1/update.png'
+    email_heading = __("New update!")
 
     @property
-    def actor(self):
+    def actor(self) -> User:
         """
         Return author of the update.
 
@@ -32,23 +52,20 @@ class RenderNewUpdateNotification(RenderNotification):
         """
         return self.update.created_by
 
-    def web(self):
+    def web(self) -> str:
         return render_template('notifications/update_new_web.html.jinja2', view=self)
 
-    def email_subject(self):
+    def email_subject(self) -> str:
         return self.emoji_prefix + _("{update} ({project})").format(
             update=self.update.title, project=self.update.project.joined_title
         )
 
-    def email_content(self):
+    def email_content(self) -> str:
         return render_template('notifications/update_new_email.html.jinja2', view=self)
 
-    def sms(self) -> TwoLineTemplate:
-        return TwoLineTemplate(
-            text1=_("Update in {project}:").format(
-                project=self.update.project.joined_title
-            ),
-            text2=self.update.title,
+    def sms(self) -> UpdateTemplate:
+        return UpdateTemplate(
+            profile=self.update.project.profile,
             url=shortlink(
                 self.update.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,

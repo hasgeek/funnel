@@ -2,9 +2,10 @@
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
 from types import SimpleNamespace
+from unittest.mock import patch
 
-from flask import Flask
 import pytest
+from flask import Flask
 
 from funnel.transports import sms
 
@@ -21,7 +22,7 @@ def app() -> Flask:
 @pytest.fixture(scope='session')
 def msgt() -> SimpleNamespace:
     class MyMessage(sms.SmsTemplate):
-        registered_template = "Insert {#var#} here"
+        registered_template = 'Insert {#var#} here'
         template = "Insert {var} here"
         plaintext_template = "{var} here"
 
@@ -60,19 +61,19 @@ def test_template_lengths() -> None:
     """Static and variable character lengths are calculated automatically."""
 
     class OneVarTemplate(sms.SmsTemplate):
-        registered_template = "This has one {#var#}"
+        registered_template = 'This has one {#var#}'
         template = "This has one {var}"
 
     class TwoVarTemplate(sms.SmsTemplate):
-        registered_template = "This has two {#var#}{#var#}"
+        registered_template = 'This has two {#var#}{#var#}'
         template = "This has two {var}"
 
     class ThreeVarTemplate(sms.SmsTemplate):
-        registered_template = "{#var#} this has three {#var#}{#var#}"
+        registered_template = '{#var#} this has three {#var#}{#var#}'
         template = "{var} this has three {var}"
 
     class MismatchTemplate(sms.SmsTemplate):
-        registered_template = "This has two {#var#}{#var#}"
+        registered_template = 'This has two {#var#}{#var#}'
         template = "This has two  {var}"  # Extra space here
 
     assert OneVarTemplate.registered_template_static_len == len("This has one ") == 13
@@ -155,13 +156,13 @@ def test_validate_template() -> None:
     ):
 
         class TemplateVarReserved(sms.SmsTemplate):
-            registered_template = "{#var#}"
+            registered_template = '{#var#}'
             template = "{text}"
 
     with pytest.raises(ValueError, match='Templates cannot have positional fields'):
 
         class TemplateVarPositional(sms.SmsTemplate):
-            registered_template = "{#var#}"
+            registered_template = '{#var#}'
             template = "{}"
 
 
@@ -180,7 +181,7 @@ def test_validate_no_entity_template_id() -> None:
 
 
 def test_subclass_config(app: Flask, msgt: SimpleNamespace) -> None:
-    class MySubMessage(msgt.MyMessage):
+    class MySubMessage(msgt.MyMessage):  # type: ignore[name-defined]
         pass
 
     assert sms.SmsTemplate.registered_templateid is None
@@ -199,6 +200,7 @@ def test_subclass_config(app: Flask, msgt: SimpleNamespace) -> None:
     assert MySubMessage.registered_templateid == 'qwerty'
 
 
+@patch.object(sms.SmsTemplate, 'registered_entityid', None)
 def test_init_app(app: Flask, msgt: SimpleNamespace) -> None:
     assert sms.SmsTemplate.registered_entityid is None
     assert msgt.MyMessage.registered_entityid is None

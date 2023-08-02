@@ -1,13 +1,11 @@
-/* global ga */
+/* global gtag */
 const Analytics = {
-  sendToGA(category, action, label, value = 0) {
+  sendToGA(category, action, label = '', value = 0) {
     if (typeof ga !== 'undefined') {
-      ga('send', {
-        hitType: 'event',
-        eventCategory: category,
-        eventAction: action,
-        eventLabel: label,
-        eventValue: value,
+      gtag('event', category, {
+        event_category: action,
+        event_label: label,
+        value,
       });
     }
   },
@@ -17,6 +15,10 @@ const Analytics = {
       const action = $(this).attr('data-ga') || $(this).attr('title') || $(this).html();
       const target = $(this).attr('data-target') || $(this).attr('href') || '';
       Analytics.sendToGA('click', action, target);
+    });
+    $('.ga-login-btn').click(function gaHandler() {
+      const action = $(this).attr('data-ga');
+      Analytics.sendToGA('login', action);
     });
     $('.search-form__submit').click(function gaHandler() {
       const target = $('.js-search-field').val();

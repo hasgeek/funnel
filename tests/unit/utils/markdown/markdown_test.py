@@ -2,8 +2,8 @@
 
 import warnings
 
-from markupsafe import Markup
 import pytest
+from markupsafe import Markup
 
 from funnel.utils.markdown import MarkdownConfig
 

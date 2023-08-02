@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
+import re
 from html import unescape as html_unescape
 from typing import Any, Dict, List, Optional, Type, TypeVar
+from typing_extensions import TypedDict
 from urllib.parse import quote as urlquote
-import re
 
 from flask import request, url_for
 from markupsafe import Markup
 from sqlalchemy.sql import expression
-from typing_extensions import Protocol, TypedDict
 
 from baseframe import __
 from coaster.views import (
@@ -28,19 +28,18 @@ from ..models import (
     Account,
     Comment,
     Commentset,
-    Mapped,
     Project,
     Proposal,
     ProposalMembership,
     Query,
+    SearchModelUnion,
     Session,
-    TSVectorType,
     Update,
     db,
     sa,
     visual_field_delimiter,
 )
-from ..typing import IdModelType, ReturnRenderWith
+from ..typing import ReturnRenderWith
 from ..utils import abort_null
 from .helpers import render_redirect
 from .mixins import AccountViewMixin, ProjectViewMixin
@@ -48,13 +47,6 @@ from .mixins import AccountViewMixin, ProjectViewMixin
 # --- Definitions ----------------------------------------------------------------------
 
 _Q = TypeVar('_Q', bound=Query)
-
-
-class SearchModelType(IdModelType, Protocol):
-    """Protocol class for a model with search columns."""
-
-    title: Mapped[str]
-    search_vector: Mapped[TSVectorType]
 
 
 # PostgreSQL ts_headline markers
@@ -83,7 +75,7 @@ class SearchProvider:
     #: Label to use in UI
     label: str
     #: Model to query against
-    model: Type[SearchModelType]
+    model: Type[SearchModelUnion]
     #: Does this model have a title column?
     has_title: bool = True
 

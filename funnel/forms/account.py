@@ -5,8 +5,10 @@ from __future__ import annotations
 from hashlib import sha1
 from typing import Dict, Iterable, Optional
 
-from flask_babel import ngettext
 import requests
+from flask import url_for
+from flask_babel import ngettext
+from markupsafe import Markup
 
 from baseframe import _, __, forms
 from coaster.utils import sorted_timezones
@@ -16,7 +18,6 @@ from ..models import (
     PASSWORD_MAX_LENGTH,
     PASSWORD_MIN_LENGTH,
     Account,
-    AccountEmailClaim,
     Anchor,
     check_password_strength,
     getuser,
@@ -496,17 +497,24 @@ class UsernameAvailableForm(forms.Form):
         raise_username_error(reason)
 
 
-def validate_emailclaim(form: forms.Form, field: forms.Field) -> None:
-    """Validate if an email address is already pending verification."""
-    existing = AccountEmailClaim.get_for(user=form.edit_user, email=field.data)
-    if existing is not None:
-        raise forms.validators.StopValidation(
-            _("This email address is pending verification")
-        )
+class EnableNotificationsDescriptionMixin:
+    """Mixin to add a link in the description for enabling notifications."""
+
+    enable_notifications: forms.Field
+
+    def set_queries(self) -> None:
+        """Change the description to include a link."""
+        self.enable_notifications.description = Markup(
+            _(
+                "Unsubscribe anytime, and control what notifications are sent from the"
+                ' <a href="{url}" target="_blank">Notifications tab under account'
+                ' settings</a>'
+            )
+        ).format(url=url_for('notification_preferences'))
 
 
 @Account.forms('email_add')
-class NewEmailAddressForm(forms.RecaptchaForm):
+class NewEmailAddressForm(EnableNotificationsDescriptionMixin, forms.RecaptchaForm):
     """Form to add a new email address to an account."""
 
     __expects__ = ('edit_user',)
@@ -516,7 +524,6 @@ class NewEmailAddressForm(forms.RecaptchaForm):
         __("Email address"),
         validators=[
             forms.validators.DataRequired(),
-            validate_emailclaim,
             EmailAddressAvailable(purpose='claim'),
         ],
         filters=strip_filters,
@@ -525,6 +532,15 @@ class NewEmailAddressForm(forms.RecaptchaForm):
             'autocapitalize': 'off',
             'autocomplete': 'email',
         },
+    )
+
+    enable_notifications = forms.BooleanField(
+        __("Send notifications by email"),
+        description=__(
+            "Unsubscribe anytime, and control what notifications are sent from the"
+            " Notifications tab under account settings"
+        ),
+        default=True,
     )
 
 
@@ -545,7 +561,7 @@ class EmailPrimaryForm(forms.Form):
 
 
 @Account.forms('phone_add')
-class NewPhoneForm(forms.RecaptchaForm):
+class NewPhoneForm(EnableNotificationsDescriptionMixin, forms.RecaptchaForm):
     """Form to add a new mobile number (SMS-capable) to an account."""
 
     __expects__ = ('edit_user',)

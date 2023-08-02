@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import csv
 from datetime import datetime, timedelta
 from io import StringIO
 from typing import Dict, Optional
-import csv
 
 from flask import Response, current_app, render_template, request
 from sqlalchemy.exc import IntegrityError

@@ -5,10 +5,10 @@ from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
 from typing import Generator
 
-from sqlalchemy.exc import IntegrityError
 import phonenumbers
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 
@@ -532,6 +532,32 @@ def test_phone_number_blocked() -> None:
     assert pn1.formatted == EXAMPLE_NUMBER_IN_FORMATTED
 
 
+def test_get_numbers(db_session) -> None:
+    """Get phone numbers in bulk."""
+    for number in (
+        EXAMPLE_NUMBER_IN,
+        EXAMPLE_NUMBER_GB,
+        EXAMPLE_NUMBER_CA,
+        EXAMPLE_NUMBER_DE,
+        EXAMPLE_NUMBER_US,
+    ):
+        models.PhoneNumber.add(number)
+    assert models.PhoneNumber.get_numbers(prefix='+91') == {
+        EXAMPLE_NUMBER_IN_UNPREFIXED
+    }
+    assert models.PhoneNumber.get_numbers(prefix='+1', remove=False) == {
+        EXAMPLE_NUMBER_CA,
+        EXAMPLE_NUMBER_US,
+    }
+    assert models.PhoneNumber.get_numbers('+', False) == {
+        EXAMPLE_NUMBER_IN,
+        EXAMPLE_NUMBER_GB,
+        EXAMPLE_NUMBER_CA,
+        EXAMPLE_NUMBER_DE,
+        EXAMPLE_NUMBER_US,
+    }
+
+
 def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-statements
     phone_models, db_session
 ) -> None:
@@ -710,25 +736,28 @@ def test_phone_number_validate_for(phone_models, db_session) -> None:
     db_session.add_all([user1, user2])
 
     # A new phone number is available to all
-    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN) is True
-    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN) is True
-    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN) is True
+    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN) is None
+    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN) is None
+    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN) is None
 
     # Once it's assigned to a user, availability changes
     link = phone_models.PhoneLink(phoneuser=user1, phone=EXAMPLE_NUMBER_IN)
     db_session.add(link)
 
-    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN) is True
-    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN) is False
-    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN) is False
+    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN) is None
+    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN) == 'taken'
+    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN) == 'taken'
 
     # A number in use is not available to claim as new
     assert (
         models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN, new=True) == 'not_new'
     )
-    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN, new=True) is False
     assert (
-        models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN, new=True) is False
+        models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN, new=True) == 'taken'
+    )
+    assert (
+        models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN, new=True)
+        == 'taken'
     )
 
     # A blocked number is available to no one
@@ -754,5 +783,5 @@ def test_phone_number_existing_but_unused_validate_for(
     db_session.add_all([user, phone_number])
     db_session.commit()
 
-    assert models.PhoneNumber.validate_for(user, EXAMPLE_NUMBER_GB, new=True) is True
-    assert models.PhoneNumber.validate_for(user, EXAMPLE_NUMBER_GB) is True
+    assert models.PhoneNumber.validate_for(user, EXAMPLE_NUMBER_GB, new=True) is None
+    assert models.PhoneNumber.validate_for(user, EXAMPLE_NUMBER_GB) is None

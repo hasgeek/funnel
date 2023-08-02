@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Union
 
-from baseframe import __, forms
+from baseframe import _, __, forms
 
 from ..models import (
     PASSWORD_MAX_LENGTH,
@@ -22,6 +22,16 @@ from ..models import (
     getuser,
     parse_phone_number,
 )
+from .helpers import (
+    MSG_EMAIL_BLOCKED,
+    MSG_EMAIL_INVALID,
+    MSG_INCORRECT_OTP,
+    MSG_INCORRECT_PASSWORD,
+    MSG_NO_ACCOUNT,
+    MSG_NO_LOGIN_SESSION,
+    MSG_PHONE_BLOCKED,
+    MSG_PHONE_NO_SMS,
+)
 
 __all__ = [
     'LoginPasswordResetException',
@@ -31,20 +41,10 @@ __all__ = [
     'LogoutForm',
     'RegisterWithOtp',
     'OtpForm',
+    'EmailOtpForm',
     'RegisterOtpForm',
 ]
 
-# --- Error messages -------------------------------------------------------------------
-
-MSG_EMAIL_BLOCKED = __("This email address has been blocked from use")
-MSG_INCORRECT_PASSWORD = __("Incorrect password")
-MSG_NO_ACCOUNT = __(
-    "This account could not be identified. Try with a phone number or email address"
-)
-MSG_INCORRECT_OTP = __("OTP is incorrect")
-MSG_NO_LOGIN_SESSION = __("That does not appear to be a valid login session")
-MSG_PHONE_NO_SMS = __("This phone number cannot receive SMS messages")
-MSG_PHONE_BLOCKED = __("This phone number has been blocked from use")
 
 # --- Exceptions -----------------------------------------------------------------------
 
@@ -173,6 +173,8 @@ class LoginForm(forms.RecaptchaForm):
                     self.new_email = str(email_address)
                 except EmailAddressBlockedError as exc:
                     raise forms.validators.ValidationError(MSG_EMAIL_BLOCKED) from exc
+                except ValueError as exc:
+                    raise forms.validators.StopValidation(MSG_EMAIL_INVALID) from exc
                 return
             phone = parse_phone_number(field.data, sms=True)
             if phone is False:
@@ -292,6 +294,14 @@ class OtpForm(forms.Form):
         """Confirm OTP is as expected."""
         if field.data != self.valid_otp:
             raise forms.validators.StopValidation(MSG_INCORRECT_OTP)
+
+
+class EmailOtpForm(OtpForm):
+    """Verify an OTP sent to email."""
+
+    def set_queries(self) -> None:
+        super().set_queries()
+        self.otp.description = _("One-time password sent to your email address")
 
 
 class RegisterOtpForm(forms.Form):
