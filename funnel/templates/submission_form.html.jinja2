@@ -116,10 +116,20 @@
         </div>
       </div>
     </form>
-    <div class="modal-form modal-form--submission">
-      <a class="modal__close mui--text-dark js-close-form-modal" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size="title") }}</a>
+    <div class="modal" id="contact-consent" role="dialog" aria-labelledby="consent-notice" aria-modal="true" tabindex="-1">
+      <div class="modal__header">
+        <a class="modal__close mui--text-dark" data-target="close contact consent modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+      </div>
+      <div class="modal__body">
+        <p class="mui--text-body2 top-padding margin-top">{% trans %}This is to inform you that your name and email address or phone number will be shared with the project’s editor so they can contact you.{% endtrans %}</p>
+        <div class="mui--text-right">
+          <a class="mui-btn mui-btn--raised" rel="modal:close" onclick="return false;" role="button" tabindex="0">{% trans %}Ok{% endtrans %}</a>
+        </div>
+      </div>
     </div>
-  </div>
+    <div class="modal-form modal-form--submission">
+      <a class="modal__close mui--text-dark js-close-form-modal" data-target="close modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size="title") }}</a>
+    </div>
 {% endblock basecontent %}
 
 {% block pagescripts %}
@@ -138,6 +148,7 @@
       var markdownPreviewElem = '#preview';
       var markdownPreviewApi = {{ url_for('markdown_preview')|tojson }};
       window.Hasgeek.submissionFormInit(sortUrl, formId, markdownPreviewElem, markdownPreviewApi);
+      $('#contact-consent').modal();
     });
   </script>
 {% endblock innerscripts %}
