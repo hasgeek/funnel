@@ -346,7 +346,7 @@ class ProjectView(  # type: ignore[misc]
                 'phone',
                 'labels',
                 'description',
-                'submitted'
+                'submitted',
             ]
         )
         for proposal in self.obj.proposals:
@@ -360,7 +360,7 @@ class ProjectView(  # type: ignore[misc]
                     proposal.user.phone,
                     [label.title for label in proposal.labels],
                     proposal.body,
-                    proposal.created_at.strftime("%Y%m%d-%H%M")
+                    proposal.created_at.strftime("%Y%m%d-%H%M"),
                 ]
             )
 

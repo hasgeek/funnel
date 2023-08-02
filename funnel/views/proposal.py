@@ -14,11 +14,11 @@ from coaster.views import (
     ModelView,
     UrlChangeCheck,
     UrlForView,
+    jsonp,
     render_with,
     requestform,
     requires_roles,
     route,
-    jsonp
 )
 
 from .. import app
@@ -422,13 +422,15 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_roles({'project_editor'})
     def view_contact_details(self):
-        return jsonp({
-            'title': self.obj.title,
-            'proposer': self.obj.user.fullname,
-            'speaker': self.obj.first_user.fullname,
-            'email': self.obj.first_user.email,
-            'phone': self.obj.first_user.phone,
-        })
+        return jsonp(
+            {
+                'title': self.obj.title,
+                'proposer': self.obj.user.fullname,
+                'speaker': self.obj.first_user.fullname,
+                'email': self.obj.first_user.email,
+                'phone': self.obj.first_user.phone,
+            }
+        )
 
 
 ProposalView.init_app(app)

@@ -242,7 +242,13 @@ class Proposal(  # type: ignore[misc]
             'call': {'url_for', 'state', 'commentset', 'views', 'getprev', 'getnext'},
         },
         'project_editor': {
-            'call': {'user', 'first_user', 'reorder_item', 'reorder_before', 'reorder_after'},
+            'call': {
+                'user',
+                'first_user',
+                'reorder_item',
+                'reorder_before',
+                'reorder_after',
+            },
         },
     }
 
