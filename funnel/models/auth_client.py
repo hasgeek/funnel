@@ -49,7 +49,7 @@ __all__ = [
     'AuthClient',
     'AuthClientCredential',
     'AuthClientTeamPermissions',
-    'AuthClientUserPermissions',
+    'AuthClientPermissions',
 ]
 
 
@@ -223,7 +223,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         return 'owner' in self.roles_for(user)
 
     def authtoken_for(
-        self, user: Optional[Account], user_session: Optional[UserSession] = None
+        self, account: Optional[Account], user_session: Optional[UserSession] = None
     ) -> Optional[AuthToken]:
         """
         Return the authtoken for this user and client.
@@ -231,10 +231,10 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         Only works for confidential clients.
         """
         if self.confidential:
-            if user is None:
+            if account is None:
                 raise ValueError("User not provided")
-            return AuthToken.get_for(auth_client=self, user=user)
-        if user_session and user_session.user == user:
+            return AuthToken.get_for(auth_client=self, account=account)
+        if user_session and user_session.user == account:
             return AuthToken.get_for(auth_client=self, user_session=user_session)
         return None
 
@@ -242,8 +242,8 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         """Test if access is allowed for this user as per the auth client settings."""
         if self.allow_any_login:
             return True
-        if self.user:
-            if AuthClientUserPermissions.get(self, actor):
+        if self.account:
+            if AuthClientPermissions.get(self, actor):
                 return True
         else:
             if AuthClientTeamPermissions.all_for(self, actor).first():
@@ -383,10 +383,10 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
 
     __tablename__ = 'auth_code'
     __allow_unmapped__ = True
-    user_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
-    user: Mapped[Account] = relationship(Account, foreign_keys=[user_id])
+    account: Mapped[Account] = relationship(Account, foreign_keys=[account_id])
     auth_client_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
@@ -412,9 +412,9 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
         return not self.used and self.created_at >= utcnow() - timedelta(minutes=3)
 
     @classmethod
-    def all_for(cls, user: Account) -> Query[AuthCode]:
+    def all_for(cls, account: Account) -> Query[AuthCode]:
         """Return all auth codes for the specified user."""
-        return cls.query.filter(cls.user == user)
+        return cls.query.filter(cls.account == account)
 
     @classmethod
     def get_for_client(cls, auth_client: AuthClient, code: str) -> Optional[AuthCode]:
@@ -431,10 +431,10 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     __allow_unmapped__ = True
     # User id is null for client-only tokens and public clients as the user is
     # identified via user_session.user there
-    user_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+    account_id: Mapped[Optional[int]] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True
     )
-    user: Mapped[Optional[Account]] = relationship(
+    account: Mapped[Optional[Account]] = relationship(
         Account,
         backref=backref('authtokens', lazy='dynamic', cascade='all'),
     )
@@ -474,7 +474,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
 
     # Only one authtoken per user and client. Add to scope as needed
     __table_args__ = (
-        sa.UniqueConstraint('user_id', 'auth_client_id'),
+        sa.UniqueConstraint('account_id', 'auth_client_id'),
         sa.UniqueConstraint('user_session_id', 'auth_client_id'),
     )
 
@@ -490,7 +490,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         """Return subject user of this auth token."""
         if self.user_session:
             return self.user_session.user
-        return self.user
+        return self.account
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -501,7 +501,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
 
     def __repr__(self) -> str:
         """Represent :class:`AuthToken` as a string."""
-        return f'<AuthToken {self.token} of {self.auth_client!r} {self.user!r}>'
+        return f'<AuthToken {self.token} of {self.auth_client!r} {self.account!r}>'
 
     @property
     def effective_scope(self) -> List:
@@ -518,7 +518,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
             .filter(
                 auth_client_user_session.c.user_session_id == UserSession.id,
                 auth_client_user_session.c.auth_client_id == self.auth_client_id,
-                UserSession.user == self.user,
+                UserSession.user == self.account,
             )
             .scalar()
         )
@@ -551,16 +551,16 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """Migrate one account's data to another when merging accounts."""
-        oldtokens = cls.query.filter(cls.user == old_account).all()
+        oldtokens = cls.query.filter(cls.account == old_account).all()
         newtokens: Dict[int, List[AuthToken]] = {}  # AuthClient: token mapping
-        for token in cls.query.filter(cls.user == new_account).all():
+        for token in cls.query.filter(cls.account == new_account).all():
             newtokens.setdefault(token.auth_client_id, []).append(token)
 
         for token in oldtokens:
             merge_performed = False
             if token.auth_client_id in newtokens:
                 for newtoken in newtokens[token.auth_client_id]:
-                    if newtoken.user == new_account:
+                    if newtoken.account == new_account:
                         # There's another token for new_account with the same client.
                         # Just extend the scope there
                         newtoken.scope = set(newtoken.scope) | set(token.scope)
@@ -568,7 +568,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
                         merge_performed = True
                         break
             if merge_performed is False:
-                token.user = new_account  # Reassign this token to new_account
+                token.account = new_account  # Reassign this token to new_account
 
     @classmethod
     def get(cls, token: str) -> Optional[AuthToken]:
@@ -581,7 +581,9 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
 
     @overload
     @classmethod
-    def get_for(cls, auth_client: AuthClient, *, user: Account) -> Optional[AuthToken]:
+    def get_for(
+        cls, auth_client: AuthClient, *, account: Account
+    ) -> Optional[AuthToken]:
         ...
 
     @overload
@@ -596,14 +598,14 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         cls,
         auth_client: AuthClient,
         *,
-        user: Optional[Account] = None,
+        account: Optional[Account] = None,
         user_session: Optional[UserSession] = None,
     ) -> Optional[AuthToken]:
         """Get an auth token for an auth client and a user or user session."""
-        require_one_of(user=user, user_session=user_session)
-        if user is not None:
+        require_one_of(account=account, user_session=user_session)
+        if account is not None:
             return cls.query.filter(
-                cls.auth_client == auth_client, cls.user == user
+                cls.auth_client == auth_client, cls.account == account
             ).one_or_none()
         return cls.query.filter(
             cls.auth_client == auth_client, cls.user_session == user_session
@@ -611,50 +613,53 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
 
     @classmethod
     def all(  # noqa: A003
-        cls, users: Union[Query, Sequence[Account]]
+        cls, accounts: Union[Query, Sequence[Account]]
     ) -> List[AuthToken]:
         """Return all AuthToken for the specified users."""
         query = cls.query.join(AuthClient)
-        if isinstance(users, QueryBaseClass):
-            count = users.count()
+        if isinstance(accounts, QueryBaseClass):
+            count = accounts.count()
             if count == 1:
-                return query.filter(AuthToken.user == users.first()).all()
+                return query.filter(AuthToken.account == accounts.first()).all()
             if count > 1:
                 return query.filter(
-                    AuthToken.user_id.in_(users.options(load_only(Account.id)))
+                    AuthToken.account_id.in_(accounts.options(load_only(Account.id)))
                 ).all()
         else:
-            count = len(users)
+            count = len(accounts)
             if count == 1:
                 # Cast users into a list/tuple before accessing [0], as the source
                 # may not be an actual list with indexed access. For example,
                 # Organization.owner_users is a DynamicAssociationProxy.
-                return query.filter(AuthToken.user == tuple(users)[0]).all()
+                return query.filter(AuthToken.account == tuple(accounts)[0]).all()
             if count > 1:
-                return query.filter(AuthToken.user_id.in_([u.id for u in users])).all()
+                return query.filter(
+                    AuthToken.account_id.in_([u.id for u in accounts])
+                ).all()
 
         return []
 
     @classmethod
-    def all_for(cls, user: Account) -> Query[AuthToken]:
+    def all_for(cls, account: Account) -> Query[AuthToken]:
         """Get all AuthTokens for a specified user (direct only)."""
-        return cls.query.filter(cls.user == user)
+        return cls.query.filter(cls.account == account)
 
 
 # This model's name is in plural because it defines multiple permissions within each
 # instance
-class AuthClientUserPermissions(BaseMixin, Model):
+class AuthClientPermissions(BaseMixin, Model):
     """Permissions assigned to a user on a client app."""
 
-    __tablename__ = 'auth_client_user_permissions'
+    __tablename__ = 'auth_client_permissions'
+    __tablename__ = 'auth_client_permissions'
     __allow_unmapped__ = True
     #: User who has these permissions
-    user_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
-    user: Mapped[Account] = relationship(
+    account: Mapped[Account] = relationship(
         Account,
-        foreign_keys=[user_id],
+        foreign_keys=[account_id],
         backref=backref('client_permissions', cascade='all'),
     )
     #: AuthClient app they are assigned on
@@ -675,13 +680,13 @@ class AuthClientUserPermissions(BaseMixin, Model):
     )
 
     # Only one assignment per user and client
-    __table_args__ = (sa.UniqueConstraint('user_id', 'auth_client_id'),)
+    __table_args__ = (sa.UniqueConstraint('account_id', 'auth_client_id'),)
 
     # Used by auth_client_info.html
     @property
     def pickername(self) -> str:
         """Return label string for identification of the subject user."""
-        return self.user.pickername
+        return self.account.pickername
 
     @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
@@ -699,24 +704,24 @@ class AuthClientUserPermissions(BaseMixin, Model):
                     db.session.delete(operm)
                     merge_performed = True
             if not merge_performed:
-                operm.user = new_account
+                operm.account = new_account
 
     @classmethod
     def get(
-        cls, auth_client: AuthClient, user: Account
-    ) -> Optional[AuthClientUserPermissions]:
+        cls, auth_client: AuthClient, account: Account
+    ) -> Optional[AuthClientPermissions]:
         """Get permissions for the specified auth client and user."""
         return cls.query.filter(
-            cls.auth_client == auth_client, cls.user == user
+            cls.auth_client == auth_client, cls.account == account
         ).one_or_none()
 
     @classmethod
-    def all_for(cls, user: Account) -> Query[AuthClientUserPermissions]:
+    def all_for(cls, account: Account) -> Query[AuthClientPermissions]:
         """Get all permissions assigned to user for various clients."""
-        return cls.query.filter(cls.user == user)
+        return cls.query.filter(cls.account == account)
 
     @classmethod
-    def all_forclient(cls, auth_client: AuthClient) -> Query[AuthClientUserPermissions]:
+    def all_forclient(cls, auth_client: AuthClient) -> Query[AuthClientPermissions]:
         """Get all permissions assigned on the specified auth client."""
         return cls.query.filter(cls.auth_client == auth_client)
 
@@ -772,12 +777,12 @@ class AuthClientTeamPermissions(BaseMixin, Model):
 
     @classmethod
     def all_for(
-        cls, auth_client: AuthClient, user: Account
-    ) -> Query[AuthClientUserPermissions]:
+        cls, auth_client: AuthClient, account: Account
+    ) -> Query[AuthClientPermissions]:
         """Get all permissions for the specified user via their teams."""
         return cls.query.filter(
             cls.auth_client == auth_client,
-            cls.team_id.in_([team.id for team in user.member_teams]),
+            cls.team_id.in_([team.id for team in account.member_teams]),
         )
 
     @classmethod
@@ -794,6 +799,6 @@ class __Account:
 
     def revoke_all_auth_client_permissions(self) -> None:
         """Revoke all permissions on client apps assigned to user."""
-        AuthClientUserPermissions.all_for(cast(Account, self)).delete(
+        AuthClientPermissions.all_for(cast(Account, self)).delete(
             synchronize_session=False
         )

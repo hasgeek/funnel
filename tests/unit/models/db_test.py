@@ -65,11 +65,11 @@ class Fixtures:
         self.auth_client_team_permissions = auth_client_team_permissions
         db_session.add(auth_client_team_permissions)
 
-        auth_client_user_permissions = models.AuthClientUserPermissions(
-            user=crusoe, auth_client=auth_client
+        auth_client_permissions = models.AuthClientPermissions(
+            account=crusoe, auth_client=auth_client
         )
-        db_session.add(auth_client_user_permissions)
-        self.auth_client_user_permissions = auth_client_user_permissions
+        db_session.add(auth_client_permissions)
+        self.auth_client_permissions = auth_client_permissions
 
         message = models.SmsMessage(
             phone=crusoe_phone.phone,

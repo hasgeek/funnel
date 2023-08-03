@@ -12,7 +12,7 @@ from ..models import (
     Account,
     AuthClient,
     AuthClientCredential,
-    AuthClientUserPermissions,
+    AuthClientPermissions,
     valid_name,
 )
 from .helpers import strip_filters
@@ -162,7 +162,7 @@ def permission_validator(form: forms.Form, field: forms.Field) -> None:
 
 
 @AuthClient.forms('permissions_user')
-@AuthClientUserPermissions.forms('assign')
+@AuthClientPermissions.forms('assign')
 class UserPermissionAssignForm(forms.Form):
     """Assign permissions to a user."""
 
@@ -177,7 +177,7 @@ class UserPermissionAssignForm(forms.Form):
     )
 
 
-@AuthClientUserPermissions.forms('edit')
+@AuthClientPermissions.forms('edit')
 class AuthClientPermissionEditForm(forms.Form):
     """Edit a user or team's permissions."""
 

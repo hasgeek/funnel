@@ -44,13 +44,13 @@ class TestClient(TestDatabaseFixture):
         crusoe = self.fixtures.crusoe
         result = auth_client.authtoken_for(crusoe)
         client_token = models.AuthToken(
-            auth_client=auth_client, user=crusoe, scope='id', validity=0
+            auth_client=auth_client, account=crusoe, scope='id', validity=0
         )
         self.db_session.add(client_token)
-        result = auth_client.authtoken_for(user=crusoe)
+        result = auth_client.authtoken_for(crusoe)
         assert client_token == result
         assert isinstance(result, models.AuthToken)
-        assert result.user == crusoe
+        assert result.account == crusoe
 
         # scenario 2: for a client that has confidential=False
         varys = models.User(username='varys', fullname='Lord Varys')
@@ -71,7 +71,7 @@ class TestClient(TestDatabaseFixture):
         )
         lannisters_auth_token = models.AuthToken(
             auth_client=house_lannisters,
-            user=varys,
+            account=varys,
             scope='throne',
             validity=0,
             user_session=varys_session,
@@ -82,7 +82,7 @@ class TestClient(TestDatabaseFixture):
         self.db_session.commit()
         result = house_lannisters.authtoken_for(varys, user_session=varys_session)
         assert isinstance(result, models.AuthToken)
-        assert "Lord Varys" == result.user.fullname
+        assert "Lord Varys" == result.account.fullname
 
     def test_client_get(self) -> None:
         """Test for verifying AuthClient's get method."""

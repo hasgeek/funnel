@@ -29,8 +29,8 @@ from ..models import (
     Account,
     AuthClient,
     AuthClientCredential,
+    AuthClientPermissions,
     AuthClientTeamPermissions,
-    AuthClientUserPermissions,
     Team,
     db,
 )
@@ -112,7 +112,7 @@ class AuthClientView(UrlForView, ModelView):
     @render_with('auth_client.html.jinja2')
     @requires_roles({'all'})
     def view(self) -> ReturnRenderWith:
-        permassignments = AuthClientUserPermissions.all_forclient(self.obj).all()
+        permassignments = AuthClientPermissions.all_forclient(self.obj).all()
         return {'auth_client': self.obj, 'permassignments': permassignments}
 
     @route('edit', methods=['GET', 'POST'])
@@ -128,7 +128,7 @@ class AuthClientView(UrlForView, ModelView):
         if form.validate_on_submit():
             if self.obj.account != form.account:
                 # Ownership has changed. Remove existing permission assignments
-                AuthClientUserPermissions.all_forclient(self.obj).delete(
+                AuthClientPermissions.all_forclient(self.obj).delete(
                     synchronize_session=False
                 )
                 AuthClientTeamPermissions.all_forclient(self.obj).delete(
@@ -229,14 +229,14 @@ class AuthClientView(UrlForView, ModelView):
         form = UserPermissionAssignForm()
         if form.validate_on_submit():
             perms = set()
-            permassign = AuthClientUserPermissions.get(
+            permassign = AuthClientPermissions.get(
                 auth_client=self.obj, user=form.user.data
             )
             if permassign is not None:
                 perms.update(permassign.access_permissions.split())
             else:
-                permassign = AuthClientUserPermissions(
-                    user=form.user.data, auth_client=self.obj
+                permassign = AuthClientPermissions(
+                    account=form.user.data, auth_client=self.obj
                 )
                 db.session.add(permassign)
             perms.update(form.perms.data.split())
@@ -298,19 +298,19 @@ AuthClientCredentialView.init_app(app)
 # --- Routes: client app permissions ------------------------------------------
 
 
-@AuthClientUserPermissions.views('main')
+@AuthClientPermissions.views('main')
 @route('/apps/info/<client>/perms/u/<user>')
-class AuthClientUserPermissionsView(UrlForView, ModelView):
-    model = AuthClientUserPermissions
-    route_model_map = {'client': 'auth_client.buid', 'user': 'user.buid'}
-    obj: AuthClientUserPermissions
+class AuthClientPermissionsView(UrlForView, ModelView):
+    model = AuthClientPermissions
+    route_model_map = {'client': 'auth_client.buid', 'account': 'account.buid'}
+    obj: AuthClientPermissions
 
-    def loader(self, client: str, user: str) -> AuthClientUserPermissions:
+    def loader(self, client: str, user: str) -> AuthClientPermissions:
         return (
-            AuthClientUserPermissions.query.join(
-                AuthClient, AuthClientUserPermissions.auth_client
+            AuthClientPermissions.query.join(
+                AuthClient, AuthClientPermissions.auth_client
             )
-            .join(Account, AuthClientUserPermissions.user)
+            .join(Account, AuthClientPermissions.account)
             .filter(AuthClient.buid == client, Account.buid == user)
             .one_or_404()
         )
@@ -332,14 +332,14 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
             if perms:
                 flash(
                     _("Permissions have been updated for user {pname}").format(
-                        pname=self.obj.user.pickername
+                        pname=self.obj.account.pickername
                     ),
                     'success',
                 )
             else:
                 flash(
                     _("All permissions have been revoked for user {pname}").format(
-                        pname=self.obj.user.pickername
+                        pname=self.obj.account.pickername
                     ),
                     'success',
                 )
@@ -362,15 +362,17 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
             title=_("Confirm delete"),
             message=_(
                 "Remove all permissions assigned to user {pname} for app ‘{title}’?"
-            ).format(pname=self.obj.user.pickername, title=self.obj.auth_client.title),
+            ).format(
+                pname=self.obj.account.pickername, title=self.obj.auth_client.title
+            ),
             success=_("You have revoked permisions for user {pname}").format(
-                pname=self.obj.user.pickername
+                pname=self.obj.account.pickername
             ),
             next=self.obj.auth_client.url_for(),
         )
 
 
-AuthClientUserPermissionsView.init_app(app)
+AuthClientPermissionsView.init_app(app)
 
 
 @AuthClientTeamPermissions.views('main')

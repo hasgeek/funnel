@@ -23,7 +23,7 @@ class TestUserEmailClaim(TestDatabaseFixture):
         email_claim = models.AccountEmailClaim(account=katnis, email=email)
         self.db_session.add(email_claim)
         self.db_session.commit()
-        result = models.AccountEmailClaim.get_for(user=katnis, email=email)
+        result = models.AccountEmailClaim.get_for(account=katnis, email=email)
         assert isinstance(result, models.AccountEmailClaim)
         assert result.email == email
         assert result.account == katnis

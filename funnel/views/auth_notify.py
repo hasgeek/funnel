@@ -100,7 +100,7 @@ def notify_org_data_changed(org, user, changes, team=None):
     org to find apps that need to be notified.
     """
     client_users = {}
-    for token in AuthToken.all(users=org.admin_users):
+    for token in AuthToken.all(accounts=org.admin_users):
         if (
             token.auth_client.trusted
             and token.is_valid()

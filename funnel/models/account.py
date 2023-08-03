@@ -509,7 +509,7 @@ class Account(UuidMixin, BaseMixin, Model):
 
     def del_email(self, email: str) -> None:
         """Remove an email address from the user's account."""
-        accountemail = AccountEmail.get_for(user=self, email=email)
+        accountemail = AccountEmail.get_for(account=self, email=email)
         if accountemail is not None:
             if self.primary_email in (accountemail, None):
                 self.primary_email = (
@@ -565,7 +565,7 @@ class Account(UuidMixin, BaseMixin, Model):
 
     def del_phone(self, phone: str) -> None:
         """Remove a phone number from the user's account."""
-        accountphone = AccountPhone.get_for(user=self, phone=phone)
+        accountphone = AccountPhone.get_for(account=self, phone=phone)
         if accountphone is not None:
             if self.primary_phone in (accountphone, None):
                 self.primary_phone = (
@@ -1575,7 +1575,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
     @classmethod
     def get_for(
         cls,
-        user: Account,
+        account: Account,
         *,
         email: str,
     ) -> Optional[AccountEmail]:
@@ -1585,7 +1585,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
     @classmethod
     def get_for(
         cls,
-        user: Account,
+        account: Account,
         *,
         blake2b160: bytes,
     ) -> Optional[AccountEmail]:
@@ -1595,7 +1595,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
     @classmethod
     def get_for(
         cls,
-        user: Account,
+        account: Account,
         *,
         email_hash: str,
     ) -> Optional[AccountEmail]:
@@ -1604,7 +1604,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
     @classmethod
     def get_for(
         cls,
-        user: Account,
+        account: Account,
         *,
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
@@ -1626,7 +1626,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         return (
             cls.query.join(EmailAddress)
             .filter(
-                cls.account == user,
+                cls.account == account,
                 email_filter,
             )
             .one_or_none()
@@ -1715,7 +1715,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
     @classmethod
     def get_for(
         cls,
-        user: Account,
+        account: Account,
         *,
         email: str,
     ) -> Optional[AccountEmailClaim]:
@@ -1725,7 +1725,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
     @classmethod
     def get_for(
         cls,
-        user: Account,
+        account: Account,
         *,
         blake2b160: bytes,
     ) -> Optional[AccountEmailClaim]:
@@ -1735,7 +1735,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
     @classmethod
     def get_for(
         cls,
-        user: Account,
+        account: Account,
         *,
         email_hash: str,
     ) -> Optional[AccountEmailClaim]:
@@ -1744,7 +1744,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
     @classmethod
     def get_for(
         cls,
-        user: Account,
+        account: Account,
         *,
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
@@ -1753,10 +1753,10 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         """
         Return an AccountEmailClaim with matching email address for the given user.
 
-        :param User user: Account that claimed this email address
-        :param str email: Email address to look up
-        :param bytes blake2b160: 160-bit blake2b of email address to look up
-        :param str email_hash: Base58 rendering of 160-bit blake2b hash
+        :param account: Account that claimed this email address
+        :param email: Email address to look up
+        :param blake2b160: 160-bit blake2b of email address to look up
+        :param email_hash: Base58 rendering of 160-bit blake2b hash
         """
         email_filter = EmailAddress.get_filter(
             email=email, blake2b160=blake2b160, email_hash=email_hash
@@ -1766,7 +1766,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         return (
             cls.query.join(EmailAddress)
             .filter(
-                cls.account == user,
+                cls.account == account,
                 email_filter,
             )
             .one_or_none()
@@ -1966,7 +1966,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
     @classmethod
     def get_for(
         cls,
-        user: Account,
+        account: Account,
         *,
         phone: str,
     ) -> Optional[AccountPhone]:
@@ -1976,7 +1976,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
     @classmethod
     def get_for(
         cls,
-        user: Account,
+        account: Account,
         *,
         blake2b160: bytes,
     ) -> Optional[AccountPhone]:
@@ -1986,7 +1986,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
     @classmethod
     def get_for(
         cls,
-        user: Account,
+        account: Account,
         *,
         phone_hash: str,
     ) -> Optional[AccountPhone]:
@@ -1995,7 +1995,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
     @classmethod
     def get_for(
         cls,
-        user: Account,
+        account: Account,
         *,
         phone: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
@@ -2004,7 +2004,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         """
         Return an instance with matching phone or hash if it belongs to the given user.
 
-        :param user: Account to look up for
+        :param account: Account to look up for
         :param phone: Email address to look up
         :param blake2b160: 160-bit blake2b of phone number
         :param phone_hash: blake2b hash rendered in Base58
@@ -2012,7 +2012,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         return (
             cls.query.join(PhoneNumber)
             .filter(
-                cls.account == user,
+                cls.account == account,
                 PhoneNumber.get_filter(
                     phone=phone, blake2b160=blake2b160, phone_hash=phone_hash
                 ),

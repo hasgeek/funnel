@@ -18,7 +18,7 @@ from ...models import (
     Account,
     AuthClient,
     AuthClientCredential,
-    AuthClientUserPermissions,
+    AuthClientPermissions,
     AuthToken,
     Organization,
     UserSession,
@@ -93,7 +93,7 @@ def get_userinfo(
         }
 
     if get_permissions:
-        uperms = AuthClientUserPermissions.get(auth_client=auth_client, user=user)
+        uperms = AuthClientPermissions.get(auth_client=auth_client, account=user)
         if uperms is not None:
             userinfo['permissions'] = uperms.access_permissions.split(' ')
     return userinfo

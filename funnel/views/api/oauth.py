@@ -82,7 +82,7 @@ def oauth_make_auth_code(
     Caller must commit the database session for this to work.
     """
     authcode = AuthCode(
-        user=current_auth.user,
+        account=current_auth.user,
         user_session=current_auth.session,
         auth_client=auth_client,
         scope=scope,
@@ -364,11 +364,11 @@ def oauth_make_token(
             if user is None:
                 raise ValueError("User not provided")
             token = AuthToken(  # nosec
-                user=user, auth_client=auth_client, scope=scope, token_type='bearer'
+                account=user, auth_client=auth_client, scope=scope, token_type='bearer'
             )
             token = cast(
                 AuthToken,
-                failsafe_add(db.session, token, user=user, auth_client=auth_client),
+                failsafe_add(db.session, token, account=user, auth_client=auth_client),
             )
         elif user_session is not None:
             token = AuthToken(  # nosec
@@ -493,13 +493,13 @@ def oauth_token() -> ReturnView:
             return oauth_token_error('invalid_client', _("redirect_uri does not match"))
 
         token = oauth_make_token(
-            user=authcode.user, auth_client=auth_client, scope=scope
+            user=authcode.account, auth_client=auth_client, scope=scope
         )
         db.session.delete(authcode)
         return oauth_token_success(
             token,
             userinfo=get_userinfo(
-                user=authcode.user,
+                user=authcode.account,
                 auth_client=auth_client,
                 scope=token.effective_scope,
                 user_session=authcode.user_session,

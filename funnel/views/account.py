@@ -562,7 +562,7 @@ class AccountView(ClassView):
         form = EmailPrimaryForm()
         if form.validate_on_submit():
             accountemail = AccountEmail.get_for(
-                user=current_auth.user, email_hash=form.email_hash.data
+                account=current_auth.user, email_hash=form.email_hash.data
             )
             if accountemail is not None:
                 if accountemail.primary:
@@ -590,7 +590,7 @@ class AccountView(ClassView):
         form = PhonePrimaryForm()
         if form.validate_on_submit():
             accountphone = AccountPhone.get_for(
-                user=current_auth.user, phone_hash=form.phone_hash.data
+                account=current_auth.user, phone_hash=form.phone_hash.data
             )
             if accountphone is not None:
                 if accountphone.primary:
@@ -622,11 +622,11 @@ class AccountView(ClassView):
         accountemail: Union[None, AccountEmail, AccountEmailClaim]
         try:
             accountemail = AccountEmail.get_for(
-                user=current_auth.user, email_hash=email_hash
+                account=current_auth.user, email_hash=email_hash
             )
             if accountemail is None:
                 accountemail = AccountEmailClaim.get_for(
-                    user=current_auth.user, email_hash=email_hash
+                    account=current_auth.user, email_hash=email_hash
                 )
             if accountemail is None:
                 abort(404)
@@ -688,7 +688,7 @@ class AccountView(ClassView):
         # Get the existing email claim that we're resending a verification link for
         try:
             emailclaim = AccountEmailClaim.get_for(
-                user=current_auth.user, email_hash=email_hash
+                account=current_auth.user, email_hash=email_hash
             )
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
@@ -787,7 +787,7 @@ class AccountView(ClassView):
     def remove_phone(self, phone_hash: str) -> ReturnView:
         """Remove a phone number from the user's account."""
         accountphone = AccountPhone.get_for(
-            user=current_auth.user, phone_hash=phone_hash
+            account=current_auth.user, phone_hash=phone_hash
         )
         if accountphone is None:
             abort(404)
