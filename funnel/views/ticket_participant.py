@@ -234,7 +234,7 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
 def user_ticket_assignment(user: User, changes):
     """Assign tickets to users who add email/phone, in case they match."""
     emails = [str(e) for e in user.emails]
-    phones = user.phones
+    phones = [str(p) for p in user.phones]
     if {'email', 'phone', 'merge', 'registered-otp'} & set(changes):
         updated = False
         tickets = (
