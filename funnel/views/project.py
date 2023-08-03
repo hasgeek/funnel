@@ -331,9 +331,9 @@ class ProjectView(  # type: ignore[misc]
 
     @route('sub/csv', methods=['GET'])
     @requires_login
-    @requires_roles({'project_editor'})
-    def proposals_csv(self):
-        filename = f'submission-{make_name(self.obj.title)}'
+    @requires_roles({'editor'})
+    def proposals_csv(self) -> Response:
+        filename = f'submissions-{self.obj.profile.name}-{self.obj.name}.csv'
         outfile = io.StringIO(newline='')
         out = csv.writer(outfile)
         out.writerow(
@@ -341,26 +341,27 @@ class ProjectView(  # type: ignore[misc]
                 'title',
                 'url',
                 'proposer',
-                'speaker',
+                'username',
                 'email',
                 'phone',
                 'labels',
-                'description',
-                'submitted',
+                'body',
+                'datetime',
             ]
         )
         for proposal in self.obj.proposals:
+            user = proposal.first_user
             out.writerow(
                 [
                     proposal.title,
                     proposal.url_for(_external=True),
-                    proposal.user.fullname,
-                    proposal.first_user.fullname,
-                    proposal.user.email,
-                    proposal.user.phone,
-                    [label.title for label in proposal.labels],
+                    user.fullname,
+                    user.username,
+                    user.email,
+                    user.phone,
+                    '; '.join(label.title for label in proposal.labels),
                     proposal.body,
-                    proposal.created_at.strftime("%Y%m%d-%H%M"),
+                    proposal.datetime.replace(second=0, microsecond=0).isoformat(),
                 ]
             )
 
@@ -371,7 +372,7 @@ class ProjectView(  # type: ignore[misc]
             headers=[
                 (
                     'Content-Disposition',
-                    f'attachment;filename="{filename}.csv"',
+                    f'attachment;filename="{filename}"',
                 )
             ],
         )
