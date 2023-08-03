@@ -121,7 +121,12 @@
         <a class="modal__close mui--text-dark" data-target="close contact consent modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
       </div>
       <div class="modal__body">
-        <p class="mui--text-body2 top-padding margin-top">{% trans %}This is to inform you that your name and email address or phone number will be shared with the project’s editor so they can contact you.{% endtrans %}</p>
+        <p class="mui--text-body2 top-padding margin-top">{% trans %}<strong>Consent notice:</strong> After you submit, the project's editors can look up your email address and phone number for the sole purpose of discussing your submission with you:{% endtrans %}</p>
+        <ul>
+          <li class="mui--text-body2">{% trans %}Email:{% endtrans %} {% if current_auth.user.email %}{{ current_auth.user.email }}{% else %}<em>{% trans %}(None){% endtrans %}</em>{% endif %}</li>
+          <li class="mui--text-body2">{% trans %}Phone:{% endtrans %} {% if current_auth.user.phone %}{{ current_auth.user.phone.formatted }}{% else %}<em>{% trans %}(None){% endtrans %}</em>{% endif %}</li>
+        </ul>
+        <p class="mui--text-body2 margin-top">{% trans account=url_for('account'), editors=project.url_for('crew') %}You can add or change your contacts at any time from <a href="{{ account }}" target="_blank" rel="noopener">your account</a>, and <a href="{{ editors }}" target="_blank" rel="noopener">review the list of editors</a>. Your contacts will not be available to editors before you submit.{% endtrans %}</p>
         <div class="mui--text-right">
           <a class="mui-btn mui-btn--raised" rel="modal:close" onclick="return false;" role="button" tabindex="0">{% trans %}Ok{% endtrans %}</a>
         </div>
