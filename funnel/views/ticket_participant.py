@@ -22,15 +22,19 @@ from coaster.views import (
 from .. import app
 from ..forms import TicketParticipantForm
 from ..models import (
+    EmailAddress,
     Profile,
     Project,
     SyncTicket,
     TicketEvent,
     TicketEventParticipant,
     TicketParticipant,
+    User,
     db,
+    sa,
 )
 from ..proxies import request_wants
+from ..signals import user_data_changed
 from ..typing import ReturnRenderWith, ReturnView
 from ..utils import (
     abort_null,
@@ -223,6 +227,32 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
     @requires_roles({'project_promoter', 'project_usher'})
     def label_badge(self) -> ReturnRenderWith:
         return {'badges': ticket_participant_badge_data([self.obj], self.obj.project)}
+
+
+@user_data_changed.connect
+def process_user_data_changed(user: User, changes):
+    """Assign tickets to users who add email/phone, in case they match."""
+    emails = [str(e) for e in user.emails]
+    phones = user.phones
+    if {'email', 'phone', 'merge'} & set(changes):
+        updated = False
+        for ticket in (
+            TicketParticipant.query.join(
+                EmailAddress, TicketParticipant.email_address_id == EmailAddress.id
+            )
+            .filter(
+                sa.or_(
+                    EmailAddress.email.in_(emails),
+                    TicketParticipant.phone.in_(phones),
+                )
+            )
+            .all()
+        ):
+            if ticket.user is None:
+                updated = True
+                ticket.user = user
+        if updated:
+            db.session.commit()
 
 
 TicketParticipantView.init_app(app)
