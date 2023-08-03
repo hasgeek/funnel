@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import img_size, saveprojectform, calendarwidget, projectcard %}
+{%- from "macros.html.jinja2" import img_size, saveprojectform, calendarwidget, projectcard, video_thumbnail %}
 {% block title %}{{ profile.title }}{% endblock title %}
 
 {% macro featured_section(featured_project, heading=true) %}
@@ -300,6 +300,22 @@
             <tbody {% if profile %} hx-get="{{ profile.url_for('past_projects', page=1) }}" {%- else -%} hx-get="{{ url_for('past_projects', page=1) }}" {%- endif %} hx-trigger="intersect" hx-swap="innerHTML">
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro past_featured_session_videos(profile) %}
+  <div class="projects-wrapper" id="past-project-table">
+    <div class="mui-container">
+      <div class="grid projects">
+        <div class="grid__col-12">
+          <h2 class="mui--text-headline project-headline">{% trans %}Past videos{% endtrans %}</h2>
+        </div>
+        <div class="grid__col-12 mui-table--responsive-wrapper">
+          <ul hx-get="{{ profile.url_for('past_sessions', page=1) }}" hx-trigger="intersect" hx-swap="innerHTML">
+          </ul>
         </div>
       </div>
     </div>

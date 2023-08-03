@@ -1,0 +1,14 @@
+{%- from "macros.html.jinja2" import video_thumbnail %}
+
+{% for session in past_sessions %}
+  <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+    {{ video_thumbnail(session, project_heading=true) }}
+  </li>
+{%- endfor -%}
+{% if next_page %}
+  <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem"
+      hx-get="{{ profile.url_for('past_sessions', page=next_page) }}"
+      hx-trigger="revealed"
+      hx-swap="afterend">
+  </li>
+{% endif %}

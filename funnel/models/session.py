@@ -147,6 +147,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
                 'end_at_localized',
                 'scheduled',
                 'proposal',
+                'views',
             },
             'call': {'url_for', 'views'},
         }
@@ -182,6 +183,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
             'banner_image_url',
             'start_at_localized',
             'end_at_localized',
+            'views',
         },
         'related': {
             'uuid_b58',

@@ -26,7 +26,7 @@ from ..forms import (
     ProfileLogoForm,
     ProfileTransitionForm,
 )
-from ..models import Profile, Project, db, sa
+from ..models import Profile, Project, Session, db, sa
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
@@ -197,7 +197,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 'sponsored_submissions': [
                     _p.current_access(datasets=('primary', 'related'))
                     for _p in sponsored_submissions
-                ],
+                ]
             }
         else:
             abort(404)  # Reserved account
@@ -263,6 +263,34 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     'datetime': date_filter(p.end_at_localized, format='dd MMM yyyy'),
                     'venue': p.primary_venue.city if p.primary_venue else p.location,
                     'url': p.url_for(),
+                }
+                for p in pagination.items
+            ],
+        }
+
+    @route('past.sessions')
+    @requestargs(('page', int), ('per_page', int))
+    @render_with('past_sessions_section.html.jinja2')
+    def past_sessions(self, page: int = 1, per_page: int = 10) -> ReturnView:
+        featured_sessions = Session.query.filter_by(
+            featured=True
+        )
+        pagination = featured_sessions.paginate(page=page, per_page=per_page)
+        return {
+            'status': 'ok',
+            'profile': self.obj,
+            'next_page': (
+                pagination.page + 1 if pagination.page < pagination.pages else ''
+            ),
+            'total_pages': pagination.pages,
+            'past_sessions': [
+                {
+                    'title': p.title,
+                    'thumbnail': p.views.video.thumbnail,
+                    'speaker': p.speaker if p.speaker else None,
+                    'duration': p.views.video.duration,
+                    'uploaded_at': p.views.video.uploaded_at,
+                    'banner_image_url': p.banner_image_url,
                 }
                 for p in pagination.items
             ],
