@@ -34,7 +34,7 @@ from ..models import (
     sa,
 )
 from ..proxies import request_wants
-from ..signals import user_data_changed
+from ..signals import user_data_changed, user_registered
 from ..typing import ReturnRenderWith, ReturnView
 from ..utils import (
     abort_null,
@@ -230,13 +230,14 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
 
 
 @user_data_changed.connect
-def process_user_data_changed(user: User, changes):
+@user_registered.connect
+def user_ticket_assignment(user: User, changes):
     """Assign tickets to users who add email/phone, in case they match."""
     emails = [str(e) for e in user.emails]
     phones = user.phones
-    if {'email', 'phone', 'merge'} & set(changes):
+    if {'email', 'phone', 'merge', 'registered-otp'} & set(changes):
         updated = False
-        for ticket in (
+        tickets = (
             TicketParticipant.query.join(
                 EmailAddress, TicketParticipant.email_address_id == EmailAddress.id
             )
@@ -247,7 +248,9 @@ def process_user_data_changed(user: User, changes):
                 )
             )
             .all()
-        ):
+        )
+
+        for ticket in tickets:
             if ticket.user is None:
                 updated = True
                 ticket.user = user

@@ -58,7 +58,7 @@ from ..registry import (
     login_registry,
 )
 from ..serializers import crossapp_serializer
-from ..signals import user_data_changed
+from ..signals import user_data_changed, user_registered
 from ..transports import TransportError, TransportRecipientError
 from ..typing import ReturnView
 from ..utils import abort_null
@@ -293,6 +293,7 @@ def login() -> ReturnView:
                         user,
                         session.get('next', ''),
                     )
+                    user_registered.send(current_auth.user, changes=['registered-otp'])
                     flash(
                         _("You are now one of us. Welcome aboard!"), category='success'
                     )
