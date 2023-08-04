@@ -329,6 +329,51 @@ class ProjectView(  # type: ignore[misc]
             ],
         }
 
+    @route('sub/csv', methods=['GET'])
+    @requires_login
+    @requires_roles({'editor'})
+    def proposals_csv(self) -> Response:
+        filename = f'submissions-{self.obj.profile.name}-{self.obj.name}.csv'
+        outfile = io.StringIO(newline='')
+        out = csv.writer(outfile)
+        out.writerow(
+            [
+                'title',
+                'url',
+                'proposer',
+                'username',
+                'email',
+                'phone',
+                'state',
+                'labels',
+                'body',
+                'datetime',
+            ]
+        )
+        for proposal in self.obj.proposals:
+            user = proposal.first_user
+            out.writerow(
+                [
+                    proposal.title,
+                    proposal.url_for(_external=True),
+                    user.fullname,
+                    user.username,
+                    user.email,
+                    user.phone,
+                    proposal.state.label.title,
+                    '; '.join(label.title for label in proposal.labels),
+                    proposal.body,
+                    proposal.datetime.replace(second=0, microsecond=0).isoformat(),
+                ]
+            )
+
+        outfile.seek(0)
+        return Response(
+            outfile.getvalue(),
+            content_type='text/csv',
+            headers=[('Content-Disposition', f'attachment;filename="{filename}"')],
+        )
+
     @route('videos')
     @render_with(html_in_json('project_videos.html.jinja2'))
     def session_videos(self) -> ReturnRenderWith:
