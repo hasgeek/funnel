@@ -235,7 +235,7 @@ def user_ticket_assignment(user: User, changes: List[str]) -> None:
     """Scan for event tickets to be assigned to the user based on matching contacts."""
     emails = [str(e) for e in user.emails]
     phones = [str(p) for p in user.phones]
-    if {'email', 'phone', 'merge', 'registered-otp'} & set(changes):
+    if {'email', 'phone', 'merge', 'registered-otp', 'registered-extid'} & set(changes):
         updated = False
         tickets = (
             TicketParticipant.query.join(

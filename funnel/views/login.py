@@ -499,6 +499,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     Called from :func:`login_service_callback` after receiving data from the upstream
     login service.
     """
+    new_registration = False
     # 1. Check whether we have an existing UserExternalId
     user, extid, useremail = get_user_extid(service, userdata)
     # If extid is not None, extid.user == user, guaranteed.
@@ -548,6 +549,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
                 if Profile.is_available_name(userdata.username):
                     # Set a username for this user if it's available
                     user.username = userdata.username
+            new_registration = True
     else:  # We have an existing user account from extid or useremail
         if current_auth and current_auth.user != user:
             # Woah! Account merger handler required
@@ -596,6 +598,8 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 
     db.session.add(extid)  # If we made a new extid, add it to the session now
     db.session.commit()
+    if new_registration:
+        user_registered.send(current_auth.user, changes=['registered-extid'])
 
     # Finally: set a login method cookie and send user on their way
     if not current_auth.user.is_profile_complete():
