@@ -289,17 +289,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 pagination.page + 1 if pagination.page < pagination.pages else ''
             ),
             'total_pages': pagination.pages,
-            'past_sessions': [
-                {
-                    'title': p.title,
-                    'thumbnail': p.views.video.thumbnail,
-                    'speaker': p.speaker if p.speaker else None,
-                    'duration': p.views.video.duration,
-                    'uploaded_at': p.views.video.uploaded_at,
-                    'banner_image_url': p.banner_image_url,
-                }
-                for p in pagination.items
-            ],
+            'past_sessions': pagination.items,
         }
 
     @route('edit', methods=['GET', 'POST'])
