@@ -608,7 +608,7 @@ class Account(UuidMixin, BaseMixin, Model):
     @property
     def profile_url(self) -> Optional[str]:
         """Return optional URL to account profile page."""
-        return self.url_for() if self.name is not None else None
+        return self.url_for(_external=True)
 
     with_roles(profile_url, read={'all'})
 
