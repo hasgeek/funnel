@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import List, Optional
 
 from flask import flash, request, url_for
 from sqlalchemy.exc import IntegrityError
@@ -231,8 +231,8 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
 
 @user_data_changed.connect
 @user_registered.connect
-def user_ticket_assignment(user: User, changes):
-    """Assign tickets to users who add email/phone, in case they match."""
+def user_ticket_assignment(user: User, changes: List[str]) -> None:
+    """Scan for event tickets to be assigned to the user based on matching contacts."""
     emails = [str(e) for e in user.emails]
     phones = [str(p) for p in user.phones]
     if {'email', 'phone', 'merge', 'registered-otp'} & set(changes):
