@@ -741,6 +741,10 @@ class User(SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, 
         ):
             db.session.delete(self.profile)
 
+        # 7. Unassign tickets assigned to the user
+        for ticket in self.ticket_participants:
+            ticket.user = None
+
         # 6. Clear fullname and stored password hash
         self.fullname = ''
         self.password = None
