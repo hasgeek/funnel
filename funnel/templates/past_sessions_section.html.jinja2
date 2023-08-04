@@ -1,14 +1,16 @@
-{%- from "macros.html.jinja2" import video_thumbnail %}
+{%- from "macros.html.jinja2" import video_thumbnail, faicon %}
 
 {% for session in past_sessions %}
   <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
     {{ video_thumbnail(session, project_heading=true) }}
   </li>
+{%- else -%}
+  <p class="mui--text-subhead margin-top">{% trans %}No past videos{% endtrans %}</p>
 {%- endfor -%}
 {% if next_page %}
   <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem"
       hx-get="{{ profile.url_for('past_sessions', page=next_page) }}"
       hx-trigger="revealed"
-      hx-swap="outerHTML">
+      hx-swap="outerHTML"><span><span class="mui--text-title mui--text-light">Loading</span><span class="loading"></span></span>
   </li>
 {% endif %}
