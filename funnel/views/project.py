@@ -369,12 +369,7 @@ class ProjectView(  # type: ignore[misc]
         return Response(
             outfile.getvalue(),
             content_type='text/csv',
-            headers=[
-                (
-                    'Content-Disposition',
-                    f'attachment;filename="{filename}"',
-                )
-            ],
+            headers=[('Content-Disposition', f'attachment;filename="{filename}"')],
         )
 
     @route('videos')
