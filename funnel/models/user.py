@@ -741,7 +741,10 @@ class User(SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, 
         ):
             db.session.delete(self.profile)
 
-        # 6. Clear fullname and stored password hash
+        # 7. Unassign tickets assigned to the user
+        self.ticket_participants = []  # pylint: disable=attribute-defined-outside-init
+
+        # 8. Clear fullname and stored password hash
         self.fullname = ''
         self.password = None
 

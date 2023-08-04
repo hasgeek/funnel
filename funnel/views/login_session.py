@@ -873,7 +873,7 @@ def register_internal(username, fullname, password):
     if not username:
         user.username = None
     db.session.add(user)
-    user_registered.send(user)
+    user_registered.send(user, changes=['registered'])
     return user
 
 

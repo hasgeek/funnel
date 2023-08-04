@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import List, Optional
 
 from flask import flash, request, url_for
 from sqlalchemy.exc import IntegrityError
@@ -22,15 +22,19 @@ from coaster.views import (
 from .. import app
 from ..forms import TicketParticipantForm
 from ..models import (
+    EmailAddress,
     Profile,
     Project,
     SyncTicket,
     TicketEvent,
     TicketEventParticipant,
     TicketParticipant,
+    User,
     db,
+    sa,
 )
 from ..proxies import request_wants
+from ..signals import user_data_changed, user_registered
 from ..typing import ReturnRenderWith, ReturnView
 from ..utils import (
     abort_null,
@@ -223,6 +227,35 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
     @requires_roles({'project_promoter', 'project_usher'})
     def label_badge(self) -> ReturnRenderWith:
         return {'badges': ticket_participant_badge_data([self.obj], self.obj.project)}
+
+
+@user_data_changed.connect
+@user_registered.connect
+def user_ticket_assignment(user: User, changes: List[str]) -> None:
+    """Scan for event tickets to be assigned to the user based on matching contacts."""
+    emails = [str(e) for e in user.emails]
+    phones = [str(p) for p in user.phones]
+    if {'email', 'phone', 'merge', 'registered-otp', 'registered-extid'} & set(changes):
+        updated = False
+        tickets = (
+            TicketParticipant.query.join(
+                EmailAddress, TicketParticipant.email_address_id == EmailAddress.id
+            )
+            .filter(
+                sa.or_(
+                    EmailAddress.email.in_(emails),
+                    TicketParticipant.phone.in_(phones),
+                )
+            )
+            .all()
+        )
+
+        for ticket in tickets:
+            if ticket.user is None:
+                updated = True
+                ticket.user = user
+        if updated:
+            db.session.commit()
 
 
 TicketParticipantView.init_app(app)
