@@ -426,11 +426,11 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             'title': self.obj.title,
             'collaborators': [
                 {
-                    'fullname': membership.subject.fullname,
-                    'username': membership.subject.username,
-                    'profile': membership.subject.profile_url,
-                    'email': str(membership.subject.email),
-                    'phone': str(membership.subject.phone),
+                    'fullname': membership.member.fullname,
+                    'username': membership.member.username,
+                    'profile': membership.member.profile_url,
+                    'email': str(membership.member.email),
+                    'phone': str(membership.member.phone),
                 }
                 for membership in self.obj.memberships
             ],

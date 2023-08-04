@@ -20,9 +20,9 @@ class UpdateTemplate(TemplateVarMixin, SmsTemplate):
         'There is an update in {#var#}: {#var#}\n\nhttps://bye.li to stop -Hasgeek'
     )
     template = (
-        "There is an update in {profile}: {url}\n\nhttps://bye.li to stop -Hasgeek"
+        "There is an update in {account}: {url}\n\nhttps://bye.li to stop -Hasgeek"
     )
-    plaintext_template = "There is an update in {profile}: {url}"
+    plaintext_template = "There is an update in {account}: {url}"
 
     url: str
 
@@ -65,7 +65,7 @@ class RenderNewUpdateNotification(RenderNotification):
 
     def sms(self) -> UpdateTemplate:
         return UpdateTemplate(
-            profile=self.update.project.profile,
+            account=self.update.project.account,
             url=shortlink(
                 self.update.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,

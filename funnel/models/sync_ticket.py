@@ -214,32 +214,32 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
 
     fullname = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=False),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
     )
     #: Unvalidated phone number
     phone = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=True),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
     )
     #: Unvalidated Twitter id
     twitter = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=True),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
     )
     #: Job title
     job_title = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=True),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
     )
     #: Company
     company = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=True),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
     )
     #: Participant's city
     city = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=True),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
     )
     # public key
     puk = sa.orm.mapped_column(
@@ -260,7 +260,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     )
     project: Mapped[Project] = with_roles(
         relationship(Project, back_populates='ticket_participants'),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
         grants_via={None: project_child_role_map},
     )
 
@@ -270,7 +270,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     # `with_roles`. Instead, we have to specify the roles that can access it in here:
     __roles__ = {
         'promoter': {'read': {'email'}},
-        'subject': {'read': {'email'}},
+        'member': {'read': {'email'}},
         'scanner': {'read': {'email'}},
     }
 
@@ -280,7 +280,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
         roles = super().roles_for(actor, anchors)
         if actor is not None:
             if actor == self.user:
-                roles.add('subject')
+                roles.add('member')
             cx = ContactExchange.query.get((actor.id, self.id))
             if cx is not None:
                 roles.add('scanner')

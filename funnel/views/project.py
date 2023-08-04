@@ -333,7 +333,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'editor'})
     def proposals_csv(self) -> Response:
-        filename = f'submissions-{self.obj.profile.name}-{self.obj.name}.csv'
+        filename = f'submissions-{self.obj.account.name}-{self.obj.name}.csv'
         outfile = io.StringIO(newline='')
         out = csv.writer(outfile)
         out.writerow(
