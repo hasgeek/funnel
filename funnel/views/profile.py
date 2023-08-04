@@ -272,14 +272,16 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requestargs(('page', int), ('per_page', int))
     @render_with('past_sessions_section.html.jinja2')
     def past_sessions(self, page: int = 1, per_page: int = 10) -> ReturnView:
-        featured_sessions = Session.query.join(
-            Project, Session.project_id == Project.id
-        ).filter(
-            Session.featured.is_(True),
-            Session.video_id.is_not(None),
-            Session.video_source.is_not(None),
-            Project.state.PUBLISHED,
-            Project.profile == self.obj,
+        featured_sessions = (
+            Session.query.join(Project, Session.project_id == Project.id)
+            .filter(
+                Session.featured.is_(True),
+                Session.video_id.is_not(None),
+                Session.video_source.is_not(None),
+                Project.state.PUBLISHED,
+                Project.profile == self.obj,
+            )
+            .order_by(Session.start_at.desc())
         )
         pagination = featured_sessions.paginate(page=page, per_page=per_page)
         return {
