@@ -230,6 +230,9 @@
             {% if project.view_for('rsvp_list').is_available() %}
               <li><a class="mui--text-subhead" href="{{ project.url_for('rsvp_list') }}" data-cy="see-responses">{{ faicon(icon='users', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}View participants{% endtrans %}</span></a></li>
             {% endif %}
+            {% if project.view_for('proposals_csv').is_available() %}
+              <li><a class="mui--text-subhead" href="{{ project.url_for('proposals_csv') }}" data-cy="submissions-csv">{{ faicon(icon='download', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Download submissions CSV{% endtrans %}</span></a></li>
+            {% endif %}
           {%- endif %}
         </ul>
       </div>
