@@ -314,7 +314,7 @@
           <h2 class="mui--text-headline project-headline">{% trans %}Past videos{% endtrans %}</h2>
         </div>
         <div class="grid__col-12 mui-table--responsive-wrapper">
-          <ul hx-get="{{ profile.url_for('past_sessions', page=1) }}" hx-trigger="intersect" hx-swap="innerHTML">
+          <ul class="mui-list--unstyled grid" hx-get="{{ profile.url_for('past_sessions', page=1) }}" hx-trigger="intersect" hx-swap="innerHTML">
           </ul>
         </div>
       </div>
