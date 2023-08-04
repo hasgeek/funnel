@@ -137,7 +137,7 @@
         {%- if proposal.current_roles.project_editor %}
           <li>
             <a class="mui--text-subhead"
-              href="{{ proposal.url_for('view_contact_details') }}"
+              href="{{ proposal.url_for('contacts_json') }}"
               data-cy-admin="view contact details">{{ faicon(icon='eye', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}View contact details{% endtrans %}</span></a>
           </li>
           <li>

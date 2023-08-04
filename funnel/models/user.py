@@ -109,7 +109,7 @@ class SharedProfileMixin:
     def profile_url(self) -> Optional[str]:
         """Return optional URL to account page."""
         profile = self.profile
-        return profile.url_for() if profile is not None else None
+        return profile.url_for(_external=True) if profile is not None else None
 
     with_roles(profile_url, read={'all'})
 

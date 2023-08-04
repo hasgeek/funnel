@@ -14,7 +14,6 @@ from coaster.views import (
     ModelView,
     UrlChangeCheck,
     UrlForView,
-    jsonp,
     render_with,
     requestform,
     requires_roles,
@@ -418,19 +417,24 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             title=_("Edit labels for '{}'").format(self.obj.title),
         )
 
-    @route('json', methods=['GET'])
+    @route('contacts.json', methods=['GET'])
     @requires_login
     @requires_roles({'project_editor'})
-    def view_contact_details(self):
-        return jsonp(
-            {
-                'title': self.obj.title,
-                'proposer': self.obj.user.fullname,
-                'speaker': self.obj.first_user.fullname,
-                'email': self.obj.first_user.email,
-                'phone': self.obj.first_user.phone,
-            }
-        )
+    def contacts_json(self):
+        """Return the contact details of collaborators as JSON."""
+        return {
+            'title': self.obj.title,
+            'collaborators': [
+                {
+                    'fullname': membership.subject.fullname,
+                    'username': membership.subject.username,
+                    'profile': membership.subject.profile_url,
+                    'email': str(membership.subject.email),
+                    'phone': str(membership.subject.phone),
+                }
+                for membership in self.obj.memberships
+            ],
+        }
 
 
 ProposalView.init_app(app)
