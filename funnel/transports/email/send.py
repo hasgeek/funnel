@@ -165,9 +165,13 @@ def send_email(
         ]
     except EmailAddressBlockedError as exc:
         raise TransportRecipientError(_("This email address has been blocked")) from exc
-    # FIXME: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
-    # catch that, remove the recipient, and notify the user via the upcoming
-    # notification centre. (Raise a TransportRecipientError)
+    for email_address in emails:
+        if email_address.delivery_state.HARD_FAIL:
+            raise TransportRecipientError(
+                _("This email address is bouncing messages: {email}").format(
+                    email=email_address.email
+                )
+            )
 
     try:
         msg.send()
