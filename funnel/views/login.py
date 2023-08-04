@@ -501,7 +501,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     """
     # 1. Check whether we have an existing UserExternalId
     user, extid, useremail = get_user_extid(service, userdata)
-    # If extid is not None, user.extid == user, guaranteed.
+    # If extid is not None, extid.user == user, guaranteed.
     # If extid is None but useremail is not None, user == useremail.user
     # However, if both extid and useremail are present, they may be different users
     if extid is not None:
