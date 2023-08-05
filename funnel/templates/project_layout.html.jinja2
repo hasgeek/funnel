@@ -111,6 +111,9 @@
           </a>
         {% endif %}
         <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
+        {% if project.features.ticket_participant %}
+          <span class="chip chip--bg-success margin-auto text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}Member</span>
+        {% endif %}
       </div>
       <h1 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-dark nounderline" data-cy="project-page">{{ project.title }}</a></h1>
       <p class="mui--text-heading mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
@@ -159,7 +162,9 @@
     {% if project.features.tickets() %}
       <div class="register-block__content {% if project.features.rsvp() or project.buy_tickets_url.url %} register-block__content--half {%- endif %}">
           <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
-            {% if project.features.subscription %}
+            {% if project.features.ticket_participant %}
+              <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Member{% endtrans %}</span>
+            {% elif project.features.subscription %}
               <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Join{% endtrans %}</span>
             {%- else %}
               <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Get tickets{% endtrans %}</span>

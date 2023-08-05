@@ -34,6 +34,12 @@
   color: mui-color('white');
 }
 
+.chip--bg-success {
+  background-color: $mui-success-color;
+  border-color: transparentize($mui-text-success, 0.8);
+  color: $mui-text-success;
+}
+
 .chip + .chip {
   margin-left: $mui-btn-spacing-horizontal;
 }
