@@ -316,10 +316,9 @@
         </div>
         <ul class="mui-list--unstyled grid">
           <li hx-get="{{ profile.url_for('past_sessions', page=1) }}" hx-trigger="intersect" hx-swap="outerHTML" class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
-            <div class="video">
-              <div class="video__thumbnail">
-                <img src="{{ url_for('static', filename='img/default-banner-profile.png') }}" class="video__thumbnail__img img-responsive" />
-                <div class="video__thumbnail__icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
+            <div class="bg-primary-dark embed-video-wrapper">
+              <div class="video_txt">
+                <p class="video__thumbnail__icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</p>
                 <p><span class="mui--text-title mui--text-light">Loading</span><span class="loading"></span></p>
               </div>
             </div>
