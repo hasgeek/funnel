@@ -314,19 +314,17 @@
         <div class="grid__col-12">
           <h2 class="mui--text-headline project-headline">{% trans %}Past videos{% endtrans %}</h2>
         </div>
-        <div class="grid__col-12 mui-table--responsive-wrapper">
-          <ul class="mui-list--unstyled grid">
-            <li hx-get="{{ profile.url_for('past_sessions', page=1) }}" hx-trigger="intersect" hx-swap="outerHTML" class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
-              <div class="video">
-                <div class="video__thumbnail">
-                  <img src="{{ url_for('static', filename='img/default-banner-profile.png') }}" class="video__thumbnail__img img-responsive" />
-                  <div class="video__thumbnail__icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
-                  <p><span class="mui--text-title mui--text-light">Loading</span><span class="loading"></span></p>
-                </div>
+        <ul class="mui-list--unstyled grid">
+          <li hx-get="{{ profile.url_for('past_sessions', page=1) }}" hx-trigger="intersect" hx-swap="outerHTML" class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+            <div class="video">
+              <div class="video__thumbnail">
+                <img src="{{ url_for('static', filename='img/default-banner-profile.png') }}" class="video__thumbnail__img img-responsive" />
+                <div class="video__thumbnail__icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
+                <p><span class="mui--text-title mui--text-light">Loading</span><span class="loading"></span></p>
               </div>
-            </li>
-          </ul>
-        </div>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>

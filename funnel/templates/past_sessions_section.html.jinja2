@@ -5,7 +5,7 @@
     {{ video_thumbnail(session, project_heading=true) }}
   </li>
 {%- else -%}
-  <p class="mui--text-subhead margin-top">{% trans %}No past videos{% endtrans %}</p>
+  <p class="mui--text-subhead mui--text-light margin-top left-padding">{% trans %}No past videos{% endtrans %}</p>
 {%- endfor -%}
 {% if next_page %}
   <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem"
