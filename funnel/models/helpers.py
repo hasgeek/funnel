@@ -470,13 +470,14 @@ def add_search_trigger(model: Type[Model], column_name: str) -> Dict[str, str]:
         END
         $$ LANGUAGE plpgsql;
 
-        CREATE TRIGGER {trigger_name} BEFORE INSERT OR UPDATE ON {table_name}
-        FOR EACH ROW EXECUTE PROCEDURE {function_name}();
+        CREATE TRIGGER {trigger_name} BEFORE INSERT OR UPDATE OF {source_columns}
+        ON {table_name} FOR EACH ROW EXECUTE PROCEDURE {function_name}();
         '''.format(  # nosec
             function_name=pgquote(function_name),
             column_name=pgquote(column_name),
             trigger_expr=trigger_expr,
             trigger_name=pgquote(trigger_name),
+            source_columns=', '.join(pgquote(col) for col in column.type.columns),
             table_name=pgquote(model.__tablename__),
         )
     )

@@ -7,11 +7,13 @@ Create Date: 2023-05-08 13:10:17.607431
 """
 
 from dataclasses import dataclass
+from textwrap import dedent
 from typing import List, Optional, Tuple, Union
 from typing_extensions import Literal
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = '331a4250aa4b'
@@ -136,7 +138,7 @@ class Rtable(Rn):
             ('function', self.functions),
         ]:
             if source:
-                for rn in self.columns:
+                for rn in source:
                     # If renaming this table, use `self.new` for the new name
                     # If not renaming (new is None), use old name from `self.old`
                     rn.table_name = self.future_name or self.current_name
@@ -206,8 +208,6 @@ renames = [
             Rn('ix_{}_fullname_lower', 'ix_{}_title_lower'),
             Rn('ix_{}_search_vector'),
         ],
-        triggers=[Rn('{}_search_vector_trigger')],
-        functions=[Rn('{}_search_vector_update')],
     ),
     Rtable(
         'organization_membership',
@@ -245,7 +245,7 @@ renames = [
         columns=[Rn('user_id', 'account_id')],
         constraints=[
             Rn('{}_pkey'),
-            Rn('{}_email_address_id_key'),
+            Rn('{}_user_id_email_address_id_key', '{}_account_id_email_address_id_key'),
             Rn('{}_email_address_id_fkey'),
             Rn('{}_user_id_fkey', '{}_account_id_fkey'),
         ],
@@ -282,7 +282,7 @@ renames = [
         'account_account_email_primary',
         columns=[Rn('user_id', 'account_id'), Rn('user_email_id', 'account_email_id')],
         constraints=[
-            Rn('{}}_pkey'),
+            Rn('{}_pkey'),
             Rn('{}_user_email_id_fkey', '{}_account_email_id_fkey'),
             Rn('{}_user_id_fkey', '{}_account_id_fkey'),
         ],
@@ -294,7 +294,7 @@ renames = [
         'account_account_phone_primary',
         columns=[Rn('user_id', 'account_id'), Rn('user_phone_id', 'account_phone_id')],
         constraints=[
-            Rn('{}}_pkey'),
+            Rn('{}_pkey'),
             Rn('{}_user_phone_id_fkey', '{}_account_phone_id_fkey'),
             Rn('{}_user_id_fkey', '{}_account_id_fkey'),
         ],
@@ -403,6 +403,17 @@ def upgrade_() -> None:
     #    (use UUID as interim and just change fkey target?)
     # 5. Drop organization and profile models
 
+    op.execute(
+        sa.text(
+            dedent(
+                '''
+                DROP TRIGGER user_search_vector_trigger ON "user";
+                DROP FUNCTION user_search_vector_update();
+                '''
+            )
+        )
+    )
+
     for rn in renames:
         rn.upgrade()
 
@@ -417,10 +428,8 @@ def upgrade_() -> None:
                 'joined_at',
                 sa.TIMESTAMP(timezone=True),
                 nullable=True,
-                server_default=account.c.created_at,
             ),
         )
-        batch_op.add_column(sa.Column('name', sa.Unicode(63), nullable=True))
         batch_op.add_column(
             sa.Column(
                 'profile_state',
@@ -486,7 +495,9 @@ def upgrade_() -> None:
                 'revisionid', sa.Integer(), nullable=False, server_default=sa.text('1')
             )
         )
-
+        batch_op.add_column(
+            sa.Column('name_vector', postgresql.TSVECTOR(), nullable=True)
+        )
     # Drop server_default
     with op.batch_alter_table('account') as batch_op:
         batch_op.alter_column('joined_at', server_default=None)
@@ -499,6 +510,14 @@ def upgrade_() -> None:
         batch_op.alter_column('revisionid', server_default=None)
 
     op.create_index(
+        'ix_account_name_vector',
+        'account',
+        ['name_vector'],
+        unique=False,
+        postgresql_using='gin',
+    )
+
+    op.create_index(
         op.f('ix_account_is_verified'), 'account', ['is_verified'], unique=False
     )
     op.create_index(
@@ -509,10 +528,45 @@ def upgrade_() -> None:
         postgresql_ops={'name_lower': 'varchar_pattern_ops'},
     )
 
+    # Recreate account search_vector function and trigger, and add name_vector handlers
+    op.execute(
+        sa.text(
+            dedent(
+                '''
+                CREATE FUNCTION account_search_vector_update() RETURNS trigger AS $$
+                BEGIN
+                    NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'A') || setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'A') || setweight(to_tsvector('english', COALESCE(NEW.tagline, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.description_text, '')), 'B');
+                    RETURN NEW;
+                END
+                $$ LANGUAGE plpgsql;
+
+                CREATE TRIGGER account_search_vector_trigger BEFORE INSERT OR UPDATE OF title, name, tagline, description_text
+                ON account FOR EACH ROW EXECUTE PROCEDURE account_search_vector_update();
+
+                UPDATE account SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(name, '')), 'A') || setweight(to_tsvector('english', COALESCE(tagline, '')), 'B') || setweight(to_tsvector('english', COALESCE(description_text, '')), 'B');
+
+                CREATE FUNCTION account_name_vector_update() RETURNS trigger AS $$
+                BEGIN
+                    NEW.name_vector := to_tsvector('simple', COALESCE(NEW.title, '')) || to_tsvector('simple', COALESCE(NEW.name, ''));
+                    RETURN NEW;
+                END
+                $$ LANGUAGE plpgsql;
+
+                CREATE TRIGGER account_name_vector_trigger BEFORE INSERT OR UPDATE OF title, name
+                ON account FOR EACH ROW EXECUTE PROCEDURE account_name_vector_update();
+
+                UPDATE account SET name_vector = to_tsvector('simple', COALESCE(title, '')) || to_tsvector('simple', COALESCE(name, ''));
+                '''
+            )
+        )
+    )
+    op.execute(account.update().values(joined_at=account.c.created_at))
+    op.alter_column('account', 'name_vector', nullable=False)
+
     # TODO:
     # account_admin_membership.organization_id -> account_id (after merge)
     # ix_account_admin_membership_active column change to account_id
-    # auth_client.organization_id to be dropped
+    # auth_client.organization_id to be dropped, replaced with account_id value
     # Project.profile_id -> account_id
     # ProjectRedirect.profile_id -> account_id
     # ProjectSponsorMembership.profile_id -> member_id (account; or drop model entirely)
@@ -523,17 +577,51 @@ def upgrade_() -> None:
 
 def downgrade_() -> None:
     """Downgrade database bind ''."""
+    op.execute(
+        sa.text(
+            dedent(
+                '''
+                DROP TRIGGER account_name_vector_trigger ON account;
+                DROP FUNCTION account_name_vector_update();
+                DROP TRIGGER account_search_vector_trigger ON account;
+                DROP FUNCTION account_search_vector_update();
+                '''
+            )
+        )
+    )
+
     op.drop_index(op.f('ix_account_name_lower'), table_name='account')
     op.drop_index(op.f('ix_account_is_verified'), table_name='account')
+    op.drop_index(op.f('ix_account_name_vector'), table_name='account')
     with op.batch_alter_table('account') as batch_op:
+        batch_op.drop_column('name_vector')
         batch_op.drop_column('description_html')
         batch_op.drop_column('description_text')
         batch_op.drop_column('tagline')
         batch_op.drop_column('profile_state')
         batch_op.drop_column('name')
-        batch_op.alter_column('title', new_column_name='fullname')
         batch_op.drop_column('joined_at')
         batch_op.drop_column('type')
 
     for rename in renames[::-1]:
         rename.downgrade()
+
+    op.execute(
+        sa.text(
+            dedent(
+                '''
+                CREATE FUNCTION user_search_vector_update() RETURNS trigger AS $$
+                BEGIN
+                    NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.fullname, '')), 'A');
+                    RETURN NEW;
+                END
+                $$ LANGUAGE plpgsql;
+
+                CREATE TRIGGER user_search_vector_trigger BEFORE INSERT OR UPDATE
+                ON "user" FOR EACH ROW EXECUTE PROCEDURE user_search_vector_update();
+
+                UPDATE "user" SET search_vector = setweight(to_tsvector('english', COALESCE(fullname, '')), 'A');
+                '''
+            )
+        )
+    )

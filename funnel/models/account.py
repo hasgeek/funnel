@@ -260,13 +260,21 @@ class Account(UuidMixin, BaseMixin, Model):
     search_vector: Mapped[str] = sa.orm.mapped_column(
         TSVectorType(
             'title',
+            'name',
+            'tagline',
             'description_text',
-            weights={'name': 'A', 'title': 'A', 'description_text': 'B'},
+            weights={
+                'title': 'A',
+                'name': 'A',
+                'tagline': 'B',
+                'description_text': 'B',
+            },
             regconfig='english',
             hltext=lambda: sa.func.concat_ws(
                 visual_field_delimiter,
                 Account.title,
                 Account.name,
+                Account.tagline,
                 Account.description_html,
             ),
         ),
@@ -276,8 +284,8 @@ class Account(UuidMixin, BaseMixin, Model):
 
     name_vector: Mapped[str] = sa.orm.mapped_column(
         TSVectorType(
-            'name',
             'title',
+            'name',
             regconfig='simple',
             hltext=lambda: sa.func.concat_ws(' @', Account.title, Account.name),
         ),
@@ -297,7 +305,8 @@ class Account(UuidMixin, BaseMixin, Model):
             sa.func.lower(title).label('title_lower'),
             postgresql_ops={'title_lower': 'varchar_pattern_ops'},
         ),
-        sa.Index('ix_user_search_vector', 'search_vector', postgresql_using='gin'),
+        sa.Index('ix_account_search_vector', 'search_vector', postgresql_using='gin'),
+        sa.Index('ix_account_name_vector', 'name_vector', postgresql_using='gin'),
     )
 
     __mapper_args__ = {
