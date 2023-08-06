@@ -111,7 +111,7 @@
           </a>
         {% endif %}
         <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
-        {% if project.features.ticket_participant %}
+        {% if project.features.ticket_participant() %}
           <span class="chip chip--bg-success margin-auto text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}Member</span>
         {% elif project.features.tickets() %}
           <span class="chip margin-auto text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="fa-icon--right-margin") }}Member access</span>
@@ -161,7 +161,7 @@
       <a class="register-block__btn full-width-btn mui-btn mui-btn--primary" href="{{ project.buy_tickets_url.url }}" data-action="external register url" target="_blank" rel="noopener"><span>{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{{ project.views.register_button_text() }}</span></a>
     {% endif %}
     </div>
-    {% if project.features.ticket_participant %}
+    {% if project.features.ticket_participant() %}
       <div><span class="chip chip--bg-success text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}Member</span></div>
     {% elif project.features.tickets() %}
       <div class="register-block__content {% if project.features.rsvp() or project.buy_tickets_url.url %} register-block__content--half {%- endif %}">

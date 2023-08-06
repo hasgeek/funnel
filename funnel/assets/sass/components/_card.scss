@@ -370,11 +370,6 @@
     padding: 0 $mui-grid-padding $mui-grid-padding;
     position: relative;
 
-    .card__body__location {
-      float: left;
-      max-width: 90%;
-    }
-
     .card__body__bookmark {
       float: right;
       margin: $mui-grid-padding * 0.25 0 0;
@@ -393,10 +388,6 @@
       max-width: calc(100% - 20px);
     }
 
-    .card__body__location {
-      margin: 0 0 $mui-grid-padding * 0.5;
-      float: left;
-    }
     .card__body__divider {
       height: 4px;
       background-color: $mui-bg-color-primary-dark;
