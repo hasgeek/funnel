@@ -13,6 +13,7 @@ from typing_extensions import Literal
 
 import sqlalchemy as sa
 from alembic import op
+from rich import get_console
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
@@ -23,15 +24,26 @@ depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
 class AccountType:
+    """Account type flag."""
+
     USER = 'U'
     ORG = 'O'
     PLACEHOLDER = 'P'
 
 
 class ProfileState:
+    """Profile public-visibility state."""
+
     AUTO = 1
     PUBLIC = 2
     PRIVATE = 3
+
+
+class AccountAndOrgState:
+    """Account and Organization (shared) state."""
+
+    ACTIVE = 1
+    SUSPENDED = 2
 
 
 @dataclass
@@ -179,13 +191,17 @@ class Rtable(Rn):
 
 account = sa.table(
     'account',
+    sa.column('id', sa.Integer()),
+    sa.column('uuid', sa.Uuid()),
     sa.column('type', sa.CHAR(1)),
     sa.column('created_at', sa.TIMESTAMP(timezone=True)),
     sa.column('updated_at', sa.TIMESTAMP(timezone=True)),
     sa.column('joined_at', sa.TIMESTAMP(timezone=True)),
+    sa.column('state', sa.SmallInteger()),
+    sa.column('profile_state', sa.SmallInteger()),
     sa.column('name', sa.Unicode()),
     sa.column('title', sa.Unicode()),
-    sa.column('bio', sa.Unicode()),
+    sa.column('tagline', sa.Unicode()),
     sa.column('description_text', sa.UnicodeText()),
     sa.column('description_html', sa.UnicodeText()),
     sa.column('website', sa.Unicode()),
@@ -194,6 +210,39 @@ account = sa.table(
     sa.column('is_protected', sa.Boolean()),
     sa.column('is_verified', sa.Boolean()),
     sa.column('revisionid', sa.Integer()),
+    sa.column('auto_timezone', sa.Boolean()),
+    sa.column('auto_locale', sa.Boolean()),
+)
+
+profile = sa.table(
+    'profile',
+    sa.column('id', sa.Integer()),
+    sa.column('uuid', sa.Uuid()),
+    sa.column('created_at', sa.TIMESTAMP(timezone=True)),
+    sa.column('updated_at', sa.TIMESTAMP(timezone=True)),
+    sa.column('state', sa.Integer()),
+    sa.column('account_id', sa.Integer()),
+    sa.column('organization_id', sa.Integer()),
+    sa.column('reserved', sa.Boolean()),
+    sa.column('name', sa.Unicode()),
+    sa.column('tagline', sa.Unicode()),
+    sa.column('description_text', sa.Unicode()),
+    sa.column('description_html', sa.Unicode()),
+    sa.column('logo_url', sa.Unicode()),
+    sa.column('banner_image_url', sa.Unicode()),
+    sa.column('website', sa.Unicode()),
+    sa.column('is_protected', sa.Boolean()),
+    sa.column('is_verified', sa.Boolean()),
+)
+
+organization = sa.table(
+    'organization',
+    sa.column('id', sa.Integer()),
+    sa.column('uuid', sa.Uuid()),
+    sa.column('created_at', sa.TIMESTAMP(timezone=True)),
+    sa.column('updated_at', sa.TIMESTAMP(timezone=True)),
+    sa.column('title', sa.Integer()),
+    sa.column('state', sa.SmallInteger()),
 )
 
 # All renames
@@ -207,6 +256,14 @@ renames = [
         indexes=[
             Rn('ix_{}_fullname_lower', 'ix_{}_title_lower'),
             Rn('ix_{}_search_vector'),
+        ],
+    ),
+    Rtable(
+        'profile',
+        columns=[Rn('user_id', 'account_id')],
+        constraints=[
+            Rn('{}_user_id_key', '{}_account_id_key'),
+            Rn('{}_user_id_fkey', '{}_account_id_fkey'),
         ],
     ),
     Rtable(
@@ -403,24 +460,33 @@ def upgrade_() -> None:
     #    (use UUID as interim and just change fkey target?)
     # 5. Drop organization and profile models
 
-    op.execute(
-        sa.text(
-            dedent(
-                '''
-                DROP TRIGGER user_search_vector_trigger ON "user";
-                DROP FUNCTION user_search_vector_update();
-                '''
+    console = get_console()
+
+    with console.status("Dropping obsolete search_vector function and trigger"):
+        op.execute(
+            sa.text(
+                dedent(
+                    '''
+        DROP TRIGGER user_search_vector_trigger ON "user";
+        DROP FUNCTION user_search_vector_update();
+        '''
+                )
             )
         )
-    )
 
-    for rn in renames:
-        rn.upgrade()
+    with console.status("Renaming user -> account"):
+        for rn in renames:
+            rn.upgrade()
 
     # Add new columns and indexes to 'account' table
-    with op.batch_alter_table('account') as batch_op:
+    with console.status("Adding columns to account"), op.batch_alter_table(
+        'account'
+    ) as batch_op:
+        batch_op.alter_column('search_vector', nullable=True)
         batch_op.add_column(
-            sa.Column('type', sa.CHAR(1), nullable=False, server_default='U')
+            sa.Column(
+                'type', sa.CHAR(1), nullable=False, server_default=AccountType.USER
+            )
         )
         batch_op.add_column(sa.Column('name', sa.Unicode(63), nullable=True))
         batch_op.add_column(
@@ -509,59 +575,155 @@ def upgrade_() -> None:
         batch_op.alter_column('is_verified', server_default=None)
         batch_op.alter_column('revisionid', server_default=None)
 
-    op.create_index(
-        'ix_account_name_vector',
-        'account',
-        ['name_vector'],
-        unique=False,
-        postgresql_using='gin',
-    )
+    with console.status("Recreating indexes"):
+        op.create_index(
+            op.f('ix_account_is_verified'), 'account', ['is_verified'], unique=False
+        )
+        op.create_index(
+            'ix_account_name_lower',
+            'account',
+            [sa.text('lower(name)')],
+            unique=True,
+            postgresql_ops={'name_lower': 'varchar_pattern_ops'},
+        )
 
-    op.create_index(
-        op.f('ix_account_is_verified'), 'account', ['is_verified'], unique=False
-    )
-    op.create_index(
-        'ix_account_name_lower',
-        'account',
-        [sa.text('lower(name)')],
-        unique=True,
-        postgresql_ops={'name_lower': 'varchar_pattern_ops'},
-    )
-
-    # Recreate account search_vector function and trigger, and add name_vector handlers
-    op.execute(
-        sa.text(
-            dedent(
-                '''
-                CREATE FUNCTION account_search_vector_update() RETURNS trigger AS $$
-                BEGIN
-                    NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'A') || setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'A') || setweight(to_tsvector('english', COALESCE(NEW.tagline, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.description_text, '')), 'B');
-                    RETURN NEW;
-                END
-                $$ LANGUAGE plpgsql;
-
-                CREATE TRIGGER account_search_vector_trigger BEFORE INSERT OR UPDATE OF title, name, tagline, description_text
-                ON account FOR EACH ROW EXECUTE PROCEDURE account_search_vector_update();
-
-                UPDATE account SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(name, '')), 'A') || setweight(to_tsvector('english', COALESCE(tagline, '')), 'B') || setweight(to_tsvector('english', COALESCE(description_text, '')), 'B');
-
-                CREATE FUNCTION account_name_vector_update() RETURNS trigger AS $$
-                BEGIN
-                    NEW.name_vector := to_tsvector('simple', COALESCE(NEW.title, '')) || to_tsvector('simple', COALESCE(NEW.name, ''));
-                    RETURN NEW;
-                END
-                $$ LANGUAGE plpgsql;
-
-                CREATE TRIGGER account_name_vector_trigger BEFORE INSERT OR UPDATE OF title, name
-                ON account FOR EACH ROW EXECUTE PROCEDURE account_name_vector_update();
-
-                UPDATE account SET name_vector = to_tsvector('simple', COALESCE(title, '')) || to_tsvector('simple', COALESCE(name, ''));
-                '''
+    # Fix profiles which have a UUID not matching the account UUID, a data integrity
+    # error. This operation cannot be reversed as the original UUID is lost.
+    with console.status("Fixing profile.uuid where it differs from account.uuid"):
+        op.execute(
+            profile.update()
+            .values(uuid=account.c.uuid)
+            .where(
+                profile.c.account_id == account.c.id, profile.c.uuid != account.c.uuid
             )
         )
-    )
-    op.execute(account.update().values(joined_at=account.c.created_at))
-    op.alter_column('account', 'name_vector', nullable=False)
+
+    # Insert organization data into account
+    with console.status("Copying organization data into account table"):
+        op.execute(
+            account.insert().from_select(  # type: ignore[arg-type]
+                [
+                    'type',
+                    'uuid',
+                    'created_at',
+                    'updated_at',
+                    'title',
+                    'state',
+                    'profile_state',
+                    'auto_timezone',
+                    'auto_locale',
+                    'description_text',
+                    'description_html',
+                    'is_protected',
+                    'is_verified',
+                    'revisionid',
+                ],
+                sa.select(
+                    sa.text(f"'{AccountType.ORG}'"),
+                    organization.c.uuid,
+                    organization.c.created_at,
+                    organization.c.updated_at,
+                    organization.c.title,
+                    organization.c.state,
+                    sa.text(str(ProfileState.AUTO)),
+                    sa.true().label('auto_timezone'),
+                    sa.true().label('auto_locale'),
+                    sa.text("''"),
+                    sa.text("''"),
+                    sa.false().label('is_protected'),
+                    sa.false().label('is_verified'),
+                    sa.text('1'),
+                ),
+            )
+        )
+
+    with console.status("Setting account.joined_at = account.created_at"):
+        op.execute(account.update().values(joined_at=account.c.created_at))
+
+    # Merge profile data into account
+    with console.status("Copying profile data into account table"):
+        op.execute(
+            account.update()
+            .values(
+                updated_at=sa.func.greatest(account.c.updated_at, profile.c.updated_at),
+                name=profile.c.name,
+                profile_state=profile.c.state,
+                tagline=sa.case(
+                    (profile.c.tagline != '', profile.c.tagline), else_=sa.null()
+                ),
+                description_text=profile.c.description_text,
+                description_html=profile.c.description_html,
+                website=sa.case(
+                    (profile.c.website != '', profile.c.website), else_=sa.null()
+                ),
+                logo_url=sa.case(
+                    (profile.c.logo_url != '', profile.c.logo_url), else_=sa.null()
+                ),
+                banner_image_url=sa.case(
+                    (profile.c.banner_image_url != '', profile.c.banner_image_url),
+                    else_=sa.null(),
+                ),
+                is_protected=profile.c.is_protected,
+                is_verified=profile.c.is_verified,
+                revisionid=1,
+            )
+            .where(profile.c.uuid == account.c.uuid, profile.c.reserved.is_(False))
+        )
+        op.execute(
+            account.insert().from_select(  # type: ignore[arg-type]
+                [
+                    'type',
+                    'uuid',
+                    'created_at',
+                    'updated_at',
+                    'name',
+                    'title',
+                    'state',
+                    'profile_state',
+                    'tagline',
+                    'description_text',
+                    'description_html',
+                    'website',
+                    'logo_url',
+                    'banner_image_url',
+                    'is_protected',
+                    'is_verified',
+                    'auto_timezone',
+                    'auto_locale',
+                    'revisionid',
+                ],
+                sa.select(
+                    sa.text(f"'{AccountType.PLACEHOLDER}'"),
+                    profile.c.uuid,
+                    profile.c.created_at,
+                    profile.c.updated_at,
+                    profile.c.name,
+                    sa.text("''"),
+                    sa.text(str(AccountAndOrgState.ACTIVE)),
+                    profile.c.state,
+                    sa.case(
+                        (profile.c.tagline != '', profile.c.tagline), else_=sa.null()
+                    ),
+                    profile.c.description_text,
+                    profile.c.description_html,
+                    sa.case(
+                        (profile.c.website != '', profile.c.website), else_=sa.null()
+                    ),
+                    sa.case(
+                        (profile.c.logo_url != '', profile.c.logo_url), else_=sa.null()
+                    ),
+                    sa.case(
+                        (profile.c.banner_image_url != '', profile.c.banner_image_url),
+                        else_=sa.null(),
+                    ),
+                    profile.c.is_protected,
+                    profile.c.is_verified,
+                    sa.true().label('auto_timezone'),
+                    sa.true().label('auto_locale'),
+                    sa.text('1'),
+                ).where(profile.c.reserved.is_(True)),
+            )
+        )
 
     # TODO:
     # account_admin_membership.organization_id -> account_id (after merge)
@@ -574,54 +736,120 @@ def upgrade_() -> None:
     # ProposalSponsorMembership.profile_id -> member_id (or drop model entirely)
     # Team.organization_id -> account_id
 
+    # Recreate account search_vector function and trigger, and add name_vector handlers
+    with console.status("Rescanning search vectors"):
+        op.execute(
+            sa.text(
+                dedent(
+                    '''
+    CREATE FUNCTION account_search_vector_update() RETURNS trigger AS $$
+    BEGIN
+        NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'A') || setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'A') || setweight(to_tsvector('english', COALESCE(NEW.tagline, '')), 'B') || setweight(to_tsvector('english', COALESCE(NEW.description_text, '')), 'B');
+        RETURN NEW;
+    END
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER account_search_vector_trigger BEFORE INSERT OR UPDATE OF title, name, tagline, description_text
+    ON account FOR EACH ROW EXECUTE PROCEDURE account_search_vector_update();
+
+    UPDATE account SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(name, '')), 'A') || setweight(to_tsvector('english', COALESCE(tagline, '')), 'B') || setweight(to_tsvector('english', COALESCE(description_text, '')), 'B');
+
+    CREATE FUNCTION account_name_vector_update() RETURNS trigger AS $$
+    BEGIN
+        NEW.name_vector := to_tsvector('simple', COALESCE(NEW.title, '')) || to_tsvector('simple', COALESCE(NEW.name, ''));
+        RETURN NEW;
+    END
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER account_name_vector_trigger BEFORE INSERT OR UPDATE OF title, name
+    ON account FOR EACH ROW EXECUTE PROCEDURE account_name_vector_update();
+
+    UPDATE account SET name_vector = to_tsvector('simple', COALESCE(title, '')) || to_tsvector('simple', COALESCE(name, ''));
+    '''
+                )
+            )
+        )
+        op.alter_column('account', 'search_vector', nullable=False)
+        op.alter_column('account', 'name_vector', nullable=False)
+        op.create_index(
+            'ix_account_name_vector',
+            'account',
+            ['name_vector'],
+            unique=False,
+            postgresql_using='gin',
+        )
+
 
 def downgrade_() -> None:
     """Downgrade database bind ''."""
-    op.execute(
-        sa.text(
-            dedent(
-                '''
-                DROP TRIGGER account_name_vector_trigger ON account;
-                DROP FUNCTION account_name_vector_update();
-                DROP TRIGGER account_search_vector_trigger ON account;
-                DROP FUNCTION account_search_vector_update();
-                '''
+    console = get_console()
+
+    # TODO: Re-populate organization and profile?
+    # TODO: Remap account_id to organization_id and profile_id where relevant
+
+    # Delete all non-user rows from account
+    with console.status("Dropping all non-user data from account table"):
+        op.execute(
+            account.delete().where(  # type: ignore[arg-type]
+                account.c.type != AccountType.USER
             )
         )
-    )
 
-    op.drop_index(op.f('ix_account_name_lower'), table_name='account')
-    op.drop_index(op.f('ix_account_is_verified'), table_name='account')
-    op.drop_index(op.f('ix_account_name_vector'), table_name='account')
-    with op.batch_alter_table('account') as batch_op:
-        batch_op.drop_column('name_vector')
-        batch_op.drop_column('description_html')
-        batch_op.drop_column('description_text')
-        batch_op.drop_column('tagline')
-        batch_op.drop_column('profile_state')
-        batch_op.drop_column('name')
-        batch_op.drop_column('joined_at')
-        batch_op.drop_column('type')
-
-    for rename in renames[::-1]:
-        rename.downgrade()
-
-    op.execute(
-        sa.text(
-            dedent(
-                '''
-                CREATE FUNCTION user_search_vector_update() RETURNS trigger AS $$
-                BEGIN
-                    NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.fullname, '')), 'A');
-                    RETURN NEW;
-                END
-                $$ LANGUAGE plpgsql;
-
-                CREATE TRIGGER user_search_vector_trigger BEFORE INSERT OR UPDATE
-                ON "user" FOR EACH ROW EXECUTE PROCEDURE user_search_vector_update();
-
-                UPDATE "user" SET search_vector = setweight(to_tsvector('english', COALESCE(fullname, '')), 'A');
-                '''
+    with console.status("Dropping mismatched search vector functions and triggers"):
+        op.execute(
+            sa.text(
+                dedent(
+                    '''
+    DROP TRIGGER account_name_vector_trigger ON account;
+    DROP FUNCTION account_name_vector_update();
+    DROP TRIGGER account_search_vector_trigger ON account;
+    DROP FUNCTION account_search_vector_update();
+    '''
+                )
             )
         )
-    )
+
+    with console.status("Dropping new columns and indexes"):
+        op.drop_index(op.f('ix_account_name_lower'), table_name='account')
+        op.drop_index(op.f('ix_account_is_verified'), table_name='account')
+        op.drop_index(op.f('ix_account_name_vector'), table_name='account')
+        with op.batch_alter_table('account') as batch_op:
+            batch_op.drop_column('revisionid')
+            batch_op.drop_column('name_vector')
+            batch_op.drop_column('logo_url')
+            batch_op.drop_column('banner_image_url')
+            batch_op.drop_column('is_protected')
+            batch_op.drop_column('is_verified')
+            batch_op.drop_column('website')
+            batch_op.drop_column('description_html')
+            batch_op.drop_column('description_text')
+            batch_op.drop_column('tagline')
+            batch_op.drop_column('profile_state')
+            batch_op.drop_column('name')
+            batch_op.drop_column('joined_at')
+            batch_op.drop_column('type')
+
+    with console.status("Renaming account -> user"):
+        for rename in renames[::-1]:
+            rename.downgrade()
+
+    with console.status("Rebuilding search vectors"):
+        op.execute(
+            sa.text(
+                dedent(
+                    '''
+    CREATE FUNCTION user_search_vector_update() RETURNS trigger AS $$
+    BEGIN
+        NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.fullname, '')), 'A');
+        RETURN NEW;
+    END
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER user_search_vector_trigger BEFORE INSERT OR UPDATE
+    ON "user" FOR EACH ROW EXECUTE PROCEDURE user_search_vector_update();
+
+    UPDATE "user" SET search_vector = setweight(to_tsvector('english', COALESCE(fullname, '')), 'A');
+    '''
+                )
+            )
+        )
