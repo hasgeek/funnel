@@ -258,7 +258,7 @@ class OrganizationAdminMembershipNotification(
     title = __("When account admins change")
     description = __("Account admins control all projects under the account")
 
-    roles = ['member', 'profile_admin']
+    roles = ['member', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -270,7 +270,7 @@ class OrganizationAdminMembershipRevokedNotification(
 ):
     """Notification of being granted admin membership (including role changes)."""
 
-    roles = ['member', 'profile_admin']
+    roles = ['member', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 

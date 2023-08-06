@@ -245,6 +245,8 @@ organization = sa.table(
     sa.column('state', sa.SmallInteger()),
 )
 
+user_notification = sa.table('user_notification', sa.column('role', sa.Unicode()))
+
 # All renames
 renames = [
     Rtable(
@@ -725,6 +727,18 @@ def upgrade_() -> None:
             )
         )
 
+    with console.status("Updating notifications"):
+        op.execute(
+            user_notification.update()
+            .values(role='account_admin')
+            .where(user_notification.c.role == 'profile_admin')
+        )
+        op.execute(
+            user_notification.update()
+            .values(role='member')
+            .where(user_notification.c.role == 'subject')
+        )
+
     # TODO:
     # account_admin_membership.organization_id -> account_id (after merge)
     # ix_account_admin_membership_active column change to account_id
@@ -737,7 +751,7 @@ def upgrade_() -> None:
     # Team.organization_id -> account_id
 
     # Recreate account search_vector function and trigger, and add name_vector handlers
-    with console.status("Rescanning search vectors"):
+    with console.status("Rebuilding search vectors"):
         op.execute(
             sa.text(
                 dedent(
@@ -784,17 +798,6 @@ def downgrade_() -> None:
     """Downgrade database bind ''."""
     console = get_console()
 
-    # TODO: Re-populate organization and profile?
-    # TODO: Remap account_id to organization_id and profile_id where relevant
-
-    # Delete all non-user rows from account
-    with console.status("Dropping all non-user data from account table"):
-        op.execute(
-            account.delete().where(  # type: ignore[arg-type]
-                account.c.type != AccountType.USER
-            )
-        )
-
     with console.status("Dropping mismatched search vector functions and triggers"):
         op.execute(
             sa.text(
@@ -806,6 +809,28 @@ def downgrade_() -> None:
     DROP FUNCTION account_search_vector_update();
     '''
                 )
+            )
+        )
+    # TODO: Re-populate organization and profile?
+    # TODO: Remap account_id to organization_id and profile_id where relevant
+
+    with console.status("Updating notifications"):
+        op.execute(
+            user_notification.update()
+            .values(role='profile_admin')
+            .where(user_notification.c.role == 'account_admin')
+        )
+        op.execute(
+            user_notification.update()
+            .values(role='subject')
+            .where(user_notification.c.role == 'member')
+        )
+
+    # Delete all non-user rows from account
+    with console.status("Dropping all non-user data from account table"):
+        op.execute(
+            account.delete().where(  # type: ignore[arg-type]
+                account.c.type != AccountType.USER
             )
         )
 
@@ -853,3 +878,10 @@ def downgrade_() -> None:
                 )
             )
         )
+
+    with console.status("Resetting user_id_seq"):
+        conn = op.get_bind()
+        last_user_id = conn.scalar(
+            sa.select(sa.func.max(sa.table('user', sa.column('id', sa.Integer())).c.id))
+        )
+        conn.execute(sa.select(sa.func.setval('user_id_seq', last_user_id)))
