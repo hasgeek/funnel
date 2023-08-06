@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import img_size, saveprojectform, calendarwidget, projectcard %}
+{%- from "macros.html.jinja2" import img_size, saveprojectform, calendarwidget, projectcard, video_thumbnail %}
 {% block title %}{{ profile.title }}{% endblock title %}
 
 {% macro featured_section(featured_project, heading=true) %}
@@ -297,10 +297,33 @@
                 <th class="mui--text-subhead text-capitalize">{% trans %}Location{% endtrans %}</th>
               </tr>
             </thead>
-            <tbody {% if profile %} hx-get="{{ profile.url_for('past_projects', page=1) }}" {%- else -%} hx-get="{{ url_for('past_projects', page=1) }}" {%- endif %} hx-trigger="intersect" hx-swap="innerHTML">
+            <tbody>
+              <tr {% if profile %} hx-get="{{ profile.url_for('past_projects', page=1) }}" {%- else -%} hx-get="{{ url_for('past_projects', page=1) }}" {%- endif %} hx-trigger="intersect" hx-swap="outerHTML"></tr>
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro past_featured_session_videos(profile) %}
+  <div class="projects-wrapper" id="past-project-table">
+    <div class="mui-container">
+      <div class="grid projects">
+        <div class="grid__col-12">
+          <h2 class="mui--text-headline project-headline">{% trans %}Past videos{% endtrans %}</h2>
+        </div>
+        <ul class="mui-list--unstyled grid">
+          <li hx-get="{{ profile.url_for('past_sessions', page=1) }}" hx-trigger="intersect" hx-swap="outerHTML" class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+            <div class="bg-primary-dark embed-video-wrapper">
+              <div class="video_txt">
+                <p class="video__thumbnail__icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</p>
+                <p><span class="mui--text-title mui--text-light">Loading</span><span class="loading"></span></p>
+              </div>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>

@@ -23,6 +23,6 @@
       hx-get="{{ url_for('past_projects', page=next_page) }}"
       {%- endif %}
       hx-trigger="revealed"
-      hx-swap="afterend">
+      hx-swap="outerHTML">
   </tr>
 {% endif %}
