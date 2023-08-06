@@ -204,7 +204,7 @@
           {% endif %}
           {% if project.features.ticket_participant() %}
             <span class="chip chip--bg-success text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}Member</span>
-          {% elif featured_project.features.tickets() %}
+          {% elif project.features.tickets() %}
             <span class="chip margin-auto text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="fa-icon--right-margin") }}Member access</span>
           {% endif %}
         </div>
