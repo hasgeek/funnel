@@ -200,6 +200,7 @@ def _prepare_subprocess(
             attachments=None,
             from_email: Optional[Any] = None,
             headers: Optional[dict] = None,
+            base_url: Optional[str] = None,
         ) -> str:
             capture = CapturedEmail(
                 subject,

@@ -25,6 +25,7 @@ from ..models import (
     AccountPhone,
     Notification,
     NotificationFor,
+    User,
     UserNotification,
     db,
 )
@@ -338,7 +339,7 @@ class RenderNotification:
     # --- Overrideable render methods
 
     @property
-    def actor(self):
+    def actor(self) -> Optional[User]:
         """Actor that prompted this notification. May be overriden."""
         return self.notification.user
 
@@ -349,6 +350,11 @@ class RenderNotification:
         Subclasses MUST implement this.
         """
         raise NotImplementedError("Subclasses must implement `web`")
+
+    @property
+    def email_base_url(self) -> str:
+        """Base URL for relative links in email."""
+        return self.notification.role_provider_obj.absolute_url
 
     def email_subject(self) -> str:
         """
@@ -549,6 +555,7 @@ def dispatch_transport_email(
             'List-Unsubscribe-Post': 'One-Click',
             'List-Archive': f'<{url_for("notifications")}>',
         },
+        base_url=view.email_base_url,
     )
     statsd.incr(
         'notification.transport',

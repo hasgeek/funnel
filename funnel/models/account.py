@@ -855,6 +855,12 @@ class Account(UuidMixin, BaseMixin, Model):
         # 6. Clear name (username), title (fullname) and stored password hash
         self.name = None
         self.title = ''
+
+        # 7. Unassign tickets assigned to the user
+        self.ticket_participants = []  # pylint: disable=attribute-defined-outside-init
+
+        # 8. Clear fullname and stored password hash
+        self.fullname = ''
         self.password = None
 
     @with_roles(call={'owner'})

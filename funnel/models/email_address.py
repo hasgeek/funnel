@@ -351,6 +351,12 @@ class EmailAddress(BaseMixin, Model):
         """Cast email address into a string."""
         return self.email or ''
 
+    def __format__(self, format_spec: str) -> str:
+        """Format the email address."""
+        if not format_spec:
+            return self.__str__()
+        return self.__str__().__format__(format_spec)
+
     def __repr__(self) -> str:
         """Debugging representation of the email address."""
         return f'EmailAddress({self.email!r})'
