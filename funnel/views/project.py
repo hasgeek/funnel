@@ -182,9 +182,7 @@ def feature_project_tickets(obj: Project) -> bool:
 
 @Project.features('ticket_participant')
 def ticket_participant(obj: Project) -> bool:
-    return (
-        obj.current_roles.ticket_participant
-    )
+    return obj.current_roles.ticket_participant
 
 
 @Project.features('tickets_or_rsvp')
