@@ -185,13 +185,13 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ),
         )
 
-    @route('editsession', methods=['GET', 'POST'])
+    @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
     def edit(self) -> ReturnView:
         return session_edit(self.obj.project, session=self.obj)
 
-    @route('deletesession', methods=['POST'])
+    @route('delete', methods=['POST'])
     @requires_login
     @requires_roles({'project_editor'})
     def delete(self) -> ReturnView:
