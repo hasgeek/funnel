@@ -144,7 +144,7 @@
                     <div class="flex-wrapper flex-wrapper--end flex-wrapper--space-between flex-wrapper--center top-padding">
                       <div class="card__body__location mui--text-light zero-bottom-margin">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
                       {% if featured_project.current_roles.ticket_participant %}
-                        <div><button class="mui-btn mui-btn--accent zero-bottom-margin zero-top-margin" disabled>{% trans %}You are a member{% endtrans %}</button></div>
+                        <div><button class="mui-btn mui-btn--accent zero-bottom-margin zero-top-margin mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
                       {% elif featured_project.features.tickets() %}
                         <div>
                           <button class="js-open-ticket-widget mui-btn mui-btn--primary price-btn zero-bottom-margin zero-top-margin">

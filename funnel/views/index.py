@@ -118,9 +118,7 @@ class IndexView(ClassView):
                 for p in open_cfp_projects
             ],
             'featured_project': (
-                featured_project.access_for(
-                    roles={'all'}, datasets=('primary', 'related')
-                )
+                featured_project.current_access(datasets=('primary', 'related'))
                 if featured_project
                 else None
             ),
