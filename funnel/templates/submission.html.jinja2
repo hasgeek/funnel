@@ -237,7 +237,7 @@
       {% if proposal.session and proposal.session.views.video or proposal.views.video or proposal.current_roles.editor %}
         <div class="details__box mui-tabs__bar">
           {% with seq = 1 %}
-            {% if proposal.session and proposal.session.views.video and proposal.session.views.video.url %}
+            {% if proposal.session and proposal.session.views.video and (not proposal.session.is_restricted_video or proposal.session.current_roles.project_participant) %}
               <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}"
                   id="pane-justified-{{ seq }}">
                 <div class="details__box__video bg-primary-dark embed-video-wrapper"
