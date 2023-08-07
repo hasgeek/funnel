@@ -112,9 +112,9 @@
         {% endif %}
         <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
         {% if project.current_roles.ticket_participant %}
-          <span class="chip chip--bg-success margin-auto text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span>
+          <span class="chip chip--bg-success project-banner__profile-details__badge text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span>
         {% elif project.features.tickets() %}
-          <span class="chip margin-auto text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="fa-icon--right-margin") }}{% trans %}Member access{% endtrans %}</span>
+          <span class="chip project-banner__profile-details__badge text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="fa-icon--right-margin") }}{% trans %}Member access{% endtrans %}</span>
         {% endif %}
       </div>
       <h1 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-dark nounderline" data-cy="project-page">{{ project.title }}</a></h1>
@@ -162,7 +162,7 @@
     {% endif %}
     </div>
     {% if project.current_roles.ticket_participant %}
-      <div><span class="chip chip--bg-success text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span></div>
+      <div class="register-block__content"><button class="mui-btn mui-btn--accent register-block__btn ">{% trans %}You are a member{% endtrans %}</button></div>
     {% elif project.features.tickets() %}
       <div class="register-block__content {% if project.features.rsvp() or project.buy_tickets_url.url %} register-block__content--half {%- endif %}">
           <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
@@ -484,11 +484,9 @@
                       </div>
                     </div>
                   {% endif %}
-                  {% if project.features.tickets() or project.features.rsvp() or project.buy_tickets_url %}
-                    <div class="project-footer {% if current_page == 'project' %}project-footer--main{%- endif %}">
-                      {{ registerblock(project)}}
-                    </div>
-                  {% endif %}
+                  <div class="project-footer {% if current_page == 'project' %}project-footer--main{%- endif %}">
+                    {{ registerblock(project)}}
+                  </div>
                   <div class="mui--hidden-xs mui--hidden-sm">
                     {{ project_details(project) }}
                   </div>
