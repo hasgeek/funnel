@@ -2114,7 +2114,7 @@ class AccountExternalId(BaseMixin, Model):
     __table_args__ = (
         sa.UniqueConstraint('service', 'userid'),
         sa.Index(
-            'ix_user_externalid_username_lower',
+            'ix_account_externalid_username_lower',
             sa.func.lower(username).label('username_lower'),
             postgresql_ops={'username_lower': 'varchar_pattern_ops'},
         ),

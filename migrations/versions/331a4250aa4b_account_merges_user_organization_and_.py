@@ -259,6 +259,19 @@ auth_client = sa.table(
     sa.column('organization_id', sa.Integer()),
 )
 
+project = sa.table(
+    'project',
+    sa.column('account_id', sa.Integer()),
+    sa.column('profile_id', sa.Integer()),
+)
+
+project_redirect = sa.table(
+    'project_redirect',
+    sa.column('account_id', sa.Integer()),
+    sa.column('profile_id', sa.Integer()),
+)
+
+
 # All renames
 renames = [
     Rtable(
@@ -804,8 +817,33 @@ def upgrade_() -> None:
         )
         op.drop_column('auth_client', 'organization_id')
 
+    with console.status("Updating project"):
+        op.add_column(
+            'project',
+            sa.Column(
+                'account_id',
+                sa.Integer(),
+                sa.ForeignKey('account.id', name='project_account_id_fkey'),
+                nullable=True,
+            ),
+        )
+        op.execute(
+            project.update()
+            .values(account_id=account.c.id)
+            .where(
+                project.c.profile_id == profile.c.id,
+                profile.c.uuid == account.c.uuid,
+            )
+        )
+        op.alter_column('project', 'account_id', nullable=False)
+        op.create_unique_constraint(
+            'project_account_id_name_key', 'project', ['account_id', 'name']
+        )
+        op.drop_constraint('project_profile_id_name_key', 'project', type_='unique')
+        op.drop_constraint('project_profile_id_fkey', 'project', type_='foreignkey')
+        op.drop_column('project', 'profile_id')
+
     # TODO:
-    # Project.profile_id -> account_id
     # ProjectRedirect.profile_id -> account_id
     # ProjectSponsorMembership.profile_id -> member_id (account; or drop model entirely)
     # ix_project_sponsor_membership_active column change
@@ -875,6 +913,32 @@ def downgrade_() -> None:
         )
     # TODO: Re-populate organization and profile?
     # TODO: Remap account_id to organization_id and profile_id where relevant
+
+    with console.status("Updating project"):
+        op.add_column(
+            'project',
+            sa.Column(
+                'profile_id',
+                sa.Integer(),
+                sa.ForeignKey('profile.id', name='project_profile_id_fkey'),
+                nullable=True,
+            ),
+        )
+        op.execute(
+            project.update()
+            .values(profile_id=profile.c.id)
+            .where(
+                project.c.account_id == account.c.id,
+                profile.c.uuid == account.c.uuid,
+            )
+        )
+        op.alter_column('project', 'profile_id', nullable=False)
+        op.create_unique_constraint(
+            'project_profile_id_name_key', 'project', ['profile_id', 'name']
+        )
+        op.drop_constraint('project_account_id_name_key', 'project', type_='unique')
+        op.drop_constraint('project_account_id_fkey', 'project', type_='foreignkey')
+        op.drop_column('project', 'account_id')
 
     with console.status("Updating auth_client"):
         op.add_column(
@@ -955,7 +1019,7 @@ def downgrade_() -> None:
         )
 
     # Delete all non-user rows from account
-    with console.status("Dropping all non-user data from account table"):
+    with console.status("Dropping all non-user data from account table (slow!)"):
         op.execute(
             account.delete().where(  # type: ignore[arg-type]
                 account.c.type != AccountType.USER
