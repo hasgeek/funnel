@@ -162,7 +162,7 @@
     {% endif %}
     </div>
     {% if project.current_roles.ticket_participant %}
-      <div class="register-block__content"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled" disabled>{% trans %}You are a member{% endtrans %}</button></div>
+      <div class="register-block__content"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
     {% elif project.features.tickets() %}
       <div class="register-block__content {% if project.features.rsvp() or project.buy_tickets_url.url %} register-block__content--half {%- endif %}">
           <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
