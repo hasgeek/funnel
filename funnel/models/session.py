@@ -77,6 +77,9 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     )
     is_break = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
     featured = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
+    is_restricted_video = sa.orm.mapped_column(
+        sa.Boolean, default=False, nullable=False
+    )
     banner_image_url: Mapped[Optional[str]] = sa.orm.mapped_column(
         ImgeeType, nullable=True
     )
@@ -142,6 +145,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
                 'end_at',
                 'venue_room',
                 'is_break',
+                'is_restricted_video',
                 'banner_image_url',
                 'start_at_localized',
                 'end_at_localized',
@@ -164,6 +168,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
             'end_at',
             'venue_room',
             'is_break',
+            'is_restricted_video',
             'banner_image_url',
             'start_at_localized',
             'end_at_localized',
@@ -179,6 +184,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
             'end_at',
             'venue_room',
             'is_break',
+            'is_restricted_video',
             'banner_image_url',
             'start_at_localized',
             'end_at_localized',
@@ -194,6 +200,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
             'end_at',
             'venue_room',
             'is_break',
+            'is_restricted_video',
             'banner_image_url',
             'start_at_localized',
             'end_at_localized',
