@@ -247,6 +247,18 @@ organization = sa.table(
 
 user_notification = sa.table('user_notification', sa.column('role', sa.Unicode()))
 
+account_admin_membership = sa.table(
+    'account_admin_membership',
+    sa.column('account_id', sa.Integer()),
+    sa.column('organization_id', sa.Integer()),
+)
+
+auth_client = sa.table(
+    'auth_client',
+    sa.column('account_id', sa.Integer()),
+    sa.column('organization_id', sa.Integer()),
+)
+
 # All renames
 renames = [
     Rtable(
@@ -568,7 +580,6 @@ def upgrade_() -> None:
         )
     # Drop server_default
     with op.batch_alter_table('account') as batch_op:
-        batch_op.alter_column('joined_at', server_default=None)
         batch_op.alter_column('profile_state', server_default=None)
         batch_op.alter_column('type', server_default=None)
         batch_op.alter_column('description_text', server_default=None)
@@ -739,10 +750,61 @@ def upgrade_() -> None:
             .where(user_notification.c.role == 'subject')
         )
 
+    with console.status("Updating account_admin_membership"):
+        op.add_column(
+            'account_admin_membership',
+            sa.Column(
+                'account_id',
+                sa.Integer(),
+                sa.ForeignKey(
+                    'account.id',
+                    name='account_admin_membership_account_id_fkey',
+                    ondelete='CASCADE',
+                ),
+                nullable=True,
+            ),
+        )
+        op.execute(
+            account_admin_membership.update()
+            .values(account_id=account.c.id)
+            .where(
+                account_admin_membership.c.organization_id == organization.c.id,
+                account.c.uuid == organization.c.uuid,
+            )
+        )
+        op.alter_column('account_admin_membership', 'account_id', nullable=False)
+        op.drop_constraint(
+            'account_admin_membership_organization_id_fkey',
+            'account_admin_membership',
+            type_='foreignkey',
+        )
+        op.drop_index('ix_account_admin_membership_active')
+        op.create_index(
+            'ix_account_admin_membership_active',
+            'account_admin_membership',
+            ['account_id', 'member_id'],
+            unique=True,
+            postgresql_where='revoked_at IS NULL',
+        )
+        op.drop_column('account_admin_membership', 'organization_id')
+
+    with console.status("Updating auth_client"):
+        op.execute(
+            auth_client.update()
+            .values(organization_id=None, account_id=account.c.id)
+            .where(
+                auth_client.c.organization_id.isnot(None),
+                auth_client.c.organization_id == organization.c.id,
+                organization.c.uuid == account.c.uuid,
+            )
+        )
+        op.drop_constraint('auth_client_owner_check', 'auth_client', type_='check')
+        op.drop_constraint(
+            'auth_client_organization_id_fkey', 'auth_client', type_='foreignkey'
+        )
+        op.drop_column('auth_client', 'organization_id')
+
     # TODO:
-    # account_admin_membership.organization_id -> account_id (after merge)
-    # ix_account_admin_membership_active column change to account_id
-    # auth_client.organization_id to be dropped, replaced with account_id value
     # Project.profile_id -> account_id
     # ProjectRedirect.profile_id -> account_id
     # ProjectSponsorMembership.profile_id -> member_id (account; or drop model entirely)
@@ -814,6 +876,72 @@ def downgrade_() -> None:
     # TODO: Re-populate organization and profile?
     # TODO: Remap account_id to organization_id and profile_id where relevant
 
+    with console.status("Updating auth_client"):
+        op.add_column(
+            'auth_client',
+            sa.Column(
+                'organization_id',
+                sa.Integer(),
+                sa.ForeignKey(
+                    'organization.id', name='auth_client_organization_id_fkey'
+                ),
+                nullable=True,
+            ),
+        )
+        op.create_check_constraint(
+            'auth_client_owner_check',
+            'auth_client',
+            'CASE WHEN (account_id IS NOT NULL) THEN 1 ELSE 0 END'
+            ' + CASE WHEN (organization_id IS NOT NULL) THEN 1 ELSE 0 END'
+            ' = 1',
+        )
+        op.execute(
+            auth_client.update()
+            .values(account_id=None, organization_id=organization.c.id)
+            .where(
+                auth_client.c.account_id == account.c.id,
+                organization.c.uuid == account.c.uuid,
+            )
+        )
+
+    with console.status("Updating account_admin_membership"):
+        op.add_column(
+            'account_admin_membership',
+            sa.Column(
+                'organization_id',
+                sa.Integer(),
+                sa.ForeignKey(
+                    'organization.id',
+                    name='account_admin_membership_organization_id_fkey',
+                    ondelete='CASCADE',
+                ),
+                nullable=True,
+            ),
+        )
+        op.execute(
+            account_admin_membership.update()
+            .values(organization_id=organization.c.id)
+            .where(
+                account_admin_membership.c.account_id == account.c.id,
+                account.c.uuid == organization.c.uuid,
+            )
+        )
+        op.alter_column('account_admin_membership', 'organization_id', nullable=False)
+        op.drop_constraint(
+            'account_admin_membership_account_id_fkey',
+            'account_admin_membership',
+            type_='foreignkey',
+        )
+        op.drop_index('ix_account_admin_membership_active', 'account_admin_membership')
+        op.create_index(
+            'ix_account_admin_membership_active',
+            'account_admin_membership',
+            ['organization_id', 'member_id'],
+            unique=True,
+            postgresql_where='revoked_at IS NULL',
+        )
+        op.drop_column('account_admin_membership', 'account_id')
+
     with console.status("Updating notifications"):
         op.execute(
             user_notification.update()
@@ -834,7 +962,7 @@ def downgrade_() -> None:
             )
         )
 
-    with console.status("Dropping new columns and indexes"):
+    with console.status("Dropping new columns and indexes on account"):
         op.drop_index(op.f('ix_account_name_lower'), table_name='account')
         op.drop_index(op.f('ix_account_is_verified'), table_name='account')
         op.drop_index(op.f('ix_account_name_vector'), table_name='account')
