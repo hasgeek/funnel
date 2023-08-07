@@ -70,8 +70,8 @@
         {% endif %}
 
         <div class="mui-container spotlight-container">
-          <div class="grid flex-wrapper--start">
-            <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
+          <div class="grid flex-wrapper--start flex-wrapper--nowrap">
+            <div class="grid__col-md-5 grid__col-lg-5 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
               <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
                 <div class="flex-wrapper flex-wrapper--center">
                     <a href="{{ featured_project.profile.url_for() }}" class="profile-avatar margin-right" data-ga="View account">
@@ -92,11 +92,33 @@
               <h3 class="mui--text-headline text-bold" data-cy="spotlight-project"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline">{{ featured_project.title }}</a></h3>
               <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
               <div class="bottom-padding mui--text-light mui--hidden-lg mui--hidden-xl">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
-              <a href="{{ featured_project.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
-            </div>
-            <div class="grid__col-md-1 grid__col-lg-1 mui--hidden-xs mui--hidden-sm mui--hidden-md">
-            </div>
-            <div class="grid__col-12 grid__col-md-5 grid__col-lg-4" data-cy="spotlight-project">
+                {%- if (featured_project.start_at is not none and featured_project.calendar_weeks_full.weeks and featured_project.calendar_weeks_full.weeks|length > 0) %}
+                  <div class="card__body">
+                    {% if calendarwidget_compact and featured_project.start_at and featured_project.calendar_weeks_compact.weeks and featured_project.calendar_weeks_compact.weeks|length > 0 %}
+                      <div aria-label="{{ featured_project.datelocation }}">
+                        {{ calendarwidget(featured_project.calendar_weeks_compact) }}
+                      </div>
+                    {% elif featured_project.start_at and featured_project.calendar_weeks_full.weeks and featured_project.calendar_weeks_full.weeks|length > 0 %}
+                      <div aria-label="{{ featured_project.datelocation }}">
+                        {{ calendarwidget(featured_project.calendar_weeks_full, compact=false) }}
+                      </div>
+                    {% endif %}
+                    <div class="mui--hidden-lg mui--hidden-xl">
+                      <h3 class="card__body__title mui--text-subhead {% if not featured_project.start_at %} card__body__subtitle {% endif %}"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline"><span class="text-bold">{{ featured_project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</span></a></h3>
+                    </div>
+                    <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
+                      <div class="card__body__location mui--text-light zero-bottom-margin">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
+                      <div class="tabs full-width-btn">
+                        <div class="flex-wrapper tabs__item mui--text-body2 tabs__item--active mui--text-hyperlink tabs__item--width">
+                          {{ faicon(icon='crown', icon_size='title', baseline=false) }}
+                          <p class="full-width-btn card__footer">Membership access</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            <div class="grid__col-12 grid__col-md-8 grid__col-lg-7" data-cy="spotlight-project">
               <div class="card card--upcoming">
                 <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left mui--hidden-lg mui--hidden-xl">
                   <div class="flex-wrapper flex-wrapper--center">
@@ -127,46 +149,6 @@
                   {% endif %}
                   </a>
                 </div>
-                {%- if (featured_project.start_at is not none and featured_project.calendar_weeks_full.weeks and featured_project.calendar_weeks_full.weeks|length > 0) %}
-                  <div class="card__body">
-                    {% if calendarwidget_compact and featured_project.start_at and featured_project.calendar_weeks_compact.weeks and featured_project.calendar_weeks_compact.weeks|length > 0 %}
-                      <div aria-label="{{ featured_project.datelocation }}">
-                        {{ calendarwidget(featured_project.calendar_weeks_compact) }}
-                      </div>
-                    {% elif featured_project.start_at and featured_project.calendar_weeks_full.weeks and featured_project.calendar_weeks_full.weeks|length > 0 %}
-                      <div aria-label="{{ featured_project.datelocation }}">
-                        {{ calendarwidget(featured_project.calendar_weeks_full, compact=false) }}
-                      </div>
-                    {% endif %}
-                    <div class="mui--hidden-lg mui--hidden-xl">
-                      <h3 class="card__body__title mui--text-subhead {% if not featured_project.start_at %} card__body__subtitle {% endif %}"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline"><span class="text-bold">{{ featured_project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</span></a></h3>
-                    </div>
-                    <div class="flex-wrapper flex-wrapper--end flex-wrapper--space-between top-padding">
-                      <div class="card__body__location mui--text-light zero-bottom-margin">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
-                      {% if featured_project.features.tickets() %}
-                        <div>
-                          <button class="js-open-ticket-widget mui-btn mui-btn--primary price-btn zero-bottom-margin zero-top-margin">
-                            {% if featured_project.features.subscription %}
-                              <span class="price-btn__txt" data-cy="unregistered">{% trans %}Join{% endtrans %}</span>
-                            {%- else %}
-                              <span class="price-btn__txt" data-cy="unregistered">{% trans %}Get tickets{% endtrans %}</span>
-                            {% endif %}
-                            <span class="price-btn__txt price-btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
-                            <span class="price-btn__txt price-btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
-                          </button>
-                          <div class="tickets-wrapper">
-                            <div class="tickets-wrapper__modal">
-                              <div id="tickets" class="tickets-wrapper__modal__body">
-                                <span role="button" aria-label="{% trans %}Close tickets{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Close tickets">{{ faicon(icon='times', baseline=false, icon_size='title') }}</span>
-                                <div id="boxoffice-widget"><p class="mui--text-body2">{% trans %}Loading…{% endtrans %}</p></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      {%- endif %}
-                    </div>
-                  </div>
-                {% endif %}
               </div>
             </div>
           </div>

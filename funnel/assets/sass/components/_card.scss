@@ -41,6 +41,19 @@
     padding: 0 $mui-grid-padding * 0.5;
   }
 
+  .card__badge {
+    margin: 0;
+    padding: $mui-grid-padding * 0.25 $mui-grid-padding;
+    width: auto;
+    min-width: 32px;
+    color: $mui-text-hyperlink;
+    text-decoration: none;
+    border-radius: 16px;
+    font-weight: 500;
+    background: transparentize($mui-primary-color, 0.85);
+    border: 1px solid transparentize($mui-primary-color, 0.8);
+  }
+
   .mui-btn + .mui-btn {
     margin-left: 0;
   }
@@ -341,7 +354,7 @@
   border-radius: 16px 16px 0 16px;
   overflow: hidden;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
-  max-width: 450px;
+  max-width: 100%;
   transition: 200ms linear;
   -webkit-transition: 200ms linear;
   height: 100%;
