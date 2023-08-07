@@ -94,6 +94,15 @@
   box-shadow: none;
 }
 
+.mui-btn--accent.mui--is-disabled:hover,
+.mui-btn--accent.mui--is-disabled:active,
+.mui-btn--accent.mui--is-disabled:focus .mui-btn--accent.mui--is-disabled:active:hover {
+  background: $mui-bg-color-primary;
+  color: $mui-primary-color;
+  border: 1px solid $mui-primary-color;
+  box-shadow: none;
+}
+
 .mui-btn--accent.mui-btn--flat {
   border: none !important;
 }
