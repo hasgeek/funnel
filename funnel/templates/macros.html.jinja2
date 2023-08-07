@@ -202,10 +202,10 @@
           {%- if include_details %}
             <div class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</div>
           {% endif %}
-          {% if project.features.ticket_participant() %}
-            <span class="chip chip--bg-success text-bold margin-top">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}Member</span>
+          {% if project.current_roles.ticket_participant %}
+            <span class="chip chip--bg-success text-bold margin-top">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span>
           {% elif project.features.tickets() %}
-            <span class="chip text-bold margin-top">{{ faicon(icon='crown-solid', baseline=true, css_class="fa-icon--right-margin") }}Member access</span>
+            <span class="chip text-bold margin-top">{{ faicon(icon='crown-solid', baseline=true, css_class="fa-icon--right-margin") }}{% trans %}Member access{% endtrans %}</span>
           {% endif %}
         </div>
       </div>
