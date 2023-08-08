@@ -254,10 +254,10 @@ def reset_with_token_do() -> ReturnView:
         user.password = form.password.data
         session.pop('reset_token', None)
         # Invalidate all of the user's active sessions
-        user_sessions = user.active_user_sessions.all()
-        session_count = len(user_sessions)
-        for user_session in user_sessions:
-            user_session.revoke()
+        login_sessions = user.active_login_sessions.all()
+        session_count = len(login_sessions)
+        for login_session in login_sessions:
+            login_session.revoke()
         db.session.commit()
         dispatch_notification(AccountPasswordNotification(document=user))
         return render_message(

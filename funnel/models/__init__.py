@@ -63,7 +63,7 @@ from . import types  # isort:skip
 from .helpers import *  # isort:skip
 from .account import *  # isort:skip
 from .user_signals import *  # isort:skip
-from .user_session import *  # isort:skip
+from .login_session import *  # isort:skip
 from .email_address import *  # isort:skip
 from .phone_number import *  # isort:skip
 from .auth_client import *  # isort:skip

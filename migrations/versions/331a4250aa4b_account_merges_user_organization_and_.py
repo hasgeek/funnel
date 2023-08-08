@@ -425,15 +425,29 @@ renames = [
     ),
     Rtable(
         'auth_code',
-        columns=[Rn('user_id', 'account_id')],
-        constraints=[Rn('{}_user_id_fkey', '{}_account_id_fkey')],
+        columns=[
+            Rn('user_id', 'account_id'),
+            Rn('user_session_id', 'login_session_id'),
+        ],
+        constraints=[
+            Rn('{}_user_id_fkey', '{}_account_id_fkey'),
+            Rn('{}_user_session_id_fkey', '{}_login_session_id_fkey'),
+        ],
     ),
     Rtable(
         'auth_token',
-        columns=[Rn('user_id', 'account_id')],
+        columns=[
+            Rn('user_id', 'account_id'),
+            Rn('user_session_id', 'login_session_id'),
+        ],
         constraints=[
             Rn('{}_user_id_auth_client_id_key', '{}_account_id_auth_client_id_key'),
             Rn('{}_user_id_fkey', '{}_account_id_fkey'),
+            Rn(
+                '{}_user_session_id_auth_client_id_key',
+                '{}_login_session_id_auth_client_id_key',
+            ),
+            Rn('{}_user_session_id_fkey', '{}_user_session_id_fkey'),
         ],
     ),
     Rtable(
@@ -480,6 +494,27 @@ renames = [
         columns=[Rn('user_id', 'created_by_id')],
         constraints=[Rn('{}_user_id_fkey', '{}_created_by_id_fkey')],
         indexes=[Rn('ix_{}_user_id', 'ix_{}_created_by_id')],
+    ),
+    Rtable(
+        'user_session',
+        'login_session',
+        sequences=[Rn('{}_id_seq')],
+        columns=[Rn('user_id', 'account_id')],
+        constraints=[
+            Rn('{}_pkey'),
+            Rn('{}_uuid_key'),
+            Rn('{}_user_id_fkey', '{}_account_id_fkey'),
+        ],
+    ),
+    Rtable(
+        'auth_client_user_session',
+        'auth_client_login_session',
+        columns=[Rn('user_session_id', 'login_session_id')],
+        constraints=[
+            Rn('{}_pkey'),
+            Rn('{}_auth_client_id_fkey'),
+            Rn('{}_user_session_id_fkey', '{}_login_session_id_fkey'),
+        ],
     ),
 ]
 
@@ -1060,7 +1095,6 @@ def downgrade_() -> None:
                 )
             )
         )
-    # TODO: Re-populate organization and profile?
 
     with console.status("Updating team"):
         op.add_column(

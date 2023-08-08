@@ -43,7 +43,7 @@ from ..models import (
     AccountEmailClaim,
     AccountExternalId,
     AuthClientCredential,
-    UserSession,
+    LoginSession,
     db,
     getextid,
     merge_accounts,
@@ -391,8 +391,8 @@ def account_logout() -> ReturnView:
     """Process a logout request."""
     form = LogoutForm(user=current_auth.user)
     if form.validate():
-        if form.user_session:
-            form.user_session.revoke()
+        if form.login_session:
+            form.login_session.revoke()
             db.session.commit()
             if request_wants.json:
                 return {'status': 'ok'}
@@ -669,7 +669,7 @@ def account_merge() -> ReturnView:
 # 2. `app` /login/hasjob does:
 #     1. Ask user to login if required (@requires_login(''))
 #     2. Verify signature of code
-#     3. Create a timestamped token using (nonce, user_session.buid)
+#     3. Create a timestamped token using (nonce, login_session.buid)
 #     4. Redirect user to `hasjobapp` /login/callback?token={token}
 
 # 3. `hasjobapp` /login/callback does:
@@ -756,14 +756,14 @@ def hasjobapp_login_callback(token):
         return render_redirect(url_for('index'))
 
     # 2. Load user session and 3. Redirect user back to where they came from
-    user_session = UserSession.get(request_token['sessionid'])
-    if user_session is not None:
-        user = user_session.user
-        login_internal(user, user_session)
+    login_session = LoginSession.get(request_token['sessionid'])
+    if login_session is not None:
+        user = login_session.account
+        login_internal(user, login_session)
         db.session.commit()
         flash(_("You are now logged in"), category='success')
         current_app.logger.debug(
-            "hasjobapp login succeeded for %r, %r", user, user_session
+            "hasjobapp login succeeded for %r, %r", user, login_session
         )
         return render_redirect(get_next_url(session=True))
 

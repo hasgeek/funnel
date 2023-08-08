@@ -18,7 +18,7 @@ from ...models import (
     AuthClientCredential,
     AuthCode,
     AuthToken,
-    UserSession,
+    LoginSession,
     db,
     getuser,
 )
@@ -83,7 +83,7 @@ def oauth_make_auth_code(
     """
     authcode = AuthCode(
         account=current_auth.user,
-        user_session=current_auth.session,
+        login_session=current_auth.session,
         auth_client=auth_client,
         scope=scope,
         redirect_uri=redirect_uri[:1024],
@@ -349,11 +349,11 @@ def oauth_make_token(
     user: Optional[Account],
     auth_client: AuthClient,
     scope: Iterable,
-    user_session: Optional[UserSession] = None,
+    login_session: Optional[LoginSession] = None,
 ) -> AuthToken:
     """Make an OAuth2 token for the given user, client, scope and optional session."""
     # Look for an existing token
-    token = auth_client.authtoken_for(user, user_session)
+    token = auth_client.authtoken_for(user, login_session)
 
     # If token exists, add to the existing scope
     if token is not None:
@@ -370,9 +370,9 @@ def oauth_make_token(
                 AuthToken,
                 failsafe_add(db.session, token, account=user, auth_client=auth_client),
             )
-        elif user_session is not None:
+        elif login_session is not None:
             token = AuthToken(  # nosec
-                user_session=user_session,
+                login_session=login_session,
                 auth_client=auth_client,
                 scope=scope,
                 token_type='bearer',
@@ -382,12 +382,12 @@ def oauth_make_token(
                 failsafe_add(
                     db.session,
                     token,
-                    user_session=user_session,
+                    login_session=login_session,
                     auth_client=auth_client,
                 ),
             )
         else:
-            raise ValueError("user_session not provided")
+            raise ValueError("login_session not provided")
     return token
 
 
@@ -502,7 +502,7 @@ def oauth_token() -> ReturnView:
                 user=authcode.account,
                 auth_client=auth_client,
                 scope=token.effective_scope,
-                user_session=authcode.user_session,
+                login_session=authcode.login_session,
             ),
         )
 

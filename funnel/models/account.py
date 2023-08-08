@@ -858,8 +858,8 @@ class Account(UuidMixin, BaseMixin, Model):
         self.revoke_all_auth_client_permissions()  # Same place
 
         # 5. Revoke all active login sessions
-        for user_session in self.active_user_sessions:
-            user_session.revoke()
+        for login_session in self.active_login_sessions:
+            login_session.revoke()
 
         # 6. Clear name (username), title (fullname) and stored password hash
         self.name = None

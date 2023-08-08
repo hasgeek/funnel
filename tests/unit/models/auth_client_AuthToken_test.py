@@ -173,17 +173,19 @@ class TestAuthToken(TestDatabaseFixture):
         oakley = self.fixtures.oakley
         auth_client = self.fixtures.auth_client
 
-        user_session = models.UserSession(
-            buid=buid(), user=crusoe, ipaddr='', user_agent='', accessed_at=utcnow()
+        login_session = models.LoginSession(
+            buid=buid(), account=crusoe, ipaddr='', user_agent='', accessed_at=utcnow()
         )
         auth_token_with_user_session = models.AuthToken(
             auth_client=auth_client,
             account=crusoe,
-            user_session=user_session,
+            login_session=login_session,
             scope='',
         )
-        assert isinstance(auth_token_with_user_session.user_session.user, models.User)
-        assert auth_token_with_user_session.user_session.user == crusoe
+        assert isinstance(
+            auth_token_with_user_session.login_session.account, models.User
+        )
+        assert auth_token_with_user_session.login_session.account == crusoe
 
         auth_token_without_user_session = models.AuthToken(
             auth_client=auth_client, account=oakley, scope='id'

@@ -20,9 +20,9 @@ from ...models import (
     AuthClientCredential,
     AuthClientPermissions,
     AuthToken,
+    LoginSession,
     Organization,
     User,
-    UserSession,
     db,
     getuser,
 )
@@ -43,7 +43,7 @@ def get_userinfo(
     user: Account,
     auth_client: AuthClient,
     scope: Container[str] = (),
-    user_session: Optional[UserSession] = None,
+    login_session: Optional[LoginSession] = None,
     get_permissions: bool = True,
 ) -> ReturnResource:
     """Return userinfo for a given user, auth client and scope."""
@@ -62,8 +62,8 @@ def get_userinfo(
     else:
         userinfo = {}
 
-    if user_session is not None:
-        userinfo['sessionid'] = user_session.buid
+    if login_session is not None:
+        userinfo['sessionid'] = login_session.buid
 
     if '*' in scope or 'email' in scope or 'email/*' in scope:
         userinfo['email'] = str(user.email)
@@ -328,8 +328,8 @@ def user_autocomplete(q: str = '') -> ReturnView:
     # imposes a limit of 20 name lookups per half hour.
 
     validate_rate_limit(
-        # As this endpoint accepts client_id+user_session in lieu of login cookie,
-        # we may not have an authenticated user. Use the user_session's user in that
+        # As this endpoint accepts client_id+login_session in lieu of login cookie,
+        # we may not have an authenticated user. Use the login_session's account in that
         # case
         'api_user_autocomplete',
         current_auth.actor.uuid_b58
@@ -377,8 +377,8 @@ def profile_autocomplete(q: str = '') -> ReturnView:
     # imposes a limit of 20 name lookups per half hour.
 
     validate_rate_limit(
-        # As this endpoint accepts client_id+user_session in lieu of login cookie,
-        # we may not have an authenticated user. Use the user_session's user in that
+        # As this endpoint accepts client_id+login_session in lieu of login cookie,
+        # we may not have an authenticated user. Use the login_session's account in that
         # case
         'api_profile_autocomplete',
         current_auth.actor.uuid_b58
@@ -486,17 +486,17 @@ def session_verify(
 ) -> ReturnResource:
     """Verify a UserSession."""
     sessionid = abort_null(args['sessionid'])
-    user_session = UserSession.authenticate(buid=sessionid, silent=True)
-    if user_session is not None and user_session.user == authtoken.effective_user:
-        user_session.views.mark_accessed(auth_client=authtoken.auth_client)
+    login_session = LoginSession.authenticate(buid=sessionid, silent=True)
+    if login_session is not None and login_session.account == authtoken.effective_user:
+        login_session.views.mark_accessed(auth_client=authtoken.auth_client)
         db.session.commit()
         return {
             'active': True,
-            'sessionid': user_session.buid,
-            'userid': user_session.user.buid,
-            'buid': user_session.user.buid,
-            'user_uuid': user_session.user.uuid,
-            'sudo': user_session.has_sudo,
+            'sessionid': login_session.buid,
+            'userid': login_session.account.buid,
+            'buid': login_session.account.buid,
+            'user_uuid': login_session.account.uuid,
+            'sudo': login_session.has_sudo,
         }
     return {'active': False}
 

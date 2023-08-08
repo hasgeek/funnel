@@ -14,10 +14,10 @@ from ..models import (
     AccountPhone,
     EmailAddress,
     EmailAddressBlockedError,
+    LoginSession,
     PhoneNumber,
     PhoneNumberBlockedError,
     User,
-    UserSession,
     check_password_strength,
     getuser,
     parse_phone_number,
@@ -252,9 +252,9 @@ class LogoutForm(forms.Form):
     """Process a logout request."""
 
     __expects__ = ('user',)
-    __returns__ = ('user_session',)
+    __returns__ = ('login_session',)
     user: Account
-    user_session: Optional[UserSession] = None
+    login_session: Optional[LoginSession] = None
 
     # We use `StringField`` even though the field is not visible. This does not use
     # `HiddenField`, because that gets rendered with `hidden_tag`, and not `SubmitField`
@@ -265,10 +265,10 @@ class LogoutForm(forms.Form):
 
     def validate_sessionid(self, field: forms.Field) -> None:
         """Validate login session belongs to the user who invoked this form."""
-        user_session = UserSession.get(buid=field.data)
-        if not user_session or user_session.user != self.user:
+        login_session = LoginSession.get(buid=field.data)
+        if not login_session or login_session.account != self.user:
             raise forms.validators.ValidationError(MSG_NO_LOGIN_SESSION)
-        self.user_session = user_session
+        self.login_session = login_session
 
 
 class OtpForm(forms.Form):

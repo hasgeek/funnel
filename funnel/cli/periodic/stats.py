@@ -250,20 +250,20 @@ async def matomo_stats() -> MatomoData:
 def data_sources() -> Dict[str, DataSource]:
     """Return sources for daily stats report."""
     return {
-        # `user_sessions`, `app_user_sessions` and `returning_users` (added below) are
+        # `login_sessions`, `app_login_sessions` and `returning_users` (added below) are
         # lookup keys, while the others are titles
-        'user_sessions': DataSource(
-            models.UserSession.query.distinct(models.UserSession.user_id),
-            models.UserSession.accessed_at,
+        'login_sessions': DataSource(
+            models.LoginSession.query.distinct(models.LoginSession.account_id),
+            models.LoginSession.accessed_at,
         ),
-        'app_user_sessions': DataSource(
-            db.session.query(sa.func.distinct(models.UserSession.user_id))
-            .select_from(models.auth_client_user_session, models.UserSession)
+        'app_login_sessions': DataSource(
+            db.session.query(sa.func.distinct(models.LoginSession.account_id))
+            .select_from(models.auth_client_login_session, models.LoginSession)
             .filter(
-                models.auth_client_user_session.c.user_session_id
-                == models.UserSession.id
+                models.auth_client_login_session.c.login_session_id
+                == models.LoginSession.id
             ),
-            cast(Mapped[datetime], models.auth_client_user_session.c.accessed_at),
+            cast(Mapped[datetime], models.auth_client_login_session.c.accessed_at),
         ),
         "New users": DataSource(
             models.Account.query.filter(models.Account.state.ACTIVE),
@@ -327,41 +327,41 @@ async def user_stats() -> Dict[str, ResourceStats]:
         {
             'returning_users': ResourceStats(
                 # User from day before was active yesterday
-                day=models.UserSession.query.join(models.User)
+                day=models.LoginSession.query.join(models.Account)
                 .filter(
-                    models.UserSession.accessed_at >= yesterday,
-                    models.UserSession.accessed_at < today,
+                    models.LoginSession.accessed_at >= yesterday,
+                    models.LoginSession.accessed_at < today,
                     models.Account.created_at >= two_days_ago,
                     models.Account.created_at < yesterday,
                 )
-                .distinct(models.UserSession.user_id)
+                .distinct(models.LoginSession.account_id)
                 .count(),
                 # User from last week was active this week
-                week=models.UserSession.query.join(models.User)
+                week=models.LoginSession.query.join(models.Account)
                 .filter(
-                    models.UserSession.accessed_at >= last_week,
-                    models.UserSession.accessed_at < today,
+                    models.LoginSession.accessed_at >= last_week,
+                    models.LoginSession.accessed_at < today,
                     models.Account.created_at >= two_weeks_ago,
                     models.Account.created_at < last_week,
                 )
-                .distinct(models.UserSession.user_id)
+                .distinct(models.LoginSession.account_id)
                 .count(),
                 # User from last month was active this month
-                month=models.UserSession.query.join(models.User)
+                month=models.LoginSession.query.join(models.Account)
                 .filter(
-                    models.UserSession.accessed_at >= last_month,
-                    models.UserSession.accessed_at < today,
+                    models.LoginSession.accessed_at >= last_month,
+                    models.LoginSession.accessed_at < today,
                     models.Account.created_at >= two_months_ago,
                     models.Account.created_at < last_month,
                 )
-                .distinct(models.UserSession.user_id)
+                .distinct(models.LoginSession.account_id)
                 .count(),
             )
         }
     )
 
     for key in stats:
-        if key not in ('user_sessions', 'app_user_sessions', 'returning_users'):
+        if key not in ('login_sessions', 'app_login_sessions', 'returning_users'):
             stats[key].set_trend_symbols()
 
     return stats
@@ -399,29 +399,29 @@ async def dailystats() -> None:
     if matomo_data.visits_day:
         message += f' {matomo_data.visits_day.nb_uniq_visitors}'
     message += (
-        f" → {user_data['user_sessions'].day}"
-        f" ↝ {user_data['app_user_sessions'].day}"
+        f" → {user_data['login_sessions'].day}"
+        f" ↝ {user_data['app_login_sessions'].day}"
         f" ⟳ {user_data['returning_users'].day}\n"
         f"*Week:*"
     )
     if matomo_data.visits_week:
         message += f' {matomo_data.visits_week.nb_uniq_visitors}'
     message += (
-        f" → {user_data['user_sessions'].week}"
-        f" ↝ {user_data['app_user_sessions'].week}"
+        f" → {user_data['login_sessions'].week}"
+        f" ↝ {user_data['app_login_sessions'].week}"
         f" ⟳ {user_data['returning_users'].week}\n"
         f"*Month:*"
     )
     if matomo_data.visits_month:
         message += f' {matomo_data.visits_month.nb_uniq_visitors}'
     message += (
-        f" → {user_data['user_sessions'].month}"
-        f" ↝ {user_data['app_user_sessions'].month}"
+        f" → {user_data['login_sessions'].month}"
+        f" ↝ {user_data['app_login_sessions'].month}"
         f" ⟳ {user_data['returning_users'].month}\n"
         f"\n"
     )
     for key, data in user_data.items():
-        if key not in ('user_sessions', 'app_user_sessions', 'returning_users'):
+        if key not in ('login_sessions', 'app_login_sessions', 'returning_users'):
             message += (
                 f"*{key}:*\n"
                 f"{data.day_trend}{data.weekday_trend} {data.day} day,"

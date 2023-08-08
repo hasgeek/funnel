@@ -60,8 +60,8 @@ class TestClient(TestDatabaseFixture):
             account=varys,
             website='houseoflannisters.westeros',
         )
-        varys_session = models.UserSession(
-            user=varys,
+        varys_session = models.LoginSession(
+            account=varys,
             ipaddr='192.168.1.99',
             user_agent=(
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36'
@@ -74,13 +74,13 @@ class TestClient(TestDatabaseFixture):
             account=varys,
             scope='throne',
             validity=0,
-            user_session=varys_session,
+            login_session=varys_session,
         )
         self.db_session.add_all(
             [varys, house_lannisters, lannisters_auth_token, varys_session]
         )
         self.db_session.commit()
-        result = house_lannisters.authtoken_for(varys, user_session=varys_session)
+        result = house_lannisters.authtoken_for(varys, login_session=varys_session)
         assert isinstance(result, models.AuthToken)
         assert "Lord Varys" == result.account.fullname
 
@@ -91,6 +91,7 @@ class TestClient(TestDatabaseFixture):
         key = auth_client.buid
         # scenario 1: without key
         with pytest.raises(TypeError):
+            # pylint: disable=no-value-for-parameter
             models.AuthClient.get()  # type: ignore[call-arg]
         # scenario 2: when given key
         result1 = models.AuthClient.get(buid=key)

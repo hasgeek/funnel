@@ -322,14 +322,14 @@
             {{ logout_form.hidden_tag() }}
             <div class="card__body">
               <ul class="list--aligned mui-list--unstyled grid-no-left-padding list--border zero-bottom-margin">
-                {%- for user_session in current_auth.user.active_user_sessions %}
+                {%- for login_session in current_auth.user.active_login_sessions %}
                   {%- with
-                      ua=user_session.views.user_agent_details(),
-                      login_service=user_session.views.login_service(),
-                      location=user_session.views.location(),
-                      user_agent=user_session.user_agent,
-                      since=user_session.created_at|age,
-                      last_active=user_session.accessed_at|age %}
+                      ua=login_session.views.user_agent_details(),
+                      login_service=login_session.views.login_service(),
+                      location=login_session.views.location(),
+                      user_agent=login_session.user_agent,
+                      since=login_session.created_at|age,
+                      last_active=login_session.accessed_at|age %}
                     <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session">
                       <div>
                         <ul class="bullet-separated-list"
@@ -350,16 +350,16 @@
                         {%- endif -%}
                       </p>
                       <p class="login-session__body mui--text-light">
-                        {% trans ipaddr=user_session.ipaddr %}{{ location }} – estimated from {{ ipaddr }}{% endtrans %}
+                        {% trans ipaddr=login_session.ipaddr %}{{ location }} – estimated from {{ ipaddr }}{% endtrans %}
                       </p>
                     </div>
                     <div>
-                      {%- if user_session == current_auth.session %}
+                      {%- if login_session == current_auth.session %}
                         {{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=true, css_class="mui--text-success input-align-icon") }}
                       {%- else -%}
                         <button type="submit"
                                 name="sessionid"
-                                value="{{ user_session.buid }}"
+                                value="{{ login_session.buid }}"
                                 title="{% trans %}Logout{% endtrans %}"
                                 aria-label="{% trans %}Logout{% endtrans %}"
                                 class="mui-btn mui-btn--small mui-btn--flat mui-btn--nostyle">

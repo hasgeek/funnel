@@ -41,7 +41,7 @@ from . import (
 )
 from .account import Account, Team
 from .helpers import reopen
-from .user_session import UserSession, auth_client_user_session
+from .login_session import LoginSession, auth_client_login_session
 
 __all__ = [
     'AuthCode',
@@ -164,10 +164,10 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         sa.orm.mapped_column(sa.Boolean, nullable=False, default=False), read={'all'}
     )
 
-    user_sessions: DynamicMapped[UserSession] = relationship(
-        UserSession,
+    login_sessions: DynamicMapped[LoginSession] = relationship(
+        LoginSession,
         lazy='dynamic',
-        secondary=auth_client_user_session,
+        secondary=auth_client_login_session,
         backref=backref('auth_clients', lazy='dynamic'),
     )
 
@@ -223,7 +223,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         return 'owner' in self.roles_for(user)
 
     def authtoken_for(
-        self, account: Optional[Account], user_session: Optional[UserSession] = None
+        self, account: Optional[Account], login_session: Optional[LoginSession] = None
     ) -> Optional[AuthToken]:
         """
         Return the authtoken for this user and client.
@@ -234,8 +234,8 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
             if account is None:
                 raise ValueError("User not provided")
             return AuthToken.get_for(auth_client=self, account=account)
-        if user_session and user_session.user == account:
-            return AuthToken.get_for(auth_client=self, user_session=user_session)
+        if login_session and login_session.account == account:
+            return AuthToken.get_for(auth_client=self, login_session=login_session)
         return None
 
     def allow_access_for(self, actor: Account) -> bool:
@@ -395,10 +395,10 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
         foreign_keys=[auth_client_id],
         backref=backref('authcodes', cascade='all'),
     )
-    user_session_id: Mapped[Optional[int]] = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('user_session.id'), nullable=True
+    login_session_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+        sa.Integer, sa.ForeignKey('login_session.id'), nullable=True
     )
-    user_session: Mapped[Optional[UserSession]] = relationship(UserSession)
+    login_session: Mapped[Optional[LoginSession]] = relationship(LoginSession)
     code: Mapped[str] = sa.orm.mapped_column(
         sa.String(44), default=newsecret, nullable=False
     )
@@ -429,8 +429,8 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
 
     __tablename__ = 'auth_token'
     __allow_unmapped__ = True
-    # User id is null for client-only tokens and public clients as the user is
-    # identified via user_session.user there
+    # Account id is null for client-only tokens and public clients as the account is
+    # identified via login_session.account there
     account_id: Mapped[Optional[int]] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True
     )
@@ -439,11 +439,11 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         backref=backref('authtokens', lazy='dynamic', cascade='all'),
     )
     #: The session in which this token was issued, null for confidential clients
-    user_session_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('user_session.id'), nullable=True
+    login_session_id = sa.orm.mapped_column(
+        sa.Integer, sa.ForeignKey('login_session.id'), nullable=True
     )
-    user_session: Mapped[Optional[UserSession]] = with_roles(
-        relationship(UserSession, backref=backref('authtokens', lazy='dynamic')),
+    login_session: Mapped[Optional[LoginSession]] = with_roles(
+        relationship(LoginSession, backref=backref('authtokens', lazy='dynamic')),
         read={'owner'},
     )
     #: The client this authtoken is for
@@ -475,7 +475,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     # Only one authtoken per user and client. Add to scope as needed
     __table_args__ = (
         sa.UniqueConstraint('account_id', 'auth_client_id'),
-        sa.UniqueConstraint('user_session_id', 'auth_client_id'),
+        sa.UniqueConstraint('login_session_id', 'auth_client_id'),
     )
 
     __roles__ = {
@@ -488,8 +488,8 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     @property
     def effective_user(self) -> Account:
         """Return subject user of this auth token."""
-        if self.user_session:
-            return self.user_session.user
+        if self.login_session:
+            return self.login_session.account
         return self.account
 
     def __init__(self, **kwargs) -> None:
@@ -513,12 +513,12 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     def last_used(self) -> datetime:
         """Return last used timestamp for this auth token."""
         return (
-            db.session.query(sa.func.max(auth_client_user_session.c.accessed_at))
-            .select_from(auth_client_user_session, UserSession)
+            db.session.query(sa.func.max(auth_client_login_session.c.accessed_at))
+            .select_from(auth_client_login_session, LoginSession)
             .filter(
-                auth_client_user_session.c.user_session_id == UserSession.id,
-                auth_client_user_session.c.auth_client_id == self.auth_client_id,
-                UserSession.user == self.account,
+                auth_client_login_session.c.login_session_id == LoginSession.id,
+                auth_client_login_session.c.auth_client_id == self.auth_client_id,
+                LoginSession.account == self.account,
             )
             .scalar()
         )
@@ -589,7 +589,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     @overload
     @classmethod
     def get_for(
-        cls, auth_client: AuthClient, *, user_session: UserSession
+        cls, auth_client: AuthClient, *, login_session: LoginSession
     ) -> Optional[AuthToken]:
         ...
 
@@ -599,16 +599,16 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         auth_client: AuthClient,
         *,
         account: Optional[Account] = None,
-        user_session: Optional[UserSession] = None,
+        login_session: Optional[LoginSession] = None,
     ) -> Optional[AuthToken]:
         """Get an auth token for an auth client and a user or user session."""
-        require_one_of(account=account, user_session=user_session)
+        require_one_of(account=account, login_session=login_session)
         if account is not None:
             return cls.query.filter(
                 cls.auth_client == auth_client, cls.account == account
             ).one_or_none()
         return cls.query.filter(
-            cls.auth_client == auth_client, cls.user_session == user_session
+            cls.auth_client == auth_client, cls.login_session == login_session
         ).one_or_none()
 
     @classmethod

@@ -52,8 +52,8 @@ from ..models import (
     AccountPasswordNotification,
     AccountPhone,
     AuthClient,
+    LoginSession,
     Organization,
-    UserSession,
     db,
     sa,
 )
@@ -199,8 +199,8 @@ def user_not_likely_throwaway(obj: Account) -> bool:
     return obj.is_verified or bool(obj.phone)
 
 
-@UserSession.views('user_agent_details')
-def user_agent_details(obj: UserSession) -> Dict[str, str]:
+@LoginSession.views('user_agent_details')
+def user_agent_details(obj: LoginSession) -> Dict[str, str]:
     """Return a friendly identifier for the user's browser (HTTP user agent)."""
     ua = user_agents.parse(obj.user_agent)
     if ua.browser.family:
@@ -237,8 +237,8 @@ def user_agent_details(obj: UserSession) -> Dict[str, str]:
     return {'browser': browser, 'os_device': os_device}
 
 
-@UserSession.views('location')
-def user_session_location(obj: UserSession) -> str:
+@LoginSession.views('location')
+def login_session_location(obj: LoginSession) -> str:
     """Return user's location and ISP as determined from their IP address."""
     if obj.ipaddr == '127.0.0.1':
         return _("This device")
@@ -268,8 +268,8 @@ def user_session_location(obj: UserSession) -> str:
     return result
 
 
-@UserSession.views('login_service')
-def user_session_login_service(obj: UserSession) -> Optional[str]:
+@LoginSession.views('login_service')
+def login_session_service(obj: LoginSession) -> Optional[str]:
     """Return the login provider that was used to create the login session."""
     if obj.login_service == 'otp':
         return _("OTP")
@@ -463,8 +463,8 @@ class AccountView(ClassView):
             # 1. Log out of the current session
             logout_internal()
             # 2. As a precaution, invalidate all of the user's active sessions
-            for user_session in user.active_user_sessions.all():
-                user_session.revoke()
+            for login_session in user.active_login_sessions.all():
+                login_session.revoke()
             # 3. Create a new session and continue without disrupting user experience
             login_internal(user, login_service='password')
             db.session.commit()

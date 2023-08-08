@@ -31,9 +31,9 @@ from ..models import (
     AuthClient,
     Comment,
     CommentModeratorReport,
+    LoginSession,
     User,
-    UserSession,
-    auth_client_user_session,
+    auth_client_login_session,
     db,
     sa,
 )
@@ -145,12 +145,12 @@ class SiteadminView(ClassView):
         """Render siteadmin dashboard landing page."""
         user_count = User.active_count()
         mau = (
-            db.session.query(sa.func.count(sa.func.distinct(UserSession.user_id)))
-            .select_from(UserSession)
-            .join(Account, UserSession.user)
+            db.session.query(sa.func.count(sa.func.distinct(LoginSession.account_id)))
+            .select_from(LoginSession)
+            .join(Account, LoginSession.account)
             .filter(
                 Account.state.ACTIVE,
-                UserSession.accessed_at > sa.func.utcnow() - timedelta(days=30),
+                LoginSession.accessed_at > sa.func.utcnow() - timedelta(days=30),
             )
             .scalar()
         )
@@ -198,19 +198,19 @@ class SiteadminView(ClassView):
         ):
             query_client_users = (
                 db.session.query(
-                    UserSession.user_id.label('user_id'),
-                    auth_client_user_session.c.auth_client_id.label('auth_client_id'),
+                    LoginSession.account_id.label('user_id'),
+                    auth_client_login_session.c.auth_client_id.label('auth_client_id'),
                 )
-                .select_from(UserSession, auth_client_user_session, Account)
+                .select_from(LoginSession, auth_client_login_session, Account)
                 .filter(
-                    UserSession.user_id == Account.id,
-                    auth_client_user_session.c.user_session_id == UserSession.id,
+                    LoginSession.account_id == Account.id,
+                    auth_client_login_session.c.login_session_id == LoginSession.id,
                     Account.state.ACTIVE,
-                    auth_client_user_session.c.accessed_at
+                    auth_client_login_session.c.accessed_at
                     >= sa.func.utcnow() - sa.func.cast(interval, INTERVAL),
                 )
                 .group_by(
-                    auth_client_user_session.c.auth_client_id, UserSession.user_id
+                    auth_client_login_session.c.auth_client_id, LoginSession.account_id
                 )
                 .subquery()
             )

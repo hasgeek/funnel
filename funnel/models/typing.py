@@ -6,6 +6,7 @@ from .account import Account, AccountOldId, Team
 from .auth_client import AuthClient
 from .comment import Comment, Commentset
 from .label import Label
+from .login_session import LoginSession
 from .membership_mixin import ImmutableMembershipMixin
 from .moderation import CommentModeratorReport
 from .project import Project
@@ -14,7 +15,6 @@ from .rsvp import Rsvp
 from .session import Session
 from .sync_ticket import TicketParticipant
 from .update import Update
-from .user_session import UserSession
 from .venue import Venue, VenueRoom
 
 __all__ = ['UuidModelUnion', 'SearchModelUnion', 'MarkdownModelUnion']
@@ -28,6 +28,7 @@ UuidModelUnion = Union[
     CommentModeratorReport,
     Commentset,
     ImmutableMembershipMixin,
+    LoginSession,
     Project,
     Proposal,
     Rsvp,
@@ -35,7 +36,6 @@ UuidModelUnion = Union[
     Team,
     TicketParticipant,
     Update,
-    UserSession,
     Venue,
     VenueRoom,
 ]
