@@ -177,7 +177,6 @@ def feature_project_tickets(obj: Project) -> bool:
         and 'item_collection_id' in obj.boxoffice_data
         and obj.boxoffice_data['item_collection_id']
         and not obj.state.PAST
-        and not obj.current_roles.ticket_participant
     )
 
 

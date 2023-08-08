@@ -141,9 +141,11 @@
                     <div class="mui--hidden-lg mui--hidden-xl">
                       <h3 class="card__body__title mui--text-subhead {% if not featured_project.start_at %} card__body__subtitle {% endif %}"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline"><span class="text-bold">{{ featured_project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</span></a></h3>
                     </div>
-                    <div class="flex-wrapper flex-wrapper--end flex-wrapper--space-between top-padding">
+                    <div class="flex-wrapper flex-wrapper--end flex-wrapper--space-between flex-wrapper--center top-padding">
                       <div class="card__body__location mui--text-light zero-bottom-margin">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
-                      {% if featured_project.features.tickets() %}
+                      {% if featured_project.current_roles.ticket_participant %}
+                        <div><button class="mui-btn mui-btn--accent zero-bottom-margin zero-top-margin mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
+                      {% elif featured_project.features.tickets() %}
                         <div>
                           <button class="js-open-ticket-widget mui-btn mui-btn--primary price-btn zero-bottom-margin zero-top-margin">
                             {% if featured_project.features.subscription %}
@@ -213,7 +215,7 @@
         {% endif %}
         <ul class="grid projects" role="list">
           {% for project in open_cfp_projects %}
-            <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4 grid__col-lg-3 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}"
+            <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}"
               role="listitem">
               {{ projectcard(project, include_calendar=false, save_form_id_prefix='open_spf_') }}
             </li>

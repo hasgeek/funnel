@@ -93,6 +93,9 @@
         border-color: $mui-text-danger;
       }
     }
+    .register-block__btn.mui--is-disabled:hover {
+      border-color: inherit;
+    }
   }
   .register-block__content--half {
     width: calc(50% - 8px);
@@ -271,6 +274,9 @@
         width: 100%;
         object-fit: cover;
       }
+    }
+    .project-banner__profile-details__badge {
+      margin-left: auto;
     }
   }
 
