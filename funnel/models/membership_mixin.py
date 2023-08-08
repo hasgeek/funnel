@@ -571,9 +571,10 @@ class ReorderMembershipMixin(ReorderMixin):
 class FrozenAttributionMixin:
     """Provides a `title` data column and support method to freeze it."""
 
-    member: Account
-    replace: Callable[..., FrozenAttributionType]
-    _local_data_only: bool
+    if TYPE_CHECKING:
+        member: Mapped[Account]
+        replace: Callable[..., FrozenAttributionType]
+        _local_data_only: bool
 
     @declared_attr
     @classmethod

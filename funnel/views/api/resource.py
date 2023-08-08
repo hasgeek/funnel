@@ -21,6 +21,7 @@ from ...models import (
     AuthClientPermissions,
     AuthToken,
     Organization,
+    User,
     UserSession,
     db,
     getuser,
@@ -343,7 +344,7 @@ def user_autocomplete(q: str = '') -> ReturnView:
         token=q,
         validator=progressive_rate_limit_validator,
     )
-    users = Account.autocomplete(q)
+    users = User.autocomplete(q)
     result = [
         {
             'userid': u.buid,

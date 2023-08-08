@@ -273,6 +273,24 @@ project_redirect = sa.table(
     sa.column('project_id', sa.Integer()),
 )
 
+project_sponsor_membership = sa.table(
+    'project_sponsor_membership',
+    sa.column('member_id', sa.Integer()),
+    sa.column('profile_id', sa.Integer()),
+)
+
+proposal_sponsor_membership = sa.table(
+    'proposal_sponsor_membership',
+    sa.column('member_id', sa.Integer()),
+    sa.column('profile_id', sa.Integer()),
+)
+
+team = sa.table(
+    'team',
+    sa.column('account_id', sa.Integer()),
+    sa.column('organization_id', sa.Integer()),
+)
+
 
 # All renames
 renames = [
@@ -503,6 +521,13 @@ def upgrade_() -> None:
             )
         )
 
+    with console.status("Resetting user_id_seq"):
+        conn = op.get_bind()
+        last_user_id = conn.scalar(
+            sa.select(sa.func.max(sa.table('user', sa.column('id', sa.Integer())).c.id))
+        )
+        conn.execute(sa.select(sa.func.setval('user_id_seq', last_user_id)))
+
     with console.status("Renaming user -> account"):
         for rn in renames:
             rn.upgrade()
@@ -661,7 +686,7 @@ def upgrade_() -> None:
                     sa.false().label('is_protected'),
                     sa.false().label('is_verified'),
                     sa.text('1'),
-                ),
+                ).order_by(organization.c.created_at),
             )
         )
 
@@ -749,7 +774,9 @@ def upgrade_() -> None:
                     sa.true().label('auto_timezone'),
                     sa.true().label('auto_locale'),
                     sa.text('1'),
-                ).where(profile.c.reserved.is_(True)),
+                )
+                .where(profile.c.reserved.is_(True))
+                .order_by(profile.c.created_at),
             )
         )
 
@@ -873,11 +900,104 @@ def upgrade_() -> None:
         )
         op.drop_column('project_redirect', 'profile_id')
 
-    # TODO:
-    # ProjectSponsorMembership.profile_id -> member_id (account; or drop model entirely)
-    # ix_project_sponsor_membership_active column change
-    # ProposalSponsorMembership.profile_id -> member_id (or drop model entirely)
-    # Team.organization_id -> account_id
+    with console.status("Updating project_sponsor_membership"):
+        op.add_column(
+            'project_sponsor_membership',
+            sa.Column(
+                'member_id',
+                sa.Integer(),
+                sa.ForeignKey(
+                    'account.id',
+                    name='project_sponsor_membership_member_id_fkey',
+                    ondelete='CASCADE',
+                ),
+                nullable=True,
+            ),
+        )
+        op.execute(
+            project_sponsor_membership.update()
+            .values(member_id=account.c.id)
+            .where(
+                project_sponsor_membership.c.profile_id == profile.c.id,
+                account.c.uuid == profile.c.uuid,
+            )
+        )
+        op.alter_column('project_sponsor_membership', 'member_id', nullable=False)
+        op.drop_constraint(
+            'project_sponsor_membership_profile_id_fkey',
+            'project_sponsor_membership',
+            type_='foreignkey',
+        )
+        op.drop_index('ix_project_sponsor_membership_active')
+        op.create_index(
+            'ix_project_sponsor_membership_active',
+            'project_sponsor_membership',
+            ['project_id', 'member_id'],
+            unique=True,
+            postgresql_where='revoked_at IS NULL',
+        )
+        op.drop_column('project_sponsor_membership', 'profile_id')
+
+    with console.status("Updating proposal_sponsor_membership"):
+        op.add_column(
+            'proposal_sponsor_membership',
+            sa.Column(
+                'member_id',
+                sa.Integer(),
+                sa.ForeignKey(
+                    'account.id',
+                    name='proposal_sponsor_membership_member_id_fkey',
+                    ondelete='CASCADE',
+                ),
+                nullable=True,
+            ),
+        )
+        op.execute(
+            proposal_sponsor_membership.update()
+            .values(member_id=account.c.id)
+            .where(
+                proposal_sponsor_membership.c.profile_id == profile.c.id,
+                account.c.uuid == profile.c.uuid,
+            )
+        )
+        op.alter_column('proposal_sponsor_membership', 'member_id', nullable=False)
+        op.drop_constraint(
+            'proposal_sponsor_membership_profile_id_fkey',
+            'proposal_sponsor_membership',
+            type_='foreignkey',
+        )
+        op.drop_index('ix_proposal_sponsor_membership_active')
+        op.create_index(
+            'ix_proposal_sponsor_membership_active',
+            'proposal_sponsor_membership',
+            ['proposal_id', 'member_id'],
+            unique=True,
+            postgresql_where='revoked_at IS NULL',
+        )
+        op.drop_column('proposal_sponsor_membership', 'profile_id')
+
+    with console.status("Updating team"):
+        op.add_column(
+            'team',
+            sa.Column(
+                'account_id',
+                sa.Integer(),
+                sa.ForeignKey('account.id', name='team_account_id_fkey'),
+                nullable=True,
+            ),
+        )
+        op.execute(
+            team.update()
+            .values(account_id=account.c.id)
+            .where(
+                team.c.organization_id == organization.c.id,
+                account.c.uuid == organization.c.uuid,
+            )
+        )
+        op.alter_column('team', 'account_id', nullable=False)
+        op.drop_constraint('team_organization_id_fkey', 'team', type_='foreignkey')
+        op.drop_column('team', 'organization_id')
+        op.create_index('ix_team_account_id', 'team', ['account_id'], unique=False)
 
     # Recreate account search_vector function and trigger, and add name_vector handlers
     with console.status("Rebuilding search vectors"):
@@ -941,7 +1061,105 @@ def downgrade_() -> None:
             )
         )
     # TODO: Re-populate organization and profile?
-    # TODO: Remap account_id to organization_id and profile_id where relevant
+
+    with console.status("Updating team"):
+        op.add_column(
+            'team',
+            sa.Column(
+                'organization_id',
+                sa.Integer(),
+                sa.ForeignKey('organization.id', name='team_organization_id_fkey'),
+                nullable=True,
+            ),
+        )
+        op.execute(
+            team.update()
+            .values(organization_id=organization.c.id)
+            .where(
+                team.c.account_id == account.c.id,
+                account.c.uuid == organization.c.uuid,
+            )
+        )
+        op.alter_column('team', 'organization_id', nullable=False)
+        op.drop_constraint('team_account_id_fkey', 'team', type_='foreignkey')
+        op.drop_index('ix_team_account_id', 'team')
+        op.drop_column('team', 'account_id')
+
+    with console.status("Updating proposal_sponsor_membership"):
+        op.add_column(
+            'proposal_sponsor_membership',
+            sa.Column(
+                'profile_id',
+                sa.Integer(),
+                sa.ForeignKey(
+                    'profile.id',
+                    name='proposal_sponsor_membership_profile_id_fkey',
+                    ondelete='CASCADE',
+                ),
+                nullable=True,
+            ),
+        )
+        op.execute(
+            proposal_sponsor_membership.update()
+            .values(profile_id=profile.c.id)
+            .where(
+                proposal_sponsor_membership.c.member_id == account.c.id,
+                account.c.uuid == profile.c.uuid,
+            )
+        )
+        op.alter_column('proposal_sponsor_membership', 'profile_id', nullable=False)
+        op.drop_constraint(
+            'proposal_sponsor_membership_member_id_fkey',
+            'proposal_sponsor_membership',
+            type_='foreignkey',
+        )
+        op.drop_index('ix_proposal_sponsor_membership_active')
+        op.create_index(
+            'ix_proposal_sponsor_membership_active',
+            'proposal_sponsor_membership',
+            ['proposal_id', 'profile_id'],
+            unique=True,
+            postgresql_where='revoked_at IS NULL',
+        )
+        op.drop_column('proposal_sponsor_membership', 'member_id')
+
+    with console.status("Updating project_sponsor_membership"):
+        op.add_column(
+            'project_sponsor_membership',
+            sa.Column(
+                'profile_id',
+                sa.Integer(),
+                sa.ForeignKey(
+                    'profile.id',
+                    name='project_sponsor_membership_profile_id_fkey',
+                    ondelete='CASCADE',
+                ),
+                nullable=True,
+            ),
+        )
+        op.execute(
+            project_sponsor_membership.update()
+            .values(profile_id=profile.c.id)
+            .where(
+                project_sponsor_membership.c.member_id == account.c.id,
+                account.c.uuid == profile.c.uuid,
+            )
+        )
+        op.alter_column('project_sponsor_membership', 'profile_id', nullable=False)
+        op.drop_constraint(
+            'project_sponsor_membership_member_id_fkey',
+            'project_sponsor_membership',
+            type_='foreignkey',
+        )
+        op.drop_index('ix_project_sponsor_membership_active')
+        op.create_index(
+            'ix_project_sponsor_membership_active',
+            'project_sponsor_membership',
+            ['project_id', 'profile_id'],
+            unique=True,
+            postgresql_where='revoked_at IS NULL',
+        )
+        op.drop_column('project_sponsor_membership', 'member_id')
 
     with console.status("Updating project_redirect"):
         op.add_column(
@@ -969,7 +1187,7 @@ def downgrade_() -> None:
         op.drop_constraint(
             'project_redirect_account_id_fkey', 'project_redirect', type_='foreignkey'
         )
-        op.drop_column('project_redirect', 'profile_id')
+        op.drop_column('project_redirect', 'account_id')
 
     with console.status("Updating project"):
         op.add_column(

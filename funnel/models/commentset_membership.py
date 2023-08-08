@@ -163,7 +163,7 @@ class __Commentset:
 
     def update_last_seen_at(self, user: Account) -> None:
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, user=user, is_active=True
+            commentset=self, member=user, is_active=True
         ).one_or_none()
         if subscription is not None:
             subscription.update_last_seen_at()
@@ -172,7 +172,7 @@ class __Commentset:
         """Return True is subscriber is added or unmuted, False if already exists."""
         changed = False
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, user=user, is_active=True
+            commentset=self, member=user, is_active=True
         ).one_or_none()
         if subscription is None:
             subscription = CommentsetMembership(
@@ -191,7 +191,7 @@ class __Commentset:
     def mute_subscriber(self, actor: Account, user: Account) -> bool:
         """Return True if subscriber was muted, False if already muted or missing."""
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, user=user, is_active=True
+            commentset=self, member=user, is_active=True
         ).one_or_none()
         if not subscription.is_muted:
             subscription.replace(actor=actor, is_muted=True)
@@ -201,7 +201,7 @@ class __Commentset:
     def unmute_subscriber(self, actor: Account, user: Account) -> bool:
         """Return True if subscriber was unmuted, False if not muted or missing."""
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, user=user, is_active=True
+            commentset=self, member=user, is_active=True
         ).one_or_none()
         if subscription.is_muted:
             subscription.replace(actor=actor, is_muted=False)
@@ -211,7 +211,7 @@ class __Commentset:
     def remove_subscriber(self, actor: Account, user: Account) -> bool:
         """Return True is subscriber is removed, False if already removed."""
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, user=user, is_active=True
+            commentset=self, member=user, is_active=True
         ).one_or_none()
         if subscription is not None:
             subscription.revoke(actor=actor)

@@ -300,9 +300,9 @@
         <div class="flex-wrapper flex-wrapper--center">
           <div class="user user--smaller">
             <div class="user__box">
-              <a {% if sponsor_public %}href="{{ sponsorship.account.profile_url }}"{% endif %} class="nounderline">
-                {%- if sponsorship.account.logo_url.url %}
-                  <img class="user__box__gravatar" src="{{ sponsorship.account.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ sponsorship.account.title }}"/>
+              <a {% if sponsor_public %}href="{{ sponsorship.member.profile_url }}"{% endif %} class="nounderline">
+                {%- if sponsorship.member.logo_url.url %}
+                  <img class="user__box__gravatar" src="{{ sponsorship.member.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ sponsorship.member.title }}"/>
                 {%- else %}
                   <div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ sponsorship.member.views.avatar_color_code }}">{{ sponsorship.member.title|initials }}</div>
                 {% endif %}

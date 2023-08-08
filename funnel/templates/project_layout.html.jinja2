@@ -327,7 +327,7 @@
   {%- endif %}
   <div class="sponsors-wrapper">
   {% for sponsorship in project.sponsor_memberships %}
-  {%- with sponsor_public = sponsorship.profile_state.ACTIVE_AND_PUBLIC %}
+  {%- with sponsor_public = sponsorship.member.profile_state.ACTIVE_AND_PUBLIC %}
       {% if current_auth.user and current_auth.user.is_site_editor %}
         <div id="{{ sponsorship.uuid_b58 }}" class="sortable" data-drag-placeholder="ui-box-placeholder" draggable="true">
       {%- endif %}
@@ -346,9 +346,9 @@
           <div class="flex-wrapper flex-wrapper--center">
             <div class="user user--smaller">
               <div class="user__box">
-                <a {% if sponsor_public %}href="{{ sponsorship.account.profile_url }}"{% endif %} class="nounderline">
-                  {%- if sponsorship.account.logo_url.url %}
-                    <img class="user__box__gravatar" src="{{ sponsorship.account.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ sponsorship.account.title }}"/>
+                <a {% if sponsor_public %}href="{{ sponsorship.member.profile_url }}"{% endif %} class="nounderline">
+                  {%- if sponsorship.member.logo_url.url %}
+                    <img class="user__box__gravatar" src="{{ sponsorship.member.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ sponsorship.member.title }}"/>
                   {%- else %}
                     <div class="user__box__gravatar user__box__gravatar--initials">{{ sponsorship.member.title|initials }}</div>
                   {% endif %}

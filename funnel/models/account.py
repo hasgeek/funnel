@@ -1053,14 +1053,17 @@ class Account(UuidMixin, BaseMixin, Model):
         tsquery = quote_autocomplete_tsquery(prefix)
 
         # base_users is used in two of the three possible queries below
-        base_users = (
-            cls.query.filter(
-                cls.state.ACTIVE,
-                cls.name_vector.bool_op('@@')(tsquery),
+        base_users = cls.query.filter(
+            cls.state.ACTIVE,
+            cls.name_vector.bool_op('@@')(tsquery),
+        )
+
+        if cls is not Account:
+            base_users = base_users.filter(
+                cls.type == cls.__mapper_args__['polymorphic_identity']
             )
-            .options(*cls._defercols())
-            .order_by(Account.title)
-            .limit(20)
+        base_users = (
+            base_users.options(*cls._defercols()).order_by(Account.title).limit(20)
         )
 
         if (
@@ -1416,7 +1419,7 @@ class Team(UuidMixin, BaseMixin, Model):
     )
     #: Organization
     account_id: Mapped[int] = sa.orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), nullable=False, index=True
     )
     account = with_roles(
         relationship(
