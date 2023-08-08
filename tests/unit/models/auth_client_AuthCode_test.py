@@ -39,11 +39,11 @@ class TestAuthCode(TestDatabaseFixture):
         self.db_session.commit()
 
         # Scenario 1: When code has not been used
-        unused_code_status = models.AuthCode.all_for(account=oakley).one().is_valid()
+        unused_code_status = models.AuthCode.all_for(oakley).one().is_valid()
         assert not unused_code_status
 
         # Scenario 2: When code has been used
         auth_code.used = False
         self.db_session.commit()
-        used_code_status = models.AuthCode.all_for(account=oakley).one().is_valid()
+        used_code_status = models.AuthCode.all_for(oakley).one().is_valid()
         assert used_code_status

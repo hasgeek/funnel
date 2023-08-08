@@ -248,8 +248,6 @@ class Proposal(  # type: ignore[misc]
         },
         'project_editor': {
             'call': {
-                'user',
-                'first_user',
                 'reorder_item',
                 'reorder_before',
                 'reorder_after',

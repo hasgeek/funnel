@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import List, Optional, Tuple
 
 from flask import abort, render_template, request, url_for
 
@@ -22,8 +22,8 @@ from .login_session import requires_login, requires_sudo, requires_user_not_spam
 # --- Routes: Organizations ---------------------------------------------------
 
 
-@Account.views()
-def people_and_teams(obj):
+@Organization.views()
+def people_and_teams(obj: Organization) -> List[Tuple[Account, List[Team]]]:
     """Extract a list of users from the org's public teams."""
     # This depends on user.member_teams not using lazy='dynamic'. When that changes, we
     # will need a different approach to match users to teams. Comparison is by id rather

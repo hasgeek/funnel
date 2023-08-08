@@ -91,9 +91,9 @@ def test_userclientpermissions_migrate_account_merge(
 
     assert len(user_twoflower.client_permissions) == 0
     assert len(user_rincewind.client_permissions) == 1
-    assert len(client_hex.user_permissions) == 1
-    assert client_hex.user_permissions[0].account == user_rincewind
+    assert len(client_hex.account_permissions) == 1
+    assert client_hex.account_permissions[0].account == user_rincewind
     assert (
-        client_hex.user_permissions[0].access_permissions
+        client_hex.account_permissions[0].access_permissions
         == 'perm_for_rincewind perm_for_twoflower'
     )

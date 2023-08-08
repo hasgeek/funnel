@@ -217,22 +217,22 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
             )
         return False
 
-    def owner_is(self, user: Account) -> bool:
-        """Test if the provided user is an owner of this client."""
+    def owner_is(self, account: Account) -> bool:
+        """Test if the provided account is an owner of this client."""
         # Legacy method for ownership test
-        return 'owner' in self.roles_for(user)
+        return 'owner' in self.roles_for(account)
 
     def authtoken_for(
         self, account: Optional[Account], login_session: Optional[LoginSession] = None
     ) -> Optional[AuthToken]:
         """
-        Return the authtoken for this user and client.
+        Return the authtoken for this account and client.
 
         Only works for confidential clients.
         """
         if self.confidential:
             if account is None:
-                raise ValueError("User not provided")
+                raise ValueError("Account not provided")
             return AuthToken.get_for(auth_client=self, account=account)
         if login_session and login_session.account == account:
             return AuthToken.get_for(auth_client=self, login_session=login_session)
@@ -262,14 +262,14 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         return cls.query.filter(cls.buid == buid, cls.active.is_(True)).one_or_none()
 
     @classmethod
-    def all_for(cls, user: Optional[Account]) -> Query[AuthClient]:
-        """Return all clients, optionally all clients owned by the specified user."""
-        if user is None:
+    def all_for(cls, account: Optional[Account]) -> Query[AuthClient]:
+        """Return all clients, optionally all clients owned by the specified account."""
+        if account is None:
             return cls.query.order_by(cls.title)
         return cls.query.filter(
             sa.or_(
-                cls.account == user,
-                cls.account_id.in_(user.organizations_as_owner_ids()),
+                cls.account == account,
+                cls.account_id.in_(account.organizations_as_owner_ids()),
             )
         ).order_by(cls.title)
 
@@ -281,8 +281,8 @@ class AuthClientCredential(BaseMixin, Model):
     This uses unsalted Blake2 (64-bit) instead of a salted hash or a more secure hash
     like bcrypt because:
 
-    1. Secrets are UUID-based and unique before hashing. Salting is only beneficial when
-       the source values may be reused.
+    1. Secrets are random and unique before hashing. Salting is only beneficial when
+       the secrets may be reused.
     2. Unlike user passwords, client secrets are used often, up to many times per
        minute. The hash needs to be fast (MD5 or SHA) and reasonably safe from collision
        attacks (eliminating MD5, SHA0 and SHA1). Blake2 is the fastest available
@@ -413,7 +413,7 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
 
     @classmethod
     def all_for(cls, account: Account) -> Query[AuthCode]:
-        """Return all auth codes for the specified user."""
+        """Return all auth codes for the specified account."""
         return cls.query.filter(cls.account == account)
 
     @classmethod
@@ -480,8 +480,8 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
 
     __roles__ = {
         'owner': {
-            'read': {'created_at', 'user'},
-            'granted_by': ['user'],
+            'read': {'created_at', 'account'},
+            'granted_by': ['account'],
         }
     }
 
@@ -601,7 +601,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         account: Optional[Account] = None,
         login_session: Optional[LoginSession] = None,
     ) -> Optional[AuthToken]:
-        """Get an auth token for an auth client and a user or user session."""
+        """Get an auth token for an auth client and an account or login session."""
         require_one_of(account=account, login_session=login_session)
         if account is not None:
             return cls.query.filter(
@@ -615,7 +615,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     def all(  # noqa: A003
         cls, accounts: Union[Query, Sequence[Account]]
     ) -> List[AuthToken]:
-        """Return all AuthToken for the specified users."""
+        """Return all AuthToken for the specified accounts."""
         query = cls.query.join(AuthClient)
         if isinstance(accounts, QueryBaseClass):
             count = accounts.count()
@@ -641,19 +641,19 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
 
     @classmethod
     def all_for(cls, account: Account) -> Query[AuthToken]:
-        """Get all AuthTokens for a specified user (direct only)."""
+        """Get all AuthTokens for a specified account (direct only)."""
         return cls.query.filter(cls.account == account)
 
 
 # This model's name is in plural because it defines multiple permissions within each
 # instance
 class AuthClientPermissions(BaseMixin, Model):
-    """Permissions assigned to a user on a client app."""
+    """Permissions assigned to an account on a client app."""
 
     __tablename__ = 'auth_client_permissions'
     __tablename__ = 'auth_client_permissions'
     __allow_unmapped__ = True
-    #: User who has these permissions
+    #: User account that has these permissions
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
@@ -670,7 +670,7 @@ class AuthClientPermissions(BaseMixin, Model):
         relationship(
             AuthClient,
             foreign_keys=[auth_client_id],
-            backref=backref('user_permissions', cascade='all'),
+            backref=backref('account_permissions', cascade='all'),
         ),
         grants_via={None: {'owner'}},
     )
@@ -679,13 +679,13 @@ class AuthClientPermissions(BaseMixin, Model):
         'permissions', sa.UnicodeText, default='', nullable=False
     )
 
-    # Only one assignment per user and client
+    # Only one assignment per account and client
     __table_args__ = (sa.UniqueConstraint('account_id', 'auth_client_id'),)
 
     # Used by auth_client_info.html
     @property
     def pickername(self) -> str:
-        """Return label string for identification of the subject user."""
+        """Return label string for identification of the subject account."""
         return self.account.pickername
 
     @classmethod
@@ -710,14 +710,14 @@ class AuthClientPermissions(BaseMixin, Model):
     def get(
         cls, auth_client: AuthClient, account: Account
     ) -> Optional[AuthClientPermissions]:
-        """Get permissions for the specified auth client and user."""
+        """Get permissions for the specified auth client and account."""
         return cls.query.filter(
             cls.auth_client == auth_client, cls.account == account
         ).one_or_none()
 
     @classmethod
     def all_for(cls, account: Account) -> Query[AuthClientPermissions]:
-        """Get all permissions assigned to user for various clients."""
+        """Get all permissions assigned to account for various clients."""
         return cls.query.filter(cls.account == account)
 
     @classmethod
@@ -779,7 +779,7 @@ class AuthClientTeamPermissions(BaseMixin, Model):
     def all_for(
         cls, auth_client: AuthClient, account: Account
     ) -> Query[AuthClientPermissions]:
-        """Get all permissions for the specified user via their teams."""
+        """Get all permissions for the specified account via their teams."""
         return cls.query.filter(
             cls.auth_client == auth_client,
             cls.team_id.in_([team.id for team in account.member_teams]),
@@ -794,11 +794,11 @@ class AuthClientTeamPermissions(BaseMixin, Model):
 @reopen(Account)
 class __Account:
     def revoke_all_auth_tokens(self) -> None:
-        """Revoke all auth tokens directly linked to the user."""
+        """Revoke all auth tokens directly linked to the account."""
         AuthToken.all_for(cast(Account, self)).delete(synchronize_session=False)
 
     def revoke_all_auth_client_permissions(self) -> None:
-        """Revoke all permissions on client apps assigned to user."""
+        """Revoke all permissions on client apps assigned to account."""
         AuthClientPermissions.all_for(cast(Account, self)).delete(
             synchronize_session=False
         )

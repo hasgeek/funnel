@@ -332,7 +332,7 @@ class Account(UuidMixin, BaseMixin, Model):
                 'website',
                 'logo_url',
                 'banner_image_url',
-                'created_at',
+                'joined_at',
                 'profile_url',
                 'urls',
                 'is_user_profile',
@@ -357,7 +357,7 @@ class Account(UuidMixin, BaseMixin, Model):
             'description',
             'logo_url',
             'website',
-            'created_at',
+            'joined_at',
             'profile_url',
             'is_verified',
         },
@@ -373,7 +373,7 @@ class Account(UuidMixin, BaseMixin, Model):
             'timezone',
             'description',
             'logo_url',
-            'created_at',
+            'joined_at',
             'profile_url',
             'is_verified',
         },
@@ -992,6 +992,10 @@ class Account(UuidMixin, BaseMixin, Model):
             query = cls.query.filter(cls.name_is(name))
         else:
             query = cls.query.filter_by(buid=buid)
+        if cls is not Account:
+            query = query.filter(
+                cls.type == cls.__mapper_args__['polymorphic_identity']
+            )
         if defercols:
             query = query.options(*cls._defercols())
         account = query.one_or_none()
@@ -1024,6 +1028,10 @@ class Account(UuidMixin, BaseMixin, Model):
             query = cls.query.filter(cls.name_in(names))
         else:
             return []
+        if cls is not Account:
+            query = query.filter(
+                cls.type == cls.__mapper_args__['polymorphic_identity']
+            )
 
         if defercols:
             query = query.options(*cls._defercols())
@@ -1036,7 +1044,12 @@ class Account(UuidMixin, BaseMixin, Model):
     @classmethod
     def all_public(cls) -> Query:
         """Construct a query filtered by public profile state."""
-        return cls.query.filter(cls.profile_state.PUBLIC)
+        query = cls.query.filter(cls.profile_state.PUBLIC)
+        if cls is not Account:
+            query = query.filter(
+                cls.type == cls.__mapper_args__['polymorphic_identity']
+            )
+        return query
 
     @classmethod
     def autocomplete(cls, prefix: str) -> List[Account]:
@@ -1170,7 +1183,7 @@ class Account(UuidMixin, BaseMixin, Model):
 
     def validate_new_name(self, name: str) -> Optional[str]:
         """Validate a new name for this account, returning an error code or None."""
-        if name.lower() == self.name.lower():
+        if self.name and name.lower() == self.name.lower():
             return None
         return self.validate_name_candidate(name)
 
@@ -1247,7 +1260,7 @@ class AccountOldId(UuidMixin, BaseMixin, Model):
 
     def __repr__(self) -> str:
         """Represent :class:`AccountOldId` as a string."""
-        return f'<AccountOldId {self.buid} of {self.user!r}>'
+        return f'<AccountOldId {self.buid} of {self.account!r}>'
 
     @classmethod
     def get(cls, uuid: UUID) -> Optional[AccountOldId]:
@@ -1379,7 +1392,7 @@ class Organization(Account):
     __mapper_args__ = {'polymorphic_identity': 'O'}
     is_organization_profile = True
 
-    def __init__(self, owner: Account, **kwargs) -> None:
+    def __init__(self, owner: User, **kwargs) -> None:
         super().__init__(**kwargs)
         if self.joined_at is None:
             self.joined_at = sa.func.utcnow()
@@ -1389,7 +1402,7 @@ class Organization(Account):
             )
         )
 
-    def people(self) -> Query[Organization]:
+    def people(self) -> Query[Account]:
         """Return a list of users from across the public teams they are in."""
         return (
             Account.query.join(team_membership)
