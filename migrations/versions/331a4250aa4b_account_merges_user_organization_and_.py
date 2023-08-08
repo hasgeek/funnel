@@ -1,7 +1,7 @@
 """Account merges user, organization and profile.
 
 Revision ID: 331a4250aa4b
-Revises: c794b4a3a696
+Revises: ee418ce7d057
 Create Date: 2023-05-08 13:10:17.607431
 
 """
@@ -18,7 +18,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = '331a4250aa4b'
-down_revision: str = 'c794b4a3a696'
+down_revision: str = 'ee418ce7d057'
 branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
@@ -269,6 +269,8 @@ project_redirect = sa.table(
     'project_redirect',
     sa.column('account_id', sa.Integer()),
     sa.column('profile_id', sa.Integer()),
+    sa.column('name', sa.Unicode()),
+    sa.column('project_id', sa.Integer()),
 )
 
 
@@ -843,8 +845,35 @@ def upgrade_() -> None:
         op.drop_constraint('project_profile_id_fkey', 'project', type_='foreignkey')
         op.drop_column('project', 'profile_id')
 
+    with console.status("Updating project_redirect"):
+        op.add_column(
+            'project_redirect',
+            sa.Column(
+                'account_id',
+                sa.Integer(),
+                sa.ForeignKey('account.id', name='project_redirect_account_id_fkey'),
+                nullable=True,
+            ),
+        )
+        op.execute(
+            project_redirect.update()
+            .values(account_id=account.c.id)
+            .where(
+                project_redirect.c.profile_id == profile.c.id,
+                account.c.uuid == profile.c.uuid,
+            )
+        )
+        op.alter_column('project_redirect', 'account_id', nullable=False)
+        op.drop_constraint('project_redirect_pkey', 'project_redirect', type_='primary')
+        op.create_primary_key(
+            'project_redirect_pkey', 'project_redirect', ['account_id', 'name']
+        )
+        op.drop_constraint(
+            'project_redirect_profile_id_fkey', 'project_redirect', type_='foreignkey'
+        )
+        op.drop_column('project_redirect', 'profile_id')
+
     # TODO:
-    # ProjectRedirect.profile_id -> account_id
     # ProjectSponsorMembership.profile_id -> member_id (account; or drop model entirely)
     # ix_project_sponsor_membership_active column change
     # ProposalSponsorMembership.profile_id -> member_id (or drop model entirely)
@@ -913,6 +942,34 @@ def downgrade_() -> None:
         )
     # TODO: Re-populate organization and profile?
     # TODO: Remap account_id to organization_id and profile_id where relevant
+
+    with console.status("Updating project_redirect"):
+        op.add_column(
+            'project_redirect',
+            sa.Column(
+                'profile_id',
+                sa.Integer(),
+                sa.ForeignKey('profile.id', name='project_redirect_profile_id_fkey'),
+                nullable=True,
+            ),
+        )
+        op.execute(
+            project_redirect.update()
+            .values(profile_id=profile.c.id)
+            .where(
+                project_redirect.c.account_id == account.c.id,
+                account.c.uuid == profile.c.uuid,
+            )
+        )
+        op.alter_column('project_redirect', 'profile_id', nullable=False)
+        op.drop_constraint('project_redirect_pkey', 'project_redirect', type_='primary')
+        op.create_primary_key(
+            'project_redirect_pkey', 'project_redirect', ['profile_id', 'name']
+        )
+        op.drop_constraint(
+            'project_redirect_account_id_fkey', 'project_redirect', type_='foreignkey'
+        )
+        op.drop_column('project_redirect', 'profile_id')
 
     with console.status("Updating project"):
         op.add_column(
