@@ -199,6 +199,7 @@ def feature_project_subscription(obj: Project) -> bool:
 def show_tickets(obj: Project) -> bool:
     return obj.features.tickets() or obj.features.subscription
 
+
 @Project.features('rsvp_unregistered')
 def feature_project_register(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
