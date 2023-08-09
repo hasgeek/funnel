@@ -172,12 +172,14 @@
                 {% endif %}
               </div>
             </div>
-            <div class="grid__col-12 schedule-grid">
-              <div class="schedule-table-container" id="project-schedule-table">
-                <schedule></schedule>
+            {% if featured_project and featured_project.schedule_start_at -%}
+              <div class="grid__col-12 schedule-grid">
+                <div class="schedule-table-container" id="project-schedule-table">
+                  <schedule></schedule>
+                </div>
+                {{ schedule_template() }}
               </div>
-              {{ schedule_template() }}
-            </div>
+            {% endif %}
           </div>
         </div>
       </div>
