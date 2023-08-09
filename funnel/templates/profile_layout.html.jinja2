@@ -173,11 +173,13 @@
               </div>
             </div>
             {% if featured_project and featured_project.schedule_start_at -%}
-              <div class="grid__col-12 schedule-grid">
-                <div class="schedule-table-container" id="project-schedule-table">
-                  <schedule></schedule>
+              <div class="grid__col-12">
+                <div class="schedule-grid">
+                  <div class="schedule-table-container" id="project-schedule-table">
+                    <schedule></schedule>
+                  </div>
+                  {{ schedule_template() }}
                 </div>
-                {{ schedule_template() }}
               </div>
             {% endif %}
           </div>

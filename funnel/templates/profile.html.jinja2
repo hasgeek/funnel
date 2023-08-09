@@ -4,7 +4,9 @@
 {%- block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ manifest('css/index.css') }}" />
   <link rel="stylesheet" type="text/css" href="{{ manifest('css/profile.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ manifest('css/schedule.css') }}"/>
+  {% if featured_project and featured_project.schedule_start_at -%}
+    <link rel="stylesheet" type="text/css" href="{{ manifest('css/schedule.css') }}"/>
+  {%- endif %}
   <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
   <script type="application/ld+json">
     {
