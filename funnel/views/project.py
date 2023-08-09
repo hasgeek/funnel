@@ -189,9 +189,15 @@ def feature_project_tickets_or_rsvp(obj: Project) -> bool:
 def feature_project_subscription(obj: Project) -> bool:
     return (
         obj.boxoffice_data is not None
+        and 'item_collection_id' in obj.boxoffice_data
+        and obj.boxoffice_data['item_collection_id']
         and obj.boxoffice_data.get('is_subscription', True) is True
     )
 
+
+@Project.features('show_tickets', cached_property=True)
+def show_tickets(obj: Project) -> bool:
+    return obj.features.tickets() or obj.features.subscription
 
 @Project.features('rsvp_unregistered')
 def feature_project_register(obj: Project) -> bool:

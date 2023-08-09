@@ -113,7 +113,7 @@
         <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
         {% if project.current_roles.ticket_participant %}
           <span class="chip chip--bg-success project-banner__profile-details__badge text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span>
-        {% elif project.features.tickets() %}
+        {% elif project.features.subscription %}
           <span class="chip project-banner__profile-details__badge text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="fa-icon--right-margin") }}{% trans %}Member access{% endtrans %}</span>
         {% endif %}
       </div>
@@ -125,10 +125,10 @@
 
 {% macro registerblock(project) %}
   <div class="register-block">
-    <div class="register-block__content {% if project.features.tickets() %}register-block__content--half {%- endif %}">
+    <div class="register-block__content {% if project.features.show_tickets %}register-block__content--half {%- endif %}">
     {% if project.features.rsvp() %}
       {%- if current_auth.is_anonymous %}
-        <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
+        <a class="mui-btn mui-btn--raised {% if project.features.show_tickets %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
       {% elif project.features.rsvp_unregistered() -%}
         {% if not project.features.follow_mode() %}<span class="register-block__content__txt mui--text-light">{% trans %}This is a free event{% endtrans %}</span>{% endif %}
         <a id="rsvp-btn" class="mui-btn mui-btn--raised mui-btn--dark register-block__btn js-register-btn" href="{{ project.url_for('rsvp_modal') }}" rel="modal:open" role="button" aria-haspopup="true">
@@ -163,7 +163,7 @@
     </div>
     {% if project.current_roles.ticket_participant %}
       <div class="register-block__content"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
-    {% elif project.features.tickets() %}
+    {% elif project.features.show_tickets %}
       <div class="register-block__content {% if project.features.rsvp() or project.buy_tickets_url.url %} register-block__content--half {%- endif %}">
           <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
             {% if project.features.subscription %}
@@ -405,7 +405,7 @@
       </div>
     </div>
 
-    {% if project.features.tickets() -%}
+    {% if project.features.show_tickets -%}
       <div class="tickets-wrapper">
         <div class="tickets-wrapper__modal tickets-wrapper__modal--project-page">
           <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl tickets-wrapper__modal__back mobile-nav-wrapper">
@@ -515,7 +515,7 @@
       var toggleId;
       var sort;
 
-      {% if project.features.tickets() -%}
+      {% if project.features.show_tickets -%}
         tickets = {
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",

@@ -31,6 +31,7 @@ from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
 from .mixins import ProfileViewMixin
+from .schedule import session_list_data, schedule_data
 
 
 @Profile.features('new_project')
@@ -136,6 +137,16 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 .limit(1)
                 .first()
             )
+            scheduled_sessions_list = session_list_data(
+                featured_project.scheduled_sessions, with_modal_url='view'
+            )
+            featured_project_venues = [
+                venue.current_access(datasets=('without_parent', 'related'))
+                for venue in featured_project.venues
+            ]
+            featured_project_schedule = schedule_data(
+                featured_project, with_slots=False, scheduled_sessions=scheduled_sessions_list
+            )
             if featured_project in upcoming_projects:
                 upcoming_projects.remove(featured_project)
             open_cfp_projects = (
@@ -190,6 +201,9 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     if featured_project
                     else None
                 ),
+                'featured_project_venues': featured_project_venues,
+                'featured_project_sessions': scheduled_sessions_list,
+                'featured_project_schedule': featured_project_schedule,
                 'sponsored_projects': [
                     _p.current_access(datasets=('primary', 'related'))
                     for _p in sponsored_projects
