@@ -137,19 +137,31 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 .limit(1)
                 .first()
             )
-            scheduled_sessions_list = session_list_data(
-                featured_project.scheduled_sessions, with_modal_url='view'
+            scheduled_sessions_list = (
+                session_list_data(
+                    featured_project.scheduled_sessions, with_modal_url='view'
+                )
+                if featured_project is not None
+                else None
             )
-            featured_project_venues = [
-                venue.current_access(datasets=('without_parent', 'related'))
-                for venue in featured_project.venues
-            ]
-            featured_project_schedule = schedule_data(
-                featured_project,
-                with_slots=False,
-                scheduled_sessions=scheduled_sessions_list,
+            featured_project_venues = (
+                [
+                    venue.current_access(datasets=('without_parent', 'related'))
+                    for venue in featured_project.venues
+                ]
+                if featured_project is not None
+                else None
             )
-            if featured_project in upcoming_projects:
+            featured_project_schedule = (
+                schedule_data(
+                    featured_project,
+                    with_slots=False,
+                    scheduled_sessions=scheduled_sessions_list,
+                )
+                if featured_project is not None
+                else None
+            )
+            if featured_project is not None and featured_project in upcoming_projects:
                 upcoming_projects.remove(featured_project)
             open_cfp_projects = (
                 projects.filter(Project.cfp_state.OPEN)
@@ -200,7 +212,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     featured_project.current_access(
                         datasets=('without_parent', 'related')
                     )
-                    if featured_project
+                    if featured_project is not None
                     else None
                 ),
                 'featured_project_venues': featured_project_venues,
