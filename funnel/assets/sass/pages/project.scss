@@ -137,6 +137,9 @@
           display: none;
         }
       }
+      .register-block__btn.mui--is-disabled {
+        border-color: inherit;
+      }
     }
     .register-block__content--half {
       .register-block__content__rsvp-txt {
