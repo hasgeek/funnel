@@ -127,6 +127,8 @@
         active_session: '',
         projectTitle: {{ project.title|e|tojson }},  // HTML escaped for use in HTML tags via JS
         pageDescription: {{ g.account.description|striptags|tojson }}, // HTML escaped for use in HTML tags via JS
+        rememberScrollPos: true,
+        replaceHistoryToModalUrl: true,
       };
       {%- if active_session -%} scheduleConfig['active_session'] = {{ active_session|tojson }};{%- endif %}
       window.Hasgeek.ScheduleInit(scheduleConfig);

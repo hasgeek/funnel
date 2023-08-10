@@ -1,5 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {%- from "macros.html.jinja2" import img_size, saveprojectform, calendarwidget, projectcard, video_thumbnail %}
+{%- from "js/schedule.js.jinja2" import schedule_template %}
 {% block title %}{{ profile.title }}{% endblock title %}
 
 {% macro featured_section(featured_project, heading=true) %}
@@ -141,11 +142,11 @@
                     <div class="mui--hidden-lg mui--hidden-xl">
                       <h3 class="card__body__title mui--text-subhead {% if not featured_project.start_at %} card__body__subtitle {% endif %}"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline"><span class="text-bold">{{ featured_project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</span></a></h3>
                     </div>
-                    <div class="flex-wrapper flex-wrapper--end flex-wrapper--space-between flex-wrapper--center top-padding">
+                    <div class="flex-wrapper flex-wrapper--space-between flex-wrapper--center top-padding">
                       <div class="card__body__location mui--text-light zero-bottom-margin">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
                       {% if featured_project.current_roles.ticket_participant %}
-                        <div><button class="mui-btn mui-btn--accent zero-bottom-margin zero-top-margin mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
-                      {% elif featured_project.features.tickets() %}
+                        <div><button class="mui-btn mui-btn--accent mui-btn--small zero-bottom-margin zero-top-margin mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
+                      {% elif featured_project.features.show_tickets %}
                         <div>
                           <button class="js-open-ticket-widget mui-btn mui-btn--primary price-btn zero-bottom-margin zero-top-margin">
                             {% if featured_project.features.subscription %}
@@ -171,6 +172,16 @@
                 {% endif %}
               </div>
             </div>
+            {% if featured_project and featured_project.schedule_start_at -%}
+              <div class="grid__col-12">
+                <div class="schedule-grid">
+                  <div class="schedule-table-container" id="project-schedule-table">
+                    <schedule></schedule>
+                  </div>
+                  {{ schedule_template() }}
+                </div>
+              </div>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -460,3 +471,33 @@
 
 {% block basecontent %}
 {% endblock basecontent %}
+
+
+{% block footerscripts %}
+  {% block innerscripts %}{% endblock innerscripts %}
+  {% if featured_project and featured_project.schedule_start_at -%}
+    <script src="{{ manifest('schedule_view.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
+      $(function() {
+        var scheduleConfig = {
+          fromDate: {{ featured_project.start_at_localized|tojson }},
+          toDate: {{ featured_project.end_at_localized|tojson }},
+          timeZone: {{ featured_project.timezone|tojson }},
+          sessions: {{ featured_project_sessions|tojson }},
+          schedule: {{ featured_project_schedule|tojson }},
+          venues: {{ featured_project_venues|tojson }},
+          slotInterval: 5,
+          divElem: "#project-schedule-table",
+          scriptTemplate: '#scheduletemplate',
+          parentContainer: '#schedule',
+          active_session: '',
+          projectTitle: {{ featured_project.title|e|tojson }},  // HTML escaped for use in HTML tags via JS
+          pageDescription: {{ featured_project.description|striptags|tojson }}, // HTML escaped for use in HTML tags via JS
+          rememberScrollPos: false,
+          replaceHistoryToModalUrl: false
+        };
+        window.Hasgeek.ScheduleInit(scheduleConfig);
+      });
+    </script>
+  {%- endif %}
+{% endblock footerscripts %}

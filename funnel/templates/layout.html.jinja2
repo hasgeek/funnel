@@ -25,7 +25,7 @@
     {%- endblock titletags %}
     <meta property="og:type" content="website" />
     <meta name="description"
-          content="{% block description %}{% if g.profile %}{{ g.profile.description.html|preview }}{% endif %}{% endblock description %}"/>
+          content="{% block description %}{% if g.account %}{{ g.account.description.html|preview }}{% endif %}{% endblock description %}"/>
     <meta property="og:description" content="{{ self.description() }}" />
     <meta name="twitter:card"
           content="{% block twitter_card %}summary{% endblock twitter_card %}"/>

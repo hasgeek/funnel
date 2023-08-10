@@ -1,7 +1,7 @@
 """Account merges user, organization and profile.
 
 Revision ID: 331a4250aa4b
-Revises: ee418ce7d057
+Revises: d5b374c9e589
 Create Date: 2023-05-08 13:10:17.607431
 
 """
@@ -18,7 +18,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = '331a4250aa4b'
-down_revision: str = 'ee418ce7d057'
+down_revision: str = 'd5b374c9e589'
 branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
@@ -1142,6 +1142,13 @@ def downgrade_() -> None:
             )
         )
         op.alter_column('proposal_sponsor_membership', 'profile_id', nullable=False)
+        op.create_index(
+            'ix_proposal_sponsor_membership_profile_id',
+            'proposal_sponsor_membership',
+            ['profile_id'],
+            unique=False,
+        )
+
         op.drop_constraint(
             'proposal_sponsor_membership_member_id_fkey',
             'proposal_sponsor_membership',
@@ -1180,6 +1187,13 @@ def downgrade_() -> None:
             )
         )
         op.alter_column('project_sponsor_membership', 'profile_id', nullable=False)
+        op.create_index(
+            'ix_project_sponsor_membership_profile_id',
+            'project_sponsor_membership',
+            ['profile_id'],
+            unique=False,
+        )
+
         op.drop_constraint(
             'project_sponsor_membership_member_id_fkey',
             'project_sponsor_membership',
