@@ -31,7 +31,7 @@ from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
 from .mixins import ProfileViewMixin
-from .schedule import session_list_data, schedule_data
+from .schedule import schedule_data, session_list_data
 
 
 @Profile.features('new_project')
@@ -145,7 +145,9 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 for venue in featured_project.venues
             ]
             featured_project_schedule = schedule_data(
-                featured_project, with_slots=False, scheduled_sessions=scheduled_sessions_list
+                featured_project,
+                with_slots=False,
+                scheduled_sessions=scheduled_sessions_list,
             )
             if featured_project in upcoming_projects:
                 upcoming_projects.remove(featured_project)

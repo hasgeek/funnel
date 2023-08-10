@@ -17,7 +17,7 @@ from .. import app, pages
 from ..forms import SavedProjectForm
 from ..models import Profile, Project, sa
 from ..typing import ReturnRenderWith, ReturnView
-from .schedule import session_list_data, schedule_data
+from .schedule import schedule_data, session_list_data
 
 
 @dataclass
@@ -91,7 +91,9 @@ class IndexView(ClassView):
             for venue in featured_project.venues
         ] if featured_project else None
         featured_project_schedule = schedule_data(
-            featured_project, with_slots=False, scheduled_sessions=scheduled_sessions_list
+            featured_project,
+            with_slots=False,
+            scheduled_sessions=scheduled_sessions_list,
         ) if featured_project else None
         if featured_project in upcoming_projects:
             # if featured project is in upcoming projects, remove it from there and
