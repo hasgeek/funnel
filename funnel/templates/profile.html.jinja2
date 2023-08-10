@@ -4,6 +4,9 @@
 {%- block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ manifest('css/index.css') }}" />
   <link rel="stylesheet" type="text/css" href="{{ manifest('css/profile.css') }}" />
+  {% if featured_project and featured_project.schedule_start_at -%}
+    <link rel="stylesheet" type="text/css" href="{{ manifest('css/schedule.css') }}"/>
+  {%- endif %}
   <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
   <script type="application/ld+json">
     {
@@ -195,12 +198,12 @@
   </div>
 {% endblock basecontent %}
 
-{% block footerscripts %}
+{% block innerscripts %}
   <script src="{{ manifest('index.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var tickets;
-      {% if featured_project and featured_project.features.tickets() -%}
+      {% if featured_project and featured_project.features.show_tickets -%}
         tickets = {
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
@@ -212,4 +215,4 @@
       window.Hasgeek.homeInit('.markdown', tickets);
     });
   </script>
-{% endblock footerscripts %}
+{% endblock innerscripts %}
