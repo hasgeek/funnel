@@ -50,39 +50,52 @@
 {% endmacro %}
 
 {% macro project_header(project) %}
-  {% if project.livestream_urls %}
-    <div class="livestream-box project-banner__left" id="livestream">
-      {% if project.livestream_urls|length >= 2 %}
-      <ul class="mui-tabs__bar project-banner__box" role="tablist">
-        {%- for stream in project.livestream_urls %}
-          <li role="presentation"{%- if loop.first %} class="mui--is-active"{% endif %}>
-            <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}"
-              aria-controls="pane-justified-{{ loop.index }}" id="tab-{{ loop.index }}"
-              {%- if loop.first %}tabindex="0" aria-selected="true"{% else %}tabindex="-1" aria-selected="false"{% endif %}
-            >{% trans %}Livestream{% endtrans %}{%- if not loop.first %} {{ loop.index }}{% endif %}</a>
-          </li>
-        {%- endfor %}
-      </ul>
-      {% endif %}
+  {%- if project.livestream_urls %}
+    {% if (project.is_restricted_video and project.current_roles.participant) or not project.is_restricted_video %}
+      <div class="livestream-box project-banner__left" id="livestream">
+        {% if project.livestream_urls|length >= 2 %}
+        <ul class="mui-tabs__bar project-banner__box" role="tablist">
+          {%- for stream in project.livestream_urls %}
+            <li role="presentation"{%- if loop.first %} class="mui--is-active"{% endif %}>
+              <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}"
+                aria-controls="pane-justified-{{ loop.index }}" id="tab-{{ loop.index }}"
+                {%- if loop.first %}tabindex="0" aria-selected="true"{% else %}tabindex="-1" aria-selected="false"{% endif %}
+              >{% trans %}Livestream{% endtrans %}{%- if not loop.first %} {{ loop.index }}{% endif %}</a>
+            </li>
+          {%- endfor %}
+        </ul>
+        {% endif %}
 
-      {%- for stream in project.livestream_urls %}
-        <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}"
-          id="pane-justified-{{ loop.index }}" aria-labelledby="tab-{{ loop.index }}" tabindex="0"
-        >
-          <div class="project-banner__box">
-            {{ livestream_edit_btn(project) }}
-            {{ banner_edit_btn(project) }}
-            <div class="embed-video-wrapper js-embed-video" data-video-src="{{ stream }}">
-              <p class="video_txt">
-                {{ faicon(icon='video', icon_size='display1') }}<br/>
-                <a href="{{ stream }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
-              </p>
+        {%- for stream in project.livestream_urls %}
+          <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}"
+            id="pane-justified-{{ loop.index }}" aria-labelledby="tab-{{ loop.index }}" tabindex="0"
+          >
+            <div class="project-banner__box">
+              {{ livestream_edit_btn(project) }}
+              {{ banner_edit_btn(project) }}
+              <div class="embed-video-wrapper js-embed-video" data-video-src="{{ stream }}">
+                <p class="video_txt">
+                  {{ faicon(icon='video', icon_size='display1') }}<br/>
+                  <a href="{{ stream }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+                </p>
+              </div>
             </div>
           </div>
+        {%- endfor %}
+      </div>
+    {%- else %}
+      <div class="project-banner__box project-banner__box--banner project-banner__left  subproject-page__hide">
+        <div class="embed-video-wrapper js-embed-video">
+          <p class="video_txt">
+            {% trans -%}
+            The livestream is for members only. If you are a member, login with the
+            email address on your membership.
+            {%- endtrans %}
+          </p>
         </div>
-      {%- endfor %}
-    </div>
-  {% elif project.banner_video_url.url or project.bg_image.url or project.view_for('edit_livestream').is_available() or project.view_for('update_banner').is_available() %}
+      </div>
+    {%- endif %}
+  {%- elif project.banner_video_url.url or project.bg_image.url or project.view_for('edit_livestream').is_available() or project.view_for('update_banner').is_available() %}
     <div class="project-banner__box project-banner__box--banner project-banner__left {% if current_page != 'project' or not project.banner_video_url.url and not project.bg_image.url %}project-banner__left--smaller{%- endif %} subproject-page__hide">
       <div class="embed-video-wrapper embed-video-wrapper--shaped">
         {{ livestream_edit_btn(project) }}
@@ -101,7 +114,7 @@
         {% endif %}
       </div>
     </div>
-  {% endif %}
+  {%- endif %}
   <div class="project-details__box mui--clearfix project-banner__right {% if not project.livestream_urls and not project.banner_video_url.url or not project.bg_image.url %}project-banner__right--smaller{%- endif %} subproject-page__hide">
     <div class="top-padding bottom-padding project-details__box__title">
       <div class="project-banner__profile-details">
@@ -111,7 +124,7 @@
           </a>
         {% endif %}
         <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
-        {% if project.current_roles.ticket_participant %}
+        {% if project.features.subscription and project.current_roles.participant %}
           <span class="chip chip--bg-success project-banner__profile-details__badge text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span>
         {% elif project.features.subscription %}
           <span class="chip project-banner__profile-details__badge text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="fa-icon--right-margin") }}{% trans %}Member access{% endtrans %}</span>
