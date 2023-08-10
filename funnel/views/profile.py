@@ -139,16 +139,16 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             )
             scheduled_sessions_list = session_list_data(
                 featured_project.scheduled_sessions, with_modal_url='view'
-            )
+            ) if featured_project else None
             featured_project_venues = [
                 venue.current_access(datasets=('without_parent', 'related'))
                 for venue in featured_project.venues
-            ]
+            ] if featured_project else None
             featured_project_schedule = schedule_data(
                 featured_project,
                 with_slots=False,
                 scheduled_sessions=scheduled_sessions_list,
-            )
+            ) if featured_project else None
             if featured_project in upcoming_projects:
                 upcoming_projects.remove(featured_project)
             open_cfp_projects = (
