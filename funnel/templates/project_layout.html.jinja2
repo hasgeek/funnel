@@ -85,13 +85,14 @@
       </div>
     {%- else %}
       <div class="project-banner__box project-banner__box--banner project-banner__left  subproject-page__hide">
-        <div class="embed-video-wrapper js-embed-video">
-          <p class="video_txt">
-            {% trans -%}
+        <div class="bg-primary-dark embed-video-wrapper">
+          <div class="video_txt">
+            <p class="video__thumbnail__icon">{{ faicon(icon='lock-alt', icon_size='headline', baseline=false) }}</p>
+            <p class="mui--text-title mui--text-light">{% trans -%}
             The livestream is for members only. If you are a member, login with the
             email address on your membership.
-            {%- endtrans %}
-          </p>
+            {%- endtrans %}</p>
+          </div>
         </div>
       </div>
     {%- endif %}
