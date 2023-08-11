@@ -91,7 +91,6 @@ module.exports = {
     path: path.resolve(__dirname, 'funnel/static/build'),
     publicPath: '/static/build/',
     filename: 'js/[name].[chunkhash].js',
-    clean: true,
   },
   module: {
     rules: [
