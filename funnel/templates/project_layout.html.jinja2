@@ -128,7 +128,7 @@
         {% if project.features.subscription and project.current_roles.participant %}
           <span class="chip chip--bg-success project-banner__profile-details__badge text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span>
         {% elif project.features.subscription %}
-          <span class="chip project-banner__profile-details__badge text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="fa-icon--right-margin") }}{% trans %}Member access{% endtrans %}</span>
+          <span class="chip project-banner__profile-details__badge text-bold">{{ faicon(icon='lock-alt', baseline=true, css_class="fa-icon--right-margin") }}{% trans %}For members{% endtrans %}</span>
         {% endif %}
       </div>
       <h1 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-dark nounderline" data-cy="project-page">{{ project.title }}</a></h1>
