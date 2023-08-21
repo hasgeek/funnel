@@ -47,7 +47,7 @@ repos:
           ]
         files: ^requirements/.*\.txt$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.282
+    rev: v0.0.285
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
@@ -128,7 +128,7 @@ repos:
       - id: flake8
         additional_dependencies: *flake8deps
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.0.0a6
+    rev: v3.0.0a7
     hooks:
       - id: pylint
         args: [
@@ -182,14 +182,14 @@ repos:
       - id: trailing-whitespace
         args: ['--markdown-linebreak-ext=md']
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.3
+    rev: v1.5.4
     hooks:
       - id: forbid-crlf
       - id: remove-crlf
       - id: forbid-tabs
       - id: remove-tabs
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.1
+    rev: v3.0.2
     hooks:
       - id: prettier
         args:
