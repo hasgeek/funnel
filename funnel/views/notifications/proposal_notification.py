@@ -13,14 +13,14 @@ from ...models import (
     ProposalSubmittedNotification,
     sa,
 )
-from ...transports.sms import SmsTemplate
+from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
 
 
 class ProposalReceivedTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for Proposal received."""
+    """DLT registered template for proposal received."""
 
     registered_template = (
         "There's a new submission from {#var#} in {#var#}."
@@ -33,6 +33,7 @@ class ProposalReceivedTemplate(TemplateVarMixin, SmsTemplate):
     plaintext_template = (
         "There's a new submission from {actor} in {project}. Read it here: {url}"
     )
+    message_priority = SmsPriority.NORMAL
 
     url: str
 
@@ -51,6 +52,7 @@ class ProposalSubmittedTemplate(TemplateVarMixin, SmsTemplate):
     plaintext_template = (
         "{project} has received your submission. Here's the link to share: {url}"
     )
+    message_priority = SmsPriority.IMPORTANT
 
     url: str
 
