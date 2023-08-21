@@ -9,10 +9,12 @@ import itsdangerous
 import phonenumbers
 import requests
 from flask import url_for
+from pytz import timezone
 from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 
 from baseframe import _
+from coaster.utils import utcnow
 
 from ... import app
 from ...models import PhoneNumber, PhoneNumberBlockedError, sa
@@ -22,16 +24,18 @@ from ..exc import (
     TransportRecipientError,
     TransportTransactionError,
 )
-from .template import SmsTemplate
+from .template import SmsPriority, SmsTemplate
 
 __all__ = [
     'make_exotel_token',
     'validate_exotel_token',
     'send_via_exotel',
     'send_via_twilio',
-    'send',
+    'send_sms',
     'init',
 ]
+
+indian_timezone = timezone('Asia/Kolkata')
 
 
 @dataclass
@@ -97,6 +101,14 @@ def validate_exotel_token(token: str, to: str) -> bool:
     return True
 
 
+def okay_to_message_in_india_right_now() -> bool:
+    """Report if it's currently within messaging hours in India (9 AM to 7PM IST)."""
+    now = utcnow().astimezone(indian_timezone)
+    if now.hour >= 9 and now.hour < 19:
+        return True
+    return False
+
+
 def send_via_exotel(
     phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
     message: SmsTemplate,
@@ -124,6 +136,13 @@ def send_via_exotel(
         app.logger.warning(
             "Dropping SMS message with unknown template id: %s", str(message)
         )
+        return ''
+    if (
+        message.message_priority in (SmsPriority.OPTIONAL, SmsPriority.NORMAL)
+        and not okay_to_message_in_india_right_now()
+    ):
+        # TODO: Implement deferred sending for `NORMAL` priority
+        app.logger.warning("Dropping SMS message in DND time: %s", str(message))
         return ''
     payload['DltTemplateId'] = message.registered_templateid
     if callback:
@@ -270,7 +289,7 @@ def init() -> bool:
     return bool(senders_by_prefix)
 
 
-def send(
+def send_sms(
     phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
     message: SmsTemplate,
     callback: bool = True,

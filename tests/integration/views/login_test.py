@@ -36,7 +36,7 @@ WEAK_TEST_PASSWORD = 'password'  # nosec
 TEST_OAUTH_TOKEN = 'test_oauth_token'  # nosec
 
 # Functions to patch to capture OTPs
-PATCH_SMS_SEND = 'funnel.transports.sms.send'
+PATCH_SMS_SEND = 'funnel.transports.sms.send_sms'
 PATCH_SMS_OTP = 'funnel.views.otp.OtpSession.send_sms'
 PATCH_SMS_OTP_LOGIN = 'funnel.views.otp.OtpSessionForLogin.send_sms'
 PATCH_EMAIL_OTP_LOGIN = 'funnel.views.otp.OtpSessionForLogin.send_email'

@@ -225,7 +225,7 @@ def _prepare_subprocess(
         # Patch email
         install_mock(transports.email.send.send_email, mock_email)
         # Patch SMS
-        install_mock(transports.sms.send, mock_sms)
+        install_mock(transports.sms.send.send_sms, mock_sms)
 
     return worker(*args, **kwargs)
 
