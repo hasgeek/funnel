@@ -76,6 +76,8 @@ from .profile import *  # isort:skip
 from .project import *  # isort:skip
 from .update import *  # isort:skip
 from .proposal import *  # isort:skip
+from .follower import *  # isort:skip
+from .registration import *  # isort:skip
 from .rsvp import *  # isort:skip
 from .saved import *  # isort:skip
 from .session import *  # isort:skip
