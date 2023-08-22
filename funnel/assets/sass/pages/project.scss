@@ -263,6 +263,7 @@
     display: flex;
     align-items: center;
     margin-bottom: $mui-grid-padding * 0.5;
+    flex-wrap: wrap;
 
     .project-banner__profile-details__logo-wrapper {
       display: inline-block;

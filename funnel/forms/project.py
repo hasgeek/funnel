@@ -177,6 +177,10 @@ class ProjectLivestreamForm(forms.Form):
         ],
     )
 
+    is_restricted_video = forms.BooleanField(
+        __("Restrict livestream to participants only")
+    )
+
 
 class ProjectNameForm(forms.Form):
     """Form to change the URL name of a project."""
