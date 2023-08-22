@@ -17,7 +17,7 @@ class TestTeam(TestDatabaseFixture):
         assert dachshunds.title == result_with_buid.title
         assert dachshunds.organization == result_with_buid.organization
         with pytest.raises(TypeError):
-            models.Team.get()  # type: ignore[call-arg]
+            models.Team.get()  # type: ignore[call-arg]  # pylint: disable=E1120
 
     def test_team_pickername(self) -> None:
         """Test for verifying team's pickername."""
