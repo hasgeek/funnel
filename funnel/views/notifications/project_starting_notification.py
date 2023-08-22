@@ -10,7 +10,7 @@ from baseframe import _, __
 from baseframe.filters import time_filter
 
 from ...models import Project, ProjectStartingNotification, Session
-from ...transports.sms import SmsTemplate
+from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
@@ -28,6 +28,7 @@ class ProjectStartingTemplate(TemplateVarMixin, SmsTemplate):
         "\n\nhttps://bye.li to stop - Hasgeek"
     )
     plaintext_template = "Reminder: {project} is starting soon. Join at {url}"
+    message_priority = SmsPriority.IMPORTANT
 
     project_only: str
     url: str

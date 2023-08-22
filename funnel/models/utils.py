@@ -129,7 +129,9 @@ def getextid(service: str, userid: str) -> Optional[UserExternalId]:
 def merge_users(user1: User, user2: User) -> Optional[User]:
     """Merge two user accounts and return the new user account."""
     app.logger.info("Preparing to merge users %s and %s", user1, user2)
-    # Always keep the older account and merge from the newer account
+    # Always keep the older account and merge from the newer account. This keeps the
+    # UUID stable when there are multiple mergers as new accounts are easy to create,
+    # but old accounts cannot be created.
     if user1.created_at < user2.created_at:
         keep_user, merge_user = user1, user2
     else:

@@ -1,4 +1,5 @@
 {%- set img_size = namespace() %}
+{%- set img_size.profile_banner = 1200 %}
 {%- set img_size.spotlight_banner = 700 %}
 {%- set img_size.card_banner = 400 %}
 {%- set img_size.card_banner_small = 100 %}
@@ -197,9 +198,11 @@
         {%- if snippet_html %}
           <p class="mui--text-body2 mui--text-light zero-top-margin search-snippets">{{ faicon(icon='search', css_class="search-icon", baseline=false) }} {{ snippet_html }}</p>
         {% endif %}
-        {%- if include_details %}
-          <div class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</div>
-        {% endif %}
+        <div class="flex-wrapper flex-wrapper--end flex-wrapper--space-between flex-wrapper--wrap top-padding">
+          {%- if include_details %}
+            <div class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</div>
+          {% endif %}
+        </div>
       </div>
     {% endif %}
   </a>
@@ -216,7 +219,7 @@
   </footer>
 {% endmacro %}
 
-{% macro video_thumbnail(session) %}
+{% macro video_thumbnail(session, project_heading=false) %}
   <div class="video">
     <a class="video__thumbnail {%- if not (session.views.video.thumbnail or session.banner_image_url.url) %} video__thumnail--novideo {%- endif %}" href="{%- if session.proposal %}{{ session.proposal.url_for() }}{%- else %}{{ session.url_for() }}{%- endif %}" data-ga="view session video">
       {%- if session.views.video.thumbnail %}
@@ -226,6 +229,9 @@
         <img src="{{ session.banner_image_url }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail" alt="{{ session.title }}"/>
       {%- endif %}
     </a>
+    {%- if project_heading %}
+      <p class="mui--text-title text-bold video__txt" data-cy="project-title">{{ session.project.title }}</p>
+    {%- endif %}
     <p class="mui--text-subhead text-bold video__txt" data-cy="title">{{ session.title }}</p>
     {%- if session.speaker %}<p class="mui--text-body2 mui--text-light video__txt">{{ session.speaker }}</p>{%- endif %}
     {%- if session.views.video %}

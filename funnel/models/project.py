@@ -253,6 +253,21 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         datasets={'primary', 'without_parent'},
     )
 
+    livestream_urls = with_roles(
+        sa.orm.mapped_column(
+            sa.ARRAY(sa.UnicodeText, dimensions=1),
+            server_default=sa.text("'{}'::text[]"),
+        ),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
+    )
+
+    is_restricted_video: Mapped[bool] = with_roles(
+        sa.orm.mapped_column(sa.Boolean, default=False, nullable=False),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
+    )
+
     #: Revision number maintained by SQLAlchemy, used for vCal files, starting at 1
     revisionid = with_roles(
         sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
@@ -283,15 +298,6 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         ),
         nullable=False,
         deferred=True,
-    )
-
-    livestream_urls = with_roles(
-        sa.orm.mapped_column(
-            sa.ARRAY(sa.UnicodeText, dimensions=1),
-            server_default=sa.text("'{}'::text[]"),
-        ),
-        read={'all'},
-        datasets={'primary', 'without_parent'},
     )
 
     __table_args__ = (

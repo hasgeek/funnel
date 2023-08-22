@@ -177,7 +177,6 @@ def feature_project_tickets(obj: Project) -> bool:
         and 'item_collection_id' in obj.boxoffice_data
         and obj.boxoffice_data['item_collection_id']
         and not obj.state.PAST
-        and not obj.current_roles.ticket_participant
     )
 
 
@@ -190,8 +189,15 @@ def feature_project_tickets_or_rsvp(obj: Project) -> bool:
 def feature_project_subscription(obj: Project) -> bool:
     return (
         obj.boxoffice_data is not None
+        and 'item_collection_id' in obj.boxoffice_data
+        and obj.boxoffice_data['item_collection_id']
         and obj.boxoffice_data.get('is_subscription', True) is True
     )
+
+
+@Project.features('show_tickets', cached_property=True)
+def show_tickets(obj: Project) -> bool:
+    return obj.features.tickets() or obj.features.subscription
 
 
 @Project.features('rsvp_unregistered')
@@ -328,6 +334,51 @@ class ProjectView(  # type: ignore[misc]
                 for _p in self.obj.proposals
             ],
         }
+
+    @route('sub/csv', methods=['GET'])
+    @requires_login
+    @requires_roles({'editor'})
+    def proposals_csv(self) -> Response:
+        filename = f'submissions-{self.obj.profile.name}-{self.obj.name}.csv'
+        outfile = io.StringIO(newline='')
+        out = csv.writer(outfile)
+        out.writerow(
+            [
+                'title',
+                'url',
+                'proposer',
+                'username',
+                'email',
+                'phone',
+                'state',
+                'labels',
+                'body',
+                'datetime',
+            ]
+        )
+        for proposal in self.obj.proposals:
+            user = proposal.first_user
+            out.writerow(
+                [
+                    proposal.title,
+                    proposal.url_for(_external=True),
+                    user.fullname,
+                    user.username,
+                    user.email,
+                    user.phone,
+                    proposal.state.label.title,
+                    '; '.join(label.title for label in proposal.labels),
+                    proposal.body,
+                    proposal.datetime.replace(second=0, microsecond=0).isoformat(),
+                ]
+            )
+
+        outfile.seek(0)
+        return Response(
+            outfile.getvalue(),
+            content_type='text/csv',
+            headers=[('Content-Disposition', f'attachment;filename="{filename}"')],
+        )
 
     @route('videos')
     @render_with(html_in_json('project_videos.html.jinja2'))

@@ -58,7 +58,7 @@ from ..registry import (
     login_registry,
 )
 from ..serializers import crossapp_serializer
-from ..signals import user_data_changed
+from ..signals import user_data_changed, user_registered
 from ..transports import TransportError, TransportRecipientError
 from ..typing import ReturnView
 from ..utils import abort_null
@@ -70,6 +70,7 @@ from .login_session import (
     register_internal,
     reload_for_cookies,
     requires_login,
+    requires_sudo,
     save_session_next_url,
     set_loginmethod_cookie,
 )
@@ -292,6 +293,7 @@ def login() -> ReturnView:
                         user,
                         session.get('next', ''),
                     )
+                    user_registered.send(current_auth.user, changes=['registered-otp'])
                     flash(
                         _("You are now one of us. Welcome aboard!"), category='success'
                     )
@@ -497,9 +499,10 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     Called from :func:`login_service_callback` after receiving data from the upstream
     login service.
     """
+    new_registration = False
     # 1. Check whether we have an existing UserExternalId
     user, extid, useremail = get_user_extid(service, userdata)
-    # If extid is not None, user.extid == user, guaranteed.
+    # If extid is not None, extid.user == user, guaranteed.
     # If extid is None but useremail is not None, user == useremail.user
     # However, if both extid and useremail are present, they may be different users
     if extid is not None:
@@ -546,6 +549,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
                 if Profile.is_available_name(userdata.username):
                     # Set a username for this user if it's available
                     user.username = userdata.username
+            new_registration = True
     else:  # We have an existing user account from extid or useremail
         if current_auth and current_auth.user != user:
             # Woah! Account merger handler required
@@ -594,6 +598,8 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 
     db.session.add(extid)  # If we made a new extid, add it to the session now
     db.session.commit()
+    if new_registration:
+        user_registered.send(current_auth.user, changes=['registered-extid'])
 
     # Finally: set a login method cookie and send user on their way
     if not current_auth.user.is_profile_complete():
@@ -609,7 +615,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 
 
 @app.route('/account/merge', methods=['GET', 'POST'])
-@requires_login
+@requires_sudo
 def account_merge() -> ReturnView:
     """Merge two accounts."""
     if 'merge_buid' not in session:

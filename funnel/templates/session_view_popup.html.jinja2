@@ -30,16 +30,29 @@
 
 <div class="modal__body">
   {% if session.views.video and session.views.video.url %}
-    <div class="details">
-      <div class="details__box details__box--left">
-        <div class="details__box__video bg-primary-dark embed-video-wrapper" data-cy="session-video">
-          {{ embed_video_player(session.views.video) }}
-        </div>
-        <div class="details__box__control">
-          {{ video_action_bar(session.views.video, '', session) }}
+    {%- if not session.is_restricted_video or session.current_roles.project_participant %}
+      <div class="details">
+        <div class="details__box details__box--left">
+          <div class="details__box__video bg-primary-dark embed-video-wrapper" data-cy="session-video">
+            {{ embed_video_player(session.views.video) }}
+          </div>
+          <div class="details__box__control">
+            {{ video_action_bar(session.views.video, '', session) }}
+          </div>
         </div>
       </div>
-    </div>
+    {%- else %}
+      <div class="details">
+        <div class="details__box details__box--left">
+          <div class="details__box__video bg-primary-dark embed-video-wrapper">
+            <div class="video_txt">
+              <p>{{ faicon(icon='video-slash', icon_size='display1') }}</p>
+              <p class="mui--text-light">{% trans %}This video is for members only{% endtrans %}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    {%- endif %}
   {% else %}
     <div class="details">
       <div class="details__box details__box--left">

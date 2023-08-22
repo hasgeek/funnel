@@ -93,6 +93,9 @@
         border-color: $mui-text-danger;
       }
     }
+    .register-block__btn.mui--is-disabled:hover {
+      border-color: inherit;
+    }
   }
   .register-block__content--half {
     width: calc(50% - 8px);
@@ -133,6 +136,9 @@
         .register-block__btn__txt--mobile {
           display: none;
         }
+      }
+      .register-block__btn.mui--is-disabled {
+        border-color: inherit;
       }
     }
     .register-block__content--half {
@@ -257,6 +263,7 @@
     display: flex;
     align-items: center;
     margin-bottom: $mui-grid-padding * 0.5;
+    flex-wrap: wrap;
 
     .project-banner__profile-details__logo-wrapper {
       display: inline-block;
@@ -271,6 +278,9 @@
         width: 100%;
         object-fit: cover;
       }
+    }
+    .project-banner__profile-details__badge {
+      margin-left: auto;
     }
   }
 

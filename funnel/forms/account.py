@@ -112,8 +112,7 @@ class PasswordStrengthValidator:
 
 def pwned_password_validator(_form, field) -> None:
     """Validate password against the pwned password API."""
-    # Add usedforsecurity=False when migrating to Python 3.9+
-    phash = sha1(field.data.encode()).hexdigest().upper()  # nosec
+    phash = sha1(field.data.encode(), usedforsecurity=False).hexdigest().upper()
     prefix, suffix = phash[:5], phash[5:]
 
     try:

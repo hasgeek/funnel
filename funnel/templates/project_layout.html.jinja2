@@ -1,7 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown, useravatar, add_submission_btn, img_size %}
-{%- set header_banner = 700 %}
 {% block title %}{{ project.title }}{% endblock title %}
 {% block description %}{{ project.tagline }}{% endblock description %}
 {% block twitter_card %}summary_large_image{% endblock twitter_card %}
@@ -51,39 +50,53 @@
 {% endmacro %}
 
 {% macro project_header(project) %}
-  {% if project.livestream_urls %}
-    <div class="livestream-box project-banner__left" id="livestream">
-      {% if project.livestream_urls|length >= 2 %}
-      <ul class="mui-tabs__bar project-banner__box" role="tablist">
-        {%- for stream in project.livestream_urls %}
-          <li role="presentation"{%- if loop.first %} class="mui--is-active"{% endif %}>
-            <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}"
-              aria-controls="pane-justified-{{ loop.index }}" id="tab-{{ loop.index }}"
-              {%- if loop.first %}tabindex="0" aria-selected="true"{% else %}tabindex="-1" aria-selected="false"{% endif %}
-            >{% trans %}Livestream{% endtrans %}{%- if not loop.first %} {{ loop.index }}{% endif %}</a>
-          </li>
-        {%- endfor %}
-      </ul>
-      {% endif %}
+  {%- if project.livestream_urls %}
+    {% if (project.is_restricted_video and project.current_roles.participant) or not project.is_restricted_video %}
+      <div class="livestream-box project-banner__left" id="livestream">
+        {% if project.livestream_urls|length >= 2 %}
+        <ul class="mui-tabs__bar project-banner__box" role="tablist">
+          {%- for stream in project.livestream_urls %}
+            <li role="presentation"{%- if loop.first %} class="mui--is-active"{% endif %}>
+              <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}"
+                aria-controls="pane-justified-{{ loop.index }}" id="tab-{{ loop.index }}"
+                {%- if loop.first %}tabindex="0" aria-selected="true"{% else %}tabindex="-1" aria-selected="false"{% endif %}
+              >{% trans %}Livestream{% endtrans %}{%- if not loop.first %} {{ loop.index }}{% endif %}</a>
+            </li>
+          {%- endfor %}
+        </ul>
+        {% endif %}
 
-      {%- for stream in project.livestream_urls %}
-        <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}"
-          id="pane-justified-{{ loop.index }}" aria-labelledby="tab-{{ loop.index }}" tabindex="0"
-        >
-          <div class="project-banner__box">
-            {{ livestream_edit_btn(project) }}
-            {{ banner_edit_btn(project) }}
-            <div class="embed-video-wrapper js-embed-video" data-video-src="{{ stream }}">
-              <p class="video_txt">
-                {{ faicon(icon='video', icon_size='display1') }}<br/>
-                <a href="{{ stream }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
-              </p>
+        {%- for stream in project.livestream_urls %}
+          <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}"
+            id="pane-justified-{{ loop.index }}" aria-labelledby="tab-{{ loop.index }}" tabindex="0"
+          >
+            <div class="project-banner__box">
+              {{ livestream_edit_btn(project) }}
+              {{ banner_edit_btn(project) }}
+              <div class="embed-video-wrapper js-embed-video" data-video-src="{{ stream }}">
+                <p class="video_txt">
+                  {{ faicon(icon='video', icon_size='display1') }}<br/>
+                  <a href="{{ stream }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+                </p>
+              </div>
             </div>
           </div>
+        {%- endfor %}
+      </div>
+    {%- else %}
+      <div class="project-banner__box project-banner__box--banner project-banner__left  subproject-page__hide">
+        <div class="bg-primary-dark embed-video-wrapper">
+          <div class="video_txt">
+            <p class="video__thumbnail__icon">{{ faicon(icon='lock-alt', icon_size='headline', baseline=false) }}</p>
+            <p class="mui--text-title mui--text-light">{% trans -%}
+            The livestream is for members only. If you are a member, login with the
+            email address on your membership.
+            {%- endtrans %}</p>
+          </div>
         </div>
-      {%- endfor %}
-    </div>
-  {% elif project.banner_video_url.url or project.bg_image.url or project.view_for('edit_livestream').is_available() or project.view_for('update_banner').is_available() %}
+      </div>
+    {%- endif %}
+  {%- elif project.banner_video_url.url or project.bg_image.url or project.view_for('edit_livestream').is_available() or project.view_for('update_banner').is_available() %}
     <div class="project-banner__box project-banner__box--banner project-banner__left {% if current_page != 'project' or not project.banner_video_url.url and not project.bg_image.url %}project-banner__left--smaller{%- endif %} subproject-page__hide">
       <div class="embed-video-wrapper embed-video-wrapper--shaped">
         {{ livestream_edit_btn(project) }}
@@ -96,13 +109,13 @@
             </p>
           </div>
         {%- elif project.bg_image.url %}
-          <img class="project-banner__box__image" src="{{ project.bg_image.resize(img_size.header_banner) }}" alt="{{ project.title }}" data-cy="bg_image"/>
+          <img class="project-banner__box__image" src="{{ project.bg_image.resize(img_size.spotlight_banner) }}" alt="{{ project.title }}" data-cy="bg_image"/>
         {%- else %}
           <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ project.title }}"/>
         {% endif %}
       </div>
     </div>
-  {% endif %}
+  {%- endif %}
   <div class="project-details__box mui--clearfix project-banner__right {% if not project.livestream_urls and not project.banner_video_url.url or not project.bg_image.url %}project-banner__right--smaller{%- endif %} subproject-page__hide">
     <div class="top-padding bottom-padding project-details__box__title">
       <div class="project-banner__profile-details">
@@ -112,6 +125,11 @@
           </a>
         {% endif %}
         <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
+        {% if project.features.subscription and project.current_roles.participant %}
+          <span class="chip chip--bg-success project-banner__profile-details__badge text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span>
+        {% elif project.features.subscription %}
+          <span class="chip project-banner__profile-details__badge text-bold">{{ faicon(icon='lock-alt', baseline=true, css_class="fa-icon--right-margin") }}{% trans %}For members{% endtrans %}</span>
+        {% endif %}
       </div>
       <h1 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-dark nounderline" data-cy="project-page">{{ project.title }}</a></h1>
       <p class="mui--text-heading mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
@@ -121,10 +139,10 @@
 
 {% macro registerblock(project) %}
   <div class="register-block">
-    <div class="register-block__content {% if project.features.tickets() %}register-block__content--half {%- endif %}">
+    <div class="register-block__content {% if project.features.show_tickets %}register-block__content--half {%- endif %}">
     {% if project.features.rsvp() %}
       {%- if current_auth.is_anonymous %}
-        <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
+        <a class="mui-btn mui-btn--raised {% if project.features.show_tickets %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
       {% elif project.features.rsvp_unregistered() -%}
         {% if not project.features.follow_mode() %}<span class="register-block__content__txt mui--text-light">{% trans %}This is a free event{% endtrans %}</span>{% endif %}
         <a id="rsvp-btn" class="mui-btn mui-btn--raised mui-btn--dark register-block__btn js-register-btn" href="{{ project.url_for('rsvp_modal') }}" rel="modal:open" role="button" aria-haspopup="true">
@@ -157,7 +175,9 @@
       <a class="register-block__btn full-width-btn mui-btn mui-btn--primary" href="{{ project.buy_tickets_url.url }}" data-action="external register url" target="_blank" rel="noopener"><span>{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{{ project.views.register_button_text() }}</span></a>
     {% endif %}
     </div>
-    {% if project.features.tickets() %}
+    {% if project.current_roles.ticket_participant %}
+      <div class="register-block__content"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
+    {% elif project.features.show_tickets %}
       <div class="register-block__content {% if project.features.rsvp() or project.buy_tickets_url.url %} register-block__content--half {%- endif %}">
           <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
             {% if project.features.subscription %}
@@ -230,6 +250,9 @@
             {% endif %}
             {% if project.view_for('rsvp_list').is_available() %}
               <li><a class="mui--text-subhead" href="{{ project.url_for('rsvp_list') }}" data-cy="see-responses">{{ faicon(icon='users', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}View participants{% endtrans %}</span></a></li>
+            {% endif %}
+            {% if project.view_for('proposals_csv').is_available() %}
+              <li><a class="mui--text-subhead" href="{{ project.url_for('proposals_csv') }}" data-cy="submissions-csv">{{ faicon(icon='download', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Download submissions CSV{% endtrans %}</span></a></li>
             {% endif %}
           {%- endif %}
         </ul>
@@ -396,7 +419,7 @@
       </div>
     </div>
 
-    {% if project.features.tickets() -%}
+    {% if project.features.show_tickets -%}
       <div class="tickets-wrapper">
         <div class="tickets-wrapper__modal tickets-wrapper__modal--project-page">
           <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl tickets-wrapper__modal__back mobile-nav-wrapper">
@@ -475,11 +498,9 @@
                       </div>
                     </div>
                   {% endif %}
-                  {% if project.features.tickets() or project.features.rsvp() or project.buy_tickets_url %}
-                    <div class="project-footer {% if current_page == 'project' %}project-footer--main{%- endif %}">
-                      {{ registerblock(project)}}
-                    </div>
-                  {% endif %}
+                  <div class="project-footer {% if current_page == 'project' %}project-footer--main{%- endif %}">
+                    {{ registerblock(project)}}
+                  </div>
                   <div class="mui--hidden-xs mui--hidden-sm">
                     {{ project_details(project) }}
                   </div>
@@ -508,7 +529,7 @@
       var toggleId;
       var sort;
 
-      {% if project.features.tickets() -%}
+      {% if project.features.show_tickets -%}
         tickets = {
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",

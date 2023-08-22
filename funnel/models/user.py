@@ -109,7 +109,7 @@ class SharedProfileMixin:
     def profile_url(self) -> Optional[str]:
         """Return optional URL to account page."""
         profile = self.profile
-        return profile.url_for() if profile is not None else None
+        return profile.url_for(_external=True) if profile is not None else None
 
     with_roles(profile_url, read={'all'})
 
@@ -741,7 +741,10 @@ class User(SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, 
         ):
             db.session.delete(self.profile)
 
-        # 6. Clear fullname and stored password hash
+        # 7. Unassign tickets assigned to the user
+        self.ticket_participants = []  # pylint: disable=attribute-defined-outside-init
+
+        # 8. Clear fullname and stored password hash
         self.fullname = ''
         self.password = None
 
