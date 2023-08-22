@@ -399,11 +399,8 @@ class PhoneNumber(BaseMixin, Model):
     @with_roles(call={'all'})
     def md5(self) -> Optional[str]:
         """MD5 hash of :attr:`phone`, for legacy use only."""
-        # TODO: After upgrading to Python 3.9, use usedforsecurity=False
         return (
-            hashlib.md5(  # nosec  # skipcq: PTC-W1003
-                self.number.encode('utf-8')
-            ).hexdigest()
+            hashlib.md5(self.number.encode('utf-8'), usedforsecurity=False).hexdigest()
             if self.number
             else None
         )

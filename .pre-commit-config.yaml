@@ -2,8 +2,8 @@
 # See https://pre-commit.com/hooks.html for more hooks
 default_stages: [commit]
 # Enable this to enforce a common Python version:
-# default_language_version:
-#   python: python3.9
+default_language_version:
+  python: python3.11
 ci:
   skip: [
       'pip-audit',
