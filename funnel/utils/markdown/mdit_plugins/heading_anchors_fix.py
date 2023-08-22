@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from markdown_it import MarkdownIt
-from markdown_it.rules_inline import StateInline
+from markdown_it.rules_core import StateCore
 
 __all__ = ['heading_anchors_fix_plugin']
 
 
-def heading_anchors_fix(state: StateInline) -> None:
+def heading_anchors_fix(state: StateCore) -> None:
     prev_token = None
 
     for token in state.tokens:

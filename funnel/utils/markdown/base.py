@@ -9,6 +9,7 @@ from typing import (
     ClassVar,
     Dict,
     Iterable,
+    Mapping,
     Optional,
     Set,
     Union,
@@ -49,8 +50,6 @@ __all__ = [
 
 # --- Markdown dataclasses -------------------------------------------------------------
 
-OptionStrings = Literal['html', 'breaks', 'linkify', 'typographer']
-
 
 @dataclass
 class MarkdownPlugin:
@@ -89,7 +88,7 @@ class MarkdownConfig:
         'default', 'zero', 'commonmark', 'js-default', 'gfm-like'
     ] = 'commonmark'
     #: Updated options against the preset
-    options_update: Optional[Dict[OptionStrings, bool]] = None
+    options_update: Optional[Mapping] = None
     #: Allow only inline rules (skips all block rules)?
     inline: bool = False
 

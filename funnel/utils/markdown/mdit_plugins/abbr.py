@@ -10,7 +10,7 @@ import re
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
-from markdown_it.rules_inline import StateInline
+from markdown_it.rules_core import StateCore
 from markdown_it.token import Token
 
 __all__ = ['abbr_plugin']
@@ -57,7 +57,7 @@ def abbr_def(state: StateBlock, start_line: int, end_line: int, silent: bool) ->
     return True
 
 
-def abbr_replace(state: StateInline) -> None:
+def abbr_replace(state: StateCore) -> None:
     """Tokenizes and tags defined abbreviations in content."""
     block_tokens = state.tokens
 

@@ -1402,7 +1402,7 @@ document = """<h2 id="h:testing-abbreviations-plugin"><a href="#h:testing-abbrev
 ;<abbr title="Abbreviation">ABBR</abbr>;<br />
 ?<abbr title="Abbreviation">ABBR</abbr>?<br />
 @<abbr title="Abbreviation">ABBR</abbr>@<br />
-\\<abbr title="Abbreviation">ABBR</abbr><br />
+\\ABBR<br />
 [<abbr title="Abbreviation">ABBR</abbr>[<br />
 ]<abbr title="Abbreviation">ABBR</abbr>]<br />
 <em><abbr title="Abbreviation">ABBR</abbr></em><br />
@@ -2075,7 +2075,7 @@ abbr = """<h2>Testing abbreviations plugin</h2>
 ;<abbr title="Abbreviation">ABBR</abbr>;
 ?<abbr title="Abbreviation">ABBR</abbr>?
 @<abbr title="Abbreviation">ABBR</abbr>@
-\\<abbr title="Abbreviation">ABBR</abbr><br>
+\\ABBR<br>
 [<abbr title="Abbreviation">ABBR</abbr>[
 ]<abbr title="Abbreviation">ABBR</abbr>]
 <em><abbr title="Abbreviation">ABBR</abbr></em>

@@ -35,7 +35,7 @@ idna
 ijson
 itsdangerous
 linkify-it-py
-markdown-it-py<3.0  # Breaks our plugins, needs refactoring
+markdown-it-py
 mdit-py-plugins
 oauth2
 oauth2client

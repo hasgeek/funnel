@@ -20,6 +20,7 @@ from typing_extensions import TypedDict
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import OptionsDict, RendererHTML
+from markdown_it.rules_core import StateCore
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
 
@@ -27,7 +28,7 @@ from coaster.utils import make_name
 
 __all__ = ['toc_plugin']
 
-SQUARE_BRACKET_OPEN_CHAR = 0x5B  # ASCII value for `[`
+SQUARE_BRACKET_OPEN_CHAR = '['
 
 defaults: Dict = {
     'include_level': [1, 2, 3, 4, 5, 6],
@@ -197,7 +198,7 @@ def toc_plugin(md: MarkdownIt, **opts) -> None:
 
     def toc(state: StateInline, silent: bool) -> bool:
         # Reject if the token does not start with [
-        if state.srcCharCode[state.pos] != SQUARE_BRACKET_OPEN_CHAR:
+        if state.src[state.pos] != SQUARE_BRACKET_OPEN_CHAR:
             return False
         if silent:
             return False
@@ -253,7 +254,7 @@ def toc_plugin(md: MarkdownIt, **opts) -> None:
         html = toc_item_to_html(toc, opts, md)
         return html
 
-    def grab_state(state: StateInline):
+    def grab_state(state: StateCore):
         state.env['gstate'] = state
 
     md.core.ruler.push('grab_state', grab_state)
