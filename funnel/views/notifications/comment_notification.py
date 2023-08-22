@@ -22,14 +22,14 @@ from ...models import (
     Project,
     Proposal,
 )
-from ...transports.sms import OneLineTemplate, SmsTemplate
+from ...transports.sms import OneLineTemplate, SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
 
 
 class CommentReplyTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for RSVP without a next session."""
+    """DLT registered template for a reply to a comment."""
 
     registered_template = (
         '{#var#} has replied to your comment: {#var#}'
@@ -40,12 +40,13 @@ class CommentReplyTemplate(TemplateVarMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop -Hasgeek'
     )
     plaintext_template = '{actor} has replied to your comment: {url}'
+    message_priority = SmsPriority.NORMAL
 
     url: str
 
 
 class CommentProposalTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for RSVP without a next session."""
+    """DLT registered template for a comment on a proposal."""
 
     registered_template = (
         '{#var#} commented on your submission: {#var#}'
@@ -56,12 +57,13 @@ class CommentProposalTemplate(TemplateVarMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop -Hasgeek'
     )
     plaintext_template = '{actor} commented on your submission: {url}'
+    message_priority = SmsPriority.NORMAL
 
     url: str
 
 
 class CommentProjectTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for RSVP without a next session."""
+    """DLT registered template for a comment on a project."""
 
     registered_template = (
         '{#var#} commented on a project you are in: {#var#}'
@@ -72,6 +74,7 @@ class CommentProjectTemplate(TemplateVarMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop -Hasgeek'
     )
     plaintext_template = '{actor} commented on a project you are in: {url}'
+    message_priority = SmsPriority.NORMAL
 
     url: str
 

@@ -7,7 +7,7 @@ from flask import render_template
 from baseframe import _, __
 
 from ...models import NewUpdateNotification, Update, User
-from ...transports.sms import SmsTemplate
+from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
@@ -23,6 +23,7 @@ class UpdateTemplate(TemplateVarMixin, SmsTemplate):
         "There is an update in {account}: {url}\n\nhttps://bye.li to stop -Hasgeek"
     )
     plaintext_template = "There is an update in {account}: {url}"
+    message_priority = SmsPriority.NORMAL
 
     url: str
 

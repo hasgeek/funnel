@@ -577,7 +577,7 @@ def dispatch_transport_sms(
         # the worker may be delayed and the user may have changed their preference.
         user_notification.messageid_sms = 'cancelled'
         return
-    user_notification.messageid_sms = sms.send(
+    user_notification.messageid_sms = sms.send_sms(
         str(view.transport_for('sms')), view.sms_with_unsubscribe()
     )
     statsd.incr(
