@@ -203,7 +203,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             form=form,
             title=_("Remove sponsor?"),
             message=_("Remove ‘{sponsor}’ as a sponsor?").format(
-                sponsor=self.obj.account.title
+                sponsor=self.obj.title
             ),
             action=self.obj.url_for('remove'),
             ref_id='remove_sponsor',
