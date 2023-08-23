@@ -243,7 +243,7 @@ class OtpSession(Generic[OptionalAccountType]):
         msg = SmsMessage(phone=self.phone, message=str(template_message))
         try:
             # Now send this
-            msg.transactionid = sms.send(
+            msg.transactionid = sms.send_sms(
                 phone=msg.phone_number, message=template_message
             )
         except TransportRecipientError as exc:
@@ -343,7 +343,7 @@ class OtpSessionForLogin(OtpSession[Optional[Account]], reason='login'):
         msg = SmsMessage(phone=self.phone, message=str(template_message))
         try:
             # Now send this
-            msg.transactionid = sms.send(
+            msg.transactionid = sms.send_sms(
                 phone=msg.phone_number, message=template_message
             )
         except TransportRecipientError as exc:

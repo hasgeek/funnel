@@ -55,11 +55,11 @@
       {%- elif type == 'update' %}
         <div class="user">
           <div class="user__box">
-            {{ useravatar(item.obj.user) }}
+            {{ useravatar(item.obj.created_by) }}
             <div class="user__box__header comment__header__details__user">
               <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
               <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
-                {%- if item.obj.user.fullname %}<span>{{ item.obj.user.fullname }}</span> <span class="mui--text-light">{% trans %}in{% endtrans %}</span>{% endif %} <span>{{ item.obj.project.joined_title }} </span>
+                {%- if item.obj.created_by.fullname %}<span>{{ item.obj.created_by.fullname }}</span> <span class="mui--text-light">{% trans %}in{% endtrans %}</span>{% endif %} <span>{{ item.obj.project.joined_title }} </span>
               </h3>
             </div>
           </div>

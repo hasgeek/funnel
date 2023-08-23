@@ -17,19 +17,18 @@ from markdown_it.token import Token
 
 __all__ = ['ins_plugin']
 
-PLUS_CHAR = 0x2B  # ASCII value for `+`
+PLUS_CHAR = '+'
 
 
 def tokenize(state: StateInline, silent: bool) -> bool:
     """Insert each marker as a separate text token, and add it to delimiter list."""
     start = state.pos
-    marker = state.srcCharCode[start]
-    ch = chr(marker)
+    ch = state.src[start]
 
     if silent:
         return False
 
-    if marker != PLUS_CHAR:
+    if ch != PLUS_CHAR:
         return False
 
     scanned = state.scanDelims(state.pos, True)
@@ -50,9 +49,8 @@ def tokenize(state: StateInline, silent: bool) -> bool:
         token.content = ch + ch
         state.delimiters.append(
             Delimiter(
-                marker=marker,
+                marker=ord(ch),
                 length=0,  # disable "rule of 3" length checks meant for emphasis
-                jump=i // 2,  # for `++` 1 marker = 2 characters
                 token=len(state.tokens) - 1,
                 end=-1,
                 open=scanned.can_open,
@@ -71,7 +69,7 @@ def _post_process(state: StateInline, delimiters: List[Delimiter]) -> None:
 
     for i in range(0, maximum):
         start_delim = delimiters[i]
-        if start_delim.marker != PLUS_CHAR:
+        if start_delim.marker != ord(PLUS_CHAR):
             i += 1
             continue
 
@@ -85,19 +83,19 @@ def _post_process(state: StateInline, delimiters: List[Delimiter]) -> None:
         token.type = 'ins_open'
         token.tag = 'ins'
         token.nesting = 1
-        token.markup = '++'
+        token.markup = PLUS_CHAR * 2
         token.content = ''
 
         token = state.tokens[end_delim.token]
         token.type = 'ins_close'
         token.tag = 'ins'
         token.nesting = -1
-        token.markup = '++'
+        token.markup = PLUS_CHAR * 2
         token.content = ''
 
         end_token = state.tokens[end_delim.token - 1]
 
-        if end_token.type == 'text' and end_token == '+':  # nosec
+        if end_token.type == 'text' and end_token == PLUS_CHAR:  # nosec
             lone_markers.append(end_delim.token - 1)
 
     # If a marker sequence has an odd number of characters, it's split

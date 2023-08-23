@@ -16,7 +16,7 @@ from ...models import (
     Rsvp,
 )
 from ...transports import email
-from ...transports.sms import MessageTemplate, SmsTemplate
+from ...transports.sms import MessageTemplate, SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from ..schedule import schedule_ical
@@ -35,6 +35,7 @@ class RegistrationConfirmationTemplate(TemplateVarMixin, SmsTemplate):
         "\n\nhttps://bye.li to stop - Hasgeek"
     )
     plaintext_template = "You have registered for {project} {url}"
+    message_priority = SmsPriority.IMPORTANT
 
     datetime: str
     url: str
@@ -56,6 +57,7 @@ class RegistrationConfirmationWithNextTemplate(TemplateVarMixin, SmsTemplate):
     plaintext_template = (
         "You have registered for {project}, scheduled for {datetime}. {url}"
     )
+    message_priority = SmsPriority.IMPORTANT
 
     datetime: str
     url: str

@@ -238,8 +238,8 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_organization_profile:
             abort(404)
 
-        participated_projects = set(self.obj.user.projects_as_crew) | {
-            _p.project for _p in self.obj.user.public_proposals
+        participated_projects = set(self.obj.projects_as_crew) | {
+            _p.project for _p in self.obj.public_proposals
         }
 
         return {
@@ -258,7 +258,7 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_organization_profile:
             abort(404)
 
-        submitted_proposals = self.obj.user.public_proposals
+        submitted_proposals = self.obj.public_proposals
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
