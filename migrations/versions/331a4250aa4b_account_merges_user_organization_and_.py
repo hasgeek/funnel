@@ -496,6 +496,11 @@ renames = [
         constraints=[Rn('{}_user_id_fkey', '{}_participant_id_fkey')],
     ),
     Rtable(
+        'shortlink',
+        columns=[Rn('user_id', 'created_by_id')],
+        constraints=[Rn('{}_user_id_fkey', '{}_created_by_id_fkey')],
+    ),
+    Rtable(
         'site_membership',
         columns=[Rn('user_id', 'member_id')],
         constraints=[Rn('{}_user_id_fkey', '{}_member_id_fkey')],

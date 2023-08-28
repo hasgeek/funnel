@@ -211,12 +211,12 @@ class Shortlink(NoIdMixin, Model):
         immutable(sa.orm.mapped_column(UrlType, nullable=False, index=True)),
         read={'all'},
     )
-    #: Id of user who created this shortlink (optional)
-    user_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+    #: Id of account that created this shortlink (optional)
+    created_by_id: Mapped[Optional[int]] = sa.orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
     )
-    #: User who created this shortlink (optional)
-    user: Mapped[Optional[Account]] = relationship(Account)
+    #: Account that created this shortlink (optional)
+    created_by: Mapped[Optional[Account]] = relationship(Account)
 
     #: Is this link enabled? If not, render 410 Gone
     enabled = sa.orm.mapped_column(sa.Boolean, nullable=False, default=True)
@@ -330,7 +330,7 @@ class Shortlink(NoIdMixin, Model):
         if name:
             # User wants a custom name? Try using it, but no guarantee this will work
             try:
-                shortlink = cls(name=name, url=url, user=actor)
+                shortlink = cls(name=name, url=url, created_by=actor)
                 shortlink.is_new = True
                 # 1. Emit `BEGIN SAVEPOINT`
                 savepoint = db.session.begin_nested()
@@ -346,7 +346,7 @@ class Shortlink(NoIdMixin, Model):
             return shortlink
 
         # Not a custom name. Keep trying ids until one succeeds
-        shortlink = cls(id=random_bigint(shorter), url=url, user=actor)
+        shortlink = cls(id=random_bigint(shorter), url=url, created_by=actor)
         shortlink.is_new = True
         while True:
             if profanity.contains_profanity(shortlink.name):
