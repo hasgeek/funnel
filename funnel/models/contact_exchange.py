@@ -59,10 +59,10 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     __tablename__ = 'contact_exchange'
     __allow_unmapped__ = True
     #: User who scanned this contact
-    user_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'), primary_key=True
     )
-    user: Mapped[Account] = relationship(
+    account: Mapped[Account] = relationship(
         Account,
         backref=backref(
             'scanned_contacts',
@@ -110,7 +110,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
-            if actor == self.user:
+            if actor == self.account:
                 roles.add('owner')
             if actor == self.ticket_participant.user:
                 roles.add('subject')
@@ -143,7 +143,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         ).filter(
             cls.ticket_participant_id == TicketParticipant.id,
             TicketParticipant.project_id == Project.id,
-            cls.user == user,
+            cls.account == user,
         )
 
         if not archived:
@@ -257,7 +257,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     ) -> Query[ContactExchange]:
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(
-            cls.user == user,
+            cls.account == user,
             # For safety always use objects instead of column values. The following
             # expression should have been `Participant.project == project`. However, we
             # are using `id` here because `project` may be an instance of ProjectId
@@ -284,7 +284,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     ) -> Query[ContactExchange]:
         """Return contacts for a given user and project."""
         query = cls.query.join(TicketParticipant).filter(
-            cls.user == user,
+            cls.account == user,
             # See explanation for the following expression in
             # `contacts_for_project_and_date`
             TicketParticipant.project_id == project.id,

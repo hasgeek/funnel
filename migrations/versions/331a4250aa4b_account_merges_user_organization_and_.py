@@ -517,6 +517,11 @@ renames = [
             Rn('{}_user_session_id_fkey', '{}_login_session_id_fkey'),
         ],
     ),
+    Rtable(
+        'contact_exchange',
+        columns=[Rn('user_id', 'account_id')],
+        constraints=[Rn('{}_user_id_fkey', '{}_account_id_fkey')],
+    ),
 ]
 
 
