@@ -546,7 +546,7 @@ class CommentSearch(SearchInProjectProvider):
     def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Comment]:
         """Search for comments across the site."""
         return (
-            Comment.query.join(Account, Comment.user_id == Account.id)
+            Comment.query.join(Account, Comment.posted_by_id == Account.id)
             .join(Project, Project.commentset_id == Comment.commentset_id)
             .join(Account, Project.account)
             .filter(
@@ -563,7 +563,7 @@ class CommentSearch(SearchInProjectProvider):
                 sa.desc(Comment.created_at),
             )
             .union_all(
-                Comment.query.join(Account, Comment.user_id == Account.id)
+                Comment.query.join(Account, Comment.posted_by_id == Account.id)
                 .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
                 .join(Project, Proposal.project)
                 .join(Account, Project.account)
@@ -591,7 +591,7 @@ class CommentSearch(SearchInProjectProvider):
     ) -> Query[Comment]:
         """Search for comments within an account."""
         return (
-            Comment.query.join(Account, Comment.user_id == Account.id)
+            Comment.query.join(Account, Comment.posted_by_id == Account.id)
             .join(Project, Project.commentset_id == Comment.commentset_id)
             .filter(
                 Project.account == account,
@@ -607,7 +607,7 @@ class CommentSearch(SearchInProjectProvider):
                 sa.desc(Comment.created_at),
             )
             .union_all(
-                Comment.query.join(Account, Comment.user_id == Account.id)
+                Comment.query.join(Account, Comment.posted_by_id == Account.id)
                 .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
                 .join(Project, Proposal.project)
                 .filter(
@@ -632,7 +632,7 @@ class CommentSearch(SearchInProjectProvider):
     ) -> Query[Comment]:
         """Search for comments within a project."""
         return (
-            Comment.query.join(Account, Comment.user_id == Account.id)
+            Comment.query.join(Account, Comment.posted_by_id == Account.id)
             .join(Commentset, Comment.commentset_id == Commentset.id)
             .filter(
                 Commentset.id == project.commentset_id,
@@ -647,7 +647,7 @@ class CommentSearch(SearchInProjectProvider):
                 sa.desc(Comment.created_at),
             )
             .union_all(
-                Comment.query.join(Account, Comment.user_id == Account.id)
+                Comment.query.join(Account, Comment.posted_by_id == Account.id)
                 .join(
                     Proposal,
                     sa.and_(

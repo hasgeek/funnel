@@ -451,6 +451,11 @@ renames = [
         ],
     ),
     Rtable(
+        'comment',
+        columns=[Rn('user_id', 'posted_by_id')],
+        constraints=[Rn('{}_user_id_fkey', '{}_posted_by_id_fkey')],
+    ),
+    Rtable(
         'commentset_membership',
         columns=[Rn('user_id', 'member_id')],
         constraints=[Rn('{}_user_id_fkey', '{}_member_id_fkey')],

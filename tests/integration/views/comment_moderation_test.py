@@ -39,7 +39,7 @@ def test_comment_report_same(
 
     # Let's make a comment
     comment = models.Comment(
-        user=new_user2,
+        posted_by=new_user2,
         commentset=new_project.commentset,
         message="Test comment message",
     )
@@ -115,7 +115,7 @@ def test_comment_report_opposing(
 
     # Let's make another comment
     comment2 = models.Comment(
-        user=new_user2,
+        posted_by=new_user2,
         commentset=new_project.commentset,
         message="Test second comment message",
     )
@@ -191,7 +191,7 @@ def test_comment_report_majority_spam(
 
     # Let's make another comment
     comment3 = models.Comment(
-        user=new_user2,
+        posted_by=new_user2,
         commentset=new_project.commentset,
         message="Test second comment message",
     )
@@ -280,7 +280,7 @@ def test_comment_report_majority_ok(
 
     # Let's make another comment
     comment4 = models.Comment(
-        user=new_user2,
+        posted_by=new_user2,
         commentset=new_project.commentset,
         message="Test second comment message",
     )

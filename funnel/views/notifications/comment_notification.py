@@ -134,7 +134,7 @@ class CommentNotification(RenderNotification):
     @property
     def actor(self) -> Union[Account, DuckTypeAccount]:
         """Actor who commented."""
-        return self.comment.user
+        return self.comment.posted_by
 
     @cached_property
     def commenters(self) -> List[Account]:
@@ -144,9 +144,9 @@ class CommentNotification(RenderNotification):
         user_ids = set()
         users = []
         for comment in self.fragments:  # pylint: disable=not-an-iterable
-            if comment.user.uuid not in user_ids:
-                users.append(comment.user)
-                user_ids.add(comment.user.uuid)
+            if comment.posted_by.uuid not in user_ids:
+                users.append(comment.posted_by)
+                user_ids.add(comment.posted_by.uuid)
         return users
 
     @property
