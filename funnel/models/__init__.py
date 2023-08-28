@@ -84,7 +84,7 @@ from .venue import *  # isort:skip
 from .video_mixin import *  # isort:skip
 from .mailer import *  # isort:skip
 from .membership_mixin import *  # isort:skip
-from .account_admin_membership import *  # isort:skip
+from .account_membership import *  # isort:skip
 from .project_membership import *  # isort:skip
 from .sponsor_membership import *  # isort:skip
 from .proposal_membership import *  # isort:skip

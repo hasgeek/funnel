@@ -460,7 +460,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         super().__init__(**kwargs)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
         # Add the creator as editor and promoter
-        new_membership = ProjectCrewMembership(
+        new_membership = ProjectMembership(
             parent=self,
             member=self.created_by,
             granted_by=self.created_by,
@@ -956,5 +956,5 @@ class __Commentset:
 
 # Tail imports
 # pylint: disable=wrong-import-position
-from .project_membership import ProjectCrewMembership  # isort:skip
+from .project_membership import ProjectMembership  # isort:skip
 from .venue import Venue  # isort:skip  # skipcq: FLK-E402

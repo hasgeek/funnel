@@ -22,14 +22,14 @@ def given_sole_owner(current_user: models.Account, org_uu: models.Organization) 
 @given('they are a co-owner of Unseen University', target_fixture='org_owner')
 def given_coowner(
     db_session, current_user: models.Account, org_uu: models.Organization
-) -> models.AccountAdminMembership:
+) -> models.AccountMembership:
     for membership in org_uu.active_admin_memberships:
         if membership.member == current_user:
             if membership.is_owner:
                 return membership
             membership = membership.replace(actor=current_user, is_owner=True)
             return membership
-    membership = models.AccountAdminMembership(
+    membership = models.AccountMembership(
         member=current_user,
         granted_by=current_user,
         account=org_uu,

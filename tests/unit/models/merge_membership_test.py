@@ -8,9 +8,7 @@ from funnel import models
 
 @pytest.fixture()
 def death_membership(db_session, org_ankhmorpork, user_death):
-    membership = models.AccountAdminMembership(
-        account=org_ankhmorpork, member=user_death
-    )
+    membership = models.AccountMembership(account=org_ankhmorpork, member=user_death)
     db_session.add(membership)
     db_session.commit()
     return membership
@@ -18,7 +16,7 @@ def death_membership(db_session, org_ankhmorpork, user_death):
 
 @pytest.fixture()
 def death_owner_membership(db_session, org_ankhmorpork, user_death):
-    membership = models.AccountAdminMembership(
+    membership = models.AccountMembership(
         account=org_ankhmorpork, member=user_death, is_owner=True
     )
     db_session.add(membership)
@@ -28,7 +26,7 @@ def death_owner_membership(db_session, org_ankhmorpork, user_death):
 
 @pytest.fixture()
 def rincewind_membership(db_session, org_ankhmorpork, user_rincewind):
-    membership = models.AccountAdminMembership(
+    membership = models.AccountMembership(
         account=org_ankhmorpork, member=user_rincewind
     )
     db_session.add(membership)
@@ -38,7 +36,7 @@ def rincewind_membership(db_session, org_ankhmorpork, user_rincewind):
 
 @pytest.fixture()
 def rincewind_owner_membership(db_session, org_ankhmorpork, user_rincewind):
-    membership = models.AccountAdminMembership(
+    membership = models.AccountMembership(
         account=org_ankhmorpork, member=user_rincewind, is_owner=True
     )
     db_session.add(membership)
@@ -233,12 +231,12 @@ def test_merge_multiple_memberships(
     rincewind_owner_membership,
 ) -> None:
     """Merger with memberships across organizations works."""
-    uu_death_owner_membership = models.AccountAdminMembership(
+    uu_death_owner_membership = models.AccountMembership(
         account=org_uu, member=user_death, is_owner=True
     )
     db_session.add(uu_death_owner_membership)
     db_session.commit()
-    uu_rincewind_membership = models.AccountAdminMembership(
+    uu_rincewind_membership = models.AccountMembership(
         account=org_uu, member=user_rincewind, is_owner=False
     )
     db_session.add(uu_rincewind_membership)

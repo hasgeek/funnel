@@ -1397,7 +1397,7 @@ class Organization(Account):
         if self.joined_at is None:
             self.joined_at = sa.func.utcnow()
         db.session.add(
-            AccountAdminMembership(
+            AccountMembership(
                 account=self, member=owner, granted_by=owner, is_owner=True
             )
         )
@@ -2197,4 +2197,4 @@ Anchor = Union[AccountEmail, AccountEmailClaim, AccountPhone, EmailAddress, Phon
 # Tail imports
 # pylint: disable=wrong-import-position
 from .membership_mixin import ImmutableMembershipMixin  # isort: skip
-from .account_admin_membership import AccountAdminMembership  # isort:skip
+from .account_membership import AccountMembership  # isort:skip

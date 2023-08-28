@@ -13,7 +13,7 @@ scenarios('notifications/organization_membership_notification.feature')
     target_fixture='vimes_admin',
 )
 def given_vimes_admin(db_session, user_vimes, org_ankhmorpork, user_vetinari):
-    vimes_admin = models.AccountAdminMembership(
+    vimes_admin = models.AccountMembership(
         member=user_vimes,
         account=org_ankhmorpork,
         granted_by=user_vetinari,
@@ -40,7 +40,7 @@ def when_vetinari_adds_ridcully(
     role,
 ):
     is_owner = role == 'owner'
-    ridcully_admin = models.AccountAdminMembership(
+    ridcully_admin = models.AccountMembership(
         member=user_ridcully,
         account=org_ankhmorpork,
         granted_by=user_vetinari,
@@ -105,7 +105,7 @@ def when_vetinari_invites_ridcully(
     db_session, user_vetinari, user_ridcully, org_ankhmorpork, role
 ):
     is_owner = role == 'owner'
-    ridcully_admin = models.AccountAdminMembership(
+    ridcully_admin = models.AccountMembership(
         member=user_ridcully,
         account=org_ankhmorpork,
         granted_by=user_vetinari,
@@ -125,7 +125,7 @@ def when_ridcully_accepts_invite(
     db_session,
     ridcully_admin,
     user_ridcully,
-) -> models.ProjectCrewMembership:
+) -> models.ProjectMembership:
     assert ridcully_admin.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
     assert ridcully_admin.user == user_ridcully
     ridcully_admin_accept = ridcully_admin.accept(actor=user_ridcully)
@@ -141,7 +141,7 @@ def given_riduclly_admin(
     db_session, user_ridcully, org_ankhmorpork, user_vetinari, role
 ):
     is_owner = role == 'owner'
-    ridcully_admin = models.AccountAdminMembership(
+    ridcully_admin = models.AccountMembership(
         member=user_ridcully,
         account=org_ankhmorpork,
         granted_by=user_vetinari,
@@ -158,7 +158,7 @@ def given_riduclly_admin(
 )
 def when_vetinari_amends_ridcully_role(
     db_session, user_vetinari, ridcully_admin, new_role, org_ankhmorpork, user_ridcully
-) -> models.ProjectCrewMembership:
+) -> models.ProjectMembership:
     is_owner = new_role == 'owner'
     ridcully_admin_amend = ridcully_admin.replace(
         actor=user_vetinari, is_owner=is_owner
@@ -175,7 +175,7 @@ def when_vetinari_removes_ridcully(
     db_session,
     user_vetinari,
     ridcully_admin,
-) -> models.ProjectCrewMembership:
+) -> models.ProjectMembership:
     ridcully_admin.revoke(actor=user_vetinari)
     db_session.commit()
     return ridcully_admin

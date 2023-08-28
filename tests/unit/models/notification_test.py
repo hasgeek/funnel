@@ -106,9 +106,7 @@ def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many
     )
     db_session.add(project)
     db_session.add(
-        models.ProjectCrewMembership(
-            project=project, member=user_editor, is_editor=True
-        )
+        models.ProjectMembership(project=project, member=user_editor, is_editor=True)
     )
     rsvp_y = models.Rsvp(project=project, user=user_participant)
     rsvp_y.rsvp_yes()

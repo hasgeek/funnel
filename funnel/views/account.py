@@ -45,10 +45,10 @@ from ..forms import (
 from ..geoip import GeoIP2Error, geoip
 from ..models import (
     Account,
-    AccountAdminMembership,
     AccountEmail,
     AccountEmailClaim,
     AccountExternalId,
+    AccountMembership,
     AccountPasswordNotification,
     AccountPhone,
     AuthClient,
@@ -123,9 +123,9 @@ def organizations_as_admin(
         orgmems = obj.active_organization_owner_memberships
     else:
         orgmems = obj.active_organization_admin_memberships
-    orgmems = orgmems.join(Account, AccountAdminMembership.account)
+    orgmems = orgmems.join(Account, AccountMembership.account)
     if order_by_grant:
-        orgmems = orgmems.order_by(AccountAdminMembership.granted_at.desc())
+        orgmems = orgmems.order_by(AccountMembership.granted_at.desc())
     else:
         orgmems = orgmems.order_by(sa.func.lower(Organization.title))
 

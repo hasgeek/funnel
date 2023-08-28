@@ -7,12 +7,12 @@ from typing import Optional
 from baseframe import __
 
 from .account import Account
-from .account_admin_membership import AccountAdminMembership
+from .account_membership import AccountMembership
 from .comment import Comment, Commentset
 from .moderation import CommentModeratorReport
 from .notification import Notification, notification_categories
 from .project import Project
-from .project_membership import ProjectCrewMembership
+from .project_membership import ProjectMembership
 from .proposal import Proposal
 from .rsvp import Rsvp
 from .session import Session
@@ -193,7 +193,7 @@ class CommentReplyNotification(Notification[Comment, Comment], type='comment_rep
 
 class ProjectCrewMembershipNotification(
     DocumentHasAccount,
-    Notification[Project, ProjectCrewMembership],
+    Notification[Project, ProjectMembership],
     type='project_crew_membership_granted',
 ):
     """Notification of being granted crew membership (including role changes)."""
@@ -208,7 +208,7 @@ class ProjectCrewMembershipNotification(
 
 class ProjectCrewMembershipRevokedNotification(
     DocumentHasAccount,
-    Notification[Project, ProjectCrewMembership],
+    Notification[Project, ProjectMembership],
     type='project_crew_membership_revoked',
     shadows=ProjectCrewMembershipNotification,
 ):
@@ -249,7 +249,7 @@ class RegistrationReceivedNotification(
 
 class OrganizationAdminMembershipNotification(
     DocumentHasAccount,
-    Notification[Account, AccountAdminMembership],
+    Notification[Account, AccountMembership],
     type='organization_membership_granted',
 ):
     """Notification of being granted admin membership (including role changes)."""
@@ -264,7 +264,7 @@ class OrganizationAdminMembershipNotification(
 
 class OrganizationAdminMembershipRevokedNotification(
     DocumentHasAccount,
-    Notification[Account, AccountAdminMembership],
+    Notification[Account, AccountMembership],
     type='organization_membership_revoked',
     shadows=OrganizationAdminMembershipNotification,
 ):
