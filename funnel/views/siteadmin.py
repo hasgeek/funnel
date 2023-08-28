@@ -359,7 +359,7 @@ class SiteadminView(ClassView):
             flash(_("You cannot review same comment twice"), 'error')
             return render_redirect(url_for('siteadmin_review_comments_random'))
 
-        if comment_report.user == current_auth.user:
+        if comment_report.reported_by == current_auth.user:
             flash(_("You cannot review your own report"), 'error')
             return render_redirect(url_for('siteadmin_review_comments_random'))
 
@@ -420,7 +420,7 @@ class SiteadminView(ClassView):
                 # e.g. existing report was spam, current report is not spam,
                 # we'll create the new report and wait for a 3rd report.
                 new_report = CommentModeratorReport(
-                    user=current_auth.user,
+                    reported_by=current_auth.user,
                     comment=comment_report.comment,
                     report_type=report_form.report_type.data,
                 )

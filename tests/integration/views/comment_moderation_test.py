@@ -153,7 +153,7 @@ def test_comment_report_opposing(
     assert (
         models.CommentModeratorReport.query.filter_by(
             comment=comment2_refetched,
-            user=new_user,
+            reported_by=new_user,
             report_type=models.MODERATOR_REPORT_TYPE.OK,
         ).one()
         is not None
@@ -210,7 +210,7 @@ def test_comment_report_majority_spam(
 
     # report the comment as not spam as new_user_owner
     report4 = models.CommentModeratorReport(
-        user=new_user_owner,
+        reported_by=new_user_owner,
         comment=comment3,
         report_type=models.MODERATOR_REPORT_TYPE.OK,
     )
@@ -299,7 +299,7 @@ def test_comment_report_majority_ok(
 
     # report the comment as not spam as new_user_owner
     report6 = models.CommentModeratorReport(
-        user=new_user_owner,
+        reported_by=new_user_owner,
         comment=comment4,
         report_type=models.MODERATOR_REPORT_TYPE.OK,
     )

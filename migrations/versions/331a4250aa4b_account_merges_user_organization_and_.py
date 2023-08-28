@@ -462,6 +462,12 @@ renames = [
         indexes=[Rn('ix_{}_user_id', 'ix_{}_member_id')],
     ),
     Rtable(
+        'comment_moderator_report',
+        columns=[Rn('user_id', 'reported_by_id')],
+        constraints=[Rn('{}_user_id_fkey', '{}_reported_by_id_fkey')],
+        indexes=[Rn('ix_{}_user_id', 'ix_{}_reported_by_id')],
+    ),
+    Rtable(
         'project',
         columns=[Rn('user_id', 'created_by_id')],
         constraints=[Rn('{}_user_id_fkey', '{}_created_by_id_fkey')],

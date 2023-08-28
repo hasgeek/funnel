@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Tuple
+
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
@@ -33,12 +35,12 @@ class CommentModeratorReport(UuidMixin, BaseMixin, Model):
         foreign_keys=[comment_id],
         backref=backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
-    user_id: Mapped[int] = sa.orm.mapped_column(
+    reported_by_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, index=True
     )
-    user: Mapped[Account] = relationship(
+    reported_by: Mapped[Account] = relationship(
         Account,
-        foreign_keys=[user_id],
+        foreign_keys=[reported_by_id],
         backref=backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
     report_type = sa.orm.mapped_column(
@@ -57,7 +59,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, Model):
     __datasets__ = {
         'primary': {
             'comment',
-            'user',
+            'reported_by',
             'report_type',
             'reported_at',
             'resolved_at',
@@ -83,7 +85,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, Model):
             # get all comment ids that the given user has already reviewed/reported
             existing_reported_comments = (
                 db.session.query(cls.comment_id)
-                .filter_by(user_id=exclude_user.id)
+                .filter_by(reported_by_id=exclude_user.id)
                 .distinct()
             )
             # exclude reports for those comments
@@ -91,11 +93,13 @@ class CommentModeratorReport(UuidMixin, BaseMixin, Model):
         return reports
 
     @classmethod
-    def submit(cls, actor, comment):
+    def submit(
+        cls, actor: Account, comment: Comment
+    ) -> Tuple[CommentModeratorReport, bool]:
         created = False
-        report = cls.query.filter_by(user=actor, comment=comment).one_or_none()
+        report = cls.query.filter_by(reported_by=actor, comment=comment).one_or_none()
         if report is None:
-            report = cls(user=actor, comment=comment)
+            report = cls(reported_by=actor, comment=comment)
             db.session.add(report)
             created = True
         return report, created
@@ -114,13 +118,13 @@ class CommentModeratorReport(UuidMixin, BaseMixin, Model):
 
 @reopen(Comment)
 class __Comment:
-    def is_reviewed_by(self, user: Account) -> bool:
+    def is_reviewed_by(self, account: Account) -> bool:
         return db.session.query(
             db.session.query(CommentModeratorReport)
             .filter(
                 CommentModeratorReport.comment == self,
                 CommentModeratorReport.resolved_at.is_(None),
-                CommentModeratorReport.user == user,
+                CommentModeratorReport.reported_by == account,
             )
             .exists()
         ).scalar()
