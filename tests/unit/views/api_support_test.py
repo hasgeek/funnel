@@ -102,8 +102,8 @@ def test_valid_phone_affiliated(
     assert isinstance(data['result'], dict)
     assert data['result']['number'] == VALID_PHONE
     assert data['result']['account'] == {
-        'title': user_rincewind_phone.user.fullname,
-        'name': user_rincewind_phone.user.username,
+        'title': user_rincewind_phone.account.fullname,
+        'name': user_rincewind_phone.account.username,
     }
 
 
@@ -127,6 +127,6 @@ def test_valid_phone_intl(
     assert isinstance(data['result'], dict)
     assert data['result']['number'] == VALID_PHONE_INTL
     assert data['result']['account'] == {
-        'title': user_twoflower_phone.user.fullname,
-        'name': user_twoflower_phone.user.username,
+        'title': user_twoflower_phone.account.fullname,
+        'name': user_twoflower_phone.account.username,
     }

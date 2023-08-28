@@ -90,7 +90,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
         self.last_seen_at = sa.func.utcnow()
 
     @classmethod
-    def for_user(cls, user: Account) -> Query[CommentsetMembership]:
+    def for_user(cls, account: Account) -> Query[CommentsetMembership]:
         """
         Return a query representing all active commentset memberships for a user.
 
@@ -102,7 +102,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
         """
         return (
             cls.query.filter(
-                cls.user == user,
+                cls.member == account,
                 CommentsetMembership.is_active,
             )
             .join(Commentset)

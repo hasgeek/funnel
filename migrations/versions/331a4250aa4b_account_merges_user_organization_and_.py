@@ -491,6 +491,11 @@ renames = [
         indexes=[Rn('ix_{}_user_id', 'ix_{}_member_id')],
     ),
     Rtable(
+        'rsvp',
+        columns=[Rn('user_id', 'participant_id')],
+        constraints=[Rn('{}_user_id_fkey', '{}_participant_id_fkey')],
+    ),
+    Rtable(
         'site_membership',
         columns=[Rn('user_id', 'member_id')],
         constraints=[Rn('{}_user_id_fkey', '{}_member_id_fkey')],

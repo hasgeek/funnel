@@ -334,7 +334,7 @@ def user_autocomplete(q: str = '') -> ReturnView:
         'api_user_autocomplete',
         current_auth.actor.uuid_b58
         if current_auth.actor
-        else current_auth.session.user.uuid_b58,
+        else current_auth.session.account.uuid_b58,
         # Limit 20 attempts
         20,
         # Per half hour (60s * 30m = 1800s)
@@ -383,7 +383,7 @@ def profile_autocomplete(q: str = '') -> ReturnView:
         'api_profile_autocomplete',
         current_auth.actor.uuid_b58
         if current_auth.actor
-        else current_auth.session.user.uuid_b58,
+        else current_auth.session.account.uuid_b58,
         # Limit 20 attempts
         20,
         # Per half hour (60s * 30m = 1800s)

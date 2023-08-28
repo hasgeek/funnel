@@ -754,8 +754,8 @@ class ProjectView(  # type: ignore[misc]
         for rsvp in self.obj.rsvps_with(state):
             out.writerow(
                 [
-                    rsvp.user.fullname,
-                    rsvp.user.default_email(context=rsvp.project.account) or '',
+                    rsvp.participant.fullname,
+                    rsvp.participant.default_email(context=rsvp.project.account) or '',
                     rsvp.created_at.astimezone(self.obj.timezone)
                     .replace(second=0, microsecond=0, tzinfo=None)
                     .isoformat(),  # Strip precision from timestamp

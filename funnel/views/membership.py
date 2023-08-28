@@ -284,7 +284,7 @@ class OrganizationMembershipView(
             form=form,
             title=_("Confirm removal"),
             message=_("Remove {member} as an admin from {account}?").format(
-                member=self.obj.user.fullname, account=self.obj.account.title
+                member=self.obj.member.fullname, account=self.obj.account.title
             ),
             submit=_("Remove"),
             ajax=False,
@@ -423,7 +423,7 @@ class ProjectCrewMembershipInviteView(
 ):
     def loader(self, account: str, project: str, membership: str) -> ProjectMembership:
         obj = super().loader(account, project, membership)
-        if not obj.is_invite or obj.user != current_auth.user:
+        if not obj.is_invite or obj.member != current_auth.user:
             abort(404)
         return obj
 
@@ -501,7 +501,7 @@ class ProjectCrewMembershipView(
                 if new_membership != previous_membership:
                     db.session.commit()
                     signals.project_role_change.send(
-                        self.obj.project, actor=current_auth.user, user=self.obj.user
+                        self.obj.project, actor=current_auth.user, user=self.obj.member
                     )
                     dispatch_notification(
                         ProjectCrewMembershipNotification(
@@ -546,7 +546,7 @@ class ProjectCrewMembershipView(
                     previous_membership.revoke(actor=current_auth.user)
                     db.session.commit()
                     signals.project_role_change.send(
-                        self.obj.project, actor=current_auth.user, user=self.obj.user
+                        self.obj.project, actor=current_auth.user, user=self.obj.member
                     )
                     dispatch_notification(
                         ProjectCrewMembershipRevokedNotification(
@@ -570,7 +570,7 @@ class ProjectCrewMembershipView(
             form=form,
             title=_("Confirm removal"),
             message=_("Remove {member} as a crew member from this project?").format(
-                member=self.obj.user.fullname
+                member=self.obj.member.fullname
             ),
             submit=_("Remove"),
             ajax=False,

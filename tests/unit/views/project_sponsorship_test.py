@@ -47,7 +47,7 @@ def user_twoflower_not_site_editor(db_session, user_twoflower):
 def test_check_site_editor_edit_sponsorship(
     request, app, client, login, org_uu_sponsorship, user_site_membership, status_code
 ) -> None:
-    login.as_(request.getfixturevalue(user_site_membership).user)
+    login.as_(request.getfixturevalue(user_site_membership).member)
     endpoint = org_uu_sponsorship.url_for('edit')
     rv = client.get(endpoint)
     assert rv.status_code == status_code
@@ -73,7 +73,7 @@ def test_sponsorship_add(
     is_promoted,
     csrf_token,
 ) -> None:
-    login.as_(user_vetinari_site_editor.user)
+    login.as_(user_vetinari_site_editor.member)
     endpoint = project_expo2010.url_for('add_sponsor')
     data = {
         'member': org_uu.name,
@@ -107,7 +107,7 @@ def test_sponsorship_edit(
     csrf_token,
 ) -> None:
     assert org_uu_sponsorship.is_promoted is True
-    login.as_(user_vetinari_site_editor.user)
+    login.as_(user_vetinari_site_editor.member)
     endpoint = org_uu_sponsorship.url_for('edit')
     data = {
         'label': "Edited",

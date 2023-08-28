@@ -183,9 +183,9 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
     organizer.params['cn'] = vText(session.project.account.title)
     event['organizer'] = organizer
     if rsvp:
-        attendee = vCalAddress('MAILTO:' + str(rsvp.user_email()))
+        attendee = vCalAddress('MAILTO:' + str(rsvp.participant_email()))
         attendee.params['RSVP'] = vText('TRUE') if rsvp.state.YES else vText('FALSE')
-        attendee.params['cn'] = vText(rsvp.user.fullname)
+        attendee.params['cn'] = vText(rsvp.participant.fullname)
         attendee.params['CUTYPE'] = vText('INDIVIDUAL')
         attendee.params['X-NUM-GUESTS'] = vText('0')
         event.add('attendee', attendee, encode=0)

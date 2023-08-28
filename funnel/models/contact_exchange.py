@@ -124,7 +124,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         }
         for ce in old_account.scanned_contacts:
             if ce.ticket_participant_id not in ticket_participant_ids:
-                ce.user = new_account
+                ce.account = new_account
             else:
                 # Discard duplicate contact exchange
                 db.session.delete(ce)

@@ -27,7 +27,7 @@ def given_vetinari_editor_promoter_project(
     assert 'promoter' in project_expo2010.roles_for(user_vetinari)
     assert 'editor' in project_expo2010.roles_for(user_vetinari)
     vetinari_member = project_expo2010.crew_memberships[0]
-    assert vetinari_member.user == user_vetinari
+    assert vetinari_member.member == user_vetinari
     return vetinari_member
 
 
@@ -113,7 +113,7 @@ def then_user_gets_notification(
         view.activity_template().format(
             actor=ridcully_member.granted_by.fullname,
             project=ridcully_member.project.joined_title,
-            user=ridcully_member.user.fullname,
+            user=ridcully_member.member.fullname,
         )
         == notification_string
     )
@@ -161,7 +161,7 @@ def when_ridcully_accepts_invite(
     user_ridcully,
 ) -> models.ProjectMembership:
     assert ridcully_member.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
-    assert ridcully_member.user == user_ridcully
+    assert ridcully_member.member == user_ridcully
     ridcully_member_accept = ridcully_member.accept(actor=user_ridcully)
     db_session.commit()
     return ridcully_member_accept
@@ -325,7 +325,7 @@ def then_user_notification_removal(
     assert (
         view.activity_template().format(
             project=ridcully_member.project.joined_title,
-            user=ridcully_member.user.fullname,
+            user=ridcully_member.member.fullname,
             actor=ridcully_member.revoked_by.fullname,
         )
         == notification_string

@@ -87,7 +87,7 @@ def then_user_gets_notification(
         view.activity_template().format(
             actor=ridcully_admin.granted_by.fullname,
             organization=ridcully_admin.account.title,
-            user=ridcully_admin.user.fullname,
+            user=ridcully_admin.member.fullname,
         )
         == notification_string
     )
@@ -127,7 +127,7 @@ def when_ridcully_accepts_invite(
     user_ridcully,
 ) -> models.ProjectMembership:
     assert ridcully_admin.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
-    assert ridcully_admin.user == user_ridcully
+    assert ridcully_admin.member == user_ridcully
     ridcully_admin_accept = ridcully_admin.accept(actor=user_ridcully)
     db_session.commit()
     return ridcully_admin_accept
@@ -206,7 +206,7 @@ def then_user_notification_removal(
         view.activity_template().format(
             actor=ridcully_admin.granted_by.fullname,
             organization=ridcully_admin.account.title,
-            user=ridcully_admin.user.fullname,
+            user=ridcully_admin.member.fullname,
         )
         == notification_string
     )
