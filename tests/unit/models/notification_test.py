@@ -278,13 +278,13 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
     assert user.notification_preferences == {}
     np = models.NotificationPreferences(
         notification_type=nt.TestNewUpdateNotification.pref_type,
-        user=user,
+        account=user,
     )
     db_session.add(np)
     db_session.commit()
     assert set(user.notification_preferences.keys()) == {'update_new_test'}
     assert user.notification_preferences['update_new_test'] == np
-    assert user.notification_preferences['update_new_test'].user == user
+    assert user.notification_preferences['update_new_test'].account == user
     assert (
         user.notification_preferences['update_new_test'].type_cls
         == nt.TestNewUpdateNotification
@@ -293,7 +293,7 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
     # There cannot be two sets of preferences for the same notification type
     db_session.add(
         models.NotificationPreferences(
-            notification_type=nt.TestNewUpdateNotification.pref_type, user=user
+            notification_type=nt.TestNewUpdateNotification.pref_type, account=user
         )
     )
     with pytest.raises(IntegrityError):
@@ -302,13 +302,13 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
 
     # Preferences cannot be set for invalid types
     with pytest.raises(ValueError, match='Invalid notification_type'):
-        models.NotificationPreferences(notification_type='invalid', user=user)
+        models.NotificationPreferences(notification_type='invalid', account=user)
     db_session.rollback()
 
     # Preferences can be set for other notification types though
     np2 = models.NotificationPreferences(
         notification_type=nt.TestProposalReceivedNotification.pref_type,
-        user=user,
+        account=user,
     )
     db_session.add(np2)
     db_session.commit()

@@ -84,7 +84,7 @@ class AccountNotificationView(ClassView):
             if ncls.category.priority_id in preferences:
                 if ntype not in user_preferences:
                     user_preferences[ntype] = NotificationPreferences(
-                        notification_type=ntype, user=current_auth.user
+                        notification_type=ntype, account=current_auth.user
                     )
                     commit_new_preferences = True
                 preferences[ncls.category.priority_id]['types'].append(
@@ -144,7 +144,7 @@ class AccountNotificationView(ClassView):
                 not in current_auth.user.notification_preferences
             ):
                 prefs = NotificationPreferences(
-                    user=current_auth.user,
+                    account=current_auth.user,
                     notification_type=form.notification_type.data,
                 )
                 db.session.add(prefs)

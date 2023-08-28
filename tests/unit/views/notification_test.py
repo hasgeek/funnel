@@ -27,7 +27,7 @@ def notification_prefs_vetinari(db_session, user_vetinari):
     """Add main notification preferences for user_vetinari."""
     prefs = models.NotificationPreferences(
         notification_type='',
-        user=user_vetinari,
+        account=user_vetinari,
         by_email=True,
         by_sms=True,
         by_webpush=True,

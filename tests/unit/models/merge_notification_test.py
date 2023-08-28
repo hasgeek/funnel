@@ -87,7 +87,7 @@ def user2_notification(db_session, fixtures, notification):
 
 @pytest.fixture()
 def user1_main_preferences(db_session, fixtures):
-    prefs = models.NotificationPreferences(notification_type='', user=fixtures.user1)
+    prefs = models.NotificationPreferences(notification_type='', account=fixtures.user1)
     db_session.add(prefs)
     db_session.commit()
     return prefs
@@ -96,7 +96,7 @@ def user1_main_preferences(db_session, fixtures):
 @pytest.fixture()
 def user1_test_preferences(db_session, fixtures, fixture_notification_type):
     prefs = models.NotificationPreferences(
-        notification_type='merge_test', user=fixtures.user1
+        notification_type='merge_test', account=fixtures.user1
     )
     db_session.add(prefs)
     db_session.commit()
@@ -105,7 +105,7 @@ def user1_test_preferences(db_session, fixtures, fixture_notification_type):
 
 @pytest.fixture()
 def user2_main_preferences(db_session, fixtures):
-    prefs = models.NotificationPreferences(notification_type='', user=fixtures.user2)
+    prefs = models.NotificationPreferences(notification_type='', account=fixtures.user2)
     db_session.add(prefs)
     db_session.commit()
     return prefs
@@ -114,7 +114,7 @@ def user2_main_preferences(db_session, fixtures):
 @pytest.fixture()
 def user2_test_preferences(db_session, fixtures, fixture_notification_type):
     prefs = models.NotificationPreferences(
-        notification_type='merge_test', user=fixtures.user2
+        notification_type='merge_test', account=fixtures.user2
     )
     db_session.add(prefs)
     db_session.commit()
@@ -196,8 +196,8 @@ def test_merge_with_user1_preferences(
     db_session.commit()
     assert merged == fixtures.user1
     assert models.NotificationPreferences.query.count() == 2
-    assert user1_main_preferences.user == fixtures.user1
-    assert user1_test_preferences.user == fixtures.user1
+    assert user1_main_preferences.account == fixtures.user1
+    assert user1_test_preferences.account == fixtures.user1
 
 
 def test_merge_with_user2_preferences(
@@ -209,8 +209,8 @@ def test_merge_with_user2_preferences(
     db_session.commit()
     assert merged == fixtures.user1
     assert models.NotificationPreferences.query.count() == 2
-    assert user2_main_preferences.user == fixtures.user1
-    assert user2_test_preferences.user == fixtures.user1
+    assert user2_main_preferences.account == fixtures.user1
+    assert user2_test_preferences.account == fixtures.user1
 
 
 def test_merge_with_both_preferences(
@@ -250,5 +250,5 @@ def test_merge_with_mixed_preferences(
         user1_main_preferences,
         user2_test_preferences,
     }
-    assert user1_main_preferences.user == fixtures.user1
-    assert user2_test_preferences.user == fixtures.user1
+    assert user1_main_preferences.account == fixtures.user1
+    assert user2_test_preferences.account == fixtures.user1

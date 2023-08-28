@@ -464,8 +464,20 @@ renames = [
     Rtable(
         'comment_moderator_report',
         columns=[Rn('user_id', 'reported_by_id')],
-        constraints=[Rn('{}_user_id_fkey', '{}_reported_by_id_fkey')],
+        constraints=[
+            Rn('{}_user_id_fkey', '{}_reported_by_id_fkey'),
+            Rn(
+                '{}_user_id_notification_type_key',
+                '{}_account_id_notification_type_key',
+            ),
+        ],
         indexes=[Rn('ix_{}_user_id', 'ix_{}_reported_by_id')],
+    ),
+    Rtable(
+        'notification_preferences',
+        columns=[Rn('user_id', 'account_id')],
+        constraints=[Rn('{}_user_id_fkey', '{}_account_id_fkey')],
+        indexes=[Rn('ix_{}_user_id', 'ix_{}_account_id')],
     ),
     Rtable(
         'project',

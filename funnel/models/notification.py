@@ -999,7 +999,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
         prefs = self.user.notification_preferences.get(self.notification_pref_type)
         if prefs is None:
             prefs = NotificationPreferences(
-                notification_type=self.notification_pref_type, user=self.user
+                notification_type=self.notification_pref_type, account=self.user
             )
             db.session.add(prefs)
             self.user.notification_preferences[self.notification_pref_type] = prefs
@@ -1256,15 +1256,15 @@ class NotificationPreferences(BaseMixin, Model):
     __tablename__ = 'notification_preferences'
     __allow_unmapped__ = True
 
-    #: Id of user whose preferences are represented here
-    user_id: Mapped[int] = sa.orm.mapped_column(
+    #: Id of account whose preferences are represented here
+    account_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
         index=True,
     )
-    #: User whose preferences are represented here
-    user = with_roles(
+    #: User account whose preferences are represented here
+    account = with_roles(
         relationship(Account, back_populates='notification_preferences'),
         read={'owner'},
         grants={'owner'},
@@ -1292,7 +1292,7 @@ class NotificationPreferences(BaseMixin, Model):
         sa.orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
     )
 
-    __table_args__ = (sa.UniqueConstraint('user_id', 'notification_type'),)
+    __table_args__ = (sa.UniqueConstraint('account_id', 'notification_type'),)
 
     __datasets__ = {
         'preferences': {
@@ -1306,14 +1306,14 @@ class NotificationPreferences(BaseMixin, Model):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        if self.user:
+        if self.account:
             self.set_defaults()
 
     def __repr__(self) -> str:
         """Represent :class:`NotificationPreferences` as a string."""
         return (
             f'NotificationPreferences('
-            f'notification_type={self.notification_type!r}, user={self.user!r}'
+            f'notification_type={self.notification_type!r}, account={self.account!r}'
             f')'
         )
 
@@ -1327,7 +1327,7 @@ class NotificationPreferences(BaseMixin, Model):
             ('by_whatsapp', 'default_whatsapp'),
         )
         with db.session.no_autoflush:
-            if not self.user.notification_preferences:
+            if not self.account.notification_preferences:
                 # No existing preferences. Get defaults from notification type's class
                 if (
                     self.notification_type
@@ -1352,7 +1352,7 @@ class NotificationPreferences(BaseMixin, Model):
                             t_attr,
                             any(
                                 getattr(np, t_attr)
-                                for np in self.user.notification_preferences.values()
+                                for np in self.account.notification_preferences.values()
                             ),
                         )
 
@@ -1380,8 +1380,8 @@ class NotificationPreferences(BaseMixin, Model):
         for ntype, prefs in list(old_account.notification_preferences.items()):
             if ntype in new_account.notification_preferences:
                 db.session.delete(prefs)
-        cls.query.filter(cls.user_id == old_account.id).update(
-            {'user_id': new_account.id}, synchronize_session=False
+        cls.query.filter(cls.account_id == old_account.id).update(
+            {'account_id': new_account.id}, synchronize_session=False
         )
 
     @sa.orm.validates('notification_type')
@@ -1408,14 +1408,14 @@ class __Account:
     notification_preferences: Mapped[Dict[str, NotificationPreferences]] = relationship(
         NotificationPreferences,
         collection_class=column_keyed_dict(NotificationPreferences.notification_type),
-        back_populates='user',
+        back_populates='account',
     )
 
     # This relationship is wrapped in a property that creates it on first access
     _main_notification_preferences: Mapped[NotificationPreferences] = relationship(
         NotificationPreferences,
         primaryjoin=sa.and_(
-            NotificationPreferences.user_id == Account.id,
+            NotificationPreferences.account_id == Account.id,
             NotificationPreferences.notification_type == '',
         ),
         uselist=False,
@@ -1428,7 +1428,7 @@ class __Account:
         if not self._main_notification_preferences:
             main = NotificationPreferences(
                 notification_type='',
-                user=self,
+                account=self,
                 by_email=True,
                 by_sms=True,
                 by_webpush=False,
