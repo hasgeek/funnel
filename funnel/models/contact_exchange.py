@@ -94,7 +94,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     __roles__ = {
         'owner': {
             'read': {
-                'user',
+                'account',
                 'ticket_participant',
                 'scanned_at',
                 'description',
@@ -102,7 +102,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
             },
             'write': {'description', 'archived'},
         },
-        'subject': {'read': {'user', 'ticket_participant', 'scanned_at'}},
+        'subject': {'read': {'account', 'ticket_participant', 'scanned_at'}},
     }
 
     def roles_for(
@@ -131,7 +131,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
 
     @classmethod
     def grouped_counts_for(
-        cls, user: Account, archived: bool = False
+        cls, account: Account, archived: bool = False
     ) -> List[Tuple[ProjectId, List[DateCountContacts]]]:
         """Return count of contacts grouped by project and date."""
         subq = sa.select(
@@ -143,7 +143,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         ).filter(
             cls.ticket_participant_id == TicketParticipant.id,
             TicketParticipant.project_id == Project.id,
-            cls.account == user,
+            cls.account == account,
         )
 
         if not archived:
@@ -202,7 +202,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         #   WHERE
         #     contact_exchange.ticket_participant_id = ticket_participant.id
         #     AND ticket_participant.project_id = project.id
-        #     AND :user_id = contact_exchange.user_id
+        #     AND :account_id = contact_exchange.account_id
         #     AND contact_exchange.archived IS false
         #   ) AS anon_1
         # GROUP BY project_id, project_uuid, project_title, project_timezone, scan_date
@@ -231,7 +231,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
                         r.scan_date,
                         r.count,
                         cls.contacts_for_project_and_date(
-                            user, k, r.scan_date, archived
+                            account, k, r.scan_date, archived
                         ),
                     )
                     for r in g
@@ -253,11 +253,11 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
 
     @classmethod
     def contacts_for_project_and_date(
-        cls, user: Account, project: Project, date: date_type, archived: bool = False
+        cls, account: Account, project: Project, date: date_type, archived: bool = False
     ) -> Query[ContactExchange]:
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(
-            cls.account == user,
+            cls.account == account,
             # For safety always use objects instead of column values. The following
             # expression should have been `Participant.project == project`. However, we
             # are using `id` here because `project` may be an instance of ProjectId
@@ -280,11 +280,11 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
 
     @classmethod
     def contacts_for_project(
-        cls, user: Account, project: Project, archived: bool = False
+        cls, account: Account, project: Project, archived: bool = False
     ) -> Query[ContactExchange]:
         """Return contacts for a given user and project."""
         query = cls.query.join(TicketParticipant).filter(
-            cls.account == user,
+            cls.account == account,
             # See explanation for the following expression in
             # `contacts_for_project_and_date`
             TicketParticipant.project_id == project.id,
@@ -296,4 +296,4 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         return query
 
 
-TicketParticipant.scanning_users = association_proxy('scanned_contacts', 'user')
+TicketParticipant.scanning_users = association_proxy('scanned_contacts', 'account')
