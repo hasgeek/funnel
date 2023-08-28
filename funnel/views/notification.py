@@ -173,14 +173,14 @@ class RenderNotification:
         self.notification = user_notification.notification
         self.document = (
             user_notification.notification.document.access_for(
-                actor=self.user_notification.user
+                actor=self.user_notification.recipient
             )
             if user_notification.notification.document is not None
             else None
         )
         self.fragment = (
             user_notification.notification.fragment.access_for(
-                actor=self.user_notification.user
+                actor=self.user_notification.recipient
             )
             if user_notification.notification.fragment is not None
             else None
@@ -201,7 +201,7 @@ class RenderNotification:
         number. Since notifications cannot have data, the notification will have to be
         raised on the address document (eg: AccountEmail, AccountPhone, EmailAddress).
         """
-        return self.user_notification.user.transport_for(
+        return self.user_notification.recipient.transport_for(
             transport, self.notification.preference_context
         )
 
@@ -255,7 +255,7 @@ class RenderNotification:
         # in `views/notification_preferences.py`
         return token_serializer().dumps(
             {
-                'buid': self.user_notification.user.buid,
+                'buid': self.user_notification.recipient.buid,
                 'notification_type': self.notification.type,
                 'transport': transport,
                 'hash': self.transport_for(transport).transport_hash,
@@ -283,7 +283,7 @@ class RenderNotification:
         # after cleaning up the URL, so there are no more redirects left.
         token = make_cached_token(
             {
-                'buid': self.user_notification.user.buid,
+                'buid': self.user_notification.recipient.buid,
                 'notification_type': self.notification.type,
                 'transport': transport,
                 'hash': self.transport_for(transport).transport_hash,
@@ -324,7 +324,9 @@ class RenderNotification:
         if self.fragments_query_options:
             query = query.options(*self.fragments_query_options)
 
-        return [_f.access_for(actor=self.user_notification.user) for _f in query.all()]
+        return [
+            _f.access_for(actor=self.user_notification.recipient) for _f in query.all()
+        ]
 
     @cached_property
     def is_rollup(self) -> bool:
@@ -501,7 +503,7 @@ def transport_worker_wrapper(
             # The notification may be deleted or revoked by the time this worker
             # processes it. If so, skip it.
             if user_notification is not None and not user_notification.is_revoked:
-                with force_locale(user_notification.user.locale or 'en'):
+                with force_locale(user_notification.recipient.locale or 'en'):
                     view = user_notification.views.render
                     try:
                         func(user_notification, view)
@@ -522,7 +524,9 @@ def dispatch_transport_email(
     user_notification: UserNotification, view: RenderNotification
 ) -> None:
     """Deliver a user notification over email."""
-    if not user_notification.user.main_notification_preferences.by_transport('email'):
+    if not user_notification.recipient.main_notification_preferences.by_transport(
+        'email'
+    ):
         # Cancel delivery if user's main switch is off. This was already checked, but
         # the worker may be delayed and the user may have changed their preference.
         user_notification.messageid_email = 'cancelled'
@@ -533,7 +537,7 @@ def dispatch_transport_email(
     attachments = view.email_attachments()
     user_notification.messageid_email = email.send_email(
         subject=subject,
-        to=[(user_notification.user.fullname, str(address))],
+        to=[(user_notification.recipient.fullname, str(address))],
         content=content,
         attachments=attachments,
         from_email=(view.email_from(), app.config['MAIL_DEFAULT_SENDER_ADDR']),
@@ -572,7 +576,9 @@ def dispatch_transport_sms(
     user_notification: UserNotification, view: RenderNotification
 ) -> None:
     """Deliver a user notification over SMS."""
-    if not user_notification.user.main_notification_preferences.by_transport('sms'):
+    if not user_notification.recipient.main_notification_preferences.by_transport(
+        'sms'
+    ):
         # Cancel delivery if user's main switch is off. This was already checked, but
         # the worker may be delayed and the user may have changed their preference.
         user_notification.messageid_sms = 'cancelled'

@@ -258,13 +258,13 @@ def test_update_notification_structure(
     # Notifications are correctly assigned by priority of role
     role_users: Dict[str, Set[models.User]] = {}
     for un in user_notifications:
-        role_users.setdefault(un.role, set()).add(un.user)
+        role_users.setdefault(un.role, set()).add(un.recipient)
 
     assert role_users == {
         'project_crew': {project_fixtures.user_owner, project_fixtures.user_editor},
         'project_participant': {project_fixtures.user_participant},
     }
-    all_recipients = {un.user for un in user_notifications}
+    all_recipients = {un.recipient for un in user_notifications}
     assert project_fixtures.user_cancelled_participant not in all_recipients
     assert project_fixtures.user_bystander not in all_recipients
 

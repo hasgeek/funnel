@@ -76,8 +76,8 @@ supported using an unusual primary and foreign key structure in :class:`Notifica
 and :class:`UserNotification`:
 
 1. Notification has pkey ``(eventid, id)``, where `id` is local to the instance
-2. UserNotification has pkey ``(eventid, user_id)`` combined with a fkey to Notification
-    using ``(eventid, notification_id)``
+2. UserNotification has pkey ``(recipient_id, eventid)`` combined with a fkey to
+    Notification using ``(eventid, notification_id)``
 """
 from __future__ import annotations
 
@@ -687,7 +687,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
             if existing_notification is None:
                 user_notification = UserNotification(
                     eventid=self.eventid,
-                    user_id=user.id,
+                    recipient_id=user.id,
                     notification_id=self.id,
                     role=role,
                 )
@@ -708,7 +708,7 @@ class PreviewNotification(NotificationType):
 
         NotificationFor(
             PreviewNotification(NotificationType, document, fragment, actor),
-            user
+            recipient
         )
     """
 
@@ -801,10 +801,10 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
     __tablename__ = 'user_notification'
     __allow_unmapped__ = True
 
-    # Primary key is a compound of (user_id, eventid).
+    # Primary key is a compound of (recipient_id, eventid).
 
     #: Id of user being notified
-    user_id: Mapped[int] = immutable(
+    recipient_id: Mapped[int] = immutable(
         sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('account.id', ondelete='CASCADE'),
@@ -814,7 +814,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
     )
 
     #: User being notified (backref defined below, outside the model)
-    user: Mapped[Account] = with_roles(
+    recipient: Mapped[Account] = with_roles(
         relationship(Account), read={'owner'}, grants={'owner'}
     )
 
@@ -930,7 +930,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
     @property
     def identity(self) -> Tuple[int, UUID]:
         """Primary key of this object."""
-        return (self.user_id, self.eventid)
+        return (self.recipient_id, self.eventid)
 
     @hybrid_property
     def eventid_b58(self) -> str:
@@ -1077,7 +1077,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
             .join(Notification)
             .filter(
                 # Same user
-                UserNotification.user_id == self.user_id,
+                UserNotification.recipient_id == self.recipient_id,
                 # Same type of notification
                 Notification.type == self.notification.type,
                 # Same document
@@ -1114,7 +1114,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
                 UserNotification.query.join(Notification)
                 .filter(
                     # Same user
-                    UserNotification.user_id == self.user_id,
+                    UserNotification.recipient_id == self.recipient_id,
                     # Not ourselves
                     UserNotification.eventid != self.eventid,
                     # Same type of notification
@@ -1130,7 +1130,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
                 )
                 .options(
                     sa.orm.load_only(
-                        UserNotification.user_id,
+                        UserNotification.recipient_id,
                         UserNotification.eventid,
                         UserNotification.revoked_at,
                         UserNotification.rollupid,
@@ -1170,7 +1170,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
         """Return web notifications for a user, optionally returning unread-only."""
         query = UserNotification.query.join(Notification).filter(
             Notification.type.in_(notification_web_types),
-            UserNotification.user == user,
+            UserNotification.recipient == user,
             UserNotification.revoked_at.is_(None),
         )
         if unread_only:
@@ -1184,7 +1184,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
             UserNotification.query.join(Notification)
             .filter(
                 Notification.type.in_(notification_web_types),
-                UserNotification.user == user,
+                UserNotification.recipient == user,
                 UserNotification.read_at.is_(None),
                 UserNotification.revoked_at.is_(None),
             )
@@ -1194,15 +1194,15 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
     @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """Migrate one account's data to another when merging accounts."""
-        for user_notification in cls.query.filter_by(user_id=old_account.id).all():
+        for user_notification in cls.query.filter_by(recipient_id=old_account.id).all():
             existing = cls.query.get((new_account.id, user_notification.eventid))
             # TODO: Instead of dropping old_user's dupe notifications, check which of
             # the two has a higher priority role and keep that. This may not be possible
             # if the two copies are for different notifications under the same eventid.
             if existing is not None:
                 db.session.delete(user_notification)
-        cls.query.filter(cls.user_id == old_account.id).update(
-            {'user_id': new_account.id}, synchronize_session=False
+        cls.query.filter(cls.recipient_id == old_account.id).update(
+            {'recipient_id': new_account.id}, synchronize_session=False
         )
 
 
@@ -1219,20 +1219,20 @@ class NotificationFor(UserNotificationMixin):
     views = Registry()
 
     def __init__(
-        self, notification: Union[Notification, PreviewNotification], user: Account
+        self, notification: Union[Notification, PreviewNotification], recipient: Account
     ) -> None:
         self.notification = notification
         self.eventid = notification.eventid
         self.notification_id = notification.id
 
-        self.user = user
-        self.user_id = user.id
+        self.recipient = recipient
+        self.recipient_id = recipient.id
 
     @property
     def role(self) -> Optional[str]:
         """User's primary matching role for this notification."""
-        if self.document and self.user:
-            roles = self.document.roles_for(self.user)
+        if self.document and self.recipient:
+            roles = self.document.roles_for(self.recipient)
             for role in self.notification.roles:
                 if role in roles:
                     return role

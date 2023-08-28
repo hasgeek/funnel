@@ -545,6 +545,11 @@ renames = [
         indexes=[Rn('ix_{}_user_id', 'ix_{}_created_by_id')],
     ),
     Rtable(
+        'user_notification',
+        columns=[Rn('user_id', 'recipient_id')],
+        constraints=[Rn('{}_user_id_fkey', '{}_recipient_id_fkey')],
+    ),
+    Rtable(
         'user_session',
         'login_session',
         sequences=[Rn('{}_id_seq')],

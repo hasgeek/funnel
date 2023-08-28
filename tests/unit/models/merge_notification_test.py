@@ -63,7 +63,7 @@ def notification(db_session, fixtures):
 def user1_notification(db_session, fixtures, notification):
     un = models.UserNotification(
         eventid=notification.eventid,
-        user_id=fixtures.user1.id,
+        recipient_id=fixtures.user1.id,
         notification_id=notification.id,
         role=models.OrganizationAdminMembershipNotification.roles[-1],
     )
@@ -76,7 +76,7 @@ def user1_notification(db_session, fixtures, notification):
 def user2_notification(db_session, fixtures, notification):
     un = models.UserNotification(
         eventid=notification.eventid,
-        user_id=fixtures.user2.id,
+        recipient_id=fixtures.user2.id,
         notification_id=notification.id,
         role=models.OrganizationAdminMembershipNotification.roles[-1],
     )
@@ -146,7 +146,7 @@ def test_merge_with_user1_notifications(
     assert merged == fixtures.user1
     assert models.Notification.query.count() == 1
     assert models.UserNotification.query.count() == 1
-    assert user1_notification.user == fixtures.user1
+    assert user1_notification.recipient == fixtures.user1
 
 
 def test_merge_with_user2_notifications(
@@ -156,7 +156,7 @@ def test_merge_with_user2_notifications(
     assert models.Notification.query.count() == 1
     assert models.UserNotification.query.count() == 1
     new_notification = models.UserNotification.query.one()
-    assert new_notification.user == fixtures.user2
+    assert new_notification.recipient == fixtures.user2
     merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
@@ -166,7 +166,7 @@ def test_merge_with_user2_notifications(
     # won't refresh it. It can no longer find that pkey. Therefore we must load it
     # afresh from db for the test here
     second_notification = models.UserNotification.query.one()
-    assert second_notification.user == fixtures.user1
+    assert second_notification.recipient == fixtures.user1
 
 
 def test_merge_with_dupe_notifications(
@@ -181,7 +181,7 @@ def test_merge_with_dupe_notifications(
     assert models.Notification.query.count() == 1
     assert models.UserNotification.query.count() == 1
     assert models.UserNotification.query.all() == [user1_notification]
-    assert user1_notification.user == fixtures.user1
+    assert user1_notification.recipient == fixtures.user1
 
 
 # --- Tests for NotificationPreferences ------------------------------------------------

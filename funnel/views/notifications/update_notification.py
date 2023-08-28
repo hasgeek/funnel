@@ -6,7 +6,7 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import NewUpdateNotification, Update, User
+from ...models import Account, NewUpdateNotification, Update
 from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -43,7 +43,7 @@ class RenderNewUpdateNotification(RenderNotification):
     email_heading = __("New update!")
 
     @property
-    def actor(self) -> User:
+    def actor(self) -> Account:
         """
         Return author of the update.
 
