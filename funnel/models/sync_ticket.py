@@ -210,7 +210,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     __tablename__ = 'ticket_participant'
     __allow_unmapped__ = True
     __email_optional__ = False
-    __email_for__ = 'user'
+    __email_for__ = 'participant'
 
     fullname = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=False),
@@ -249,10 +249,10 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
         sa.Unicode(44), nullable=False, default=make_private_key, unique=True
     )
     badge_printed = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
-    user_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+    participant_id: Mapped[Optional[int]] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True
     )
-    user: Mapped[Optional[Account]] = relationship(
+    participant: Mapped[Optional[Account]] = relationship(
         Account, backref=backref('ticket_participants', cascade='all')
     )
     project_id = sa.orm.mapped_column(
@@ -279,7 +279,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
-            if actor == self.user:
+            if actor == self.participant:
                 roles.add('member')
             cx = ContactExchange.query.get((actor.id, self.id))
             if cx is not None:
@@ -288,19 +288,19 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
 
     @property
     def avatar(self):
-        return self.user.logo_url if self.user else ''
+        return self.participant.logo_url if self.participant else ''
 
     with_roles(avatar, read={'all'})
 
     @property
     def has_public_profile(self) -> bool:
-        return self.user.has_public_profile if self.user else False
+        return self.participant.has_public_profile if self.participant else False
 
     with_roles(has_public_profile, read={'all'})
 
     @property
     def profile_url(self) -> Optional[str]:
-        return self.user.profile_url if self.user else None
+        return self.participant.profile_url if self.participant else None
 
     with_roles(profile_url, read={'all'})
 
@@ -319,16 +319,19 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
         ticket_participant = cls.get(current_project, current_email)
         accountemail = AccountEmail.get(current_email)
         if accountemail is not None:
-            user = accountemail.account
+            participant = accountemail.account
         else:
-            user = None
+            participant = None
         if ticket_participant is not None:
-            ticket_participant.user = user
+            ticket_participant.participant = participant
             ticket_participant._set_fields(fields)  # pylint: disable=protected-access
         else:
             with db.session.no_autoflush:
                 ticket_participant = cls(
-                    project=current_project, user=user, email=current_email, **fields
+                    project=current_project,
+                    participant=participant,
+                    email=current_email,
+                    **fields,
                 )
             db.session.add(ticket_participant)
         return ticket_participant
@@ -368,7 +371,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
                 .join(TicketType, SyncTicket.ticket_type_id == TicketType.id)
                 .filter(SyncTicket.ticket_participant_id == TicketParticipant.id)
                 .label('ticket_type_titles'),
-                cls.user_id.is_not(None).label('has_user'),
+                cls.participant_id.is_not(None).label('has_user'),
             )
             .select_from(TicketParticipant)
             .join(
@@ -580,19 +583,20 @@ class SyncTicket(BaseMixin, Model):
 @reopen(Project)
 class __Project:
     # XXX: This relationship exposes an edge case in RoleMixin. It previously expected
-    # TicketParticipant.user to be unique per project, meaning one user could have one
-    # participant ticket only. This is not guaranteed by the model as tickets are unique
-    # per email address per ticket type, and one user can have (a) two email addresses
-    # with tickets, or (b) tickets of different types. RoleMixin has since been patched
-    # to look for the first matching record (.first() instead of .one()). This may
-    # expose a new edge case in future in case the TicketParticipant model adds an
-    # `offered_roles` method, as only the first matching record's method will be called
+    # TicketParticipant.participant to be unique per project, meaning one user could
+    # have one participant ticket only. This is not guaranteed by the model as tickets
+    # are unique per email address per ticket type, and one user can have (a) two email
+    # addresses with tickets, or (b) tickets of different types. RoleMixin has since
+    # been patched to look for the first matching record (.first() instead of .one()).
+    # This may expose a new edge case in future in case the TicketParticipant model adds
+    # an `offered_roles` method, as only the first matching record's method will be
+    # called
     ticket_participants: DynamicMapped[TicketParticipant] = with_roles(
         relationship(
             TicketParticipant, lazy='dynamic', cascade='all', back_populates='project'
         ),
         grants_via={
-            'user': {'participant', 'project_participant', 'ticket_participant'}
+            'participant': {'participant', 'project_participant', 'ticket_participant'}
         },
     )
 
@@ -604,7 +608,7 @@ class __Account:
         """All users with a ticket in a project."""
         return (
             Account.query.filter(Account.state.ACTIVE)
-            .join(TicketParticipant, TicketParticipant.user_id == Account.id)
+            .join(TicketParticipant, TicketParticipant.participant_id == Account.id)
             .join(Project, TicketParticipant.project_id == Project.id)
             .filter(Project.state.PUBLISHED, Project.account == self)
         )

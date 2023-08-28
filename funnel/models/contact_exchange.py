@@ -112,7 +112,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         if actor is not None:
             if actor == self.account:
                 roles.add('owner')
-            if actor == self.ticket_participant.user:
+            if actor == self.ticket_participant.participant:
                 roles.add('subject')
         return roles
 

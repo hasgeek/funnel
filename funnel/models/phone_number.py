@@ -431,7 +431,7 @@ class PhoneNumber(BaseMixin, Model):
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: Optional[User]) -> bool:
+    def is_available_for(self, owner: Optional[Account]) -> bool:
         """Return True if this PhoneNumber is available for the proposed owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -633,7 +633,7 @@ class PhoneNumber(BaseMixin, Model):
     @classmethod
     def add_for(
         cls,
-        owner: Optional[User],
+        owner: Optional[Account],
         phone: Union[str, phonenumbers.PhoneNumber],
     ) -> PhoneNumber:
         """
@@ -661,7 +661,7 @@ class PhoneNumber(BaseMixin, Model):
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[User],
+        owner: Optional[Account],
         phone: Union[str, phonenumbers.PhoneNumber],
         new: bool = False,
     ) -> Optional[Literal['taken', 'invalid', 'not_new', 'blocked']]:
@@ -903,4 +903,4 @@ def _phone_number_mixin_configure_events(
 
 
 if TYPE_CHECKING:
-    from .user import User
+    from .account import Account

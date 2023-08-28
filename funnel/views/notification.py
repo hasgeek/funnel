@@ -21,11 +21,11 @@ from coaster.auth import current_auth
 
 from .. import app
 from ..models import (
+    Account,
     AccountEmail,
     AccountPhone,
     Notification,
     NotificationFor,
-    User,
     UserNotification,
     db,
 )
@@ -339,7 +339,7 @@ class RenderNotification:
     # --- Overrideable render methods
 
     @property
-    def actor(self) -> Optional[User]:
+    def actor(self) -> Optional[Account]:
         """Actor that prompted this notification. May be overriden."""
         return self.notification.user
 

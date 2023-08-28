@@ -49,9 +49,9 @@ def update_project_commentset_membership(
     project: Project, actor: Account, user: Account
 ) -> None:
     if 'participant' in project.roles_for(user):
-        project.commentset.add_subscriber(actor=actor, user=user)
+        project.commentset.add_subscriber(actor=actor, member=user)
     else:
-        project.commentset.remove_subscriber(actor=actor, user=user)
+        project.commentset.remove_subscriber(actor=actor, member=user)
 
 
 @proposal_role_change.connect
@@ -59,9 +59,9 @@ def update_proposal_commentset_membership(
     proposal: Proposal, actor: Account, user: Account
 ) -> None:
     if 'submitter' in proposal.roles_for(user):
-        proposal.commentset.add_subscriber(actor=actor, user=user)
+        proposal.commentset.add_subscriber(actor=actor, member=user)
     else:
-        proposal.commentset.remove_subscriber(actor=actor, user=user)
+        proposal.commentset.remove_subscriber(actor=actor, member=user)
 
 
 @Comment.views('url')
@@ -159,9 +159,9 @@ def do_post_comment(
         actor=actor, message=message, in_reply_to=in_reply_to
     )
     if commentset.current_roles.document_subscriber:
-        commentset.update_last_seen_at(user=actor)
+        commentset.update_last_seen_at(member=actor)
     else:
-        commentset.add_subscriber(actor=actor, user=actor)
+        commentset.add_subscriber(actor=actor, member=actor)
     db.session.commit()
     return comment
 
@@ -228,14 +228,18 @@ class CommentsetView(UrlForView, ModelView):
         subscribe_form.form_nonce.data = subscribe_form.form_nonce.default()
         if subscribe_form.validate_on_submit():
             if subscribe_form.subscribe.data:
-                self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
+                self.obj.add_subscriber(
+                    actor=current_auth.user, member=current_auth.user
+                )
                 db.session.commit()
                 return {
                     'status': 'ok',
                     'message': _("You will be notified of new comments"),
                     'form_nonce': subscribe_form.form_nonce.data,
                 }
-            self.obj.remove_subscriber(actor=current_auth.user, user=current_auth.user)
+            self.obj.remove_subscriber(
+                actor=current_auth.user, member=current_auth.user
+            )
             db.session.commit()
             return {
                 'status': 'ok',
@@ -256,7 +260,7 @@ class CommentsetView(UrlForView, ModelView):
     def update_last_seen_at(self) -> ReturnRenderWith:
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
-            self.obj.update_last_seen_at(user=current_auth.user)
+            self.obj.update_last_seen_at(member=current_auth.user)
             db.session.commit()
             return {'status': 'ok'}
         return {

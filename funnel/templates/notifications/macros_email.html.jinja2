@@ -10,7 +10,7 @@
         <tr>
             <td align="left">
                 <p class="text-accent">
-                    {%- trans number=update.number|numberformat -%}Update #{{ number }}{%- endtrans %} &bull; {% trans age=update.published_at|age, editor=update.user.pickername -%}Posted by {{ editor }} {{ age }}{%- endtrans -%}
+                    {%- trans number=update.number|numberformat -%}Update #{{ number }}{%- endtrans %} &bull; {% trans age=update.published_at|age, editor=update.created_by.pickername -%}Posted by {{ editor }} {{ age }}{%- endtrans -%}
                 </p>
                 <h2><a class="unstyle-auto-detected-links" href="{{ update.url_for(_external=true, **view.tracking_tags()) }}">{{ update.title }}</a></h2>
                 {{ update.body }}

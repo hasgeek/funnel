@@ -127,7 +127,7 @@ class ProposalMembership(  # type: ignore[misc]
 # Project relationships
 @reopen(Proposal)
 class __Proposal:
-    user: Account
+    created_by: Account
 
     # This relationship does not use `lazy='dynamic'` because it is expected to contain
     # <2 records on average, and won't exceed 50 in the most extreme cases
@@ -152,7 +152,7 @@ class __Proposal:
         for membership in self.memberships:
             if not membership.is_uncredited:
                 return membership.member
-        return self.user
+        return self.created_by
 
 
 @reopen(Account)

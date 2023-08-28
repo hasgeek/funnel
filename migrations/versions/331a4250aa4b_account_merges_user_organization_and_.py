@@ -522,6 +522,11 @@ renames = [
         constraints=[Rn('{}_user_id_fkey', '{}_account_id_fkey')],
     ),
     Rtable(
+        'ticket_participant',
+        columns=[Rn('user_id', 'participant_id')],
+        constraints=[Rn('{}_user_id_fkey', '{}_participant_id_fkey')],
+    ),
+    Rtable(
         'update',
         columns=[Rn('user_id', 'created_by_id')],
         constraints=[Rn('{}_user_id_fkey', '{}_created_by_id_fkey')],

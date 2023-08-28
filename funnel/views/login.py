@@ -502,7 +502,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     new_registration = False
     # 1. Check whether we have an existing UserExternalId
     user, extid, accountemail = get_user_extid(service, userdata)
-    # If extid is not None, extid.user == user, guaranteed.
+    # If extid is not None, extid.account == user, guaranteed.
     # If extid is None but accountemail is not None, user == accountemail.account
     # However, if both extid and accountemail are present, they may be different users
     if extid is not None:

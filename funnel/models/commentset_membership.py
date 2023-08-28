@@ -161,23 +161,23 @@ class __Commentset:
         grants_via={'member': {'document_subscriber'}},
     )
 
-    def update_last_seen_at(self, user: Account) -> None:
+    def update_last_seen_at(self, member: Account) -> None:
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, member=user, is_active=True
+            commentset=self, member=member, is_active=True
         ).one_or_none()
         if subscription is not None:
             subscription.update_last_seen_at()
 
-    def add_subscriber(self, actor: Account, user: Account) -> bool:
+    def add_subscriber(self, actor: Account, member: Account) -> bool:
         """Return True is subscriber is added or unmuted, False if already exists."""
         changed = False
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, member=user, is_active=True
+            commentset=self, member=member, is_active=True
         ).one_or_none()
         if subscription is None:
             subscription = CommentsetMembership(
                 commentset=self,
-                member=user,
+                member=member,
                 granted_by=actor,
             )
             db.session.add(subscription)
@@ -188,30 +188,30 @@ class __Commentset:
         subscription.update_last_seen_at()
         return changed
 
-    def mute_subscriber(self, actor: Account, user: Account) -> bool:
+    def mute_subscriber(self, actor: Account, member: Account) -> bool:
         """Return True if subscriber was muted, False if already muted or missing."""
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, member=user, is_active=True
+            commentset=self, member=member, is_active=True
         ).one_or_none()
         if not subscription.is_muted:
             subscription.replace(actor=actor, is_muted=True)
             return True
         return False
 
-    def unmute_subscriber(self, actor: Account, user: Account) -> bool:
+    def unmute_subscriber(self, actor: Account, member: Account) -> bool:
         """Return True if subscriber was unmuted, False if not muted or missing."""
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, member=user, is_active=True
+            commentset=self, member=member, is_active=True
         ).one_or_none()
         if subscription.is_muted:
             subscription.replace(actor=actor, is_muted=False)
             return True
         return False
 
-    def remove_subscriber(self, actor: Account, user: Account) -> bool:
+    def remove_subscriber(self, actor: Account, member: Account) -> bool:
         """Return True is subscriber is removed, False if already removed."""
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, member=user, is_active=True
+            commentset=self, member=member, is_active=True
         ).one_or_none()
         if subscription is not None:
             subscription.revoke(actor=actor)

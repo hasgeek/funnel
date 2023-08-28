@@ -1332,7 +1332,7 @@ class DuckTypeAccount(RoleMixin):
         }
     }
 
-    #: Make obj.user from a referring object falsy
+    #: Make obj.user/obj.posted_by from a referring object falsy
     def __bool__(self) -> bool:
         """Represent boolean state."""
         return False

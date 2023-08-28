@@ -152,7 +152,7 @@ class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
         form = TicketParticipantForm(parent=self.obj)
         if form.validate_on_submit():
             ticket_participant = TicketParticipant(project=self.obj)
-            ticket_participant.user = form.user
+            ticket_participant.participant = form.user
             with db.session.no_autoflush:
                 form.populate_obj(ticket_participant)
             try:
@@ -206,7 +206,7 @@ class TicketParticipantView(AccountCheckMixin, UrlForView, ModelView):
     def edit(self) -> ReturnView:
         form = TicketParticipantForm(obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
-            self.obj.user = form.user
+            self.obj.participant = form.user
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
@@ -250,9 +250,9 @@ def user_ticket_assignment(user: Account, changes: List[str]) -> None:
         )
 
         for ticket in tickets:
-            if ticket.user is None:
+            if ticket.participant is None:
                 updated = True
-                ticket.user = user
+                ticket.participant = user
         if updated:
             db.session.commit()
 

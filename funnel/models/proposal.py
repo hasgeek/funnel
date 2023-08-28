@@ -283,7 +283,7 @@ class Proposal(  # type: ignore[misc]
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
-        # Assume self.user is set. Fail if not.
+        # Assume self.created_by is set. Fail if not.
         db.session.add(
             ProposalMembership(
                 proposal=self, member=self.created_by, granted_by=self.created_by
