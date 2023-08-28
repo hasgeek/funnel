@@ -198,7 +198,7 @@ class SiteadminView(ClassView):
         ):
             query_client_users = (
                 db.session.query(
-                    LoginSession.account_id.label('user_id'),
+                    LoginSession.account_id.label('account_id'),
                     auth_client_login_session.c.auth_client_id.label('auth_client_id'),
                 )
                 .select_from(LoginSession, auth_client_login_session, Account)

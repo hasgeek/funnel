@@ -140,14 +140,15 @@ class CommentNotification(RenderNotification):
     def commenters(self) -> List[Account]:
         """List of unique users from across rolled-up comments. Could be singular."""
         # A set comprehension would have been simpler, but RoleAccessProxy isn't
-        # hashable. Else: ``return {_c.user for _c in self.fragments}``
-        user_ids = set()
-        users = []
+        # hashable. Else: ``return {_c.posted_by for _c in self.fragments}``
+        # TODO: Reconfirm above as RoleAccessProxy has changed to be more transparent
+        posted_by_ids = set()
+        comment_posters = []
         for comment in self.fragments:  # pylint: disable=not-an-iterable
-            if comment.posted_by.uuid not in user_ids:
-                users.append(comment.posted_by)
-                user_ids.add(comment.posted_by.uuid)
-        return users
+            if comment.posted_by.uuid not in posted_by_ids:
+                comment_posters.append(comment.posted_by)
+                posted_by_ids.add(comment.posted_by.uuid)
+        return comment_posters
 
     @property
     def project(self) -> Optional[Project]:

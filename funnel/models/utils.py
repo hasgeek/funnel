@@ -246,7 +246,7 @@ def do_migrate_instances(
             if isinstance(constraint, (PrimaryKeyConstraint, UniqueConstraint)):
                 for column in constraint.columns:
                     if column in target_columns:
-                        # The target column (typically user_id) is part of a unique
+                        # The target column (typically account_id) is part of a unique
                         # or primary key constraint. We can't migrate automatically.
                         app.logger.error(
                             "do_migrate_table interrupted because column is part of a"
