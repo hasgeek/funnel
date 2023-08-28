@@ -227,12 +227,12 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
         created = False
         if form.validate_on_submit():
             session_save = SavedSession.query.filter_by(
-                user=current_auth.user, session=self.obj
+                account=current_auth.user, session=self.obj
             ).first()
             if form.save.data:
                 if session_save is None:
                     session_save = SavedSession(
-                        user=current_auth.user, session=self.obj
+                        account=current_auth.user, session=self.obj
                     )
                     created = True
                     form.populate_obj(session_save)

@@ -798,11 +798,13 @@ class ProjectView(  # type: ignore[misc]
         form.form_nonce.data = form.form_nonce.default()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
-                user=current_auth.user, project=self.obj
+                account=current_auth.user, project=self.obj
             ).first()
             if form.save.data:
                 if proj_save is None:
-                    proj_save = SavedProject(user=current_auth.user, project=self.obj)
+                    proj_save = SavedProject(
+                        account=current_auth.user, project=self.obj
+                    )
                     form.populate_obj(proj_save)
                     db.session.commit()
             else:

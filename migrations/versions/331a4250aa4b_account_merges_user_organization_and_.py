@@ -496,6 +496,16 @@ renames = [
         constraints=[Rn('{}_user_id_fkey', '{}_participant_id_fkey')],
     ),
     Rtable(
+        'saved_project',
+        columns=[Rn('user_id', 'account_id')],
+        constraints=[Rn('{}_user_id_fkey', '{}_account_id_fkey')],
+    ),
+    Rtable(
+        'saved_session',
+        columns=[Rn('user_id', 'account_id')],
+        constraints=[Rn('{}_user_id_fkey', '{}_account_id_fkey')],
+    ),
+    Rtable(
         'shortlink',
         columns=[Rn('user_id', 'created_by_id')],
         constraints=[Rn('{}_user_id_fkey', '{}_created_by_id_fkey')],

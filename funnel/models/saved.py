@@ -16,13 +16,13 @@ from .session import Session
 class SavedProject(NoIdMixin, Model):
     __tablename__ = 'saved_project'
 
-    #: User who saved this project
-    user_id: Mapped[int] = sa.orm.mapped_column(
+    #: User account that saved this project
+    account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
     )
-    user: Mapped[Account] = relationship(
+    account: Mapped[Account] = relationship(
         Account,
         backref=backref('saved_projects', lazy='dynamic', passive_deletes=True),
     )
@@ -49,7 +49,7 @@ class SavedProject(NoIdMixin, Model):
         self, actor: Optional[Account] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
-        if actor is not None and actor == self.user:
+        if actor is not None and actor == self.account:
             roles.add('owner')
         return roles
 
@@ -59,7 +59,7 @@ class SavedProject(NoIdMixin, Model):
         project_ids = {sp.project_id for sp in new_account.saved_projects}
         for sp in old_account.saved_projects:
             if sp.project_id not in project_ids:
-                sp.user = new_account
+                sp.account = new_account
             else:
                 db.session.delete(sp)
 
@@ -67,13 +67,13 @@ class SavedProject(NoIdMixin, Model):
 class SavedSession(NoIdMixin, Model):
     __tablename__ = 'saved_session'
 
-    #: User who saved this session
-    user_id: Mapped[int] = sa.orm.mapped_column(
+    #: User account that saved this session
+    account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
     )
-    user: Mapped[Account] = relationship(
+    account: Mapped[Account] = relationship(
         Account,
         backref=backref('saved_sessions', lazy='dynamic', passive_deletes=True),
     )
@@ -100,7 +100,7 @@ class SavedSession(NoIdMixin, Model):
         self, actor: Optional[Account] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
-        if actor is not None and actor == self.user:
+        if actor is not None and actor == self.account:
             roles.add('owner')
         return roles
 
@@ -110,7 +110,7 @@ class SavedSession(NoIdMixin, Model):
         project_ids = {ss.project_id for ss in new_account.saved_sessions}
         for ss in old_account.saved_sessions:
             if ss.project_id not in project_ids:
-                ss.user = new_account
+                ss.account = new_account
             else:
                 # TODO: `if ss.description`, don't discard, but add it to existing's
                 # description
@@ -126,7 +126,7 @@ class __Account:
 @reopen(Project)
 class __Project:
     @with_roles(call={'all'})
-    def is_saved_by(self, user) -> bool:
+    def is_saved_by(self, account: Account) -> bool:
         return (
-            user is not None and self.saved_by.filter_by(user=user).first() is not None
+            account is not None and self.saved_by.filter_by(account=account).notempty()
         )
