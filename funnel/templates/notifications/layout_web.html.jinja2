@@ -12,7 +12,7 @@
             {%- endblock content %}
           </div>
           {%- if not view.is_rollup %}
-            <p class="mui--text-body2 zero-bottom-margin">{{ view.user_notification.created_at|age }}</p>
+            <p class="mui--text-body2 zero-bottom-margin">{{ view.notification_recipient.created_at|age }}</p>
           {%- endif %}
         </div>
       </div>

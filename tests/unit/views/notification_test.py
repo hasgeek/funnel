@@ -57,32 +57,33 @@ def project_update(db_session, user_vetinari, project_expo2010):
 
 
 @pytest.fixture()
-def update_user_notification(db_session, user_vetinari, project_update):
+def update_notification_recipient(db_session, user_vetinari, project_update):
     """Get a user notification for the update fixture."""
     notification = models.NewUpdateNotification(project_update)
     db_session.add(notification)
     db_session.commit()
 
     # Extract all the user notifications
-    all_user_notifications = list(notification.dispatch())
+    all_notification_recipients = list(notification.dispatch())
     db_session.commit()
     # There should be only one, assigned to Vetinari, but we'll let the test confirm
-    return all_user_notifications[0]
+    assert len(all_notification_recipients) == 1
+    return all_notification_recipients[0]
 
 
-def test_user_notification_is_for_user_vetinari(
-    update_user_notification, user_vetinari
+def test_notification_recipient_is_user_vetinari(
+    update_notification_recipient, user_vetinari
 ) -> None:
     """Confirm the test notification is for the test user fixture."""
-    assert update_user_notification.recipient == user_vetinari
+    assert update_notification_recipient.recipient == user_vetinari
 
 
 @pytest.fixture()
 def unsubscribe_sms_short_url(
-    update_user_notification, phone_vetinari, notification_prefs_vetinari
+    update_notification_recipient, phone_vetinari, notification_prefs_vetinari
 ):
     """Get an unsubscribe URL for the SMS notification."""
-    return update_user_notification.views.render.unsubscribe_short_url('sms')
+    return update_notification_recipient.views.render.unsubscribe_short_url('sms')
 
 
 def test_unsubscribe_view_is_well_formatted(unsubscribe_sms_short_url) -> None:

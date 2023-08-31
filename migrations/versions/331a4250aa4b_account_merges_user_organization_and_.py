@@ -245,7 +245,9 @@ organization = sa.table(
     sa.column('state', sa.SmallInteger()),
 )
 
-user_notification = sa.table('user_notification', sa.column('role', sa.Unicode()))
+notification_recipient = sa.table(
+    'notification_recipient', sa.column('role', sa.Unicode())
+)
 
 account_membership = sa.table(
     'account_membership',
@@ -488,7 +490,7 @@ renames = [
         'project_crew_membership',
         'project_membership',
         columns=[Rn('user_id', 'member_id')],
-        constraints=[Rn('{}_user_id_fkey', '{}_member_id_fkey')],
+        constraints=[Rn('{}_pkey'), Rn('{}_user_id_fkey', '{}_member_id_fkey')],
         indexes=[Rn('ix_{}_user_id', 'ix_{}_member_id')],
     ),
     Rtable(
@@ -546,8 +548,14 @@ renames = [
     ),
     Rtable(
         'user_notification',
+        'notification_recipient',
         columns=[Rn('user_id', 'recipient_id')],
-        constraints=[Rn('{}_user_id_fkey', '{}_recipient_id_fkey')],
+        constraints=[
+            Rn('{}_pkey'),
+            Rn('{}_user_id_fkey', '{}_recipient_id_fkey'),
+            Rn('{}_eventid_notification_id_fkey'),
+        ],
+        indexes=[Rn('ix_{}_revoked_at'), Rn('ix_{}_rollupid')],
     ),
     Rtable(
         'user_session',
@@ -876,14 +884,14 @@ def upgrade_() -> None:
 
     with console.status("Updating notifications"):
         op.execute(
-            user_notification.update()
+            notification_recipient.update()
             .values(role='account_admin')
-            .where(user_notification.c.role == 'profile_admin')
+            .where(notification_recipient.c.role == 'profile_admin')
         )
         op.execute(
-            user_notification.update()
+            notification_recipient.update()
             .values(role='member')
-            .where(user_notification.c.role == 'subject')
+            .where(notification_recipient.c.role == 'subject')
         )
 
     with console.status("Updating account_membership"):
@@ -1390,14 +1398,14 @@ def downgrade_() -> None:
 
     with console.status("Updating notifications"):
         op.execute(
-            user_notification.update()
+            notification_recipient.update()
             .values(role='profile_admin')
-            .where(user_notification.c.role == 'account_admin')
+            .where(notification_recipient.c.role == 'account_admin')
         )
         op.execute(
-            user_notification.update()
+            notification_recipient.update()
             .values(role='subject')
-            .where(user_notification.c.role == 'member')
+            .where(notification_recipient.c.role == 'member')
         )
 
     # Delete all non-user rows from account

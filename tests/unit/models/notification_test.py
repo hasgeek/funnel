@@ -238,38 +238,38 @@ def test_update_notification_structure(
     )
     assert load_notification == notification
 
-    # Extract all the user notifications and confirm they're correctly assigned
-    user_notifications = list(notification.dispatch())
+    # Extract all the notification recipients and confirm they're correctly assigned
+    notification_recipients = list(notification.dispatch())
     # We got user assignees
-    assert user_notifications
+    assert notification_recipients
     # A second call to dispatch() will yield nothing
     assert not list(notification.dispatch())
 
     # Notifications are issued strictly in the order specified in cls.roles
     role_order: List[str] = []
-    for un in user_notifications:
-        if un.role in role_order:
-            assert role_order[-1] == un.role
+    for nr in notification_recipients:
+        if nr.role in role_order:
+            assert role_order[-1] == nr.role
         else:
-            role_order.append(un.role)
+            role_order.append(nr.role)
 
     assert role_order == ['project_crew', 'project_participant']
 
     # Notifications are correctly assigned by priority of role
     role_users: Dict[str, Set[models.User]] = {}
-    for un in user_notifications:
-        role_users.setdefault(un.role, set()).add(un.recipient)
+    for nr in notification_recipients:
+        role_users.setdefault(nr.role, set()).add(nr.recipient)
 
     assert role_users == {
         'project_crew': {project_fixtures.user_owner, project_fixtures.user_editor},
         'project_participant': {project_fixtures.user_participant},
     }
-    all_recipients = {un.recipient for un in user_notifications}
+    all_recipients = {un.recipient for un in notification_recipients}
     assert project_fixtures.user_cancelled_participant not in all_recipients
     assert project_fixtures.user_bystander not in all_recipients
 
 
-def test_user_notification_preferences(notification_types, db_session) -> None:
+def test_account_notification_preferences(notification_types, db_session) -> None:
     """Test that users have a notification_preferences dict."""
     nt = notification_types  # Short var for keeping lines within 88 columns below
     user = models.User(fullname="User")

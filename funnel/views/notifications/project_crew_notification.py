@@ -12,12 +12,12 @@ from baseframe import _, __
 
 from ...models import (
     Account,
+    NotificationRecipient,
     NotificationType,
     Project,
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
     ProjectMembership,
-    UserNotification,
 )
 from ...transports.sms import OneLineTemplate
 from ..helpers import shortlink
@@ -667,7 +667,7 @@ class RenderShared:
     project: Project
     membership: ProjectMembership
     notification: NotificationType
-    user_notification: UserNotification
+    notification_recipient: NotificationRecipient
     #: Subclasses must specify a base template picker
     template_picker: DecisionBranch
 
@@ -684,8 +684,8 @@ class RenderShared:
         membership_actor = self.membership_actor(membership)
         match = self.template_picker.match(
             membership,
-            is_member=self.user_notification.recipient == membership.member,
-            for_actor=self.user_notification.recipient == membership_actor,
+            is_member=self.notification_recipient.recipient == membership.member,
+            for_actor=self.notification_recipient.recipient == membership_actor,
         )
         if match is not None:
             return match.template
@@ -706,7 +706,7 @@ class RenderShared:
         membership, the original actor must be attributed.
         """
         if (
-            self.user_notification.recipient == self.membership.member
+            self.notification_recipient.recipient == self.membership.member
             and self.notification.user is not None
         ):
             return self.notification.user

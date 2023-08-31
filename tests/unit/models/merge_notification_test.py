@@ -61,7 +61,7 @@ def notification(db_session, fixtures):
 
 @pytest.fixture()
 def user1_notification(db_session, fixtures, notification):
-    un = models.UserNotification(
+    un = models.NotificationRecipient(
         eventid=notification.eventid,
         recipient_id=fixtures.user1.id,
         notification_id=notification.id,
@@ -74,7 +74,7 @@ def user1_notification(db_session, fixtures, notification):
 
 @pytest.fixture()
 def user2_notification(db_session, fixtures, notification):
-    un = models.UserNotification(
+    un = models.NotificationRecipient(
         eventid=notification.eventid,
         recipient_id=fixtures.user2.id,
         notification_id=notification.id,
@@ -127,12 +127,12 @@ def user2_test_preferences(db_session, fixtures, fixture_notification_type):
 def test_merge_without_notifications(db_session, fixtures) -> None:
     """Merge without any notifications works."""
     assert models.Notification.query.count() == 0
-    assert models.UserNotification.query.count() == 0
+    assert models.NotificationRecipient.query.count() == 0
     merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
     assert models.Notification.query.count() == 0
-    assert models.UserNotification.query.count() == 0
+    assert models.NotificationRecipient.query.count() == 0
 
 
 def test_merge_with_user1_notifications(
@@ -140,12 +140,12 @@ def test_merge_with_user1_notifications(
 ) -> None:
     """Merge without only user1 notifications works."""
     assert models.Notification.query.count() == 1
-    assert models.UserNotification.query.count() == 1
+    assert models.NotificationRecipient.query.count() == 1
     merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
     assert models.Notification.query.count() == 1
-    assert models.UserNotification.query.count() == 1
+    assert models.NotificationRecipient.query.count() == 1
     assert user1_notification.recipient == fixtures.user1
 
 
@@ -154,18 +154,18 @@ def test_merge_with_user2_notifications(
 ) -> None:
     """Merge without only user2 notifications gets it transferred to user1."""
     assert models.Notification.query.count() == 1
-    assert models.UserNotification.query.count() == 1
-    new_notification = models.UserNotification.query.one()
+    assert models.NotificationRecipient.query.count() == 1
+    new_notification = models.NotificationRecipient.query.one()
     assert new_notification.recipient == fixtures.user2
     merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
     assert models.Notification.query.count() == 1
-    assert models.UserNotification.query.count() == 1
+    assert models.NotificationRecipient.query.count() == 1
     # Since user_id is part of the primary key of UserNotification, session.commit()
     # won't refresh it. It can no longer find that pkey. Therefore we must load it
     # afresh from db for the test here
-    second_notification = models.UserNotification.query.one()
+    second_notification = models.NotificationRecipient.query.one()
     assert second_notification.recipient == fixtures.user1
 
 
@@ -174,13 +174,13 @@ def test_merge_with_dupe_notifications(
 ) -> None:
     """Merge without dupe notifications gets one deleted."""
     assert models.Notification.query.count() == 1
-    assert models.UserNotification.query.count() == 2
+    assert models.NotificationRecipient.query.count() == 2
     merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
     assert models.Notification.query.count() == 1
-    assert models.UserNotification.query.count() == 1
-    assert models.UserNotification.query.all() == [user1_notification]
+    assert models.NotificationRecipient.query.count() == 1
+    assert models.NotificationRecipient.query.all() == [user1_notification]
     assert user1_notification.recipient == fixtures.user1
 
 

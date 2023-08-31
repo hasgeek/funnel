@@ -13,10 +13,10 @@ from baseframe import _, __
 from ...models import (
     Account,
     AccountMembership,
+    NotificationRecipient,
     NotificationType,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
-    UserNotification,
 )
 from ...transports.sms import MessageTemplate
 from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotification
@@ -345,7 +345,7 @@ class RenderShared:
     organization: Account
     membership: AccountMembership
     notification: NotificationType
-    user_notification: UserNotification
+    notification_recipient: NotificationRecipient
     template_picker: DecisionBranch
 
     def activity_template(self, membership: Optional[AccountMembership] = None) -> str:
@@ -355,8 +355,8 @@ class RenderShared:
         membership_actor = self.membership_actor(membership)
         match = self.template_picker.match(
             membership,
-            is_member=self.user_notification.recipient == membership.member,
-            for_actor=self.user_notification.recipient == membership_actor,
+            is_member=self.notification_recipient.recipient == membership.member,
+            for_actor=self.notification_recipient.recipient == membership_actor,
         )
         if match is not None:
             return match.template
@@ -377,7 +377,7 @@ class RenderShared:
         membership, the original actor must be attributed.
         """
         if (
-            self.user_notification.recipient == self.membership.member
+            self.notification_recipient.recipient == self.membership.member
             and self.notification.user is not None
         ):
             return self.notification.user

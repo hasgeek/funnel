@@ -146,7 +146,7 @@ __all__ = [
     'Notification',
     'PreviewNotification',
     'NotificationPreferences',
-    'UserNotification',
+    'NotificationRecipient',
     'NotificationFor',
     'notification_type_registry',
     'notification_web_types',
@@ -643,7 +643,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
         """Return fragment if exists, document otherwise, indicating role provider."""
         return cast(Union[_F, _D], self.fragment or self.document)
 
-    def dispatch(self) -> Generator[UserNotification, None, None]:
+    def dispatch(self) -> Generator[NotificationRecipient, None, None]:
         """
         Create :class:`UserNotification` instances and yield in an iterator.
 
@@ -656,7 +656,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
         Subclasses wanting more control over how their notifications are dispatched
         should override this method.
         """
-        for user, role in self.role_provider_obj.actors_with(
+        for account, role in self.role_provider_obj.actors_with(
             self.roles, with_role=True
         ):
             # If this notification requires that it not be sent to the actor that
@@ -667,12 +667,12 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
             if (
                 self.exclude_actor
                 and self.user_id is not None
-                and self.user_id == user.id
+                and self.user_id == account.id
             ):
                 continue
 
             # Don't notify inactive (suspended, merged) users
-            if not user.state.ACTIVE:
+            if not account.state.ACTIVE:
                 continue
 
             # Was a notification already sent to this user? If so:
@@ -683,16 +683,18 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
 
             # Since this query uses SQLAlchemy's session cache, we don't have to
             # bother with a local cache for the first case.
-            existing_notification = UserNotification.query.get((user.id, self.eventid))
+            existing_notification = NotificationRecipient.query.get(
+                (account.id, self.eventid)
+            )
             if existing_notification is None:
-                user_notification = UserNotification(
+                recipient = NotificationRecipient(
                     eventid=self.eventid,
-                    recipient_id=user.id,
+                    recipient_id=account.id,
                     notification_id=self.id,
                     role=role,
                 )
-                db.session.add(user_notification)
-                yield user_notification
+                db.session.add(recipient)
+                yield recipient
 
     # Make :attr:`type_` available under the name `type`, but declare this at the very
     # end of the class to avoid conflicts with the Python `type` global that is
@@ -736,8 +738,8 @@ class PreviewNotification(NotificationType):
         return getattr(self.cls, attr)
 
 
-class UserNotificationMixin:
-    """Shared mixin for :class:`UserNotification` and :class:`NotificationFor`."""
+class NotificationRecipientMixin:
+    """Shared mixin for :class:`NotificationRecipient` and :class:`NotificationFor`."""
 
     notification: Union[Mapped[Notification], Notification, PreviewNotification]
 
@@ -791,14 +793,14 @@ class UserNotificationMixin:
         return False
 
 
-class UserNotification(UserNotificationMixin, NoIdMixin, Model):
+class NotificationRecipient(NotificationRecipientMixin, NoIdMixin, Model):
     """
     The recipient of a notification.
 
     Contains delivery metadata and helper methods to render the notification.
     """
 
-    __tablename__ = 'user_notification'
+    __tablename__ = 'notification_recipient'
     __allow_unmapped__ = True
 
     # Primary key is a compound of (recipient_id, eventid).
@@ -895,7 +897,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
             [eventid, notification_id],
             [Notification.eventid, Notification.id],
             ondelete='CASCADE',
-            name='user_notification_eventid_notification_id_fkey',
+            name='notification_recipient_eventid_notification_id_fkey',
         ),
     )
 
@@ -1073,30 +1075,31 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
         # the latest in that batch of rolled up notifications. If none, this is the
         # start of a new batch, so make a new id.
         rollupid = (
-            db.session.query(UserNotification.rollupid)
+            db.session.query(NotificationRecipient.rollupid)
             .join(Notification)
             .filter(
                 # Same user
-                UserNotification.recipient_id == self.recipient_id,
+                NotificationRecipient.recipient_id == self.recipient_id,
                 # Same type of notification
                 Notification.type == self.notification.type,
                 # Same document
                 Notification.document_uuid == self.notification.document_uuid,
                 # Same reason for receiving notification as earlier instance (same role)
-                UserNotification.role == self.role,
+                NotificationRecipient.role == self.role,
                 # Earlier instance is unread or within 24 hours
                 sa.or_(
-                    UserNotification.read_at.is_(None),
+                    NotificationRecipient.read_at.is_(None),
                     # TODO: Hardcodes for PostgreSQL, turn this into a SQL func
                     # expression like func.utcnow()
-                    UserNotification.created_at >= sa.text("NOW() - INTERVAL '1 DAY'"),
+                    NotificationRecipient.created_at
+                    >= sa.text("NOW() - INTERVAL '1 DAY'"),
                 ),
                 # Earlier instance is not revoked
-                UserNotification.revoked_at.is_(None),
+                NotificationRecipient.revoked_at.is_(None),
                 # Earlier instance has a rollupid
-                UserNotification.rollupid.is_not(None),
+                NotificationRecipient.rollupid.is_not(None),
             )
-            .order_by(UserNotification.created_at.asc())
+            .order_by(NotificationRecipient.created_at.asc())
             .limit(1)
             .scalar()
         )
@@ -1111,29 +1114,29 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
             # Now rollup all previous unread. This will skip (a) previously revoked user
             # notifications, and (b) unrolled but read user notifications.
             for previous in (
-                UserNotification.query.join(Notification)
+                NotificationRecipient.query.join(Notification)
                 .filter(
                     # Same user
-                    UserNotification.recipient_id == self.recipient_id,
+                    NotificationRecipient.recipient_id == self.recipient_id,
                     # Not ourselves
-                    UserNotification.eventid != self.eventid,
+                    NotificationRecipient.eventid != self.eventid,
                     # Same type of notification
                     Notification.type == self.notification.type,
                     # Same document
                     Notification.document_uuid == self.notification.document_uuid,
                     # Same role as earlier notification,
-                    UserNotification.role == self.role,
+                    NotificationRecipient.role == self.role,
                     # Earlier instance is not revoked
-                    UserNotification.revoked_at.is_(None),
+                    NotificationRecipient.revoked_at.is_(None),
                     # Earlier instance shares our rollupid
-                    UserNotification.rollupid == self.rollupid,
+                    NotificationRecipient.rollupid == self.rollupid,
                 )
                 .options(
                     sa.orm.load_only(
-                        UserNotification.recipient_id,
-                        UserNotification.eventid,
-                        UserNotification.revoked_at,
-                        UserNotification.rollupid,
+                        NotificationRecipient.recipient_id,
+                        NotificationRecipient.eventid,
+                        NotificationRecipient.revoked_at,
+                        NotificationRecipient.rollupid,
                     )
                 )
             ):
@@ -1152,41 +1155,43 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
         return self.notification.fragment_model.query.filter(
             self.notification.fragment_model.uuid.in_(
                 db.session.query(Notification.fragment_uuid)
-                .select_from(UserNotification)
-                .join(UserNotification.notification)
-                .filter(UserNotification.rollupid == self.rollupid)
+                .select_from(NotificationRecipient)
+                .join(NotificationRecipient.notification)
+                .filter(NotificationRecipient.rollupid == self.rollupid)
             )
         )
 
     @classmethod
-    def get_for(cls, user: Account, eventid_b58: str) -> Optional[UserNotification]:
+    def get_for(
+        cls, user: Account, eventid_b58: str
+    ) -> Optional[NotificationRecipient]:
         """Retrieve a :class:`UserNotification` using SQLAlchemy session cache."""
         return cls.query.get((user.id, uuid_from_base58(eventid_b58)))
 
     @classmethod
     def web_notifications_for(
         cls, user: Account, unread_only: bool = False
-    ) -> Query[UserNotification]:
+    ) -> Query[NotificationRecipient]:
         """Return web notifications for a user, optionally returning unread-only."""
-        query = UserNotification.query.join(Notification).filter(
+        query = NotificationRecipient.query.join(Notification).filter(
             Notification.type.in_(notification_web_types),
-            UserNotification.recipient == user,
-            UserNotification.revoked_at.is_(None),
+            NotificationRecipient.recipient == user,
+            NotificationRecipient.revoked_at.is_(None),
         )
         if unread_only:
-            query = query.filter(UserNotification.read_at.is_(None))
+            query = query.filter(NotificationRecipient.read_at.is_(None))
         return query.order_by(Notification.created_at.desc())
 
     @classmethod
     def unread_count_for(cls, user: Account) -> int:
         """Return unread notification count for a user."""
         return (
-            UserNotification.query.join(Notification)
+            NotificationRecipient.query.join(Notification)
             .filter(
                 Notification.type.in_(notification_web_types),
-                UserNotification.recipient == user,
-                UserNotification.read_at.is_(None),
-                UserNotification.revoked_at.is_(None),
+                NotificationRecipient.recipient == user,
+                NotificationRecipient.read_at.is_(None),
+                NotificationRecipient.revoked_at.is_(None),
             )
             .count()
         )
@@ -1194,19 +1199,21 @@ class UserNotification(UserNotificationMixin, NoIdMixin, Model):
     @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """Migrate one account's data to another when merging accounts."""
-        for user_notification in cls.query.filter_by(recipient_id=old_account.id).all():
-            existing = cls.query.get((new_account.id, user_notification.eventid))
+        for notification_recipient in cls.query.filter_by(
+            recipient_id=old_account.id
+        ).all():
+            existing = cls.query.get((new_account.id, notification_recipient.eventid))
             # TODO: Instead of dropping old_user's dupe notifications, check which of
             # the two has a higher priority role and keep that. This may not be possible
             # if the two copies are for different notifications under the same eventid.
             if existing is not None:
-                db.session.delete(user_notification)
+                db.session.delete(notification_recipient)
         cls.query.filter(cls.recipient_id == old_account.id).update(
             {'recipient_id': new_account.id}, synchronize_session=False
         )
 
 
-class NotificationFor(UserNotificationMixin):
+class NotificationFor(NotificationRecipientMixin):
     """View-only wrapper to mimic :class:`UserNotification`."""
 
     notification: Union[Notification, PreviewNotification]
@@ -1395,11 +1402,11 @@ class NotificationPreferences(BaseMixin, Model):
 
 @reopen(Account)
 class __Account:
-    all_notifications: DynamicMapped[UserNotification] = with_roles(
+    all_notifications: DynamicMapped[NotificationRecipient] = with_roles(
         relationship(
-            UserNotification,
+            NotificationRecipient,
             lazy='dynamic',
-            order_by=UserNotification.created_at.desc(),
+            order_by=NotificationRecipient.created_at.desc(),
             viewonly=True,
         ),
         read={'owner'},

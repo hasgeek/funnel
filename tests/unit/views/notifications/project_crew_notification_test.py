@@ -106,8 +106,8 @@ def then_user_gets_notification(
         fragment=ridcully_member,
         user=ridcully_member.granted_by,
     )
-    user_notification = models.NotificationFor(preview, getuser(recipient))
-    view = user_notification.views.render
+    notification_recipient = models.NotificationFor(preview, getuser(recipient))
+    view = notification_recipient.views.render
     assert view.actor.uuid == getuser(actor).uuid
     assert (
         view.activity_template().format(
@@ -306,7 +306,7 @@ def when_ridcully_resigns(
         "{recipient} is notified of the removal with photo of {actor} and message {notification_string}"
     )
 )
-def then_user_notification_removal(
+def then_notification_recipient_removal(
     getuser,
     recipient,
     notification_string,
@@ -319,8 +319,8 @@ def then_user_notification_removal(
         fragment=ridcully_member,
         user=ridcully_member.revoked_by,
     )
-    user_notification = models.NotificationFor(preview, getuser(recipient))
-    view = user_notification.views.render
+    notification_recipient = models.NotificationFor(preview, getuser(recipient))
+    view = notification_recipient.views.render
     assert view.actor.uuid == getuser(actor).uuid
     assert (
         view.activity_template().format(
