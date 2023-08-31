@@ -707,9 +707,9 @@ class RenderShared:
         """
         if (
             self.notification_recipient.recipient == self.membership.member
-            and self.notification.user is not None
+            and self.notification.created_by is not None
         ):
-            return self.notification.user
+            return self.notification.created_by
         return self.membership.member
 
     def activity_html(self, membership: Optional[ProjectMembership] = None) -> str:

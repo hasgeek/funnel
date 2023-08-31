@@ -482,6 +482,11 @@ renames = [
         indexes=[Rn('ix_{}_user_id', 'ix_{}_account_id')],
     ),
     Rtable(
+        'notification',
+        columns=[Rn('user_id', 'created_by_id')],
+        constraints=[Rn('{}_user_id_fkey', '{}_created_by_id_fkey')],
+    ),
+    Rtable(
         'project',
         columns=[Rn('user_id', 'created_by_id')],
         constraints=[Rn('{}_user_id_fkey', '{}_created_by_id_fkey')],

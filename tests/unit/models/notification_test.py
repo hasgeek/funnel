@@ -264,7 +264,7 @@ def test_update_notification_structure(
         'project_crew': {project_fixtures.user_owner, project_fixtures.user_editor},
         'project_participant': {project_fixtures.user_participant},
     }
-    all_recipients = {un.recipient for un in notification_recipients}
+    all_recipients = {nr.recipient for nr in notification_recipients}
     assert project_fixtures.user_cancelled_participant not in all_recipients
     assert project_fixtures.user_bystander not in all_recipients
 

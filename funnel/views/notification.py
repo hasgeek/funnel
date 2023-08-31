@@ -344,7 +344,7 @@ class RenderNotification:
     @property
     def actor(self) -> Optional[Account]:
         """Actor that prompted this notification. May be overriden."""
-        return self.notification.user
+        return self.notification.created_by
 
     def web(self) -> str:
         """
@@ -435,7 +435,7 @@ class RenderNotification:
 # This has four parts:
 # 1. Front function `dispatch_notification` is called from views or signal handlers. It
 #    receives Notification instances that already have document and fragment set on
-#    them, and updates them to have a common eventid and user_id, then queues
+#    them, and updates them to have a common eventid and created_by_id, then queues
 #    a background job, taking care to preserve the priority order.
 # 2. The first background worker loads these notifications in turn, extracts
 #    UserNotification instances into batches of DISPATCH_BATCH_SIZE, and then passes
@@ -466,7 +466,7 @@ def dispatch_notification(*notifications: Notification) -> None:
         if not notification.active:
             raise TypeError(f"{notification!r} is marked inactive")
         notification.eventid = eventid
-        notification.user = current_auth.user
+        notification.created_by = current_auth.user
     if sum(_n.for_private_recipient for _n in notifications) not in (
         0,  # None are private
         len(notifications),  # Or all are private

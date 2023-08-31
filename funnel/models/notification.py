@@ -287,8 +287,8 @@ class NotificationType(Generic[_D, _F], Protocol):
     document_uuid: UUID
     fragment: Optional[_F]
     fragment_uuid: Optional[UUID]
-    user_id: Optional[int]
-    user: Optional[Account]
+    created_by_id: Optional[int]
+    created_by: Optional[Account]
 
 
 class Notification(NoIdMixin, Model, Generic[_D, _F]):
@@ -369,13 +369,13 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     )
 
     #: Id of user that triggered this notification
-    user_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+    created_by_id: Mapped[Optional[int]] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
     )
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
     #: notifications of their own activity
-    user: Mapped[Optional[Account]] = relationship(Account)
+    created_by: Mapped[Optional[Account]] = relationship(Account)
 
     #: UUID of document that the notification refers to
     document_uuid: Mapped[UUID] = immutable(
@@ -660,14 +660,14 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
             self.roles, with_role=True
         ):
             # If this notification requires that it not be sent to the actor that
-            # triggered the notification, don't notify them. For example, a user
-            # who leaves a comment should not be notified of their own comment.
-            # This `if` condition uses `user_id` instead of the recommended `user`
-            # for faster processing in a loop.
+            # triggered the notification, don't notify them. For example, a user who
+            # leaves a comment should not be notified of their own comment. This `if`
+            # condition uses `created_by_id` instead of the recommended `created_by` for
+            # faster processing in a loop.
             if (
                 self.exclude_actor
-                and self.user_id is not None
-                and self.user_id == account.id
+                and self.created_by_id is not None
+                and self.created_by_id == account.id
             ):
                 continue
 
@@ -730,8 +730,8 @@ class PreviewNotification(NotificationType):
         self.document_uuid = document.uuid
         self.fragment = fragment
         self.fragment_uuid = fragment.uuid if fragment is not None else None
-        self.user = user
-        self.user_id = cast(int, user.id) if user is not None else None
+        self.created_by = user
+        self.created_by_id = cast(int, user.id) if user is not None else None
 
     def __getattr__(self, attr: str) -> Any:
         """Get an attribute."""
