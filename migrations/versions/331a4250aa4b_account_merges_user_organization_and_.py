@@ -496,7 +496,7 @@ renames = [
         'project_membership',
         columns=[Rn('user_id', 'member_id')],
         constraints=[Rn('{}_pkey'), Rn('{}_user_id_fkey', '{}_member_id_fkey')],
-        indexes=[Rn('ix_{}_user_id', 'ix_{}_member_id')],
+        indexes=[Rn('ix_{}_user_id', 'ix_{}_member_id'), Rn('ix_{}_active')],
     ),
     Rtable(
         'proposal',
@@ -1035,6 +1035,12 @@ def upgrade_() -> None:
             'project_sponsor_membership',
             type_='foreignkey',
         )
+        op.create_index(
+            'ix_project_sponsor_membership_member_id',
+            'project_sponsor_membership',
+            ['member_id'],
+            unique=False,
+        )
         op.drop_index('ix_project_sponsor_membership_active')
         op.create_index(
             'ix_project_sponsor_membership_active',
@@ -1068,6 +1074,12 @@ def upgrade_() -> None:
             )
         )
         op.alter_column('proposal_sponsor_membership', 'member_id', nullable=False)
+        op.create_index(
+            'ix_proposal_sponsor_membership_member_id',
+            'proposal_sponsor_membership',
+            ['member_id'],
+            unique=False,
+        )
         op.drop_constraint(
             'proposal_sponsor_membership_profile_id_fkey',
             'proposal_sponsor_membership',
@@ -1220,7 +1232,9 @@ def downgrade_() -> None:
             ['profile_id'],
             unique=False,
         )
-
+        op.drop_index(
+            'ix_proposal_sponsor_membership_member_id', 'proposal_sponsor_membership'
+        )
         op.drop_constraint(
             'proposal_sponsor_membership_member_id_fkey',
             'proposal_sponsor_membership',
@@ -1265,7 +1279,9 @@ def downgrade_() -> None:
             ['profile_id'],
             unique=False,
         )
-
+        op.drop_index(
+            'ix_project_sponsor_membership_member_id', 'project_sponsor_membership'
+        )
         op.drop_constraint(
             'project_sponsor_membership_member_id_fkey',
             'project_sponsor_membership',
