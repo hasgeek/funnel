@@ -40,8 +40,8 @@
                   {{ csrf_tag() }}
                   <input type="hidden" name="notification_type" value="" />
                   <input type="hidden" name="transport" value="{{ transport }}" />
-                  <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="switch-input js-toggle-switch" />
-                  <label class="switch-label mui--pull-right" for="{{ transport }}">
+                  <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}-switch" class="switch-input js-toggle-switch" data-transport="{{ transport }}"/>
+                  <label class="switch-label mui--pull-right" for="{{ transport }}-switch">
                   </label>
                 </form>
                 <p class="preference__switch__txt zero-bottom-margin mui--clearfix">{{ transport_details[transport]['switch'] }}</p>
