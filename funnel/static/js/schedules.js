@@ -90,7 +90,8 @@ $(function () {
             });
             calendar.render();
           });
-          this.color_form.submit(function () {
+          this.color_form.submit(function (event) {
+            event.preventDefault();
             var json = {};
 
             $('input[name="uuid"]').each(function (index, element) {
