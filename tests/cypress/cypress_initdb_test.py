@@ -1,7 +1,19 @@
 """Create database structure and fixtures for Cypress tests."""
 
-from funnel import app
-from funnel.models import AccountEmail, Organization, SiteMembership, User, db
+from flask.cli import load_dotenv
+from flask.helpers import get_load_dotenv
+
+if __name__ == '__main__' and get_load_dotenv():
+    load_dotenv()
+
+from funnel import app  # isort:skip
+from funnel.models import (  # isort:skip
+    AccountEmail,
+    Organization,
+    SiteMembership,
+    User,
+    db,
+)
 
 
 def init_models():
@@ -82,5 +94,5 @@ def init_models():
         db.session.commit()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     init_models()
