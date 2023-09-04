@@ -123,7 +123,7 @@ def session_edit(
 
 
 @Project.views('session_new')
-@route('/<profile>/<project>/sessions')
+@route('/<account>/<project>/sessions')
 class ProjectSessionView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @requires_login
@@ -136,7 +136,7 @@ ProjectSessionView.init_app(app)
 
 
 @Session.views('main')
-@route('/<profile>/<project>/schedule/<session>')
+@route('/<account>/<project>/schedule/<session>')
 class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
     @route('viewsession-popup')  # Legacy route, will be auto-redirected to base URL
@@ -227,12 +227,12 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
         created = False
         if form.validate_on_submit():
             session_save = SavedSession.query.filter_by(
-                user=current_auth.user, session=self.obj
+                account=current_auth.user, session=self.obj
             ).first()
             if form.save.data:
                 if session_save is None:
                     session_save = SavedSession(
-                        user=current_auth.user, session=self.obj
+                        account=current_auth.user, session=self.obj
                     )
                     created = True
                     form.populate_obj(session_save)

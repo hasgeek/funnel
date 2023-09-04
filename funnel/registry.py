@@ -14,7 +14,7 @@ from werkzeug.datastructures import MultiDict
 from baseframe import _
 from baseframe.signals import exception_catchall
 
-from .models import AuthToken, UserExternalId
+from .models import AccountExternalId, AuthToken
 from .typing import P, ReturnResponse
 
 # Bearer token, as per
@@ -174,12 +174,12 @@ class LoginProviderRegistry(OrderedDict):
     def __setitem__(self, key: str, value: LoginProvider) -> None:
         """Make a registry entry."""
         super().__setitem__(key, value)
-        UserExternalId.__at_username_services__ = self.at_username_services()
+        AccountExternalId.__at_username_services__ = self.at_username_services()
 
     def __delitem__(self, key: str) -> None:
         """Remove a registry entry."""
         super().__delitem__(key)
-        UserExternalId.__at_username_services__ = self.at_username_services()
+        AccountExternalId.__at_username_services__ = self.at_username_services()
 
 
 class LoginError(Exception):

@@ -348,20 +348,20 @@
     <section class="proposal__section" id="submission">
       <div class="display-inlineblock proposal__section__members">
         <div class="flex-wrapper flex-wrapper--center flex-wrapper--wrap">
-          {% for member in proposal.memberships %}
-            {%- if not member.is_uncredited %}
+          {% for membership in proposal.memberships %}
+            {%- if not membership.is_uncredited %}
               <div class="user right-padding">
                 <div class="user__box">
-                  {{ useravatar(member.user) }}
+                  {{ useravatar(membership.member) }}
                   <div class="user__box__header">
                     <p class="mui--text-body2 user__box__fullname">
-                      {{ member.user.fullname }}
+                      {{ membership.member.fullname }}
                     </p>
-                    {%- if member.user.username %}
+                    {%- if membership.member.username %}
                       <p class="mui--text-caption user__box__userid">
-                        @{{ member.user.username }}
-                        {% if member.label -%}
-                          <span class="badge">{{ member.label }}</span>
+                        @{{ membership.member.username }}
+                        {% if membership.label -%}
+                          <span class="badge">{{ membership.label }}</span>
                         {% endif -%}
                       </p>
                     {%- endif -%}
@@ -439,7 +439,7 @@
         divElem: "#comments-wrapper",
         commentTemplate: '#comment-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
-        user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
+        user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.logo_url, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
         loginUrl: "{{ url_for('login') }}",
         lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
       };

@@ -75,8 +75,8 @@
         "description": {{ project.tagline|tojson }},
         "organizer": {
           "@type": "Organization",
-          "name": {{ project.profile.title|tojson }},
-          "url": {{ project.profile.url_for(_external=true)|tojson }}
+          "name": {{ project.account.title|tojson }},
+          "url": {{ project.account.url_for(_external=true)|tojson }}
         }
       }
     </script>
@@ -126,7 +126,7 @@
         parentContainer: '#schedule',
         active_session: '',
         projectTitle: {{ project.title|e|tojson }},  // HTML escaped for use in HTML tags via JS
-        pageDescription: {{ g.profile.description|striptags|tojson }}, // HTML escaped for use in HTML tags via JS
+        pageDescription: {{ g.account.description|striptags|tojson }}, // HTML escaped for use in HTML tags via JS
         rememberScrollPos: true,
         replaceHistoryToModalUrl: true,
       };

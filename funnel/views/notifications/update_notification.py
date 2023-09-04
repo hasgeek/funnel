@@ -6,7 +6,7 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import NewUpdateNotification, Update, User
+from ...models import Account, NewUpdateNotification, Update
 from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -20,9 +20,9 @@ class UpdateTemplate(TemplateVarMixin, SmsTemplate):
         'There is an update in {#var#}: {#var#}\n\nhttps://bye.li to stop -Hasgeek'
     )
     template = (
-        "There is an update in {profile}: {url}\n\nhttps://bye.li to stop -Hasgeek"
+        "There is an update in {account}: {url}\n\nhttps://bye.li to stop -Hasgeek"
     )
-    plaintext_template = "There is an update in {profile}: {url}"
+    plaintext_template = "There is an update in {account}: {url}"
     message_priority = SmsPriority.NORMAL
 
     url: str
@@ -43,7 +43,7 @@ class RenderNewUpdateNotification(RenderNotification):
     email_heading = __("New update!")
 
     @property
-    def actor(self) -> User:
+    def actor(self) -> Account:
         """
         Return author of the update.
 
@@ -51,7 +51,7 @@ class RenderNewUpdateNotification(RenderNotification):
         default actor is the publisher as they caused it to be dispatched, but in this
         case the actor of interest is the author of the update.
         """
-        return self.update.user
+        return self.update.created_by
 
     def web(self) -> str:
         return render_template('notifications/update_new_web.html.jinja2', view=self)
@@ -66,7 +66,7 @@ class RenderNewUpdateNotification(RenderNotification):
 
     def sms(self) -> UpdateTemplate:
         return UpdateTemplate(
-            profile=self.update.project.profile,
+            account=self.update.project.account,
             url=shortlink(
                 self.update.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,

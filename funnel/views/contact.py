@@ -169,7 +169,7 @@ class ContactView(ClassView):
 
             try:
                 contact_exchange = ContactExchange(
-                    user=current_auth.actor, ticket_participant=ticket_participant
+                    account=current_auth.actor, ticket_participant=ticket_participant
                 )
                 db.session.add(contact_exchange)
                 db.session.commit()

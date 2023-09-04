@@ -18,8 +18,8 @@ from funnel.transports import TransportConnectionError, TransportRecipientError
 from funnel.views.otp import OtpSession
 
 pytestmark = pytest.mark.filterwarnings(
-    "ignore:Object of type <UserPhone> not in session",
-    "ignore:Object of type <UserEmail> not in session",
+    "ignore:Object of type <AccountPhone> not in session",
+    "ignore:Object of type <AccountEmail> not in session",
 )
 
 # User fixture's details
@@ -76,17 +76,17 @@ def user_rincewind_with_password(user_rincewind):
 @pytest.fixture()
 def user_rincewind_phone(db_session, user_rincewind):
     """User phone fixture."""
-    up = user_rincewind.add_phone(RINCEWIND_PHONE)
-    db_session.add(up)
-    return up
+    accountphone = user_rincewind.add_phone(RINCEWIND_PHONE)
+    db_session.add(accountphone)
+    return accountphone
 
 
 @pytest.fixture()
 def user_rincewind_email(db_session, user_rincewind):
     """User email fixture."""
-    ue = user_rincewind.add_email(RINCEWIND_EMAIL)
-    db_session.add(ue)
-    return ue
+    accountemail = user_rincewind.add_email(RINCEWIND_EMAIL)
+    db_session.add(accountemail)
+    return accountemail
 
 
 @pytest.fixture()

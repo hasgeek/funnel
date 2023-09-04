@@ -14,7 +14,6 @@ from pyisemail.diagnosis import BaseDiagnosis
 from sqlalchemy import event, inspect
 from sqlalchemy.orm import Mapper
 from sqlalchemy.orm.attributes import NO_VALUE
-from sqlalchemy.sql.expression import ColumnElement
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import StateManager, auto_init_default, immutable, with_roles
@@ -155,11 +154,12 @@ class EmailAddress(BaseMixin, Model):
     Represents an email address as a standalone entity, with associated metadata.
 
     Prior to this model, email addresses were regarded as properties of other models.
-    Specifically: Proposal.email, Participant.email, User.emails and User.emailclaims,
-    the latter two lists populated using the UserEmail and UserEmailClaim join models.
-    This subordination made it difficult to track ownership of an email address or its
-    reachability (active, bouncing, etc). Having EmailAddress as a standalone model
-    (with incoming foreign keys) provides some sanity:
+    Specifically: Proposal.email, Participant.email, Account.emails and
+    Account.emailclaims, the latter two lists populated using the AccountEmail and
+    AccountEmailClaim join models. This subordination made it difficult to track
+    ownership of an email address or its reachability (active, bouncing, etc). Having
+    EmailAddress as a standalone model (with incoming foreign keys) provides some
+    sanity:
 
     1. Email addresses are stored with a hash, and always looked up using the hash. This
        allows the address to be forgotten while preserving the record for metadata.
@@ -170,7 +170,7 @@ class EmailAddress(BaseMixin, Model):
     4. If there is abuse, an email address can be comprehensively blocked using its
        canonical representation, which prevents the address from being used even via
        its ``+sub-address`` variations.
-    5. Via :class:`EmailAddressMixin`, the UserEmail model can establish ownership of
+    5. Via :class:`EmailAddressMixin`, the AccountEmail model can establish ownership of
        an email address on behalf of a user, placing an automatic block on its use by
        other users. This mechanism is not limited to users. A future OrgEmail link can
        establish ownership on behalf of an organization.
@@ -383,7 +383,7 @@ class EmailAddress(BaseMixin, Model):
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: Optional[User]) -> bool:
+    def is_available_for(self, owner: Optional[Account]) -> bool:
         """Return True if this EmailAddress is available for the proposed owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -437,17 +437,17 @@ class EmailAddress(BaseMixin, Model):
 
     @overload
     @classmethod
-    def get_filter(cls, *, email: str) -> Optional[ColumnElement]:
+    def get_filter(cls, *, email: str) -> Optional[sa.ColumnElement[bool]]:
         ...
 
     @overload
     @classmethod
-    def get_filter(cls, *, blake2b160: bytes) -> ColumnElement:
+    def get_filter(cls, *, blake2b160: bytes) -> sa.ColumnElement[bool]:
         ...
 
     @overload
     @classmethod
-    def get_filter(cls, *, email_hash: str) -> ColumnElement:
+    def get_filter(cls, *, email_hash: str) -> sa.ColumnElement[bool]:
         ...
 
     @overload
@@ -458,7 +458,7 @@ class EmailAddress(BaseMixin, Model):
         email: Optional[str],
         blake2b160: Optional[bytes],
         email_hash: Optional[str],
-    ) -> Optional[ColumnElement]:
+    ) -> Optional[sa.ColumnElement[bool]]:
         ...
 
     @classmethod
@@ -468,7 +468,7 @@ class EmailAddress(BaseMixin, Model):
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
-    ) -> Optional[ColumnElement]:
+    ) -> Optional[sa.ColumnElement[bool]]:
         """
         Get an filter condition for retriving an :class:`EmailAddress`.
 
@@ -582,7 +582,7 @@ class EmailAddress(BaseMixin, Model):
         return new_email
 
     @classmethod
-    def add_for(cls, owner: Optional[User], email: str) -> EmailAddress:
+    def add_for(cls, owner: Optional[Account], email: str) -> EmailAddress:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -603,7 +603,7 @@ class EmailAddress(BaseMixin, Model):
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[User],
+        owner: Optional[Account],
         email: str,
         check_dns: bool = False,
         new: bool = False,
@@ -893,4 +893,4 @@ def _email_address_mixin_configure_events(
 
 
 if TYPE_CHECKING:
-    from .user import User
+    from .account import Account

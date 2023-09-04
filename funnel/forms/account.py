@@ -1,4 +1,4 @@
-"""Forms for user account settings."""
+"""Forms for account settings."""
 
 from __future__ import annotations
 
@@ -17,9 +17,8 @@ from ..models import (
     MODERATOR_REPORT_TYPE,
     PASSWORD_MAX_LENGTH,
     PASSWORD_MIN_LENGTH,
+    Account,
     Anchor,
-    Profile,
-    User,
     check_password_strength,
     getuser,
 )
@@ -83,13 +82,13 @@ class PasswordStrengthValidator:
             if form.edit_user.fullname:
                 user_inputs.append(form.edit_user.fullname)
 
-            for useremail in form.edit_user.emails:
-                user_inputs.append(str(useremail))
+            for accountemail in form.edit_user.emails:
+                user_inputs.append(str(accountemail))
             for emailclaim in form.edit_user.emailclaims:
                 user_inputs.append(str(emailclaim))
 
-            for userphone in form.edit_user.phones:
-                user_inputs.append(str(userphone))
+            for accountphone in form.edit_user.phones:
+                user_inputs.append(str(accountphone))
 
         tested_password = check_password_strength(
             field.data, user_inputs=user_inputs if user_inputs else None
@@ -154,12 +153,12 @@ def pwned_password_validator(_form, field) -> None:
         )
 
 
-@User.forms('password')
+@Account.forms('password')
 class PasswordForm(forms.Form):
     """Form to validate a user's password, for password-gated sudo actions."""
 
     __expects__ = ('edit_user',)
-    edit_user: User
+    edit_user: Account
 
     password = forms.PasswordField(
         __("Password"),
@@ -176,13 +175,13 @@ class PasswordForm(forms.Form):
             raise forms.validators.ValidationError(_("Incorrect password"))
 
 
-@User.forms('password_policy')
+@Account.forms('password_policy')
 class PasswordPolicyForm(forms.Form):
     """Form to validate any candidate password against policy."""
 
     __expects__ = ('edit_user',)
     __returns__ = ('password_strength', 'is_weak', 'warning', 'suggestions')
-    edit_user: User
+    edit_user: Account
     password_strength: Optional[int] = None
     is_weak: Optional[bool] = None
     warning: Optional[str] = None
@@ -204,13 +203,13 @@ class PasswordPolicyForm(forms.Form):
             if self.edit_user.fullname:
                 user_inputs.append(self.edit_user.fullname)
 
-            for useremail in self.edit_user.emails:
-                user_inputs.append(str(useremail))
+            for accountemail in self.edit_user.emails:
+                user_inputs.append(str(accountemail))
             for emailclaim in self.edit_user.emailclaims:
                 user_inputs.append(str(emailclaim))
 
-            for userphone in self.edit_user.phones:
-                user_inputs.append(str(userphone))
+            for accountphone in self.edit_user.phones:
+                user_inputs.append(str(accountphone))
 
         tested_password = check_password_strength(
             field.data, user_inputs=user_inputs if user_inputs else None
@@ -221,12 +220,12 @@ class PasswordPolicyForm(forms.Form):
         self.suggestions = tested_password.suggestions
 
 
-@User.forms('password_reset_request')
+@Account.forms('password_reset_request')
 class PasswordResetRequestForm(forms.Form):
     """Form to request a password reset."""
 
     __returns__ = ('user', 'anchor')
-    user: Optional[User] = None
+    user: Optional[Account] = None
     anchor: Optional[Anchor] = None
 
     username = forms.StringField(
@@ -247,13 +246,13 @@ class PasswordResetRequestForm(forms.Form):
             )
 
 
-@User.forms('password_create')
+@Account.forms('password_create')
 class PasswordCreateForm(forms.Form):
     """Form to accept a new password for a given user, without existing password."""
 
     __returns__ = ('password_strength',)
     __expects__ = ('edit_user',)
-    edit_user: User
+    edit_user: Account
     password_strength: Optional[int] = None
 
     password = forms.PasswordField(
@@ -277,7 +276,7 @@ class PasswordCreateForm(forms.Form):
     )
 
 
-@User.forms('password_reset')
+@Account.forms('password_reset')
 class PasswordResetForm(forms.Form):
     """Form to reset a password for a user, requiring the user id as a failsafe."""
 
@@ -329,13 +328,13 @@ class PasswordResetForm(forms.Form):
             )
 
 
-@User.forms('password_change')
+@Account.forms('password_change')
 class PasswordChangeForm(forms.Form):
     """Form to change a user's password after confirming the old password."""
 
     __returns__ = ('password_strength',)
     __expects__ = ('edit_user',)
-    edit_user: User
+    edit_user: Account
     password_strength: Optional[int] = None
 
     old_password = forms.PasswordField(
@@ -391,18 +390,18 @@ def raise_username_error(reason: str) -> str:
     raise forms.validators.ValidationError(_("This username is not available"))
 
 
-@User.forms('main')
+@Account.forms('main')
 class AccountForm(forms.Form):
     """Form to edit basic account details."""
 
-    edit_obj: User
+    edit_obj: Account
 
     fullname = forms.StringField(
         __("Full name"),
         description=__("This is your name, not of your organization"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=User.__title_length__),
+            forms.validators.Length(max=Account.__title_length__),
         ],
         filters=[forms.filters.strip()],
         render_kw={'autocomplete': 'name'},
@@ -414,7 +413,7 @@ class AccountForm(forms.Form):
         ),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=Profile.__name_length__),
+            forms.validators.Length(max=Account.__name_length__),
         ],
         filters=nullable_strip_filters,
         prefix="https://hasgeek.com/",
@@ -443,15 +442,15 @@ class AccountForm(forms.Form):
 
     def validate_username(self, field: forms.Field) -> None:
         """Validate if username is appropriately formatted and available to use."""
-        reason = self.edit_obj.validate_name_candidate(field.data)
+        reason = self.edit_obj.validate_new_name(field.data)
         if not reason:
             return  # Username is available
         raise_username_error(reason)
 
 
-@User.forms('delete')
+@Account.forms('delete')
 class AccountDeleteForm(forms.Form):
-    """Delete user account."""
+    """Delete account."""
 
     confirm1 = forms.BooleanField(
         __(
@@ -474,7 +473,7 @@ class UsernameAvailableForm(forms.Form):
     """Form to check for whether a username is available to use."""
 
     __expects__ = ('edit_user',)
-    edit_user: User
+    edit_user: Account
 
     username = forms.StringField(
         __("Username"),
@@ -489,9 +488,9 @@ class UsernameAvailableForm(forms.Form):
     def validate_username(self, field: forms.Field) -> None:
         """Validate for username being valid and available (with optionally user)."""
         if self.edit_user:  # User is setting a username
-            reason = self.edit_user.validate_name_candidate(field.data)
+            reason = self.edit_user.validate_new_name(field.data)
         else:  # New user is creating an account, so no user object yet
-            reason = Profile.validate_name_candidate(field.data)
+            reason = Account.validate_name_candidate(field.data)
         if not reason:
             return  # Username is available
         raise_username_error(reason)
@@ -513,12 +512,12 @@ class EnableNotificationsDescriptionMixin:
         ).format(url=url_for('notification_preferences'))
 
 
-@User.forms('email_add')
+@Account.forms('email_add')
 class NewEmailAddressForm(EnableNotificationsDescriptionMixin, forms.RecaptchaForm):
-    """Form to add a new email address to a user account."""
+    """Form to add a new email address to an account."""
 
     __expects__ = ('edit_user',)
-    edit_user: User
+    edit_user: Account
 
     email = forms.EmailField(
         __("Email address"),
@@ -544,7 +543,7 @@ class NewEmailAddressForm(EnableNotificationsDescriptionMixin, forms.RecaptchaFo
     )
 
 
-@User.forms('email_primary')
+@Account.forms('email_primary')
 class EmailPrimaryForm(forms.Form):
     """Form to mark an email address as a user's primary."""
 
@@ -560,12 +559,12 @@ class EmailPrimaryForm(forms.Form):
     )
 
 
-@User.forms('phone_add')
+@Account.forms('phone_add')
 class NewPhoneForm(EnableNotificationsDescriptionMixin, forms.RecaptchaForm):
-    """Form to add a new mobile number (SMS-capable) to a user account."""
+    """Form to add a new mobile number (SMS-capable) to an account."""
 
     __expects__ = ('edit_user',)
-    edit_user: User
+    edit_user: Account
 
     phone = forms.TelField(
         __("Phone number"),
@@ -590,7 +589,7 @@ class NewPhoneForm(EnableNotificationsDescriptionMixin, forms.RecaptchaForm):
     )
 
 
-@User.forms('phone_primary')
+@Account.forms('phone_primary')
 class PhonePrimaryForm(forms.Form):
     """Form to mark a phone number as a user's primary."""
 

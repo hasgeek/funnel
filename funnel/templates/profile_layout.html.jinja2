@@ -75,14 +75,14 @@
             <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
               <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
                 <div class="flex-wrapper flex-wrapper--center">
-                    <a href="{{ featured_project.profile.url_for() }}" class="profile-avatar margin-right" data-ga="View account">
-                    {%- if featured_project.profile.logo_url.url %}
-                      <img src="{{ featured_project.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.profile.title }}"/>
+                    <a href="{{ featured_project.account.profile_url }}" class="profile-avatar margin-right" data-ga="View account">
+                    {%- if featured_project.account.logo_url.url %}
+                      <img src="{{ featured_project.account.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.account.title }}"/>
                     {% else %}
-                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.profile.title }}"/>
+                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.account.title }}"/>
                     {% endif %}
                     </a>
-                    <a href="{{ featured_project.profile.url_for() }}" class="profile-avatar-title mui--text-subhead text-bold mui--text-dark nounderline" data-ga="View account">{{ featured_project.profile.title }}</a>
+                    <a href="{{ featured_project.account.profile_url }}" class="profile-avatar-title mui--text-subhead text-bold mui--text-dark nounderline" data-ga="View account">{{ featured_project.account.title }}</a>
                   </a>
                 </div>
                 {%- if not current_auth.is_anonymous %}
@@ -102,13 +102,13 @@
                 <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left mui--hidden-lg mui--hidden-xl">
                   <div class="flex-wrapper flex-wrapper--center">
                     <span class="profile-avatar margin-right">
-                      {%- if featured_project.profile.logo_url.url %}
-                        <img src="{{ featured_project.profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.profile.title }}"/>
+                      {%- if featured_project.account.logo_url.url %}
+                        <img src="{{ featured_project.account.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.account.title }}"/>
                       {% else %}
-                        <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.profile.title }}"/>
+                        <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.account.title }}"/>
                       {% endif %}
                     </span>
-                    <span class="profile-avatar-title mui--text-body2 text-bold mui--text-dark">{{ featured_project.profile.title }}</span>
+                    <span class="profile-avatar-title mui--text-body2 text-bold mui--text-dark">{{ featured_project.account.title }}</span>
                   </div>
                   {%- if not current_auth.is_anonymous %}
                     {% set save_form_id = "spotlight_spfm_mobile_" + featured_project.uuid_b58 %}
@@ -288,7 +288,7 @@
       </ul>
       <form action="{{ profile.url_for('transition') }}" method="post">
         {{ profile.forms.transition().hidden_tag() }}
-        <button name="transition" value="make_private" class="mui-btn mui-btn--accent mui--pull-right mui-btn--flat">{% trans %}Make private{% endtrans %}</button>
+        <button name="transition" value="make_profile_private" class="mui-btn mui-btn--accent mui--pull-right mui-btn--flat">{% trans %}Make private{% endtrans %}</button>
       </form>
     </div>
   </div>
@@ -399,7 +399,7 @@
                       </ul>
                       <form action="{{ profile.url_for('transition') }}" method="post">
                         {{ profile.forms.transition().hidden_tag() }}
-                        <button name="transition" value="make_public" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right" data-cy="make-public-btn">{% trans %}Make public{% endtrans %}</button>
+                        <button name="transition" value="make_profile_public" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right" data-cy="make-public-btn">{% trans %}Make public{% endtrans %}</button>
                       </form>
                     </div>
                   </div>
@@ -423,10 +423,12 @@
             <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
           </div>
           <ul class="bullet-separated-list">
-            <li>{{ faicon(icon='history') }} {% trans date=profile.owner.created_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
-            {% if profile.website %}
+            {%- if profile.joined_at %}
+              <li>{{ faicon(icon='history') }} {% trans date=profile.joined_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
+            {%- endif %}
+            {%- if profile.website %}
               <li><a href="{{ profile.website }}" target="_blank" rel="noopener nofollow">{{ faicon(icon='globe') }} {{ profile.website|cleanurl }}</a></li>
-            {% endif %}
+            {%- endif %}
           </ul>
           <div class="markdown">{{ profile.description.html }}</div>
           <div class="mui--visible-xs-block mui--visible-sm-block">

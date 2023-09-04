@@ -10,12 +10,12 @@ from flask import Markup
 from baseframe import __, forms
 
 from ..models import (
+    Account,
+    AccountEmail,
     Project,
     TicketClient,
     TicketEvent,
     TicketParticipant,
-    User,
-    UserEmail,
     db,
 )
 from .helpers import nullable_json_filters, validate_and_convert_json
@@ -162,7 +162,7 @@ class TicketParticipantForm(forms.Form):
     """Form for a participant in a ticket."""
 
     __returns__ = ('user',)
-    user: Optional[User] = None
+    user: Optional[Account] = None
     edit_parent: Project
 
     fullname = forms.StringField(
@@ -217,9 +217,9 @@ class TicketParticipantForm(forms.Form):
         """Validate form."""
         result = super().validate(*args, **kwargs)
         with db.session.no_autoflush:
-            useremail = UserEmail.get(email=self.email.data)
-            if useremail is not None:
-                self.user = useremail.user
+            accountemail = AccountEmail.get(email=self.email.data)
+            if accountemail is not None:
+                self.user = accountemail.account
             else:
                 self.user = None
         return result

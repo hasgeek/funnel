@@ -136,6 +136,8 @@ app.jinja_env.globals['get_locale'] = get_locale
 # API it borrows from the Flask-Login extension
 app.login_manager = views.login_session.LoginManager()  # type: ignore[attr-defined]
 
+app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['markdown.extensions.nl2br']
+app.config['FLATPAGES_EXTENSION'] = '.md'
 # These extensions are only required in the main app
 migrate = Migrate(app, db)
 pages.init_app(app)
@@ -174,7 +176,7 @@ app.assets.register(  # type: ignore[attr-defined]
         filters='rjsmin',
     ),
 )
-app.assets.register(
+app.assets.register(  # type: ignore[attr-defined]
     'css_fullcalendar',
     Bundle(
         assets.require('jquery.fullcalendar.css', 'spectrum.css'),
@@ -182,7 +184,7 @@ app.assets.register(
         filters='cssmin',
     ),
 )
-app.assets.register(
+app.assets.register(  # type: ignore[attr-defined]
     'js_schedules',
     Bundle(
         assets.require('schedules.js'),

@@ -5,7 +5,7 @@ from typing_extensions import Self
 
 import grapheme
 
-from ...models import Organization, Profile, Project, User
+from ...models import Account, Project
 
 _T = TypeVar('_T')  # Host type for SetVar
 _I = TypeVar('_I')  # Input type for SetVar's setter
@@ -78,7 +78,7 @@ class TemplateVarMixin:
         return title[:index] + '…'
 
     @SetVar
-    def account(self, account: Union[User, Organization, Profile]) -> str:
+    def account(self, account: Account) -> str:
         """Set account's display name, truncated to fit."""
         pickername = account.pickername
         if len(pickername) <= self.var_max_length:

@@ -6,7 +6,7 @@ import pytest
 from funnel import forms, models
 
 pytestmark = pytest.mark.filterwarnings(
-    "ignore:Object of type <UserEmail> not in session"
+    "ignore:Object of type <AccountEmail> not in session"
 )
 
 

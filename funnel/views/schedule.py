@@ -180,12 +180,12 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
     event = Event()
     event.add('summary', session.title)
     organizer = vCalAddress(f'MAILTO:{current_app.config["MAIL_DEFAULT_SENDER_ADDR"]}')
-    organizer.params['cn'] = vText(session.project.profile.title)
+    organizer.params['cn'] = vText(session.project.account.title)
     event['organizer'] = organizer
     if rsvp:
-        attendee = vCalAddress('MAILTO:' + str(rsvp.user_email()))
+        attendee = vCalAddress('MAILTO:' + str(rsvp.participant_email()))
         attendee.params['RSVP'] = vText('TRUE') if rsvp.state.YES else vText('FALSE')
-        attendee.params['cn'] = vText(rsvp.user.fullname)
+        attendee.params['cn'] = vText(rsvp.participant.fullname)
         attendee.params['CUTYPE'] = vText('INDIVIDUAL')
         attendee.params['X-NUM-GUESTS'] = vText('0')
         event.add('attendee', attendee, encode=0)
@@ -229,7 +229,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
 
 
 @Project.views('schedule')
-@route('/<profile>/<project>/schedule')
+@route('/<account>/<project>/schedule')
 class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
     @render_with(html_in_json('project_schedule.html.jinja2'))
@@ -267,7 +267,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             mimetype='text/calendar',
             headers={
                 'Content-Disposition': f'attachment;filename='
-                f'"{self.obj.profile.name}-{self.obj.name}.ics"'
+                f'"{self.obj.account.urlname}-{self.obj.name}.ics"'
             },
         )
 
@@ -282,7 +282,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                     'title': proposal.title,
                     'modal_url': proposal.url_for('schedule'),
                     'speaker': proposal.first_user,
-                    'user': proposal.user,
+                    'user': proposal.first_user,
                     'labels': list(proposal.labels),
                 }
                 for proposal in self.obj.proposals_all.filter(
@@ -331,7 +331,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             except NoResultFound:
                 current_app.logger.error(
                     '%s/%s schedule update error: no existing session matching %s',
-                    self.obj.profile.name,
+                    self.obj.account.urlname,
                     self.obj.name,
                     repr(session),
                 )
@@ -344,7 +344,7 @@ ProjectScheduleView.init_app(app)
 
 
 @VenueRoom.views('schedule')
-@route('/<profile>/<project>/schedule/<venue>/<room>')
+@route('/<account>/<project>/schedule/<venue>/<room>')
 class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @route('ical')
     @requires_roles({'reader'})
@@ -379,7 +379,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             mimetype='text/calendar',
             headers={
                 'Content-Disposition': 'attachment;filename="'
-                + self.obj.venue.project.profile.name
+                + self.obj.venue.project.account.urlname
                 + '-'
                 + self.obj.venue.project.name
                 + '-'

@@ -17,7 +17,7 @@ from coaster.utils import utcnow
 from coaster.views import ClassView, route
 
 from .. import app, executor
-from ..models import Profile, Project, Proposal, Session, Update
+from ..models import Account, Project, Proposal, Session, Update
 from .decorators import xml_response
 from .index import policy_pages
 
@@ -171,16 +171,16 @@ def changefreq_for_age(age: timedelta) -> ChangeFreq:
 
 
 @executor.job
-def query_profile(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
+def query_account(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
-            profile.urls['view'],
-            lastmod=profile.updated_at.replace(second=0, microsecond=0),
+            account.urls['view'],
+            lastmod=account.updated_at.replace(second=0, microsecond=0),
             changefreq=changefreq,
         )
-        for profile in Profile.all_public()
-        .filter(Profile.updated_at >= dtstart, Profile.updated_at < dtend)
-        .order_by(Profile.updated_at.desc())
+        for account in Account.all_public()
+        .filter(Account.updated_at >= dtstart, Account.updated_at < dtend)
+        .order_by(Account.updated_at.desc())
     ]
 
 
@@ -325,7 +325,7 @@ class SitemapView(ClassView):
         changefreq = changefreq_for_age(age)
 
         jobs = [
-            query_profile.submit(dtstart, dtend, changefreq),
+            query_account.submit(dtstart, dtend, changefreq),
             query_project.submit(dtstart, dtend, changefreq),
             query_update.submit(dtstart, dtend, changefreq),
             query_proposal.submit(dtstart, dtend, changefreq),

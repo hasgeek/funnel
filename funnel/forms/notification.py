@@ -10,7 +10,7 @@ from markupsafe import Markup
 
 from baseframe import __, forms
 
-from ..models import User, notification_type_registry
+from ..models import Account, notification_type_registry
 from ..transports import platform_transports
 
 __all__ = [
@@ -116,12 +116,12 @@ transport_labels = {
 }
 
 
-@User.forms('unsubscribe')
+@Account.forms('unsubscribe')
 class UnsubscribeForm(forms.Form):
     """Form to unsubscribe from notifications."""
 
     __expects__ = ('transport', 'notification_type')
-    edit_obj: User
+    edit_obj: Account
     transport: str
     notification_type: str
 
@@ -207,7 +207,7 @@ class UnsubscribeForm(forms.Form):
             )
 
 
-@User.forms('set_notification_preference')
+@Account.forms('set_notification_preference')
 class SetNotificationPreferenceForm(forms.Form):
     """Set one notification preference."""
 

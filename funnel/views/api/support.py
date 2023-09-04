@@ -57,11 +57,11 @@ def support_callerid(number: str) -> Tuple[Dict[str, Any], int]:
         'active_at': phone_number.active_at,
         'is_blocked': phone_number.is_blocked,
     }
-    if phone_number.used_in_user_phone:
-        user_phone = phone_number.used_in_user_phone[0]
+    if phone_number.used_in_account_phone:
+        user_phone = phone_number.used_in_account_phone[0]
         info['account'] = {
-            'title': user_phone.user.fullname,
-            'name': user_phone.user.username,
+            'title': user_phone.account.fullname,
+            'name': user_phone.account.username,
         }
     return {'status': 'ok', 'result': info}, 200
     # TODO: Check in TicketParticipant.phone

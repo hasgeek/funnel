@@ -32,16 +32,16 @@ from .. import app
 from ..forms import OtpForm, PasswordForm
 from ..geoip import GeoIP2Error, geoip
 from ..models import (
-    USER_SESSION_VALIDITY_PERIOD,
+    LOGIN_SESSION_VALIDITY_PERIOD,
+    Account,
     AuthClient,
     AuthClientCredential,
-    Profile,
+    LoginSession,
+    LoginSessionExpiredError,
+    LoginSessionInactiveUserError,
+    LoginSessionRevokedError,
     User,
-    UserSession,
-    UserSessionExpiredError,
-    UserSessionInactiveUserError,
-    UserSessionRevokedError,
-    auth_client_user_session,
+    auth_client_login_session,
     db,
     sa,
 )
@@ -64,9 +64,9 @@ from .otp import OtpSession, OtpTimeoutError
 
 # --- Constants ------------------------------------------------------------------------
 
-#: User session validity in seconds, needed for cookie max_age
-USER_SESSION_VALIDITY_PERIOD_TOTAL_SECONDS = int(
-    USER_SESSION_VALIDITY_PERIOD.total_seconds()
+#: Login session validity in seconds, needed for cookie max_age
+LOGIN_SESSION_VALIDITY_PERIOD_TOTAL_SECONDS = int(
+    LOGIN_SESSION_VALIDITY_PERIOD.total_seconds()
 )
 #: For quick lookup of matching supported methods in request.url_rule.methods
 GET_AND_POST = frozenset({'GET', 'POST'})
@@ -88,7 +88,7 @@ class LoginManager:
 
     # For compatibility with baseframe.forms.fields.UserSelectFieldBase
     usermanager: Type
-    usermodel = User
+    usermodel = Account
 
     # Flag for Baseframe to avoid attempting API calls
     is_master_data_source = True
@@ -133,12 +133,12 @@ class LoginManager:
             try:
                 add_auth_attribute(
                     'session',
-                    UserSession.authenticate(
+                    LoginSession.authenticate(
                         buid=lastuser_cookie['sessionid'], silent=False
                     ),
                 )
                 if current_auth.session:
-                    add_auth_attribute('user', current_auth.session.user)
+                    add_auth_attribute('user', current_auth.session.account)
                 else:
                     # Invalid session. This is not supposed to happen unless there's an
                     # error that is (a) setting an invalid session id, or (b) deleting
@@ -148,7 +148,7 @@ class LoginManager:
                         lastuser_cookie['sessionid'],
                     )
                     logout_internal()
-            except UserSessionExpiredError:
+            except LoginSessionExpiredError:
                 flash(
                     _(
                         "Looks like you haven’t been here in a while."
@@ -160,7 +160,7 @@ class LoginManager:
                 add_auth_attribute('session', None)
                 # TODO: Force render of logout page to clear client-side data
                 logout_internal()
-            except UserSessionRevokedError:
+            except LoginSessionRevokedError:
                 flash(
                     _(
                         "Your login session was revoked from another device."
@@ -172,7 +172,7 @@ class LoginManager:
                 add_auth_attribute('session', None)
                 # TODO: Force render of logout page to clear client-side data
                 logout_internal()
-            except UserSessionInactiveUserError as exc:
+            except LoginSessionInactiveUserError as exc:
                 inactive_user = exc.args[0].user
                 if inactive_user.state.SUSPENDED:
                     flash(_("Your account has been suspended"))
@@ -189,12 +189,12 @@ class LoginManager:
 
         # Transition users with 'userid' to 'sessionid'
         if not current_auth.session and 'userid' in lastuser_cookie:
-            add_auth_attribute('user', User.get(buid=lastuser_cookie['userid']))
+            add_auth_attribute('user', Account.get(buid=lastuser_cookie['userid']))
             if current_auth.is_authenticated:
-                user_session = UserSession(user=current_auth.user)
-                db.session.add(user_session)
-                add_auth_attribute('session', user_session)
-                user_session.views.mark_accessed()
+                login_session = LoginSession(account=current_auth.user)
+                db.session.add(login_session)
+                add_auth_attribute('session', login_session)
+                login_session.views.mark_accessed()
                 db.session.commit()
 
         if current_auth.session:
@@ -219,9 +219,9 @@ LoginManager.usermanager = LoginManager
 # --- View helpers ---------------------------------------------------------------------
 
 
-@UserSession.views('mark_accessed')
+@LoginSession.views('mark_accessed')
 def session_mark_accessed(
-    obj: UserSession,
+    obj: LoginSession,
     auth_client: Optional[AuthClient] = None,
     ipaddr: Optional[str] = None,
     user_agent: Optional[str] = None,
@@ -240,15 +240,15 @@ def session_mark_accessed(
         if auth_client is not None:
             if (
                 auth_client not in obj.auth_clients
-            ):  # self.auth_clients is defined via AuthClient.user_sessions
+            ):  # self.auth_clients is defined via AuthClient.login_sessions
                 obj.auth_clients.append(auth_client)
             else:
                 # If we've seen this client in this session before, only update the
                 # timestamp
                 db.session.execute(
-                    auth_client_user_session.update()
-                    .where(auth_client_user_session.c.user_session_id == obj.id)
-                    .where(auth_client_user_session.c.auth_client_id == auth_client.id)
+                    auth_client_login_session.update()
+                    .where(auth_client_login_session.c.login_session_id == obj.id)
+                    .where(auth_client_login_session.c.auth_client_id == auth_client.id)
                     .values(accessed_at=sa.func.utcnow())
                 )
         else:
@@ -286,7 +286,7 @@ def session_mark_accessed(
                 obj.user_agent = user_agent
 
     statsd.set('users.active_sessions', str(obj.uuid), rate=1)
-    statsd.set('users.active_users', str(obj.user.uuid), rate=1)
+    statsd.set('users.active_users', str(obj.account.uuid), rate=1)
 
 
 # Also add future hasjob app here
@@ -351,7 +351,7 @@ def update_user_session_timestamp(response: ResponseType) -> ResponseType:
         # Setup a callback to update the session after the request has returned a
         # response to the user-agent. There will be no request or app context in this
         # callback, so we create a closure containing the necessary data in local vars
-        user_session = current_auth.session
+        login_session = current_auth.session
         ipaddr = request.remote_addr
         user_agent = str(request.user_agent.string[:250])
 
@@ -363,9 +363,9 @@ def update_user_session_timestamp(response: ResponseType) -> ResponseType:
                 # known here. We are NOT using session.merge as we don't need to
                 # refresh data from the db. SQLAlchemy will automatically load
                 # missing data should that be necessary (eg: during login)
-                db.session.add(user_session)
+                db.session.add(login_session)
                 # 2. Update user session access timestamp
-                user_session.views.mark_accessed(ipaddr=ipaddr, user_agent=user_agent)
+                login_session.views.mark_accessed(ipaddr=ipaddr, user_agent=user_agent)
                 # 3. Commit it
                 db.session.commit()
 
@@ -518,23 +518,23 @@ def requires_login(
 
 def save_sudo_preference_context() -> None:
     """Save sudo preference context to cookie session before redirecting."""
-    profile = getattr(g, 'profile', None)
-    if profile is not None:
-        session['sudo_context'] = {'type': 'profile', 'uuid_b64': profile.uuid_b64}
+    account = getattr(g, 'account', None)
+    if account is not None:
+        session['sudo_context'] = {'type': 'account', 'uuid_b64': account.uuid_b64}
     else:
         session.pop('sudo_context', None)
 
 
-def get_sudo_preference_context() -> Optional[Profile]:
+def get_sudo_preference_context() -> Optional[Account]:
     """Get optional preference context for sudo endpoint."""
-    profile = getattr(g, 'profile', None)
-    if profile is not None:
-        return profile
+    account = getattr(g, 'account', None)
+    if account is not None:
+        return account
     sudo_context = session.get('sudo_context', {})
-    if sudo_context.get('type') != 'profile':
-        # Only account (nee profile) context is supported at this time
+    if sudo_context.get('type') != 'account':
+        # Only account context is supported at this time
         return None
-    return Profile.query.filter_by(uuid_b64=sudo_context['uuid_b64']).one_or_none()
+    return Account.query.filter_by(uuid_b64=sudo_context['uuid_b64']).one_or_none()
 
 
 def del_sudo_preference_context() -> None:
@@ -615,14 +615,14 @@ def requires_sudo(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
                 # User does not have a password but has contact info. Try to send an OTP
                 # to their phone, falling back to email
                 context = get_sudo_preference_context()
-                userphone = current_auth.user.transport_for_sms(context=context)
-                useremail = current_auth.user.default_email(context=context)
+                accountphone = current_auth.user.transport_for_sms(context=context)
+                accountemail = current_auth.user.default_email(context=context)
                 otp_session = OtpSession.make(
                     'sudo',
                     user=current_auth.user,
                     anchor=None,
-                    phone=str(userphone) if userphone else None,
-                    email=str(useremail) if useremail else None,
+                    phone=str(accountphone) if accountphone else None,
+                    email=str(accountemail) if accountemail else None,
                 )
                 if otp_session.send(flash_failure=False):
                     # Use OtpForm only if an OTP could be sent. Failure messages are
@@ -801,14 +801,14 @@ def requires_client_id_or_user_or_client_login(
             if client_cred is not None and get_scheme_netloc(
                 client_cred.auth_client.website
             ) == get_scheme_netloc(request.referrer):
-                user_session = UserSession.authenticate(
+                login_session = LoginSession.authenticate(
                     buid=abort_null(request.values['session'])
                 )
-                if user_session is not None:
+                if login_session is not None:
                     # Add this user session to current_auth so the wrapped function
                     # knows who it's operating for. However, this is not proper
                     # authentication, so do not tag this as an actor.
-                    add_auth_attribute('session', user_session)
+                    add_auth_attribute('session', login_session)
                     return f(*args, **kwargs)
 
         # If we didn't get a valid client_id and session, and the user is not logged in,
@@ -824,7 +824,7 @@ def requires_client_id_or_user_or_client_login(
 
 def login_internal(
     user: User,
-    user_session: Optional[UserSession] = None,
+    login_session: Optional[LoginSession] = None,
     login_service: Optional[str] = None,
 ):
     """
@@ -833,14 +833,14 @@ def login_internal(
     If the login is from funnelapp (future hasjob), reuse the existing session.
     """
     add_auth_attribute('user', user)
-    if not user_session or user_session.user != user:
-        user_session = UserSession(user=user, login_service=login_service)
-        db.session.add(user_session)
-    user_session.views.mark_accessed()
-    add_auth_attribute('session', user_session)
+    if not login_session or login_session.account != user:
+        login_session = LoginSession(account=user, login_service=login_service)
+        db.session.add(login_session)
+    login_session.views.mark_accessed()
+    add_auth_attribute('session', login_session)
     if 'cookie' not in current_auth:
         add_auth_attribute('cookie', {})
-    current_auth.cookie['sessionid'] = user_session.buid
+    current_auth.cookie['sessionid'] = login_session.buid
     current_auth.cookie['userid'] = user.buid
     session.permanent = True
     autoset_timezone_and_locale(user)
@@ -850,9 +850,9 @@ def login_internal(
 def logout_internal() -> None:
     """Logout current user (helper function)."""
     add_auth_attribute('user', None)
-    user_session = current_auth.get('session')
-    if user_session:
-        user_session.revoke()
+    login_session = current_auth.get('session')
+    if login_session:
+        login_session.revoke()
         add_auth_attribute('session', None)
     session.pop('sessionid', None)
     session.pop('userid', None)
@@ -884,9 +884,9 @@ def set_loginmethod_cookie(response, value):
         'login',
         value,
         # Keep this cookie for a year
-        max_age=USER_SESSION_VALIDITY_PERIOD_TOTAL_SECONDS,
+        max_age=LOGIN_SESSION_VALIDITY_PERIOD_TOTAL_SECONDS,
         # Expire one year from now
-        expires=utcnow() + USER_SESSION_VALIDITY_PERIOD,
+        expires=utcnow() + LOGIN_SESSION_VALIDITY_PERIOD,
         secure=current_app.config['SESSION_COOKIE_SECURE'],
         httponly=True,
         samesite='Lax',

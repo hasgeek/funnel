@@ -8,7 +8,8 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, relationship, sa
+from . import DynamicMapped, Mapped, Model, backref, relationship, sa
+from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
@@ -17,7 +18,6 @@ from .membership_mixin import (
 )
 from .project import Project
 from .proposal import Proposal
-from .user import User
 
 __all__ = ['ProposalMembership']
 
@@ -35,7 +35,7 @@ class ProposalMembership(  # type: ignore[misc]
 
     __roles__ = {
         'all': {
-            'read': {'is_uncredited', 'label', 'seq', 'title', 'urls', 'user'},
+            'read': {'is_uncredited', 'label', 'seq', 'title', 'urls', 'member'},
             'call': {'url_for'},
         },
         'editor': {
@@ -51,7 +51,7 @@ class ProposalMembership(  # type: ignore[misc]
             'seq',
             'title',
             'urls',
-            'user',
+            'member',
             'uuid_b58',
         },
         'without_parent': {
@@ -61,7 +61,7 @@ class ProposalMembership(  # type: ignore[misc]
             'seq',
             'title',
             'urls',
-            'user',
+            'member',
             'uuid_b58',
         },
         'related': {
@@ -75,7 +75,7 @@ class ProposalMembership(  # type: ignore[misc]
         },
     }
 
-    revoke_on_subject_delete = False
+    revoke_on_member_delete = False
 
     proposal_id: Mapped[int] = with_roles(
         sa.orm.mapped_column(
@@ -83,20 +83,20 @@ class ProposalMembership(  # type: ignore[misc]
             sa.ForeignKey('proposal.id', ondelete='CASCADE'),
             nullable=False,
         ),
-        read={'subject', 'editor'},
+        read={'member', 'editor'},
     )
 
     proposal: Mapped[Proposal] = with_roles(
         relationship(
             Proposal,
-            backref=sa.orm.backref(
+            backref=backref(
                 'all_memberships',
                 lazy='dynamic',
                 cascade='all',
                 passive_deletes=True,
             ),
         ),
-        read={'subject', 'editor'},
+        read={'member', 'editor'},
         grants_via={None: {'editor'}},
     )
     parent_id: Mapped[int] = sa.orm.synonym('proposal_id')
@@ -127,7 +127,7 @@ class ProposalMembership(  # type: ignore[misc]
 # Project relationships
 @reopen(Proposal)
 class __Proposal:
-    user: User
+    created_by: Account
 
     # This relationship does not use `lazy='dynamic'` because it is expected to contain
     # <2 records on average, and won't exceed 50 in the most extreme cases
@@ -143,26 +143,26 @@ class __Proposal:
         ),
         read={'all'},
         # These grants are authoritative and used instead of `offered_roles` above
-        grants_via={'user': {'submitter', 'editor'}},
+        grants_via={'member': {'submitter', 'editor'}},
     )
 
     @property
-    def first_user(self) -> User:
+    def first_user(self) -> Account:
         """Return the first credited member on the proposal, or creator if none."""
         for membership in self.memberships:
             if not membership.is_uncredited:
-                return membership.user
-        return self.user
+                return membership.member
+        return self.created_by
 
 
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     # pylint: disable=invalid-unary-operand-type
 
     all_proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
         ProposalMembership,
         lazy='dynamic',
-        foreign_keys=[ProposalMembership.user_id],
+        foreign_keys=[ProposalMembership.member_id],
         viewonly=True,
     )
 
@@ -170,7 +170,7 @@ class __User:
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalMembership.user_id == User.id,
+            ProposalMembership.member_id == Account.id,
             ~ProposalMembership.is_invite,
         ),
         viewonly=True,
@@ -180,7 +180,7 @@ class __User:
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalMembership.user_id == User.id,
+            ProposalMembership.member_id == Account.id,
             ProposalMembership.is_active,
         ),
         viewonly=True,
@@ -205,5 +205,5 @@ class __User:
     )
 
 
-User.__active_membership_attrs__.add('proposal_memberships')
-User.__noninvite_membership_attrs__.add('noninvite_proposal_memberships')
+Account.__active_membership_attrs__.add('proposal_memberships')
+Account.__noninvite_membership_attrs__.add('noninvite_proposal_memberships')

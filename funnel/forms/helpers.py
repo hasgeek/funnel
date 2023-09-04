@@ -13,11 +13,11 @@ from coaster.auth import current_auth
 
 from .. import app
 from ..models import (
+    Account,
+    AccountEmailClaim,
     EmailAddress,
     PhoneNumber,
-    Profile,
     User,
-    UserEmailClaim,
     canonical_phone_number,
     parse_phone_number,
     parse_video_url,
@@ -37,10 +37,10 @@ MSG_PHONE_NO_SMS = __("This phone number cannot receive SMS messages")
 MSG_PHONE_BLOCKED = __("This phone number has been blocked from use")
 
 
-class ProfileSelectField(forms.AutocompleteField):
+class AccountSelectField(forms.AutocompleteField):
     """Render an autocomplete field for selecting an account."""
 
-    data: Optional[Profile]  # type: ignore[assignment]
+    data: Optional[Account]  # type: ignore[assignment]
     widget = forms.Select2Widget()
     multiple = False
     widget_autocomplete = True
@@ -54,11 +54,11 @@ class ProfileSelectField(forms.AutocompleteField):
     def process_formdata(self, valuelist: Sequence[str]) -> None:
         """Process incoming form data."""
         if valuelist:
-            self.data = Profile.query.filter(
+            self.data = Account.query.filter(
                 # Limit to non-suspended (active) accounts. Do not require account to
                 # be public as well
-                Profile.name_is(valuelist[0]),
-                Profile.is_active,
+                Account.name_is(valuelist[0]),
+                Account.state.ACTIVE,
             ).one_or_none()
         else:
             self.data = None
@@ -150,7 +150,7 @@ class EmailAddressAvailable:
         if has_error is None and self.purpose == 'register':
             # One last check: is there an existing claim? If so, stop the user from
             # making a dupe account
-            if UserEmailClaim.all(email=field.data).notempty():
+            if AccountEmailClaim.all(email=field.data).notempty():
                 raise forms.validators.StopValidation(
                     _(
                         "You or someone else has made an account with this email"

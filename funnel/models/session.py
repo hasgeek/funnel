@@ -18,21 +18,27 @@ from . import (
     BaseScopedIdNameMixin,
     DynamicMapped,
     Mapped,
-    MarkdownCompositeDocument,
     Model,
     Query,
     TSVectorType,
     UuidMixin,
+    backref,
     db,
     hybrid_property,
     relationship,
     sa,
 )
-from .helpers import ImgeeType, add_search_trigger, reopen, visual_field_delimiter
+from .account import Account
+from .helpers import (
+    ImgeeType,
+    MarkdownCompositeDocument,
+    add_search_trigger,
+    reopen,
+    visual_field_delimiter,
+)
 from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
-from .user import User
 from .venue import VenueRoom
 from .video_mixin import VideoMixin
 
@@ -48,7 +54,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     )
     project: Mapped[Project] = with_roles(
         relationship(
-            Project, backref=sa.orm.backref('sessions', cascade='all', lazy='dynamic')
+            Project, backref=backref('sessions', cascade='all', lazy='dynamic')
         ),
         grants_via={None: project_child_role_map},
     )
@@ -60,7 +66,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
         sa.Integer, sa.ForeignKey('proposal.id'), nullable=True, unique=True
     )
     proposal: Mapped[Optional[Proposal]] = relationship(
-        Proposal, backref=sa.orm.backref('session', uselist=False, cascade='all')
+        Proposal, backref=backref('session', uselist=False, cascade='all')
     )
     speaker = sa.orm.mapped_column(sa.Unicode(200), default=None, nullable=True)
     start_at = sa.orm.mapped_column(
@@ -73,7 +79,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
         sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True
     )
     venue_room: Mapped[Optional[VenueRoom]] = relationship(
-        VenueRoom, backref=sa.orm.backref('sessions')
+        VenueRoom, backref='sessions'
     )
     is_break = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
     featured = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
@@ -208,7 +214,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     }
 
     @hybrid_property
-    def user(self) -> Optional[User]:
+    def user(self) -> Optional[Account]:
         if self.proposal is not None:
             return self.proposal.first_user
         return None

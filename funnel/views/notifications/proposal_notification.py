@@ -100,7 +100,7 @@ class RenderProposalReceivedNotification(RenderNotification):
     def sms(self) -> ProposalReceivedTemplate:
         return ProposalReceivedTemplate(
             project=self.project,
-            actor=self.proposal.user,
+            actor=self.proposal.first_user,
             url=shortlink(
                 self.proposal.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,

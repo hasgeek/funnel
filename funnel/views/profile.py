@@ -26,41 +26,40 @@ from ..forms import (
     ProfileLogoForm,
     ProfileTransitionForm,
 )
-from ..models import Profile, Project, Session, db, sa
+from ..models import Account, Project, Session, db, sa
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
-from .mixins import ProfileViewMixin
+from .mixins import AccountViewMixin
 from .schedule import schedule_data, session_list_data
 
 
-@Profile.features('new_project')
+@Account.features('new_project')
 def feature_profile_new_project(obj):
     return (
         obj.is_organization_profile
         and obj.current_roles.admin
-        and bool(obj.state.PUBLIC)
+        and bool(obj.profile_state.PUBLIC)
     )
 
 
-@Profile.features('new_user_project')
-def feature_profile_new_user_project(obj):
+@Account.features('new_user_project')
+def feature_profile_new_user_project(obj: Account):
     return (
         obj.is_user_profile
         and obj.current_roles.admin
-        and obj.is_active
-        and bool(obj.state.PUBLIC)
+        and bool(obj.profile_state.ACTIVE_AND_PUBLIC)
     )
 
 
-@Profile.features('make_public')
-def feature_profile_make_public(obj):
-    return obj.current_roles.admin and obj.make_public.is_available
+@Account.features('make_public')
+def feature_profile_make_public(obj: Account):
+    return obj.current_roles.admin and obj.make_profile_public.is_available
 
 
-@Profile.features('make_private')
-def feature_profile_make_private(obj):
-    return obj.current_roles.admin and obj.make_private.is_available
+@Account.features('make_private')
+def feature_profile_make_private(obj: Account):
+    return obj.current_roles.admin and obj.make_profile_private.is_available
 
 
 def template_switcher(templateargs):
@@ -68,9 +67,9 @@ def template_switcher(templateargs):
     return render_template(template, **templateargs)
 
 
-@Profile.views('main')
-@route('/<profile>')
-class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
+@Account.views('main')
+@route('/<account>')
+class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
     @requires_roles({'reader', 'admin'})
@@ -81,7 +80,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_user_profile:
             template_name = 'user_profile.html.jinja2'
 
-            submitted_proposals = self.obj.user.public_proposals
+            submitted_proposals = self.obj.public_proposals
 
             tagged_sessions = [
                 proposal.session
@@ -239,8 +238,8 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_organization_profile:
             abort(404)
 
-        participated_projects = set(self.obj.user.projects_as_crew) | {
-            _p.project for _p in self.obj.user.public_proposals
+        participated_projects = set(self.obj.projects_as_crew) | {
+            _p.project for _p in self.obj.public_proposals
         }
 
         return {
@@ -259,7 +258,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_organization_profile:
             abort(404)
 
-        submitted_proposals = self.obj.user.public_proposals
+        submitted_proposals = self.obj.public_proposals
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
@@ -307,7 +306,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 Session.video_id.is_not(None),
                 Session.video_source.is_not(None),
                 Project.state.PUBLISHED,
-                Project.profile == self.obj,
+                Project.account == self.obj,
             )
             .order_by(Session.start_at.desc())
         )
@@ -327,9 +326,9 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_user_not_spammy()
     def edit(self) -> ReturnView:
         form = ProfileForm(
-            obj=self.obj, model=Profile, profile=self.obj, user=current_auth.user
+            obj=self.obj, model=Account, account=self.obj, edit_user=current_auth.user
         )
-        if self.obj.user:
+        if self.obj.is_user_profile:
             form.make_for_user()
         if form.validate_on_submit():
             form.populate_obj(self.obj)
@@ -348,7 +347,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_logo(self) -> ReturnRenderWith:
-        form = ProfileLogoForm(profile=self.obj)
+        form = ProfileLogoForm(account=self.obj)
         edit_logo_url = self.obj.url_for('edit_logo_url')
         delete_logo_url = self.obj.url_for('remove_logo')
         return {
@@ -361,7 +360,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'admin'})
     @requires_user_not_spammy()
     def edit_logo_url(self) -> ReturnView:
-        form = ProfileLogoForm(obj=self.obj, profile=self.obj)
+        form = ProfileLogoForm(obj=self.obj, account=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)
@@ -396,7 +395,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_banner(self) -> ReturnRenderWith:
-        form = ProfileBannerForm(profile=self.obj)
+        form = ProfileBannerForm(account=self.obj)
         edit_logo_url = self.obj.url_for('edit_banner_image_url')
         delete_logo_url = self.obj.url_for('remove_banner')
         return {
@@ -408,7 +407,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit_banner', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_banner_image_url(self) -> ReturnView:
-        form = ProfileBannerForm(obj=self.obj, profile=self.obj)
+        form = ProfileBannerForm(obj=self.obj, account=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)
@@ -445,6 +444,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('transition', methods=['POST'])
     @requires_login
     @requires_roles({'owner'})
+    @requires_user_not_spammy()
     def transition(self) -> ReturnView:
         form = ProfileTransitionForm(obj=self.obj)
         if form.validate_on_submit():

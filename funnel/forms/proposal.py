@@ -7,7 +7,7 @@ from typing import Optional
 from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import QuerySelectField
 
-from ..models import Project, Proposal, User
+from ..models import Account, Project, Proposal
 from .helpers import nullable_strip_filters, video_url_validator
 
 __all__ = [
@@ -213,7 +213,7 @@ class ProposalMemberForm(forms.Form):
     def validate_user(self, field: forms.Field) -> None:
         """Validate user field to confirm user is not an existing collaborator."""
         for membership in self.proposal.memberships:
-            if membership.user == field.data:
+            if membership.member == field.data:
                 raise forms.validators.StopValidation(
                     _("{user} is already a collaborator").format(
                         user=field.data.pickername
@@ -244,7 +244,7 @@ class ProposalMoveForm(forms.Form):
     """Form to move a proposal to another project."""
 
     __expects__ = ('user',)
-    user: User
+    user: Account
 
     target = QuerySelectField(
         __("Move proposal to"),

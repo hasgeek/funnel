@@ -46,12 +46,12 @@
         <div id="list" class="mui-tabs__pane mui--is-active schedule-settings" role="tabpanel" aria-labelledby="tab-list" tabindex="0">
           {%- for proposal in proposals['unscheduled'] %}
             <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">
-              {%- for member in proposal.memberships %}{% if not member.is_uncredited %}
+              {%- for membership in proposal.memberships %}{% if not membership.is_uncredited %}
                 <div class="user user--smaller">
                   <div class="user__box">
-                    {{ useravatar(member.user) }}
+                    {{ useravatar(membership.member) }}
                     <div class="user__box__header">
-                      <p class="mui--text-caption user__box__fullname">{{ member.user.fullname }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif %}</p>
+                      <p class="mui--text-caption user__box__fullname">{{ membership.member.fullname }} {%- if membership.label %} <span class="badge">{{ membership.label }}</span>{% endif %}</p>
                     </div>
                   </div>
                 </div>

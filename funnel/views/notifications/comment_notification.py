@@ -11,16 +11,16 @@ from werkzeug.utils import cached_property
 from baseframe import _, __
 
 from ...models import (
+    Account,
     Comment,
     CommentModeratorReport,
     CommentReplyNotification,
     CommentReportReceivedNotification,
     Commentset,
-    DuckTypeUser,
+    DuckTypeAccount,
     NewCommentNotification,
     Project,
     Proposal,
-    User,
 )
 from ...transports.sms import OneLineTemplate, SmsPriority, SmsTemplate
 from ..helpers import shortlink
@@ -132,22 +132,23 @@ class CommentNotification(RenderNotification):
     email_heading = __("New comment!")
 
     @property
-    def actor(self) -> Union[User, DuckTypeUser]:
+    def actor(self) -> Union[Account, DuckTypeAccount]:
         """Actor who commented."""
-        return self.comment.user
+        return self.comment.posted_by
 
     @cached_property
-    def commenters(self) -> List[User]:
+    def commenters(self) -> List[Account]:
         """List of unique users from across rolled-up comments. Could be singular."""
         # A set comprehension would have been simpler, but RoleAccessProxy isn't
-        # hashable. Else: ``return {_c.user for _c in self.fragments}``
-        user_ids = set()
-        users = []
+        # hashable. Else: ``return {_c.posted_by for _c in self.fragments}``
+        # TODO: Reconfirm above as RoleAccessProxy has changed to be more transparent
+        posted_by_ids = set()
+        comment_posters = []
         for comment in self.fragments:  # pylint: disable=not-an-iterable
-            if comment.user.uuid not in user_ids:
-                users.append(comment.user)
-                user_ids.add(comment.user.uuid)
-        return users
+            if comment.posted_by.uuid not in posted_by_ids:
+                comment_posters.append(comment.posted_by)
+                posted_by_ids.add(comment.posted_by.uuid)
+        return comment_posters
 
     @property
     def project(self) -> Optional[Project]:

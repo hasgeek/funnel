@@ -13,13 +13,12 @@ from . import (
     BaseScopedNameMixin,
     CoordinatesMixin,
     Mapped,
-    MarkdownCompositeBasic,
     Model,
     UuidMixin,
     relationship,
     sa,
 )
-from .helpers import reopen
+from .helpers import MarkdownCompositeBasic, reopen
 from .project import Project
 from .project_membership import project_child_role_map
 

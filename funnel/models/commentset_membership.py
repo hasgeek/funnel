@@ -8,14 +8,14 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, with_roles
 
-from . import DynamicMapped, Mapped, Model, Query, db, relationship, sa
+from . import DynamicMapped, Mapped, Model, Query, backref, db, relationship, sa
+from .account import Account
 from .comment import Comment, Commentset
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
 from .proposal import Proposal
 from .update import Update
-from .user import User
 
 __all__ = ['CommentsetMembership']
 
@@ -29,10 +29,10 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
     __data_columns__ = ('last_seen_at', 'is_muted')
 
     __roles__ = {
-        'subject': {
+        'member': {
             'read': {
                 'urls',
-                'user',
+                'member',
                 'commentset',
                 'is_muted',
                 'last_seen_at',
@@ -48,7 +48,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
     )
     commentset: Mapped[Commentset] = relationship(
         Commentset,
-        backref=sa.orm.backref(
+        backref=backref(
             'subscriber_memberships',
             lazy='dynamic',
             cascade='all',
@@ -86,23 +86,23 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
         return {'document_subscriber'}
 
     def update_last_seen_at(self) -> None:
-        """Mark the subject user as having last seen this commentset just now."""
+        """Mark the member as having seen this commentset just now."""
         self.last_seen_at = sa.func.utcnow()
 
     @classmethod
-    def for_user(cls, user: User) -> Query[CommentsetMembership]:
+    def for_user(cls, account: Account) -> Query[CommentsetMembership]:
         """
         Return a query representing all active commentset memberships for a user.
 
         This classmethod mirrors the functionality in
-        :attr:`User.active_commentset_memberships` with the difference that since it's
-        a query on the class, it returns an instance of the query subclass from
+        :attr:`Account.active_commentset_memberships` with the difference that since
+        it's a query on the class, it returns an instance of the query subclass from
         Flask-SQLAlchemy and Coaster. Relationships use the main class from SQLAlchemy
         which is missing pagination and the empty/notempty methods.
         """
         return (
             cls.query.filter(
-                cls.user == user,
+                cls.member == account,
                 CommentsetMembership.is_active,
             )
             .join(Commentset)
@@ -117,13 +117,13 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
         )
 
 
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     active_commentset_memberships: DynamicMapped[CommentsetMembership] = relationship(
         CommentsetMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            CommentsetMembership.user_id == User.id,
+            CommentsetMembership.member_id == Account.id,
             CommentsetMembership.is_active,
         ),
         viewonly=True,
@@ -158,26 +158,26 @@ class __Commentset:
             ),
             viewonly=True,
         ),
-        grants_via={'user': {'document_subscriber'}},
+        grants_via={'member': {'document_subscriber'}},
     )
 
-    def update_last_seen_at(self, user: User) -> None:
+    def update_last_seen_at(self, member: Account) -> None:
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, user=user, is_active=True
+            commentset=self, member=member, is_active=True
         ).one_or_none()
         if subscription is not None:
             subscription.update_last_seen_at()
 
-    def add_subscriber(self, actor: User, user: User) -> bool:
+    def add_subscriber(self, actor: Account, member: Account) -> bool:
         """Return True is subscriber is added or unmuted, False if already exists."""
         changed = False
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, user=user, is_active=True
+            commentset=self, member=member, is_active=True
         ).one_or_none()
         if subscription is None:
             subscription = CommentsetMembership(
                 commentset=self,
-                user=user,
+                member=member,
                 granted_by=actor,
             )
             db.session.add(subscription)
@@ -188,30 +188,30 @@ class __Commentset:
         subscription.update_last_seen_at()
         return changed
 
-    def mute_subscriber(self, actor: User, user: User) -> bool:
+    def mute_subscriber(self, actor: Account, member: Account) -> bool:
         """Return True if subscriber was muted, False if already muted or missing."""
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, user=user, is_active=True
+            commentset=self, member=member, is_active=True
         ).one_or_none()
         if not subscription.is_muted:
             subscription.replace(actor=actor, is_muted=True)
             return True
         return False
 
-    def unmute_subscriber(self, actor: User, user: User) -> bool:
+    def unmute_subscriber(self, actor: Account, member: Account) -> bool:
         """Return True if subscriber was unmuted, False if not muted or missing."""
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, user=user, is_active=True
+            commentset=self, member=member, is_active=True
         ).one_or_none()
         if subscription.is_muted:
             subscription.replace(actor=actor, is_muted=False)
             return True
         return False
 
-    def remove_subscriber(self, actor: User, user: User) -> bool:
+    def remove_subscriber(self, actor: Account, member: Account) -> bool:
         """Return True is subscriber is removed, False if already removed."""
         subscription = CommentsetMembership.query.filter_by(
-            commentset=self, user=user, is_active=True
+            commentset=self, member=member, is_active=True
         ).one_or_none()
         if subscription is not None:
             subscription.revoke(actor=actor)

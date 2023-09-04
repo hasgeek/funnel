@@ -31,7 +31,7 @@ def test_siteadmin_roles(db_session, user_mort, user_death) -> None:
 
     # Create membership granting all siteadmin roles
     membership = models.SiteMembership(
-        user=user_mort,
+        member=user_mort,
         granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=True,
@@ -86,7 +86,7 @@ def test_siteadmin_roles(db_session, user_mort, user_death) -> None:
     assert user_mort.is_site_editor is False
 
 
-def test_site_membership_migrate_user_transfer(
+def test_site_membership_migrate_account_transfer(
     db_session, user_death, user_mort
 ) -> None:
     """Test for transfer of a site membership when merging users."""
@@ -95,7 +95,7 @@ def test_site_membership_migrate_user_transfer(
 
     # Create membership granting all siteadmin roles to Mort
     membership = models.SiteMembership(
-        user=user_mort,
+        member=user_mort,
         granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=True,
@@ -106,30 +106,32 @@ def test_site_membership_migrate_user_transfer(
     invalidate_cache(user_mort)
     invalidate_cache(user_death)
 
-    assert membership.user == user_mort
+    assert membership.member == user_mort
     assert user_mort.active_site_membership is not None
     assert user_death.active_site_membership is None  # type: ignore[unreachable]
 
-    models.SiteMembership.migrate_user(old_user=user_mort, new_user=user_death)
+    models.SiteMembership.migrate_account(old_account=user_mort, new_account=user_death)
     db_session.commit()
     invalidate_cache(user_mort)
     invalidate_cache(user_death)
 
     # The membership record has been transferred
     assert membership.is_active
-    assert membership.user == user_death
+    assert membership.member == user_death
     assert user_mort.active_site_membership is None
     assert user_death.active_site_membership is not None
 
 
-def test_site_membership_migrate_user_retain(db_session, user_death, user_mort) -> None:
+def test_site_membership_migrate_account_retain(
+    db_session, user_death, user_mort
+) -> None:
     """Test for retaining a site membership when merging users."""
     assert user_mort.active_site_membership is None
     assert user_death.active_site_membership is None
 
     # Create membership granting all siteadmin roles to Mort and then revoke it
     old_membership = models.SiteMembership(
-        user=user_mort,
+        member=user_mort,
         granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=True,
@@ -142,7 +144,7 @@ def test_site_membership_migrate_user_retain(db_session, user_death, user_mort) 
 
     # Create membership granting all siteadmin roles to Death
     membership = models.SiteMembership(
-        user=user_death,
+        member=user_death,
         granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=True,
@@ -153,13 +155,13 @@ def test_site_membership_migrate_user_retain(db_session, user_death, user_mort) 
     invalidate_cache(user_mort)
     invalidate_cache(user_death)
 
-    assert old_membership.user == user_mort
-    assert membership.user == user_death
+    assert old_membership.member == user_mort
+    assert membership.member == user_death
     assert user_mort.active_site_membership is None
     assert user_death.active_site_membership is not None
 
-    models.SiteMembership.migrate_user(  # type: ignore[unreachable]
-        old_user=user_mort, new_user=user_death
+    models.SiteMembership.migrate_account(  # type: ignore[unreachable]
+        old_account=user_mort, new_account=user_death
     )
     db_session.commit()
     invalidate_cache(user_mort)
@@ -167,22 +169,24 @@ def test_site_membership_migrate_user_retain(db_session, user_death, user_mort) 
 
     # The old membership record for Mort record has been transferred to Death
     assert not old_membership.is_active
-    assert old_membership.user == user_death
+    assert old_membership.member == user_death
     # Death's membership record has been retained without amending
     assert membership.is_active
-    assert membership.user == user_death
+    assert membership.member == user_death
     assert user_mort.active_site_membership is None
     assert user_death.active_site_membership is not None
 
 
-def test_site_membership_migrate_user_merge(db_session, user_death, user_mort) -> None:
+def test_site_membership_migrate_account_merge(
+    db_session, user_death, user_mort
+) -> None:
     """Test for merging site memberships when merging users."""
     assert user_mort.active_site_membership is None
     assert user_death.active_site_membership is None
 
     # Create membership granting one siteadmin role to Mort
     mort_membership = models.SiteMembership(
-        user=user_mort,
+        member=user_mort,
         granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=False,
@@ -193,7 +197,7 @@ def test_site_membership_migrate_user_merge(db_session, user_death, user_mort) -
 
     # Create membership granting one siteadmin role to Death
     death_membership = models.SiteMembership(
-        user=user_death,
+        member=user_death,
         granted_by=user_death,
         is_comment_moderator=False,
         is_user_moderator=True,
@@ -204,22 +208,22 @@ def test_site_membership_migrate_user_merge(db_session, user_death, user_mort) -
     invalidate_cache(user_mort)
     invalidate_cache(user_death)
 
-    assert mort_membership.user == user_mort
-    assert death_membership.user == user_death
+    assert mort_membership.member == user_mort
+    assert death_membership.member == user_death
     assert user_mort.active_site_membership is not None
     assert user_death.active_site_membership is not None  # type: ignore[unreachable]
 
-    models.SiteMembership.migrate_user(old_user=user_mort, new_user=user_death)
+    models.SiteMembership.migrate_account(old_account=user_mort, new_account=user_death)
     db_session.commit()
     invalidate_cache(user_mort)
     invalidate_cache(user_death)
 
     # The old membership record for Mort record has been revoked and transferred
     assert not mort_membership.is_active
-    assert mort_membership.user == user_death
+    assert mort_membership.member == user_death
     # Death's membership record has been revoked as well
     assert not death_membership.is_active
-    assert death_membership.user == user_death
+    assert death_membership.member == user_death
     assert user_mort.active_site_membership is None
     assert user_death.active_site_membership is not None
 
@@ -233,7 +237,7 @@ def test_site_membership_migrate_user_merge(db_session, user_death, user_mort) -
 def test_amend_siteadmin(db_session, user_vetinari, user_vimes) -> None:
     """Amend a membership record."""
     membership = models.SiteMembership(
-        user=user_vimes,
+        member=user_vimes,
         granted_by=user_vetinari,
         is_comment_moderator=True,
         is_user_moderator=False,

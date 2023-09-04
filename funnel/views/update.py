@@ -21,17 +21,17 @@ from coaster.views import (
 
 from .. import app
 from ..forms import SavedProjectForm, UpdateForm
-from ..models import NewUpdateNotification, Profile, Project, Update, db
+from ..models import Account, NewUpdateNotification, Project, Update, db
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
-from .mixins import ProfileCheckMixin
+from .mixins import AccountCheckMixin
 from .notification import dispatch_notification
 from .project import ProjectViewMixin
 
 
 @Project.views('updates')
-@route('/<profile>/<project>/updates')
+@route('/<account>/<project>/updates')
 class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET'])
     @render_with(html_in_json('project_updates.html.jinja2'))
@@ -65,7 +65,7 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
         form = UpdateForm()
 
         if form.validate_on_submit():
-            update = Update(user=current_auth.user, project=self.obj)
+            update = Update(created_by=current_auth.user, project=self.obj)
             form.populate_obj(update)
             update.name = make_name(update.title)
             db.session.add(update)
@@ -89,27 +89,27 @@ def update_publishable(obj):
 
 
 @Update.views('project')
-@route('/<profile>/<project>/updates/<update>')
-class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>/<project>/updates/<update>')
+class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     model = Update
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'update': 'url_name_uuid_b58',
     }
     obj: Update
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, profile: str, project: str, update: str) -> Update:
+    def loader(self, account: str, project: str, update: str) -> Update:
         return (
             Update.query.join(Project)
-            .join(Profile, Project.profile_id == Profile.id)
+            .join(Account, Project.account)
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+        self.account = self.obj.project.account
         return super().after_loader()
 
     @route('', methods=['GET'])

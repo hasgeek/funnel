@@ -27,13 +27,12 @@ from . import (
     relationship,
     sa,
 )
+from .account import Account
 from .helpers import reopen
 from .types import jsonb
-from .user import User
 
 __all__ = [
     'MailerState',
-    'User',
     'Mailer',
     'MailerDraft',
     'MailerRecipient',
@@ -71,8 +70,8 @@ class Mailer(BaseNameMixin, Model):
 
     __tablename__ = 'mailer'
 
-    user_uuid: Mapped[UUID] = sa.orm.mapped_column(sa.ForeignKey('user.uuid'))
-    user: Mapped[User] = relationship(User, back_populates='mailers')
+    user_uuid: Mapped[UUID] = sa.orm.mapped_column(sa.ForeignKey('account.uuid'))
+    user: Mapped[Account] = relationship(Account, back_populates='mailers')
     status: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, nullable=False, default=MailerState.DRAFT
     )
@@ -166,7 +165,7 @@ class Mailer(BaseNameMixin, Model):
                 yield recipient
 
     def permissions(
-        self, actor: Optional[User], inherited: Optional[Set[str]] = None
+        self, actor: Optional[Account], inherited: Optional[Set[str]] = None
     ) -> Set[str]:
         perms = super().permissions(actor, inherited)
         if actor is not None and actor == self.user:
@@ -448,8 +447,8 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         )
 
 
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     mailers: Mapped[List[Mailer]] = relationship(
         Mailer, back_populates='user', order_by='Mailer.updated_at.desc()'
     )

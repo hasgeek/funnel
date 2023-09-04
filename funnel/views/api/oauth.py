@@ -13,12 +13,12 @@ from coaster.utils import newsecret
 
 from ... import app
 from ...models import (
+    Account,
     AuthClient,
     AuthClientCredential,
     AuthCode,
     AuthToken,
-    User,
-    UserSession,
+    LoginSession,
     db,
     getuser,
 )
@@ -82,8 +82,8 @@ def oauth_make_auth_code(
     Caller must commit the database session for this to work.
     """
     authcode = AuthCode(
-        user=current_auth.user,
-        user_session=current_auth.session,
+        account=current_auth.user,
+        login_session=current_auth.session,
         auth_client=auth_client,
         scope=scope,
         redirect_uri=redirect_uri[:1024],
@@ -346,14 +346,14 @@ def oauth_token_error(
 
 
 def oauth_make_token(
-    user: Optional[User],
+    user: Optional[Account],
     auth_client: AuthClient,
     scope: Iterable,
-    user_session: Optional[UserSession] = None,
+    login_session: Optional[LoginSession] = None,
 ) -> AuthToken:
     """Make an OAuth2 token for the given user, client, scope and optional session."""
     # Look for an existing token
-    token = auth_client.authtoken_for(user, user_session)
+    token = auth_client.authtoken_for(user, login_session)
 
     # If token exists, add to the existing scope
     if token is not None:
@@ -364,15 +364,15 @@ def oauth_make_token(
             if user is None:
                 raise ValueError("User not provided")
             token = AuthToken(  # nosec
-                user=user, auth_client=auth_client, scope=scope, token_type='bearer'
+                account=user, auth_client=auth_client, scope=scope, token_type='bearer'
             )
             token = cast(
                 AuthToken,
-                failsafe_add(db.session, token, user=user, auth_client=auth_client),
+                failsafe_add(db.session, token, account=user, auth_client=auth_client),
             )
-        elif user_session is not None:
+        elif login_session is not None:
             token = AuthToken(  # nosec
-                user_session=user_session,
+                login_session=login_session,
                 auth_client=auth_client,
                 scope=scope,
                 token_type='bearer',
@@ -382,12 +382,12 @@ def oauth_make_token(
                 failsafe_add(
                     db.session,
                     token,
-                    user_session=user_session,
+                    login_session=login_session,
                     auth_client=auth_client,
                 ),
             )
         else:
-            raise ValueError("user_session not provided")
+            raise ValueError("login_session not provided")
     return token
 
 
@@ -449,7 +449,7 @@ def oauth_token() -> ReturnView:
 
         if buid:
             if auth_client.trusted:
-                user = User.get(buid=buid)
+                user = Account.get(buid=buid)
                 if user is not None:
                     # This client is trusted and can receive a user access token.
                     # However, don't grant it the scope it wants as the user's
@@ -493,16 +493,16 @@ def oauth_token() -> ReturnView:
             return oauth_token_error('invalid_client', _("redirect_uri does not match"))
 
         token = oauth_make_token(
-            user=authcode.user, auth_client=auth_client, scope=scope
+            user=authcode.account, auth_client=auth_client, scope=scope
         )
         db.session.delete(authcode)
         return oauth_token_success(
             token,
             userinfo=get_userinfo(
-                user=authcode.user,
+                user=authcode.account,
                 auth_client=auth_client,
                 scope=token.effective_scope,
-                user_session=authcode.user_session,
+                login_session=authcode.login_session,
             ),
         )
 

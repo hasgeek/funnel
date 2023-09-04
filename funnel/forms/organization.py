@@ -9,18 +9,18 @@ from markupsafe import Markup
 
 from baseframe import _, __, forms
 
-from ..models import Organization, Profile, Team, User
+from ..models import Account, Team
 
 __all__ = ['OrganizationForm', 'TeamForm']
 
 
-@Organization.forms('main')
+@Account.forms('org')
 class OrganizationForm(forms.Form):
     """Form for an organization's name and title."""
 
-    __expects__: Iterable[str] = ('user',)
-    user: User
-    edit_obj: Optional[Organization]
+    __expects__: Iterable[str] = ('edit_user',)
+    edit_user: Account
+    edit_obj: Optional[Account]
 
     title = forms.StringField(
         __("Organization name"),
@@ -29,7 +29,7 @@ class OrganizationForm(forms.Form):
         ),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=Organization.__title_length__),
+            forms.validators.Length(max=Account.__title_length__),
         ],
         filters=[forms.filters.strip()],
         render_kw={'autocomplete': 'organization'},
@@ -43,7 +43,7 @@ class OrganizationForm(forms.Form):
         ),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=Profile.__name_length__),
+            forms.validators.Length(max=Account.__name_length__),
         ],
         filters=[forms.filters.strip()],
         prefix="https://hasgeek.com/",
@@ -52,7 +52,7 @@ class OrganizationForm(forms.Form):
 
     def validate_name(self, field: forms.Field) -> None:
         """Validate name is valid and available for this organization."""
-        reason = Profile.validate_name_candidate(field.data)
+        reason = Account.validate_name_candidate(field.data)
         if not reason:
             return  # name is available
         if reason == 'invalid':
@@ -66,7 +66,10 @@ class OrganizationForm(forms.Form):
             # from existing name, or has only changed case. This is a validation pass.
             return
         if reason == 'user':
-            if self.user.username and field.data.lower() == self.user.username.lower():
+            if (
+                self.edit_user.username
+                and field.data.lower() == self.edit_user.username.lower()
+            ):
                 raise forms.validators.ValidationError(
                     Markup(
                         _(

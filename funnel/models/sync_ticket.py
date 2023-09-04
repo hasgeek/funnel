@@ -16,17 +16,17 @@ from . import (
     Model,
     Query,
     UuidMixin,
+    backref,
     db,
     relationship,
     sa,
     with_roles,
 )
+from .account import Account, AccountEmail
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import reopen
-from .profile import Profile
 from .project import Project
 from .project_membership import project_child_role_map
-from .user import User, UserEmail
 
 __all__ = [
     'SyncTicket',
@@ -118,7 +118,7 @@ class TicketEvent(GetTitleMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=sa.orm.backref('ticket_events', cascade='all')),
+        relationship(Project, backref=backref('ticket_events', cascade='all')),
         rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
@@ -174,7 +174,7 @@ class TicketType(GetTitleMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=sa.orm.backref('ticket_types', cascade='all')),
+        relationship(Project, backref=backref('ticket_types', cascade='all')),
         rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
@@ -210,36 +210,36 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     __tablename__ = 'ticket_participant'
     __allow_unmapped__ = True
     __email_optional__ = False
-    __email_for__ = 'user'
+    __email_for__ = 'participant'
 
     fullname = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=False),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
     )
     #: Unvalidated phone number
     phone = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=True),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
     )
     #: Unvalidated Twitter id
     twitter = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=True),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
     )
     #: Job title
     job_title = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=True),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
     )
     #: Company
     company = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=True),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
     )
     #: Participant's city
     city = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=True),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
     )
     # public key
     puk = sa.orm.mapped_column(
@@ -249,16 +249,18 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
         sa.Unicode(44), nullable=False, default=make_private_key, unique=True
     )
     badge_printed = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
-    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
-    user: Mapped[Optional[User]] = relationship(
-        User, backref=sa.orm.backref('ticket_participants', cascade='all')
+    participant_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=True
+    )
+    participant: Mapped[Optional[Account]] = relationship(
+        Account, backref=backref('ticket_participants', cascade='all')
     )
     project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
         relationship(Project, back_populates='ticket_participants'),
-        read={'promoter', 'subject', 'scanner'},
+        read={'promoter', 'member', 'scanner'},
         grants_via={None: project_child_role_map},
     )
 
@@ -268,17 +270,17 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     # `with_roles`. Instead, we have to specify the roles that can access it in here:
     __roles__ = {
         'promoter': {'read': {'email'}},
-        'subject': {'read': {'email'}},
+        'member': {'read': {'email'}},
         'scanner': {'read': {'email'}},
     }
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Sequence = ()
+        self, actor: Optional[Account] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
-            if actor == self.user:
-                roles.add('subject')
+            if actor == self.participant:
+                roles.add('member')
             cx = ContactExchange.query.get((actor.id, self.id))
             if cx is not None:
                 roles.add('scanner')
@@ -286,23 +288,19 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
 
     @property
     def avatar(self):
-        return self.user.avatar if self.user else ''
+        return self.participant.logo_url if self.participant else ''
 
     with_roles(avatar, read={'all'})
 
     @property
     def has_public_profile(self) -> bool:
-        return self.user.has_public_profile if self.user else False
+        return self.participant.has_public_profile if self.participant else False
 
     with_roles(has_public_profile, read={'all'})
 
     @property
-    def profile_url(self):
-        return (
-            self.user.profile.url_for()
-            if self.user and self.user.has_public_profile
-            else None
-        )
+    def profile_url(self) -> Optional[str]:
+        return self.participant.profile_url if self.participant else None
 
     with_roles(profile_url, read={'all'})
 
@@ -319,18 +317,21 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
         cls, current_project: Project, current_email: str, **fields
     ) -> TicketParticipant:
         ticket_participant = cls.get(current_project, current_email)
-        useremail = UserEmail.get(current_email)
-        if useremail is not None:
-            user = useremail.user
+        accountemail = AccountEmail.get(current_email)
+        if accountemail is not None:
+            participant = accountemail.account
         else:
-            user = None
+            participant = None
         if ticket_participant is not None:
-            ticket_participant.user = user
+            ticket_participant.participant = participant
             ticket_participant._set_fields(fields)  # pylint: disable=protected-access
         else:
             with db.session.no_autoflush:
                 ticket_participant = cls(
-                    project=current_project, user=user, email=current_email, **fields
+                    project=current_project,
+                    participant=participant,
+                    email=current_email,
+                    **fields,
                 )
             db.session.add(ticket_participant)
         return ticket_participant
@@ -370,7 +371,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
                 .join(TicketType, SyncTicket.ticket_type_id == TicketType.id)
                 .filter(SyncTicket.ticket_participant_id == TicketParticipant.id)
                 .label('ticket_type_titles'),
-                cls.user_id.is_not(None).label('has_user'),
+                cls.participant_id.is_not(None).label('has_user'),
             )
             .select_from(TicketParticipant)
             .join(
@@ -398,7 +399,7 @@ class TicketEventParticipant(BaseMixin, Model):
     )
     ticket_participant: Mapped[TicketParticipant] = relationship(
         TicketParticipant,
-        backref=sa.orm.backref(
+        backref=backref(
             'ticket_event_participants',
             cascade='all',
             overlaps='ticket_events,ticket_participants',
@@ -410,7 +411,7 @@ class TicketEventParticipant(BaseMixin, Model):
     )
     ticket_event: Mapped[TicketEvent] = relationship(
         TicketEvent,
-        backref=sa.orm.backref(
+        backref=backref(
             'ticket_event_participants',
             cascade='all',
             overlaps='ticket_events,ticket_participants',
@@ -465,7 +466,7 @@ class TicketClient(BaseMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project = with_roles(
-        relationship(Project, backref=sa.orm.backref('ticket_clients', cascade='all')),
+        relationship(Project, backref=backref('ticket_clients', cascade='all')),
         rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
@@ -525,20 +526,20 @@ class SyncTicket(BaseMixin, Model):
         sa.Integer, sa.ForeignKey('ticket_type.id'), nullable=False
     )
     ticket_type: Mapped[TicketType] = relationship(
-        TicketType, backref=sa.orm.backref('sync_tickets', cascade='all')
+        TicketType, backref=backref('sync_tickets', cascade='all')
     )
     ticket_participant_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_participant.id'), nullable=False
     )
     ticket_participant: Mapped[TicketParticipant] = relationship(
         TicketParticipant,
-        backref=sa.orm.backref('sync_tickets', cascade='all'),
+        backref=backref('sync_tickets', cascade='all'),
     )
     ticket_client_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_client.id'), nullable=False
     )
     ticket_client: Mapped[TicketClient] = relationship(
-        TicketClient, backref=sa.orm.backref('sync_tickets', cascade='all')
+        TicketClient, backref=backref('sync_tickets', cascade='all')
     )
     __table_args__ = (sa.UniqueConstraint('ticket_client_id', 'order_no', 'ticket_no'),)
 
@@ -582,33 +583,34 @@ class SyncTicket(BaseMixin, Model):
 @reopen(Project)
 class __Project:
     # XXX: This relationship exposes an edge case in RoleMixin. It previously expected
-    # TicketParticipant.user to be unique per project, meaning one user could have one
-    # participant ticket only. This is not guaranteed by the model as tickets are unique
-    # per email address per ticket type, and one user can have (a) two email addresses
-    # with tickets, or (b) tickets of different types. RoleMixin has since been patched
-    # to look for the first matching record (.first() instead of .one()). This may
-    # expose a new edge case in future in case the TicketParticipant model adds an
-    # `offered_roles` method, as only the first matching record's method will be called
+    # TicketParticipant.participant to be unique per project, meaning one user could
+    # have one participant ticket only. This is not guaranteed by the model as tickets
+    # are unique per email address per ticket type, and one user can have (a) two email
+    # addresses with tickets, or (b) tickets of different types. RoleMixin has since
+    # been patched to look for the first matching record (.first() instead of .one()).
+    # This may expose a new edge case in future in case the TicketParticipant model adds
+    # an `offered_roles` method, as only the first matching record's method will be
+    # called
     ticket_participants: DynamicMapped[TicketParticipant] = with_roles(
         relationship(
             TicketParticipant, lazy='dynamic', cascade='all', back_populates='project'
         ),
         grants_via={
-            'user': {'participant', 'project_participant', 'ticket_participant'}
+            'participant': {'participant', 'project_participant', 'ticket_participant'}
         },
     )
 
 
-@reopen(Profile)
-class __Profile:
+@reopen(Account)
+class __Account:
     @property
-    def ticket_followers(self) -> Query[User]:
+    def ticket_followers(self) -> Query[Account]:
         """All users with a ticket in a project."""
         return (
-            User.query.filter(User.state.ACTIVE)
-            .join(TicketParticipant, TicketParticipant.user_id == User.id)
+            Account.query.filter(Account.state.ACTIVE)
+            .join(TicketParticipant, TicketParticipant.participant_id == Account.id)
             .join(Project, TicketParticipant.project_id == Project.id)
-            .filter(Project.state.PUBLISHED, Project.profile == self)
+            .filter(Project.state.PUBLISHED, Project.account == self)
         )
 
     with_roles(ticket_followers, grants={'follower'})

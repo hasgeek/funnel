@@ -161,7 +161,7 @@ def given_anonymous_project_page(live_server, selenium, db_session, new_project)
     new_project.publish()
     db_session.add(new_project)
     db_session.commit()
-    selenium.get(live_server.url + new_project.profile.name + '/' + new_project.name)
+    selenium.get(live_server.url + new_project.account.urlname + '/' + new_project.name)
 
 
 @when("they click on follow")
@@ -210,7 +210,7 @@ def given_twoflower_visits_project(
     new_project.publish()
     db_session.add(new_project)
     db_session.commit()
-    selenium.get(live_server.url + new_project.profile.name + '/' + new_project.name)
+    selenium.get(live_server.url + new_project.account.urlname + '/' + new_project.name)
 
 
 @given("the server uses Recaptcha")

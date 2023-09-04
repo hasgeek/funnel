@@ -46,7 +46,7 @@ from rich import get_console, print as rprint
 from rich.progress import Progress
 
 from ... import app
-from ...models import PhoneNumber, UserPhone, db
+from ...models import AccountPhone, PhoneNumber, db
 from . import periodic
 
 
@@ -140,16 +140,16 @@ async def forget_phone_numbers(phone_numbers: Set[str], prefix: str) -> None:
     """Mark phone numbers as forgotten."""
     for unprefixed in phone_numbers:
         number = prefix + unprefixed
-        userphone = UserPhone.get(number)
+        userphone = AccountPhone.get(number)
         if userphone is not None:
-            # TODO: Dispatch a notification to userphone.user, but since the
+            # TODO: Dispatch a notification to userphone.account, but since the
             # notification will not know the phone number (it'll already be forgotten),
             # we need a new db model to contain custom messages
             # TODO: Also delay dispatch until the full MNRL scan is complete -- their
             # backup contact phone number may also have expired. That means this
             # function will create notifications and return them, leaving dispatch to
             # the outermost function
-            rprint(f"{userphone} - owned by {userphone.user.pickername}")
+            rprint(f"{userphone} - owned by {userphone.account.pickername}")
             # TODO: MNRL isn't foolproof. Don't delete! Instead, notify the user and
             # only delete if they don't respond (How? Maybe delete and send them a
             # re-add token?)

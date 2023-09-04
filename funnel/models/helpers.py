@@ -47,7 +47,7 @@ __all__ = [
     'add_search_trigger',
     'visual_field_delimiter',
     'valid_name',
-    'valid_username',
+    'valid_account_name',
     'quote_autocomplete_like',
     'quote_autocomplete_tsquery',
     'ImgeeFurl',
@@ -195,7 +195,7 @@ def check_password_strength(
 
 # re.IGNORECASE needs re.ASCII because of a quirk in the characters it matches.
 # https://docs.python.org/3/library/re.html#re.I
-_username_valid_re = re.compile('^[a-z0-9][a-z0-9_]*$', re.I | re.A)
+_account_name_valid_re = re.compile('^[a-z0-9][a-z0-9_]*$', re.I | re.A)
 _name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
 
 
@@ -317,13 +317,13 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     return decorator
 
 
-def valid_username(candidate: str) -> bool:
+def valid_account_name(candidate: str) -> bool:
     """
     Check if a username is valid.
 
     Letters, numbers and underscores only.
     """
-    return _username_valid_re.search(candidate) is not None
+    return _account_name_valid_re.search(candidate) is not None
 
 
 def valid_name(candidate: str) -> bool:
@@ -369,7 +369,11 @@ def quote_autocomplete_like(prefix: str, midway: bool = False) -> str:
     # Some SQL dialects respond to '[' and ']', so remove them.
     # Suffix a '%' to make a prefix-match query.
     like_query = (
-        prefix.replace('%', r'\%').replace('_', r'\_').replace('[', '').replace(']', '')
+        prefix.replace('\\', r'\\')
+        .replace('%', r'\%')
+        .replace('_', r'\_')
+        .replace('[', '')
+        .replace(']', '')
         + '%'
     )
     lstrip_like_query = like_query.lstrip()
@@ -466,13 +470,14 @@ def add_search_trigger(model: Type[Model], column_name: str) -> Dict[str, str]:
         END
         $$ LANGUAGE plpgsql;
 
-        CREATE TRIGGER {trigger_name} BEFORE INSERT OR UPDATE ON {table_name}
-        FOR EACH ROW EXECUTE PROCEDURE {function_name}();
+        CREATE TRIGGER {trigger_name} BEFORE INSERT OR UPDATE OF {source_columns}
+        ON {table_name} FOR EACH ROW EXECUTE PROCEDURE {function_name}();
         '''.format(  # nosec
             function_name=pgquote(function_name),
             column_name=pgquote(column_name),
             trigger_expr=trigger_expr,
             trigger_name=pgquote(trigger_name),
+            source_columns=', '.join(pgquote(col) for col in column.type.columns),
             table_name=pgquote(model.__tablename__),
         )
     )

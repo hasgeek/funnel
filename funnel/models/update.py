@@ -18,10 +18,12 @@ from . import (
     TimestampMixin,
     TSVectorType,
     UuidMixin,
+    backref,
     db,
     relationship,
     sa,
 )
+from .account import Account
 from .comment import SET_TYPE, Commentset
 from .helpers import (
     MarkdownCompositeDocument,
@@ -30,7 +32,6 @@ from .helpers import (
     visual_field_delimiter,
 )
 from .project import Project
-from .user import User
 
 __all__ = ['Update']
 
@@ -72,14 +73,14 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     )
     state = StateManager('_state', UPDATE_STATE, doc="Update state")
 
-    user_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=False, index=True
+    created_by_id: Mapped[int] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=False, index=True
     )
-    user = with_roles(
+    created_by: Mapped[Account] = with_roles(
         relationship(
-            User,
-            backref=sa.orm.backref('updates', lazy='dynamic'),
-            foreign_keys=[user_id],
+            Account,
+            backref=backref('updates_created', lazy='dynamic'),
+            foreign_keys=[created_by_id],
         ),
         read={'all'},
         grants={'creator'},
@@ -89,7 +90,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, index=True
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=sa.orm.backref('updates', lazy='dynamic')),
+        relationship(Project, backref=backref('updates', lazy='dynamic')),
         read={'all'},
         datasets={'primary'},
         grants_via={
@@ -136,13 +137,13 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         sa.orm.mapped_column(sa.Boolean, default=False, nullable=False), read={'all'}
     )
 
-    published_by_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
+    published_by_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=True, index=True
     )
-    published_by: Mapped[Optional[User]] = with_roles(
+    published_by: Mapped[Optional[Account]] = with_roles(
         relationship(
-            User,
-            backref=sa.orm.backref('published_updates', lazy='dynamic'),
+            Account,
+            backref=backref('published_updates', lazy='dynamic'),
             foreign_keys=[published_by_id],
         ),
         read={'all'},
@@ -151,13 +152,13 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    deleted_by_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
+    deleted_by_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=True, index=True
     )
-    deleted_by: Mapped[Optional[User]] = with_roles(
+    deleted_by: Mapped[Optional[Account]] = with_roles(
         relationship(
-            User,
-            backref=sa.orm.backref('deleted_updates', lazy='dynamic'),
+            Account,
+            backref=backref('deleted_updates', lazy='dynamic'),
             foreign_keys=[deleted_by_id],
         ),
         read={'reader'},
@@ -181,7 +182,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
             lazy='joined',
             cascade='all',
             single_parent=True,
-            backref=sa.orm.backref('update', uselist=False),
+            backref=backref('update', uselist=False),
         ),
         read={'all'},
     )
@@ -219,7 +220,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
             'body_html',
             'published_at',
             'edited_at',
-            'user',
+            'created_by',
             'is_pinned',
             'is_restricted',
             'is_currently_restricted',
@@ -237,7 +238,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
             'body_html',
             'published_at',
             'edited_at',
-            'user',
+            'created_by',
             'is_pinned',
             'is_restricted',
             'is_currently_restricted',
@@ -287,7 +288,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
 
     @with_roles(call={'editor'})
     @state.transition(state.DRAFT, state.PUBLISHED)
-    def publish(self, actor: User) -> bool:
+    def publish(self, actor: Account) -> bool:
         first_publishing = False
         self.published_by = actor
         if self.published_at is None:
@@ -308,7 +309,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
 
     @with_roles(call={'creator', 'editor'})
     @state.transition(None, state.DELETED)
-    def delete(self, actor: User) -> None:
+    def delete(self, actor: Account) -> None:
         if self.state.UNPUBLISHED:
             # If it was never published, hard delete it
             db.session.delete(self)
@@ -353,7 +354,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     with_roles(is_currently_restricted, read={'all'})
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Sequence = ()
+        self, actor: Optional[Account] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if not self.visibility_state.RESTRICTED:

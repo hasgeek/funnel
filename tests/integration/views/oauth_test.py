@@ -74,7 +74,7 @@ def test_auth_untrusted_confidential(
     assert rv.status_code == 200
 
     # There is no existing AuthToken for this client and user
-    assert models.AuthToken.get_for(client_hex, user=user_rincewind) is None
+    assert models.AuthToken.get_for(client_hex, account=user_rincewind) is None
 
     # Submit form with `accept` and CSRF token
     rv = client.post(
@@ -118,7 +118,7 @@ def test_auth_untrusted_confidential(
     assert data['access_token'] is not None
     assert data['scope'] == authtoken_params['scope']
 
-    authtoken = models.AuthToken.get_for(client_hex, user=user_rincewind)
+    authtoken = models.AuthToken.get_for(client_hex, account=user_rincewind)
     assert authtoken is not None
     assert authtoken.token == data['access_token']
     assert authtoken.token_type == data['token_type']

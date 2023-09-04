@@ -15,15 +15,14 @@ from coaster.views import jsonp, requestargs
 
 from ... import app
 from ...models import (
+    Account,
     AuthClient,
     AuthClientCredential,
-    AuthClientTeamPermissions,
-    AuthClientUserPermissions,
+    AuthClientPermissions,
     AuthToken,
+    LoginSession,
     Organization,
-    Profile,
     User,
-    UserSession,
     db,
     getuser,
 )
@@ -41,10 +40,10 @@ ReturnResource = Dict[str, Any]
 
 
 def get_userinfo(
-    user: User,
+    user: Account,
     auth_client: AuthClient,
     scope: Container[str] = (),
-    user_session: Optional[UserSession] = None,
+    login_session: Optional[LoginSession] = None,
     get_permissions: bool = True,
 ) -> ReturnResource:
     """Return userinfo for a given user, auth client and scope."""
@@ -56,15 +55,15 @@ def get_userinfo(
             'username': user.username,
             'fullname': user.fullname,
             'timezone': user.timezone,
-            'avatar': user.avatar,
+            'avatar': user.logo_url,
             'oldids': [o.buid for o in user.oldids],
             'olduuids': [o.uuid for o in user.oldids],
         }
     else:
         userinfo = {}
 
-    if user_session is not None:
-        userinfo['sessionid'] = user_session.buid
+    if login_session is not None:
+        userinfo['sessionid'] = login_session.buid
 
     if '*' in scope or 'email' in scope or 'email/*' in scope:
         userinfo['email'] = str(user.email)
@@ -77,7 +76,7 @@ def get_userinfo(
                     'userid': org.buid,
                     'buid': org.buid,
                     'uuid': org.uuid,
-                    'name': org.name,
+                    'name': org.urlname,
                     'title': org.title,
                 }
                 for org in user.organizations_as_owner
@@ -87,7 +86,7 @@ def get_userinfo(
                     'userid': org.buid,
                     'buid': org.buid,
                     'uuid': org.uuid,
-                    'name': org.name,
+                    'name': org.urlname,
                     'title': org.title,
                 }
                 for org in user.organizations_as_admin
@@ -95,19 +94,9 @@ def get_userinfo(
         }
 
     if get_permissions:
-        if auth_client.user:
-            uperms = AuthClientUserPermissions.get(auth_client=auth_client, user=user)
-            if uperms is not None:
-                userinfo['permissions'] = uperms.access_permissions.split(' ')
-        else:
-            permsset = set()
-            if user.teams:
-                all_perms = AuthClientTeamPermissions.all_for(
-                    auth_client=auth_client, user=user
-                ).all()
-                for tperms in all_perms:
-                    permsset.update(tperms.access_permissions.split(' '))
-            userinfo['permissions'] = sorted(permsset)
+        uperms = AuthClientPermissions.get(auth_client=auth_client, account=user)
+        if uperms is not None:
+            userinfo['permissions'] = uperms.access_permissions.split(' ')
     return userinfo
 
 
@@ -180,7 +169,7 @@ def user_get_by_userid() -> ReturnView:
     buid = abort_null(request.values.get('userid'))
     if not buid:
         return api_result('error', error='no_userid_provided')
-    user = User.get(buid=buid, defercols=True)
+    user = Account.get(buid=buid, defercols=True)
     if user is not None:
         return api_result(
             'ok',
@@ -205,7 +194,7 @@ def user_get_by_userid() -> ReturnView:
             userid=org.buid,
             buid=org.buid,
             uuid=org.uuid,
-            name=org.name,
+            name=org.urlname,
             title=org.title,
             label=org.pickername,
         )
@@ -225,7 +214,7 @@ def user_get_by_userids(userid: List[str]) -> ReturnView:
     if not userid:
         return api_result('error', error='no_userid_provided', _jsonp=True)
     # `userid` parameter is a list, not a scalar, since requestargs has `userid[]`
-    users = User.all(buids=userid)
+    users = Account.all(buids=userid)
     orgs = Organization.all(buids=userid)
     return api_result(
         'ok',
@@ -329,8 +318,8 @@ def user_autocomplete(q: str = '') -> ReturnView:
     """
     if not q:
         return api_result('error', error='no_query_provided')
-    # Limit length of query to User.fullname limit
-    q = q[: User.__title_length__]
+    # Limit length of query to Account.title limit
+    q = q[: Account.__title_length__]
 
     # Setup rate limiter to not count progressive typing or backspacing towards
     # attempts. That is, sending 'abc' after 'ab' will not count towards limits, but
@@ -339,13 +328,13 @@ def user_autocomplete(q: str = '') -> ReturnView:
     # imposes a limit of 20 name lookups per half hour.
 
     validate_rate_limit(
-        # As this endpoint accepts client_id+user_session in lieu of login cookie,
-        # we may not have an authenticated user. Use the user_session's user in that
+        # As this endpoint accepts client_id+login_session in lieu of login cookie,
+        # we may not have an authenticated user. Use the login_session's account in that
         # case
         'api_user_autocomplete',
         current_auth.actor.uuid_b58
         if current_auth.actor
-        else current_auth.session.user.uuid_b58,
+        else current_auth.session.account.uuid_b58,
         # Limit 20 attempts
         20,
         # Per half hour (60s * 30m = 1800s)
@@ -378,8 +367,8 @@ def profile_autocomplete(q: str = '') -> ReturnView:
     if not q:
         return api_result('error', error='no_query_provided')
 
-    # Limit length of query to User.fullname and Organization.title length limit
-    q = q[: max(User.__title_length__, Organization.__title_length__)]
+    # Limit length of query to Account.title
+    q = q[: Account.__title_length__]
 
     # Setup rate limiter to not count progressive typing or backspacing towards
     # attempts. That is, sending 'abc' after 'ab' will not count towards limits, but
@@ -388,13 +377,13 @@ def profile_autocomplete(q: str = '') -> ReturnView:
     # imposes a limit of 20 name lookups per half hour.
 
     validate_rate_limit(
-        # As this endpoint accepts client_id+user_session in lieu of login cookie,
-        # we may not have an authenticated user. Use the user_session's user in that
+        # As this endpoint accepts client_id+login_session in lieu of login cookie,
+        # we may not have an authenticated user. Use the login_session's account in that
         # case
         'api_profile_autocomplete',
         current_auth.actor.uuid_b58
         if current_auth.actor
-        else current_auth.session.user.uuid_b58,
+        else current_auth.session.account.uuid_b58,
         # Limit 20 attempts
         20,
         # Per half hour (60s * 30m = 1800s)
@@ -404,7 +393,7 @@ def profile_autocomplete(q: str = '') -> ReturnView:
         token=q,
         validator=progressive_rate_limit_validator,
     )
-    profiles = Profile.autocomplete(q)
+    profiles = Account.autocomplete(q)
     profile_names = [p.name for p in profiles]  # TODO: Update front-end, remove this
     profile_list = [
         {
@@ -497,17 +486,17 @@ def session_verify(
 ) -> ReturnResource:
     """Verify a UserSession."""
     sessionid = abort_null(args['sessionid'])
-    user_session = UserSession.authenticate(buid=sessionid, silent=True)
-    if user_session is not None and user_session.user == authtoken.effective_user:
-        user_session.views.mark_accessed(auth_client=authtoken.auth_client)
+    login_session = LoginSession.authenticate(buid=sessionid, silent=True)
+    if login_session is not None and login_session.account == authtoken.effective_user:
+        login_session.views.mark_accessed(auth_client=authtoken.auth_client)
         db.session.commit()
         return {
             'active': True,
-            'sessionid': user_session.buid,
-            'userid': user_session.user.buid,
-            'buid': user_session.user.buid,
-            'user_uuid': user_session.user.uuid,
-            'sudo': user_session.has_sudo,
+            'sessionid': login_session.buid,
+            'userid': login_session.account.buid,
+            'buid': login_session.account.buid,
+            'user_uuid': login_session.account.uuid,
+            'sudo': login_session.has_sudo,
         }
     return {'active': False}
 

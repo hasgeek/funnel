@@ -14,21 +14,26 @@ from . import (
     BaseMixin,
     BaseScopedIdNameMixin,
     Mapped,
-    MarkdownCompositeDocument,
     Model,
     Query,
     TSVectorType,
     UuidMixin,
+    backref,
     db,
     relationship,
     sa,
 )
+from .account import Account
 from .comment import SET_TYPE, Commentset
-from .helpers import add_search_trigger, reopen, visual_field_delimiter
+from .helpers import (
+    MarkdownCompositeDocument,
+    add_search_trigger,
+    reopen,
+    visual_field_delimiter,
+)
 from .project import Project
 from .project_membership import project_child_role_map
 from .reorder_mixin import ReorderMixin
-from .user import User
 from .video_mixin import VideoMixin
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalSuuidRedirect']
@@ -119,12 +124,12 @@ class Proposal(  # type: ignore[misc]
     __tablename__ = 'proposal'
     __allow_unmapped__ = True
 
-    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user = with_roles(
+    created_by_id = sa.orm.mapped_column(sa.ForeignKey('account.id'), nullable=False)
+    created_by = with_roles(
         relationship(
-            User,
-            foreign_keys=[user_id],
-            backref=sa.orm.backref('created_proposals', cascade='all', lazy='dynamic'),
+            Account,
+            foreign_keys=[created_by_id],
+            backref=backref('created_proposals', cascade='all', lazy='dynamic'),
         ),
         grants={'creator', 'participant'},
     )
@@ -135,7 +140,7 @@ class Proposal(  # type: ignore[misc]
         relationship(
             Project,
             foreign_keys=[project_id],
-            backref=sa.orm.backref(
+            backref=backref(
                 'proposals', cascade='all', lazy='dynamic', order_by='Proposal.url_id'
             ),
         ),
@@ -233,7 +238,7 @@ class Proposal(  # type: ignore[misc]
                 'url_name_uuid_b58',
                 'title',
                 'body',
-                'user',
+                'created_by',
                 'first_user',
                 'session',
                 'project',
@@ -243,8 +248,6 @@ class Proposal(  # type: ignore[misc]
         },
         'project_editor': {
             'call': {
-                'user',
-                'first_user',
                 'reorder_item',
                 'reorder_before',
                 'reorder_after',
@@ -259,7 +262,7 @@ class Proposal(  # type: ignore[misc]
             'url_name_uuid_b58',
             'title',
             'body',
-            'user',
+            'created_by',
             'first_user',
             'session',
             'project',
@@ -270,7 +273,7 @@ class Proposal(  # type: ignore[misc]
             'url_name_uuid_b58',
             'title',
             'body',
-            'user',
+            'created_by',
             'first_user',
             'session',
         },
@@ -280,16 +283,18 @@ class Proposal(  # type: ignore[misc]
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
-        # Assume self.user is set. Fail if not.
+        # Assume self.created_by is set. Fail if not.
         db.session.add(
-            ProposalMembership(proposal=self, user=self.user, granted_by=self.user)
+            ProposalMembership(
+                proposal=self, member=self.created_by, granted_by=self.created_by
+            )
         )
 
     def __repr__(self) -> str:
         """Represent :class:`Proposal` as a string."""
         return (
             f'<Proposal "{self.title}" in project "{self.project.title}"'
-            f' by "{self.user.fullname}">'
+            f' by "{self.created_by.fullname}">'
         )
 
     def __str__(self) -> str:
@@ -474,7 +479,7 @@ class Proposal(  # type: ignore[misc]
         )
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Sequence = ()
+        self, actor: Optional[Account] = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if self.state.DRAFT:

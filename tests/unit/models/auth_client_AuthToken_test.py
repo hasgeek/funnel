@@ -18,10 +18,10 @@ class TestAuthToken(TestDatabaseFixture):
         auth_client = self.fixtures.auth_client
         crusoe = self.fixtures.crusoe
         result = models.AuthToken(
-            auth_client=auth_client, user=crusoe, scope='id', validity=0
+            auth_client=auth_client, account=crusoe, scope='id', validity=0
         )
         assert isinstance(result, models.AuthToken)
-        assert result.user == crusoe
+        assert result.account == crusoe
         assert result.auth_client == auth_client
 
     def test_authtoken_refresh(self) -> None:
@@ -29,7 +29,7 @@ class TestAuthToken(TestDatabaseFixture):
         auth_client = self.fixtures.auth_client
         hagrid = models.User(username='hagrid', fullname='Rubeus Hagrid')
         auth_token = models.AuthToken(
-            auth_client=auth_client, user=hagrid, scope='', algorithm='hmac-sha-1'
+            auth_client=auth_client, account=hagrid, scope='', algorithm='hmac-sha-1'
         )
         existing_token = auth_token.token
         existing_secret = auth_token.secret
@@ -45,13 +45,15 @@ class TestAuthToken(TestDatabaseFixture):
         tomriddle = models.User(username='voldemort', fullname='Tom Riddle')
         scope = ['id', 'email']
         tomriddle_token = models.AuthToken(
-            auth_client=auth_client, user=tomriddle, scope=scope, validity=0
+            auth_client=auth_client, account=tomriddle, scope=scope, validity=0
         )
         assert tomriddle_token.is_valid()
 
         # scenario 2: when validity has not been given
         draco = models.User(username='draco', fullname='Draco Malfoy')
-        draco_token = models.AuthToken(auth_client=auth_client, user=draco, scope=scope)
+        draco_token = models.AuthToken(
+            auth_client=auth_client, account=draco, scope=scope
+        )
         with pytest.raises(TypeError):
             draco_token.is_valid()
 
@@ -59,7 +61,7 @@ class TestAuthToken(TestDatabaseFixture):
         harry = models.User(username='harry', fullname='Harry Potter')
         harry_token = models.AuthToken(
             auth_client=auth_client,
-            user=harry,
+            account=harry,
             scope=scope,
             validity=3600,
             created_at=utcnow(),
@@ -70,7 +72,7 @@ class TestAuthToken(TestDatabaseFixture):
         cedric = models.User(username='cedric', fullname='Cedric Diggory')
         cedric_token = models.AuthToken(
             auth_client=auth_client,
-            user=cedric,
+            account=cedric,
             scope=scope,
             validity=1,
             created_at=utcnow() - timedelta(1),
@@ -84,11 +86,11 @@ class TestAuthToken(TestDatabaseFixture):
         scope = ['id']
         dachsadv = models.AuthClient(
             title="Dachshund Adventures",
-            organization=specialdachs,
+            account=specialdachs,
             confidential=True,
             website="http://dachsadv.com",
         )
-        auth_token = models.AuthToken(auth_client=dachsadv, user=oakley, scope=scope)
+        auth_token = models.AuthToken(auth_client=dachsadv, account=oakley, scope=scope)
         token = auth_token.token
         self.db_session.add(dachsadv, auth_token)
         result = models.AuthToken.get(token)
@@ -102,19 +104,19 @@ class TestAuthToken(TestDatabaseFixture):
         # scenario 1: When users passed are an instance of Query class
         hermione = models.User(username='herminone', fullname='Hermione Granger')
         herminone_token = models.AuthToken(
-            auth_client=auth_client, user=hermione, scope=['id']
+            auth_client=auth_client, account=hermione, scope=['id']
         )
         myrtle = models.User(username='myrtle', fullname='Moaning Myrtle')
         myrtle_token = models.AuthToken(
-            auth_client=auth_client, user=myrtle, scope=['id']
+            auth_client=auth_client, account=myrtle, scope=['id']
         )
         alastor = models.User(username='alastor', fullname='Alastor Moody')
         alastor_token = models.AuthToken(
-            auth_client=auth_client, user=alastor, scope=['id']
+            auth_client=auth_client, account=alastor, scope=['id']
         )
         greyback = models.User(username='greyback', fullname='Fenrir Greyback')
         greyback_token = models.AuthToken(
-            auth_client=auth_client, user=greyback, scope=['id']
+            auth_client=auth_client, account=greyback, scope=['id']
         )
         pottermania = models.Organization(
             name='pottermania', title='Pottermania', owner=hermione
@@ -142,10 +144,10 @@ class TestAuthToken(TestDatabaseFixture):
         lily = models.User(username='lily', fullname='Lily Evans Potter')
         cho = models.User(username='cho', fullname='Cho Chang')
         lily_token = models.AuthToken(
-            auth_client=auth_client, user=lily, scope=['memories']
+            auth_client=auth_client, account=lily, scope=['memories']
         )
         cho_token = models.AuthToken(
-            auth_client=auth_client, user=cho, scope=['charms']
+            auth_client=auth_client, account=cho, scope=['charms']
         )
         self.db_session.add_all([lily, lily_token, cho, cho_token])
         self.db_session.commit()
@@ -171,30 +173,32 @@ class TestAuthToken(TestDatabaseFixture):
         oakley = self.fixtures.oakley
         auth_client = self.fixtures.auth_client
 
-        user_session = models.UserSession(
-            buid=buid(), user=crusoe, ipaddr='', user_agent='', accessed_at=utcnow()
+        login_session = models.LoginSession(
+            buid=buid(), account=crusoe, ipaddr='', user_agent='', accessed_at=utcnow()
         )
         auth_token_with_user_session = models.AuthToken(
             auth_client=auth_client,
-            user=crusoe,
-            user_session=user_session,
+            account=crusoe,
+            login_session=login_session,
             scope='',
         )
-        assert isinstance(auth_token_with_user_session.user_session.user, models.User)
-        assert auth_token_with_user_session.user_session.user == crusoe
+        assert isinstance(
+            auth_token_with_user_session.login_session.account, models.User
+        )
+        assert auth_token_with_user_session.login_session.account == crusoe
 
         auth_token_without_user_session = models.AuthToken(
-            auth_client=auth_client, user=oakley, scope='id'
+            auth_client=auth_client, account=oakley, scope='id'
         )
-        assert isinstance(auth_token_without_user_session.user, models.User)
-        assert auth_token_without_user_session.user == oakley
+        assert isinstance(auth_token_without_user_session.account, models.User)
+        assert auth_token_without_user_session.account == oakley
 
     def test_authtoken_algorithm(self) -> None:
         """Test for checking AuthToken's algorithm property."""
         auth_client = self.fixtures.auth_client
         snape = models.User(username='snape', fullname='Professor Severus Snape')
         valid_algorithm = 'hmac-sha-1'
-        auth_token = models.AuthToken(auth_client=auth_client, user=snape, scope='')
+        auth_token = models.AuthToken(auth_client=auth_client, account=snape, scope='')
         auth_token.algorithm = None
         assert auth_token.algorithm is None
         auth_token.algorithm = valid_algorithm
@@ -203,42 +207,52 @@ class TestAuthToken(TestDatabaseFixture):
             auth_token.algorithm = "hmac-sha-2016"
 
 
-def test_authtoken_migrate_user_move(
+def test_authtoken_migrate_account_move(
     db_session, user_twoflower, user_rincewind, client_hex
 ) -> None:
     """Auth token is moved from old user to new user."""
-    token = models.AuthToken(auth_client=client_hex, user=user_twoflower, scope='')
+    token = models.AuthToken(auth_client=client_hex, account=user_twoflower, scope='')
     db_session.add(token)
-    assert token.user == user_twoflower
-    models.AuthToken.migrate_user(old_user=user_twoflower, new_user=user_rincewind)
-    assert token.user == user_rincewind
+    assert token.account == user_twoflower
+    models.AuthToken.migrate_account(
+        old_account=user_twoflower, new_account=user_rincewind
+    )
+    assert token.account == user_rincewind
     all_tokens = models.AuthToken.query.all()
     assert all_tokens == [token]
 
 
-def test_authtoken_migrate_user_retain(
+def test_authtoken_migrate_account_retain(
     db_session, user_twoflower, user_rincewind, client_hex
 ) -> None:
     """Auth token is retained on new user when migrating from old user."""
-    token = models.AuthToken(auth_client=client_hex, user=user_rincewind, scope='')
+    token = models.AuthToken(auth_client=client_hex, account=user_rincewind, scope='')
     db_session.add(token)
-    assert token.user == user_rincewind
-    models.AuthToken.migrate_user(old_user=user_twoflower, new_user=user_rincewind)
-    assert token.user == user_rincewind
+    assert token.account == user_rincewind
+    models.AuthToken.migrate_account(
+        old_account=user_twoflower, new_account=user_rincewind
+    )
+    assert token.account == user_rincewind
     all_tokens = models.AuthToken.query.all()
     assert all_tokens == [token]
 
 
-def test_authtoken_migrate_user_merge(
+def test_authtoken_migrate_account_merge(
     db_session, user_twoflower, user_rincewind, client_hex
 ) -> None:
     """Merging two auth token will merge their scope."""
-    token1 = models.AuthToken(auth_client=client_hex, user=user_twoflower, scope='a b')
-    token2 = models.AuthToken(auth_client=client_hex, user=user_rincewind, scope='b c')
+    token1 = models.AuthToken(
+        auth_client=client_hex, account=user_twoflower, scope='a b'
+    )
+    token2 = models.AuthToken(
+        auth_client=client_hex, account=user_rincewind, scope='b c'
+    )
     db_session.add_all([token1, token2])
     db_session.commit()  # Commit required to make delete work
-    models.AuthToken.migrate_user(old_user=user_twoflower, new_user=user_rincewind)
+    models.AuthToken.migrate_account(
+        old_account=user_twoflower, new_account=user_rincewind
+    )
     all_tokens = models.AuthToken.query.all()
     assert len(all_tokens) == 1
-    assert all_tokens[0].user == user_rincewind
+    assert all_tokens[0].account == user_rincewind
     assert all_tokens[0].scope == ('a', 'b', 'c')  # Scope is a tuple, alphabetical

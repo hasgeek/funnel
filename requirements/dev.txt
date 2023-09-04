@@ -191,7 +191,7 @@ virtualenv==20.24.3
     # via pre-commit
 wcwidth==0.2.6
     # via reformat-gherkin
-wheel==0.41.1
+wheel==0.41.2
     # via pip-tools
 wrapt==1.15.0
     # via astroid

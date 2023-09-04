@@ -12,13 +12,22 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from ..typing import OptionalMigratedTables
-from . import Mapped, Model, NoIdMixin, Query, UuidMixin, db, relationship, sa, types
+from . import (
+    Mapped,
+    Model,
+    NoIdMixin,
+    Query,
+    UuidMixin,
+    backref,
+    db,
+    relationship,
+    sa,
+    types,
+)
+from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
 from .helpers import reopen
-from .profile import Profile
 from .project import Project
 from .project_membership import project_child_role_map
-from .user import User, UserEmail, UserEmailClaim, UserPhone
 
 __all__ = ['Rsvp', 'RSVP_STATUS']
 
@@ -39,20 +48,16 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project = with_roles(
-        relationship(
-            Project, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
-        ),
+        relationship(Project, backref=backref('rsvps', cascade='all', lazy='dynamic')),
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
         datasets={'primary'},
     )
-    user_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=False, primary_key=True
+    participant_id: Mapped[int] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
-    user = with_roles(
-        relationship(
-            User, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
-        ),
+    participant = with_roles(
+        relationship(Account, backref=backref('rsvps', cascade='all', lazy='dynamic')),
         read={'owner', 'project_promoter'},
         grants={'owner'},
         datasets={'primary', 'without_parent'},
@@ -126,74 +131,72 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         pass
 
     @with_roles(call={'owner', 'project_promoter'})
-    def user_email(self) -> Optional[UserEmail]:
-        """User's preferred email address for this registration."""
-        return self.user.transport_for_email(self.project.profile)
+    def participant_email(self) -> Optional[AccountEmail]:
+        """Participant's preferred email address for this registration."""
+        return self.participant.transport_for_email(self.project.account)
 
     @with_roles(call={'owner', 'project_promoter'})
-    def user_phone(self) -> Optional[UserEmail]:
-        """User's preferred phone number for this registration."""
-        return self.user.transport_for_sms(self.project.profile)
+    def participant_phone(self) -> Optional[AccountEmail]:
+        """Participant's preferred phone number for this registration."""
+        return self.participant.transport_for_sms(self.project.account)
 
     @with_roles(call={'owner', 'project_promoter'})
     def best_contact(
         self,
-    ) -> Tuple[Union[UserEmail, UserEmailClaim, UserPhone, None], str]:
-        email = self.user_email()
+    ) -> Tuple[Union[AccountEmail, AccountEmailClaim, AccountPhone, None], str]:
+        email = self.participant_email()
         if email:
             return email, 'e'
-        phone = self.user_phone()
+        phone = self.participant_phone()
         if phone:
             return phone, 'p'
-        if self.user.emailclaims:
-            return self.user.emailclaims[0], 'ec'
+        if self.participant.emailclaims:
+            return self.participant.emailclaims[0], 'ec'
         return None, ''
 
     @classmethod
-    def migrate_user(  # type: ignore[return]
-        cls, old_user: User, new_user: User
-    ) -> OptionalMigratedTables:
-        """Migrate one user account to another when merging user accounts."""
-        project_ids = {rsvp.project_id for rsvp in new_user.rsvps}
-        for rsvp in old_user.rsvps:
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
+        """Migrate one account's data to another when merging accounts."""
+        project_ids = {rsvp.project_id for rsvp in new_account.rsvps}
+        for rsvp in old_account.rsvps:
             if rsvp.project_id not in project_ids:
-                rsvp.user = new_user
+                rsvp.participant = new_account
             else:
                 current_app.logger.warning(
                     "Discarding conflicting RSVP (%s) from %r on %r",
                     rsvp._state,  # pylint: disable=protected-access
-                    old_user,
+                    old_account,
                     rsvp.project,
                 )
                 db.session.delete(rsvp)
 
     @overload
     @classmethod
-    def get_for(cls, project: Project, user: User, create: Literal[True]) -> Rsvp:
+    def get_for(cls, project: Project, user: Account, create: Literal[True]) -> Rsvp:
         ...
 
     @overload
     @classmethod
     def get_for(
-        cls, project: Project, user: User, create: Literal[False]
+        cls, project: Project, account: Account, create: Literal[False]
     ) -> Optional[Rsvp]:
         ...
 
     @overload
     @classmethod
     def get_for(
-        cls, project: Project, user: Optional[User], create=False
+        cls, project: Project, account: Optional[Account], create=False
     ) -> Optional[Rsvp]:
         ...
 
     @classmethod
     def get_for(
-        cls, project: Project, user: Optional[User], create=False
+        cls, project: Project, account: Optional[Account], create=False
     ) -> Optional[Rsvp]:
-        if user is not None:
-            result = cls.query.get((project.id, user.id))
+        if account is not None:
+            result = cls.query.get((project.id, account.id))
             if not result and create:
-                result = cls(project=project, user=user)
+                result = cls(project=project, participant=account)
                 db.session.add(result)
             return result
         return None
@@ -203,29 +206,32 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
 class __Project:
     @property
     def active_rsvps(self):
-        return self.rsvps.join(User).filter(Rsvp.state.YES, User.state.ACTIVE)
+        return self.rsvps.join(Account).filter(Rsvp.state.YES, Account.state.ACTIVE)
 
     with_roles(
-        active_rsvps, grants_via={Rsvp.user: {'participant', 'project_participant'}}
+        active_rsvps,
+        grants_via={Rsvp.participant: {'participant', 'project_participant'}},
     )
 
     @overload
-    def rsvp_for(self, user: User, create: Literal[True]) -> Rsvp:
+    def rsvp_for(self, account: Account, create: Literal[True]) -> Rsvp:
         ...
 
     @overload
-    def rsvp_for(self, user: Optional[User], create: Literal[False]) -> Optional[Rsvp]:
+    def rsvp_for(
+        self, account: Optional[Account], create: Literal[False]
+    ) -> Optional[Rsvp]:
         ...
 
-    def rsvp_for(self, user: Optional[User], create=False) -> Optional[Rsvp]:
-        return Rsvp.get_for(cast(Project, self), user, create)
+    def rsvp_for(self, account: Optional[Account], create=False) -> Optional[Rsvp]:
+        return Rsvp.get_for(cast(Project, self), account, create)
 
     def rsvps_with(self, status: str):
         return (
             cast(Project, self)
-            .rsvps.join(User)
+            .rsvps.join(Account)
             .filter(
-                User.state.ACTIVE,
+                Account.state.ACTIVE,
                 Rsvp._state == status,  # pylint: disable=protected-access
             )
         )
@@ -236,8 +242,8 @@ class __Project:
                 Rsvp._state,  # pylint: disable=protected-access
                 sa.func.count(Rsvp._state),  # pylint: disable=protected-access
             )
-            .join(User)
-            .filter(User.state.ACTIVE, Rsvp.project == self)
+            .join(Account)
+            .filter(Account.state.ACTIVE, Rsvp.project == self)
             .group_by(Rsvp._state)  # pylint: disable=protected-access
             .all()
         )
@@ -246,22 +252,22 @@ class __Project:
     def rsvp_count_going(self) -> int:
         return (
             cast(Project, self)
-            .rsvps.join(User)
-            .filter(User.state.ACTIVE, Rsvp.state.YES)
+            .rsvps.join(Account)
+            .filter(Account.state.ACTIVE, Rsvp.state.YES)
             .count()
         )
 
 
-@reopen(Profile)
-class __Profile:
+@reopen(Account)
+class __Account:
     @property
-    def rsvp_followers(self) -> Query[User]:
+    def rsvp_followers(self) -> Query[Account]:
         """All users with an active RSVP in a project."""
         return (
-            User.query.filter(User.state.ACTIVE)
-            .join(Rsvp, Rsvp.user_id == User.id)
+            Account.query.filter(Account.state.ACTIVE)
+            .join(Rsvp, Rsvp.participant_id == Account.id)
             .join(Project, Rsvp.project_id == Project.id)
-            .filter(Rsvp.state.YES, Project.state.PUBLISHED, Project.profile == self)
+            .filter(Rsvp.state.YES, Project.state.PUBLISHED, Project.account == self)
         )
 
     with_roles(rsvp_followers, grants={'follower'})

@@ -48,8 +48,8 @@
       "description": {{ project.tagline|tojson }},
       "organizer": {
         "@type": "Organization",
-        "name": {{ project.profile.title|tojson }},
-        "url": {{ project.profile.url_for(_external=true)|tojson }}
+        "name": {{ project.account.title|tojson }},
+        "url": {{ project.account.url_for(_external=true)|tojson }}
       }
     }
     </script>

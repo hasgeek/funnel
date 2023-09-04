@@ -8,14 +8,14 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, db, relationship, sa
+from . import DynamicMapped, Mapped, Model, backref, db, relationship, sa
+from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
-    ImmutableProfileMembershipMixin,
+    ImmutableUserMembershipMixin,
     ReorderMembershipMixin,
 )
-from .profile import Profile
 from .project import Project
 from .proposal import Proposal
 
@@ -25,7 +25,7 @@ __all__ = ['ProjectSponsorMembership', 'ProposalSponsorMembership']
 class ProjectSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
-    ImmutableProfileMembershipMixin,
+    ImmutableUserMembershipMixin,
     Model,
 ):
     """Sponsor of a project."""
@@ -41,7 +41,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
             'read': {
                 'is_promoted',
                 'label',
-                'profile',
+                'member',
                 'project',
                 'seq',
                 'title',
@@ -55,7 +55,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
             'is_promoted',
             'label',
             'offered_roles',
-            'profile',
+            'member',
             'project',
             'seq',
             'title',
@@ -66,7 +66,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
             'is_promoted',
             'label',
             'offered_roles',
-            'profile',
+            'member',
             'seq',
             'title',
             'urls',
@@ -83,14 +83,14 @@ class ProjectSponsorMembership(  # type: ignore[misc]
         },
     }
 
-    revoke_on_subject_delete = False
+    revoke_on_member_delete = False
 
     project_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     project: Mapped[Project] = relationship(
         Project,
-        backref=sa.orm.backref(
+        backref=backref(
             'all_sponsor_memberships',
             lazy='dynamic',
             cascade='all',
@@ -148,13 +148,15 @@ class __Project:
     def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy('sponsor_memberships', 'profile')
+    sponsors = DynamicAssociationProxy('sponsor_memberships', 'member')
 
 
+# FIXME: Replace this with existing proposal collaborator as they're now both related
+# to "account"
 class ProposalSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
-    ImmutableProfileMembershipMixin,
+    ImmutableUserMembershipMixin,
     Model,
 ):
     """Sponsor of a proposal."""
@@ -170,7 +172,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
             'read': {
                 'is_promoted',
                 'label',
-                'profile',
+                'member',
                 'proposal',
                 'seq',
                 'title',
@@ -184,7 +186,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
             'is_promoted',
             'label',
             'offered_roles',
-            'profile',
+            'member',
             'proposal',
             'seq',
             'title',
@@ -195,7 +197,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
             'is_promoted',
             'label',
             'offered_roles',
-            'profile',
+            'member',
             'seq',
             'title',
             'urls',
@@ -212,14 +214,14 @@ class ProposalSponsorMembership(  # type: ignore[misc]
         },
     }
 
-    revoke_on_subject_delete = False
+    revoke_on_member_delete = False
 
     proposal_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
     proposal: Mapped[Proposal] = relationship(
         Proposal,
-        backref=sa.orm.backref(
+        backref=backref(
             'all_sponsor_memberships',
             lazy='dynamic',
             cascade='all',
@@ -272,11 +274,11 @@ class __Proposal:
     def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy('sponsor_memberships', 'profile')
+    sponsors = DynamicAssociationProxy('sponsor_memberships', 'member')
 
 
-@reopen(Profile)
-class __Profile:
+@reopen(Account)
+class __Account:
     # pylint: disable=invalid-unary-operand-type
     noninvite_project_sponsor_memberships: DynamicMapped[
         ProjectSponsorMembership
@@ -284,7 +286,7 @@ class __Profile:
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectSponsorMembership.profile_id == Profile.id,
+            ProjectSponsorMembership.member_id == Account.id,
             ~ProjectSponsorMembership.is_invite,
         ),
         order_by=ProjectSponsorMembership.granted_at.desc(),
@@ -295,7 +297,7 @@ class __Profile:
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectSponsorMembership.profile_id == Profile.id,
+            ProjectSponsorMembership.member_id == Account.id,
             ProjectSponsorMembership.is_active,
         ),
         order_by=ProjectSponsorMembership.granted_at.desc(),
@@ -309,7 +311,7 @@ class __Profile:
             ProjectSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
-                ProjectSponsorMembership.profile_id == Profile.id,
+                ProjectSponsorMembership.member_id == Account.id,
                 ProjectSponsorMembership.is_invite,
                 ProjectSponsorMembership.revoked_at.is_(None),
             ),
@@ -325,7 +327,7 @@ class __Profile:
         ProposalSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalSponsorMembership.profile_id == Profile.id,
+            ProposalSponsorMembership.member_id == Account.id,
             ~ProposalSponsorMembership.is_invite,
         ),
         order_by=ProposalSponsorMembership.granted_at.desc(),
@@ -338,7 +340,7 @@ class __Profile:
         ProposalSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalSponsorMembership.profile_id == Profile.id,
+            ProposalSponsorMembership.member_id == Account.id,
             ProposalSponsorMembership.is_active,
         ),
         order_by=ProposalSponsorMembership.granted_at.desc(),
@@ -352,7 +354,7 @@ class __Profile:
             ProposalSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
-                ProposalSponsorMembership.profile_id == Profile.id,
+                ProposalSponsorMembership.member_id == Account.id,
                 ProposalSponsorMembership.is_invite,
                 ProposalSponsorMembership.revoked_at.is_(None),
             ),
@@ -371,9 +373,9 @@ class __Profile:
     )
 
 
-Profile.__active_membership_attrs__.update(
+Account.__active_membership_attrs__.update(
     {'project_sponsor_memberships', 'proposal_sponsor_memberships'}
 )
-Profile.__noninvite_membership_attrs__.update(
+Account.__noninvite_membership_attrs__.update(
     {'noninvite_project_sponsor_memberships', 'noninvite_proposal_sponsor_memberships'}
 )

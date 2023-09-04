@@ -11,13 +11,13 @@ from markupsafe import Markup, escape
 from baseframe import _, __
 
 from ...models import (
+    Account,
+    NotificationRecipient,
     NotificationType,
     Project,
-    ProjectCrewMembership,
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
-    User,
-    UserNotification,
+    ProjectMembership,
 )
 from ...transports.sms import OneLineTemplate
 from ..helpers import shortlink
@@ -28,7 +28,7 @@ from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotific
 class DecisionFactorFields:
     """Evaluation criteria for the content of notification."""
 
-    is_subject: Optional[bool] = None
+    is_member: Optional[bool] = None
     for_actor: Optional[bool] = None
     rtypes: Collection[str] = ()
     is_editor: Optional[bool] = None
@@ -39,11 +39,11 @@ class DecisionFactorFields:
     is_self_revoked: Optional[bool] = None
 
     def is_match(
-        self, membership: ProjectCrewMembership, is_subject: bool, for_actor: bool
+        self, membership: ProjectMembership, is_member: bool, for_actor: bool
     ) -> bool:
         """Test if this :class:`DecisionFactor` is a match."""
         return (
-            (self.is_subject is None or self.is_subject is is_subject)
+            (self.is_member is None or self.is_member is is_member)
             and (self.for_actor is None or self.for_actor is for_actor)
             and (not self.rtypes or membership.record_type_label.name in self.rtypes)
             and (self.is_editor is None or self.is_editor is membership.is_editor)
@@ -80,7 +80,7 @@ grant_amend_templates = DecisionBranch(
             factors=[
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -114,7 +114,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=True,
+                    is_member=True,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -140,14 +140,14 @@ grant_amend_templates = DecisionBranch(
                             template=__(
                                 "{actor} invited you to join the crew of {project}"
                             ),
-                            is_subject=True,
+                            is_member=True,
                             rtypes=['invite'],
                         ),
                     ],
                 ),
                 DecisionBranch(
                     for_actor=True,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -183,7 +183,7 @@ grant_amend_templates = DecisionBranch(
             factors=[
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -215,7 +215,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=True,
-                    is_subject=True,
+                    is_member=True,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -251,7 +251,7 @@ grant_amend_templates = DecisionBranch(
             factors=[
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -304,7 +304,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=True,
+                    is_member=True,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -328,7 +328,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=True,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -353,7 +353,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=True,
-                    is_subject=True,
+                    is_member=True,
                     factors=[
                         DecisionFactor(
                             template=__("You joined {project} as editor and promoter"),
@@ -380,7 +380,7 @@ grant_amend_templates = DecisionBranch(
             factors=[
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -443,7 +443,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=True,
+                    is_member=True,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -474,7 +474,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=True,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -505,7 +505,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=True,
-                    is_subject=True,
+                    is_member=True,
                     factors=[
                         DecisionFactor(
                             template=__("You are now editor and promoter of {project}"),
@@ -544,7 +544,7 @@ revoke_templates = DecisionBranch(
     factors=[
         DecisionBranch(
             for_actor=False,
-            is_subject=False,
+            is_member=False,
             factors=[
                 DecisionFactor(
                     template=__("{user} resigned as editor and promoter of {project}"),
@@ -591,7 +591,7 @@ revoke_templates = DecisionBranch(
         ),
         DecisionBranch(
             for_actor=False,
-            is_subject=True,
+            is_member=True,
             factors=[
                 DecisionFactor(
                     template=__(
@@ -665,17 +665,15 @@ class RenderShared:
     reason = __("You are receiving this because you are a crew member of this project")
 
     project: Project
-    membership: ProjectCrewMembership
+    membership: ProjectMembership
     notification: NotificationType
-    user_notification: UserNotification
+    notification_recipient: NotificationRecipient
     #: Subclasses must specify a base template picker
     template_picker: DecisionBranch
 
     tracking_tags: ClassVar[Callable[..., Dict[str, str]]]
 
-    def activity_template(
-        self, membership: Optional[ProjectCrewMembership] = None
-    ) -> str:
+    def activity_template(self, membership: Optional[ProjectMembership] = None) -> str:
         """
         Return a Python string template with an appropriate message.
 
@@ -686,46 +684,46 @@ class RenderShared:
         membership_actor = self.membership_actor(membership)
         match = self.template_picker.match(
             membership,
-            is_subject=self.user_notification.user == membership.user,
-            for_actor=self.user_notification.user == membership_actor,
+            is_member=self.notification_recipient.recipient == membership.member,
+            for_actor=self.notification_recipient.recipient == membership_actor,
         )
         if match is not None:
             return match.template
         raise ValueError("No suitable template found for membership record")
 
     def membership_actor(
-        self, membership: Optional[ProjectCrewMembership] = None
-    ) -> Optional[User]:
+        self, membership: Optional[ProjectMembership] = None
+    ) -> Optional[Account]:
         """Actor who granted or revoked, for the template."""
         raise NotImplementedError("Subclasses must implement `membership_actor`")
 
     @property
-    def actor(self) -> User:
+    def actor(self) -> Account:
         """
         We're interested in who has the membership, not who granted/revoked it.
 
-        However, if the notification is being rendered for the subject of the
+        However, if the notification is being rendered for the member in the
         membership, the original actor must be attributed.
         """
         if (
-            self.user_notification.user == self.membership.user
-            and self.notification.user is not None
+            self.notification_recipient.recipient == self.membership.member
+            and self.notification.created_by is not None
         ):
-            return self.notification.user
-        return self.membership.user
+            return self.notification.created_by
+        return self.membership.member
 
-    def activity_html(self, membership: Optional[ProjectCrewMembership] = None) -> str:
+    def activity_html(self, membership: Optional[ProjectMembership] = None) -> str:
         """Return HTML rendering of :meth:`activity_template`."""
         if membership is None:
             membership = self.membership
         actor = self.membership_actor(membership)
         return Markup(self.activity_template(membership)).format(
             user=Markup(
-                f'<a href="{escape(membership.user.profile_url)}">'
-                f'{escape(membership.user.pickername)}</a>'
+                f'<a href="{escape(membership.member.profile_url)}">'
+                f'{escape(membership.member.pickername)}</a>'
             )
-            if membership.user.profile_url
-            else escape(membership.user.pickername),
+            if membership.member.profile_url
+            else escape(membership.member.pickername),
             project=Markup(
                 f'<a href="{escape(self.project.absolute_url)}">'
                 f'{escape(self.project.joined_title)}</a>'
@@ -746,7 +744,7 @@ class RenderShared:
         """Subject line for email."""
         actor = self.membership_actor()
         return self.emoji_prefix + self.activity_template().format(
-            user=self.membership.user.pickername,
+            user=self.membership.member.pickername,
             project=self.project.joined_title,
             actor=(actor.pickername if actor is not None else _("(unknown)")),
         )
@@ -756,7 +754,7 @@ class RenderShared:
         actor = self.membership_actor()
         return OneLineTemplate(
             text1=self.activity_template().format(
-                user=self.membership.user.pickername,
+                user=self.membership.member.pickername,
                 project=self.project.joined_title,
                 actor=(actor.pickername if actor is not None else _("(unknown)")),
             ),
@@ -776,12 +774,12 @@ class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
     aliases = {'document': 'project', 'fragment': 'membership'}
     hero_image = 'img/email/chars-v1/access-granted.png'
     email_heading = __("Crew membership granted!")
-    fragments_order_by = [ProjectCrewMembership.granted_at.desc()]
+    fragments_order_by = [ProjectMembership.granted_at.desc()]
     template_picker = grant_amend_templates
 
     def membership_actor(
-        self, membership: Optional[ProjectCrewMembership] = None
-    ) -> User:
+        self, membership: Optional[ProjectMembership] = None
+    ) -> Account:
         """Actual actor who granted (or edited) the membership, for the template."""
         return (membership or self.membership).granted_by
 
@@ -806,8 +804,8 @@ class RenderProjectCrewMembershipRevokedNotification(RenderShared, RenderNotific
     template_picker = revoke_templates
 
     def membership_actor(
-        self, membership: Optional[ProjectCrewMembership] = None
-    ) -> Optional[User]:
+        self, membership: Optional[ProjectMembership] = None
+    ) -> Optional[Account]:
         """Actual actor who revoked the membership, for the template."""
         return (membership or self.membership).revoked_by
 

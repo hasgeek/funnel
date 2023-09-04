@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import List, Union
 
-from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 
 from coaster.sqlalchemy import with_roles
 
@@ -72,7 +72,7 @@ class Label(BaseScopedNameMixin, Model):
         remote_side='Label.id', back_populates='options'
     )
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
-    options: Mapped[List[Label]] = relationship(
+    options: Mapped[OrderingList[Label]] = relationship(
         back_populates='main_label',
         order_by='Label.seq',
         passive_deletes=True,

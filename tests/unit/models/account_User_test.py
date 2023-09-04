@@ -1,4 +1,5 @@
 """Tests for User model."""
+# pylint: disable=use-implicit-booleaness-not-comparison
 
 from datetime import timedelta
 
@@ -9,8 +10,8 @@ from coaster.utils import utcnow
 from funnel import models
 
 pytestmark = pytest.mark.filterwarnings(
-    "ignore:Object of type <UserEmail> not in session",
-    "ignore:Object of type <UserPhone> not in session",
+    "ignore:Object of type <AccountEmail> not in session",
+    "ignore:Object of type <AccountPhone> not in session",
 )
 
 
@@ -19,7 +20,7 @@ def test_user(db_session) -> None:
     user = models.User(username='hrun', fullname="Hrun the Barbarian")
     db_session.add(user)
     db_session.commit()
-    hrun = models.User.get(username='hrun')
+    hrun = models.User.get(name='hrun')
     assert isinstance(hrun, models.User)
     assert user.username == 'hrun'
     assert user.fullname == "Hrun the Barbarian"
@@ -45,7 +46,7 @@ def test_user_is_profile_complete(db_session, user_twoflower, user_rincewind) ->
 
     # Rincewind claims an email address, but it is not verified
     db_session.add(
-        models.UserEmailClaim(user=user_rincewind, email='rincewind@example.org')
+        models.AccountEmailClaim(account=user_rincewind, email='rincewind@example.org')
     )
     db_session.commit()
     assert user_rincewind.is_profile_complete() is False
@@ -71,13 +72,13 @@ def test_user_organization_owned(user_ridcully, org_uu) -> None:
 def test_user_email(db_session, user_twoflower) -> None:
     """Add and retrieve an email address."""
     assert user_twoflower.email == ''
-    useremail = user_twoflower.add_email('twoflower@example.org')
-    assert isinstance(useremail, models.UserEmail)
+    accountemail = user_twoflower.add_email('twoflower@example.org')
+    assert isinstance(accountemail, models.AccountEmail)
     db_session.commit()
-    assert useremail.primary is False
+    assert accountemail.primary is False
     # When there is no primary, accessing the `email` property will promote existing
-    assert user_twoflower.email == useremail
-    assert useremail.primary is True
+    assert user_twoflower.email == accountemail
+    assert accountemail.primary is True
 
     useremail2 = user_twoflower.add_email(  # type: ignore[unreachable]
         'twoflower@example.com', primary=True
@@ -86,7 +87,7 @@ def test_user_email(db_session, user_twoflower) -> None:
 
     # The primary has changed
     assert user_twoflower.email == useremail2
-    assert useremail.primary is False
+    assert accountemail.primary is False
     assert useremail2.primary is True
 
 
@@ -143,15 +144,15 @@ def test_user_del_email(db_session, user_twoflower) -> None:
 
 
 def test_user_phone(db_session, user_twoflower) -> None:
-    """Test to retrieve UserPhone property phone."""
+    """Test to retrieve AccountPhone property phone."""
     assert user_twoflower.phone == ''
-    userphone = user_twoflower.add_phone('+12345678900')
-    assert isinstance(userphone, models.UserPhone)
+    accountphone = user_twoflower.add_phone('+12345678900')
+    assert isinstance(accountphone, models.AccountPhone)
     db_session.commit()
-    assert userphone.primary is False
+    assert accountphone.primary is False
     # When there is no primary, accessing the `phone` property will promote existing
-    assert user_twoflower.phone == userphone
-    assert userphone.primary is True
+    assert user_twoflower.phone == accountphone
+    assert accountphone.primary is True
 
     userphone2 = user_twoflower.add_phone(  # type: ignore[unreachable]
         '+12345678901', primary=True
@@ -160,7 +161,7 @@ def test_user_phone(db_session, user_twoflower) -> None:
 
     # The primary has changed
     assert user_twoflower.phone == userphone2
-    assert userphone.primary is False
+    assert accountphone.primary is False
     assert userphone2.primary is True
 
 
@@ -272,11 +273,8 @@ def test_user_all(
 
     db_session.commit()  # Commit required to generate UUID (userid/buid)
     # A parameter is required
-    with pytest.raises(TypeError):
-        models.User.all()
-
-    with pytest.raises(TypeError):
-        models.User.all(defercols=True)
+    assert models.User.all() == []
+    assert models.User.all(defercols=True) == []
 
     # Scenario 1: Lookup by buids only
     assert set(
@@ -292,7 +290,7 @@ def test_user_all(
     assert set(
         models.User.all(
             buids=[user_twoflower.buid, user_rincewind.buid],
-            usernames=[user_ridcully.username, user_dibbler.username],
+            names=[user_ridcully.username, user_dibbler.username],
             defercols=defercols,
         )
     ) == {user_twoflower, user_rincewind, user_ridcully, user_dibbler}
@@ -300,13 +298,13 @@ def test_user_all(
     # Scenario 3: lookup by usernames only
     assert set(
         models.User.all(
-            usernames=[user_ridcully.username, user_dibbler.username],
+            names=[user_ridcully.username, user_dibbler.username],
             defercols=defercols,
         )
     ) == {user_ridcully, user_dibbler}
 
     # Scenario 4: querying for a merged user buid
-    models.merge_users(user_death, user_rincewind)
+    models.merge_accounts(user_death, user_rincewind)
     db_session.commit()
 
     assert set(
@@ -348,12 +346,12 @@ def test_user_add_email(db_session, user_rincewind) -> None:
 def test_make_email_primary(user_rincewind) -> None:
     """Test to make an email primary for a user."""
     email = 'rincewind@example.org'
-    useremail = user_rincewind.add_email(email)
-    assert useremail.email == email
-    assert useremail.primary is False
+    accountemail = user_rincewind.add_email(email)
+    assert accountemail.email == email
+    assert accountemail.primary is False
     assert user_rincewind.primary_email is None
-    user_rincewind.primary_email = useremail
-    assert useremail.primary is True
+    user_rincewind.primary_email = accountemail
+    assert accountemail.primary is True
 
 
 def test_user_password(user_twoflower) -> None:
@@ -411,7 +409,7 @@ def test_user_merged_user(db_session, user_death, user_rincewind) -> None:
     db_session.commit()
     assert user_death.state.ACTIVE
     assert user_rincewind.state.ACTIVE
-    models.merge_users(user_death, user_rincewind)
+    models.merge_accounts(user_death, user_rincewind)
     assert user_death.state.ACTIVE
     assert user_rincewind.state.MERGED
     assert {o.uuid for o in user_death.oldids} == {user_rincewind.uuid}
@@ -429,16 +427,16 @@ def test_user_get(db_session, user_twoflower, user_rincewind, user_death) -> Non
     assert lookup_by_buid == user_twoflower
 
     # scenario 3: if username is passed
-    lookup_by_username = models.User.get(username='rincewind')
+    lookup_by_username = models.User.get(name='rincewind')
     assert lookup_by_username == user_rincewind
 
     # scenario 4: if defercols is set to True
-    lookup_by_username = models.User.get(username='rincewind', defercols=True)
+    lookup_by_username = models.User.get(name='rincewind', defercols=True)
     assert lookup_by_username == user_rincewind
 
     # scenario 5: when user.state.MERGED
     assert user_rincewind.state.ACTIVE
-    models.merge_users(user_death, user_rincewind)
+    models.merge_accounts(user_death, user_rincewind)
     assert user_rincewind.state.MERGED
 
     lookup_by_buid = models.User.get(buid=user_rincewind.buid)

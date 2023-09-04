@@ -38,7 +38,7 @@ from coaster.utils import utcnow
 
 from .. import app, shortlinkapp
 from ..forms import supported_locales
-from ..models import Shortlink, User, db, profanity
+from ..models import Account, Shortlink, db, profanity
 from ..proxies import request_wants
 from ..typing import ResponseType, ReturnResponse, ReturnView
 
@@ -97,7 +97,7 @@ def app_context():
     return app.app_context()
 
 
-def str_pw_set_at(user: User) -> str:
+def str_pw_set_at(user: Account) -> str:
     """Render user.pw_set_at as a string, for comparison."""
     if user.pw_set_at is not None:
         return user.pw_set_at.astimezone(utc).replace(microsecond=0).isoformat()
@@ -239,7 +239,7 @@ def get_scheme_netloc(uri: str) -> Tuple[str, str]:
     return (parsed_uri.scheme, parsed_uri.netloc)
 
 
-def autoset_timezone_and_locale(user: User) -> None:
+def autoset_timezone_and_locale(user: Account) -> None:
     # Set the user's timezone and locale automatically if required
     if (
         user.auto_timezone
@@ -562,7 +562,7 @@ def cleanurl_filter(url):
 
 
 @app.template_filter('shortlink')
-def shortlink(url: str, actor: Optional[User] = None, shorter: bool = True) -> str:
+def shortlink(url: str, actor: Optional[Account] = None, shorter: bool = True) -> str:
     """
     Return a short link suitable for sharing, in a template filter.
 

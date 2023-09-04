@@ -161,19 +161,18 @@ def parse_phone_number(
     # candidate that is likely to be a valid number. This behaviour differentiates it
     # from similar code in :func:`~funnel.models.utils.getuser`, where the loop exits
     # with the _last_ valid candidate (as it's coupled with a
-    # :class:`~funnel.models.user.UserPhone` lookup)
+    # :class:`~funnel.models.account.AccountPhone` lookup)
     sms_invalid = False
     try:
         for region in PHONE_LOOKUP_REGIONS:
             parsed_number = phonenumbers.parse(candidate, region)
             if phonenumbers.is_valid_number(parsed_number):
-                if sms:
-                    if phonenumbers.number_type(parsed_number) not in (
-                        phonenumbers.PhoneNumberType.MOBILE,
-                        phonenumbers.PhoneNumberType.FIXED_LINE_OR_MOBILE,
-                    ):
-                        sms_invalid = True
-                        continue  # Not valid for SMS, continue searching regions
+                if sms and phonenumbers.number_type(parsed_number) not in (
+                    phonenumbers.PhoneNumberType.MOBILE,
+                    phonenumbers.PhoneNumberType.FIXED_LINE_OR_MOBILE,
+                ):
+                    sms_invalid = True
+                    continue  # Not valid for SMS, continue searching regions
                 if parsed:
                     return parsed_number
                 return phonenumbers.format_number(
@@ -239,7 +238,7 @@ class PhoneNumber(BaseMixin, Model):
     Represents a phone number as a standalone entity, with associated metadata.
 
     Prior to this model, phone numbers were stored in the
-    :class:`~funnel.models.user.UserPhone` and
+    :class:`~funnel.models.account.AccountPhone` and
     :class:`~funnel.models.notification.SmsMessage models, with no ability to store
     preferences against a number, such as enforcing a block list or scraping against
     mobile number revocation lists.
@@ -432,7 +431,7 @@ class PhoneNumber(BaseMixin, Model):
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: Optional[User]) -> bool:
+    def is_available_for(self, owner: Optional[Account]) -> bool:
         """Return True if this PhoneNumber is available for the proposed owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -634,7 +633,7 @@ class PhoneNumber(BaseMixin, Model):
     @classmethod
     def add_for(
         cls,
-        owner: Optional[User],
+        owner: Optional[Account],
         phone: Union[str, phonenumbers.PhoneNumber],
     ) -> PhoneNumber:
         """
@@ -662,7 +661,7 @@ class PhoneNumber(BaseMixin, Model):
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[User],
+        owner: Optional[Account],
         phone: Union[str, phonenumbers.PhoneNumber],
         new: bool = False,
     ) -> Optional[Literal['taken', 'invalid', 'not_new', 'blocked']]:
@@ -904,4 +903,4 @@ def _phone_number_mixin_configure_events(
 
 
 if TYPE_CHECKING:
-    from .user import User
+    from .account import Account
