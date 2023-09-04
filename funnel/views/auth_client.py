@@ -230,7 +230,7 @@ class AuthClientView(UrlForView, ModelView):
         if form.validate_on_submit():
             perms = set()
             permassign = AuthClientPermissions.get(
-                auth_client=self.obj, user=form.user.data
+                auth_client=self.obj, account=form.user.data
             )
             if permassign is not None:
                 perms.update(permassign.access_permissions.split())
