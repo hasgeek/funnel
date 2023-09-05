@@ -864,13 +864,10 @@ class Account(UuidMixin, BaseMixin, Model):
         # 6. Clear name (username), title (fullname) and stored password hash
         self.name = None
         self.title = ''
+        self.password = None
 
         # 7. Unassign tickets assigned to the user
         self.ticket_participants = []  # pylint: disable=attribute-defined-outside-init
-
-        # 8. Clear fullname and stored password hash
-        self.fullname = ''
-        self.password = None
 
     @with_roles(call={'owner'})
     @profile_state.transition(
@@ -1193,14 +1190,20 @@ class Account(UuidMixin, BaseMixin, Model):
         return cls.validate_name_candidate(name) is None
 
     @sa.orm.validates('name')
-    def _validate_name(self, key: str, value: Optional[str]):
+    def _validate_name(self, key: str, value: Optional[str]) -> Optional[str]:
         """Validate the value of Account.name."""
-        if value and (
-            value.lower() in self.reserved_names or not valid_account_name(value)
-        ):
+        if value is None:
+            return value
+
+        if not isinstance(value, str):
+            raise ValueError(f"Account name must be a string: {value}")
+
+        if not value.strip():
+            raise ValueError("Account name cannot be blank")
+
+        if value.lower() in self.reserved_names or not valid_account_name(value):
             raise ValueError("Invalid account name: " + value)
-        if not value and self.name and not self.state.GONE:
-            raise ValueError("Account name cannot be unset")
+
         # We don't check for existence in the db since this validator only
         # checks for valid syntax. To confirm the name is actually available,
         # the caller must call :meth:`is_available_name` or attempt to commit
