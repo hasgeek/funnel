@@ -163,9 +163,7 @@ class SiteadminView(ClassView):
     @requires_siteadmin
     def generate_shortlink(self) -> ReturnResponse:
         """Form to generate shortlink with addition tags"""
-        return render_template(
-            'siteadmin_generate_shortlinks.html.jinja2'
-        )
+        return render_template('siteadmin_generate_shortlinks.html.jinja2')
 
     @route('data/users_by_month.csv', endpoint='dashboard_data_users_by_month')
     @requires_siteadmin
