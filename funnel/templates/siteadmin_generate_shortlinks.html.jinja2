@@ -6,7 +6,7 @@
   <div class="display-inlineblock search search--small search--icon mui--z1">
     <div class="textfield">
       <input class="field-search mui--text-light js-url-inputbox" type="text" placeholder="Enter url"/>
-      <a class="search-form__icon project-links js-copy-link" href="#" onclick="return false;" data-ga="Copy link to share">{{ faicon(icon='copy', baseline=false, css_class="mui--text-light") }}<span class="js-copy-url mui--hide" aria-hidden="true"></span></a>
+      <a href="#" onclick="return false;" class="search-form__icon project-links js-copy-link" role="button" aria-label="{% trans %}Copy link{% endtrans %}">{{ faicon(icon='copy', baseline=false, css_class="mui--text-light") }}<span class="js-copy-url mui--hide" aria-hidden="true"></span></a>
       <a href="#" onclick="return false;" class="search-form__icon hg-link-btn mui--hide" data-url="" role="button" aria-label="{% trans %}Share link{% endtrans %}">{{ faicon(icon='share-alt', baseline=false, css_class="mui--text-light") }}</a>
     </div>
   </div>
@@ -16,8 +16,9 @@
   <script type="text/javascript">
     $(() => {
       $('.js-url-inputbox').on('change', function() {
-        $('.js-copy-url').text($(this).val());
-        $('.hg-link-btn ').data('url', $(this).val());
+        var url = $(this).val();
+        $('.js-copy-url').text(url);
+        $('.hg-link-btn').data('url', url);
       })
     });
   </script>
