@@ -53,7 +53,7 @@ def downgrade(engine_name: str = '') -> None:
 def upgrade_${db_name}() -> None:
     % if db_name == '':
     """Upgrade default database."""
-    % else
+    % else:
     """Upgrade ${db_name} database."""
     % endif
     ${context.get("%s_upgrades" % db_name, "pass")}
@@ -62,7 +62,7 @@ def upgrade_${db_name}() -> None:
 def downgrade_${db_name}() -> None:
     % if db_name == '':
     """Downgrade default database."""
-    % else
+    % else:
     """Downgrade ${db_name} database."""
     % endif
     ${context.get("%s_downgrades" % db_name, "pass")}
