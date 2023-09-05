@@ -84,17 +84,22 @@ def test_cant_remove_username(db_session, user_twoflower) -> None:
     user_twoflower.username = 'twoflower'
     assert user_twoflower.username == 'twoflower'
 
-    # Can't be removed even though it was None to start with
-    with pytest.raises(ValueError, match='Account name cannot be unset'):
-        user_twoflower.username = None
-
     # Can't be a blank value
-    with pytest.raises(ValueError, match='Account name cannot be unset'):
+    with pytest.raises(ValueError, match='Account name cannot be blank'):
+        user_twoflower.username = ' '
+
+    with pytest.raises(ValueError, match='Account name cannot be blank'):
         user_twoflower.username = ''
 
     # Can't be an invalid value
-    with pytest.raises(ValueError, match='Invalid account name'):
-        user_twoflower.username = ' '
+    with pytest.raises(ValueError, match='Account name must be a string'):
+        user_twoflower.username = []
+
+    with pytest.raises(ValueError, match='Account name must be a string'):
+        user_twoflower.username = False
+
+    with pytest.raises(ValueError, match='Account name must be a string'):
+        user_twoflower.username = True
 
 
 def test_cant_remove_orgname(db_session, org_uu) -> None:
@@ -102,8 +107,6 @@ def test_cant_remove_orgname(db_session, org_uu) -> None:
     assert org_uu.name == 'UU'
     org_uu.name = 'unseen'
     assert org_uu.name == 'unseen'
-    with pytest.raises(ValueError, match='Account name cannot be unset'):
-        org_uu.name = None
 
 
 def test_name_transfer(db_session, user_mort, user_rincewind) -> None:
