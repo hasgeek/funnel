@@ -398,6 +398,11 @@ class Account(UuidMixin, BaseMixin, Model):
             defer(cls.timezone),
         ]
 
+    @classmethod
+    def type_filter(cls) -> sa.ColumnElement[bool]:
+        """Return filter for the subclass's type."""
+        return cls.type_ == cls.__mapper_args__.get('polymorphic_identity')
+
     primary_email: Optional[AccountEmail]
     primary_phone: Optional[AccountPhone]
 
@@ -990,9 +995,7 @@ class Account(UuidMixin, BaseMixin, Model):
         else:
             query = cls.query.filter_by(buid=buid)
         if cls is not Account:
-            query = query.filter(
-                cls.type == cls.__mapper_args__['polymorphic_identity']
-            )
+            query = query.filter(cls.type_filter())
         if defercols:
             query = query.options(*cls._defercols())
         account = query.one_or_none()
@@ -1026,9 +1029,7 @@ class Account(UuidMixin, BaseMixin, Model):
         else:
             return []
         if cls is not Account:
-            query = query.filter(
-                cls.type == cls.__mapper_args__['polymorphic_identity']
-            )
+            query = query.filter(cls.type_filter())
 
         if defercols:
             query = query.options(*cls._defercols())
@@ -1043,9 +1044,7 @@ class Account(UuidMixin, BaseMixin, Model):
         """Construct a query filtered by public profile state."""
         query = cls.query.filter(cls.profile_state.PUBLIC)
         if cls is not Account:
-            query = query.filter(
-                cls.type == cls.__mapper_args__['polymorphic_identity']
-            )
+            query = query.filter(cls.type_filter())
         return query
 
     @classmethod
@@ -1069,9 +1068,7 @@ class Account(UuidMixin, BaseMixin, Model):
         )
 
         if cls is not Account:
-            base_users = base_users.filter(
-                cls.type == cls.__mapper_args__['polymorphic_identity']
-            )
+            base_users = base_users.filter(cls.type_filter())
         base_users = (
             base_users.options(*cls._defercols()).order_by(Account.title).limit(20)
         )
