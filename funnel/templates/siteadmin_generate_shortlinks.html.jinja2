@@ -5,9 +5,11 @@
 {% block content %}
   <div class="display-inlineblock search search--small search--icon mui--z1">
     <div class="textfield">
-      <input class="field-search mui--text-light js-url-inputbox" type="text" placeholder="Enter url"/>
-      <a href="#" onclick="return false;" class="search-form__icon project-links js-copy-link" role="button" aria-label="{% trans %}Copy link{% endtrans %}">{{ faicon(icon='copy', baseline=false, css_class="mui--text-link") }}<span class="js-copy-url mui--hide" aria-hidden="true"></span></a>
-      <a href="#" onclick="return false;" class="search-form__icon hg-link-btn mui--hide" data-url="" role="button" aria-label="{% trans %}Share link{% endtrans %}">{{ faicon(icon='share-alt', baseline=false, css_class="mui--text-link") }}</a>
+      {% if current_auth.user and current_auth.user.is_site_editor %}
+        <input class="field-search mui--text-light js-url-inputbox" type="text" placeholder="Enter url"/>
+        <a href="#" onclick="return false;" class="search-form__icon project-links js-copy-link" role="button" aria-label="{% trans %}Copy link{% endtrans %}">{{ faicon(icon='copy', baseline=true, css_class="mui--text-link") }}<span class="js-copy-url mui--hide" aria-hidden="true"></span></a>
+        <a href="#" onclick="return false;" class="search-form__icon hg-link-btn mui--hide" data-url="" role="button" aria-label="{% trans %}Share link{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, css_class="mui--text-link") }}</a>
+      {%- endif %}
     </div>
   </div>
 {% endblock content %}
