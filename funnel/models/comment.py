@@ -282,7 +282,7 @@ class Comment(UuidMixin, BaseMixin, Model):
             'read': {'created_at', 'urls', 'uuid_b58', 'has_replies'},
             'call': {'state', 'commentset', 'view_for', 'url_for'},
         },
-        'replied_to_commenter': {'granted_via': {'in_reply_to': '_user'}},
+        'replied_to_commenter': {'granted_via': {'in_reply_to': '_posted_by'}},
     }
 
     __datasets__ = {
