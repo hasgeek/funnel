@@ -1,5 +1,7 @@
 """Tests for Account name."""
 
+from typing import Literal
+
 import pytest
 from sqlalchemy.exc import IntegrityError
 
@@ -19,25 +21,32 @@ def test_is_available_name(db_session, user_rincewind) -> None:
 
 
 @pytest.mark.usefixtures('user_rincewind', 'org_uu')
-def test_validate_name_candidate(db_session) -> None:
+@pytest.mark.parametrize('model', ['A', 'U', 'O', 'P'])
+def test_validate_name_candidate(
+    db_session, model: Literal['A', 'U', 'O', 'P']
+) -> None:
     """The name validator returns error codes as expected."""
-    assert (
-        models.Account.validate_name_candidate(None)  # type: ignore[arg-type]
-        == 'blank'
-    )
-    assert models.Account.validate_name_candidate('') == 'blank'
-    assert models.Account.validate_name_candidate('invalid-name') == 'invalid'
-    assert models.Account.validate_name_candidate('0123456789' * 7) == 'long'
-    assert models.Account.validate_name_candidate('0123456789' * 6) is None
-    assert models.Account.validate_name_candidate('ValidName') is None
-    assert models.Account.validate_name_candidate('test_reserved') is None
+    modelref: dict[str, type[models.Account]] = {
+        'A': models.Account,
+        'U': models.User,
+        'O': models.Organization,
+        'P': models.Placeholder,
+    }
+    cls = modelref[model]
+    assert cls.validate_name_candidate(None) == 'blank'  # type: ignore[arg-type]
+    assert cls.validate_name_candidate('') == 'blank'
+    assert cls.validate_name_candidate('invalid-name') == 'invalid'
+    assert cls.validate_name_candidate('0123456789' * 7) == 'long'
+    assert cls.validate_name_candidate('0123456789' * 6) is None
+    assert cls.validate_name_candidate('ValidName') is None
+    assert cls.validate_name_candidate('test_reserved') is None
     db_session.add(models.Placeholder(name='test_reserved'))
-    assert models.Account.validate_name_candidate('test_reserved') == 'reserved'
-    assert models.Account.validate_name_candidate('Test_Reserved') == 'reserved'
-    assert models.Account.validate_name_candidate('TestReserved') is None
-    assert models.Account.validate_name_candidate('rincewind') == 'user'
-    assert models.Account.validate_name_candidate('uu') == 'org'
-    assert models.Account.validate_name_candidate('UU') == 'org'
+    assert cls.validate_name_candidate('test_reserved') == 'reserved'
+    assert cls.validate_name_candidate('Test_Reserved') == 'reserved'
+    assert cls.validate_name_candidate('TestReserved') is None
+    assert cls.validate_name_candidate('rincewind') == 'user'
+    assert cls.validate_name_candidate('uu') == 'org'
+    assert cls.validate_name_candidate('UU') == 'org'
 
 
 def test_reserved_name(db_session) -> None:

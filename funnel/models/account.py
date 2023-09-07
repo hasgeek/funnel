@@ -1161,8 +1161,10 @@ class Account(UuidMixin, BaseMixin, Model):
             return 'invalid'
         if len(name) > cls.__name_length__:
             return 'long'
+        # Look for existing on the base Account model, not the subclass, as SQLAlchemy
+        # will add a filter condition on subclasses to restrict the query to that type.
         existing = (
-            cls.query.filter(sa.func.lower(cls.name) == sa.func.lower(name))
+            Account.query.filter(sa.func.lower(Account.name) == sa.func.lower(name))
             .options(sa.orm.load_only(cls.id, cls.uuid, cls.type_))
             .one_or_none()
         )
