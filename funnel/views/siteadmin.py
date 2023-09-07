@@ -169,7 +169,9 @@ class SiteadminView(ClassView):
                 sa.func.count().label('count'),
             )
             .select_from(Account)
-            .filter(Account.state.ACTIVE)
+            .filter(
+                Account.state.ACTIVE, Account.joined_at.isnot(None), User.type_filter()
+            )
             .group_by('month')
             .order_by('month')
         )
