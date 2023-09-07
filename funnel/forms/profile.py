@@ -13,6 +13,7 @@ __all__ = [
     'ProfileLogoForm',
     'ProfileBannerForm',
     'ProfileTransitionForm',
+    'ProfileBoxofficeForm',
 ]
 
 
@@ -146,3 +147,21 @@ class ProfileBannerForm(forms.Form):
         """Prepare form for use."""
         self.banner_image_url.widget_type = 'modal'
         self.banner_image_url.profile = self.account.name or self.account.buid
+
+
+@Account.forms('boxoffice')
+class ProfileBoxofficeForm(forms.Form):
+    """Link a Boxoffice ticket collection to a profile."""
+
+    __expects__ = ('account',)
+    account: Account
+
+    org = forms.StringField(
+        __("Organization name"),
+        filters=[forms.filters.strip()],
+    )
+    item_collection_id = forms.StringField(
+        __("Item collection id"),
+        validators=[forms.validators.AllowedIf('org')],
+        filters=[forms.filters.strip()],
+    )

@@ -170,7 +170,7 @@ def feature_project_rsvp(obj: Project) -> bool:
 
 
 @Project.features('tickets')
-def feature_project_tickets(obj: Project) -> bool:
+def show_tickets(obj: Project) -> bool:
     return (
         obj.start_at is not None
         and obj.boxoffice_data is not None

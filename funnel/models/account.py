@@ -50,6 +50,7 @@ from . import (
     hybrid_property,
     relationship,
     sa,
+    types
 )
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import (
@@ -233,6 +234,14 @@ class Account(UuidMixin, BaseMixin, Model):
     )
     banner_image_url: Mapped[Optional[furl]] = sa.orm.mapped_column(
         ImgeeType, sa.CheckConstraint("banner_image_url <> ''"), nullable=True
+    )
+    boxoffice_data: Mapped[types.jsonb_dict] = with_roles(
+        sa.orm.mapped_column(),
+        # This is an attribute, but we deliberately use `call` instead of `read` to
+        # block this from dictionary enumeration. FIXME: Break up this dictionary into
+        # individual columns with `all` access for ticket embed id and `promoter`
+        # access for ticket sync access token.
+        call={'all'},
     )
 
     # These two flags are read-only. There is no provision for writing to them within

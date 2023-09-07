@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 from flask import abort, current_app, flash, render_template, request
 
 from baseframe import _
@@ -25,6 +27,7 @@ from ..forms import (
     ProfileForm,
     ProfileLogoForm,
     ProfileTransitionForm,
+    ProfileBoxofficeForm,
 )
 from ..models import Account, Project, Session, db, sa
 from ..typing import ReturnRenderWith, ReturnView
@@ -60,6 +63,14 @@ def feature_profile_make_public(obj: Account):
 @Account.features('make_private')
 def feature_profile_make_private(obj: Account):
     return obj.current_roles.admin and obj.make_profile_private.is_available
+
+@Account.features('show_tickets')
+def show_tickets(obj: Project) -> bool:
+    return (
+        obj.boxoffice_data is not None
+        and 'item_collection_id' in obj.boxoffice_data
+        and obj.boxoffice_data['item_collection_id']
+    )
 
 
 def template_switcher(templateargs):
@@ -457,6 +468,34 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 _("There was a problem saving your changes. Please try again"), 'error'
             )
         return render_redirect(get_next_url(referrer=True))
+
+    @route('boxoffice_data', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'owner'})
+    def edit_boxoffice_data(self) -> ReturnView:
+        """Edit Boxoffice ticket sync data."""
+        boxoffice_data = self.obj.boxoffice_data or {}
+        form = ProfileBoxofficeForm(
+            obj=SimpleNamespace(
+                org=boxoffice_data.get('org', ''),
+                item_collection_id=boxoffice_data.get('item_collection_id', ''),
+            ),
+            account=self.obj,
+            model=Account,
+        )
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            self.obj.boxoffice_data['org'] = form.org.data
+            self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+            return render_redirect(self.obj.url_for())
+        return render_form(
+            form=form,
+            formid='boxoffice',
+            title=_("Edit ticket client details"),
+            submit=_("Save changes"),
+        )
 
 
 ProfileView.init_app(app)
