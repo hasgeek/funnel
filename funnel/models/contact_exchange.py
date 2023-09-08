@@ -57,7 +57,6 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     """Model to track who scanned whose badge, in which project."""
 
     __tablename__ = 'contact_exchange'
-    __allow_unmapped__ = True
     #: User who scanned this contact
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'), primary_key=True

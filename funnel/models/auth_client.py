@@ -89,7 +89,6 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
     """OAuth client application."""
 
     __tablename__ = 'auth_client'
-    __allow_unmapped__ = True
     __scope_null_allowed__ = True
     #: Account that owns this client
     account_id: Mapped[int] = sa.orm.mapped_column(
@@ -285,7 +284,6 @@ class AuthClientCredential(BaseMixin, Model):
     """
 
     __tablename__ = 'auth_client_credential'
-    __allow_unmapped__ = True
     auth_client_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
@@ -373,7 +371,6 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
     """Short-lived authorization tokens."""
 
     __tablename__ = 'auth_code'
-    __allow_unmapped__ = True
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
@@ -419,7 +416,6 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     """Access tokens for access to data."""
 
     __tablename__ = 'auth_token'
-    __allow_unmapped__ = True
     # Account id is null for client-only tokens and public clients as the account is
     # identified via login_session.account there
     account_id: Mapped[int | None] = sa.orm.mapped_column(
@@ -639,7 +635,6 @@ class AuthClientPermissions(BaseMixin, Model):
 
     __tablename__ = 'auth_client_permissions'
     __tablename__ = 'auth_client_permissions'
-    __allow_unmapped__ = True
     #: User account that has these permissions
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
@@ -719,7 +714,6 @@ class AuthClientTeamPermissions(BaseMixin, Model):
     """Permissions assigned to a team on a client app."""
 
     __tablename__ = 'auth_client_team_permissions'
-    __allow_unmapped__ = True
     #: Team which has these permissions
     team_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('team.id'), nullable=False)
     team = relationship(

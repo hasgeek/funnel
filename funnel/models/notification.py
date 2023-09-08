@@ -238,7 +238,6 @@ class SmsMessage(PhoneNumberMixin, BaseMixin, Model):
     """An outbound SMS message."""
 
     __tablename__ = 'sms_message'
-    __allow_unmapped__ = True
     __phone_optional__ = False
     __phone_unique__ = False
     __phone_is_exclusive__ = False
@@ -300,7 +299,6 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     """
 
     __tablename__ = 'notification'
-    __allow_unmapped__ = True
 
     #: Flag indicating this is an active notification type. Can be False for draft
     #: and retired notification types to hide them from preferences UI
@@ -357,7 +355,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
 
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per account (nee profile) or project
-    preference_context: Any = None
+    preference_context: ClassVar[Any] = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
     type_: Mapped[str] = immutable(
@@ -797,7 +795,6 @@ class NotificationRecipient(NotificationRecipientMixin, NoIdMixin, Model):
     """
 
     __tablename__ = 'notification_recipient'
-    __allow_unmapped__ = True
 
     # Primary key is a compound of (recipient_id, eventid).
 
@@ -1251,7 +1248,6 @@ class NotificationPreferences(BaseMixin, Model):
     """Holds a user's preferences for a particular :class:`Notification` type."""
 
     __tablename__ = 'notification_preferences'
-    __allow_unmapped__ = True
 
     #: Id of account whose preferences are represented here
     account_id: Mapped[int] = sa.orm.mapped_column(

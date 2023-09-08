@@ -29,7 +29,6 @@ class ProjectSponsorMembership(  # type: ignore[misc]
     """Sponsor of a project."""
 
     __tablename__ = 'project_sponsor_membership'
-    __allow_unmapped__ = True
 
     # List of data columns in this model that must be copied into revisions
     __data_columns__ = ('seq', 'is_promoted', 'label', 'title')
@@ -160,7 +159,6 @@ class ProposalSponsorMembership(  # type: ignore[misc]
     """Sponsor of a proposal."""
 
     __tablename__ = 'proposal_sponsor_membership'
-    __allow_unmapped__ = True
 
     # List of data columns in this model that must be copied into revisions
     __data_columns__ = ('seq', 'is_promoted', 'label', 'title')

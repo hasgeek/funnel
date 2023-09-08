@@ -122,7 +122,6 @@ class Proposal(  # type: ignore[misc]
     UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
 ):
     __tablename__ = 'proposal'
-    __allow_unmapped__ = True
 
     created_by_id = sa.orm.mapped_column(sa.ForeignKey('account.id'), nullable=False)
     created_by = with_roles(
@@ -513,7 +512,6 @@ class ProposalSuuidRedirect(BaseMixin, Model):
     """Holds Proposal SUUIDs from before when they were deprecated."""
 
     __tablename__ = 'proposal_suuid_redirect'
-    __allow_unmapped__ = True
 
     suuid = sa.orm.mapped_column(sa.Unicode(22), nullable=False, index=True)
     proposal_id = sa.orm.mapped_column(

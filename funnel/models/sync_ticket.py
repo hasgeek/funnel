@@ -113,7 +113,6 @@ class TicketEvent(GetTitleMixin, Model):
     """
 
     __tablename__ = 'ticket_event'
-    __allow_unmapped__ = True
 
     project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
@@ -169,7 +168,6 @@ class TicketType(GetTitleMixin, Model):
     """
 
     __tablename__ = 'ticket_type'
-    __allow_unmapped__ = True
 
     project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
@@ -209,7 +207,6 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     """A participant in one or more events, synced from an external ticket source."""
 
     __tablename__ = 'ticket_participant'
-    __allow_unmapped__ = True
     __email_optional__ = False
     __email_for__ = 'participant'
 
@@ -393,7 +390,6 @@ class TicketEventParticipant(BaseMixin, Model):
     """Join model between :class:`TicketParticipant` and :class:`TicketEvent`."""
 
     __tablename__ = 'ticket_event_participant'
-    __allow_unmapped__ = True
 
     ticket_participant_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_participant.id'), nullable=False
@@ -447,7 +443,6 @@ class TicketEventParticipant(BaseMixin, Model):
 
 class TicketClient(BaseMixin, Model):
     __tablename__ = 'ticket_client'
-    __allow_unmapped__ = True
     name = with_roles(
         sa.orm.mapped_column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
     )
@@ -519,7 +514,6 @@ class SyncTicket(BaseMixin, Model):
     """Model for a ticket that was bought elsewhere, like Boxoffice or Explara."""
 
     __tablename__ = 'sync_ticket'
-    __allow_unmapped__ = True
 
     ticket_no = sa.orm.mapped_column(sa.Unicode(80), nullable=False)
     order_no = sa.orm.mapped_column(sa.Unicode(80), nullable=False)

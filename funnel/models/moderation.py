@@ -22,7 +22,6 @@ class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
 
 class CommentModeratorReport(UuidMixin, BaseMixin, Model):
     __tablename__ = 'comment_moderator_report'
-    __allow_unmapped__ = True
     __uuid_primary_key__ = True
 
     comment_id = sa.orm.mapped_column(

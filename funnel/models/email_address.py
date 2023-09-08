@@ -180,7 +180,6 @@ class EmailAddress(BaseMixin, Model):
     """
 
     __tablename__ = 'email_address'
-    __allow_unmapped__ = True
 
     #: Backrefs to this model from other models, populated by :class:`EmailAddressMixin`
     #: Contains the name of the relationship in the :class:`EmailAddress` model

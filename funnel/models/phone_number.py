@@ -250,7 +250,6 @@ class PhoneNumber(BaseMixin, Model):
     """
 
     __tablename__ = 'phone_number'
-    __allow_unmapped__ = True
 
     #: Backrefs to this model from other models, populated by :class:`PhoneNumberMixin`
     #: Contains the name of the relationship in the :class:`PhoneNumber` model

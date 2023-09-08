@@ -95,7 +95,6 @@ class GeoAdmin1Code(BaseMixin, GeonameModel):
     """Geoname record for 1st level administrative division (state, province)."""
 
     __tablename__ = 'geo_admin1_code'
-    __allow_unmapped__ = True
 
     geonameid: Mapped[int] = sa.orm.synonym('id')
     geoname: Mapped[GeoName] = relationship(
@@ -122,7 +121,6 @@ class GeoAdmin2Code(BaseMixin, GeonameModel):
     """Geoname record for 2nd level administrative division (district, county)."""
 
     __tablename__ = 'geo_admin2_code'
-    __allow_unmapped__ = True
 
     geonameid: Mapped[int] = sa.orm.synonym('id')
     geoname: Mapped[GeoName] = relationship(
@@ -150,7 +148,6 @@ class GeoName(BaseNameMixin, GeonameModel):
     """Geographical name record."""
 
     __tablename__ = 'geo_name'
-    __allow_unmapped__ = True
 
     geonameid: Mapped[int] = sa.orm.synonym('id')
     ascii_title = sa.orm.mapped_column(sa.Unicode)
@@ -583,7 +580,6 @@ class GeoAltName(BaseMixin, GeonameModel):
     """Additional names for any :class:`GeoName`."""
 
     __tablename__ = 'geo_alt_name'
-    __allow_unmapped__ = True
 
     geonameid = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('geo_name.id'), nullable=False

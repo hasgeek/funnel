@@ -88,7 +88,6 @@ message_removed = MessageComposite(__("[removed]"), 'del')
 
 class Commentset(UuidMixin, BaseMixin, Model):
     __tablename__ = 'commentset'
-    __allow_unmapped__ = True
     #: Commentset state code
     _state = sa.orm.mapped_column(
         'state',
@@ -208,7 +207,6 @@ class Commentset(UuidMixin, BaseMixin, Model):
 
 class Comment(UuidMixin, BaseMixin, Model):
     __tablename__ = 'comment'
-    __allow_unmapped__ = True
 
     posted_by_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True

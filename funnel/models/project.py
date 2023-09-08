@@ -69,7 +69,6 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
 
 class Project(UuidMixin, BaseScopedNameMixin, Model):
     __tablename__ = 'project'
-    __allow_unmapped__ = True
     reserved_names = RESERVED_NAMES
 
     created_by_id = sa.orm.mapped_column(sa.ForeignKey('account.id'), nullable=False)
@@ -297,6 +296,9 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         nullable=False,
         deferred=True,
     )
+
+    # Relationships
+    primary_venue: Mapped[Venue | None] = relationship()
 
     __table_args__ = (
         sa.UniqueConstraint('account_id', 'name'),
@@ -841,7 +843,6 @@ class __Account:
 
 class ProjectRedirect(TimestampMixin, Model):
     __tablename__ = 'project_redirect'
-    __allow_unmapped__ = True
 
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, primary_key=True
@@ -924,7 +925,6 @@ class ProjectRedirect(TimestampMixin, Model):
 
 class ProjectLocation(TimestampMixin, Model):
     __tablename__ = 'project_location'
-    __allow_unmapped__ = True
     #: Project we are tagging
     project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False
