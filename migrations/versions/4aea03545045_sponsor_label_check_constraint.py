@@ -6,16 +6,14 @@ Create Date: 2021-04-27 04:47:11.001289
 
 """
 
-from typing import Optional, Tuple, Union
-
 from alembic import op
 from sqlalchemy.sql import column
 
 # revision identifiers, used by Alembic.
 revision = '4aea03545045'
 down_revision = 'aebd5a9e5af1'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 def upgrade() -> None:

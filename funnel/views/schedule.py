@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from datetime import timedelta
 from types import SimpleNamespace
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, cast
 
 from flask import Response, current_app, json
 from icalendar import Alarm, Calendar, Event, vCalAddress, vText
@@ -35,7 +35,7 @@ from .mixins import ProjectViewMixin, VenueRoomViewMixin
 
 
 def session_data(
-    session: Session, with_modal_url: Optional[str] = None, with_delete_url=False
+    session: Session, with_modal_url: str | None = None, with_delete_url=False
 ):
     data = {
         'id': session.url_id,
@@ -76,7 +76,7 @@ def session_data(
 
 
 def session_list_data(
-    sessions: List[Session], with_modal_url=False, with_delete_url=False
+    sessions: list[Session], with_modal_url=False, with_delete_url=False
 ):
     return [
         session_data(session, with_modal_url, with_delete_url) for session in sessions
@@ -85,12 +85,12 @@ def session_list_data(
 
 def schedule_data(
     project: Project, with_slots=True, scheduled_sessions=None
-) -> List[dict]:
+) -> list[dict]:
     scheduled_sessions = scheduled_sessions or session_list_data(
         project.scheduled_sessions
     )
-    data: Dict[str, Dict[str, list]] = defaultdict(lambda: defaultdict(list))
-    start_end_datetime: Dict[str, dict] = defaultdict(dict)
+    data: dict[str, dict[str, list]] = defaultdict(lambda: defaultdict(list))
+    start_end_datetime: dict[str, dict] = defaultdict(dict)
     for session in scheduled_sessions:
         day = str(session['start_at'].date())
         # calculate the start and end time for the day
@@ -111,7 +111,7 @@ def schedule_data(
             data[day] = {}
     schedule = []
     for day in sorted(data):
-        daydata: Dict[str, Any] = {'date': day, 'slots': []}
+        daydata: dict[str, Any] = {'date': day, 'slots': []}
         daydata['start_at'] = start_end_datetime[day]['start_at'].isoformat()
         daydata['end_at'] = start_end_datetime[day]['end_at'].isoformat()
         for slot in sorted(data[day]):
@@ -121,7 +121,7 @@ def schedule_data(
 
 
 def schedule_ical(
-    project: Project, rsvp: Optional[Rsvp] = None, future_only: bool = False
+    project: Project, rsvp: Rsvp | None = None, future_only: bool = False
 ):
     cal = Calendar()
     cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
@@ -170,7 +170,7 @@ def project_as_session(project: Project) -> SimpleNamespace:
     )
 
 
-def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
+def session_ical(session: Session, rsvp: Rsvp | None = None) -> Event:
     # This function is only called with scheduled sessions.
     # If for some reason it is used somewhere else and called with an unscheduled
     # session, this function should fail.

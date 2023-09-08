@@ -7,7 +7,6 @@ Create Date: 2021-04-28 18:02:29.867574
 """
 
 from types import SimpleNamespace
-from typing import Optional, Tuple, Union
 
 import progressbar.widgets
 import sqlalchemy as sa
@@ -26,8 +25,8 @@ except ImportError:
 # revision identifiers, used by Alembic.
 revision = 'ca578c1b82e8'
 down_revision = 'fb8eb6e5b70a'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 GEOIP_DB_CITY = '/usr/share/GeoIP/GeoLite2-City.mmdb'
 GEOIP_DB_ASN = '/usr/share/GeoIP/GeoLite2-ASN.mmdb'

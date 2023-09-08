@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import unicodedata
-from typing import TYPE_CHECKING, Any, List, Optional, Set, Type, Union, cast, overload
-from typing_extensions import Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, cast, overload
 
 import base58
 import idna
@@ -64,7 +63,7 @@ class EMAIL_DELIVERY_STATE(LabeledEnum):  # noqa: N801
     HARD_FAIL = (5, 'hard_fail')  # Hard fail reported
 
 
-def canonical_email_representation(email: str) -> List[str]:
+def canonical_email_representation(email: str) -> list[str]:
     """
     Construct canonical representations of the email address, for deduplication.
 
@@ -185,10 +184,10 @@ class EmailAddress(BaseMixin, Model):
 
     #: Backrefs to this model from other models, populated by :class:`EmailAddressMixin`
     #: Contains the name of the relationship in the :class:`EmailAddress` model
-    __backrefs__: Set[str] = set()
+    __backrefs__: ClassVar[set[str]] = set()
     #: These backrefs claim exclusive use of the email address for their linked owner.
     #: See :class:`EmailAddressMixin` for implementation detail
-    __exclusive_backrefs__: Set[str] = set()
+    __exclusive_backrefs__: ClassVar[set[str]] = set()
 
     #: The email address, centrepiece of this model. Case preserving.
     #: Validated by the :func:`_validate_email` event handler
@@ -301,19 +300,19 @@ class EmailAddress(BaseMixin, Model):
             return self._is_blocked
 
     @hybrid_property
-    def domain(self) -> Optional[str]:
+    def domain(self) -> str | None:
         """Domain of the email, stored for quick lookup of related addresses."""
         return self._domain
 
     # This should not use `cached_property` as email is partially mutable
     @property
-    def email_normalized(self) -> Optional[str]:
+    def email_normalized(self) -> str | None:
         """Return normalized representation of the email address, for hashing."""
         return email_normalized(self.email) if self.email else None
 
     # This should not use `cached_property` as email is partially mutable
     @property
-    def email_canonical(self) -> Optional[str]:
+    def email_canonical(self) -> str | None:
         """
         Email address with the ``+sub-address`` portion of the mailbox removed.
 
@@ -336,7 +335,7 @@ class EmailAddress(BaseMixin, Model):
     transport_hash = email_hash
 
     @with_roles(call={'all'})
-    def md5(self) -> Optional[str]:
+    def md5(self) -> str | None:
         """MD5 hash of :property:`email_normalized`, for legacy use only."""
         return (
             hashlib.md5(
@@ -383,7 +382,7 @@ class EmailAddress(BaseMixin, Model):
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: Optional[Account]) -> bool:
+    def is_available_for(self, owner: Account | None) -> bool:
         """Return True if this EmailAddress is available for the proposed owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -437,7 +436,7 @@ class EmailAddress(BaseMixin, Model):
 
     @overload
     @classmethod
-    def get_filter(cls, *, email: str) -> Optional[sa.ColumnElement[bool]]:
+    def get_filter(cls, *, email: str) -> sa.ColumnElement[bool] | None:
         ...
 
     @overload
@@ -455,20 +454,20 @@ class EmailAddress(BaseMixin, Model):
     def get_filter(
         cls,
         *,
-        email: Optional[str],
-        blake2b160: Optional[bytes],
-        email_hash: Optional[str],
-    ) -> Optional[sa.ColumnElement[bool]]:
+        email: str | None,
+        blake2b160: bytes | None,
+        email_hash: str | None,
+    ) -> sa.ColumnElement[bool] | None:
         ...
 
     @classmethod
     def get_filter(
         cls,
         *,
-        email: Optional[str] = None,
-        blake2b160: Optional[bytes] = None,
-        email_hash: Optional[str] = None,
-    ) -> Optional[sa.ColumnElement[bool]]:
+        email: str | None = None,
+        blake2b160: bytes | None = None,
+        email_hash: str | None = None,
+    ) -> sa.ColumnElement[bool] | None:
         """
         Get an filter condition for retriving an :class:`EmailAddress`.
 
@@ -491,7 +490,7 @@ class EmailAddress(BaseMixin, Model):
     def get(
         cls,
         email: str,
-    ) -> Optional[EmailAddress]:
+    ) -> EmailAddress | None:
         ...
 
     @overload
@@ -500,7 +499,7 @@ class EmailAddress(BaseMixin, Model):
         cls,
         *,
         blake2b160: bytes,
-    ) -> Optional[EmailAddress]:
+    ) -> EmailAddress | None:
         ...
 
     @overload
@@ -509,17 +508,17 @@ class EmailAddress(BaseMixin, Model):
         cls,
         *,
         email_hash: str,
-    ) -> Optional[EmailAddress]:
+    ) -> EmailAddress | None:
         ...
 
     @classmethod
     def get(
         cls,
-        email: Optional[str] = None,
+        email: str | None = None,
         *,
-        blake2b160: Optional[bytes] = None,
-        email_hash: Optional[str] = None,
-    ) -> Optional[EmailAddress]:
+        blake2b160: bytes | None = None,
+        email_hash: str | None = None,
+    ) -> EmailAddress | None:
         """
         Get an :class:`EmailAddress` instance by email address or its hash.
 
@@ -531,7 +530,7 @@ class EmailAddress(BaseMixin, Model):
 
     @classmethod
     def get_canonical(
-        cls, email: str, is_blocked: Optional[bool] = None
+        cls, email: str, is_blocked: bool | None = None
     ) -> Query[EmailAddress]:
         """
         Get :class:`EmailAddress` instances matching the canonical representation.
@@ -548,7 +547,7 @@ class EmailAddress(BaseMixin, Model):
         return query
 
     @classmethod
-    def _get_existing(cls, email: str) -> Optional[EmailAddress]:
+    def _get_existing(cls, email: str) -> EmailAddress | None:
         """
         Get an existing :class:`EmailAddress` instance.
 
@@ -582,7 +581,7 @@ class EmailAddress(BaseMixin, Model):
         return new_email
 
     @classmethod
-    def add_for(cls, owner: Optional[Account], email: str) -> EmailAddress:
+    def add_for(cls, owner: Account | None, email: str) -> EmailAddress:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -603,11 +602,11 @@ class EmailAddress(BaseMixin, Model):
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[Account],
+        owner: Account | None,
         email: str,
         check_dns: bool = False,
         new: bool = False,
-    ) -> Optional[
+    ) -> (
         Literal[
             'taken',
             'nomx',
@@ -617,8 +616,9 @@ class EmailAddress(BaseMixin, Model):
             'invalid',
             'nullmx',
             'blocked',
-        ],
-    ]:
+        ]
+        | None
+    ):
         """
         Validate whether the email address is available to the proposed owner.
 
@@ -677,7 +677,7 @@ class EmailAddress(BaseMixin, Model):
     @staticmethod
     def is_valid_email_address(
         email: str, check_dns: bool = False, diagnose: bool = False
-    ) -> Union[bool, BaseDiagnosis]:
+    ) -> bool | BaseDiagnosis:
         """
         Return True if given email address is syntactically valid.
 
@@ -709,18 +709,18 @@ class EmailAddressMixin:
     __tablename__: str
 
     #: This class has an optional dependency on EmailAddress
-    __email_optional__: bool = True
+    __email_optional__: ClassVar[bool] = True
     #: This class has a unique constraint on the fkey to EmailAddress
-    __email_unique__: bool = False
+    __email_unique__: ClassVar[bool] = False
     #: A relationship from this model is for the (single) owner at this attr
-    __email_for__: Optional[str] = None
+    __email_for__: ClassVar[str | None] = None
     #: If `__email_for__` is specified and this flag is True, the email address is
     #: considered exclusive to this owner and may not be used by any other owner
-    __email_is_exclusive__: bool = False
+    __email_is_exclusive__: ClassVar[bool] = False
 
     @declared_attr
     @classmethod
-    def email_address_id(cls) -> Mapped[Optional[int]]:
+    def email_address_id(cls) -> Mapped[int | None]:
         """Foreign key to email_address table."""
         return sa.orm.mapped_column(
             sa.Integer,
@@ -741,7 +741,7 @@ class EmailAddressMixin:
         return relationship(EmailAddress, backref=backref_name)
 
     @property
-    def email(self) -> Optional[str]:
+    def email(self) -> str | None:
         """
         Shorthand for ``self.email_address.email``.
 
@@ -758,7 +758,7 @@ class EmailAddressMixin:
         return None
 
     @email.setter
-    def email(self, value: Optional[str]) -> None:
+    def email(self, value: str | None) -> None:
         """Set an email address."""
         if self.__email_for__:
             if value is not None:
@@ -785,7 +785,7 @@ class EmailAddressMixin:
         return True
 
     @property
-    def transport_hash(self) -> Optional[str]:
+    def transport_hash(self) -> str | None:
         """Email hash using the compatibility name for notifications framework."""
         return (
             self.email_address.email_hash
@@ -872,8 +872,8 @@ def _setup_refcount_events() -> None:
 
 def _email_address_mixin_set_validator(
     target: EmailAddressMixin,
-    value: Optional[EmailAddress],
-    old_value: Optional[EmailAddress],
+    value: EmailAddress | None,
+    old_value: EmailAddress | None,
     _initiator: Any,
 ) -> None:
     if value != old_value and target.__email_for__:
@@ -886,7 +886,7 @@ def _email_address_mixin_set_validator(
 
 @event.listens_for(EmailAddressMixin, 'mapper_configured', propagate=True)
 def _email_address_mixin_configure_events(
-    _mapper: Any, cls: Type[EmailAddressMixin]
+    _mapper: Any, cls: type[EmailAddressMixin]
 ) -> None:
     event.listen(cls.email_address, 'set', _email_address_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)

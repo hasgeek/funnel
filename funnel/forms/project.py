@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from typing import Optional
 
 from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import AvailableName
@@ -47,7 +46,7 @@ class ProjectForm(forms.Form):
 
     __expects__ = ('account',)
     account: Account
-    edit_obj: Optional[Project]
+    edit_obj: Project | None
 
     title = forms.StringField(
         __("Title"),
@@ -363,7 +362,7 @@ class ProjectRegisterForm(forms.Form):
     """Register for a project with an optional custom JSON form."""
 
     __expects__ = ('schema',)
-    schema: Optional[dict]
+    schema: dict | None
 
     form = forms.TextAreaField(
         __("Form"),

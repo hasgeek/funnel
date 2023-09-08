@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from flask import abort, flash, render_template, request
 
@@ -135,7 +135,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         self,
         account: str,  # skipcq: PYL-W0613
         project: str,  # skipcq: PYL-W0613
-        sponsorship: Optional[str] = None,
+        sponsorship: str | None = None,
     ) -> ProjectSponsorMembership:
         obj = (
             self.model.query.join(Project)

@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import base64
 import os
-from typing import Any, Iterable, List, Optional, Sequence
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from coaster.sqlalchemy import LazyRoleSet
 
@@ -74,8 +75,8 @@ ticket_event_ticket_type = sa.Table(
 class GetTitleMixin(BaseScopedNameMixin):
     @classmethod
     def get(
-        cls, parent: Any, name: Optional[str] = None, title: Optional[str] = None
-    ) -> Optional[GetTitleMixin]:
+        cls, parent: Any, name: str | None = None, title: str | None = None
+    ) -> GetTitleMixin | None:
         if not bool(name) ^ bool(title):
             raise TypeError("Expects name xor title")
         if name:
@@ -86,8 +87,8 @@ class GetTitleMixin(BaseScopedNameMixin):
     def upsert(  # type: ignore[override]  # pylint: disable=arguments-renamed
         cls,
         parent: Any,
-        current_name: Optional[str] = None,
-        current_title: Optional[str] = None,
+        current_name: str | None = None,
+        current_title: str | None = None,
         **fields,
     ) -> GetTitleMixin:
         instance = cls.get(parent, current_name, current_title)
@@ -123,7 +124,7 @@ class TicketEvent(GetTitleMixin, Model):
         grants_via={None: project_child_role_map},
     )
     parent: Mapped[Project] = sa.orm.synonym('project')
-    ticket_types: Mapped[List[TicketType]] = with_roles(
+    ticket_types: Mapped[list[TicketType]] = with_roles(
         relationship(
             'TicketType',
             secondary=ticket_event_ticket_type,
@@ -179,7 +180,7 @@ class TicketType(GetTitleMixin, Model):
         grants_via={None: project_child_role_map},
     )
     parent: Mapped[Project] = sa.orm.synonym('project')
-    ticket_events: Mapped[List[TicketEvent]] = with_roles(
+    ticket_events: Mapped[list[TicketEvent]] = with_roles(
         relationship(
             TicketEvent,
             secondary=ticket_event_ticket_type,
@@ -249,10 +250,10 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
         sa.Unicode(44), nullable=False, default=make_private_key, unique=True
     )
     badge_printed = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
-    participant_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+    participant_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True
     )
-    participant: Mapped[Optional[Account]] = relationship(
+    participant: Mapped[Account | None] = relationship(
         Account, backref=backref('ticket_participants', cascade='all')
     )
     project_id = sa.orm.mapped_column(
@@ -275,7 +276,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     }
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Sequence = ()
+        self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
@@ -299,7 +300,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     with_roles(has_public_profile, read={'all'})
 
     @property
-    def profile_url(self) -> Optional[str]:
+    def profile_url(self) -> str | None:
         return self.participant.profile_url if self.participant else None
 
     with_roles(profile_url, read={'all'})
@@ -307,7 +308,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     @classmethod
     def get(
         cls, current_project: Project, current_email: str
-    ) -> Optional[TicketParticipant]:
+    ) -> TicketParticipant | None:
         return cls.query.filter_by(
             project=current_project, email_address=EmailAddress.get(current_email)
         ).one_or_none()
@@ -347,7 +348,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
                 self.ticket_events.remove(ticket_event)
 
     @classmethod
-    def checkin_list(cls, ticket_event: TicketEvent) -> List:  # TODO: List type?
+    def checkin_list(cls, ticket_event: TicketEvent) -> list:  # TODO: List type?
         """
         Return ticket participant details as a comma separated string.
 
@@ -433,7 +434,7 @@ class TicketEventParticipant(BaseMixin, Model):
     @classmethod
     def get(
         cls, ticket_event: TicketEvent, participant_uuid_b58: str
-    ) -> Optional[TicketEventParticipant]:
+    ) -> TicketEventParticipant | None:
         return (
             cls.query.join(TicketParticipant)
             .filter(
@@ -546,7 +547,7 @@ class SyncTicket(BaseMixin, Model):
     @classmethod
     def get(
         cls, ticket_client: TicketClient, order_no: str, ticket_no: str
-    ) -> Optional[SyncTicket]:
+    ) -> SyncTicket | None:
         return cls.query.filter_by(
             ticket_client=ticket_client, order_no=order_no, ticket_no=ticket_no
         ).one_or_none()

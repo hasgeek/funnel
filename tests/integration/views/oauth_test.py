@@ -2,7 +2,6 @@
 
 from base64 import b64encode
 from secrets import token_urlsafe
-from typing import Dict
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
@@ -29,7 +28,7 @@ def test_authcode_wellformed(
     login.as_(user_rincewind)
 
     # Incomplete request
-    query_params: Dict[str, str] = {}
+    query_params: dict[str, str] = {}
     rv = client.get('/api/1/auth', query_string=query_params)
     assert rv.status_code == 403
     assert "Missing client_id" in rv.get_data(as_text=True)

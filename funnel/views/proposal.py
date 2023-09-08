@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional, Union
-
 from flask import abort, flash, request
 
 from baseframe import _, __
@@ -143,7 +141,7 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         'project': 'project.name',
         'proposal': 'url_name_uuid_b58',
     }
-    obj: Union[Proposal, ProposalSuuidRedirect]
+    obj: Proposal | ProposalSuuidRedirect
 
     SavedProjectForm = SavedProjectForm
 
@@ -152,7 +150,7 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         account: str,  # skipcq: PYL-W0613
         project: str,  # skipcq: PYL-W0613
         proposal: str,
-    ) -> Union[Proposal, ProposalSuuidRedirect]:
+    ) -> Proposal | ProposalSuuidRedirect:
         # `account` and `project` are part of the URL, but unnecessary for loading
         # a proposal since it has a unique id embedded. These parameters are not
         # used in the query.
@@ -175,7 +173,7 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             abort(410)
         return obj
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         if isinstance(self.obj, ProposalSuuidRedirect):
             if self.obj.proposal:
                 self.account = self.obj.proposal.project.account

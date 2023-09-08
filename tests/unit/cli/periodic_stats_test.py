@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Union
-
 import httpx
 import pytest
 from respx import MockRouter
@@ -15,7 +13,7 @@ MATOMO_URL = 'https://matomo.test/'
 
 
 @pytest.fixture(scope='module')
-def matomo_sample_response() -> List[Dict[str, Union[str, int]]]:
+def matomo_sample_response() -> list[dict[str, str | int]]:
     """Sample response for method=Referrers.getSocials."""
     return [
         {
@@ -98,7 +96,7 @@ async def test_matomo_response_json_error(respx_mock: MockRouter) -> None:
 
 @pytest.mark.asyncio()
 async def test_matomo_response_json_valid(
-    respx_mock: MockRouter, matomo_sample_response: List[Dict[str, Union[str, int]]]
+    respx_mock: MockRouter, matomo_sample_response: list[dict[str, str | int]]
 ) -> None:
     async with httpx.AsyncClient() as client:
         respx_mock.get(MATOMO_URL).mock(
@@ -145,7 +143,7 @@ async def test_matomo_response_json_valid(
         ({'label': 'no-url', 'nb_visits': 0}, None),
     ],
 )
-def test_matomo_response_url(jsondata: dict, url: Optional[str]) -> None:
+def test_matomo_response_url(jsondata: dict, url: str | None) -> None:
     """Parse a valid URL from Matomo response data."""
     assert cli_stats.MatomoResponse.from_dict(jsondata).get_url() == url
 

@@ -4,22 +4,10 @@ from __future__ import annotations
 
 import os.path
 import re
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Type,
-    TypeVar,
-    cast,
-)
+from typing import Any, ClassVar, TypeVar, cast
 
 from better_profanity import profanity
 from furl import furl
@@ -58,7 +46,7 @@ __all__ = [
     'MarkdownCompositeInline',
 ]
 
-RESERVED_NAMES: Set[str] = {
+RESERVED_NAMES: set[str] = {
     '_baseframe',
     'about',
     'account',
@@ -164,7 +152,7 @@ class PasswordCheckType:
     is_weak: bool
     score: int  # One of 0, 1, 2, 3, 4
     warning: str
-    suggestions: List[str]
+    suggestions: list[str]
 
 
 #: Minimum length for a password
@@ -177,7 +165,7 @@ PASSWORD_MIN_SCORE = 3
 
 
 def check_password_strength(
-    password: str, user_inputs: Optional[Iterable[str]] = None
+    password: str, user_inputs: Iterable[str] | None = None
 ) -> PasswordCheckType:
     """Check the strength of a password using zxcvbn."""
     result = zxcvbn(password, user_inputs)
@@ -212,7 +200,7 @@ with open(
 visual_field_delimiter = ' ¦ '
 
 
-def add_to_class(cls: Type, name: Optional[str] = None) -> Callable[[T], T]:
+def add_to_class(cls: type, name: str | None = None) -> Callable[[T], T]:
     """
     Add a new method to a class via a decorator. Takes an optional attribute name.
 
@@ -229,7 +217,7 @@ def add_to_class(cls: Type, name: Optional[str] = None) -> Callable[[T], T]:
     """
 
     def decorator(attr: T) -> T:
-        use_name: Optional[str] = name or getattr(attr, '__name__', None)
+        use_name: str | None = name or getattr(attr, '__name__', None)
         if not use_name:  # pragma: no cover
             # None or '' not allowed
             raise ValueError(f"Could not determine name for {attr!r}")
@@ -395,7 +383,7 @@ def quote_autocomplete_tsquery(prefix: str) -> TSQUERY:
     )
 
 
-def add_search_trigger(model: Type[Model], column_name: str) -> Dict[str, str]:
+def add_search_trigger(model: type[Model], column_name: str) -> dict[str, str]:
     """
     Add a search trigger and returns SQL for use in migrations.
 
@@ -521,7 +509,7 @@ class MessageComposite:
     :param tag: Optional wrapper tag for HTML rendering
     """
 
-    def __init__(self, text: str, tag: Optional[str] = None) -> None:
+    def __init__(self, text: str, tag: str | None = None) -> None:
         self.text = text
         self.tag = tag
 
@@ -549,7 +537,7 @@ class MessageComposite:
     def html(self) -> Markup:
         return Markup(self.__html__())
 
-    def __json__(self) -> Dict[str, Any]:
+    def __json__(self) -> dict[str, Any]:
         """Return JSON-compatible rendering of contents."""
         return {'text': self.text, 'html': self.__html__()}
 
@@ -557,7 +545,7 @@ class MessageComposite:
 class ImgeeFurl(furl):
     """Furl with a resize method specifically for Imgee URLs."""
 
-    def resize(self, width: int, height: Optional[int] = None) -> furl:
+    def resize(self, width: int, height: int | None = None) -> furl:
         """
         Return image url with `?size=WxH` suffixed to it.
 
@@ -600,15 +588,15 @@ class MarkdownCompositeBase(MutableComposite):
 
     config: ClassVar[MarkdownConfig]
 
-    def __init__(self, text: Optional[str], html: Optional[str] = None) -> None:
+    def __init__(self, text: str | None, html: str | None = None) -> None:
         """Create a composite."""
         if html is None:
             self.text = text  # This will regenerate HTML
         else:
             self._text = text
-            self._html: Optional[str] = html
+            self._html: str | None = html
 
-    def __composite_values__(self) -> Tuple[Optional[str], Optional[str]]:
+    def __composite_values__(self) -> tuple[str | None, str | None]:
         """Return composite values for SQLAlchemy."""
         return (self._text, self._html)
 
@@ -639,23 +627,23 @@ class MarkdownCompositeBase(MutableComposite):
 
     # Return a Markup string of the HTML
     @property
-    def html(self) -> Optional[Markup]:
+    def html(self) -> Markup | None:
         """Return HTML as a read-only property."""
         return Markup(self._html) if self._html is not None else None
 
     @property
-    def text(self) -> Optional[str]:
+    def text(self) -> str | None:
         """Return text as a property."""
         return self._text
 
     @text.setter
-    def text(self, value: Optional[str]) -> None:
+    def text(self, value: str | None) -> None:
         """Set the text value."""
         self._text = None if value is None else str(value)
         self._html = self.config.render(self._text)
         self.changed()
 
-    def __json__(self) -> Dict[str, Optional[str]]:
+    def __json__(self) -> dict[str, str | None]:
         """Return JSON-compatible rendering of composite."""
         return {'text': self._text, 'html': self._html}
 
@@ -675,12 +663,12 @@ class MarkdownCompositeBase(MutableComposite):
     # tested here as we don't use them.
     # https://docs.sqlalchemy.org/en/13/orm/extensions/mutable.html#id1
 
-    def __getstate__(self) -> Tuple[Optional[str], Optional[str]]:
+    def __getstate__(self) -> tuple[str | None, str | None]:
         """Get state for pickling."""
         # Return state for pickling
         return (self._text, self._html)
 
-    def __setstate__(self, state: Tuple[Optional[str], Optional[str]]) -> None:
+    def __setstate__(self, state: tuple[str | None, str | None]) -> None:
         """Set state from pickle."""
         # Set state from pickle
         self._text, self._html = state
@@ -691,18 +679,18 @@ class MarkdownCompositeBase(MutableComposite):
         return bool(self._text)
 
     @classmethod
-    def coerce(cls: Type[_MC], key: str, value: Any) -> _MC:
+    def coerce(cls: type[_MC], key: str, value: Any) -> _MC:
         """Allow a composite column to be assigned a string value."""
         return cls(value)
 
     @classmethod
     def create(
-        cls: Type[_MC],
+        cls: type[_MC],
         name: str,
         deferred: bool = False,
-        deferred_group: Optional[str] = None,
+        deferred_group: str | None = None,
         **kwargs,
-    ) -> Tuple[sa.orm.Composite[_MC], Mapped[str], Mapped[str]]:
+    ) -> tuple[sa.orm.Composite[_MC], Mapped[str], Mapped[str]]:
         """Create a composite column and backing individual columns."""
         col_text = sa.orm.mapped_column(
             name + '_text',

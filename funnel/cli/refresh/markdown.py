@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import ClassVar, Dict, Generic, Iterable, List, Optional, Set, Type, TypeVar
+from collections.abc import Iterable
+from typing import ClassVar, Generic, TypeVar
 
 import click
 import rich.progress
@@ -17,27 +18,27 @@ _M = TypeVar('_M', bound=MarkdownModelUnion)
 class MarkdownModel(Generic[_M]):
     """Holding class for a model that has markdown fields with custom configuration."""
 
-    registry: ClassVar[Dict[str, MarkdownModel]] = {}
-    config_registry: ClassVar[Dict[str, Set[MarkdownModel]]] = {}
+    registry: ClassVar[dict[str, MarkdownModel]] = {}
+    config_registry: ClassVar[dict[str, set[MarkdownModel]]] = {}
 
-    def __init__(self, model: Type[_M], fields: Set[str]) -> None:
+    def __init__(self, model: type[_M], fields: set[str]) -> None:
         self.name = model.__tablename__
         self.model = model
         self.fields = fields
-        self.config_fields: Dict[str, Set[str]] = {}
+        self.config_fields: dict[str, set[str]] = {}
         for field in fields:
             config = getattr(model, field).original_property.composite_class.config.name
             self.config_fields.setdefault(config, set()).add(field)
 
     @classmethod
-    def register(cls, model: Type[_M], fields: Set[str]) -> None:
+    def register(cls, model: type[_M], fields: set[str]) -> None:
         """Create an instance and add it to the registry."""
         obj = cls(model, fields)
         for config in obj.config_fields:
             cls.config_registry.setdefault(config, set()).add(obj)
         cls.registry[obj.name] = obj
 
-    def reparse(self, config: Optional[str] = None, obj: Optional[_M] = None) -> None:
+    def reparse(self, config: str | None = None, obj: _M | None = None) -> None:
         """Reparse Markdown fields, optionally for a single config profile."""
         if config and config not in self.config_fields:
             return
@@ -113,7 +114,7 @@ MarkdownModel.register(models.VenueRoom, {'description'})
     help="Reparse content at this URL",
 )
 def markdown(
-    content: List[str], config: Optional[str], allcontent: bool, url: Optional[str]
+    content: list[str], config: str | None, allcontent: bool, url: str | None
 ) -> None:
     """Reparse Markdown content."""
     if allcontent:

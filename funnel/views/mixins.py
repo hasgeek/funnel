@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from typing import Optional, Tuple, Type, Union
 from uuid import uuid4
 
 from flask import abort, g, request
@@ -32,9 +31,9 @@ from .helpers import render_redirect
 class AccountCheckMixin:
     """Base class checks for suspended accounts."""
 
-    account: Optional[Account] = None
+    account: Account | None = None
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         """Post-process loader."""
         account = self.account
         if account is None:
@@ -51,15 +50,15 @@ class AccountCheckMixin:
 
 
 class ProjectViewMixin(AccountCheckMixin):
-    model: Type[Project] = Project
+    model: type[Project] = Project
     route_model_map = {'account': 'account.urlname', 'project': 'name'}
     obj: Project
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
     def loader(
-        self, account: str, project: str, session: Optional[str] = None
-    ) -> Union[Project, ProjectRedirect]:
+        self, account: str, project: str, session: str | None = None
+    ) -> Project | ProjectRedirect:
         obj = (
             Project.query.join(Account, Project.account)
             .filter(Account.name_is(account), Project.name == project)
@@ -76,7 +75,7 @@ class ProjectViewMixin(AccountCheckMixin):
             abort(410)
         return obj
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         if isinstance(self.obj, ProjectRedirect):
             if self.obj.project:
                 self.account = self.obj.project.account
@@ -106,7 +105,7 @@ class AccountViewMixin(AccountCheckMixin):
             abort(404)
         return obj
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         self.account = self.obj
         return super().after_loader()
 
@@ -129,7 +128,7 @@ class SessionViewMixin(AccountCheckMixin):
             .first_or_404()
         )
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         self.account = self.obj.project.account
         return super().after_loader()
 
@@ -157,7 +156,7 @@ class VenueViewMixin(AccountCheckMixin):
             .first_or_404()
         )
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         self.account = self.obj.project.account
         return super().after_loader()
 
@@ -186,7 +185,7 @@ class VenueRoomViewMixin(AccountCheckMixin):
             .first_or_404()
         )
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         self.account = self.obj.venue.project.account
         return super().after_loader()
 
@@ -212,16 +211,16 @@ class TicketEventViewMixin(AccountCheckMixin):
             .one_or_404()
         )
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         self.account = self.obj.project.account
         return super().after_loader()
 
 
 class DraftViewMixin:
     obj: UuidModelUnion
-    model: Type[UuidModelUnion]
+    model: type[UuidModelUnion]
 
-    def get_draft(self, obj: Optional[UuidModelUnion] = None) -> Optional[Draft]:
+    def get_draft(self, obj: UuidModelUnion | None = None) -> Draft | None:
         """
         Return the draft object for `obj`. Defaults to `self.obj`.
 
@@ -239,8 +238,8 @@ class DraftViewMixin:
             raise ValueError(_("There is no draft for the given object"))
 
     def get_draft_data(
-        self, obj: Optional[UuidModelUnion] = None
-    ) -> Union[Tuple[None, None], Tuple[int, dict]]:
+        self, obj: UuidModelUnion | None = None
+    ) -> tuple[None, None] | tuple[int, dict]:
         """
         Return a tuple of draft data.
 
@@ -251,7 +250,7 @@ class DraftViewMixin:
             return draft.revision, draft.formdata
         return None, None
 
-    def autosave_post(self, obj: Optional[UuidModelUnion] = None) -> ReturnRenderWith:
+    def autosave_post(self, obj: UuidModelUnion | None = None) -> ReturnRenderWith:
         """Handle autosave POST requests."""
         obj = obj if obj is not None else self.obj
         if 'form.revision' not in request.form:

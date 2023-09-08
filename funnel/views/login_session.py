@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import timedelta
 from functools import wraps
-from typing import Callable, Optional, Type, Union, overload
+from typing import overload
 
 import itsdangerous
 from flask import (
@@ -87,7 +88,7 @@ class LoginManager:
     """Compatibility login manager that resembles Flask-Lastuser."""
 
     # For compatibility with baseframe.forms.fields.UserSelectFieldBase
-    usermanager: Type
+    usermanager: type
     usermodel = Account
 
     # Flag for Baseframe to avoid attempting API calls
@@ -222,9 +223,9 @@ LoginManager.usermanager = LoginManager
 @LoginSession.views('mark_accessed')
 def session_mark_accessed(
     obj: LoginSession,
-    auth_client: Optional[AuthClient] = None,
-    ipaddr: Optional[str] = None,
-    user_agent: Optional[str] = None,
+    auth_client: AuthClient | None = None,
+    ipaddr: str | None = None,
+    user_agent: str | None = None,
 ):
     """
     Mark a session as currently active.
@@ -388,7 +389,7 @@ def save_session_next_url() -> bool:
     return False
 
 
-def reload_for_cookies(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
+def reload_for_cookies(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
     """
     Decorate a view to reload to obtain SameSite=strict cookies.
 
@@ -404,7 +405,7 @@ def reload_for_cookies(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse
     """
 
     @wraps(f)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | ReturnResponse:
         if 'lastuser' not in request.cookies:
             add_auth_attribute('suppress_empty_cookie', True)
             attempt = request.args.get('cookiereload')
@@ -425,15 +426,15 @@ def reload_for_cookies(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse
 
 
 def requires_user_not_spammy(
-    get_current: Optional[Callable[P, str]] = None
-) -> Callable[[Callable[P, T]], Callable[P, Union[T, ReturnResponse]]]:
+    get_current: Callable[P, str] | None = None
+) -> Callable[[Callable[P, T]], Callable[P, T | ReturnResponse]]:
     """Decorate a view to require the user to prove they are not likely a spammer."""
 
-    def decorator(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
+    def decorator(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
         """Apply decorator using the specified :attr:`get_current` function."""
 
         @wraps(f)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | ReturnResponse:
             """Validate user rights in a view."""
             if not current_auth.is_authenticated:
                 flash(_("Confirm your phone number to continue"), 'info')
@@ -459,21 +460,21 @@ def requires_user_not_spammy(
 @overload
 def requires_login(
     __p: str,
-) -> Callable[[Callable[P, T]], Callable[P, Union[T, ReturnResponse]]]:
+) -> Callable[[Callable[P, T]], Callable[P, T | ReturnResponse]]:
     ...
 
 
 @overload
-def requires_login(__p: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
+def requires_login(__p: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
     ...
 
 
 def requires_login(
-    __p: Union[str, Callable[P, T]]
-) -> Union[
-    Callable[[Callable[P, T]], Callable[P, Union[T, ReturnResponse]]],
-    Callable[P, Union[T, ReturnResponse]],
-]:
+    __p: str | Callable[P, T]
+) -> (
+    Callable[[Callable[P, T]], Callable[P, T | ReturnResponse]]
+    | Callable[P, T | ReturnResponse]
+):
     """
     Decorate a view to require login, with a customisable message.
 
@@ -496,9 +497,9 @@ def requires_login(
     else:
         message = __p
 
-    def decorator(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
+    def decorator(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
         @wraps(f)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | ReturnResponse:
             add_auth_attribute('login_required', True)
             if not current_auth.is_authenticated:
                 if message:  # Setting an empty message will disable it
@@ -525,7 +526,7 @@ def save_sudo_preference_context() -> None:
         session.pop('sudo_context', None)
 
 
-def get_sudo_preference_context() -> Optional[Account]:
+def get_sudo_preference_context() -> Account | None:
     """Get optional preference context for sudo endpoint."""
     account = getattr(g, 'account', None)
     if account is not None:
@@ -542,7 +543,7 @@ def del_sudo_preference_context() -> None:
     session.pop('sudo_context', None)
 
 
-def requires_sudo(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
+def requires_sudo(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
     """
     Decorate a view to require the current user to have re-authenticated recently.
 
@@ -554,7 +555,7 @@ def requires_sudo(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
     """
 
     @wraps(f)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | ReturnResponse:
         """Prompt for re-authentication to proceed."""
         add_auth_attribute('login_required', True)
         # If the user is not logged in, require login first
@@ -711,7 +712,7 @@ def requires_site_editor(f: Callable[P, T]) -> Callable[P, T]:
     return wrapper
 
 
-def _client_login_inner() -> Optional[ReturnResponse]:
+def _client_login_inner() -> ReturnResponse | None:
     if request.authorization is None or not request.authorization.username:
         return Response(
             'Client credentials required',
@@ -734,11 +735,11 @@ def _client_login_inner() -> Optional[ReturnResponse]:
     return None
 
 
-def requires_client_login(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
+def requires_client_login(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
     """Decorate a view to require a client login via HTTP Basic Authorization."""
 
     @wraps(f)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | ReturnResponse:
         result = _client_login_inner()
         if result is None:
             return f(*args, **kwargs)
@@ -747,9 +748,7 @@ def requires_client_login(f: Callable[P, T]) -> Callable[P, Union[T, ReturnRespo
     return wrapper
 
 
-def requires_user_or_client_login(
-    f: Callable[P, T]
-) -> Callable[P, Union[T, ReturnResponse]]:
+def requires_user_or_client_login(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
     """
     Decorate a view to require a user or client login.
 
@@ -757,7 +756,7 @@ def requires_user_or_client_login(
     """
 
     @wraps(f)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | ReturnResponse:
         add_auth_attribute('login_required', True)
         # Check for user first:
         if current_auth.is_authenticated:
@@ -773,7 +772,7 @@ def requires_user_or_client_login(
 
 def requires_client_id_or_user_or_client_login(
     f: Callable[P, T]
-) -> Callable[P, Union[T, ReturnResponse]]:
+) -> Callable[P, T | ReturnResponse]:
     """
     Decorate view to require a client_id and session, or a user, or client login.
 
@@ -782,7 +781,7 @@ def requires_client_id_or_user_or_client_login(
     """
 
     @wraps(f)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | ReturnResponse:
         add_auth_attribute('login_required', True)
 
         # Is there a user? Go right ahead
@@ -824,8 +823,8 @@ def requires_client_id_or_user_or_client_login(
 
 def login_internal(
     user: User,
-    login_session: Optional[LoginSession] = None,
-    login_service: Optional[str] = None,
+    login_session: LoginSession | None = None,
+    login_service: str | None = None,
 ):
     """
     Login a user and create a session.

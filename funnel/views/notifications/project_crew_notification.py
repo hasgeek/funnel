@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Collection
 from dataclasses import dataclass
-from typing import Callable, ClassVar, Collection, Dict, Optional
+from typing import ClassVar
 
 from flask import render_template
 from markupsafe import Markup, escape
@@ -28,15 +29,15 @@ from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotific
 class DecisionFactorFields:
     """Evaluation criteria for the content of notification."""
 
-    is_member: Optional[bool] = None
-    for_actor: Optional[bool] = None
+    is_member: bool | None = None
+    for_actor: bool | None = None
     rtypes: Collection[str] = ()
-    is_editor: Optional[bool] = None
-    is_promoter: Optional[bool] = None
-    is_usher: Optional[bool] = None
-    is_actor: Optional[bool] = None
-    is_self_granted: Optional[bool] = None
-    is_self_revoked: Optional[bool] = None
+    is_editor: bool | None = None
+    is_promoter: bool | None = None
+    is_usher: bool | None = None
+    is_actor: bool | None = None
+    is_self_granted: bool | None = None
+    is_self_revoked: bool | None = None
 
     def is_match(
         self, membership: ProjectMembership, is_member: bool, for_actor: bool
@@ -671,9 +672,9 @@ class RenderShared:
     #: Subclasses must specify a base template picker
     template_picker: DecisionBranch
 
-    tracking_tags: ClassVar[Callable[..., Dict[str, str]]]
+    tracking_tags: ClassVar[Callable[..., dict[str, str]]]
 
-    def activity_template(self, membership: Optional[ProjectMembership] = None) -> str:
+    def activity_template(self, membership: ProjectMembership | None = None) -> str:
         """
         Return a Python string template with an appropriate message.
 
@@ -692,8 +693,8 @@ class RenderShared:
         raise ValueError("No suitable template found for membership record")
 
     def membership_actor(
-        self, membership: Optional[ProjectMembership] = None
-    ) -> Optional[Account]:
+        self, membership: ProjectMembership | None = None
+    ) -> Account | None:
         """Actor who granted or revoked, for the template."""
         raise NotImplementedError("Subclasses must implement `membership_actor`")
 
@@ -712,7 +713,7 @@ class RenderShared:
             return self.notification.created_by
         return self.membership.member
 
-    def activity_html(self, membership: Optional[ProjectMembership] = None) -> str:
+    def activity_html(self, membership: ProjectMembership | None = None) -> str:
         """Return HTML rendering of :meth:`activity_template`."""
         if membership is None:
             membership = self.membership
@@ -777,9 +778,7 @@ class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
     fragments_order_by = [ProjectMembership.granted_at.desc()]
     template_picker = grant_amend_templates
 
-    def membership_actor(
-        self, membership: Optional[ProjectMembership] = None
-    ) -> Account:
+    def membership_actor(self, membership: ProjectMembership | None = None) -> Account:
         """Actual actor who granted (or edited) the membership, for the template."""
         return (membership or self.membership).granted_by
 
@@ -804,8 +803,8 @@ class RenderProjectCrewMembershipRevokedNotification(RenderShared, RenderNotific
     template_picker = revoke_templates
 
     def membership_actor(
-        self, membership: Optional[ProjectMembership] = None
-    ) -> Optional[Account]:
+        self, membership: ProjectMembership | None = None
+    ) -> Account | None:
         """Actual actor who revoked the membership, for the template."""
         return (membership or self.membership).revoked_by
 

@@ -7,7 +7,6 @@ Create Date: 2020-07-03 10:57:39.988762
 """
 
 from textwrap import dedent
-from typing import Optional, Tuple, Union
 
 import sqlalchemy as sa
 from alembic import op
@@ -16,8 +15,8 @@ from sqlalchemy_utils import TSVectorType
 # revision identifiers, used by Alembic.
 revision = 'a1ab7bd78649'
 down_revision = 'e4f17fe2cce8'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 def upgrade() -> None:

@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional, Tuple, Union
 
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import DAILY, MONTHLY, rrule
@@ -45,7 +44,7 @@ class SitemapIndex:
     """Sitemap index."""
 
     loc: str
-    lastmod: Optional[datetime] = None
+    lastmod: datetime | None = None
 
 
 @dataclass
@@ -53,9 +52,9 @@ class SitemapPage:
     """Sitemap page."""
 
     loc: str
-    lastmod: Optional[datetime] = None
-    changefreq: Optional[ChangeFreq] = None
-    priority: Optional[float] = None
+    lastmod: datetime | None = None
+    changefreq: ChangeFreq | None = None
+    priority: float | None = None
 
 
 # --- Helper functions -----------------------------------------------------------------
@@ -100,8 +99,8 @@ def all_sitemap_months(until: datetime) -> list:
 
 
 def validate_daterange(
-    year: Union[str, int], month: Union[str, int], day: Optional[Union[str, int]]
-) -> Tuple[datetime, datetime]:
+    year: str | int, month: str | int, day: str | int | None
+) -> tuple[datetime, datetime]:
     """
     Validate year, month and day as provided to a view, and return a date range.
 
@@ -318,7 +317,7 @@ class SitemapView(ClassView):
     @xml_response
     @cache.cached(timeout=3600)
     def by_date(  # skipcq: PYL-R0201
-        self, year: str, month: str, day: Optional[str]
+        self, year: str, month: str, day: str | None
     ) -> str:
         dtstart, dtend = validate_daterange(year, month, day)
         age = utcnow() - dtend

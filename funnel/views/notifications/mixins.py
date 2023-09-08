@@ -1,6 +1,7 @@
 """Notification helpers and mixins."""
 
-from typing import Callable, Generic, Optional, Type, TypeVar, Union, overload
+from collections.abc import Callable
+from typing import Generic, TypeVar, overload
 from typing_extensions import Self
 
 import grapheme
@@ -20,7 +21,7 @@ class SetVar(Generic[_T, _I, _O]):
     def __init__(self, fset: Callable[[_T, _I], _O]) -> None:
         self.fset = fset
 
-    def __set_name__(self, owner: Type[_T], name: str) -> None:
+    def __set_name__(self, owner: type[_T], name: str) -> None:
         if getattr(self, 'name', None) is None:
             self.name = name
         else:
@@ -30,7 +31,7 @@ class SetVar(Generic[_T, _I, _O]):
             copy.__set_name__(owner, name)
 
     @overload
-    def __get__(self, instance: None, owner: Type[_T]) -> Self:
+    def __get__(self, instance: None, owner: type[_T]) -> Self:
         ...
 
     @overload
@@ -38,12 +39,10 @@ class SetVar(Generic[_T, _I, _O]):
         ...
 
     @overload
-    def __get__(self, instance: _T, owner: Type[_T]) -> _O:
+    def __get__(self, instance: _T, owner: type[_T]) -> _O:
         ...
 
-    def __get__(
-        self, instance: Optional[_T], owner: Optional[Type[_T]] = None
-    ) -> Union[Self, _O]:
+    def __get__(self, instance: _T | None, owner: type[_T] | None = None) -> Self | _O:
         if instance is None:
             return self
         try:

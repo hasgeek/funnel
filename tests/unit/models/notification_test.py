@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
-from typing import Dict, List, Set
 
 import pytest
 from sqlalchemy.exc import IntegrityError
@@ -246,7 +245,7 @@ def test_update_notification_structure(
     assert not list(notification.dispatch())
 
     # Notifications are issued strictly in the order specified in cls.roles
-    role_order: List[str] = []
+    role_order: list[str] = []
     for nr in notification_recipients:
         if nr.role in role_order:
             assert role_order[-1] == nr.role
@@ -256,7 +255,7 @@ def test_update_notification_structure(
     assert role_order == ['project_crew', 'project_participant']
 
     # Notifications are correctly assigned by priority of role
-    role_users: Dict[str, Set[models.User]] = {}
+    role_users: dict[str, set[models.User]] = {}
     for nr in notification_recipients:
         role_users.setdefault(nr.role, set()).add(nr.recipient)
 

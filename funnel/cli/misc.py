@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import click
 from dotenv import dotenv_values
@@ -15,7 +15,7 @@ from ..models import db
 
 
 @app.shell_context_processor
-def shell_context() -> Dict[str, Any]:
+def shell_context() -> dict[str, Any]:
     """Insert variables into flask shell locals."""
     return {'db': db, 'models': models}
 

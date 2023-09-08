@@ -3,19 +3,10 @@
 from __future__ import annotations
 
 import urllib.parse
+from collections.abc import Iterable, Sequence
 from datetime import datetime, timedelta
 from hashlib import blake2b, sha256
-from typing import (
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-    cast,
-    overload,
-)
+from typing import cast, overload
 
 from sqlalchemy.orm import attribute_keyed_dict, load_only
 from sqlalchemy.orm.query import Query as QueryBaseClass
@@ -68,14 +59,14 @@ class ScopeMixin:
         )
 
     @property
-    def scope(self) -> Tuple[str, ...]:
+    def scope(self) -> tuple[str, ...]:
         """Represent scope column as a container of strings."""
         if not self._scope:
             return ()
         return tuple(sorted(self._scope.split()))
 
     @scope.setter
-    def scope(self, value: Optional[Union[str, Iterable]]) -> None:
+    def scope(self, value: str | Iterable | None) -> None:
         if value is None:
             if self.__scope_null_allowed__:
                 self._scope = None
@@ -87,7 +78,7 @@ class ScopeMixin:
         if not self._scope and self.__scope_null_allowed__:
             self._scope = None
 
-    def add_scope(self, additional: Union[str, Iterable]) -> None:
+    def add_scope(self, additional: str | Iterable) -> None:
         """Add additional items to the scope."""
         if isinstance(additional, str):
             additional = [additional]
@@ -104,7 +95,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True
     )
-    account: Mapped[Optional[Account]] = with_roles(
+    account: Mapped[Account | None] = with_roles(
         relationship(
             Account,
             foreign_keys=[account_id],
@@ -137,7 +128,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         write={'owner'},
     )
     #: Redirect URIs (one or more)
-    _redirect_uris: Mapped[Optional[str]] = sa.orm.mapped_column(
+    _redirect_uris: Mapped[str | None] = sa.orm.mapped_column(
         'redirect_uri', sa.UnicodeText, nullable=True, default=''
     )
     #: Back-end notification URI (TODO: deprecated, needs better architecture)
@@ -188,7 +179,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         return credential.secret_is(candidate)
 
     @property
-    def redirect_uris(self) -> Tuple:
+    def redirect_uris(self) -> tuple:
         """Return redirect URIs as a sequence."""
         return tuple(self._redirect_uris.split()) if self._redirect_uris else ()
 
@@ -200,7 +191,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
     with_roles(redirect_uris, rw={'owner'})
 
     @property
-    def redirect_uri(self) -> Optional[str]:
+    def redirect_uri(self) -> str | None:
         """Return the first redirect URI, if present."""
         uris = self.redirect_uris  # Assign to local var to avoid splitting twice
         if uris:
@@ -223,8 +214,8 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         return 'owner' in self.roles_for(account)
 
     def authtoken_for(
-        self, account: Optional[Account], login_session: Optional[LoginSession] = None
-    ) -> Optional[AuthToken]:
+        self, account: Account | None, login_session: LoginSession | None = None
+    ) -> AuthToken | None:
         """
         Return the authtoken for this account and client.
 
@@ -251,7 +242,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         return False
 
     @classmethod
-    def get(cls, buid: str) -> Optional[AuthClient]:
+    def get(cls, buid: str) -> AuthClient | None:
         """
         Return a AuthClient identified by its client buid or namespace.
 
@@ -262,7 +253,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         return cls.query.filter(cls.buid == buid, cls.active.is_(True)).one_or_none()
 
     @classmethod
-    def all_for(cls, account: Optional[Account]) -> Query[AuthClient]:
+    def all_for(cls, account: Account | None) -> Query[AuthClient]:
         """Return all clients, optionally all clients owned by the specified account."""
         if account is None:
             return cls.query.order_by(cls.title)
@@ -321,14 +312,14 @@ class AuthClientCredential(BaseMixin, Model):
     #: OAuth client secret, hashed
     secret_hash: Mapped[str] = sa.orm.mapped_column(sa.Unicode, nullable=False)
     #: When was this credential last used for an API call?
-    accessed_at: Mapped[Optional[datetime]] = sa.orm.mapped_column(
+    accessed_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
     def __repr__(self) -> str:
         return f'<AuthClientCredential {self.name} {self.title!r}>'
 
-    def secret_is(self, candidate: Optional[str], upgrade_hash: bool = False) -> bool:
+    def secret_is(self, candidate: str | None, upgrade_hash: bool = False) -> bool:
         """Test if the candidate secret matches."""
         if not candidate:
             return False
@@ -352,12 +343,12 @@ class AuthClientCredential(BaseMixin, Model):
         return False
 
     @classmethod
-    def get(cls, name: str) -> Optional[AuthClientCredential]:
+    def get(cls, name: str) -> AuthClientCredential | None:
         """Get a client credential by its key name."""
         return cls.query.filter(cls.name == name).one_or_none()
 
     @classmethod
-    def new(cls, auth_client: AuthClient) -> Tuple[AuthClientCredential, str]:
+    def new(cls, auth_client: AuthClient) -> tuple[AuthClientCredential, str]:
         """
         Create a new client credential and return (cred, secret).
 
@@ -395,10 +386,10 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
         foreign_keys=[auth_client_id],
         backref=backref('authcodes', cascade='all'),
     )
-    login_session_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+    login_session_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('login_session.id'), nullable=True
     )
-    login_session: Mapped[Optional[LoginSession]] = relationship(LoginSession)
+    login_session: Mapped[LoginSession | None] = relationship(LoginSession)
     code: Mapped[str] = sa.orm.mapped_column(
         sa.String(44), default=newsecret, nullable=False
     )
@@ -417,7 +408,7 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
         return cls.query.filter(cls.account == account)
 
     @classmethod
-    def get_for_client(cls, auth_client: AuthClient, code: str) -> Optional[AuthCode]:
+    def get_for_client(cls, auth_client: AuthClient, code: str) -> AuthCode | None:
         """Return a matching auth code for the specified auth client."""
         return cls.query.filter(
             cls.auth_client == auth_client, cls.code == code
@@ -431,10 +422,10 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     __allow_unmapped__ = True
     # Account id is null for client-only tokens and public clients as the account is
     # identified via login_session.account there
-    account_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+    account_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True
     )
-    account: Mapped[Optional[Account]] = relationship(
+    account: Mapped[Account | None] = relationship(
         Account,
         backref=backref('authtokens', lazy='dynamic', cascade='all'),
     )
@@ -442,7 +433,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     login_session_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('login_session.id'), nullable=True
     )
-    login_session: Mapped[Optional[LoginSession]] = with_roles(
+    login_session: Mapped[LoginSession | None] = with_roles(
         relationship(LoginSession, backref=backref('authtokens', lazy='dynamic')),
         read={'owner'},
     )
@@ -504,7 +495,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         return f'<AuthToken {self.token} of {self.auth_client!r} {self.account!r}>'
 
     @property
-    def effective_scope(self) -> List:
+    def effective_scope(self) -> list:
         """Return effective scope of this token, combining granted and client scopes."""
         return sorted(set(self.scope) | set(self.auth_client.scope))
 
@@ -530,7 +521,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
             self.secret = newsecret()
 
     @sa.orm.validates('algorithm')
-    def _validate_algorithm(self, _key: str, value: Optional[str]) -> Optional[str]:
+    def _validate_algorithm(self, _key: str, value: str | None) -> str | None:
         """Set mac token algorithm to one of supported values."""
         if value is None:
             self.secret = None
@@ -552,7 +543,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """Migrate one account's data to another when merging accounts."""
         oldtokens = cls.query.filter(cls.account == old_account).all()
-        newtokens: Dict[int, List[AuthToken]] = {}  # AuthClient: token mapping
+        newtokens: dict[int, list[AuthToken]] = {}  # AuthClient: token mapping
         for token in cls.query.filter(cls.account == new_account).all():
             newtokens.setdefault(token.auth_client_id, []).append(token)
 
@@ -571,7 +562,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
                 token.account = new_account  # Reassign this token to new_account
 
     @classmethod
-    def get(cls, token: str) -> Optional[AuthToken]:
+    def get(cls, token: str) -> AuthToken | None:
         """
         Return an AuthToken with the matching token.
 
@@ -581,16 +572,14 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
 
     @overload
     @classmethod
-    def get_for(
-        cls, auth_client: AuthClient, *, account: Account
-    ) -> Optional[AuthToken]:
+    def get_for(cls, auth_client: AuthClient, *, account: Account) -> AuthToken | None:
         ...
 
     @overload
     @classmethod
     def get_for(
         cls, auth_client: AuthClient, *, login_session: LoginSession
-    ) -> Optional[AuthToken]:
+    ) -> AuthToken | None:
         ...
 
     @classmethod
@@ -598,9 +587,9 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         cls,
         auth_client: AuthClient,
         *,
-        account: Optional[Account] = None,
-        login_session: Optional[LoginSession] = None,
-    ) -> Optional[AuthToken]:
+        account: Account | None = None,
+        login_session: LoginSession | None = None,
+    ) -> AuthToken | None:
         """Get an auth token for an auth client and an account or login session."""
         require_one_of(account=account, login_session=login_session)
         if account is not None:
@@ -612,9 +601,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         ).one_or_none()
 
     @classmethod
-    def all(  # noqa: A003
-        cls, accounts: Union[Query, Sequence[Account]]
-    ) -> List[AuthToken]:
+    def all(cls, accounts: Query | Sequence[Account]) -> list[AuthToken]:  # noqa: A003
         """Return all AuthToken for the specified accounts."""
         query = cls.query.join(AuthClient)
         if isinstance(accounts, QueryBaseClass):
@@ -709,7 +696,7 @@ class AuthClientPermissions(BaseMixin, Model):
     @classmethod
     def get(
         cls, auth_client: AuthClient, account: Account
-    ) -> Optional[AuthClientPermissions]:
+    ) -> AuthClientPermissions | None:
         """Get permissions for the specified auth client and account."""
         return cls.query.filter(
             cls.auth_client == auth_client, cls.account == account
@@ -769,7 +756,7 @@ class AuthClientTeamPermissions(BaseMixin, Model):
     @classmethod
     def get(
         cls, auth_client: AuthClient, team: Team
-    ) -> Optional[AuthClientTeamPermissions]:
+    ) -> AuthClientTeamPermissions | None:
         """Get permissions for the specified auth client and team."""
         return cls.query.filter(
             cls.auth_client == auth_client, cls.team == team

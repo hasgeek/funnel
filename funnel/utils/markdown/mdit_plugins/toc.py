@@ -15,7 +15,6 @@ from __future__ import annotations
 import re
 from collections.abc import MutableMapping, Sequence
 from functools import reduce
-from typing import Dict, List, Optional
 from typing_extensions import TypedDict
 
 from markdown_it import MarkdownIt
@@ -30,7 +29,7 @@ __all__ = ['toc_plugin']
 
 SQUARE_BRACKET_OPEN_CHAR = '['
 
-defaults: Dict = {
+defaults: dict = {
     'include_level': [1, 2, 3, 4, 5, 6],
     'container_class': 'table-of-contents',
     'slugify': lambda x, **options: 'h:' + make_name(x, **options),
@@ -45,18 +44,18 @@ defaults: Dict = {
 
 class TocItem(TypedDict):
     level: int
-    text: Optional[str]
-    anchor: Optional[str]
-    children: List[TocItem]
-    parent: Optional[TocItem]
+    text: str | None
+    anchor: str | None
+    children: list[TocItem]
+    parent: TocItem | None
 
 
 def find_elements(
-    levels: List[int], tokens: List[Token], options: Dict
-) -> List[TocItem]:
+    levels: list[int], tokens: list[Token], options: dict
+) -> list[TocItem]:
     """Find all headline items for the defined levels in a Markdown document."""
     headings = []
-    current_heading: Optional[TocItem] = None
+    current_heading: TocItem | None = None
 
     for token in tokens:
         if token.type == 'heading_open':
@@ -89,7 +88,7 @@ def find_elements(
     return headings
 
 
-def find_existing_id_attr(token: Token) -> Optional[str]:
+def find_existing_id_attr(token: Token) -> str | None:
     """
     Find an existing id attr on a token.
 
@@ -102,13 +101,13 @@ def find_existing_id_attr(token: Token) -> Optional[str]:
     return None
 
 
-def get_min_level(items: List[TocItem]) -> int:
+def get_min_level(items: list[TocItem]) -> int:
     """Get minimum headline level so that the TOC is nested correctly."""
     return min(item['level'] for item in items)
 
 
 def add_list_item(
-    level: int, text: Optional[str], anchor: Optional[str], root_node: TocItem
+    level: int, text: str | None, anchor: str | None, root_node: TocItem
 ) -> TocItem:
     """Create a TOCItem."""
     item: TocItem = {
@@ -122,7 +121,7 @@ def add_list_item(
     return item
 
 
-def items_to_tree(items: List[TocItem]) -> TocItem:
+def items_to_tree(items: list[TocItem]) -> TocItem:
     """Turn list of headline items into a nested tree object representing the TOC."""
     # Create a root node with no text that holds the entire TOC.
     # This won't be rendered, but only its children.
@@ -165,7 +164,7 @@ def items_to_tree(items: List[TocItem]) -> TocItem:
     return toc
 
 
-def toc_item_to_html(item: TocItem, options: Dict, md: MarkdownIt) -> str:
+def toc_item_to_html(item: TocItem, options: dict, md: MarkdownIt) -> str:
     """Recursively turns a nested tree of tocItems to HTML."""
     html = f"<{options['list_type']}>"
     for child in item['children']:

@@ -10,7 +10,6 @@ import csv
 import re
 import urllib.parse
 from textwrap import dedent
-from typing import Optional, Tuple, Union
 
 import sqlalchemy as sa
 from alembic import op
@@ -19,8 +18,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = '41b3af7e4449'
 down_revision = '530c22761e27'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 # --- Tables ---------------------------------------------------------------------------
 proposal = table(

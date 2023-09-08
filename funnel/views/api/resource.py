@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Container, Dict, List, Optional, Union, cast
-from typing_extensions import Literal
+from collections.abc import Container
+from typing import Any, Literal, cast
 
 from flask import abort, jsonify, render_template, request
 from werkzeug.datastructures import MultiDict
@@ -36,14 +36,14 @@ from ..login_session import (
     requires_user_or_client_login,
 )
 
-ReturnResource = Dict[str, Any]
+ReturnResource = dict[str, Any]
 
 
 def get_userinfo(
     user: Account,
     auth_client: AuthClient,
     scope: Container[str] = (),
-    login_session: Optional[LoginSession] = None,
+    login_session: LoginSession | None = None,
     get_permissions: bool = True,
 ) -> ReturnResource:
     """Return userinfo for a given user, auth client and scope."""
@@ -118,7 +118,7 @@ def resource_error(error, description=None, uri=None) -> Response:
 
 
 def api_result(
-    status: Union[Literal['ok'], Literal['error'], Literal[200], Literal[201]],
+    status: Literal['ok'] | Literal['error'] | Literal[200] | Literal[201],
     _jsonp: bool = False,
     **params: Any,
 ) -> Response:
@@ -204,7 +204,7 @@ def user_get_by_userid() -> ReturnView:
 @app.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
 @requestargs(('userid[]', abort_null))
-def user_get_by_userids(userid: List[str]) -> ReturnView:
+def user_get_by_userids(userid: list[str]) -> ReturnView:
     """
     Return users and organizations with the given userids (Lastuser internal userid).
 
@@ -277,7 +277,7 @@ def user_get(name: str) -> ReturnView:
 @app.route('/api/1/user/getusers', methods=['GET', 'POST'])
 @requires_user_or_client_login
 @requestargs(('name[]', abort_null))
-def user_getall(name: List[str]) -> ReturnView:
+def user_getall(name: list[str]) -> ReturnView:
     """Return users with the given username or email address."""
     names = name
     buids = set()  # Dupe checker
@@ -461,7 +461,7 @@ def login_beacon_json(client_id: str) -> ReturnView:
 @app.route('/api/1/id')
 @resource_registry.resource('id', __("Read your name and basic account data"))
 def resource_id(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Return user's basic identity."""
     if 'all' in args and getbool(args['all']):
@@ -482,7 +482,7 @@ def resource_id(
 @app.route('/api/1/session/verify', methods=['POST'])
 @resource_registry.resource('session/verify', __("Verify user session"), scope='id')
 def session_verify(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Verify a UserSession."""
     sessionid = abort_null(args['sessionid'])
@@ -504,7 +504,7 @@ def session_verify(
 @app.route('/api/1/email')
 @resource_registry.resource('email', __("Read your email address"))
 def resource_email(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Return user's email addresses."""
     if 'all' in args and getbool(args['all']):
@@ -522,7 +522,7 @@ def resource_email(
 @app.route('/api/1/phone')
 @resource_registry.resource('phone', __("Read your phone number"))
 def resource_phone(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Return user's phone numbers."""
     if 'all' in args and getbool(args['all']):
@@ -540,10 +540,10 @@ def resource_phone(
     trusted=True,
 )
 def resource_login_providers(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Return user's login providers' data."""
-    service: Optional[str] = abort_null(args.get('service'))
+    service: str | None = abort_null(args.get('service'))
     response = {}
     for extid in authtoken.effective_user.externalids:
         if service is None or extid.service == service:
@@ -562,7 +562,7 @@ def resource_login_providers(
     'organizations', __("Read the organizations you are a member of")
 )
 def resource_organizations(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Return user's organizations and teams that they are a member of."""
     return get_userinfo(
@@ -576,7 +576,7 @@ def resource_organizations(
 @app.route('/api/1/teams')
 @resource_registry.resource('teams', __("Read the list of teams in your organizations"))
 def resource_teams(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Return user's organizations' teams."""
     return get_userinfo(

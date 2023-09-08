@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable
 from typing_extensions import Protocol
 
 import requests

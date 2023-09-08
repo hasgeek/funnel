@@ -1,9 +1,9 @@
 """Tests for PhoneNumber model."""
 # pylint: disable=redefined-outer-name
 
+from collections.abc import Generator
 from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
-from typing import Generator
 
 import phonenumbers
 import pytest

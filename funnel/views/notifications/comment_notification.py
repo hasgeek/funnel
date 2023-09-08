@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Union
-
 from flask import render_template, url_for
 from markupsafe import Markup, escape
 from werkzeug.utils import cached_property
@@ -124,7 +122,7 @@ class RenderCommentReportReceivedNotification(RenderNotification):
 class CommentNotification(RenderNotification):
     """Render comment notifications for various document types."""
 
-    document: Union[Commentset, Comment]
+    document: Commentset | Comment
     comment: Comment
     aliases = {'fragment': 'comment'}
     emoji_prefix = "💬 "
@@ -132,12 +130,12 @@ class CommentNotification(RenderNotification):
     email_heading = __("New comment!")
 
     @property
-    def actor(self) -> Union[Account, DuckTypeAccount]:
+    def actor(self) -> Account | DuckTypeAccount:
         """Actor who commented."""
         return self.comment.posted_by
 
     @cached_property
-    def commenters(self) -> List[Account]:
+    def commenters(self) -> list[Account]:
         """List of unique users from across rolled-up comments. Could be singular."""
         # A set comprehension would have been simpler, but RoleAccessProxy isn't
         # hashable. Else: ``return {_c.posted_by for _c in self.fragments}``
@@ -151,7 +149,7 @@ class CommentNotification(RenderNotification):
         return comment_posters
 
     @property
-    def project(self) -> Optional[Project]:
+    def project(self) -> Project | None:
         if self.document_type == 'project':
             return self.document.project
         if self.document_type == 'proposal':
@@ -159,7 +157,7 @@ class CommentNotification(RenderNotification):
         return None
 
     @property
-    def proposal(self) -> Optional[Proposal]:
+    def proposal(self) -> Proposal | None:
         if self.document_type == 'proposal':
             return self.document.proposal
         return None
@@ -179,7 +177,7 @@ class CommentNotification(RenderNotification):
             return self.document.parent.url_for('view', **kwargs) + '#comments'
         return self.document.url_for('view', **kwargs)
 
-    def activity_template_standalone(self, comment: Optional[Comment] = None) -> str:
+    def activity_template_standalone(self, comment: Comment | None = None) -> str:
         """Activity template for standalone use, such as email subject."""
         if comment is None:
             comment = self.comment
@@ -192,7 +190,7 @@ class CommentNotification(RenderNotification):
         # Unknown document type
         return _("{actor} replied to you")
 
-    def activity_template_inline(self, comment: Optional[Comment] = None) -> str:
+    def activity_template_inline(self, comment: Comment | None = None) -> str:
         """Activity template for inline use with other content, like SMS with URL."""
         if comment is None:
             comment = self.comment
@@ -205,7 +203,7 @@ class CommentNotification(RenderNotification):
         # Unknown document type
         return _("{actor} replied to you:")
 
-    def activity_html(self, comment: Optional[Comment] = None) -> str:
+    def activity_html(self, comment: Comment | None = None) -> str:
         """Activity template rendered into HTML, for use in web and email templates."""
         if comment is None:
             comment = self.comment

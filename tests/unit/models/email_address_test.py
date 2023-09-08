@@ -2,8 +2,8 @@
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
 
+from collections.abc import Generator
 from types import SimpleNamespace
-from typing import Generator
 
 import pytest
 import sqlalchemy as sa

@@ -2,7 +2,6 @@
 
 import os.path
 from dataclasses import dataclass
-from typing import Optional
 
 from flask import Flask
 from geoip2.database import Reader
@@ -16,18 +15,18 @@ __all__ = ['GeoIP', 'geoip', 'GeoIP2Error', 'AddressNotFoundError']
 class GeoIP:
     """Wrapper for GeoIP2 Reader."""
 
-    city_db: Optional[Reader] = None
-    asn_db: Optional[Reader] = None
+    city_db: Reader | None = None
+    asn_db: Reader | None = None
 
     def __bool__(self) -> bool:
         return self.city_db is not None or self.asn_db is not None
 
-    def city(self, ipaddr: str) -> Optional[City]:
+    def city(self, ipaddr: str) -> City | None:
         if self.city_db:
             return self.city_db.city(ipaddr)
         return None
 
-    def asn(self, ipaddr: str) -> Optional[ASN]:
+    def asn(self, ipaddr: str) -> ASN | None:
         if self.asn_db:
             return self.asn_db.asn(ipaddr)
         return None

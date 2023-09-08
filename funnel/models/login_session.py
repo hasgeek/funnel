@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Optional
 
 from coaster.utils import utcnow
 
@@ -138,11 +137,11 @@ class LoginSession(UuidMixin, BaseMixin, Model):
             session_revoked.send(self)
 
     @classmethod
-    def get(cls, buid: str) -> Optional[LoginSession]:
+    def get(cls, buid: str) -> LoginSession | None:
         return cls.query.filter_by(buid=buid).one_or_none()
 
     @classmethod
-    def authenticate(cls, buid: str, silent: bool = False) -> Optional[LoginSession]:
+    def authenticate(cls, buid: str, silent: bool = False) -> LoginSession | None:
         """
         Retrieve a user session that is supposed to be active.
 
