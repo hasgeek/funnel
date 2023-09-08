@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, cast
+from collections.abc import Iterable
+from typing import Optional, cast
 
 from flask import get_flashed_messages, jsonify, redirect, render_template, request
 
@@ -33,7 +34,7 @@ class ScopeError(Exception):
     """Requested scope is invalid or beyond access level."""
 
 
-def verifyscope(scope: Iterable, auth_client: AuthClient) -> List[str]:
+def verifyscope(scope: Iterable, auth_client: AuthClient) -> list[str]:
     """Verify if requested scope is valid for this client."""
     internal_resources = []  # Names of internal resources
 
@@ -108,8 +109,8 @@ def oauth_auth_success(
     auth_client: AuthClient,
     redirect_uri: str,
     state: str,
-    code: Optional[str],
-    token: Optional[AuthToken] = None,
+    code: str | None,
+    token: AuthToken | None = None,
 ) -> ReturnView:
     """Commit session and redirect to OAuth redirect URI."""
     clear_flashed_messages()
@@ -148,8 +149,8 @@ def oauth_auth_error(
     redirect_uri: str,
     state: str,
     error: str,
-    error_description: Optional[str] = None,
-    error_uri: Optional[str] = None,
+    error_description: str | None = None,
+    error_uri: str | None = None,
 ) -> ReturnView:
     """Return to auth client indicating that auth request resulted in an error."""
     params = {'error': error}
@@ -330,7 +331,7 @@ def oauth_authorize() -> ReturnView:
 
 
 def oauth_token_error(
-    error: str, error_description: Optional[str] = None, error_uri: Optional[str] = None
+    error: str, error_description: str | None = None, error_uri: str | None = None
 ) -> ReturnView:
     """Return an error status when validating an OAuth2 token request."""
     params = {'error': error}
@@ -346,10 +347,10 @@ def oauth_token_error(
 
 
 def oauth_make_token(
-    user: Optional[Account],
+    user: Account | None,
     auth_client: AuthClient,
     scope: Iterable,
-    login_session: Optional[LoginSession] = None,
+    login_session: LoginSession | None = None,
 ) -> AuthToken:
     """Make an OAuth2 token for the given user, client, scope and optional session."""
     # Look for an existing token

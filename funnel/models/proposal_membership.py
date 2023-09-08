@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Set
-
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
@@ -118,7 +116,7 @@ class ProposalMembership(  # type: ignore[misc]
     )
 
     @cached_property
-    def offered_roles(self) -> Set[str]:
+    def offered_roles(self) -> set[str]:
         """Roles offered by this membership record."""
         # This method is not used. See the `Proposal.memberships` relationship below.
         return {'submitter', 'editor'}

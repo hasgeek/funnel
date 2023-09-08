@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Any, List, Optional, Sequence, Set, Union
+from typing import Any
 
 from werkzeug.utils import cached_property
 
@@ -99,7 +100,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
     #: Commentset state manager
     state = StateManager('_state', COMMENTSET_STATE, doc="Commentset state")
     #: Type of parent object
-    settype: Mapped[Optional[int]] = with_roles(
+    settype: Mapped[int | None] = with_roles(
         sa.orm.mapped_column('type', sa.Integer, nullable=True),
         read={'all'},
         datasets={'primary'},
@@ -111,7 +112,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
         datasets={'primary'},
     )
     #: Timestamp of last comment, for ordering.
-    last_comment_at: Mapped[Optional[datetime]] = with_roles(
+    last_comment_at: Mapped[datetime | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary'},
@@ -147,7 +148,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
     with_roles(parent, read={'all'}, datasets={'primary'})
 
     @cached_property
-    def parent_type(self) -> Optional[str]:
+    def parent_type(self) -> str | None:
         parent = self.parent
         if parent is not None:
             return parent.__tablename__
@@ -166,7 +167,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
     with_roles(last_comment, read={'all'}, datasets={'primary'})
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Sequence = ()
+        self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         parent_roles = self.parent.roles_for(actor, anchors)
@@ -177,7 +178,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
     @with_roles(call={'all'})
     @state.requires(state.NOT_DISABLED)
     def post_comment(
-        self, actor: Account, message: str, in_reply_to: Optional[Comment] = None
+        self, actor: Account, message: str, in_reply_to: Comment | None = None
     ) -> Comment:
         """Post a comment."""
         # TODO: Add role check for non-OPEN states. Either:
@@ -209,10 +210,10 @@ class Comment(UuidMixin, BaseMixin, Model):
     __tablename__ = 'comment'
     __allow_unmapped__ = True
 
-    posted_by_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+    posted_by_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True
     )
-    _posted_by: Mapped[Optional[Account]] = with_roles(
+    _posted_by: Mapped[Account | None] = with_roles(
         relationship(
             Account, backref=backref('comments', lazy='dynamic', cascade='all')
         ),
@@ -232,7 +233,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     in_reply_to_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('comment.id'), nullable=True
     )
-    replies: Mapped[List[Comment]] = relationship(
+    replies: Mapped[list[Comment]] = relationship(
         'Comment', backref=backref('in_reply_to', remote_side='Comment.id')
     )
 
@@ -301,7 +302,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         return bool(self.replies)
 
     @property
-    def current_access_replies(self) -> List[RoleAccessProxy]:
+    def current_access_replies(self) -> list[RoleAccessProxy]:
         return [
             reply.current_access(datasets=('json', 'related'))
             for reply in self.replies
@@ -311,7 +312,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     with_roles(current_access_replies, read={'all'}, datasets={'related', 'json'})
 
     @hybrid_property
-    def posted_by(self) -> Union[Account, DuckTypeAccount]:
+    def posted_by(self) -> Account | DuckTypeAccount:
         return (
             deleted_account
             if self.state.DELETED
@@ -323,12 +324,12 @@ class Comment(UuidMixin, BaseMixin, Model):
         )
 
     @posted_by.inplace.setter  # type: ignore[arg-type]
-    def _posted_by_setter(self, value: Optional[Account]) -> None:
+    def _posted_by_setter(self, value: Account | None) -> None:
         self._posted_by = value
 
     @posted_by.inplace.expression
     @classmethod
-    def _posted_by_expression(cls) -> sa.orm.InstrumentedAttribute[Optional[Account]]:
+    def _posted_by_expression(cls) -> sa.orm.InstrumentedAttribute[Account | None]:
         """Return SQL Expression."""
         return cls._posted_by
 
@@ -337,7 +338,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     )
 
     @hybrid_property
-    def message(self) -> Union[MessageComposite, MarkdownCompositeBasic]:
+    def message(self) -> MessageComposite | MarkdownCompositeBasic:
         """Return the message of the comment if not deleted or removed."""
         return (
             message_deleted
@@ -380,7 +381,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     with_roles(title, read={'all'}, datasets={'primary', 'related', 'json'})
 
     @property
-    def badges(self) -> Set[str]:
+    def badges(self) -> set[str]:
         badges = set()
         roles = set()
         if self.commentset.project is not None:
@@ -426,7 +427,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         """Mark this comment as not spam."""
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Sequence = ()
+        self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         roles.add('reader')

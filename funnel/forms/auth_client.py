@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
 from urllib.parse import urlparse
 
 from baseframe import _, __, forms
@@ -30,7 +29,7 @@ class AuthClientForm(forms.Form):
     """Register a new OAuth client application."""
 
     __returns__ = ('account',)
-    account: Optional[Account] = None
+    account: Account | None = None
 
     title = forms.StringField(
         __("Application title"),

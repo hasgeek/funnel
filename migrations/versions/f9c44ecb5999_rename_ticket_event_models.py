@@ -6,16 +6,14 @@ Create Date: 2020-09-10 02:13:29.641181
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'f9c44ecb5999'
 down_revision = '74e1fbb4a948'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 # (old, new)
 renamed_tables = [

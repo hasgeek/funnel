@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Set
-
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
@@ -122,7 +120,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
     # a page id reference column whenever that model is ready.
 
     @cached_property
-    def offered_roles(self) -> Set[str]:
+    def offered_roles(self) -> set[str]:
         """Return empty set as this membership does not offer any roles on Project."""
         return set()
 
@@ -248,7 +246,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
     )
 
     @cached_property
-    def offered_roles(self) -> Set[str]:
+    def offered_roles(self) -> set[str]:
         """Return empty set as this membership does not offer any roles on Proposal."""
         return set()
 

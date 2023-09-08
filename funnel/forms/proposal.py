@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import QuerySelectField
 
@@ -29,8 +27,8 @@ __all__ = [
 
 
 def proposal_label_form(
-    project: Project, proposal: Optional[Proposal]
-) -> Optional[forms.Form]:
+    project: Project, proposal: Proposal | None
+) -> forms.Form | None:
     """Return a label form for the given project and proposal."""
     if not project.labels:
         return None
@@ -68,8 +66,8 @@ def proposal_label_form(
 
 
 def proposal_label_admin_form(
-    project: Project, proposal: Optional[Proposal]
-) -> Optional[forms.Form]:
+    project: Project, proposal: Proposal | None
+) -> forms.Form | None:
     """Return a label form to use in admin panel for given project and proposal."""
 
     # FIXME: See above

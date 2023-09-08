@@ -5,7 +5,6 @@ from __future__ import annotations
 import csv
 from datetime import datetime, timedelta
 from io import StringIO
-from typing import Dict, Optional
 
 from flask import Response, current_app, render_template, request
 from sqlalchemy.exc import IntegrityError
@@ -22,7 +21,7 @@ from ..utils import abort_null, format_twitter_handle
 from .login_session import requires_login
 
 
-def contact_details(ticket_participant: TicketParticipant) -> Dict[str, Optional[str]]:
+def contact_details(ticket_participant: TicketParticipant) -> dict[str, str | None]:
     return {
         'fullname': ticket_participant.fullname,
         'company': ticket_participant.company,

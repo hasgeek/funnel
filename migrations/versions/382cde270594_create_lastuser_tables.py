@@ -6,16 +6,14 @@ Create Date: 2020-04-07 01:51:58.147168
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '382cde270594'
 down_revision = '09562978e3de'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 upgrade_triggers = '''
 CREATE OR REPLACE FUNCTION user_user_email_primary_validate()

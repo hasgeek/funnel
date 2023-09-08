@@ -5,7 +5,7 @@ from __future__ import annotations
 import smtplib
 from dataclasses import dataclass
 from email.utils import formataddr, getaddresses, make_msgid, parseaddr
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -29,7 +29,7 @@ __all__ = [
 ]
 
 # Email recipient type
-EmailRecipient = Union[Account, Tuple[Optional[str], str], str]
+EmailRecipient = Union[Account, tuple[Optional[str], str], str]
 
 
 @dataclass
@@ -41,7 +41,7 @@ class EmailAttachment:
     mimetype: str
 
 
-def jsonld_view_action(description: str, url: str, title: str) -> Dict[str, object]:
+def jsonld_view_action(description: str, url: str, title: str) -> dict[str, object]:
     return {
         "@context": "http://schema.org",
         "@type": "EmailMessage",
@@ -55,7 +55,7 @@ def jsonld_view_action(description: str, url: str, title: str) -> Dict[str, obje
     }
 
 
-def jsonld_confirm_action(description: str, url: str, title: str) -> Dict[str, object]:
+def jsonld_confirm_action(description: str, url: str, title: str) -> dict[str, object]:
     return {
         "@context": "http://schema.org",
         "@type": "EmailMessage",
@@ -113,12 +113,12 @@ def process_recipient(recipient: EmailRecipient) -> str:
 
 def send_email(
     subject: str,
-    to: List[EmailRecipient],
+    to: list[EmailRecipient],
     content: str,
-    attachments: Optional[List[EmailAttachment]] = None,
-    from_email: Optional[EmailRecipient] = None,
-    headers: Optional[Union[dict, Headers]] = None,
-    base_url: Optional[str] = None,
+    attachments: list[EmailAttachment] | None = None,
+    from_email: EmailRecipient | None = None,
+    headers: dict | Headers | None = None,
+    base_url: str | None = None,
 ) -> str:
     """
     Send an email.
@@ -163,7 +163,7 @@ def send_email(
                 mimetype=attachment.mimetype,
             )
 
-    email_addresses: List[EmailAddress] = []
+    email_addresses: list[EmailAddress] = []
     for _name, email in getaddresses(msg.recipients()):
         try:
             # If an EmailAddress is blocked, this line will throw an exception

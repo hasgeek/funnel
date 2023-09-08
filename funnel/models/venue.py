@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import itertools
-from typing import List
 
 from sqlalchemy.ext.orderinglist import ordering_list
 
@@ -47,7 +46,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
     postcode = sa.orm.mapped_column(sa.Unicode(20), default='', nullable=False)
     country = sa.orm.mapped_column(sa.Unicode(2), default='', nullable=False)
 
-    rooms: Mapped[List[VenueRoom]] = relationship(
+    rooms: Mapped[list[VenueRoom]] = relationship(
         'VenueRoom',
         cascade='all',
         order_by='VenueRoom.seq',

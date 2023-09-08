@@ -7,7 +7,6 @@ Ported from markdown_it.rules_inline.strikethrough.
 from __future__ import annotations
 
 from collections.abc import MutableMapping, Sequence
-from typing import List
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import OptionsDict, RendererHTML
@@ -63,7 +62,7 @@ def tokenize(state: StateInline, silent: bool) -> bool:
     return True
 
 
-def _post_process(state: StateInline, delimiters: List[Delimiter]) -> None:
+def _post_process(state: StateInline, delimiters: list[Delimiter]) -> None:
     lone_markers = []
     maximum = len(delimiters)
 

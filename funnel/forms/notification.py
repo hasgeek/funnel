@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, List, Optional
 
 from flask import url_for
 from markupsafe import Markup
@@ -26,7 +26,7 @@ class TransportLabels:
 
     title: str
     requirement: str
-    requirement_action: Callable[[], Optional[str]]
+    requirement_action: Callable[[], str | None]
     unsubscribe_form: str
     unsubscribe_description: str
     switch: str
@@ -181,7 +181,7 @@ class UnsubscribeForm(forms.Form):
         """Get main preferences switch (global enable/disable)."""
         return obj.main_notification_preferences.by_transport(self.transport)
 
-    def get_types(self, obj) -> List[str]:
+    def get_types(self, obj) -> list[str]:
         """Get status for each notification type for the selected transport."""
         # Populate data with all notification types for which the user has the
         # current transport enabled

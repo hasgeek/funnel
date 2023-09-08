@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Optional
 
 import itsdangerous
 from flask import abort, current_app, flash, redirect, request, session, url_for
@@ -245,9 +244,7 @@ class AccountNotificationView(ClassView):
         endpoint='notification_unsubscribe_do',
     )
     @requestargs(('cookietest', getbool))
-    def unsubscribe(
-        self, token: str, token_type: Optional[str], cookietest: bool = False
-    ):
+    def unsubscribe(self, token: str, token_type: str | None, cookietest: bool = False):
         """View for unsubscribing from a notification type or disabling a transport."""
         # This route strips the token from the URL before rendering the page, to avoid
         # leaking the token to web analytics software.

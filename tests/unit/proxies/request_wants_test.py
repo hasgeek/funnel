@@ -1,7 +1,6 @@
 """Tests for request_wants proxy."""
 # pylint: disable=import-error,redefined-outer-name
 
-from typing import Optional
 
 import pytest
 from flask import Flask
@@ -116,7 +115,7 @@ def test_request_wants_html_fragment_xhr(
     ],
 )
 def test_request_wants_html_fragment_htmx(
-    app, hx_request: bool, accept_header: Optional[str], result: bool
+    app, hx_request: bool, accept_header: str | None, result: bool
 ) -> None:
     """Request wants a HTML fragment (HTMX version)."""
     # The Accept header is not a factor in HTMX calls.

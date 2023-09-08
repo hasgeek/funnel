@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from string import capwords
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, Dict, List, Optional, Union
+from typing import TYPE_CHECKING
 
 import user_agents
 from flask import (
@@ -81,7 +81,7 @@ from .otp import OtpSession, OtpTimeoutError
 
 
 @Account.views()
-def emails_sorted(obj: Account) -> List[AccountEmail]:
+def emails_sorted(obj: Account) -> list[AccountEmail]:
     """Return sorted list of email addresses for account page UI."""
     primary = obj.primary_email
     items = sorted(obj.emails, key=lambda i: (i != primary, i.email or ''))
@@ -89,7 +89,7 @@ def emails_sorted(obj: Account) -> List[AccountEmail]:
 
 
 @Account.views()
-def phones_sorted(obj: Account) -> List[AccountPhone]:
+def phones_sorted(obj: Account) -> list[AccountPhone]:
     """Return sorted list of phone numbers for account page UI."""
     primary = obj.primary_phone
     items = sorted(obj.phones, key=lambda i: (i != primary, i.phone or ''))
@@ -115,9 +115,9 @@ def user_timezone(obj: Account) -> str:
 def organizations_as_admin(
     obj: Account,
     owner: bool = False,
-    limit: Optional[int] = None,
+    limit: int | None = None,
     order_by_grant: bool = False,
-) -> List[RoleAccessProxy]:
+) -> list[RoleAccessProxy]:
     """Return organizations that the user is an admin of."""
     if owner:
         orgmems = obj.active_organization_owner_memberships
@@ -138,8 +138,8 @@ def organizations_as_admin(
 
 @Account.views()
 def organizations_as_owner(
-    obj: Account, limit: Optional[int] = None, order_by_grant: bool = False
-) -> List[RoleAccessProxy]:
+    obj: Account, limit: int | None = None, order_by_grant: bool = False
+) -> list[RoleAccessProxy]:
     """Return organizations that the user is an owner of."""
     return obj.views.organizations_as_admin(
         owner=True, limit=limit, order_by_grant=order_by_grant
@@ -200,7 +200,7 @@ def user_not_likely_throwaway(obj: Account) -> bool:
 
 
 @LoginSession.views('user_agent_details')
-def user_agent_details(obj: LoginSession) -> Dict[str, str]:
+def user_agent_details(obj: LoginSession) -> dict[str, str]:
     """Return a friendly identifier for the user's browser (HTTP user agent)."""
     ua = user_agents.parse(obj.user_agent)
     if ua.browser.family:
@@ -269,7 +269,7 @@ def login_session_location(obj: LoginSession) -> str:
 
 
 @LoginSession.views('login_service')
-def login_session_service(obj: LoginSession) -> Optional[str]:
+def login_session_service(obj: LoginSession) -> str | None:
     """Return the login provider that was used to create the login session."""
     if obj.login_service == 'otp':
         return _("OTP")
@@ -619,7 +619,7 @@ class AccountView(ClassView):
     )
     def remove_email(self, email_hash: str) -> ReturnView:
         """Remove an email address from the user's account."""
-        accountemail: Union[None, AccountEmail, AccountEmailClaim]
+        accountemail: AccountEmail | AccountEmailClaim | None
         try:
             accountemail = AccountEmail.get_for(
                 account=current_auth.user, email_hash=email_hash

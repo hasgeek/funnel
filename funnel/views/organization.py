@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
-
 from flask import abort, render_template, request, url_for
 
 from baseframe import _
@@ -23,7 +21,7 @@ from .login_session import requires_login, requires_sudo, requires_user_not_spam
 
 
 @Organization.views()
-def people_and_teams(obj: Organization) -> List[Tuple[Account, List[Team]]]:
+def people_and_teams(obj: Organization) -> list[tuple[Account, list[Team]]]:
     """Extract a list of users from the org's public teams."""
     # This depends on user.member_teams not using lazy='dynamic'. When that changes, we
     # will need a different approach to match users to teams. Comparison is by id rather
@@ -55,7 +53,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     route_model_map = {'account': 'urlname'}
     obj: Account
 
-    def loader(self, account: Optional[str] = None) -> Optional[Account]:
+    def loader(self, account: str | None = None) -> Account | None:
         """Load an organization if the view requires it."""
         if account:
             obj = Account.get(name=account)

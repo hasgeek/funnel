@@ -1,8 +1,6 @@
 """Markdown preview view."""
 
 
-from typing import Optional
-
 from flask import request
 
 from baseframe import _
@@ -16,7 +14,7 @@ from ...utils import MarkdownConfig
 @app.route('/api/1/preview/markdown', methods=['POST'])
 def markdown_preview() -> ReturnView:
     """Render Markdown in the backend, with custom options based on use case."""
-    profile: Optional[str] = request.form.get('profile')
+    profile: str | None = request.form.get('profile')
     if profile is None or profile not in MarkdownConfig.registry:
         return {
             'status': 'error',

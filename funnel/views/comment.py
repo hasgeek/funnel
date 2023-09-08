@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional, Union
-
 from flask import flash, request, url_for
 
 from baseframe import _, forms
@@ -94,7 +92,7 @@ def parent_comments_url(obj):
 
 
 @Commentset.views('last_comment', cached_property=True)
-def last_comment(obj: Commentset) -> Optional[Comment]:
+def last_comment(obj: Commentset) -> Comment | None:
     comment = obj.last_comment
     if comment:
         return comment.current_access(datasets=('primary', 'related'))
@@ -152,7 +150,7 @@ def do_post_comment(
     commentset: Commentset,
     actor: Account,
     message: str,
-    in_reply_to: Optional[Comment] = None,
+    in_reply_to: Comment | None = None,
 ) -> Comment:
     """Support function for posting a comment and updating a subscription."""
     comment = commentset.post_comment(
@@ -282,7 +280,7 @@ class CommentView(UrlForView, ModelView):
     route_model_map = {'commentset': 'commentset.uuid_b58', 'comment': 'uuid_b58'}
     obj: Comment
 
-    def loader(self, commentset: str, comment: str) -> Union[Comment, Commentset]:
+    def loader(self, commentset: str, comment: str) -> Comment | Commentset:
         comment = (
             Comment.query.join(Commentset)
             .filter(Commentset.uuid_b58 == commentset, Comment.uuid_b58 == comment)
@@ -296,7 +294,7 @@ class CommentView(UrlForView, ModelView):
             ).one_or_404()
         return comment
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         if isinstance(self.obj, Commentset):
             flash(
                 _("That comment could not be found. It may have been deleted"), 'error'

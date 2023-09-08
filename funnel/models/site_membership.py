@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Set
-
 from werkzeug.utils import cached_property
 
 from . import Mapped, Model, declared_attr, relationship, sa
@@ -93,7 +91,7 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
         )
 
     @cached_property
-    def offered_roles(self) -> Set[str]:
+    def offered_roles(self) -> set[str]:
         """
         Roles offered by this membership record.
 

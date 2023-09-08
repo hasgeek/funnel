@@ -5,9 +5,9 @@ from __future__ import annotations
 import hashlib
 import re
 from base64 import urlsafe_b64decode, urlsafe_b64encode
+from collections.abc import Iterable
 from os import urandom
-from typing import Any, Iterable, Optional, Union, overload
-from typing_extensions import Literal
+from typing import Any, Literal, overload
 
 from furl import furl
 from sqlalchemy.exc import IntegrityError
@@ -48,7 +48,7 @@ _valid_name_re = re.compile('^[A-Za-z0-9_-]*$')
 # --- Helpers --------------------------------------------------------------------------
 
 
-def normalize_url(url: Union[str, furl], default_scheme: str = 'https') -> furl:
+def normalize_url(url: str | furl, default_scheme: str = 'https') -> furl:
     """Normalize a URL with a default scheme and path."""
     url = furl(url)
     if not url.scheme:
@@ -77,7 +77,7 @@ def random_bigint(smaller: bool = False) -> int:
     return val
 
 
-def name_to_bigint(value: Union[str, bytes]) -> int:
+def name_to_bigint(value: str | bytes) -> int:
     """
     Convert from a URL-safe Base64-encoded shortlink name to bigint.
 
@@ -140,7 +140,7 @@ def bigint_to_name(value: int) -> str:
     )
 
 
-def url_blake2b160_hash(value: Union[str, furl]) -> bytes:
+def url_blake2b160_hash(value: str | furl) -> bytes:
     """
     Hash a URL, for duplicate URL lookup.
 
@@ -176,7 +176,7 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
     is_ = __eq__  # type: ignore[assignment]
 
     def in_(  # type: ignore[override]
-        self, other: Iterable[Union[str, bytes]]
+        self, other: Iterable[str | bytes]
     ) -> sa.ColumnElement:
         """Return an expression for other IN column."""
         return self.__clause_element__().in_(  # type: ignore[attr-defined]
@@ -212,11 +212,11 @@ class Shortlink(NoIdMixin, Model):
         read={'all'},
     )
     #: Id of account that created this shortlink (optional)
-    created_by_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+    created_by_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
     )
     #: Account that created this shortlink (optional)
-    created_by: Mapped[Optional[Account]] = relationship(Account)
+    created_by: Mapped[Account | None] = relationship(Account)
 
     #: Is this link enabled? If not, render 410 Gone
     enabled = sa.orm.mapped_column(sa.Boolean, nullable=False, default=True)
@@ -229,7 +229,7 @@ class Shortlink(NoIdMixin, Model):
         return bigint_to_name(self.id)
 
     @name.inplace.setter
-    def _name_setter(self, value: Union[str, bytes]) -> None:
+    def _name_setter(self, value: str | bytes) -> None:
         """Set a name."""
         self.id = name_to_bigint(value)
 
@@ -264,12 +264,12 @@ class Shortlink(NoIdMixin, Model):
     @classmethod
     def new(
         cls,
-        url: Union[str, furl],
+        url: str | furl,
         *,
-        name: Optional[str] = None,
+        name: str | None = None,
         shorter: bool = False,
         reuse: Literal[False] = False,
-        actor: Optional[Account] = None,
+        actor: Account | None = None,
     ) -> Shortlink:
         ...
 
@@ -277,24 +277,24 @@ class Shortlink(NoIdMixin, Model):
     @classmethod
     def new(
         cls,
-        url: Union[str, furl],
+        url: str | furl,
         *,
         name: Literal[None] = None,
         shorter: bool = False,
         reuse: Literal[True] = True,
-        actor: Optional[Account] = None,
+        actor: Account | None = None,
     ) -> Shortlink:
         ...
 
     @classmethod
     def new(
         cls,
-        url: Union[str, furl],
+        url: str | furl,
         *,
-        name: Optional[str] = None,
+        name: str | None = None,
         shorter: bool = False,
         reuse: bool = False,
-        actor: Optional[Account] = None,
+        actor: Account | None = None,
     ) -> Shortlink:
         """
         Create a new shortlink.
@@ -377,9 +377,7 @@ class Shortlink(NoIdMixin, Model):
             return False
 
     @classmethod
-    def get(
-        cls, name: Union[str, bytes], ignore_enabled: bool = False
-    ) -> Optional[Shortlink]:
+    def get(cls, name: str | bytes, ignore_enabled: bool = False) -> Shortlink | None:
         """
         Get a shortlink by name, if existing and not disabled.
 

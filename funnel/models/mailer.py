@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Collection, Iterator
 from datetime import datetime
 from enum import IntEnum
-from typing import Any, Collection, Dict, Iterator, List, Optional, Set, Union
+from typing import Any
 from uuid import UUID
 
 from flask import Markup, escape, request
@@ -94,7 +95,7 @@ class Mailer(BaseNameMixin, Model):
         order_by='(MailerRecipient.draft_id, MailerRecipient._fullname,'
         ' MailerRecipient._firstname, MailerRecipient._lastname)',
     )
-    drafts: Mapped[List[MailerDraft]] = relationship(
+    drafts: Mapped[list[MailerDraft]] = relationship(
         back_populates='mailer',
         cascade='all, delete-orphan',
         order_by='MailerDraft.url_id',
@@ -126,7 +127,7 @@ class Mailer(BaseNameMixin, Model):
         return self._cc
 
     @cc.setter
-    def cc(self, value: Union[str, Collection[str]]) -> None:
+    def cc(self, value: str | Collection[str]) -> None:
         if isinstance(value, str):
             value = [
                 _l.strip()
@@ -141,7 +142,7 @@ class Mailer(BaseNameMixin, Model):
         return self._bcc
 
     @bcc.setter
-    def bcc(self, value: Union[str, Collection[str]]) -> None:
+    def bcc(self, value: str | Collection[str]) -> None:
         if isinstance(value, str):
             value = [
                 _l.strip()
@@ -165,14 +166,14 @@ class Mailer(BaseNameMixin, Model):
                 yield recipient
 
     def permissions(
-        self, actor: Optional[Account], inherited: Optional[Set[str]] = None
-    ) -> Set[str]:
+        self, actor: Account | None, inherited: set[str] | None = None
+    ) -> set[str]:
         perms = super().permissions(actor, inherited)
         if actor is not None and actor == self.user:
             perms.update(['edit', 'delete', 'send', 'new-recipient', 'report'])
         return perms
 
-    def draft(self) -> Optional[MailerDraft]:
+    def draft(self) -> MailerDraft | None:
         if self.drafts:
             return self.drafts[-1]
         return None
@@ -228,16 +229,16 @@ class MailerRecipient(BaseScopedIdMixin, Model):
     mailer: Mapped[Mailer] = relationship(Mailer, back_populates='recipients')
     parent: Mapped[Mailer] = sa.orm.synonym('mailer')
 
-    _fullname: Mapped[Optional[str]] = sa.orm.mapped_column(
+    _fullname: Mapped[str | None] = sa.orm.mapped_column(
         'fullname', sa.Unicode(80), nullable=True
     )
-    _firstname: Mapped[Optional[str]] = sa.orm.mapped_column(
+    _firstname: Mapped[str | None] = sa.orm.mapped_column(
         'firstname', sa.Unicode(80), nullable=True
     )
-    _lastname: Mapped[Optional[str]] = sa.orm.mapped_column(
+    _lastname: Mapped[str | None] = sa.orm.mapped_column(
         'lastname', sa.Unicode(80), nullable=True
     )
-    _nickname: Mapped[Optional[str]] = sa.orm.mapped_column(
+    _nickname: Mapped[str | None] = sa.orm.mapped_column(
         'nickname', sa.Unicode(80), nullable=True
     )
 
@@ -259,13 +260,13 @@ class MailerRecipient(BaseScopedIdMixin, Model):
     opened: Mapped[bool] = sa.orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
-    opened_ipaddr: Mapped[Optional[str]] = sa.orm.mapped_column(
+    opened_ipaddr: Mapped[str | None] = sa.orm.mapped_column(
         sa.Unicode(45), nullable=True
     )
-    opened_first_at: Mapped[Optional[datetime]] = sa.orm.mapped_column(
+    opened_first_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
-    opened_last_at: Mapped[Optional[datetime]] = sa.orm.mapped_column(
+    opened_last_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     opened_count: Mapped[int] = sa.orm.mapped_column(
@@ -277,30 +278,28 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         sa.Unicode(44), nullable=False, default=newsecret, unique=True
     )
     # Y/N/M response
-    rsvp: Mapped[Optional[str]] = sa.orm.mapped_column(sa.Unicode(1), nullable=True)
+    rsvp: Mapped[str | None] = sa.orm.mapped_column(sa.Unicode(1), nullable=True)
 
     # Customised template for this recipient
-    subject: Mapped[Optional[str]] = sa.orm.mapped_column(
-        sa.Unicode(250), nullable=True
-    )
-    template: Mapped[Optional[str]] = sa.orm.mapped_column(
+    subject: Mapped[str | None] = sa.orm.mapped_column(sa.Unicode(250), nullable=True)
+    template: Mapped[str | None] = sa.orm.mapped_column(
         sa.UnicodeText, nullable=True, deferred=True
     )
 
     # Rendered version of user's template, for archival
-    rendered_text: Mapped[Optional[str]] = sa.orm.mapped_column(
+    rendered_text: Mapped[str | None] = sa.orm.mapped_column(
         sa.UnicodeText, nullable=True, deferred=True
     )
-    rendered_html: Mapped[Optional[str]] = sa.orm.mapped_column(
+    rendered_html: Mapped[str | None] = sa.orm.mapped_column(
         sa.UnicodeText, nullable=True, deferred=True
     )
 
     # Draft of the mailer template that the custom template is linked to (for updating
     # before finalising)
-    draft_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+    draft_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.ForeignKey('mailer_draft.id')
     )
-    draft: Mapped[Optional[MailerDraft]] = relationship(MailerDraft)
+    draft: Mapped[MailerDraft | None] = relationship(MailerDraft)
 
     __table_args__ = (sa.UniqueConstraint('mailer_id', 'url_id'),)
 
@@ -308,7 +307,7 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         return f'<MailerRecipient {self.fullname} {self.email} of {self.mailer!r}>'
 
     @property
-    def fullname(self) -> Optional[str]:
+    def fullname(self) -> str | None:
         """Recipient's fullname, constructed from first and last names if required."""
         if self._fullname:
             return self._fullname
@@ -322,11 +321,11 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         return None
 
     @fullname.setter
-    def fullname(self, value: Optional[str]) -> None:
+    def fullname(self, value: str | None) -> None:
         self._fullname = value
 
     @property
-    def firstname(self) -> Optional[str]:
+    def firstname(self) -> str | None:
         if self._firstname:
             return self._firstname
         if self._fullname:
@@ -334,11 +333,11 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         return None
 
     @firstname.setter
-    def firstname(self, value: Optional[str]) -> None:
+    def firstname(self, value: str | None) -> None:
         self._firstname = value
 
     @property
-    def lastname(self) -> Optional[str]:
+    def lastname(self) -> str | None:
         if self._lastname:
             return self._lastname
         if self._fullname:
@@ -346,15 +345,15 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         return None
 
     @lastname.setter
-    def lastname(self, value: Optional[str]) -> None:
+    def lastname(self, value: str | None) -> None:
         self._lastname = value
 
     @property
-    def nickname(self) -> Optional[str]:
+    def nickname(self) -> str | None:
         return self._nickname or self.firstname
 
     @nickname.setter
-    def nickname(self, value: Optional[str]) -> None:
+    def nickname(self, value: str | None) -> None:
         self._nickname = value
 
     @property
@@ -367,7 +366,7 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         self.md5sum = md5sum(value)
 
     @property
-    def revision_id(self) -> Optional[int]:
+    def revision_id(self) -> int | None:
         return self.draft.revision_id if self.draft else None
 
     def is_latest_draft(self) -> bool:
@@ -375,7 +374,7 @@ class MailerRecipient(BaseScopedIdMixin, Model):
             return True
         return self.draft == self.mailer.draft()
 
-    def template_data(self) -> Dict[str, Any]:
+    def template_data(self) -> dict[str, Any]:
         tdata = {
             'fullname': self.fullname,
             'email': self.email,
@@ -422,7 +421,7 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         return self.draft is not None
 
     @classmethod
-    def custom_draft_in(cls, mailer: Mailer) -> List[MailerRecipient]:
+    def custom_draft_in(cls, mailer: Mailer) -> list[MailerRecipient]:
         return (
             cls.query.filter(
                 cls.mailer == mailer,
@@ -449,6 +448,6 @@ class MailerRecipient(BaseScopedIdMixin, Model):
 
 @reopen(Account)
 class __Account:
-    mailers: Mapped[List[Mailer]] = relationship(
+    mailers: Mapped[list[Mailer]] = relationship(
         Mailer, back_populates='user', order_by='Mailer.updated_at.desc()'
     )

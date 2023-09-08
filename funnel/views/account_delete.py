@@ -1,7 +1,8 @@
 """Helper functions for account delete validation."""
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, List, Optional, TypeVar
+from typing import TypeVar
 
 from baseframe import __
 
@@ -24,11 +25,11 @@ class DeleteValidator:
 
 #: A list of validators that confirm there is no objection to deleting a user
 #: account (returning True to allow deletion to proceed).
-account_delete_validators: List[DeleteValidator] = []
+account_delete_validators: list[DeleteValidator] = []
 
 
 def delete_validator(
-    title: str, message: str, name: Optional[str] = None
+    title: str, message: str, name: str | None = None
 ) -> Callable[[ValidatorFunc], ValidatorFunc]:
     """Register an account delete validator."""
 
@@ -99,7 +100,7 @@ def user_owns_apps(user: Account) -> bool:
 
 
 @Account.views()
-def validate_account_delete(obj: Account) -> Optional[DeleteValidator]:
+def validate_account_delete(obj: Account) -> DeleteValidator | None:
     """Validate if user account is safe to delete, returning an optional objection."""
     for validator in account_delete_validators:
         proceed = validator.validate(obj)

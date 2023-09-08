@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Type
+from typing import Any
 
 from flask_babel import format_date, get_locale
 from isoweek import Week
@@ -65,7 +65,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     proposal_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id'), nullable=True, unique=True
     )
-    proposal: Mapped[Optional[Proposal]] = relationship(
+    proposal: Mapped[Proposal | None] = relationship(
         Proposal, backref=backref('session', uselist=False, cascade='all')
     )
     speaker = sa.orm.mapped_column(sa.Unicode(200), default=None, nullable=True)
@@ -78,15 +78,13 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     venue_room_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True
     )
-    venue_room: Mapped[Optional[VenueRoom]] = relationship(
-        VenueRoom, backref='sessions'
-    )
+    venue_room: Mapped[VenueRoom | None] = relationship(VenueRoom, backref='sessions')
     is_break = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
     featured = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
     is_restricted_video = sa.orm.mapped_column(
         sa.Boolean, default=False, nullable=False
     )
-    banner_image_url: Mapped[Optional[str]] = sa.orm.mapped_column(
+    banner_image_url: Mapped[str | None] = sa.orm.mapped_column(
         ImgeeType, nullable=True
     )
 
@@ -214,7 +212,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     }
 
     @hybrid_property
-    def user(self) -> Optional[Account]:
+    def user(self) -> Account | None:
         if self.proposal is not None:
             return self.proposal.first_user
         return None
@@ -231,7 +229,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
         return (cls.start_at.is_not(None)) & (cls.end_at.is_not(None))
 
     @cached_property
-    def start_at_localized(self) -> Optional[datetime]:
+    def start_at_localized(self) -> datetime | None:
         return (
             localize_timezone(self.start_at, tz=self.project.timezone)
             if self.start_at
@@ -239,7 +237,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
         )
 
     @cached_property
-    def end_at_localized(self) -> Optional[datetime]:
+    def end_at_localized(self) -> datetime | None:
         return (
             localize_timezone(self.end_at, tz=self.project.timezone)
             if self.end_at
@@ -263,9 +261,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     with_roles(location, read={'all'})
 
     @classmethod
-    def for_proposal(
-        cls, proposal: Proposal, create: bool = False
-    ) -> Optional[Session]:
+    def for_proposal(cls, proposal: Proposal, create: bool = False) -> Session | None:
         session_obj = cls.query.filter_by(proposal=proposal).first()
         if session_obj is None and create:
             session_obj = cls(
@@ -293,7 +289,7 @@ add_search_trigger(Session, 'search_vector')
 
 @reopen(VenueRoom)
 class __VenueRoom:
-    scheduled_sessions: Mapped[List[Session]] = relationship(
+    scheduled_sessions: Mapped[list[Session]] = relationship(
         Session,
         primaryjoin=sa.and_(
             Session.venue_room_id == VenueRoom.id,
@@ -434,7 +430,7 @@ class __Project:
     def has_sessions_with_video(self) -> bool:
         return self.query.session.query(self.sessions_with_video.exists()).scalar()
 
-    def next_session_from(self, timestamp: datetime) -> Optional[Session]:
+    def next_session_from(self, timestamp: datetime) -> Session | None:
         """Find the next session in this project from given timestamp."""
         return (
             self.sessions.filter(
@@ -446,8 +442,8 @@ class __Project:
 
     @with_roles(call={'all'})
     def next_starting_at(  # type: ignore[misc]
-        self: Project, timestamp: Optional[datetime] = None
-    ) -> Optional[datetime]:
+        self: Project, timestamp: datetime | None = None
+    ) -> datetime | None:
         """
         Return timestamp of next session from given timestamp.
 
@@ -476,7 +472,7 @@ class __Project:
 
     @classmethod
     def starting_at(  # type: ignore[misc]
-        cls: Type[Project], timestamp: datetime, within: timedelta, gap: timedelta
+        cls: type[Project], timestamp: datetime, within: timedelta, gap: timedelta
     ) -> Query[Project]:
         """
         Return projects that are about to start, for sending notifications.
@@ -534,7 +530,7 @@ class __Project:
         )
 
     @with_roles(call={'all'})
-    def current_sessions(self: Project) -> Optional[dict]:  # type: ignore[misc]
+    def current_sessions(self: Project) -> dict | None:  # type: ignore[misc]
         if self.start_at is None or (self.start_at > utcnow() + timedelta(minutes=30)):
             return None
 
@@ -650,7 +646,7 @@ class __Project:
                     session_dates.insert(0, (now + timedelta(days=7), None, None, 0))
                 session_dates.insert(0, (now, None, None, 0))
 
-        weeks: Dict[str, Dict[str, Any]] = defaultdict(dict)
+        weeks: dict[str, dict[str, Any]] = defaultdict(dict)
         today = now.date()
         for project_date, _day_start_at, _day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)

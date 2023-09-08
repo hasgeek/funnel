@@ -5,7 +5,7 @@ from __future__ import annotations
 import urllib.parse
 from datetime import timedelta
 from secrets import token_urlsafe
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 import itsdangerous
 from flask import (
@@ -87,7 +87,7 @@ block_iframe = {'X-Frame-Options': 'SAMEORIGIN'}
 LOGOUT_ERRORMSG = __("Are you trying to logout? Try again to confirm")
 
 
-def get_otp_form(otp_session: OtpSession) -> Union[OtpForm, RegisterOtpForm]:
+def get_otp_form(otp_session: OtpSession) -> OtpForm | RegisterOtpForm:
     """Return variant of OTP form depending on whether there's a user account."""
     if otp_session.user:
         form = OtpForm(valid_otp=otp_session.otp)
@@ -97,7 +97,7 @@ def get_otp_form(otp_session: OtpSession) -> Union[OtpForm, RegisterOtpForm]:
 
 
 def render_otp_form(
-    form: Union[OtpForm, RegisterOtpForm], cancel_url: str, action: str
+    form: OtpForm | RegisterOtpForm, cancel_url: str, action: str
 ) -> ReturnView:
     """Render OTP form."""
     form.form_nonce.data = form.form_nonce.default()

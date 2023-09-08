@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Union
-
 from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 
 from coaster.sqlalchemy import with_roles
@@ -130,7 +128,7 @@ class Label(BaseScopedNameMixin, Model):
     )
 
     #: Proposals that this label is attached to
-    proposals: Mapped[List[Proposal]] = relationship(
+    proposals: Mapped[list[Proposal]] = relationship(
         Proposal, secondary=proposal_label, back_populates='labels'
     )
 
@@ -326,7 +324,7 @@ class ProposalLabelProxyWrapper:
     def __init__(self, obj: Proposal) -> None:
         object.__setattr__(self, '_obj', obj)
 
-    def __getattr__(self, name: str) -> Union[bool, str, None]:
+    def __getattr__(self, name: str) -> bool | str | None:
         """Get an attribute."""
         # What this does:
         # 1. Check if the project has this label (including archived labels). If not,
@@ -390,9 +388,7 @@ class ProposalLabelProxyWrapper:
 
 
 class ProposalLabelProxy:
-    def __get__(
-        self, obj, cls=None
-    ) -> Union[ProposalLabelProxyWrapper, ProposalLabelProxy]:
+    def __get__(self, obj, cls=None) -> ProposalLabelProxyWrapper | ProposalLabelProxy:
         """Get proposal label proxy."""
         if obj is not None:
             return ProposalLabelProxyWrapper(obj)
@@ -401,7 +397,7 @@ class ProposalLabelProxy:
 
 @reopen(Project)
 class __Project:
-    labels: Mapped[List[Label]] = relationship(
+    labels: Mapped[list[Label]] = relationship(
         Label,
         primaryjoin=sa.and_(
             Label.project_id == Project.id,
@@ -411,7 +407,7 @@ class __Project:
         order_by=Label.seq,
         viewonly=True,
     )
-    all_labels: Mapped[List[Label]] = relationship(
+    all_labels: Mapped[list[Label]] = relationship(
         Label,
         collection_class=ordering_list('seq', count_from=1),
         back_populates='project',
@@ -423,7 +419,7 @@ class __Proposal:
     #: For reading and setting labels from the edit form
     formlabels = ProposalLabelProxy()
 
-    labels: Mapped[List[Label]] = with_roles(
+    labels: Mapped[list[Label]] = with_roles(
         relationship(Label, secondary=proposal_label, back_populates='proposals'),
         read={'all'},
     )

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Sequence
+from collections.abc import Sequence
 
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
@@ -46,7 +46,7 @@ class SavedProject(NoIdMixin, Model):
     description = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Sequence = ()
+        self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.account:
@@ -97,7 +97,7 @@ class SavedSession(NoIdMixin, Model):
     description = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Sequence = ()
+        self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.account:

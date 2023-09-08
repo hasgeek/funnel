@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from collections.abc import Iterable
 
 from flask import url_for
 from markupsafe import Markup
@@ -20,7 +20,7 @@ class OrganizationForm(forms.Form):
 
     __expects__: Iterable[str] = ('edit_user',)
     edit_user: Account
-    edit_obj: Optional[Account]
+    edit_obj: Account | None
 
     title = forms.StringField(
         __("Organization name"),

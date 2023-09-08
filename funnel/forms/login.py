@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 from baseframe import _, __, forms
 
@@ -122,11 +122,11 @@ class LoginForm(forms.RecaptchaForm):
     """
 
     __returns__ = ('user', 'anchor', 'weak_password', 'new_email', 'new_phone')
-    user: Optional[Account] = None
-    anchor: Optional[Union[AccountEmail, AccountEmailClaim, AccountPhone]] = None
-    weak_password: Optional[bool] = None
-    new_email: Optional[str] = None
-    new_phone: Optional[str] = None
+    user: Account | None = None
+    anchor: AccountEmail | AccountEmailClaim | AccountPhone | None = None
+    weak_password: bool | None = None
+    new_email: str | None = None
+    new_phone: str | None = None
 
     username = forms.StringField(
         __("Phone number or email address"),
@@ -254,7 +254,7 @@ class LogoutForm(forms.Form):
     __expects__ = ('user',)
     __returns__ = ('login_session',)
     user: Account
-    login_session: Optional[LoginSession] = None
+    login_session: LoginSession | None = None
 
     # We use `StringField`` even though the field is not visible. This does not use
     # `HiddenField`, because that gets rendered with `hidden_tag`, and not `SubmitField`

@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Optional, Tuple, Union, cast, overload
-from typing_extensions import Literal
+from typing import Literal, cast, overload
 
 from flask import current_app
 from werkzeug.utils import cached_property
@@ -62,7 +61,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         grants={'owner'},
         datasets={'primary', 'without_parent'},
     )
-    form: Mapped[Optional[types.jsonb]] = with_roles(
+    form: Mapped[types.jsonb | None] = with_roles(
         sa.orm.mapped_column(),
         rw={'owner'},
         read={'project_promoter'},
@@ -131,19 +130,19 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         pass
 
     @with_roles(call={'owner', 'project_promoter'})
-    def participant_email(self) -> Optional[AccountEmail]:
+    def participant_email(self) -> AccountEmail | None:
         """Participant's preferred email address for this registration."""
         return self.participant.transport_for_email(self.project.account)
 
     @with_roles(call={'owner', 'project_promoter'})
-    def participant_phone(self) -> Optional[AccountEmail]:
+    def participant_phone(self) -> AccountEmail | None:
         """Participant's preferred phone number for this registration."""
         return self.participant.transport_for_sms(self.project.account)
 
     @with_roles(call={'owner', 'project_promoter'})
     def best_contact(
         self,
-    ) -> Tuple[Union[AccountEmail, AccountEmailClaim, AccountPhone, None], str]:
+    ) -> tuple[AccountEmail | AccountEmailClaim | AccountPhone | None, str]:
         email = self.participant_email()
         if email:
             return email, 'e'
@@ -179,20 +178,20 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
     @classmethod
     def get_for(
         cls, project: Project, account: Account, create: Literal[False]
-    ) -> Optional[Rsvp]:
+    ) -> Rsvp | None:
         ...
 
     @overload
     @classmethod
     def get_for(
-        cls, project: Project, account: Optional[Account], create=False
-    ) -> Optional[Rsvp]:
+        cls, project: Project, account: Account | None, create=False
+    ) -> Rsvp | None:
         ...
 
     @classmethod
     def get_for(
-        cls, project: Project, account: Optional[Account], create=False
-    ) -> Optional[Rsvp]:
+        cls, project: Project, account: Account | None, create=False
+    ) -> Rsvp | None:
         if account is not None:
             result = cls.query.get((project.id, account.id))
             if not result and create:
@@ -218,12 +217,10 @@ class __Project:
         ...
 
     @overload
-    def rsvp_for(
-        self, account: Optional[Account], create: Literal[False]
-    ) -> Optional[Rsvp]:
+    def rsvp_for(self, account: Account | None, create: Literal[False]) -> Rsvp | None:
         ...
 
-    def rsvp_for(self, account: Optional[Account], create=False) -> Optional[Rsvp]:
+    def rsvp_for(self, account: Account | None, create=False) -> Rsvp | None:
         return Rsvp.get_for(cast(Project, self), account, create)
 
     def rsvps_with(self, status: str):
@@ -236,7 +233,7 @@ class __Project:
             )
         )
 
-    def rsvp_counts(self) -> Dict[str, int]:
+    def rsvp_counts(self) -> dict[str, int]:
         return dict(
             db.session.query(
                 Rsvp._state,  # pylint: disable=protected-access

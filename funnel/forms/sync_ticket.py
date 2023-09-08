@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from typing import Optional
 
 from flask import Markup
 
@@ -162,7 +161,7 @@ class TicketParticipantForm(forms.Form):
     """Form for a participant in a ticket."""
 
     __returns__ = ('user',)
-    user: Optional[Account] = None
+    user: Account | None = None
     edit_parent: Project
 
     fullname = forms.StringField(
