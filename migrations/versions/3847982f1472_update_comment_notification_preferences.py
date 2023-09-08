@@ -28,7 +28,7 @@ def upgrade() -> None:
         .where(notification_preferences.c.notification_type == 'comment_project')
     )
 
-    op.execute(
+    op.get_bind().execute(
         notification_preferences.delete().where(
             notification_preferences.c.notification_type == 'comment_proposal'
         )

@@ -25,7 +25,7 @@ def upgrade() -> None:
     op.create_check_constraint(
         'session_start_at_end_at_check',
         'session',
-        sa.or_(
+        sa.or_(  # type: ignore[arg-type]
             sa.and_(start_at.is_(None), end_at.is_(None)),
             sa.and_(start_at.is_not(None), end_at.is_not(None), end_at >= start_at),
         ),
@@ -33,7 +33,7 @@ def upgrade() -> None:
     op.create_check_constraint(
         'project_start_at_end_at_check',
         'project',
-        sa.or_(
+        sa.or_(  # type: ignore[arg-type]
             sa.and_(start_at.is_(None), end_at.is_(None)),
             sa.and_(start_at.is_not(None), end_at.is_not(None), end_at >= start_at),
         ),
@@ -46,7 +46,7 @@ def downgrade() -> None:
     op.create_check_constraint(
         'session_start_at_end_at_check',
         'session',
-        sa.or_(
+        sa.or_(  # type: ignore[arg-type]
             sa.and_(start_at.is_(None), end_at.is_(None)),
             sa.and_(start_at.is_not(None), end_at.is_not(None)),
         ),

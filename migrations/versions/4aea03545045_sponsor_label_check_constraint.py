@@ -18,7 +18,9 @@ depends_on: str | tuple[str, ...] | None = None
 
 def upgrade() -> None:
     op.create_check_constraint(
-        'sponsor_membership_label_check', 'sponsor_membership', column('label') != ''
+        'sponsor_membership_label_check',
+        'sponsor_membership',
+        column('label') != '',  # type: ignore[arg-type]
     )
 
 

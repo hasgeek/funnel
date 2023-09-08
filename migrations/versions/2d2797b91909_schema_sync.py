@@ -19,7 +19,7 @@ depends_on: str | tuple[str, ...] | None = None
 def upgrade() -> None:
     # Migration auto-generated using Migra
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
 alter table "comment" drop constraint "comment_state_check";
 
@@ -115,7 +115,7 @@ alter table "rsvp" add constraint "rsvp_state_check" CHECK ((state = ANY (ARRAY[
 
 def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
 alter table "organization_membership" drop constraint "organization_membership_record_type_check";
 

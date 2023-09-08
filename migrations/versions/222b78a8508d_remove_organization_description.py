@@ -44,14 +44,14 @@ def upgrade() -> None:
         ).where(organization_table.c.description != '')
     )
     for org in orgs:
-        blank_profile = conn.execute(
+        blank_profile = conn.scalar(
             sa.select(sa.func.count(profile_table.c.id)).where(
                 sa.and_(
                     profile_table.c.organization_id == org.id,
                     profile_table.c.description_text == '',
                 )
             )
-        ).first()[0]
+        )
         if blank_profile:
             print("Updating", org.title)  # noqa: T201
             op.execute(

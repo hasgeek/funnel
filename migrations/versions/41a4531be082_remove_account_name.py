@@ -90,7 +90,7 @@ def downgrade() -> None:
         'ix_account_name_reserved', 'account_name', ['reserved'], unique=False
     )
 
-    op.execute(
+    op.get_bind().execute(
         account_name.insert().from_select(
             [
                 'id',

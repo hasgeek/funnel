@@ -545,34 +545,34 @@ def upgrade() -> None:
     op.create_foreign_key('vote_user_id_fkey', 'vote', 'user', ['user_id'], ['id'])
 
     op.execute(
-        sa.DDL(
+        sa.text(
             "CREATE UNIQUE INDEX ix_account_name_name_lower ON account_name (lower(name) varchar_pattern_ops);"
         )
     )
     op.execute(
-        sa.DDL(
+        sa.text(
             "CREATE INDEX ix_user_fullname_lower ON \"user\" (lower(fullname) varchar_pattern_ops);"
         )
     )
     op.execute(
-        sa.DDL(
+        sa.text(
             "CREATE UNIQUE INDEX ix_user_email_email_lower ON user_email (lower(email) varchar_pattern_ops);"
         )
     )
     op.execute(
-        sa.DDL(
+        sa.text(
             "CREATE INDEX ix_user_externalid_username_lower ON user_externalid (lower(username) varchar_pattern_ops);"
         )
     )
 
-    op.execute(sa.DDL(upgrade_triggers))
+    op.execute(sa.text(upgrade_triggers))
 
     print("ALERT! Import data from Lastuser before the next migration")  # noqa: T201
     print("Use `pg_dump --data-only --exclude-table=alembic_version`")  # noqa: T201
 
 
 def downgrade() -> None:
-    op.execute(sa.DDL(downgrade_triggers))
+    op.execute(sa.text(downgrade_triggers))
 
     op.drop_index('ix_user_externalid_username_lower', table_name='user_externalid')
     op.drop_index('ix_user_email_email_lower', table_name='user_email')

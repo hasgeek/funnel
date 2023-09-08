@@ -152,7 +152,7 @@ def upgrade() -> None:
 
     # Update search vector
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         UPDATE proposal SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(description, '')), 'B') || setweight(to_tsvector('english', COALESCE(body_text, '')), 'B');
@@ -177,7 +177,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         UPDATE proposal SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(abstract_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(outline_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(requirements_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(slides, '')), 'B') || setweight(to_tsvector('english', COALESCE(links, '')), 'B') || setweight(to_tsvector('english', COALESCE(bio_text, '')), 'B');

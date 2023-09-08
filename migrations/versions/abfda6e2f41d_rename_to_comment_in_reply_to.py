@@ -19,7 +19,7 @@ depends_on: str | tuple[str, ...] | None = None
 def upgrade() -> None:
     op.alter_column('comment', 'parent_id', new_column_name='in_reply_to_id')
     op.execute(
-        sa.DDL(
+        sa.text(
             'ALTER TABLE comment RENAME CONSTRAINT'
             ' comment_parent_id_fkey TO comment_in_reply_to_id;'
         )
@@ -28,7 +28,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             'ALTER TABLE comment RENAME CONSTRAINT'
             ' comment_in_reply_to_id TO comment_parent_id_fkey;'
         )

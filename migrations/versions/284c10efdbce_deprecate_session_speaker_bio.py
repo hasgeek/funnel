@@ -77,7 +77,7 @@ def upgrade() -> None:
     progress.finish()
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
                 UPDATE session SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(description_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(speaker, '')), 'A');
@@ -128,7 +128,7 @@ def downgrade() -> None:
     op.alter_column('session', 'speaker_bio_text', server_default=None)
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
                 UPDATE session SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(description_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(speaker_bio_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(speaker, '')), 'A');

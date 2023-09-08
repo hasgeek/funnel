@@ -283,7 +283,7 @@ def downgrade() -> None:
     for table, old, new in migrate_user_columns:
         print(f"Restoring {table}.{old}")  # noqa: T201
         op.execute(
-            sa.DDL(
+            sa.text(
                 f'''
                 UPDATE "{table}" SET "{old}" = "old_user"."id"
                 FROM "user", "old_user"
@@ -296,7 +296,7 @@ def downgrade() -> None:
     for table, old, new in migrate_team_columns:
         print(f"Restoring {table}.{old}")  # noqa: T201
         op.execute(
-            sa.DDL(
+            sa.text(
                 f'''
                 UPDATE "{table}" SET "{old}" = "old_team"."id"
                 FROM "team", "old_team"

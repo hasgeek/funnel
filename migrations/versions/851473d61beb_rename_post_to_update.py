@@ -37,23 +37,23 @@ def upgrade() -> None:
     op.drop_constraint('post_owner_check', 'post', type_='check')
     op.drop_column('post', 'profile_id')
     op.rename_table('post', 'update')
-    op.execute(sa.DDL('ALTER SEQUENCE post_id_seq RENAME TO update_id_seq'))
+    op.execute(sa.text('ALTER SEQUENCE post_id_seq RENAME TO update_id_seq'))
 
     for old, new in renamed_constraints:
-        op.execute(sa.DDL(f'ALTER TABLE update RENAME CONSTRAINT "{old}" TO "{new}"'))
+        op.execute(sa.text(f'ALTER TABLE update RENAME CONSTRAINT "{old}" TO "{new}"'))
 
     for old, new in renamed_indexes:
-        op.execute(sa.DDL(f'ALTER INDEX "{old}" RENAME TO "{new}"'))
+        op.execute(sa.text(f'ALTER INDEX "{old}" RENAME TO "{new}"'))
 
 
 def downgrade() -> None:
     for old, new in renamed_indexes:
-        op.execute(sa.DDL(f'ALTER INDEX "{new}" RENAME TO "{old}"'))
+        op.execute(sa.text(f'ALTER INDEX "{new}" RENAME TO "{old}"'))
 
     for old, new in renamed_constraints:
-        op.execute(sa.DDL(f'ALTER TABLE update RENAME CONSTRAINT "{new}" TO "{old}"'))
+        op.execute(sa.text(f'ALTER TABLE update RENAME CONSTRAINT "{new}" TO "{old}"'))
 
-    op.execute(sa.DDL('ALTER SEQUENCE update_id_seq RENAME TO post_id_seq'))
+    op.execute(sa.text('ALTER SEQUENCE update_id_seq RENAME TO post_id_seq'))
     op.rename_table('update', 'post')
     op.add_column(
         'post',
