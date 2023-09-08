@@ -54,7 +54,7 @@ def upgrade() -> None:
     # Import inside the `upgrade` function because `uuid2suuid` will be removed from
     # Coaster shortly. Importing this migration should not break in the future unless
     # also attempting to perform the migration, which will hopefully be unnecessary
-    from coaster.utils import uuid2suuid
+    from coaster.utils import uuid2suuid  # type: ignore[attr-defined]
 
     op.create_table(
         'proposal_suuid_redirect',

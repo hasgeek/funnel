@@ -31,10 +31,10 @@ renamed_constraints = [
 def upgrade() -> None:
     op.alter_column('update', 'project_id', existing_type=sa.INTEGER(), nullable=False)
     for old, new in renamed_constraints:
-        op.execute(sa.DDL(f'ALTER TABLE update RENAME CONSTRAINT "{old}" TO "{new}"'))
+        op.execute(sa.text(f'ALTER TABLE update RENAME CONSTRAINT "{old}" TO "{new}"'))
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         DROP TRIGGER post_search_vector_trigger ON update;
@@ -45,7 +45,7 @@ def upgrade() -> None:
     )
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         CREATE FUNCTION update_search_vector_update() RETURNS trigger AS $$
@@ -65,7 +65,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         DROP TRIGGER update_search_vector_trigger ON update;
@@ -76,7 +76,7 @@ def downgrade() -> None:
     )
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         CREATE FUNCTION post_search_vector_update() RETURNS trigger AS $$
@@ -94,5 +94,5 @@ def downgrade() -> None:
     )
 
     for old, new in renamed_constraints:
-        op.execute(sa.DDL(f'ALTER TABLE update RENAME CONSTRAINT "{new}" TO "{old}"'))
+        op.execute(sa.text(f'ALTER TABLE update RENAME CONSTRAINT "{new}" TO "{old}"'))
     op.alter_column('update', 'project_id', existing_type=sa.INTEGER(), nullable=True)

@@ -67,7 +67,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_post_user_id'), 'post', ['user_id'], unique=False)
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         CREATE FUNCTION post_search_vector_update() RETURNS trigger AS $$
@@ -87,7 +87,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         DROP TRIGGER post_search_vector_trigger ON post;

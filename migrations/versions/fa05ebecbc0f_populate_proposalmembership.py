@@ -123,4 +123,4 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # Removes all items from `proposal_membership` table
-    op.execute(proposal_membership.delete())
+    op.get_bind().execute(proposal_membership.delete())

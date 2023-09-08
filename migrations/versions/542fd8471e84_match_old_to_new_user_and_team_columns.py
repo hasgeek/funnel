@@ -42,7 +42,7 @@ def upgrade() -> None:
     for table, old, new in migrate_user_columns:
         print(f"Upgrading {table}.{new}")  # noqa: T201
         op.execute(
-            sa.DDL(
+            sa.text(
                 f'''
                 UPDATE "{table}" SET "{new}" = "user"."id"
                 FROM "user", "old_user"
@@ -55,7 +55,7 @@ def upgrade() -> None:
     for table, old, new in migrate_team_columns:
         print(f"Upgrading {table}.{new}")  # noqa: T201
         op.execute(
-            sa.DDL(
+            sa.text(
                 f'''
                 UPDATE "{table}" SET "{new}" = "team"."id"
                 FROM "team", "old_team"

@@ -29,7 +29,7 @@ def upgrade() -> None:
     # in another project. It does not prevent a venue from being moved to a
     # different project, thereby leaving the primary_venue record invalid.
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
         CREATE FUNCTION project_venue_primary_validate() RETURNS TRIGGER AS $$
         DECLARE
@@ -51,7 +51,7 @@ def upgrade() -> None:
         )
     )
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
         INSERT INTO project_venue_primary (project_id, venue_id, created_at, updated_at)
         SELECT DISTINCT ON (project_id) project_id, id, created_at, updated_at
@@ -64,7 +64,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
         DROP TRIGGER project_venue_primary_trigger ON project_venue_primary;
         DROP FUNCTION project_venue_primary_validate();

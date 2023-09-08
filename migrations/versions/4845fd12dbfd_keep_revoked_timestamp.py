@@ -29,7 +29,7 @@ def upgrade() -> None:
     )
 
     op.execute(
-        sa.DDL(
+        sa.text(
             'UPDATE user_notification SET revoked_at = updated_at'
             ' WHERE is_revoked IS TRUE;'
         )
@@ -52,7 +52,7 @@ def downgrade() -> None:
     )
 
     op.execute(
-        sa.DDL(
+        sa.text(
             'UPDATE user_notification SET is_revoked = TRUE'
             ' WHERE revoked_at IS NOT NULL;'
         )
