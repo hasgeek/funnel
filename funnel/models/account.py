@@ -122,7 +122,6 @@ class Account(UuidMixin, BaseMixin, Model):
     """Account model."""
 
     __tablename__ = 'account'
-    __allow_unmapped__ = True
     # Name has a length limit 63 to fit DNS label limit
     __name_length__ = 63
     # Titles can be longer
@@ -403,8 +402,8 @@ class Account(UuidMixin, BaseMixin, Model):
         """Return filter for the subclass's type."""
         return cls.type_ == cls.__mapper_args__.get('polymorphic_identity')
 
-    primary_email: AccountEmail | None
-    primary_phone: AccountPhone | None
+    primary_email: Mapped[AccountEmail | None] = relationship()
+    primary_phone: Mapped[AccountPhone | None] = relationship()
 
     def __repr__(self) -> str:
         if self.name:
@@ -1236,7 +1235,6 @@ class AccountOldId(UuidMixin, BaseMixin, Model):
     """Record of an older UUID for an account, after account merger."""
 
     __tablename__ = 'account_oldid'
-    __allow_unmapped__ = True
     __uuid_primary_key__ = True
 
     #: Old account, if still present
@@ -1422,7 +1420,6 @@ class Team(UuidMixin, BaseMixin, Model):
     """A team of users within an organization."""
 
     __tablename__ = 'team'
-    __allow_unmapped__ = True
     __title_length__ = 250
     #: Displayed name
     title: Mapped[str] = sa.orm.mapped_column(
@@ -1497,7 +1494,6 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
     """An email address linked to an account."""
 
     __tablename__ = 'account_email'
-    __allow_unmapped__ = True
     __email_optional__ = False
     __email_unique__ = True
     __email_is_exclusive__ = True
@@ -1679,7 +1675,6 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
     """Claimed but unverified email address for a user."""
 
     __tablename__ = 'account_email_claim'
-    __allow_unmapped__ = True
     __email_optional__ = False
     __email_unique__ = False
     __email_for__ = 'account'
@@ -1687,7 +1682,6 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
 
     # Tell mypy that these are not optional
     email_address: Mapped[EmailAddress]  # type: ignore[assignment]
-    email: str
 
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
@@ -1875,7 +1869,6 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
     """A phone number linked to an account."""
 
     __tablename__ = 'account_phone'
-    __allow_unmapped__ = True
     __phone_optional__ = False
     __phone_unique__ = True
     __phone_is_exclusive__ = True
@@ -2067,7 +2060,6 @@ class AccountExternalId(BaseMixin, Model):
     """An external connected account for a user."""
 
     __tablename__ = 'account_externalid'
-    __allow_unmapped__ = True
     __at_username_services__: ClassVar[list[str]] = []
     #: Foreign key to user table
     account_id: Mapped[int] = sa.orm.mapped_column(

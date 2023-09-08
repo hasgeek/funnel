@@ -26,7 +26,6 @@ class ProposalMembership(  # type: ignore[misc]
     """Users can be presenters or reviewers on proposals."""
 
     __tablename__ = 'proposal_membership'
-    __allow_unmapped__ = True
 
     # List of data columns in this model
     __data_columns__ = ('seq', 'is_uncredited', 'label', 'title')

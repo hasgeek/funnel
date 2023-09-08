@@ -47,7 +47,6 @@ __all__ = ['Session']
 
 class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     __tablename__ = 'session'
-    __allow_unmapped__ = True
 
     project_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False

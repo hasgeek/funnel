@@ -42,7 +42,6 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
 
 class Rsvp(UuidMixin, NoIdMixin, Model):
     __tablename__ = 'rsvp'
-    __allow_unmapped__ = True
     project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )

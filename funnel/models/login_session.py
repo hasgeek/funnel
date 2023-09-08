@@ -85,7 +85,6 @@ auth_client_login_session = sa.Table(
 
 class LoginSession(UuidMixin, BaseMixin, Model):
     __tablename__ = 'login_session'
-    __allow_unmapped__ = True
 
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False

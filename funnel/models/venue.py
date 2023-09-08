@@ -26,7 +26,6 @@ __all__ = ['Venue', 'VenueRoom']
 
 class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
     __tablename__ = 'venue'
-    __allow_unmapped__ = True
 
     project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
@@ -107,7 +106,6 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
 
 class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
     __tablename__ = 'venue_room'
-    __allow_unmapped__ = True
 
     venue_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('venue.id'), nullable=False

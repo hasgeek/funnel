@@ -49,7 +49,6 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
 
 class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     __tablename__ = 'update'
-    __allow_unmapped__ = True
 
     _visibility_state = sa.orm.mapped_column(
         'visibility_state',

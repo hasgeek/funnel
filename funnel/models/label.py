@@ -44,7 +44,6 @@ proposal_label = sa.Table(
 
 class Label(BaseScopedNameMixin, Model):
     __tablename__ = 'label'
-    __allow_unmapped__ = True
 
     project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False

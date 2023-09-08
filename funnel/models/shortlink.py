@@ -191,7 +191,6 @@ class Shortlink(NoIdMixin, Model):
     """A short link to a full-size link, for use over SMS."""
 
     __tablename__ = 'shortlink'
-    __allow_unmapped__ = True
 
     #: Non-persistent attribute for Shortlink.new to flag if this is a new shortlink.
     #: Any future instance cache system must NOT cache this value

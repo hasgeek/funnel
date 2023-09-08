@@ -16,7 +16,6 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
     """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'
-    __allow_unmapped__ = True
 
     # List of is_role columns in this model
     __data_columns__ = {
