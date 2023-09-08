@@ -163,7 +163,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
     model = Team
     # Map <name> and <buid> in URLs to model attributes, for `url_for` automation
     route_model_map = {
-        'account': 'organization.urlname',
+        'account': 'account.urlname',
         'team': 'buid',
     }
     obj: Team
