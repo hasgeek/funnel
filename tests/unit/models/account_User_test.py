@@ -80,9 +80,7 @@ def test_user_email(db_session, user_twoflower) -> None:
     assert user_twoflower.email == accountemail
     assert accountemail.primary is True
 
-    useremail2 = user_twoflower.add_email(  # type: ignore[unreachable]
-        'twoflower@example.com', primary=True
-    )
+    useremail2 = user_twoflower.add_email('twoflower@example.com', primary=True)
     db_session.commit()
 
     # The primary has changed
@@ -102,9 +100,7 @@ def test_user_del_email(db_session, user_twoflower) -> None:
 
     assert len(user_twoflower.emails) == 3
     assert user_twoflower.primary_email is not None
-    assert (  # type: ignore[unreachable]
-        str(user_twoflower.primary_email) == 'twoflower@example.org'
-    )
+    assert str(user_twoflower.primary_email) == 'twoflower@example.org'
     assert {str(e) for e in user_twoflower.emails} == {
         'twoflower@example.org',
         'twoflower@example.com',
@@ -154,9 +150,7 @@ def test_user_phone(db_session, user_twoflower) -> None:
     assert user_twoflower.phone == accountphone
     assert accountphone.primary is True
 
-    userphone2 = user_twoflower.add_phone(  # type: ignore[unreachable]
-        '+12345678901', primary=True
-    )
+    userphone2 = user_twoflower.add_phone('+12345678901', primary=True)
     db_session.commit()
 
     # The primary has changed
@@ -176,9 +170,7 @@ def test_user_del_phone(db_session, user_twoflower) -> None:
 
     assert len(user_twoflower.phones) == 3
     assert user_twoflower.primary_phone is not None
-    assert (  # type: ignore[unreachable]
-        str(user_twoflower.primary_phone) == '+12345678900'
-    )
+    assert str(user_twoflower.primary_phone) == '+12345678900'
     assert {str(e) for e in user_twoflower.phones} == {
         '+12345678900',
         '+12345678901',
@@ -333,7 +325,7 @@ def test_user_add_email(db_session, user_rincewind) -> None:
     assert useremail2.email == email2
     assert useremail2.primary is True
     assert useremail1.primary is False
-    assert user_rincewind.email == useremail2  # type: ignore[unreachable]
+    assert user_rincewind.email == useremail2
 
     # scenario 3: when primary flag is True but user has that existing email
     useremail3 = user_rincewind.add_email(email1, primary=True)

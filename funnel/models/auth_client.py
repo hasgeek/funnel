@@ -59,7 +59,7 @@ class ScopeMixin:
         )
 
     @property
-    def scope(self) -> tuple[str, ...]:
+    def scope(self) -> Iterable[str]:
         """Represent scope column as a container of strings."""
         if not self._scope:
             return ()
@@ -178,7 +178,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         return credential.secret_is(candidate)
 
     @property
-    def redirect_uris(self) -> tuple:
+    def redirect_uris(self) -> Iterable[str]:
         """Return redirect URIs as a sequence."""
         return tuple(self._redirect_uris.split()) if self._redirect_uris else ()
 
@@ -207,10 +207,10 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
             )
         return False
 
-    def owner_is(self, account: Account) -> bool:
+    def owner_is(self, account: Account | None) -> bool:
         """Test if the provided account is an owner of this client."""
         # Legacy method for ownership test
-        return 'owner' in self.roles_for(account)
+        return account is not None and 'owner' in self.roles_for(account)
 
     def authtoken_for(
         self, account: Account | None, login_session: LoginSession | None = None

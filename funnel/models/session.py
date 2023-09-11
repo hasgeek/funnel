@@ -302,7 +302,7 @@ class __VenueRoom:
 class __Project:
     # Project schedule column expressions. Guide:
     # https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
-    schedule_start_at = with_roles(
+    schedule_start_at: Mapped[datetime | None] = with_roles(
         sa.orm.column_property(
             sa.select(sa.func.min(Session.start_at))
             .where(Session.start_at.is_not(None))
@@ -314,7 +314,7 @@ class __Project:
         datasets={'primary', 'without_parent'},
     )
 
-    next_session_at = with_roles(
+    next_session_at: Mapped[datetime | None] = with_roles(
         sa.orm.column_property(
             sa.select(sa.func.min(sa.column('start_at')))
             .select_from(
@@ -333,13 +333,14 @@ class __Project:
                     )
                     .correlate(Project)
                 )
+                .subquery()
             )
             .scalar_subquery()
         ),
         read={'all'},
     )
 
-    schedule_end_at = with_roles(
+    schedule_end_at: Mapped[datetime | None] = with_roles(
         sa.orm.column_property(
             sa.select(sa.func.max(Session.end_at))
             .where(Session.end_at.is_not(None))
@@ -353,7 +354,7 @@ class __Project:
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
-    def schedule_start_at_localized(self):
+    def schedule_start_at_localized(self) -> datetime | None:
         return (
             localize_timezone(self.schedule_start_at, tz=self.timezone)
             if self.schedule_start_at
@@ -362,7 +363,7 @@ class __Project:
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
-    def schedule_end_at_localized(self):
+    def schedule_end_at_localized(self) -> datetime | None:
         return (
             localize_timezone(self.schedule_end_at, tz=self.timezone)
             if self.schedule_end_at
@@ -371,10 +372,10 @@ class __Project:
 
     @with_roles(read={'all'})
     @cached_property
-    def session_count(self):
+    def session_count(self) -> int:
         return self.sessions.filter(Session.start_at.is_not(None)).count()
 
-    featured_sessions = with_roles(
+    featured_sessions: Mapped[list[Session]] = with_roles(
         relationship(
             Session,
             order_by=Session.start_at.asc(),
@@ -385,7 +386,7 @@ class __Project:
         ),
         read={'all'},
     )
-    scheduled_sessions = with_roles(
+    scheduled_sessions: Mapped[list[Session]] = with_roles(
         relationship(
             Session,
             order_by=Session.start_at.asc(),
@@ -397,7 +398,7 @@ class __Project:
         ),
         read={'all'},
     )
-    unscheduled_sessions = with_roles(
+    unscheduled_sessions: Mapped[list[Session]] = with_roles(
         relationship(
             Session,
             order_by=Session.start_at.asc(),
@@ -529,7 +530,7 @@ class __Project:
         )
 
     @with_roles(call={'all'})
-    def current_sessions(self: Project) -> dict | None:  # type: ignore[misc]
+    def current_sessions(self) -> dict | None:
         if self.start_at is None or (self.start_at > utcnow() + timedelta(minutes=30)):
             return None
 
@@ -551,7 +552,8 @@ class __Project:
             ],
         }
 
-    def calendar_weeks(self: Project, leading_weeks=True):  # type: ignore[misc]
+    # TODO: Use TypedDict for return type
+    def calendar_weeks(self, leading_weeks: bool = True) -> dict[str, Any]:
         # session_dates is a list of tuples in this format -
         # (date, day_start_at, day_end_at, event_count)
         if self.schedule_start_at:
@@ -701,10 +703,10 @@ class __Project:
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
-    def calendar_weeks_full(self):
+    def calendar_weeks_full(self) -> dict[str, Any]:  # TODO: Use TypedDict
         return self.calendar_weeks(leading_weeks=True)
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
-    def calendar_weeks_compact(self):
+    def calendar_weeks_compact(self) -> dict[str, Any]:  # TODO: Use TypedDict
         return self.calendar_weeks(leading_weeks=False)

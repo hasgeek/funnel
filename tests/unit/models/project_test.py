@@ -102,7 +102,7 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
     # now project.schedule_start_at will be the first session's start date
     # and project.schedule_end_at will be the last session's end date
     assert new_project.schedule_start_at is not None
-    assert new_project.schedule_end_at is not None  # type: ignore[unreachable]
+    assert new_project.schedule_end_at is not None
     assert new_session_a.start_at is not None
     assert new_session_b.end_at is not None
     assert new_project.sessions.count() == 2

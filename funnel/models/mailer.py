@@ -9,7 +9,8 @@ from enum import IntEnum
 from typing import Any
 from uuid import UUID
 
-from flask import Markup, escape, request
+from flask import request
+from markupsafe import Markup, escape
 from premailer import transform as email_transform
 from sqlalchemy.orm import defer
 
