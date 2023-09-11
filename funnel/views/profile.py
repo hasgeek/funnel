@@ -136,11 +136,9 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 .limit(1)
                 .first()
             )
-            has_membership_project = (
-                self.obj.projects.filter(
-                    Project.has_membership.is_(True)
-                ).first()
-            )
+            has_membership_project = self.obj.projects.filter(
+                Project.has_membership.is_(True)
+            ).first()
             scheduled_sessions_list = (
                 session_list_data(
                     featured_project.scheduled_sessions, with_modal_url='view'

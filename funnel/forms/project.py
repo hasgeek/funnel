@@ -149,7 +149,8 @@ class ProjectHasMembershipForm(forms.Form):
     """Form to mark a project to be shown under membership"""
 
     has_membership = forms.BooleanField(
-        __("Mark this project for membership"), validators=[forms.validators.InputRequired()]
+        __("Mark this project for membership"),
+        validators=[forms.validators.InputRequired()],
     )
 
 

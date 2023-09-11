@@ -6,17 +6,15 @@ Create Date: 2023-09-11 15:34:49.993168
 
 """
 
-from typing import Optional, Tuple, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '00e91a293923'
 down_revision: str = '4f9ca10b7b9d'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 def upgrade(engine_name: str = '') -> None:
@@ -31,9 +29,6 @@ def downgrade(engine_name: str = '') -> None:
     globals().get(f'downgrade_{engine_name}', lambda: None)()
 
 
-
-
-
 def upgrade_() -> None:
     """Upgrade database bind ''."""
     op.add_column(
@@ -45,12 +40,9 @@ def upgrade_() -> None:
             server_default=sa.false(),
         ),
     )
-    op.alter_column(
-        'project', 'has_membership', server_default=None, nullable=False
-    )
+    op.alter_column('project', 'has_membership', server_default=None, nullable=False)
 
 
 def downgrade_() -> None:
     """Downgrade database bind ''."""
     op.drop_column('session', 'has_membership')
-

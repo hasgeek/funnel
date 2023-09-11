@@ -31,8 +31,8 @@ from ..forms import (
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
     ProjectFeaturedForm,
-    ProjectHasMembershipForm,
     ProjectForm,
+    ProjectHasMembershipForm,
     ProjectLivestreamForm,
     ProjectNameForm,
     ProjectRegisterForm,
@@ -905,7 +905,6 @@ class ProjectView(  # type: ignore[misc]
             }
         return render_redirect(get_next_url(referrer=True))
 
-
     @route('update_has_membership', methods=['POST'])
     @requires_site_editor
     def update_has_membership(self) -> ReturnView:
@@ -915,7 +914,10 @@ class ProjectView(  # type: ignore[misc]
             featured_form.populate_obj(self.obj)
             db.session.commit()
             if self.obj.has_membership:
-                return {'status': 'ok', 'message': _("This project will appear under membership")}
+                return {
+                    'status': 'ok',
+                    'message': _("This project will appear under membership"),
+                }
             return {
                 'status': 'ok',
                 'message': _("This project will no longer appear under membership"),
