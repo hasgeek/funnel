@@ -155,56 +155,55 @@
             </div>
           </div>
 
-          <div class="mui-container spotlight-container">
-            <div class="grid flex-wrapper--start">
-              <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
-                <div class="markdown">{{ has_membership_project.description.html }}</div>
+          <div class="mui-container membership-container">
+            <div class="grid">
+              <div class="grid__col-md-7 grid__col-lg-8 mui--hidden-xs mui--hidden-sm mui--hidden-md">
+                {% if has_membership_project.bg_image.url %}
+                  <img class="img-fit img-rounded-border js-lazyload-img" data-src="{{ has_membership_project.bg_image.resize(img_size.profile_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
+                  <noscript>
+                    <img class="img-fit img-rounded-border" src="{{ has_membership_project.bg_image.resize(img_size.profile_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
+                  </noscript>
+                {% else %}
+                  <img class="img-fit img-rounded-border" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{% trans %}Membership{% endtrans %}"/>
+                {% endif %}
               </div>
-              <div class="grid__col-md-1 grid__col-lg-1 mui--hidden-xs mui--hidden-sm mui--hidden-md">
-              </div>
-              <div class="grid__col-12 grid__col-md-5 grid__col-lg-4" data-cy="spotlight-project">
-                <div class="card card--upcoming">
-                  <div class="card__image-wrapper {% if not has_membership_project.bg_image.url %}card__image-wrapper--default{% endif %}">
-                    <div>
+              <div class="grid__col-12 grid__col-md-5 grid__col-lg-4">
+                <div class="card card--shaped  mui--hidden-lg mui--hidden-xl">
+                  <div class="card__image-wrapper">
                     {% if has_membership_project.bg_image.url %}
                       <img class="card__image js-lazyload-img" data-src="{{ has_membership_project.bg_image.resize(img_size.card_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
                       <noscript>
-                        <img class="card__image" src="{{ has_membership_project.bg_image.resize(img_size.card_banner) }}" alt="{{ has_membership_project.title }}"/>
+                        <img class="card__image" src="{{ has_membership_project.bg_image.resize(img_size.card_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
                       </noscript>
                     {% else %}
-                      <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ has_membership_project.title }}"/>
-                      <p class="card__image__tagline mui--text-body2">{% trans %}Membership{% endtrans %}</p>
+                      <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{% trans %}Membership{% endtrans %}"/>
                     {% endif %}
-                    </div>
                   </div>
                   <div class="card__body">
-                    <div class="markdown mui--hidden-lg mui--hidden-xl">{{ has_membership_project.description.html }}</div>
+                    <div class="markdown">{{ has_membership_project.description.html }}</div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="grid">
-            <div class="grid__col-12">
-              {% if has_membership_project.current_roles.ticket_participant %}
-                <div class="margin-auto"><button class="mui-btn mui-btn--accent mui-btn--small zero-bottom-margin zero-top-margin mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
-              {% elif has_membership_project.features.show_tickets %}
-                <div class="margin-auto">
-                  <button class="js-open-ticket-widget mui-btn mui-btn--primary price-btn zero-bottom-margin zero-top-margin">
-                    <span class="price-btn__txt" data-cy="unregistered">{% trans %}Become a member{% endtrans %}</span>
-                    <span class="price-btn__txt price-btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
-                    <span class="price-btn__txt price-btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
-                  </button>
-                  <div class="tickets-wrapper">
-                    <div class="tickets-wrapper__modal">
-                      <div id="tickets" class="tickets-wrapper__modal__body">
-                        <span role="button" aria-label="{% trans %}Close tickets{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Close tickets">{{ faicon(icon='times', baseline=false, icon_size='title') }}</span>
-                        <div id="boxoffice-widget"><p class="mui--text-body2">{% trans %}Loading…{% endtrans %}</p></div>
+                <div class="markdown membership-container__content mui--hidden-xs mui--hidden-sm mui--hidden-md">{{ has_membership_project.description.html }}</div>
+                {% if has_membership_project.current_roles.ticket_participant %}
+                  <div class="membership-container__btn-wrapper"><button class="mui-btn mui-btn--accent mui-btn--small zero-bottom-margin zero-top-margin mui--is-disabled display-block">{% trans %}You are a member{% endtrans %}</button></div>
+                {% elif has_membership_project.features.show_tickets %}
+                  <div class="membership-container__btn-wrapper">
+                    <button class="js-open-ticket-widget mui-btn mui-btn--primary price-btn zero-bottom-margin zero-top-margin display-block">
+                      <span class="price-btn__txt" data-cy="unregistered">{% trans %}Become a member{% endtrans %}</span>
+                      <span class="price-btn__txt price-btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
+                      <span class="price-btn__txt price-btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
+                    </button>
+                    <div class="tickets-wrapper">
+                      <div class="tickets-wrapper__modal">
+                        <div id="tickets" class="tickets-wrapper__modal__body">
+                          <span role="button" aria-label="{% trans %}Close tickets{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Close tickets">{{ faicon(icon='times', baseline=false, icon_size='title') }}</span>
+                          <div id="boxoffice-widget"><p class="mui--text-body2">{% trans %}Loading…{% endtrans %}</p></div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              {%- endif %}
+                {%- endif %}
+              </div>
             </div>
           </div>
         </div>

@@ -25,7 +25,6 @@ __all__ = [
     'ProjectLivestreamForm',
     'ProjectNameForm',
     'ProjectFeaturedForm',
-    'ProjectHasMembershipForm',
     'ProjectTransitionForm',
     'ProjectBannerForm',
     'ProjectSponsorForm',
@@ -141,15 +140,6 @@ class ProjectFeaturedForm(forms.Form):
 
     site_featured = forms.BooleanField(
         __("Feature this project"), validators=[forms.validators.InputRequired()]
-    )
-
-
-@Project.forms('has_membership')
-class ProjectHasMembershipForm(forms.Form):
-    """Form to mark a project to be shown under membership"""
-
-    has_membership = forms.BooleanField(
-        __("Mark this project for membership"), validators=[forms.validators.InputRequired()]
     )
 
 

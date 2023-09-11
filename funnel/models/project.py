@@ -250,15 +250,6 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         datasets={'primary', 'without_parent'},
     )
 
-    #: This flag is to mark a project to be shown under membership on profile. This can only be set by website editors, not
-    #: project editors or account admins.
-    has_membership = with_roles(
-        sa.orm.mapped_column(sa.Boolean, default=False, nullable=False),
-        read={'all'},
-        write={'site_editor'},
-        datasets={'primary', 'without_parent'},
-    )
-
     livestream_urls = with_roles(
         sa.orm.mapped_column(
             sa.ARRAY(sa.UnicodeText, dimensions=1),

@@ -31,7 +31,6 @@ from ..forms import (
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
     ProjectFeaturedForm,
-    ProjectHasMembershipForm,
     ProjectForm,
     ProjectLivestreamForm,
     ProjectNameForm,
@@ -586,6 +585,7 @@ class ProjectView(  # type: ignore[misc]
                 is_subscription=boxoffice_data.get('is_subscription', True),
                 register_form_schema=boxoffice_data.get('register_form_schema'),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
+                has_membership=boxoffice_data.get('has_membership', False),
             ),
             model=Project,
         )
@@ -600,6 +600,7 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data[
                 'register_button_txt'
             ] = form.register_button_txt.data
+            self.obj.boxoffice_data['has_membership'] = form.has_membership.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())
@@ -902,23 +903,6 @@ class ProjectView(  # type: ignore[misc]
             return {
                 'status': 'ok',
                 'message': _("This project is no longer featured"),
-            }
-        return render_redirect(get_next_url(referrer=True))
-
-
-    @route('update_has_membership', methods=['POST'])
-    @requires_site_editor
-    def update_has_membership(self) -> ReturnView:
-        """Mark this project for membership. This project and it's ticketing widget will be shown in the profile page"""
-        featured_form = ProjectHasMembershipForm(obj=self.obj)
-        if featured_form.validate_on_submit():
-            featured_form.populate_obj(self.obj)
-            db.session.commit()
-            if self.obj.has_membership:
-                return {'status': 'ok', 'message': _("This project will appear under membership")}
-            return {
-                'status': 'ok',
-                'message': _("This project will no longer appear under membership"),
             }
         return render_redirect(get_next_url(referrer=True))
 
