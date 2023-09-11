@@ -227,6 +227,22 @@
           <li>
             <a class="mui--text-subhead" href="{{ project.url_for('add_sponsor') }}" rel="modal:open" aria-label="{% trans %}Add sponsor{% endtrans %}" data-ga="Add sponsor" data-cy="add-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='box-dollar', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Add sponsor{% endtrans %}</span></a>
           </li>
+          <li class="js-dropdown-toggle">
+            <div class="mui--text-body2 mui--clearfix">
+            {{ faicon(icon='crown-solid', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--pull-left mui--align-middle") }}
+            <span class="mui--pull-right dropdown-menu__form">
+              <span class="display-inlineblock dropdown-menu__form__label">
+                <span class="display-block">{% trans %}Mark this project for membership{% endtrans %}</span>
+                <span class="display-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}This project and it's boxoffice ticketing will appear under membership{% endtrans %}</span>
+              </span>
+              <form action="{{ project.url_for('update_has_membership') }}" method="post" class="display-inlineblock mui--align-top">
+                {{ csrf_tag() }}
+                <input type="checkbox" name="has_membership" id="membership-project" class="switch-input js-toggle" {%- if project.has_membership %}checked{%- endif %}/>
+                <label class="switch-label mui--pull-right" for="membership-project"></label>
+              </form>
+            </span>
+            </div>
+          </li>
         </ul>
       </div>
     {%- endif %}
@@ -527,6 +543,7 @@
       };
       var tickets;
       var toggleId;
+      var hasMembershiptoggleId;
       var sort;
 
       {% if project.features.show_tickets -%}
@@ -539,7 +556,8 @@
         };
       {%- endif %}
       {% if current_auth.user and current_auth.user.is_site_editor %}
-        toggleId = '#featured-project'
+        toggleId = '#featured-project',
+        hasMembershiptoggleId = '#membership-project'
         sort = {
           url: {{ project.url_for("reorder_sponsors")|tojson }},
           wrapperElem: '.sponsors-wrapper',
@@ -547,7 +565,7 @@
         };
       {%- endif %}
 
-      window.Hasgeek.projectHeaderInit(projectTitle, saveProjectConfig, tickets, toggleId, sort);
+      window.Hasgeek.projectHeaderInit(projectTitle, saveProjectConfig, tickets, toggleId, hasMembershiptoggleId, sort);
     });
   </script>
   {% block footerinnerscripts %}{% endblock footerinnerscripts %}
