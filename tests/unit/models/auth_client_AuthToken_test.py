@@ -176,22 +176,24 @@ class TestAuthToken(TestDatabaseFixture):
         login_session = models.LoginSession(
             buid=buid(), account=crusoe, ipaddr='', user_agent='', accessed_at=utcnow()
         )
-        auth_token_with_user_session = models.AuthToken(
+        auth_token_with_login_session = models.AuthToken(
             auth_client=auth_client,
             account=crusoe,
             login_session=login_session,
             scope='',
         )
+        assert auth_token_with_login_session.login_session is not None
         assert isinstance(
-            auth_token_with_user_session.login_session.account, models.User
+            auth_token_with_login_session.login_session.account, models.User
         )
-        assert auth_token_with_user_session.login_session.account == crusoe
+        assert auth_token_with_login_session.login_session.account == crusoe
 
-        auth_token_without_user_session = models.AuthToken(
+        auth_token_without_login_session = models.AuthToken(
             auth_client=auth_client, account=oakley, scope='id'
         )
-        assert isinstance(auth_token_without_user_session.account, models.User)
-        assert auth_token_without_user_session.account == oakley
+        assert auth_token_without_login_session.login_session is None
+        assert isinstance(auth_token_without_login_session.account, models.User)
+        assert auth_token_without_login_session.account == oakley
 
     def test_authtoken_algorithm(self) -> None:
         """Test for checking AuthToken's algorithm property."""

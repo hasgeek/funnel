@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from flask import Markup
+from markupsafe import Markup
 
 from baseframe import __, forms
 

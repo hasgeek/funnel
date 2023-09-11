@@ -504,7 +504,7 @@ def test_phone_number_blocked() -> None:
     pn1.mark_blocked()
 
     assert pn1.is_blocked is True
-    assert pn1.number is None  # type: ignore[unreachable]
+    assert pn1.number is None
     assert pn1.blake2b160 is not None
     assert pn1.is_blocked is True
     assert pn2.is_blocked is False

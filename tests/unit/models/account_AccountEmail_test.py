@@ -20,7 +20,7 @@ class TestUserEmail(TestDatabaseFixture):
     def test_useremail_get(self) -> None:
         """Test for `AccountEmail.get` against email, blake2b160 digest and hex hash."""
         crusoe = self.fixtures.crusoe
-        email = crusoe.email.email
+        email = str(crusoe.email)
         blake2b160 = models.email_address.email_blake2b160_hash(email)
         email_hash = base58.b58encode(blake2b160).decode()
 
@@ -46,6 +46,7 @@ class TestUserEmail(TestDatabaseFixture):
     def test_useremail_str(self) -> None:
         """Test for verifying email is returned in unicode format."""
         crusoe = self.fixtures.crusoe
+        assert crusoe.email != ''
         assert crusoe.email.email == str(crusoe.email)
 
     def test_useremail_email(self) -> None:
