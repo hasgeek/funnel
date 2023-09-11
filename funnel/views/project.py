@@ -32,6 +32,7 @@ from ..forms import (
     ProjectCfpTransitionForm,
     ProjectFeaturedForm,
     ProjectForm,
+    ProjectHasMembershipForm,
     ProjectLivestreamForm,
     ProjectNameForm,
     ProjectRegisterForm,
@@ -905,6 +906,5 @@ class ProjectView(  # type: ignore[misc]
                 'message': _("This project is no longer featured"),
             }
         return render_redirect(get_next_url(referrer=True))
-
 
 ProjectView.init_app(app)
