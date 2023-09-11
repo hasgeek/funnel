@@ -171,9 +171,9 @@
                 <div class="card card--shaped  mui--hidden-lg mui--hidden-xl">
                   <div class="card__image-wrapper">
                     {% if has_membership_project.bg_image.url %}
-                      <img class="card__image js-lazyload-img" data-src="{{ has_membership_project.bg_image.resize(img_size.card_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
+                      <img class="card__image js-lazyload-img" data-src="{{ has_membership_project.bg_image.resize(img_size.spotlight_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
                       <noscript>
-                        <img class="card__image" src="{{ has_membership_project.bg_image.resize(img_size.card_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
+                        <img class="card__image" src="{{ has_membership_project.bg_image.resize(img_size.spotlight_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
                       </noscript>
                     {% else %}
                       <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{% trans %}Membership{% endtrans %}"/>
