@@ -180,10 +180,10 @@
                     {% endif %}
                   </div>
                   <div class="card__body">
-                    <div class="markdown">{{ has_membership_project.description.html }}</div>
+                    <div class="markdown">{{ has_membership_project.description }}</div>
                   </div>
                 </div>
-                <div class="markdown membership-container__content mui--hidden-xs mui--hidden-sm mui--hidden-md">{{ has_membership_project.description.html }}</div>
+                <div class="markdown membership-container__content mui--hidden-xs mui--hidden-sm mui--hidden-md">{{ has_membership_project.description }}</div>
                 {% if has_membership_project.current_roles.ticket_participant %}
                   <div class="membership-container__btn-wrapper"><button class="mui-btn mui-btn--accent mui-btn--small zero-bottom-margin zero-top-margin mui--is-disabled display-block">{% trans %}You are a member{% endtrans %}</button></div>
                 {% elif has_membership_project.features.show_tickets %}
