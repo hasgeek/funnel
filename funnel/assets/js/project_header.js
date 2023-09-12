@@ -12,7 +12,6 @@ $(() => {
     saveProjectConfig = '',
     tickets = '',
     toggleId = '',
-    hasMembershiptoggleId = '',
     sort = '',
     rsvpModalHash = 'register-modal'
   ) => {
@@ -55,10 +54,6 @@ $(() => {
 
     if (toggleId) {
       Widgets.activateToggleSwitch(toggleId);
-    }
-
-    if (hasMembershiptoggleId) {
-      Widgets.activateToggleSwitch(hasMembershiptoggleId);
     }
 
     if (sort?.url) {

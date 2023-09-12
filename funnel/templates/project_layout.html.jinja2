@@ -527,7 +527,6 @@
       };
       var tickets;
       var toggleId;
-      var hasMembershiptoggleId;
       var sort;
 
       {% if project.features.show_tickets -%}
@@ -541,7 +540,6 @@
       {%- endif %}
       {% if current_auth.user and current_auth.user.is_site_editor %}
         toggleId = '#featured-project',
-        hasMembershiptoggleId = '#membership-project'
         sort = {
           url: {{ project.url_for("reorder_sponsors")|tojson }},
           wrapperElem: '.sponsors-wrapper',
@@ -549,7 +547,7 @@
         };
       {%- endif %}
 
-      window.Hasgeek.projectHeaderInit(projectTitle, saveProjectConfig, tickets, toggleId, hasMembershiptoggleId, sort);
+      window.Hasgeek.projectHeaderInit(projectTitle, saveProjectConfig, tickets, toggleId, sort);
     });
   </script>
   {% block footerinnerscripts %}{% endblock footerinnerscripts %}
