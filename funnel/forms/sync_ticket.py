@@ -77,7 +77,7 @@ class ProjectBoxofficeForm(forms.Form):
         default=True,
     )
     has_membership = forms.BooleanField(
-        __("Mark this project to appear in membership"),
+        __("Tickets on this project represent memberships to the account"),
         default=False,
     )
     register_button_txt = forms.StringField(
