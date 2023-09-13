@@ -76,6 +76,10 @@ class ProjectBoxofficeForm(forms.Form):
         __("Paid tickets are for a subscription"),
         default=True,
     )
+    has_membership = forms.BooleanField(
+        __("Tickets on this project represent memberships to the account"),
+        default=False,
+    )
     register_button_txt = forms.StringField(
         __("Register button text"),
         filters=[forms.filters.strip()],
