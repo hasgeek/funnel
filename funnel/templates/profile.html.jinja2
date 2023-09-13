@@ -159,12 +159,12 @@
             <div class="grid">
               <div class="grid__col-md-7 grid__col-lg-8 mui--hidden-xs mui--hidden-sm mui--hidden-md">
                 {% if has_membership_project.bg_image.url %}
-                  <img class="img-fit img-rounded-border js-lazyload-img" data-src="{{ has_membership_project.bg_image.resize(img_size.profile_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
+                  <img class="img-responsive img-rounded-border js-lazyload-img" data-src="{{ has_membership_project.bg_image.resize(img_size.profile_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
                   <noscript>
-                    <img class="img-fit img-rounded-border" src="{{ has_membership_project.bg_image.resize(img_size.profile_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
+                    <img class="img-responsive img-rounded-border" src="{{ has_membership_project.bg_image.resize(img_size.profile_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
                   </noscript>
                 {% else %}
-                  <img class="img-fit img-rounded-border" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{% trans %}Membership{% endtrans %}"/>
+                  <img class="img-responsive img-rounded-border" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{% trans %}Membership{% endtrans %}"/>
                 {% endif %}
               </div>
               <div class="grid__col-12 grid__col-md-5 grid__col-lg-4">
