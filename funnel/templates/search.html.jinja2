@@ -68,7 +68,7 @@
       {%- elif type == 'comment' %}
         <div class="user">
           <div class="user__box">
-            {{ useravatar(item.obj.user) }}
+            {{ useravatar(item.obj.posted_by) }}
             <div class="user__box__header comment__header__details__user">
               <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.obj.title }}</a></h4>
               <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ item.obj.created_at|date }} {%- if item.obj.edited_at %} {% trans date=item.obj.edited_at|date %}edited {{ date }}{% endtrans %}{% endif %}</p>
