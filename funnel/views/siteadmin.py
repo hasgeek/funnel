@@ -160,6 +160,11 @@ class SiteadminView(ClassView):
             'auth_dashboard.html.jinja2', user_count=user_count, mau=mau
         )
 
+    @route('shortlink', endpoint='shortlink')
+    def generate_shortlink(self) -> ReturnView:
+        """Form to generate a custom shortlink."""
+        return render_template('siteadmin_generate_shortlinks.html.jinja2')
+
     @route('data/users_by_month.csv', endpoint='dashboard_data_users_by_month')
     @requires_siteadmin
     def dashboard_data_users_by_month(self) -> ReturnView:

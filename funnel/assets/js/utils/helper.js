@@ -144,13 +144,14 @@ const Utils = {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: `url=${encodeURIComponent(url)}`,
+    }).catch(() => {
+      throw new Error(window.Hasgeek.Config.errorMsg.serverError);
     });
     if (response.ok) {
       const json = await response.json();
       return json.shortlink;
     }
-    // Call failed, return the original URL
-    return url;
+    return Promise.reject(window.gettext('This URL is not valid for a shortlink'));
   },
   getQueryString(paramName) {
     const urlParams = new URLSearchParams(window.location.search);

@@ -227,6 +227,9 @@
           <li>
             <a class="mui--text-subhead" href="{{ project.url_for('add_sponsor') }}" rel="modal:open" aria-label="{% trans %}Add sponsor{% endtrans %}" data-ga="Add sponsor" data-cy="add-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='box-dollar', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Add sponsor{% endtrans %}</span></a>
           </li>
+          <li>
+            <a class="mui--text-subhead" href="{{ url_for('shortlink') }}" role="link">{{ faicon(icon='link', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Customize shortlink{% endtrans %}</span></a>
+          </li>
         </ul>
       </div>
     {%- endif %}
