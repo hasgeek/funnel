@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import datetime as datetime_type
-from typing import Optional, Sequence
 
 from baseframe import __
 from baseframe.filters import preview
@@ -122,7 +122,6 @@ class Proposal(  # type: ignore[misc]
     UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
 ):
     __tablename__ = 'proposal'
-    __allow_unmapped__ = True
 
     created_by_id = sa.orm.mapped_column(sa.ForeignKey('account.id'), nullable=False)
     created_by = with_roles(
@@ -458,7 +457,7 @@ class Proposal(  # type: ignore[misc]
         if not self.custom_description:
             self.description = preview(self.body_html)
 
-    def getnext(self) -> Optional[Proposal]:
+    def getnext(self) -> Proposal | None:
         return (
             Proposal.query.filter(
                 Proposal.project == self.project,
@@ -468,7 +467,7 @@ class Proposal(  # type: ignore[misc]
             .first()
         )
 
-    def getprev(self) -> Optional[Proposal]:
+    def getprev(self) -> Proposal | None:
         return (
             Proposal.query.filter(
                 Proposal.project == self.project,
@@ -479,7 +478,7 @@ class Proposal(  # type: ignore[misc]
         )
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Sequence = ()
+        self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if self.state.DRAFT:
@@ -501,7 +500,7 @@ class Proposal(  # type: ignore[misc]
     @classmethod
     def get(  # type: ignore[override]  # pylint: disable=arguments-differ
         cls, uuid_b58: str
-    ) -> Optional[Proposal]:
+    ) -> Proposal | None:
         """Get a proposal by its public Base58 id."""
         return cls.query.filter_by(uuid_b58=uuid_b58).one_or_none()
 
@@ -513,7 +512,6 @@ class ProposalSuuidRedirect(BaseMixin, Model):
     """Holds Proposal SUUIDs from before when they were deprecated."""
 
     __tablename__ = 'proposal_suuid_redirect'
-    __allow_unmapped__ = True
 
     suuid = sa.orm.mapped_column(sa.Unicode(22), nullable=False, index=True)
     proposal_id = sa.orm.mapped_column(
@@ -576,7 +574,7 @@ class __Project:
 
     # Whether the project has any featured proposals. Returns `None` instead of
     # a boolean if the project does not have any proposal.
-    _has_featured_proposals: Mapped[Optional[bool]] = sa.orm.column_property(
+    _has_featured_proposals: Mapped[bool | None] = sa.orm.column_property(
         sa.exists()
         .where(Proposal.project_id == Project.id)
         .where(Proposal.featured.is_(True))

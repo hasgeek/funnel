@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from hashlib import sha1
-from typing import Dict, Iterable, Optional
 
 import requests
 from flask import url_for
@@ -125,7 +125,7 @@ def pwned_password_validator(_form, field) -> None:
         # 2. Strip text on either side of the colon
         # 3. Ensure the suffix is uppercase
         # 4. If count is not a number, default it to 0 (ie, this is not a match)
-        matches: Dict[str, int] = {
+        matches: dict[str, int] = {
             line_suffix.upper(): int(line_count) if line_count.isdigit() else 0
             for line_suffix, line_count in (
                 (split1.strip(), split2.strip())
@@ -182,9 +182,9 @@ class PasswordPolicyForm(forms.Form):
     __expects__ = ('edit_user',)
     __returns__ = ('password_strength', 'is_weak', 'warning', 'suggestions')
     edit_user: Account
-    password_strength: Optional[int] = None
-    is_weak: Optional[bool] = None
-    warning: Optional[str] = None
+    password_strength: int | None = None
+    is_weak: bool | None = None
+    warning: str | None = None
     suggestions: Iterable[str] = ()
 
     password = forms.PasswordField(
@@ -225,8 +225,8 @@ class PasswordResetRequestForm(forms.Form):
     """Form to request a password reset."""
 
     __returns__ = ('user', 'anchor')
-    user: Optional[Account] = None
-    anchor: Optional[Anchor] = None
+    user: Account | None = None
+    anchor: Anchor | None = None
 
     username = forms.StringField(
         __("Phone number or email address"),
@@ -253,7 +253,7 @@ class PasswordCreateForm(forms.Form):
     __returns__ = ('password_strength',)
     __expects__ = ('edit_user',)
     edit_user: Account
-    password_strength: Optional[int] = None
+    password_strength: int | None = None
 
     password = forms.PasswordField(
         __("New password"),
@@ -281,7 +281,7 @@ class PasswordResetForm(forms.Form):
     """Form to reset a password for a user, requiring the user id as a failsafe."""
 
     __returns__ = ('password_strength',)
-    password_strength: Optional[int] = None
+    password_strength: int | None = None
 
     # TODO: This form has been deprecated with OTP-based reset as that doesn't need
     # username and now uses :class:`PasswordCreateForm`. This form is retained in the
@@ -335,7 +335,7 @@ class PasswordChangeForm(forms.Form):
     __returns__ = ('password_strength',)
     __expects__ = ('edit_user',)
     edit_user: Account
-    password_strength: Optional[int] = None
+    password_strength: int | None = None
 
     old_password = forms.PasswordField(
         __("Current password"),

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional, Union, cast
+from typing import cast
 from typing_extensions import TypedDict
 
 import requests
@@ -30,7 +30,7 @@ class VideoData(TypedDict):
     url: str
     embeddable_url: str
     duration: float
-    uploaded_at: Union[str, datetime]
+    uploaded_at: str | datetime
     thumbnail: str
 
 
@@ -40,7 +40,7 @@ def video_cache_key(obj: VideoMixin) -> str:
     raise VideoError("No video source or ID to create a cache key")
 
 
-def get_video_cache(obj: VideoMixin) -> Optional[VideoData]:
+def get_video_cache(obj: VideoMixin) -> VideoData | None:
     data = redis_store.hgetall(video_cache_key(obj))
     if data:
         if 'uploaded_at' in data and data['uploaded_at']:
@@ -67,8 +67,8 @@ def set_video_cache(obj: VideoMixin, data: VideoData, exists: bool = True) -> No
 
 @Proposal.views('video', cached_property=True)
 @Session.views('video', cached_property=True)
-def video_property(obj: VideoMixin) -> Optional[VideoData]:
-    data: Optional[VideoData] = None
+def video_property(obj: VideoMixin) -> VideoData | None:
+    data: VideoData | None = None
     exists = True
     if obj.video_source and obj.video_id:
         # Check for cached data

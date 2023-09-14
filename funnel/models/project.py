@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 
 from pytz import utc
 from sqlalchemy.orm import attribute_keyed_dict
@@ -69,7 +69,6 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
 
 class Project(UuidMixin, BaseScopedNameMixin, Model):
     __tablename__ = 'project'
-    __allow_unmapped__ = True
     reserved_names = RESERVED_NAMES
 
     created_by_id = sa.orm.mapped_column(sa.ForeignKey('account.id'), nullable=False)
@@ -197,7 +196,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    buy_tickets_url: Mapped[Optional[str]] = with_roles(
+    buy_tickets_url: Mapped[str | None] = with_roles(
         sa.orm.mapped_column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
@@ -238,7 +237,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     parent_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
-    parent_project: Mapped[Optional[Project]] = relationship(
+    parent_project: Mapped[Project | None] = relationship(
         'Project', remote_side='Project.id', backref='subprojects'
     )
 
@@ -297,6 +296,9 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         nullable=False,
         deferred=True,
     )
+
+    # Relationships
+    primary_venue: Mapped[Venue | None] = relationship()
 
     __table_args__ = (
         sa.UniqueConstraint('account_id', 'name'),
@@ -562,7 +564,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     with_roles(title_suffix, read={'all'})
 
     @property
-    def title_parts(self) -> List[str]:
+    def title_parts(self) -> list[str]:
         """
         Return the hierarchy of titles of this project.
 
@@ -699,7 +701,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         self.end_at = self.schedule_end_at
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Sequence = ()
+        self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
@@ -742,7 +744,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     @classmethod
     def get(  # type: ignore[override]  # pylint: disable=arguments-differ
         cls, account_project: str
-    ) -> Optional[Project]:
+    ) -> Project | None:
         """Get a project by its URL slug in the form ``<account>/<project>``."""
         account_name, project_name = account_project.split('/')
         return (
@@ -801,7 +803,7 @@ class __Account:
         read={'all'},
     )
 
-    def draft_projects_for(self, user: Optional[Account]) -> List[Project]:
+    def draft_projects_for(self, user: Account | None) -> list[Project]:
         if user is not None:
             return [
                 membership.project
@@ -816,7 +818,7 @@ class __Account:
             ]
         return []
 
-    def unscheduled_projects_for(self, user: Optional[Account]) -> List[Project]:
+    def unscheduled_projects_for(self, user: Account | None) -> list[Project]:
         if user is not None:
             return [
                 membership.project
@@ -841,7 +843,6 @@ class __Account:
 
 class ProjectRedirect(TimestampMixin, Model):
     __tablename__ = 'project_redirect'
-    __allow_unmapped__ = True
 
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, primary_key=True
@@ -877,8 +878,8 @@ class ProjectRedirect(TimestampMixin, Model):
     def add(
         cls,
         project: Project,
-        account: Optional[Account] = None,
-        name: Optional[str] = None,
+        account: Account | None = None,
+        name: str | None = None,
     ) -> ProjectRedirect:
         """
         Add a project redirect in a given account.
@@ -924,7 +925,6 @@ class ProjectRedirect(TimestampMixin, Model):
 
 class ProjectLocation(TimestampMixin, Model):
     __tablename__ = 'project_location'
-    __allow_unmapped__ = True
     #: Project we are tagging
     project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False

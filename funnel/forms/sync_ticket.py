@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import json
-from typing import Optional
 
-from flask import Markup
+from markupsafe import Markup
 
 from baseframe import __, forms
 
@@ -76,6 +75,10 @@ class ProjectBoxofficeForm(forms.Form):
     is_subscription = forms.BooleanField(
         __("Paid tickets are for a subscription"),
         default=True,
+    )
+    has_membership = forms.BooleanField(
+        __("Tickets on this project represent memberships to the account"),
+        default=False,
     )
     register_button_txt = forms.StringField(
         __("Register button text"),
@@ -162,7 +165,7 @@ class TicketParticipantForm(forms.Form):
     """Form for a participant in a ticket."""
 
     __returns__ = ('user',)
-    user: Optional[Account] = None
+    user: Account | None = None
     edit_parent: Project
 
     fullname = forms.StringField(

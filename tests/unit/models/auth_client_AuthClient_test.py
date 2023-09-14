@@ -82,7 +82,7 @@ class TestClient(TestDatabaseFixture):
         self.db_session.commit()
         result = house_lannisters.authtoken_for(varys, login_session=varys_session)
         assert isinstance(result, models.AuthToken)
-        assert "Lord Varys" == result.account.fullname
+        assert result.account == varys
 
     def test_client_get(self) -> None:
         """Test for verifying AuthClient's get method."""

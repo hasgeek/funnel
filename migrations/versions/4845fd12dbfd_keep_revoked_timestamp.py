@@ -6,16 +6,14 @@ Create Date: 2020-09-18 00:53:48.765903
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '4845fd12dbfd'
 down_revision = 'abfda6e2f41d'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 def upgrade() -> None:
@@ -31,7 +29,7 @@ def upgrade() -> None:
     )
 
     op.execute(
-        sa.DDL(
+        sa.text(
             'UPDATE user_notification SET revoked_at = updated_at'
             ' WHERE is_revoked IS TRUE;'
         )
@@ -54,7 +52,7 @@ def downgrade() -> None:
     )
 
     op.execute(
-        sa.DDL(
+        sa.text(
             'UPDATE user_notification SET is_revoked = TRUE'
             ' WHERE revoked_at IS NOT NULL;'
         )

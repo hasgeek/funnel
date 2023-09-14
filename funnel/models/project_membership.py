@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Dict, Set, Union
-
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
@@ -17,7 +15,7 @@ from .project import Project
 __all__ = ['ProjectMembership', 'project_child_role_map']
 
 #: Roles in a project and their remapped names in objects attached to a project
-project_child_role_map: Dict[str, str] = {
+project_child_role_map: dict[str, str] = {
     'editor': 'project_editor',
     'promoter': 'project_promoter',
     'usher': 'project_usher',
@@ -28,7 +26,7 @@ project_child_role_map: Dict[str, str] = {
 
 #: ProjectMembership maps project's `account_admin` role to membership's `editor`
 #: role in addition to the recurring role grant map
-project_membership_role_map: Dict[str, Union[str, Set[str]]] = {
+project_membership_role_map: dict[str, str | set[str]] = {
     'account_admin': {'account_admin', 'editor'}
 }
 project_membership_role_map.update(project_child_role_map)
@@ -38,7 +36,6 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
     """Users can be crew members of projects, with specified access rights."""
 
     __tablename__ = 'project_membership'
-    __allow_unmapped__ = True
 
     #: Legacy data has no granted_by
     __null_granted_by__ = True
@@ -172,7 +169,7 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
         return tuple(args)
 
     @cached_property
-    def offered_roles(self) -> Set[str]:
+    def offered_roles(self) -> set[str]:
         """Roles offered by this membership record."""
         roles = {'crew', 'participant'}
         if self.is_editor:

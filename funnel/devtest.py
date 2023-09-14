@@ -11,8 +11,9 @@ import signal
 import socket
 import time
 import weakref
+from collections.abc import Callable, Iterable
 from secrets import token_urlsafe
-from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Optional, Tuple
+from typing import Any, NamedTuple
 from typing_extensions import Protocol
 
 from flask import Flask
@@ -66,7 +67,7 @@ class AppByHostWsgi:
         for app in apps:
             if not app.config.get('SERVER_NAME'):
                 raise ValueError(f"App does not have SERVER_NAME set: {app!r}")
-        self.apps_by_host: Dict[str, Flask] = {
+        self.apps_by_host: dict[str, Flask] = {
             app.config['SERVER_NAME'].split(':', 1)[0]: app for app in apps
         }
 
@@ -114,21 +115,21 @@ class HostPort(NamedTuple):
 class CapturedSms(NamedTuple):
     phone: str
     message: str
-    vars: Dict[str, str]  # noqa: A003
+    vars: dict[str, str]  # noqa: A003
 
 
 class CapturedEmail(NamedTuple):
     subject: str
-    to: List[str]
+    to: list[str]
     content: str
-    from_email: Optional[str]
+    from_email: str | None
 
 
 class CapturedCalls(Protocol):
     """Protocol class for captured calls."""
 
-    email: List[CapturedEmail]
-    sms: List[CapturedSms]
+    email: list[CapturedEmail]
+    sms: list[CapturedSms]
 
 
 def _signature_without_annotations(func) -> inspect.Signature:
@@ -176,8 +177,8 @@ def _prepare_subprocess(
     mock_transports: bool,
     calls: CapturedCalls,
     worker: Callable,
-    args: Tuple[Any],
-    kwargs: Dict[str, Any],
+    args: tuple[Any],
+    kwargs: dict[str, Any],
 ) -> Any:
     """
     Prepare a subprocess for hosting a worker.
@@ -195,12 +196,12 @@ def _prepare_subprocess(
 
         def mock_email(
             subject: str,
-            to: List[Any],
+            to: list[Any],
             content: str,
             attachments=None,
-            from_email: Optional[Any] = None,
-            headers: Optional[dict] = None,
-            base_url: Optional[str] = None,
+            from_email: Any | None = None,
+            headers: dict | None = None,
+            base_url: str | None = None,
         ) -> str:
             capture = CapturedEmail(
                 subject,
@@ -248,9 +249,9 @@ class BackgroundWorker:
     def __init__(
         self,
         worker: Callable,
-        args: Optional[Iterable] = None,
-        kwargs: Optional[dict] = None,
-        probe_at: Optional[Tuple[str, int]] = None,
+        args: Iterable | None = None,
+        kwargs: dict | None = None,
+        probe_at: tuple[str, int] | None = None,
         timeout: int = 10,
         clean_stop: bool = True,
         daemon: bool = True,
@@ -263,7 +264,7 @@ class BackgroundWorker:
         self.timeout = timeout
         self.clean_stop = clean_stop
         self.daemon = daemon
-        self._process: Optional[multiprocessing.context.ForkProcess] = None
+        self._process: multiprocessing.context.ForkProcess | None = None
         self.mock_transports = mock_transports
 
         manager = mpcontext.Manager()
@@ -322,7 +323,7 @@ class BackgroundWorker:
         return ret
 
     @property
-    def pid(self) -> Optional[int]:
+    def pid(self) -> int | None:
         """PID of background worker."""
         return self._process.pid if self._process else None
 

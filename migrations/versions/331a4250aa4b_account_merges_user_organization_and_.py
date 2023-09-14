@@ -8,8 +8,7 @@ Create Date: 2023-05-08 13:10:17.607431
 
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import List, Optional, Tuple, Union
-from typing_extensions import Literal
+from typing import Literal
 
 import sqlalchemy as sa
 from alembic import op
@@ -19,8 +18,8 @@ from sqlalchemy.dialects import postgresql
 # revision identifiers, used by Alembic.
 revision: str = '331a4250aa4b'
 down_revision: str = 'd5b374c9e589'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 class AccountType:
@@ -53,25 +52,23 @@ class Rn:
     #: Old name
     current_name: str
     #: New name
-    future_name: Optional[str] = None
+    future_name: str | None = None
     #: Symbol type
-    symbol: Optional[
-        Literal[
-            # These symbols need a table
-            'column',
-            'constraint',
-            'trigger',
-            # These do not need a table
-            'table',
-            'index',
-            'function',
-            'sequence',
-        ]
-    ] = None
+    symbol: Literal[
+        # These symbols need a table
+        'column',
+        'constraint',
+        'trigger',
+        # These do not need a table
+        'table',
+        'index',
+        'function',
+        'sequence',
+    ] | None = None
     #: Optional namespace (table for columns and constraints, not required for others)
-    table_name: Optional[str] = None
+    table_name: str | None = None
     #: Old table name (autoset by Rtable)
-    old_table_name: Optional[str] = None
+    old_table_name: str | None = None
 
     def _do(self, current_name: str, future_name: str) -> None:
         """Internal function for performing the operation."""
@@ -100,7 +97,7 @@ class Rn:
         else:
             raise TypeError("Unknown symbol type in {self!r}")
 
-    def _format_names(self) -> Tuple[str, Optional[str]]:
+    def _format_names(self) -> tuple[str, str | None]:
         """Format old and new named using the table name."""
         old = self.current_name
         new = self.future_name
@@ -131,12 +128,12 @@ class Rn:
 class Rtable(Rn):
     """Rename a table and/or its contents and related entities."""
 
-    sequences: Optional[List[Rn]] = None
-    columns: Optional[List[Rn]] = None
-    constraints: Optional[List[Rn]] = None
-    indexes: Optional[List[Rn]] = None
-    triggers: Optional[List[Rn]] = None
-    functions: Optional[List[Rn]] = None
+    sequences: list[Rn] | None = None
+    columns: list[Rn] | None = None
+    constraints: list[Rn] | None = None
+    indexes: list[Rn] | None = None
+    triggers: list[Rn] | None = None
+    functions: list[Rn] | None = None
 
     def __post_init__(self):
         """Set table and symbol type in lists."""

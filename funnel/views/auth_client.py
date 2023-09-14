@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Tuple
-
 from flask import flash, render_template, request, url_for
 
 from baseframe import _
@@ -57,7 +55,7 @@ def client_list_all() -> ReturnView:
     )
 
 
-def available_client_owners() -> List[Tuple[str, str]]:
+def available_client_owners() -> list[tuple[str, str]]:
     """Return a list of possible client owners for the current user."""
     choices = []
     choices.append((current_auth.user.buid, current_auth.user.pickername))

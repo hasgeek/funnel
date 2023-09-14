@@ -2,19 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from datetime import datetime as datetime_type
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    ClassVar,
-    Generic,
-    Iterable,
-    Optional,
-    Set,
-    Type,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, TypeVar
 
 from sqlalchemy import event
 from sqlalchemy.sql.expression import ColumnElement
@@ -101,7 +91,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     #: List of columns that will be copied into a new row when a membership is amended
     __data_columns__: ClassVar[Iterable[str]] = ()
     #: Name of the parent id column, used in SQL constraints
-    parent_id_column: ClassVar[Optional[str]]
+    parent_id_column: ClassVar[str | None]
     if TYPE_CHECKING:
         #: Subclass has a table name
         __tablename__: str
@@ -109,7 +99,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         #: subclasses)
         parent_id: Mapped[int]
         #: Parent object
-        parent: Mapped[Optional[Model]]
+        parent: Mapped[Model | None]
         #: Subject of this membership (subclasses must define)
         member: Mapped[Account]
 
@@ -132,7 +122,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         read={'member', 'editor'},
     )
     #: End time of membership, ordinarily a mirror of updated_at
-    revoked_at: Mapped[Optional[datetime_type]] = with_roles(
+    revoked_at: Mapped[datetime_type | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'member', 'editor'},
     )
@@ -157,7 +147,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @declared_attr
     @classmethod
-    def revoked_by_id(cls) -> Mapped[Optional[int]]:
+    def revoked_by_id(cls) -> Mapped[int | None]:
         """Id of user who revoked the membership."""
         return sa.orm.mapped_column(
             sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
@@ -166,13 +156,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @with_roles(read={'member', 'editor'}, grants={'editor'})
     @declared_attr
     @classmethod
-    def revoked_by(cls) -> Mapped[Optional[Account]]:
+    def revoked_by(cls) -> Mapped[Account | None]:
         """User who revoked the membership."""
         return relationship(Account, foreign_keys=[cls.revoked_by_id])
 
     @declared_attr
     @classmethod
-    def granted_by_id(cls) -> Mapped[Optional[int]]:
+    def granted_by_id(cls) -> Mapped[int | None]:
         """
         Id of user who assigned the membership.
 
@@ -188,7 +178,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @with_roles(read={'member', 'editor'}, grants={'editor'})
     @declared_attr
     @classmethod
-    def granted_by(cls) -> Mapped[Optional[Account]]:
+    def granted_by(cls) -> Mapped[Account | None]:
         """User who assigned the membership."""
         return relationship(Account, foreign_keys=[cls.granted_by_id])
 
@@ -233,7 +223,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         )
 
     @cached_property
-    def offered_roles(self) -> Set[str]:
+    def offered_roles(self) -> set[str]:
         """Return roles offered by this membership record."""
         return set()
 
@@ -578,7 +568,7 @@ class FrozenAttributionMixin:
 
     @declared_attr
     @classmethod
-    def _title(cls) -> Mapped[Optional[str]]:
+    def _title(cls) -> Mapped[str | None]:
         """Create optional attribution title for this membership record."""
         return immutable(
             sa.orm.mapped_column(
@@ -594,7 +584,7 @@ class FrozenAttributionMixin:
         return self._title or self.member.title
 
     @title.setter
-    def title(self, value: Optional[str]) -> None:
+    def title(self, value: str | None) -> None:
         """Set or clear custom attribution title."""
         # The title column is marked immutable, so this setter can only be called once,
         # typically during __init__
@@ -675,7 +665,7 @@ class AmendMembership(Generic[MembershipType]):
 
 
 @event.listens_for(Account, 'mapper_configured', propagate=True)
-def _confirm_enumerated_mixins(_mapper: Any, cls: Type[Account]) -> None:
+def _confirm_enumerated_mixins(_mapper: Any, cls: type[Account]) -> None:
     """Confirm that the membership collection attributes actually exist."""
     expected_class = ImmutableMembershipMixin
     if issubclass(cls, Account):

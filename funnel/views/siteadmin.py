@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import csv
 from collections import Counter
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import timedelta
 from functools import wraps
 from io import StringIO
-from typing import Any, Callable, Dict, Optional
+from typing import Any
 
 from flask import abort, current_app, flash, render_template, request, url_for
 from sqlalchemy.dialects.postgresql import INTERVAL
@@ -61,7 +62,7 @@ class AuthClientUserReport:
     auth_client_id: int
     title: str
     website: str
-    counts: Dict[str, int] = field(default_factory=counts_template.copy)
+    counts: dict[str, int] = field(default_factory=counts_template.copy)
 
 
 @dataclass
@@ -174,7 +175,9 @@ class SiteadminView(ClassView):
                 sa.func.count().label('count'),
             )
             .select_from(Account)
-            .filter(Account.state.ACTIVE)
+            .filter(
+                Account.state.ACTIVE, Account.joined_at.isnot(None), User.type_filter()
+            )
             .group_by('month')
             .order_by('month')
         )
@@ -190,7 +193,7 @@ class SiteadminView(ClassView):
     @requires_siteadmin
     def dashboard_data_users_by_client(self) -> ReturnView:
         """Render CSV of active user counts per time period and auth client."""
-        client_users: Dict[int, AuthClientUserReport] = {}
+        client_users: dict[int, AuthClientUserReport] = {}
 
         for label, interval in (
             ('hour', '1 hour'),
@@ -280,7 +283,7 @@ class SiteadminView(ClassView):
     @render_with('siteadmin_comments.html.jinja2')
     @requestargs(('query', abort_null), ('page', int), ('per_page', int))
     def comments(
-        self, query: str = '', page: Optional[int] = None, per_page: int = 100
+        self, query: str = '', page: int | None = None, per_page: int = 100
     ) -> ReturnRenderWith:
         """Render a list of all comments matching a query."""
         comments = Comment.query.filter(Comment.state.REPORTABLE).order_by(

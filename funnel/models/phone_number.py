@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import hashlib
-from typing import TYPE_CHECKING, Any, Optional, Set, Type, Union, overload
-from typing_extensions import Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, overload
 
 import base58
 import phonenumbers
@@ -98,50 +97,50 @@ class PhoneNumberInUseError(PhoneNumberError):
 
 
 @overload
-def parse_phone_number(candidate: str) -> Optional[str]:
+def parse_phone_number(candidate: str) -> str | None:
     ...
 
 
 @overload
-def parse_phone_number(candidate: str, sms: Literal[False]) -> Optional[str]:
+def parse_phone_number(candidate: str, sms: Literal[False]) -> str | None:
     ...
 
 
 @overload
 def parse_phone_number(
     candidate: str, sms: Literal[False], parsed: Literal[True]
-) -> Optional[phonenumbers.PhoneNumber]:
+) -> phonenumbers.PhoneNumber | None:
     ...
 
 
 @overload
 def parse_phone_number(
-    candidate: str, sms: Union[bool, Literal[True]]
-) -> Optional[Union[str, Literal[False]]]:
+    candidate: str, sms: bool | Literal[True]
+) -> str | Literal[False] | None:
     ...
 
 
 @overload
 def parse_phone_number(
     candidate: str,
-    sms: Union[bool, Literal[True]],
+    sms: bool | Literal[True],
     parsed: Literal[True],
-) -> Optional[Union[phonenumbers.PhoneNumber, Literal[False]]]:
+) -> phonenumbers.PhoneNumber | Literal[False] | None:
     ...
 
 
 @overload
 def parse_phone_number(
     candidate: str,
-    sms: Union[bool, Literal[True]],
-    parsed: Union[bool, Literal[False]],
-) -> Optional[Union[phonenumbers.PhoneNumber, Literal[False]]]:
+    sms: bool | Literal[True],
+    parsed: bool | Literal[False],
+) -> phonenumbers.PhoneNumber | Literal[False] | None:
     ...
 
 
 def parse_phone_number(
     candidate: str, sms: bool = False, parsed: bool = False
-) -> Optional[Union[str, phonenumbers.PhoneNumber, Literal[False]]]:
+) -> str | phonenumbers.PhoneNumber | Literal[False] | None:
     """
     Attempt to parse and validate a phone number and return in E164 format.
 
@@ -187,7 +186,7 @@ def parse_phone_number(
     return None
 
 
-def validate_phone_number(candidate: Union[str, phonenumbers.PhoneNumber]) -> str:
+def validate_phone_number(candidate: str | phonenumbers.PhoneNumber) -> str:
     """
     Validate an international phone number and return in E164 format.
 
@@ -207,7 +206,7 @@ def validate_phone_number(candidate: Union[str, phonenumbers.PhoneNumber]) -> st
     raise PhoneNumberInvalidError(f"Not a valid phone number: {candidate}")
 
 
-def canonical_phone_number(candidate: Union[str, phonenumbers.PhoneNumber]) -> str:
+def canonical_phone_number(candidate: str | phonenumbers.PhoneNumber) -> str:
     """Normalize an international phone number by rendering in E164 format."""
     if not isinstance(candidate, phonenumbers.PhoneNumber):
         try:
@@ -218,7 +217,7 @@ def canonical_phone_number(candidate: Union[str, phonenumbers.PhoneNumber]) -> s
 
 
 def phone_blake2b160_hash(
-    phone: Union[str, phonenumbers.PhoneNumber],
+    phone: str | phonenumbers.PhoneNumber,
     *,
     _pre_validated_formatted: bool = False,
 ) -> bytes:
@@ -251,14 +250,13 @@ class PhoneNumber(BaseMixin, Model):
     """
 
     __tablename__ = 'phone_number'
-    __allow_unmapped__ = True
 
     #: Backrefs to this model from other models, populated by :class:`PhoneNumberMixin`
     #: Contains the name of the relationship in the :class:`PhoneNumber` model
-    __backrefs__: Set[str] = set()
+    __backrefs__: ClassVar[set[str]] = set()
     #: These backrefs claim exclusive use of the phone number for their linked owner.
     #: See :class:`PhoneNumberMixin` for implementation detail
-    __exclusive_backrefs__: Set[str] = set()
+    __exclusive_backrefs__: ClassVar[set[str]] = set()
 
     #: The phone number, centrepiece of this model. Stored normalized in E164 format.
     #: Validated by the :func:`_validate_phone` event handler
@@ -396,7 +394,7 @@ class PhoneNumber(BaseMixin, Model):
     transport_hash = phone_hash
 
     @with_roles(call={'all'})
-    def md5(self) -> Optional[str]:
+    def md5(self) -> str | None:
         """MD5 hash of :attr:`phone`, for legacy use only."""
         return (
             hashlib.md5(self.number.encode('utf-8'), usedforsecurity=False).hexdigest()
@@ -405,7 +403,7 @@ class PhoneNumber(BaseMixin, Model):
         )
 
     @cached_property
-    def parsed(self) -> Optional[phonenumbers.PhoneNumber]:
+    def parsed(self) -> phonenumbers.PhoneNumber | None:
         """Return parsed phone number using libphonenumbers."""
         if self.number:
             return phonenumbers.parse(self.number)
@@ -431,7 +429,7 @@ class PhoneNumber(BaseMixin, Model):
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: Optional[Account]) -> bool:
+    def is_available_for(self, owner: Account | None) -> bool:
         """Return True if this PhoneNumber is available for the proposed owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -498,7 +496,7 @@ class PhoneNumber(BaseMixin, Model):
     @overload
     @classmethod
     def get_filter(
-        cls, *, phone: Union[str, phonenumbers.PhoneNumber]
+        cls, *, phone: str | phonenumbers.PhoneNumber
     ) -> ColumnElement[bool]:
         ...
 
@@ -517,9 +515,9 @@ class PhoneNumber(BaseMixin, Model):
     def get_filter(
         cls,
         *,
-        phone: Optional[Union[str, phonenumbers.PhoneNumber]],
-        blake2b160: Optional[bytes],
-        phone_hash: Optional[str],
+        phone: str | phonenumbers.PhoneNumber | None,
+        blake2b160: bytes | None,
+        phone_hash: str | None,
     ) -> ColumnElement[bool]:
         ...
 
@@ -527,9 +525,9 @@ class PhoneNumber(BaseMixin, Model):
     def get_filter(
         cls,
         *,
-        phone: Optional[Union[str, phonenumbers.PhoneNumber]] = None,
-        blake2b160: Optional[bytes] = None,
-        phone_hash: Optional[str] = None,
+        phone: str | phonenumbers.PhoneNumber | None = None,
+        blake2b160: bytes | None = None,
+        phone_hash: str | None = None,
     ) -> ColumnElement[bool]:
         """
         Get an filter condition for retriving a :class:`PhoneNumber`.
@@ -550,10 +548,10 @@ class PhoneNumber(BaseMixin, Model):
     @classmethod
     def get(
         cls,
-        phone: Union[str, phonenumbers.PhoneNumber],
+        phone: str | phonenumbers.PhoneNumber,
         *,
-        is_blocked: Optional[bool] = None,
-    ) -> Optional[PhoneNumber]:
+        is_blocked: bool | None = None,
+    ) -> PhoneNumber | None:
         ...
 
     @overload
@@ -562,8 +560,8 @@ class PhoneNumber(BaseMixin, Model):
         cls,
         *,
         blake2b160: bytes,
-        is_blocked: Optional[bool] = None,
-    ) -> Optional[PhoneNumber]:
+        is_blocked: bool | None = None,
+    ) -> PhoneNumber | None:
         ...
 
     @overload
@@ -572,19 +570,19 @@ class PhoneNumber(BaseMixin, Model):
         cls,
         *,
         phone_hash: str,
-        is_blocked: Optional[bool] = None,
-    ) -> Optional[PhoneNumber]:
+        is_blocked: bool | None = None,
+    ) -> PhoneNumber | None:
         ...
 
     @classmethod
     def get(
         cls,
-        phone: Optional[Union[str, phonenumbers.PhoneNumber]] = None,
+        phone: str | phonenumbers.PhoneNumber | None = None,
         *,
-        blake2b160: Optional[bytes] = None,
-        phone_hash: Optional[str] = None,
-        is_blocked: Optional[bool] = None,
-    ) -> Optional[PhoneNumber]:
+        blake2b160: bytes | None = None,
+        phone_hash: str | None = None,
+        is_blocked: bool | None = None,
+    ) -> PhoneNumber | None:
         """
         Get an :class:`PhoneNumber` instance by normalized phone number or its hash.
 
@@ -606,7 +604,7 @@ class PhoneNumber(BaseMixin, Model):
         return query.one_or_none()
 
     @classmethod
-    def add(cls, phone: Union[str, phonenumbers.PhoneNumber]) -> PhoneNumber:
+    def add(cls, phone: str | phonenumbers.PhoneNumber) -> PhoneNumber:
         """
         Create a new :class:`PhoneNumber` after normalization and validation.
 
@@ -633,8 +631,8 @@ class PhoneNumber(BaseMixin, Model):
     @classmethod
     def add_for(
         cls,
-        owner: Optional[Account],
-        phone: Union[str, phonenumbers.PhoneNumber],
+        owner: Account | None,
+        phone: str | phonenumbers.PhoneNumber,
     ) -> PhoneNumber:
         """
         Create a new :class:`PhoneNumber` after validation.
@@ -661,10 +659,10 @@ class PhoneNumber(BaseMixin, Model):
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[Account],
-        phone: Union[str, phonenumbers.PhoneNumber],
+        owner: Account | None,
+        phone: str | phonenumbers.PhoneNumber,
         new: bool = False,
-    ) -> Optional[Literal['taken', 'invalid', 'not_new', 'blocked']]:
+    ) -> Literal['taken', 'invalid', 'not_new', 'blocked'] | None:
         """
         Validate whether the phone number is available to the proposed owner.
 
@@ -702,7 +700,7 @@ class PhoneNumber(BaseMixin, Model):
         return None
 
     @classmethod
-    def get_numbers(cls, prefix: str, remove: bool = True) -> Set[str]:
+    def get_numbers(cls, prefix: str, remove: bool = True) -> set[str]:
         """Get all numbers with the given prefix as a Python set."""
         query = (
             cls.query.filter(cls.number.startswith(prefix))
@@ -729,14 +727,14 @@ class PhoneNumberMixin:
     __tablename__: str
 
     #: This class has an optional dependency on PhoneNumber
-    __phone_optional__: bool = True
+    __phone_optional__: ClassVar[bool] = True
     #: This class has a unique constraint on the fkey to PhoneNumber
-    __phone_unique__: bool = False
+    __phone_unique__: ClassVar[bool] = False
     #: A relationship from this model is for the (single) owner at this attr
-    __phone_for__: Optional[str] = None
+    __phone_for__: ClassVar[str | None] = None
     #: If `__phone_for__` is specified and this flag is True, the phone number is
     #: considered exclusive to this owner and may not be used by any other owner
-    __phone_is_exclusive__: bool = False
+    __phone_is_exclusive__: ClassVar[bool] = False
 
     @declared_attr
     @classmethod
@@ -761,7 +759,7 @@ class PhoneNumberMixin:
         return relationship(PhoneNumber, backref=backref_name)
 
     @property
-    def phone(self) -> Optional[str]:
+    def phone(self) -> str | None:
         """
         Shorthand for ``self.phone_number.number``.
 
@@ -778,7 +776,7 @@ class PhoneNumberMixin:
         return None
 
     @phone.setter
-    def phone(self, value: Optional[str]) -> None:
+    def phone(self, value: str | None) -> None:
         if self.__phone_for__:
             if value is not None:
                 self.phone_number = PhoneNumber.add_for(
@@ -803,7 +801,7 @@ class PhoneNumberMixin:
         return True
 
     @property
-    def transport_hash(self) -> Optional[str]:
+    def transport_hash(self) -> str | None:
         """Phone hash using the compatibility name for notifications framework."""
         return (
             self.phone_number.phone_hash
@@ -883,8 +881,8 @@ def _setup_refcount_events() -> None:
 
 def _phone_number_mixin_set_validator(
     target: PhoneNumberMixin,
-    value: Optional[PhoneNumber],
-    old_value: Optional[PhoneNumber],
+    value: PhoneNumber | None,
+    old_value: PhoneNumber | None,
     _initiator: Any,
 ) -> None:
     if value is not None and value != old_value and target.__phone_for__:
@@ -896,7 +894,7 @@ def _phone_number_mixin_set_validator(
 
 @event.listens_for(PhoneNumberMixin, 'mapper_configured', propagate=True)
 def _phone_number_mixin_configure_events(
-    _mapper: Any, cls: Type[PhoneNumberMixin]
+    _mapper: Any, cls: type[PhoneNumberMixin]
 ) -> None:
     event.listen(cls.phone_number, 'set', _phone_number_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)

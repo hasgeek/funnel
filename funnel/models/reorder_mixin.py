@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, ClassVar, TypeVar, Union
+from typing import TYPE_CHECKING, ClassVar, TypeVar
 from uuid import UUID
 
 from . import Mapped, QueryProperty, db, declarative_mixin, sa
@@ -26,7 +26,7 @@ class ReorderMixin:
         #: Subclass must have a primary key that is int or uuid
         id: Mapped[int]  # noqa: A001
         #: Subclass must declare a parent_id synonym to the parent model fkey column
-        parent_id: Mapped[Union[int, UUID]]
+        parent_id: Mapped[int | UUID]
         #: Subclass must declare a seq column or synonym, holding a sequence id. It
         #: need not be unique, but reordering is meaningless when both items have the
         #: same number

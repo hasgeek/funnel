@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, fields
 from datetime import datetime
 from email.utils import formataddr
 from functools import wraps
 from itertools import islice
-from typing import Any, Callable, ClassVar, Dict, List, Optional, Sequence, Tuple, Union
-from typing_extensions import Literal
+from typing import Any, ClassVar, Literal
 from uuid import UUID, uuid4
 
 from flask import url_for
@@ -64,11 +64,11 @@ class DecisionFactorBase:
     #: Template string to use for notifications
     template: str
     #: Optional second template string in present tense for current notifications
-    template_present: Optional[str] = None
+    template_present: str | None = None
 
     # Additional criteria must be defined in subclasses
 
-    def match(self, obj: Any, **kwargs) -> Optional[DecisionFactorBase]:
+    def match(self, obj: Any, **kwargs) -> DecisionFactorBase | None:
         """If the parameters matche the defined criteria, return self."""
         return self if self.is_match(obj, **kwargs) else None
 
@@ -86,7 +86,7 @@ class DecisionBranchBase:
     is_match: ClassVar[Callable[..., bool]]
 
     #: A list of decision factors and branches
-    factors: List[Union[DecisionFactorBase, DecisionBranchBase]]
+    factors: list[DecisionFactorBase | DecisionBranchBase]
 
     def __post_init__(self) -> None:
         """Validate decision factors to have matching criteria."""
@@ -109,7 +109,7 @@ class DecisionBranchBase:
                         f"expected {expected_value}, got {factor_value} in {factor}"
                     )
 
-    def match(self, obj: Any, **kwargs) -> Optional[DecisionFactorBase]:
+    def match(self, obj: Any, **kwargs) -> DecisionFactorBase | None:
         """Find a matching decision factor, recursing through other branches."""
         if self.is_match(obj, **kwargs):
             for factor in self.factors:
@@ -140,16 +140,16 @@ class RenderNotification:
     """
 
     #: Aliases for document and fragment, to make render methods clearer
-    aliases: Dict[Literal['document', 'fragment'], str] = {}
+    aliases: dict[Literal['document', 'fragment'], str] = {}
 
     #: Emoji prefix, for transports that support them
     emoji_prefix: str = ''
 
     #: Hero image for email
-    hero_image: Optional[str] = None
+    hero_image: str | None = None
 
     #: Email heading (not subject)
-    email_heading: Optional[str] = None
+    email_heading: str | None = None
 
     #: Reason specified in email templates. Subclasses MAY override
     reason: str = __(
@@ -190,9 +190,7 @@ class RenderNotification:
         if 'fragment' in self.aliases:
             setattr(self, self.aliases['fragment'], self.fragment)
 
-    def transport_for(
-        self, transport: str
-    ) -> Optional[Union[AccountEmail, AccountPhone]]:
+    def transport_for(self, transport: str) -> AccountEmail | AccountPhone | None:
         """
         Return the transport address for the notification.
 
@@ -209,8 +207,8 @@ class RenderNotification:
         self,
         medium: str = 'email',
         source: str = 'notification',
-        campaign: Optional[str] = None,
-    ) -> Dict[str, str]:
+        campaign: str | None = None,
+    ) -> dict[str, str]:
         """
         Provide tracking tags for URL parameters. Subclasses may override if required.
 
@@ -342,7 +340,7 @@ class RenderNotification:
     # --- Overrideable render methods
 
     @property
-    def actor(self) -> Optional[Account]:
+    def actor(self) -> Account | None:
         """Actor that prompted this notification. May be overriden."""
         return self.notification.created_by
 
@@ -375,7 +373,7 @@ class RenderNotification:
         """
         raise NotImplementedError("Subclasses must implement `email_content`")
 
-    def email_attachments(self) -> Optional[List[email.EmailAttachment]]:
+    def email_attachments(self) -> list[email.EmailAttachment] | None:
         """Render optional attachments to an email notification."""
         return None
 
@@ -491,11 +489,11 @@ def dispatch_notification(*notifications: Notification) -> None:
 
 def transport_worker_wrapper(
     func: Callable[[NotificationRecipient, RenderNotification], None]
-) -> Callable[[Sequence[Tuple[int, UUID]]], None]:
+) -> Callable[[Sequence[tuple[int, UUID]]], None]:
     """Create working context for a notification transport dispatch worker."""
 
     @wraps(func)
-    def inner(notification_recipient_ids: Sequence[Tuple[int, UUID]]) -> None:
+    def inner(notification_recipient_ids: Sequence[tuple[int, UUID]]) -> None:
         """Convert a notification id into an object for worker to process."""
         queue = [
             NotificationRecipient.query.get(identity)
@@ -636,14 +634,14 @@ def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -
 
 @rqjob()
 def dispatch_notification_recipients_job(
-    notification_recipient_ids: Sequence[Tuple[int, UUID]]
+    notification_recipient_ids: Sequence[tuple[int, UUID]]
 ) -> None:
     """Process notifications for users and enqueue transport delivery."""
     queue = [
         NotificationRecipient.query.get(identity)
         for identity in notification_recipient_ids
     ]
-    transport_batch: Dict[str, List[Tuple[int, UUID]]] = defaultdict(list)
+    transport_batch: dict[str, list[tuple[int, UUID]]] = defaultdict(list)
 
     for notification_recipient in queue:
         if notification_recipient is not None:

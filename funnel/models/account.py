@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import itertools
+from collections.abc import Iterable, Iterator
 from datetime import datetime, timedelta
-from typing import Iterable, Iterator, List, Optional, Set, Union, cast, overload
-from typing_extensions import Literal
+from typing import ClassVar, Literal, Union, cast, overload
 from uuid import UUID
 
 import phonenumbers
@@ -122,32 +122,31 @@ class Account(UuidMixin, BaseMixin, Model):
     """Account model."""
 
     __tablename__ = 'account'
-    __allow_unmapped__ = True
     # Name has a length limit 63 to fit DNS label limit
     __name_length__ = 63
     # Titles can be longer
     __title_length__ = 80
 
-    __active_membership_attrs__: Set[str] = set()
-    __noninvite_membership_attrs__: Set[str] = set()
+    __active_membership_attrs__: ClassVar[set[str]] = set()
+    __noninvite_membership_attrs__: ClassVar[set[str]] = set()
 
     # Helper flags (see subclasses)
-    is_user_profile: bool = False
-    is_organization_profile: bool = False
-    is_placeholder_profile: bool = False
+    is_user_profile: ClassVar[bool] = False
+    is_organization_profile: ClassVar[bool] = False
+    is_placeholder_profile: ClassVar[bool] = False
 
-    reserved_names: Set[str] = RESERVED_NAMES
+    reserved_names: ClassVar[set[str]] = RESERVED_NAMES
 
     type_: Mapped[str] = sa.orm.mapped_column('type', sa.CHAR(1), nullable=False)
 
     #: Join date for users and organizations (skipped for placeholders)
-    joined_at: Mapped[Optional[datetime]] = sa.orm.mapped_column(
+    joined_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
     #: The optional "username", used in the URL stub, with a unique constraint on the
     #: lowercase value (defined in __table_args__ below)
-    name: Mapped[Optional[str]] = with_roles(
+    name: Mapped[str | None] = with_roles(
         sa.orm.mapped_column(
             sa.Unicode(__name_length__),
             sa.CheckConstraint("name <> ''"),
@@ -167,17 +166,17 @@ class Account(UuidMixin, BaseMixin, Model):
     username: Mapped[str] = sa.orm.synonym('name')
 
     #: Argon2 or Bcrypt hash of the user's password
-    pw_hash: Mapped[Optional[str]] = sa.orm.mapped_column(sa.Unicode, nullable=True)
+    pw_hash: Mapped[str | None] = sa.orm.mapped_column(sa.Unicode, nullable=True)
     #: Timestamp for when the user's password last changed
-    pw_set_at: Mapped[Optional[datetime]] = sa.orm.mapped_column(
+    pw_set_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: Expiry date for the password (to prompt user to reset it)
-    pw_expires_at: Mapped[Optional[datetime]] = sa.orm.mapped_column(
+    pw_expires_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: User's preferred/last known timezone
-    timezone: Mapped[Optional[BaseTzInfo]] = with_roles(
+    timezone: Mapped[BaseTzInfo | None] = with_roles(
         sa.orm.mapped_column(TimezoneType(backend='pytz'), nullable=True),
         read={'owner'},
     )
@@ -186,7 +185,7 @@ class Account(UuidMixin, BaseMixin, Model):
         sa.Boolean, default=True, nullable=False
     )
     #: User's preferred/last known locale
-    locale: Mapped[Optional[Locale]] = with_roles(
+    locale: Mapped[Locale | None] = with_roles(
         sa.orm.mapped_column(LocaleType, nullable=True), read={'owner'}
     )
     #: Update locale automatically from browser activity
@@ -204,7 +203,7 @@ class Account(UuidMixin, BaseMixin, Model):
     #: Account state manager
     state = StateManager('_state', ACCOUNT_STATE, doc="Account state")
     #: Other accounts that were merged into this account
-    old_accounts: AssociationProxy[List[Account]] = association_proxy(
+    old_accounts: AssociationProxy[list[Account]] = association_proxy(
         'oldids', 'old_account'
     )
 
@@ -219,19 +218,19 @@ class Account(UuidMixin, BaseMixin, Model):
         '_profile_state', PROFILE_STATE, doc="Current state of the account profile"
     )
 
-    tagline: Mapped[Optional[str]] = sa.orm.mapped_column(
+    tagline: Mapped[str | None] = sa.orm.mapped_column(
         sa.Unicode, sa.CheckConstraint("tagline <> ''"), nullable=True
     )
     description, description_text, description_html = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
-    website: Mapped[Optional[furl]] = sa.orm.mapped_column(
+    website: Mapped[furl | None] = sa.orm.mapped_column(
         UrlType, sa.CheckConstraint("website <> ''"), nullable=True
     )
-    logo_url: Mapped[Optional[furl]] = sa.orm.mapped_column(
+    logo_url: Mapped[furl | None] = sa.orm.mapped_column(
         ImgeeType, sa.CheckConstraint("logo_url <> ''"), nullable=True
     )
-    banner_image_url: Mapped[Optional[furl]] = sa.orm.mapped_column(
+    banner_image_url: Mapped[furl | None] = sa.orm.mapped_column(
         ImgeeType, sa.CheckConstraint("banner_image_url <> ''"), nullable=True
     )
 
@@ -386,7 +385,7 @@ class Account(UuidMixin, BaseMixin, Model):
     )
 
     @classmethod
-    def _defercols(cls) -> List[sa.orm.interfaces.LoaderOption]:
+    def _defercols(cls) -> list[sa.orm.interfaces.LoaderOption]:
         """Return columns that are typically deferred when loading a user."""
         defer = sa.orm.defer
         return [
@@ -398,8 +397,13 @@ class Account(UuidMixin, BaseMixin, Model):
             defer(cls.timezone),
         ]
 
-    primary_email: Optional[AccountEmail]
-    primary_phone: Optional[AccountPhone]
+    @classmethod
+    def type_filter(cls) -> sa.ColumnElement[bool]:
+        """Return filter for the subclass's type."""
+        return cls.type_ == cls.__mapper_args__.get('polymorphic_identity')
+
+    primary_email: Mapped[AccountEmail | None] = relationship()
+    primary_phone: Mapped[AccountPhone | None] = relationship()
 
     def __repr__(self) -> str:
         if self.name:
@@ -425,7 +429,7 @@ class Account(UuidMixin, BaseMixin, Model):
     with_roles(pickername, read={'all'})
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Iterable = ()
+        self, actor: Account | None = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
         """Identify roles for the given actor."""
         roles = super().roles_for(actor, anchors)
@@ -456,7 +460,7 @@ class Account(UuidMixin, BaseMixin, Model):
             return cast(AccountOldId, AccountOldId.get(self.uuid)).account
         return self
 
-    def _set_password(self, password: Optional[str]):
+    def _set_password(self, password: str | None):
         """Set a password (write-only property)."""
         if password is None:
             self.pw_hash = None
@@ -531,7 +535,7 @@ class Account(UuidMixin, BaseMixin, Model):
             db.session.delete(accountemail)
 
     @property
-    def email(self) -> Union[Literal[''], AccountEmail]:
+    def email(self) -> Literal[''] | AccountEmail:
         """Return primary email address for user."""
         # Look for a primary address
         accountemail = self.primary_email
@@ -587,7 +591,7 @@ class Account(UuidMixin, BaseMixin, Model):
             db.session.delete(accountphone)
 
     @property
-    def phone(self) -> Union[Literal[''], AccountPhone]:
+    def phone(self) -> Literal[''] | AccountPhone:
         """Return primary phone number for user."""
         # Look for a primary phone number
         accountphone = self.primary_phone
@@ -615,7 +619,7 @@ class Account(UuidMixin, BaseMixin, Model):
     with_roles(has_public_profile, read={'all'}, write={'owner'})
 
     @property
-    def profile_url(self) -> Optional[str]:
+    def profile_url(self) -> str | None:
         """Return optional URL to account profile page."""
         return self.url_for(_external=True)
 
@@ -683,9 +687,7 @@ class Account(UuidMixin, BaseMixin, Model):
         )
 
     @with_roles(call={'owner'})
-    def transport_for_email(
-        self, context: Optional[Model] = None
-    ) -> Optional[AccountEmail]:
+    def transport_for_email(self, context: Model | None = None) -> AccountEmail | None:
         """Return user's preferred email address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE:
@@ -693,9 +695,7 @@ class Account(UuidMixin, BaseMixin, Model):
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_sms(
-        self, context: Optional[Model] = None
-    ) -> Optional[AccountPhone]:
+    def transport_for_sms(self, context: Model | None = None) -> AccountPhone | None:
         """Return user's preferred phone number within a context."""
         # TODO: Per-account/project customization is a future option
         if (
@@ -708,20 +708,20 @@ class Account(UuidMixin, BaseMixin, Model):
 
     @with_roles(call={'owner'})
     def transport_for_webpush(
-        self, context: Optional[Model] = None
+        self, context: Model | None = None
     ):  # TODO  # pragma: no cover
         """Return user's preferred webpush transport address within a context."""
         return None
 
     @with_roles(call={'owner'})
     def transport_for_telegram(
-        self, context: Optional[Model] = None
+        self, context: Model | None = None
     ):  # TODO  # pragma: no cover
         """Return user's preferred Telegram transport address within a context."""
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_whatsapp(self, context: Optional[Model] = None):
+    def transport_for_whatsapp(self, context: Model | None = None):
         """Return user's preferred WhatsApp transport address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_wa:
@@ -729,7 +729,7 @@ class Account(UuidMixin, BaseMixin, Model):
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_signal(self, context: Optional[Model] = None):
+    def transport_for_signal(self, context: Model | None = None):
         """Return user's preferred Signal transport address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sm:
@@ -753,8 +753,8 @@ class Account(UuidMixin, BaseMixin, Model):
 
     @with_roles(call={'owner'})
     def transport_for(
-        self, transport: str, context: Optional[Model] = None
-    ) -> Optional[Union[AccountEmail, AccountPhone]]:
+        self, transport: str, context: Model | None = None
+    ) -> AccountEmail | AccountPhone | None:
         """
         Get transport address for a given transport and context.
 
@@ -763,8 +763,8 @@ class Account(UuidMixin, BaseMixin, Model):
         return getattr(self, 'transport_for_' + transport)(context)
 
     def default_email(
-        self, context: Optional[Model] = None
-    ) -> Optional[Union[AccountEmail, AccountEmailClaim]]:
+        self, context: Model | None = None
+    ) -> AccountEmail | AccountEmailClaim | None:
         """
         Return default email address (verified if present, else unverified).
 
@@ -797,7 +797,7 @@ class Account(UuidMixin, BaseMixin, Model):
 
     with_roles(_self_is_owner_and_admin_of_self, grants={'owner', 'admin'})
 
-    def organizations_as_owner_ids(self) -> List[int]:
+    def organizations_as_owner_ids(self) -> list[int]:
         """
         Return the database ids of the organizations this user is an owner of.
 
@@ -864,13 +864,10 @@ class Account(UuidMixin, BaseMixin, Model):
         # 6. Clear name (username), title (fullname) and stored password hash
         self.name = None
         self.title = ''
+        self.password = None
 
         # 7. Unassign tickets assigned to the user
         self.ticket_participants = []  # pylint: disable=attribute-defined-outside-init
-
-        # 8. Clear fullname and stored password hash
-        self.fullname = ''
-        self.password = None
 
     @with_roles(call={'owner'})
     @profile_state.transition(
@@ -943,7 +940,7 @@ class Account(UuidMixin, BaseMixin, Model):
         *,
         name: str,
         defercols: bool = False,
-    ) -> Optional[Account]:
+    ) -> Account | None:
         ...
 
     @overload
@@ -953,7 +950,7 @@ class Account(UuidMixin, BaseMixin, Model):
         *,
         buid: str,
         defercols: bool = False,
-    ) -> Optional[Account]:
+    ) -> Account | None:
         ...
 
     @overload
@@ -963,18 +960,18 @@ class Account(UuidMixin, BaseMixin, Model):
         *,
         userid: str,
         defercols: bool = False,
-    ) -> Optional[Account]:
+    ) -> Account | None:
         ...
 
     @classmethod
     def get(
         cls,
         *,
-        name: Optional[str] = None,
-        buid: Optional[str] = None,
-        userid: Optional[str] = None,
+        name: str | None = None,
+        buid: str | None = None,
+        userid: str | None = None,
         defercols: bool = False,
-    ) -> Optional[Account]:
+    ) -> Account | None:
         """
         Return an Account with the given name or buid.
 
@@ -993,9 +990,7 @@ class Account(UuidMixin, BaseMixin, Model):
         else:
             query = cls.query.filter_by(buid=buid)
         if cls is not Account:
-            query = query.filter(
-                cls.type == cls.__mapper_args__['polymorphic_identity']
-            )
+            query = query.filter(cls.type_filter())
         if defercols:
             query = query.options(*cls._defercols())
         account = query.one_or_none()
@@ -1008,10 +1003,10 @@ class Account(UuidMixin, BaseMixin, Model):
     @classmethod
     def all(  # noqa: A003
         cls,
-        buids: Optional[Iterable[str]] = None,
-        names: Optional[Iterable[str]] = None,
+        buids: Iterable[str] | None = None,
+        names: Iterable[str] | None = None,
         defercols: bool = False,
-    ) -> List[Account]:
+    ) -> list[Account]:
         """
         Return all matching accounts.
 
@@ -1029,9 +1024,7 @@ class Account(UuidMixin, BaseMixin, Model):
         else:
             return []
         if cls is not Account:
-            query = query.filter(
-                cls.type == cls.__mapper_args__['polymorphic_identity']
-            )
+            query = query.filter(cls.type_filter())
 
         if defercols:
             query = query.options(*cls._defercols())
@@ -1046,13 +1039,11 @@ class Account(UuidMixin, BaseMixin, Model):
         """Construct a query filtered by public profile state."""
         query = cls.query.filter(cls.profile_state.PUBLIC)
         if cls is not Account:
-            query = query.filter(
-                cls.type == cls.__mapper_args__['polymorphic_identity']
-            )
+            query = query.filter(cls.type_filter())
         return query
 
     @classmethod
-    def autocomplete(cls, prefix: str) -> List[Account]:
+    def autocomplete(cls, prefix: str) -> list[Account]:
         """
         Return accounts whose names begin with the prefix, for autocomplete UI.
 
@@ -1072,9 +1063,7 @@ class Account(UuidMixin, BaseMixin, Model):
         )
 
         if cls is not Account:
-            base_users = base_users.filter(
-                cls.type == cls.__mapper_args__['polymorphic_identity']
-            )
+            base_users = base_users.filter(cls.type_filter())
         base_users = (
             base_users.options(*cls._defercols()).order_by(Account.title).limit(20)
         )
@@ -1146,7 +1135,7 @@ class Account(UuidMixin, BaseMixin, Model):
         return users
 
     @classmethod
-    def validate_name_candidate(cls, name: str) -> Optional[str]:
+    def validate_name_candidate(cls, name: str) -> str | None:
         """
         Validate an account name candidate.
 
@@ -1167,8 +1156,10 @@ class Account(UuidMixin, BaseMixin, Model):
             return 'invalid'
         if len(name) > cls.__name_length__:
             return 'long'
+        # Look for existing on the base Account model, not the subclass, as SQLAlchemy
+        # will add a filter condition on subclasses to restrict the query to that type.
         existing = (
-            cls.query.filter(sa.func.lower(cls.name) == sa.func.lower(name))
+            Account.query.filter(sa.func.lower(Account.name) == sa.func.lower(name))
             .options(sa.orm.load_only(cls.id, cls.uuid, cls.type_))
             .one_or_none()
         )
@@ -1181,7 +1172,7 @@ class Account(UuidMixin, BaseMixin, Model):
                 return 'org'
         return None
 
-    def validate_new_name(self, name: str) -> Optional[str]:
+    def validate_new_name(self, name: str) -> str | None:
         """Validate a new name for this account, returning an error code or None."""
         if self.name and name.lower() == self.name.lower():
             return None
@@ -1193,14 +1184,20 @@ class Account(UuidMixin, BaseMixin, Model):
         return cls.validate_name_candidate(name) is None
 
     @sa.orm.validates('name')
-    def _validate_name(self, key: str, value: Optional[str]):
+    def _validate_name(self, key: str, value: str | None) -> str | None:
         """Validate the value of Account.name."""
-        if value and (
-            value.lower() in self.reserved_names or not valid_account_name(value)
-        ):
+        if value is None:
+            return value
+
+        if not isinstance(value, str):
+            raise ValueError(f"Account name must be a string: {value}")
+
+        if not value.strip():
+            raise ValueError("Account name cannot be blank")
+
+        if value.lower() in self.reserved_names or not valid_account_name(value):
             raise ValueError("Invalid account name: " + value)
-        if not value and self.name and not self.state.GONE:
-            raise ValueError("Account name cannot be unset")
+
         # We don't check for existence in the db since this validator only
         # checks for valid syntax. To confirm the name is actually available,
         # the caller must call :meth:`is_available_name` or attempt to commit
@@ -1208,7 +1205,7 @@ class Account(UuidMixin, BaseMixin, Model):
         return value
 
     @sa.orm.validates('logo_url', 'banner_image_url')
-    def _validate_nullable(self, key: str, value: Optional[str]):
+    def _validate_nullable(self, key: str, value: str | None):
         """Convert blank values into None."""
         return value if value else None
 
@@ -1218,7 +1215,7 @@ class Account(UuidMixin, BaseMixin, Model):
         return cls.query.filter(cls.state.ACTIVE).count()
 
     #: FIXME: Temporary values for Baseframe compatibility
-    def organization_links(self) -> List:
+    def organization_links(self) -> list:
         """Return list of organizations affiliated with this user (deprecated)."""
         return []
 
@@ -1238,7 +1235,6 @@ class AccountOldId(UuidMixin, BaseMixin, Model):
     """Record of an older UUID for an account, after account merger."""
 
     __tablename__ = 'account_oldid'
-    __allow_unmapped__ = True
     __uuid_primary_key__ = True
 
     #: Old account, if still present
@@ -1263,7 +1259,7 @@ class AccountOldId(UuidMixin, BaseMixin, Model):
         return f'<AccountOldId {self.buid} of {self.account!r}>'
 
     @classmethod
-    def get(cls, uuid: UUID) -> Optional[AccountOldId]:
+    def get(cls, uuid: UUID) -> AccountOldId | None:
         """Get an old user record given a UUID."""
         return cls.query.filter_by(id=uuid).one_or_none()
 
@@ -1424,7 +1420,6 @@ class Team(UuidMixin, BaseMixin, Model):
     """A team of users within an organization."""
 
     __tablename__ = 'team'
-    __allow_unmapped__ = True
     __title_length__ = 250
     #: Displayed name
     title: Mapped[str] = sa.orm.mapped_column(
@@ -1479,7 +1474,7 @@ class Team(UuidMixin, BaseMixin, Model):
         return [cls.__table__.name, team_membership.name]
 
     @classmethod
-    def get(cls, buid: str, with_parent: bool = False) -> Optional[Team]:
+    def get(cls, buid: str, with_parent: bool = False) -> Team | None:
         """
         Return a Team with matching buid.
 
@@ -1499,7 +1494,6 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
     """An email address linked to an account."""
 
     __tablename__ = 'account_email'
-    __allow_unmapped__ = True
     __email_optional__ = False
     __email_unique__ = True
     __email_is_exclusive__ = True
@@ -1559,7 +1553,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
     def get(
         cls,
         email: str,
-    ) -> Optional[AccountEmail]:
+    ) -> AccountEmail | None:
         ...
 
     @overload
@@ -1568,7 +1562,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         cls,
         *,
         blake2b160: bytes,
-    ) -> Optional[AccountEmail]:
+    ) -> AccountEmail | None:
         ...
 
     @overload
@@ -1577,17 +1571,17 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         cls,
         *,
         email_hash: str,
-    ) -> Optional[AccountEmail]:
+    ) -> AccountEmail | None:
         ...
 
     @classmethod
     def get(
         cls,
-        email: Optional[str] = None,
+        email: str | None = None,
         *,
-        blake2b160: Optional[bytes] = None,
-        email_hash: Optional[str] = None,
-    ) -> Optional[AccountEmail]:
+        blake2b160: bytes | None = None,
+        email_hash: str | None = None,
+    ) -> AccountEmail | None:
         """
         Return an AccountEmail with matching email or blake2b160 hash.
 
@@ -1609,7 +1603,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         account: Account,
         *,
         email: str,
-    ) -> Optional[AccountEmail]:
+    ) -> AccountEmail | None:
         ...
 
     @overload
@@ -1619,7 +1613,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         account: Account,
         *,
         blake2b160: bytes,
-    ) -> Optional[AccountEmail]:
+    ) -> AccountEmail | None:
         ...
 
     @overload
@@ -1629,7 +1623,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         account: Account,
         *,
         email_hash: str,
-    ) -> Optional[AccountEmail]:
+    ) -> AccountEmail | None:
         ...
 
     @classmethod
@@ -1637,10 +1631,10 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         cls,
         account: Account,
         *,
-        email: Optional[str] = None,
-        blake2b160: Optional[bytes] = None,
-        email_hash: Optional[str] = None,
-    ) -> Optional[AccountEmail]:
+        email: str | None = None,
+        blake2b160: bytes | None = None,
+        email_hash: str | None = None,
+    ) -> AccountEmail | None:
         """
         Return instance with matching email or hash if it belongs to the given user.
 
@@ -1681,7 +1675,6 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
     """Claimed but unverified email address for a user."""
 
     __tablename__ = 'account_email_claim'
-    __allow_unmapped__ = True
     __email_optional__ = False
     __email_unique__ = False
     __email_for__ = 'account'
@@ -1689,7 +1682,6 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
 
     # Tell mypy that these are not optional
     email_address: Mapped[EmailAddress]  # type: ignore[assignment]
-    email: str
 
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
@@ -1749,7 +1741,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         account: Account,
         *,
         email: str,
-    ) -> Optional[AccountEmailClaim]:
+    ) -> AccountEmailClaim | None:
         ...
 
     @overload
@@ -1759,7 +1751,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         account: Account,
         *,
         blake2b160: bytes,
-    ) -> Optional[AccountEmailClaim]:
+    ) -> AccountEmailClaim | None:
         ...
 
     @overload
@@ -1769,7 +1761,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         account: Account,
         *,
         email_hash: str,
-    ) -> Optional[AccountEmailClaim]:
+    ) -> AccountEmailClaim | None:
         ...
 
     @classmethod
@@ -1777,10 +1769,10 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         cls,
         account: Account,
         *,
-        email: Optional[str] = None,
-        blake2b160: Optional[bytes] = None,
-        email_hash: Optional[str] = None,
-    ) -> Optional[AccountEmailClaim]:
+        email: str | None = None,
+        blake2b160: bytes | None = None,
+        email_hash: str | None = None,
+    ) -> AccountEmailClaim | None:
         """
         Return an AccountEmailClaim with matching email address for the given user.
 
@@ -1810,7 +1802,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         verification_code: str,
         *,
         email: str,
-    ) -> Optional[AccountEmailClaim]:
+    ) -> AccountEmailClaim | None:
         ...
 
     @overload
@@ -1820,7 +1812,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         verification_code: str,
         *,
         blake2b160: bytes,
-    ) -> Optional[AccountEmailClaim]:
+    ) -> AccountEmailClaim | None:
         ...
 
     @overload
@@ -1830,7 +1822,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         verification_code: str,
         *,
         email_hash: str,
-    ) -> Optional[AccountEmailClaim]:
+    ) -> AccountEmailClaim | None:
         ...
 
     @classmethod
@@ -1838,10 +1830,10 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         cls,
         verification_code: str,
         *,
-        email: Optional[str] = None,
-        blake2b160: Optional[bytes] = None,
-        email_hash: Optional[str] = None,
-    ) -> Optional[AccountEmailClaim]:
+        email: str | None = None,
+        blake2b160: bytes | None = None,
+        email_hash: str | None = None,
+    ) -> AccountEmailClaim | None:
         """Return an instance given verification code and email or hash."""
         email_filter = EmailAddress.get_filter(
             email=email, blake2b160=blake2b160, email_hash=email_hash
@@ -1877,7 +1869,6 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
     """A phone number linked to an account."""
 
     __tablename__ = 'account_phone'
-    __allow_unmapped__ = True
     __phone_optional__ = False
     __phone_unique__ = True
     __phone_is_exclusive__ = True
@@ -1926,7 +1917,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         return self.phone_number.formatted
 
     @property
-    def number(self) -> Optional[str]:
+    def number(self) -> str | None:
         return self.phone_number.number
 
     @property
@@ -1947,7 +1938,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
     def get(
         cls,
         phone: str,
-    ) -> Optional[AccountPhone]:
+    ) -> AccountPhone | None:
         ...
 
     @overload
@@ -1956,7 +1947,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         cls,
         *,
         blake2b160: bytes,
-    ) -> Optional[AccountPhone]:
+    ) -> AccountPhone | None:
         ...
 
     @overload
@@ -1965,17 +1956,17 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         cls,
         *,
         phone_hash: str,
-    ) -> Optional[AccountPhone]:
+    ) -> AccountPhone | None:
         ...
 
     @classmethod
     def get(
         cls,
-        phone: Optional[str] = None,
+        phone: str | None = None,
         *,
-        blake2b160: Optional[bytes] = None,
-        phone_hash: Optional[str] = None,
-    ) -> Optional[AccountPhone]:
+        blake2b160: bytes | None = None,
+        phone_hash: str | None = None,
+    ) -> AccountPhone | None:
         """
         Return an AccountPhone with matching phone number.
 
@@ -2000,7 +1991,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         account: Account,
         *,
         phone: str,
-    ) -> Optional[AccountPhone]:
+    ) -> AccountPhone | None:
         ...
 
     @overload
@@ -2010,7 +2001,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         account: Account,
         *,
         blake2b160: bytes,
-    ) -> Optional[AccountPhone]:
+    ) -> AccountPhone | None:
         ...
 
     @overload
@@ -2020,7 +2011,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         account: Account,
         *,
         phone_hash: str,
-    ) -> Optional[AccountPhone]:
+    ) -> AccountPhone | None:
         ...
 
     @classmethod
@@ -2028,10 +2019,10 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         cls,
         account: Account,
         *,
-        phone: Optional[str] = None,
-        blake2b160: Optional[bytes] = None,
-        phone_hash: Optional[str] = None,
-    ) -> Optional[AccountPhone]:
+        phone: str | None = None,
+        blake2b160: bytes | None = None,
+        phone_hash: str | None = None,
+    ) -> AccountPhone | None:
         """
         Return an instance with matching phone or hash if it belongs to the given user.
 
@@ -2069,8 +2060,7 @@ class AccountExternalId(BaseMixin, Model):
     """An external connected account for a user."""
 
     __tablename__ = 'account_externalid'
-    __allow_unmapped__ = True
-    __at_username_services__: List[str] = []
+    __at_username_services__: ClassVar[list[str]] = []
     #: Foreign key to user table
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
@@ -2090,35 +2080,35 @@ class AccountExternalId(BaseMixin, Model):
     )  # Unique id (or obsolete OpenID)
     #: Optional public-facing username on the external service
     # FIXME: change to sa.Unicode
-    username: Mapped[Optional[str]] = sa.orm.mapped_column(
+    username: Mapped[str | None] = sa.orm.mapped_column(
         sa.UnicodeText, nullable=True
     )  # LinkedIn once used full URLs
     #: OAuth or OAuth2 access token
     # FIXME: change to sa.Unicode
-    oauth_token: Mapped[Optional[str]] = sa.orm.mapped_column(
+    oauth_token: Mapped[str | None] = sa.orm.mapped_column(
         sa.UnicodeText, nullable=True
     )
     #: Optional token secret (not used in OAuth2, used by Twitter with OAuth1a)
     # FIXME: change to sa.Unicode
-    oauth_token_secret: Mapped[Optional[str]] = sa.orm.mapped_column(
+    oauth_token_secret: Mapped[str | None] = sa.orm.mapped_column(
         sa.UnicodeText, nullable=True
     )
     #: OAuth token type (typically 'bearer')
     # FIXME: change to sa.Unicode
-    oauth_token_type: Mapped[Optional[str]] = sa.orm.mapped_column(
+    oauth_token_type: Mapped[str | None] = sa.orm.mapped_column(
         sa.UnicodeText, nullable=True
     )
     #: OAuth2 refresh token
     # FIXME: change to sa.Unicode
-    oauth_refresh_token: Mapped[Optional[str]] = sa.orm.mapped_column(
+    oauth_refresh_token: Mapped[str | None] = sa.orm.mapped_column(
         sa.UnicodeText, nullable=True
     )
     #: OAuth2 token expiry in seconds, as sent by service provider
-    oauth_expires_in: Mapped[Optional[int]] = sa.orm.mapped_column(
+    oauth_expires_in: Mapped[int | None] = sa.orm.mapped_column(
         sa.Integer, nullable=True
     )
     #: OAuth2 token expiry timestamp, estimate from created_at + oauth_expires_in
-    oauth_expires_at: Mapped[Optional[datetime]] = sa.orm.mapped_column(
+    oauth_expires_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
 
@@ -2147,7 +2137,7 @@ class AccountExternalId(BaseMixin, Model):
         service: str,
         *,
         userid: str,
-    ) -> Optional[AccountExternalId]:
+    ) -> AccountExternalId | None:
         ...
 
     @overload
@@ -2157,7 +2147,7 @@ class AccountExternalId(BaseMixin, Model):
         service: str,
         *,
         username: str,
-    ) -> Optional[AccountExternalId]:
+    ) -> AccountExternalId | None:
         ...
 
     @classmethod
@@ -2165,9 +2155,9 @@ class AccountExternalId(BaseMixin, Model):
         cls,
         service: str,
         *,
-        userid: Optional[str] = None,
-        username: Optional[str] = None,
-    ) -> Optional[AccountExternalId]:
+        userid: str | None = None,
+        username: str | None = None,
+    ) -> AccountExternalId | None:
         """
         Return a UserExternalId with the given service and userid or username.
 

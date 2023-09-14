@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Sequence
+from collections.abc import Sequence
 
 from sqlalchemy.orm import Query as BaseQuery
 
@@ -49,7 +49,6 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
 
 class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     __tablename__ = 'update'
-    __allow_unmapped__ = True
 
     _visibility_state = sa.orm.mapped_column(
         'visibility_state',
@@ -137,10 +136,10 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         sa.orm.mapped_column(sa.Boolean, default=False, nullable=False), read={'all'}
     )
 
-    published_by_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+    published_by_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True, index=True
     )
-    published_by: Mapped[Optional[Account]] = with_roles(
+    published_by: Mapped[Account | None] = with_roles(
         relationship(
             Account,
             backref=backref('published_updates', lazy='dynamic'),
@@ -152,10 +151,10 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    deleted_by_id: Mapped[Optional[int]] = sa.orm.mapped_column(
+    deleted_by_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True, index=True
     )
-    deleted_by: Mapped[Optional[Account]] = with_roles(
+    deleted_by: Mapped[Account | None] = with_roles(
         relationship(
             Account,
             backref=backref('deleted_updates', lazy='dynamic'),
@@ -354,7 +353,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     with_roles(is_currently_restricted, read={'all'})
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Sequence = ()
+        self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if not self.visibility_state.RESTRICTED:
@@ -372,7 +371,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         )
 
     @with_roles(read={'all'})
-    def getnext(self) -> Optional[Update]:
+    def getnext(self) -> Update | None:
         """Get next published update."""
         if self.state.PUBLISHED:
             return (
@@ -387,7 +386,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         return None
 
     @with_roles(read={'all'})
-    def getprev(self) -> Optional[Update]:
+    def getprev(self) -> Update | None:
         """Get previous published update."""
         if self.state.PUBLISHED:
             return (
@@ -426,7 +425,7 @@ class __Project:
     with_roles(draft_updates, read={'editor'})
 
     @property
-    def pinned_update(self) -> Optional[Update]:
+    def pinned_update(self) -> Update | None:
         return (
             self.updates.filter(Update.state.PUBLISHED, Update.is_pinned.is_(True))
             .order_by(Update.published_at.desc())

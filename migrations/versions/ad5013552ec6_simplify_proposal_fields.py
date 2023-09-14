@@ -7,7 +7,6 @@ Create Date: 2020-12-08 13:58:56.331436
 """
 
 from textwrap import dedent
-from typing import Optional, Tuple, Union
 
 import progressbar.widgets
 import sqlalchemy as sa
@@ -20,8 +19,8 @@ from coaster.utils import markdown
 # revision identifiers, used by Alembic.
 revision = 'ad5013552ec6'
 down_revision = 'daeb6753652a'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 proposal = table(
@@ -153,7 +152,7 @@ def upgrade() -> None:
 
     # Update search vector
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         UPDATE proposal SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(description, '')), 'B') || setweight(to_tsvector('english', COALESCE(body_text, '')), 'B');
@@ -178,7 +177,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         UPDATE proposal SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(abstract_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(outline_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(requirements_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(slides, '')), 'B') || setweight(to_tsvector('english', COALESCE(links, '')), 'B') || setweight(to_tsvector('english', COALESCE(bio_text, '')), 'B');

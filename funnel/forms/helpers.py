@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import json
-from typing import Optional, Sequence, Union
-from typing_extensions import Literal
+from collections.abc import Sequence
+from typing import Literal
 
 from flask import flash
 
@@ -40,7 +40,7 @@ MSG_PHONE_BLOCKED = __("This phone number has been blocked from use")
 class AccountSelectField(forms.AutocompleteField):
     """Render an autocomplete field for selecting an account."""
 
-    data: Optional[Account]  # type: ignore[assignment]
+    data: Account | None  # type: ignore[assignment]
     widget = forms.Select2Widget()
     multiple = False
     widget_autocomplete = True
@@ -83,7 +83,7 @@ class EmailAddressAvailable:
 
     def __call__(self, form: forms.Form, field: forms.Field) -> None:
         # Get actor (from form, or current_auth.actor)
-        actor: Optional[User] = None
+        actor: User | None = None
         if hasattr(form, 'edit_user'):
             actor = form.edit_user
         if actor is None:
@@ -174,7 +174,7 @@ class PhoneNumberAvailable:
 
     def __call__(self, form: forms.Form, field: forms.Field) -> None:
         # Get actor (from existing obj, or current_auth.actor)
-        actor: Optional[User] = None
+        actor: User | None = None
         if hasattr(form, 'edit_user'):
             actor = form.edit_user
         if actor is None:
@@ -271,7 +271,7 @@ def tostr(value: object) -> str:
     return ''
 
 
-def format_json(data: Union[dict, str, None]) -> str:
+def format_json(data: dict | str | None) -> str:
     """Return a dict as a formatted JSON string, and return a string unchanged."""
     if data:
         if isinstance(data, str):

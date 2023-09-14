@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from flask import abort, flash, render_template, request
 
 from baseframe import _
@@ -48,7 +46,7 @@ from .notification import dispatch_notification
 @Account.views('members')
 @route('/<account>/members')
 class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
-    def after_loader(self) -> Optional[ReturnView]:  # type: ignore[return]
+    def after_loader(self) -> ReturnView | None:  # type: ignore[return]
         """Don't render member views for user accounts."""
         if not isinstance(self.obj, Organization):
             # Only organization accounts have admin members
@@ -170,7 +168,7 @@ class OrganizationMembershipView(
             AccountMembership.uuid_b58 == membership,
         ).first_or_404()
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         self.account = self.obj.account
         return super().after_loader()
 
@@ -411,7 +409,7 @@ class ProjectCrewMembershipMixin(AccountCheckMixin):
             .first_or_404()
         )
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         self.account = self.obj.project.account
         return super().after_loader()
 

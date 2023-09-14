@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Dict, Generic, Optional, Type, TypeVar, Union
+from typing import Generic, Optional, TypeVar
 
 import phonenumbers
 from flask import current_app, flash, render_template, request, session, url_for
@@ -79,7 +79,7 @@ OtpSessionType = TypeVar('OtpSessionType', bound='OtpSession')
 
 # --- Registry -------------------------------------------------------------------------
 
-_reason_subclasses: Dict[str, Type[OtpSession]] = {}
+_reason_subclasses: dict[str, type[OtpSession]] = {}
 
 # --- Classes --------------------------------------------------------------------------
 
@@ -102,9 +102,9 @@ class OtpSession(Generic[OptionalAccountType]):
     token: str
     otp: str
     user: OptionalAccountType
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    link_token: Optional[str] = None
+    email: str | None = None
+    phone: str | None = None
+    link_token: str | None = None
 
     # __new__ gets called before __init__ and can replace the class that is created
     def __new__(cls, reason: str, **kwargs) -> OtpSession:  # pylint: disable=W0221
@@ -131,14 +131,12 @@ class OtpSession(Generic[OptionalAccountType]):
 
     @classmethod
     def make(
-        cls: Type[OtpSessionType],
+        cls: type[OtpSessionType],
         reason: str,
         user: OptionalAccountType,
-        anchor: Optional[
-            Union[AccountEmail, AccountEmailClaim, AccountPhone, EmailAddress]
-        ],
-        phone: Optional[str] = None,
-        email: Optional[str] = None,
+        anchor: AccountEmail | AccountEmailClaim | AccountPhone | EmailAddress | None,
+        phone: str | None = None,
+        email: str | None = None,
     ) -> OtpSessionType:
         """
         Create an OTP for login and save it to cache and browser cookie session.
@@ -171,7 +169,7 @@ class OtpSession(Generic[OptionalAccountType]):
         )
 
     @classmethod
-    def retrieve(cls: Type[OtpSessionType], reason: str) -> OtpSessionType:
+    def retrieve(cls: type[OtpSessionType], reason: str) -> OtpSessionType:
         """Retrieve an OTP from cache using the token in browser cookie session."""
         otp_token = session.get('otp')
         if not otp_token:
@@ -235,7 +233,7 @@ class OtpSession(Generic[OptionalAccountType]):
 
     def send_sms(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> Optional[SmsMessage]:
+    ) -> SmsMessage | None:
         """Send an OTP via SMS to a phone number."""
         if not self.phone:
             return None
@@ -276,7 +274,7 @@ class OtpSession(Generic[OptionalAccountType]):
 
     def send_email(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> Optional[str]:
+    ) -> str | None:
         """Send an OTP via email (stub implementation)."""
         raise NotImplementedError("Subclasses must implement ``send_email``")
 
@@ -335,7 +333,7 @@ class OtpSessionForLogin(OtpSession[Optional[Account]], reason='login'):
 
     def send_sms(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> Optional[SmsMessage]:
+    ) -> SmsMessage | None:
         """Send an OTP via SMS to a phone number."""
         if not self.phone:
             return None
@@ -392,7 +390,7 @@ class OtpSessionForLogin(OtpSession[Optional[Account]], reason='login'):
 
     def send_email(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> Optional[str]:
+    ) -> str | None:
         """Email a login OTP to the user."""
         if not self.email:
             return None
@@ -445,7 +443,7 @@ class OtpSessionForSudo(OtpSession[Account], reason='sudo'):
 
     def send_email(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> Optional[str]:
+    ) -> str | None:
         """Email a sudo OTP to the user."""
         if not self.email:
             return None
@@ -484,7 +482,7 @@ class OtpSessionForReset(OtpSession[Account], reason='reset'):
 
     def send_email(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> Optional[str]:
+    ) -> str | None:
         """Send OTP and reset link via email."""
         if not self.email:
             return None
@@ -545,7 +543,7 @@ class OtpSessionForNewEmail(OtpSession[Account], reason='add-email'):
 
     def send_email(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> Optional[str]:
+    ) -> str | None:
         """Email an OTP to the user to confirm their email address."""
         subject = _("OTP {otp} to verify your email address").format(otp=self.otp)
         content = render_template(

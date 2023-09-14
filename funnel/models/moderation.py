@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Tuple
-
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
@@ -24,7 +22,6 @@ class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
 
 class CommentModeratorReport(UuidMixin, BaseMixin, Model):
     __tablename__ = 'comment_moderator_report'
-    __allow_unmapped__ = True
     __uuid_primary_key__ = True
 
     comment_id = sa.orm.mapped_column(
@@ -95,7 +92,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, Model):
     @classmethod
     def submit(
         cls, actor: Account, comment: Comment
-    ) -> Tuple[CommentModeratorReport, bool]:
+    ) -> tuple[CommentModeratorReport, bool]:
         created = False
         report = cls.query.filter_by(reported_by=actor, comment=comment).one_or_none()
         if report is None:

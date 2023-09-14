@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, cast
+from typing import cast
 
 from flask import render_template, request
 
@@ -49,8 +49,8 @@ def get_form_template(form: SessionForm) -> ReturnView:
 
 def session_edit(
     project: Project,
-    proposal: Optional[Proposal] = None,
-    session: Optional[Session] = None,
+    proposal: Proposal | None = None,
+    session: Session | None = None,
 ) -> ReturnView:
     # Look for any existing unscheduled session
     if proposal is not None and session is None:

@@ -7,7 +7,6 @@ Create Date: 2021-02-09 10:01:25.069803
 """
 
 from textwrap import dedent
-from typing import Optional, Tuple, Union
 
 import progressbar.widgets
 import sqlalchemy as sa
@@ -20,8 +19,8 @@ from coaster.utils import markdown
 # revision identifiers, used by Alembic.
 revision = '284c10efdbce'
 down_revision = '2cc791c09075'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 session = table(
@@ -78,7 +77,7 @@ def upgrade() -> None:
     progress.finish()
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
                 UPDATE session SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(description_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(speaker, '')), 'A');
@@ -129,7 +128,7 @@ def downgrade() -> None:
     op.alter_column('session', 'speaker_bio_text', server_default=None)
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
                 UPDATE session SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(description_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(speaker_bio_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(speaker, '')), 'A');

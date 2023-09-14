@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Set
-
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
@@ -28,7 +26,6 @@ class AccountMembership(ImmutableUserMembershipMixin, Model):
     """
 
     __tablename__ = 'account_membership'
-    __allow_unmapped__ = True
 
     # Legacy data has no granted_by
     __null_granted_by__ = True
@@ -106,7 +103,7 @@ class AccountMembership(ImmutableUserMembershipMixin, Model):
     )
 
     @cached_property
-    def offered_roles(self) -> Set[str]:
+    def offered_roles(self) -> set[str]:
         """Roles offered by this membership record."""
         roles = {'admin'}
         if self.is_owner:

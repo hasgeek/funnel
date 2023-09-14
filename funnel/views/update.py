@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from flask import abort, flash
 
 from baseframe import _, forms
@@ -108,7 +106,7 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             .one_or_404()
         )
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         self.account = self.obj.project.account
         return super().after_loader()
 

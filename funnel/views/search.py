@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from html import unescape as html_unescape
-from typing import Any, Dict, List, Optional, Type, TypeVar
+from typing import Any, TypeVar
 from typing_extensions import TypedDict
 from urllib.parse import quote as urlquote
 
@@ -75,7 +75,7 @@ class SearchProvider:
     #: Label to use in UI
     label: str
     #: Model to query against
-    model: Type[SearchModelUnion]
+    model: type[SearchModelUnion]
     #: Does this model have a title column?
     has_title: bool = True
 
@@ -672,7 +672,7 @@ class CommentSearch(SearchInProjectProvider):
 
 
 #: Ordered dictionary of search providers
-search_providers: Dict[str, SearchProvider] = {
+search_providers: dict[str, SearchProvider] = {
     'project': ProjectSearch(),
     'account': AccountSearch(),
     'session': SessionSearch(),
@@ -695,7 +695,7 @@ def escape_quotes(text: str) -> Markup:
     return Markup(text.replace('"', '&quot;').replace("'", '&#39;'))
 
 
-def get_tsquery(text: Optional[str]) -> sa.sql.functions.Function:
+def get_tsquery(text: str | None) -> sa.sql.functions.Function:
     """
     Parse a web search query into a PostgreSQL ``tsquery``.
 
@@ -728,16 +728,16 @@ class SearchCountType(TypedDict, total=False):
 # @cache.memoize(timeout=300)
 def search_counts(
     tsquery: sa.sql.functions.Function,
-    account: Optional[Account] = None,
-    project: Optional[Project] = None,
-) -> List[SearchCountType]:
+    account: Account | None = None,
+    project: Project | None = None,
+) -> list[SearchCountType]:
     """
     Return counts of search results.
 
     This function requires an active request as it uses Flask-Executor to perform
     queries in parallel.
     """
-    results: List[SearchCountType]
+    results: list[SearchCountType]
     if project is not None:
         results = [
             {
@@ -781,8 +781,8 @@ def search_results(
     stype: str,
     page: int = 1,
     per_page: int = 20,
-    account: Optional[Account] = None,
-    project: Optional[Project] = None,
+    account: Account | None = None,
+    project: Project | None = None,
 ):
     """Return search results."""
     # Pick up model data for the given type string
@@ -840,12 +840,12 @@ class SearchView(ClassView):
     @render_with('search.html.jinja2', json=True)
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
     def search(
-        self, q: Optional[str] = None, page: int = 1, per_page: int = 20
+        self, q: str | None = None, page: int = 1, per_page: int = 20
     ) -> ReturnRenderWith:
         """Perform site-level search."""
         tsquery = get_tsquery(q)
         # Can't use @requestargs for stype as it doesn't support name changes
-        stype: Optional[str] = abort_null(request.args.get('type'))
+        stype: str | None = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
             return render_redirect(url_for('index'), 302)
         if stype is None or stype not in search_providers:
@@ -875,12 +875,12 @@ class AccountSearchView(AccountViewMixin, UrlForView, ModelView):
     @requires_roles({'reader', 'admin'})
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
     def search(
-        self, q: Optional[str] = None, page: int = 1, per_page: int = 20
+        self, q: str | None = None, page: int = 1, per_page: int = 20
     ) -> ReturnRenderWith:
         """Perform search within an account."""
         tsquery = get_tsquery(q)
         # Can't use @requestargs as it doesn't support name changes
-        stype: Optional[str] = abort_null(request.args.get('type'))
+        stype: str | None = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
             return render_redirect(url_for('index'), 302)
         if (
@@ -915,12 +915,12 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
     @requires_roles({'reader', 'crew', 'participant'})
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
     def search(
-        self, q: Optional[str] = None, page: int = 1, per_page: int = 20
+        self, q: str | None = None, page: int = 1, per_page: int = 20
     ) -> ReturnRenderWith:
         """Perform search within a project."""
         tsquery = get_tsquery(q)
         # Can't use @requestargs as it doesn't support name changes
-        stype: Optional[str] = abort_null(request.args.get('type'))
+        stype: str | None = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
             return render_redirect(url_for('index'), 302)
         if (

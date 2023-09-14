@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple, Union, cast
+from typing import cast
 
 import itsdangerous
 import phonenumbers
@@ -45,11 +46,11 @@ class SmsSender:
     prefix: str
     requires_config: set
     func: Callable
-    init: Optional[Callable] = None
+    init: Callable | None = None
 
 
 def get_phone_number(
-    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber]
+    phone: str | phonenumbers.PhoneNumber | PhoneNumber,
 ) -> PhoneNumber:
     if isinstance(phone, PhoneNumber):
         if not phone.number:
@@ -110,7 +111,7 @@ def okay_to_message_in_india_right_now() -> bool:
 
 
 def send_via_exotel(
-    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
+    phone: str | phonenumbers.PhoneNumber | PhoneNumber,
     message: SmsTemplate,
     callback: bool = True,
 ) -> str:
@@ -178,7 +179,7 @@ def send_via_exotel(
 
 
 def send_via_twilio(
-    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
+    phone: str | phonenumbers.PhoneNumber | PhoneNumber,
     message: SmsTemplate,
     callback: bool = True,
 ) -> str:
@@ -269,11 +270,11 @@ sender_registry = [
 ]
 
 #: Available senders as per config
-senders_by_prefix: List[
-    Tuple[
+senders_by_prefix: list[
+    tuple[
         str,
         Callable[
-            [Union[str, phonenumbers.PhoneNumber, PhoneNumber], SmsTemplate, bool], str
+            [str | phonenumbers.PhoneNumber | PhoneNumber, SmsTemplate, bool], str
         ],
     ]
 ] = []
@@ -290,7 +291,7 @@ def init() -> bool:
 
 
 def send_sms(
-    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
+    phone: str | phonenumbers.PhoneNumber | PhoneNumber,
     message: SmsTemplate,
     callback: bool = True,
 ) -> str:

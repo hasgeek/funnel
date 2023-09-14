@@ -1,5 +1,7 @@
 """Tests for Account name."""
 
+from typing import Literal
+
 import pytest
 from sqlalchemy.exc import IntegrityError
 
@@ -19,25 +21,32 @@ def test_is_available_name(db_session, user_rincewind) -> None:
 
 
 @pytest.mark.usefixtures('user_rincewind', 'org_uu')
-def test_validate_name_candidate(db_session) -> None:
+@pytest.mark.parametrize('model', ['A', 'U', 'O', 'P'])
+def test_validate_name_candidate(
+    db_session, model: Literal['A', 'U', 'O', 'P']
+) -> None:
     """The name validator returns error codes as expected."""
-    assert (
-        models.Account.validate_name_candidate(None)  # type: ignore[arg-type]
-        == 'blank'
-    )
-    assert models.Account.validate_name_candidate('') == 'blank'
-    assert models.Account.validate_name_candidate('invalid-name') == 'invalid'
-    assert models.Account.validate_name_candidate('0123456789' * 7) == 'long'
-    assert models.Account.validate_name_candidate('0123456789' * 6) is None
-    assert models.Account.validate_name_candidate('ValidName') is None
-    assert models.Account.validate_name_candidate('test_reserved') is None
+    modelref: dict[str, type[models.Account]] = {
+        'A': models.Account,
+        'U': models.User,
+        'O': models.Organization,
+        'P': models.Placeholder,
+    }
+    cls = modelref[model]
+    assert cls.validate_name_candidate(None) == 'blank'  # type: ignore[arg-type]
+    assert cls.validate_name_candidate('') == 'blank'
+    assert cls.validate_name_candidate('invalid-name') == 'invalid'
+    assert cls.validate_name_candidate('0123456789' * 7) == 'long'
+    assert cls.validate_name_candidate('0123456789' * 6) is None
+    assert cls.validate_name_candidate('ValidName') is None
+    assert cls.validate_name_candidate('test_reserved') is None
     db_session.add(models.Placeholder(name='test_reserved'))
-    assert models.Account.validate_name_candidate('test_reserved') == 'reserved'
-    assert models.Account.validate_name_candidate('Test_Reserved') == 'reserved'
-    assert models.Account.validate_name_candidate('TestReserved') is None
-    assert models.Account.validate_name_candidate('rincewind') == 'user'
-    assert models.Account.validate_name_candidate('uu') == 'org'
-    assert models.Account.validate_name_candidate('UU') == 'org'
+    assert cls.validate_name_candidate('test_reserved') == 'reserved'
+    assert cls.validate_name_candidate('Test_Reserved') == 'reserved'
+    assert cls.validate_name_candidate('TestReserved') is None
+    assert cls.validate_name_candidate('rincewind') == 'user'
+    assert cls.validate_name_candidate('uu') == 'org'
+    assert cls.validate_name_candidate('UU') == 'org'
 
 
 def test_reserved_name(db_session) -> None:
@@ -84,17 +93,22 @@ def test_cant_remove_username(db_session, user_twoflower) -> None:
     user_twoflower.username = 'twoflower'
     assert user_twoflower.username == 'twoflower'
 
-    # Can't be removed even though it was None to start with
-    with pytest.raises(ValueError, match='Account name cannot be unset'):
-        user_twoflower.username = None
-
     # Can't be a blank value
-    with pytest.raises(ValueError, match='Account name cannot be unset'):
+    with pytest.raises(ValueError, match='Account name cannot be blank'):
+        user_twoflower.username = ' '
+
+    with pytest.raises(ValueError, match='Account name cannot be blank'):
         user_twoflower.username = ''
 
     # Can't be an invalid value
-    with pytest.raises(ValueError, match='Invalid account name'):
-        user_twoflower.username = ' '
+    with pytest.raises(ValueError, match='Account name must be a string'):
+        user_twoflower.username = []
+
+    with pytest.raises(ValueError, match='Account name must be a string'):
+        user_twoflower.username = False
+
+    with pytest.raises(ValueError, match='Account name must be a string'):
+        user_twoflower.username = True
 
 
 def test_cant_remove_orgname(db_session, org_uu) -> None:
@@ -102,8 +116,6 @@ def test_cant_remove_orgname(db_session, org_uu) -> None:
     assert org_uu.name == 'UU'
     org_uu.name = 'unseen'
     assert org_uu.name == 'unseen'
-    with pytest.raises(ValueError, match='Account name cannot be unset'):
-        org_uu.name = None
 
 
 def test_name_transfer(db_session, user_mort, user_rincewind) -> None:

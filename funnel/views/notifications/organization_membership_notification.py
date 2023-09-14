@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Collection
 from dataclasses import dataclass
-from typing import Collection, Optional, cast
+from typing import cast
 
 from flask import render_template
 from markupsafe import Markup, escape
@@ -26,11 +27,11 @@ from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotific
 class DecisionFactorFields:
     """Evaluation criteria for the content of notification (for grants/edits only)."""
 
-    is_member: Optional[bool] = None
-    for_actor: Optional[bool] = None
+    is_member: bool | None = None
+    for_actor: bool | None = None
     rtypes: Collection[str] = ()
-    is_owner: Optional[bool] = None
-    is_actor: Optional[bool] = None
+    is_owner: bool | None = None
+    is_actor: bool | None = None
 
     def is_match(
         self,
@@ -348,7 +349,7 @@ class RenderShared:
     notification_recipient: NotificationRecipient
     template_picker: DecisionBranch
 
-    def activity_template(self, membership: Optional[AccountMembership] = None) -> str:
+    def activity_template(self, membership: AccountMembership | None = None) -> str:
         """Return a Python string template with an appropriate message."""
         if membership is None:
             membership = self.membership
@@ -363,8 +364,8 @@ class RenderShared:
         raise ValueError("No suitable template found for membership record")
 
     def membership_actor(
-        self, membership: Optional[AccountMembership] = None
-    ) -> Optional[Account]:
+        self, membership: AccountMembership | None = None
+    ) -> Account | None:
         """Actor who granted or revoked, for the template."""
         raise NotImplementedError("Subclasses must implement `membership_actor`")
 
@@ -383,7 +384,7 @@ class RenderShared:
             return self.notification.created_by
         return self.membership.member
 
-    def activity_html(self, membership: Optional[AccountMembership] = None) -> str:
+    def activity_html(self, membership: AccountMembership | None = None) -> str:
         """Return HTML rendering of :meth:`activity_template`."""
         if membership is None:
             membership = self.membership
@@ -445,8 +446,8 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     fragments_order_by = [AccountMembership.granted_at.desc()]
 
     def membership_actor(
-        self, membership: Optional[AccountMembership] = None
-    ) -> Optional[Account]:
+        self, membership: AccountMembership | None = None
+    ) -> Account | None:
         """Actual actor who granted (or edited) the membership, for the template."""
         return (membership or self.membership).granted_by
 
@@ -478,8 +479,8 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     fragments_order_by = [AccountMembership.revoked_at.desc()]
 
     def membership_actor(
-        self, membership: Optional[AccountMembership] = None
-    ) -> Optional[Account]:
+        self, membership: AccountMembership | None = None
+    ) -> Account | None:
         """Actual actor who revoked the membership, for the template."""
         return (membership or self.membership).revoked_by
 

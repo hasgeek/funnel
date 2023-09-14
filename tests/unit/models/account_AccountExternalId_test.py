@@ -17,13 +17,13 @@ class TestUserExternalId(TestDatabaseFixture):
         result = models.AccountExternalId(
             service=service,
             account=crusoe,
-            userid=crusoe.email.email,
-            username=crusoe.email.email,
+            userid=str(crusoe.email),
+            username=str(crusoe.email),
             oauth_token=oauth_token,
             oauth_token_type=oauth_token_type,
         )
         assert isinstance(result, models.AccountExternalId)
-        assert f'<UserExternalId {service}:{crusoe.email.email} of {crusoe!r}>' in repr(
+        assert f'<UserExternalId {service}:{crusoe.email} of {crusoe!r}>' in repr(
             result
         )
 
@@ -40,8 +40,8 @@ class TestUserExternalId(TestDatabaseFixture):
         externalid = models.AccountExternalId(
             service=service,
             account=crusoe,
-            userid=crusoe.email.email,
-            username=crusoe.email.email,
+            userid=str(crusoe.email),
+            username=str(crusoe.email),
             oauth_token=oauth_token,
             oauth_token_type=oauth_token_type,
         )
@@ -49,17 +49,17 @@ class TestUserExternalId(TestDatabaseFixture):
         self.db_session.commit()
         # scenario 2: when userid is passed
         get_by_userid = models.AccountExternalId.get(
-            service=service, userid=crusoe.email.email
+            service=service, userid=str(crusoe.email)
         )
         assert isinstance(get_by_userid, models.AccountExternalId)
-        assert f'<UserExternalId {service}:{crusoe.email.email} of {crusoe!r}>' in repr(
+        assert f'<UserExternalId {service}:{crusoe.email} of {crusoe!r}>' in repr(
             get_by_userid
         )
         # scenario 3: when username is passed
         get_by_username = models.AccountExternalId.get(
-            service=service, username=crusoe.email.email
+            service=service, username=str(crusoe.email)
         )
         assert isinstance(get_by_username, models.AccountExternalId)
-        assert f'<UserExternalId {service}:{crusoe.email.email} of {crusoe!r}>' in repr(
+        assert f'<UserExternalId {service}:{crusoe.email} of {crusoe!r}>' in repr(
             get_by_username
         )

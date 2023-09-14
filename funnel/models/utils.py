@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from typing import NamedTuple, Optional, Set, Union, overload
-from typing_extensions import Literal
+from typing import Literal, NamedTuple, overload
 
 import phonenumbers
 from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
@@ -38,17 +37,17 @@ class IncompleteUserMigrationError(Exception):
 class AccountAndAnchor(NamedTuple):
     """Account and anchor used to find the user (usable as a 2-tuple)."""
 
-    account: Optional[Account]
-    anchor: Optional[Anchor]
+    account: Account | None
+    anchor: Anchor | None
 
 
 @overload
-def getuser(name: str) -> Optional[Account]:
+def getuser(name: str) -> Account | None:
     ...
 
 
 @overload
-def getuser(name: str, anchor: Literal[False]) -> Optional[Account]:
+def getuser(name: str, anchor: Literal[False]) -> Account | None:
     ...
 
 
@@ -57,16 +56,14 @@ def getuser(name: str, anchor: Literal[True]) -> AccountAndAnchor:
     ...
 
 
-def getuser(
-    name: str, anchor: bool = False
-) -> Union[Optional[Account], AccountAndAnchor]:
+def getuser(name: str, anchor: bool = False) -> Account | AccountAndAnchor | None:
     """
     Get an account with a matching name, email address or phone number.
 
     Optionally returns an anchor (phone or email) along with the account.
     """
-    accountemail: Optional[Union[AccountEmail, AccountEmailClaim]] = None
-    accountphone: Optional[AccountPhone] = None
+    accountemail: AccountEmail | AccountEmailClaim | None = None
+    accountphone: AccountPhone | None = None
     # Treat an '@' or '~' prefix as a username lookup, removing the prefix
     if name.startswith('@') or name.startswith('~'):
         name = name[1:]
@@ -135,14 +132,12 @@ def getuser(
     return user
 
 
-def getextid(service: str, userid: str) -> Optional[AccountExternalId]:
+def getextid(service: str, userid: str) -> AccountExternalId | None:
     """Return a matching external id."""
     return AccountExternalId.get(service=service, userid=userid)
 
 
-def merge_accounts(
-    current_account: Account, other_account: Account
-) -> Optional[Account]:
+def merge_accounts(current_account: Account, other_account: Account) -> Account | None:
     """Merge two user accounts and return the new user account."""
     app.logger.info(
         "Preparing to merge accounts %s and %s", current_account, other_account
@@ -195,7 +190,7 @@ def merge_accounts(
 def do_migrate_instances(
     old_instance: Model,
     new_instance: Model,
-    helper_method: Optional[str] = None,
+    helper_method: str | None = None,
 ) -> bool:
     """
     Migrate references to old instance of any model to provided new instance.
@@ -213,7 +208,7 @@ def do_migrate_instances(
     session = old_instance.query.session
 
     # Keep track of all migrated tables
-    migrated_tables: Set[str] = set()
+    migrated_tables: set[str] = set()
     safe_to_remove_instance = True
 
     def do_migrate_table(table):

@@ -585,6 +585,7 @@ class ProjectView(  # type: ignore[misc]
                 is_subscription=boxoffice_data.get('is_subscription', True),
                 register_form_schema=boxoffice_data.get('register_form_schema'),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
+                has_membership=boxoffice_data.get('has_membership', False),
             ),
             model=Project,
         )
@@ -599,6 +600,7 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data[
                 'register_button_txt'
             ] = form.register_button_txt.data
+            self.obj.boxoffice_data['has_membership'] = form.has_membership.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())

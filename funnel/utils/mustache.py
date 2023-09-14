@@ -2,8 +2,9 @@
 
 import functools
 import types
+from collections.abc import Callable
 from copy import copy
-from typing import Callable, Optional, Type, TypeVar
+from typing import TypeVar
 from typing_extensions import ParamSpec
 
 from chevron import render
@@ -22,8 +23,8 @@ def _render_with_escape(
     name: str,
     renderer: Callable[_P, str],
     escapefunc: Callable[[str], str],
-    recast: Type[_T],
-    doc: Optional[str] = None,
+    recast: type[_T],
+    doc: str | None = None,
 ) -> Callable[_P, _T]:
     """
     Make a copy of Chevron's render function with a replacement HTML escaper.

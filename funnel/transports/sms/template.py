@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import re
 from enum import Enum
+from re import Pattern
 from string import Formatter
-from typing import Any, ClassVar, Dict, Optional, Pattern, cast
+from typing import Any, ClassVar, cast
 
 from flask import Flask
 
@@ -121,9 +122,9 @@ class SmsTemplate:
     #: Maximum length for a single variable as per the spec
     var_max_length: ClassVar[int] = DLT_VAR_MAX_LENGTH
     #: Registered entity id
-    registered_entityid: ClassVar[Optional[str]] = None
+    registered_entityid: ClassVar[str | None] = None
     #: Registered template id
-    registered_templateid: ClassVar[Optional[str]] = None
+    registered_templateid: ClassVar[str | None] = None
     #: Registered template, using `{#var#}` where variables should appear
     registered_template: ClassVar[str] = ""
     #: Python template, with formatting variables as {var}
@@ -141,9 +142,9 @@ class SmsTemplate:
     registered_template_var_len: ClassVar[int] = 0  # Will be replaced in subclasses
 
     # Type hints for mypy. These attributes are set in __init__
-    _text: Optional[str]
-    _plaintext: Optional[str]
-    _format_kwargs: Dict[str, Any]
+    _text: str | None
+    _plaintext: str | None
+    _format_kwargs: dict[str, Any]
     template_static_len: ClassVar[int]
     template_var_len: int
 
@@ -269,7 +270,7 @@ class SmsTemplate:
             # variable, which will call `__setattr__`. At this point `_plaintext` has
             # already been set by `.format()` and should not be reset.
 
-    def vars(self) -> Dict[str, Any]:  # noqa: A003
+    def vars(self) -> dict[str, Any]:  # noqa: A003
         """Return a dictionary of variables in the template."""
         return dict(self._format_kwargs)
 
@@ -363,7 +364,7 @@ class SmsTemplate:
         cls.validate_template()
 
     @classmethod
-    def init_subclass_config(cls, app: Flask, config: Dict[str, str]) -> None:
+    def init_subclass_config(cls, app: Flask, config: dict[str, str]) -> None:
         """Recursive init for setting template ids in subclasses."""
         for subcls in cls.__subclasses__():
             subcls_config_name = ''.join(

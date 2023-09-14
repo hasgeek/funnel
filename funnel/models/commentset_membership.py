@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Set
-
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, with_roles
@@ -24,7 +22,6 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
     """Membership roles for users who are commentset users and subscribers."""
 
     __tablename__ = 'commentset_membership'
-    __allow_unmapped__ = True
 
     __data_columns__ = ('last_seen_at', 'is_muted')
 
@@ -77,7 +74,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
     )
 
     @cached_property
-    def offered_roles(self) -> Set[str]:
+    def offered_roles(self) -> set[str]:
         """
         Roles offered by this membership record.
 

@@ -275,7 +275,7 @@
   <div class="page-card">
     <div class="project-section">
       <div class="about bg-primary" id="about">
-        <div class="markdown">{{ project.description.html }}</div>
+        <div class="markdown">{{ project.description }}</div>
         {%- if project.subprojects %}
           <hr class="mui-divider" />
           <h3 class="mui--text-left">{% trans %}Related events{% endtrans %}</h3>
@@ -542,7 +542,7 @@
         };
       {%- endif %}
       {% if current_auth.user and current_auth.user.is_site_editor %}
-        toggleId = '#featured-project'
+        toggleId = '#featured-project',
         sort = {
           url: {{ project.url_for("reorder_sponsors")|tojson }},
           wrapperElem: '.sponsors-wrapper',

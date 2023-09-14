@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 from flask import flash, request, url_for
 from sqlalchemy.exc import IntegrityError
 
@@ -197,7 +195,7 @@ class TicketParticipantView(AccountCheckMixin, UrlForView, ModelView):
             .first_or_404()
         )
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         self.account = self.obj.project.account
         return super().after_loader()
 
@@ -230,7 +228,7 @@ class TicketParticipantView(AccountCheckMixin, UrlForView, ModelView):
 
 @user_data_changed.connect
 @user_registered.connect
-def user_ticket_assignment(user: Account, changes: List[str]) -> None:
+def user_ticket_assignment(user: Account, changes: list[str]) -> None:
     """Scan for event tickets to be assigned to the user based on matching contacts."""
     emails = [str(e) for e in user.emails]
     phones = [str(p) for p in user.phones]

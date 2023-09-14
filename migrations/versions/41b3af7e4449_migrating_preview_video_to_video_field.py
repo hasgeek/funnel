@@ -10,7 +10,6 @@ import csv
 import re
 import urllib.parse
 from textwrap import dedent
-from typing import Optional, Tuple, Union
 
 import sqlalchemy as sa
 from alembic import op
@@ -19,8 +18,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = '41b3af7e4449'
 down_revision = '530c22761e27'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 # --- Tables ---------------------------------------------------------------------------
 proposal = table(
@@ -139,28 +138,28 @@ def upgrade() -> None:
     )
     troublesome_previews = []
     for prop in proposals:
-        if prop['preview_video'].strip():
-            urls = re.findall(r'(https?:\/\/[^\ ]+)', prop['preview_video'])
+        if prop.preview_video.strip():
+            urls = re.findall(r'(https?:\/\/[^\ ]+)', prop.preview_video)
             if urls:
                 if len(urls) > 1:
                     troublesome_previews.append(
                         {
-                            'proposal_id': prop['id'],
-                            'preview_video': prop['preview_video'],
+                            'proposal_id': prop.id,
+                            'preview_video': prop.preview_video,
                         }
                     )
                 try:
                     video_source, video_id = parse_video_url(urls[0])
                     conn.execute(
                         sa.update(proposal)
-                        .where(proposal.c.id == prop['id'])
+                        .where(proposal.c.id == prop.id)
                         .values(video_source=video_source, video_id=video_id)
                     )
                 except ValueError:
                     troublesome_previews.append(
                         {
-                            'proposal_id': prop['id'],
-                            'preview_video': prop['preview_video'],
+                            'proposal_id': prop.id,
+                            'preview_video': prop.preview_video,
                         }
                     )
 
@@ -170,7 +169,7 @@ def upgrade() -> None:
         writer.writerows(troublesome_previews)
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         UPDATE proposal SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(abstract_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(outline_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(requirements_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(slides, '')), 'B') || setweight(to_tsvector('english', COALESCE(links, '')), 'B') || setweight(to_tsvector('english', COALESCE(bio_text, '')), 'B');
@@ -205,10 +204,8 @@ def downgrade() -> None:
     for prop in proposals:
         conn.execute(
             sa.update(proposal)
-            .where(proposal.c.id == prop['id'])
-            .values(
-                preview_video=make_video_url(prop['video_source'], prop['video_id'])
-            )
+            .where(proposal.c.id == prop.id)
+            .values(preview_video=make_video_url(prop.video_source, prop.video_id))
         )
 
     conn.execute(
@@ -218,7 +215,7 @@ def downgrade() -> None:
     )
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         UPDATE proposal SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(abstract_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(outline_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(requirements_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(slides, '')), 'B') || setweight(to_tsvector('english', COALESCE(preview_video, '')), 'C') || setweight(to_tsvector('english', COALESCE(links, '')), 'B') || setweight(to_tsvector('english', COALESCE(bio_text, '')), 'B');

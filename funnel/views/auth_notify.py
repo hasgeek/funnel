@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from ..models import Account, AuthToken, LoginSession, Organization, Team
 from ..signals import (
     org_data_changed,
@@ -95,7 +93,7 @@ def notify_user_data_changed(user: Account, changes) -> None:
 
 @org_data_changed.connect
 def notify_org_data_changed(
-    org: Organization, user: Account, changes, team: Optional[Team] = None
+    org: Organization, user: Account, changes, team: Team | None = None
 ) -> None:
     """
     Send notifications to trusted auth clients about org data changes.

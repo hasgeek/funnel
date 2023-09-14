@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Collection, Sequence
 from dataclasses import dataclass
 from datetime import date as date_type, datetime
 from itertools import groupby
-from typing import Collection, List, Optional, Sequence, Tuple
 from uuid import UUID
 
 from pytz import timezone
@@ -57,7 +57,6 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     """Model to track who scanned whose badge, in which project."""
 
     __tablename__ = 'contact_exchange'
-    __allow_unmapped__ = True
     #: User who scanned this contact
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'), primary_key=True
@@ -106,7 +105,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     }
 
     def roles_for(
-        self, actor: Optional[Account] = None, anchors: Sequence = ()
+        self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
@@ -132,7 +131,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     @classmethod
     def grouped_counts_for(
         cls, account: Account, archived: bool = False
-    ) -> List[Tuple[ProjectId, List[DateCountContacts]]]:
+    ) -> list[tuple[ProjectId, list[DateCountContacts]]]:
         """Return count of contacts grouped by project and date."""
         subq = sa.select(
             cls.scanned_at.label('scanned_at'),

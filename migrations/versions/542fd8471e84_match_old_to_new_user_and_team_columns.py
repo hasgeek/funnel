@@ -6,16 +6,14 @@ Create Date: 2020-04-07 03:52:04.415019
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '542fd8471e84'
 down_revision = '382cde270594'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 # (table, old, new)
 migrate_user_columns = [
@@ -44,7 +42,7 @@ def upgrade() -> None:
     for table, old, new in migrate_user_columns:
         print(f"Upgrading {table}.{new}")  # noqa: T201
         op.execute(
-            sa.DDL(
+            sa.text(
                 f'''
                 UPDATE "{table}" SET "{new}" = "user"."id"
                 FROM "user", "old_user"
@@ -57,7 +55,7 @@ def upgrade() -> None:
     for table, old, new in migrate_team_columns:
         print(f"Upgrading {table}.{new}")  # noqa: T201
         op.execute(
-            sa.DDL(
+            sa.text(
                 f'''
                 UPDATE "{table}" SET "{new}" = "team"."id"
                 FROM "team", "old_team"
