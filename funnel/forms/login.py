@@ -2,21 +2,22 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 from baseframe import _, __, forms
 
 from ..models import (
     PASSWORD_MAX_LENGTH,
+    Account,
+    AccountEmail,
+    AccountEmailClaim,
+    AccountPhone,
     EmailAddress,
     EmailAddressBlockedError,
+    LoginSession,
     PhoneNumber,
     PhoneNumberBlockedError,
     User,
-    UserEmail,
-    UserEmailClaim,
-    UserPhone,
-    UserSession,
     check_password_strength,
     getuser,
     parse_phone_number,
@@ -61,7 +62,7 @@ class LoginWithOtp(Exception):  # noqa: N818
 
 
 class RegisterWithOtp(Exception):  # noqa: N818
-    """Exception to signal for new user account registration after OTP validation."""
+    """Exception to signal for new account registration after OTP validation."""
 
 
 # --- Validators -----------------------------------------------------------------------
@@ -94,7 +95,7 @@ class PasswordlessLoginIntercept:
 # --- Forms ----------------------------------------------------------------------------
 
 
-@User.forms('login')
+@Account.forms('login')
 class LoginForm(forms.RecaptchaForm):
     """
     Form for login and registration.
@@ -121,11 +122,11 @@ class LoginForm(forms.RecaptchaForm):
     """
 
     __returns__ = ('user', 'anchor', 'weak_password', 'new_email', 'new_phone')
-    user: Optional[User] = None
-    anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone]] = None
-    weak_password: Optional[bool] = None
-    new_email: Optional[str] = None
-    new_phone: Optional[str] = None
+    user: Account | None = None
+    anchor: AccountEmail | AccountEmailClaim | AccountPhone | None = None
+    weak_password: bool | None = None
+    new_email: str | None = None
+    new_phone: str | None = None
 
     username = forms.StringField(
         __("Phone number or email address"),
@@ -246,14 +247,14 @@ class LoginForm(forms.RecaptchaForm):
         self.weak_password: bool = check_password_strength(field.data).is_weak
 
 
-@User.forms('logout')
+@Account.forms('logout')
 class LogoutForm(forms.Form):
     """Process a logout request."""
 
     __expects__ = ('user',)
-    __returns__ = ('user_session',)
-    user: User
-    user_session: Optional[UserSession] = None
+    __returns__ = ('login_session',)
+    user: Account
+    login_session: LoginSession | None = None
 
     # We use `StringField`` even though the field is not visible. This does not use
     # `HiddenField`, because that gets rendered with `hidden_tag`, and not `SubmitField`
@@ -264,10 +265,10 @@ class LogoutForm(forms.Form):
 
     def validate_sessionid(self, field: forms.Field) -> None:
         """Validate login session belongs to the user who invoked this form."""
-        user_session = UserSession.get(buid=field.data)
-        if not user_session or user_session.user != self.user:
+        login_session = LoginSession.get(buid=field.data)
+        if not login_session or login_session.account != self.user:
             raise forms.validators.ValidationError(MSG_NO_LOGIN_SESSION)
-        self.user_session = user_session
+        self.login_session = login_session
 
 
 class OtpForm(forms.Form):

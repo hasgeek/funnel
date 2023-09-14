@@ -6,8 +6,6 @@ Create Date: 2020-09-18 02:44:20.827703
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
@@ -15,8 +13,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = '1bd91b02ced3'
 down_revision = '4845fd12dbfd'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 notification = table(

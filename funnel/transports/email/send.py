@@ -5,7 +5,7 @@ from __future__ import annotations
 import smtplib
 from dataclasses import dataclass
 from email.utils import formataddr, getaddresses, make_msgid, parseaddr
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -17,7 +17,7 @@ from werkzeug.datastructures import Headers
 from baseframe import _, statsd
 
 from ... import app
-from ...models import EmailAddress, EmailAddressBlockedError, User
+from ...models import Account, EmailAddress, EmailAddressBlockedError
 from ..exc import TransportRecipientError
 
 __all__ = [
@@ -29,7 +29,7 @@ __all__ = [
 ]
 
 # Email recipient type
-EmailRecipient = Union[User, Tuple[Optional[str], str], str]
+EmailRecipient = Union[Account, tuple[Optional[str], str], str]
 
 
 @dataclass
@@ -41,7 +41,7 @@ class EmailAttachment:
     mimetype: str
 
 
-def jsonld_view_action(description: str, url: str, title: str) -> Dict[str, object]:
+def jsonld_view_action(description: str, url: str, title: str) -> dict[str, object]:
     return {
         "@context": "http://schema.org",
         "@type": "EmailMessage",
@@ -55,7 +55,7 @@ def jsonld_view_action(description: str, url: str, title: str) -> Dict[str, obje
     }
 
 
-def jsonld_confirm_action(description: str, url: str, title: str) -> Dict[str, object]:
+def jsonld_confirm_action(description: str, url: str, title: str) -> dict[str, object]:
     return {
         "@context": "http://schema.org",
         "@type": "EmailMessage",
@@ -81,15 +81,15 @@ def process_recipient(recipient: EmailRecipient) -> str:
     :param recipient: Recipient of an email
     :returns: RFC 2822 formatted string email address
     """
-    if isinstance(recipient, User):
-        formatted = formataddr((recipient.fullname, str(recipient.email)))
+    if isinstance(recipient, Account):
+        formatted = formataddr((recipient.title, str(recipient.email)))
     elif isinstance(recipient, tuple):
         formatted = formataddr(recipient)
     elif isinstance(recipient, str):
         formatted = recipient
     else:
         raise ValueError(
-            "Not a valid email format. Provide either a User object, or a tuple of"
+            "Not a valid email format. Provide either an Account object, or a tuple of"
             " (realname, email), or a preformatted string with Name <email>"
         )
 
@@ -113,29 +113,33 @@ def process_recipient(recipient: EmailRecipient) -> str:
 
 def send_email(
     subject: str,
-    to: List[EmailRecipient],
+    to: list[EmailRecipient],
     content: str,
-    attachments: Optional[List[EmailAttachment]] = None,
-    from_email: Optional[EmailRecipient] = None,
-    headers: Optional[Union[dict, Headers]] = None,
+    attachments: list[EmailAttachment] | None = None,
+    from_email: EmailRecipient | None = None,
+    headers: dict | Headers | None = None,
+    base_url: str | None = None,
 ) -> str:
     """
     Send an email.
 
-    :param str subject: Subject line of email message
-    :param list to: List of recipients. May contain (a) User objects, (b) tuple of
+    :param subject: Subject line of email message
+    :param to: List of recipients. May contain (a) Account objects, (b) tuple of
         (name, email_address), or (c) a pre-formatted email address
-    :param str content: HTML content of the message (plain text is auto-generated)
-    :param list attachments: List of :class:`EmailAttachment` attachments
+    :param content: HTML content of the message (plain text is auto-generated)
+    :param attachments: List of :class:`EmailAttachment` attachments
     :param from_email: Email sender, same format as email recipient
-    :param dict headers: Optional extra email headers (for List-Unsubscribe, etc)
+    :param headers: Optional extra email headers (for List-Unsubscribe, etc)
+    :param base_url: Optional base URL for all relative links in the email
     """
     # Parse recipients and convert as needed
     to = [process_recipient(recipient) for recipient in to]
     if from_email:
         from_email = process_recipient(from_email)
     body = html2text(content)
-    html = transform(content, base_url=f'https://{app.config["DEFAULT_DOMAIN"]}/')
+    html = transform(
+        content, base_url=base_url or f'https://{app.config["DEFAULT_DOMAIN"]}/'
+    )
     headers = Headers() if headers is None else Headers(headers)
 
     # Amazon SES will replace Message-ID, so we keep our original in an X- header
@@ -158,16 +162,27 @@ def send_email(
                 filename=attachment.filename,
                 mimetype=attachment.mimetype,
             )
-    try:
-        # If an EmailAddress is blocked, this line will throw an exception
-        emails = [
-            EmailAddress.add(email) for name, email in getaddresses(msg.recipients())
-        ]
-    except EmailAddressBlockedError as exc:
-        raise TransportRecipientError(_("This email address has been blocked")) from exc
-    # FIXME: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
-    # catch that, remove the recipient, and notify the user via the upcoming
-    # notification centre. (Raise a TransportRecipientError)
+
+    email_addresses: list[EmailAddress] = []
+    for _name, email in getaddresses(msg.recipients()):
+        try:
+            # If an EmailAddress is blocked, this line will throw an exception
+            ea = EmailAddress.add(email)
+            # If an email address is hard-bouncing, it cannot be emailed or it'll hurt
+            # sender reputation. There is no automated way to flag an email address as
+            # no longer bouncing, so it'll require customer support intervention
+            if ea.delivery_state.HARD_FAIL:
+                raise TransportRecipientError(
+                    _(
+                        "This email address is bouncing messages: {email}. If you"
+                        " believe this to be incorrect, please contact customer support"
+                    ).format(email=email)
+                )
+            email_addresses.append(ea)
+        except EmailAddressBlockedError as exc:
+            raise TransportRecipientError(
+                _("This email address has been blocked: {email}").format(email=email)
+            ) from exc
 
     try:
         msg.send()
@@ -182,10 +197,12 @@ def send_email(
 
         else:
             if len(to) == len(exc.recipients):
+                # We don't know which recipients were rejected, so the error message
+                # can't identify them
                 message = _("These email addresses are not valid")
             else:
                 message = _("These email addresses are not valid: {emails}").format(
-                    emails=', '.join(exc.recipients.keys())
+                    emails=_(", ").join(exc.recipients.keys())
                 )
         raise TransportRecipientError(message) from exc
 
@@ -193,8 +210,8 @@ def send_email(
     # statistics counters. Note that this will only track emails sent by *this app*.
     # However SES events will track statistics across all apps and hence the difference
     # between this counter and SES event counters will be emails sent by other apps.
-    statsd.incr('email_address.sent', count=len(emails))
-    for ea in emails:
+    statsd.incr('email_address.sent', count=len(email_addresses))
+    for ea in email_addresses:
         ea.mark_sent()
 
     return headers['Message-ID']

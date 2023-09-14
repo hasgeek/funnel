@@ -1,7 +1,6 @@
 """Test response types for project SPA endpoints."""
 # pylint: disable=redefined-outer-name
 
-from typing import Optional
 from urllib.parse import urlsplit
 
 import pytest
@@ -44,10 +43,10 @@ def test_project_url_is_as_expected(project_url) -> None:
 def test_default_is_html(
     request,
     client,
-    use_login: Optional[str],
+    use_login: str | None,
     project_url: str,
     page: str,
-    xhr: Optional[dict],
+    xhr: dict | None,
 ) -> None:
     """Pages render as full HTML by default."""
     if use_login:
@@ -67,10 +66,10 @@ def test_default_is_html(
 def test_html_response(
     request,
     client,
-    use_login: Optional[str],
+    use_login: str | None,
     project_url: str,
     page: str,
-    xhr: Optional[dict],
+    xhr: dict | None,
 ) -> None:
     """Asking for a HTML page or a fragment (via XHR) returns a page or a fragment."""
     if use_login:
@@ -87,7 +86,7 @@ def test_html_response(
 @pytest.mark.parametrize('page', subpages)
 @pytest.mark.parametrize('use_login', login_sessions)
 def test_json_response(
-    request, client, use_login: Optional[str], project_url: str, page: str
+    request, client, use_login: str | None, project_url: str, page: str
 ) -> None:
     """Asking for JSON returns a JSON response."""
     if use_login:
@@ -106,10 +105,10 @@ def test_json_response(
 def test_htmljson_response(
     request,
     client,
-    use_login: Optional[str],
+    use_login: str | None,
     project_url: str,
     page: str,
-    xhr: Optional[dict],
+    xhr: dict | None,
 ) -> None:
     """Asking for HTML in JSON returns that as a HTML fragment."""
     if use_login:

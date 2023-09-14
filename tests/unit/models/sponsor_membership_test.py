@@ -13,7 +13,7 @@ def citywatch_sponsor(db_session, project_expo2010, org_citywatch, user_vetinari
     """Add City Watch as a sponsor of Expo 2010."""
     sponsor = models.ProjectSponsorMembership(
         project=project_expo2010,
-        profile=org_citywatch.profile,
+        member=org_citywatch,
         granted_by=user_vetinari,
         is_promoted=False,
         seq=1,
@@ -27,7 +27,7 @@ def uu_sponsor(db_session, project_expo2010, org_uu, user_vetinari):
     """Add Unseen University as a sponsor of Expo 2010."""
     sponsor = models.ProjectSponsorMembership(
         project=project_expo2010,
-        profile=org_uu.profile,
+        member=org_uu,
         granted_by=user_vetinari,
         is_promoted=False,
         seq=2,
@@ -41,7 +41,7 @@ def dibbler_sponsor(db_session, project_expo2010, user_dibbler, user_vetinari):
     """Add CMOT Dibbler as a promoted sponsor of Expo 2010."""
     sponsor = models.ProjectSponsorMembership(
         project=project_expo2010,
-        profile=user_dibbler.profile,
+        member=user_dibbler,
         granted_by=user_vetinari,
         is_promoted=True,
         label="Snack Stand",
@@ -62,7 +62,7 @@ def test_auto_seq(
     """Sequence numbers are auto-issued in commit order."""
     sponsor1 = models.ProjectSponsorMembership(
         project=project_expo2010,
-        profile=org_citywatch.profile,
+        member=org_citywatch,
         granted_by=user_vetinari,
         is_promoted=False,
     )
@@ -71,7 +71,7 @@ def test_auto_seq(
 
     sponsor2 = models.ProjectSponsorMembership(
         project=project_expo2010,
-        profile=org_uu.profile,
+        member=org_uu,
         granted_by=user_vetinari,
         is_promoted=False,
     )
@@ -80,7 +80,7 @@ def test_auto_seq(
 
     sponsor3 = models.ProjectSponsorMembership(
         project=project_expo2010,
-        profile=user_dibbler.profile,
+        member=user_dibbler,
         granted_by=user_vetinari,
         is_promoted=True,
         label="Snack Stand",
@@ -107,9 +107,9 @@ def test_expo_has_sponsors(
     """Project Expo 2010 has sponsors in a specific order."""
     db_session.commit()
     assert list(project_expo2010.sponsors) == [
-        org_citywatch.profile,
-        org_uu.profile,
-        user_dibbler.profile,
+        org_citywatch,
+        org_uu,
+        user_dibbler,
     ]
 
 
@@ -153,7 +153,7 @@ def test_expo_sponsor_seq_reissue(
     dibbler_sponsor.revoke(actor=user_dibbler)
     wolfgang_sponsor = models.ProjectSponsorMembership(
         project=project_expo2010,
-        profile=user_wolfgang.profile,
+        member=user_wolfgang,
         granted_by=user_dibbler,
         is_promoted=True,
         label="Bite Stand",
@@ -171,9 +171,9 @@ def test_expo_sponsor_seq_reissue(
     assert dibbler_sponsor.seq == 3
     assert dibbler_sponsor.is_active is False
     assert list(project_expo2010.sponsors) == [
-        citywatch_sponsor.profile,
-        wolfgang_sponsor.profile,
-        uu_sponsor.profile,
+        citywatch_sponsor.member,
+        wolfgang_sponsor.member,
+        uu_sponsor.member,
     ]
 
 
@@ -218,9 +218,9 @@ def test_sponsor_offered_roles(db_session, project_expo2010, citywatch_sponsor) 
     assert citywatch_sponsor.offered_roles == set()
 
 
-def test_sponsor_subject_role(
+def test_sponsor_member_role(
     db_session, citywatch_sponsor, user_vimes, user_rincewind
 ) -> None:
-    """Sponsor account admins get subject role on the membership."""
-    assert 'subject' in citywatch_sponsor.roles_for(user_vimes)
-    assert 'subject' not in citywatch_sponsor.roles_for(user_rincewind)
+    """Sponsor account admins get member role on the membership record."""
+    assert 'member' in citywatch_sponsor.roles_for(user_vimes)
+    assert 'member' not in citywatch_sponsor.roles_for(user_rincewind)

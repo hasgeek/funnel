@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import re
-from typing import Optional
 
 from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import AvailableName
 from coaster.utils import sorted_timezones, utcnow
 
-from ..models import Profile, Project, Rsvp, SavedProject
+from ..models import Account, Project, Rsvp, SavedProject
 from .helpers import (
-    ProfileSelectField,
+    AccountSelectField,
     image_url_validator,
     nullable_json_filters,
     nullable_strip_filters,
@@ -42,12 +41,12 @@ class ProjectForm(forms.Form):
     """
     Form to create or edit a project.
 
-    A `profile` keyword argument is necessary for the ImgeeField.
+    An `account` keyword argument is necessary for the ImgeeField.
     """
 
-    __expects__ = ('profile',)
-    profile: Profile
-    edit_obj: Optional[Project]
+    __expects__ = ('account',)
+    account: Account
+    edit_obj: Project | None
 
     title = forms.StringField(
         __("Title"),
@@ -127,7 +126,7 @@ class ProjectForm(forms.Form):
             )
 
     def set_queries(self) -> None:
-        self.bg_image.profile = self.profile.name
+        self.bg_image.profile = self.account.name or self.account.buid
         if self.edit_obj is not None and self.edit_obj.schedule_start_at:
             # Don't allow user to directly manipulate timestamps when it's done via
             # Session objects
@@ -177,11 +176,15 @@ class ProjectLivestreamForm(forms.Form):
         ],
     )
 
+    is_restricted_video = forms.BooleanField(
+        __("Restrict livestream to participants only")
+    )
+
 
 class ProjectNameForm(forms.Form):
     """Form to change the URL name of a project."""
 
-    # TODO: Add validators for `profile` and unique name here instead of delegating to
+    # TODO: Add validators for `account` and unique name here instead of delegating to
     # the view. Also add `set_queries` method to change ``name.prefix``
 
     name = forms.AnnotatedTextField(
@@ -212,11 +215,11 @@ class ProjectBannerForm(forms.Form):
     """
     Form for project banner.
 
-    A `profile` keyword argument is necessary for the ImgeeField.
+    An `account` keyword argument is necessary for the ImgeeField.
     """
 
-    __expects__ = ('profile',)
-    profile: Profile
+    __expects__ = ('account',)
+    account: Account
 
     bg_image = forms.ImgeeField(
         __("Banner image"),
@@ -231,7 +234,7 @@ class ProjectBannerForm(forms.Form):
     def set_queries(self) -> None:
         """Prepare form for use."""
         self.bg_image.widget_type = 'modal'
-        self.bg_image.profile = self.profile.name
+        self.bg_image.profile = self.account.name or self.account.buid
 
 
 @Project.forms('cfp')
@@ -304,7 +307,7 @@ class ProjectCfpTransitionForm(forms.Form):
 class ProjectSponsorForm(forms.Form):
     """Form to add or edit a sponsor on a project."""
 
-    profile = ProfileSelectField(
+    member = AccountSelectField(
         __("Account"),
         autocomplete_endpoint='/api/1/profile/autocomplete',
         results_key='profile',
@@ -359,7 +362,7 @@ class ProjectRegisterForm(forms.Form):
     """Register for a project with an optional custom JSON form."""
 
     __expects__ = ('schema',)
-    schema: Optional[dict]
+    schema: dict | None
 
     form = forms.TextAreaField(
         __("Form"),

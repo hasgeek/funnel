@@ -36,11 +36,12 @@
                   {{ faicon(icon='info-circle', icon_size='body2', baseline=true) }} <a href="{{ url_for('account_edit') }}" data-cy="add-username">{% trans %}Add username{% endtrans %} <span class="circle-icon">{{ faicon(icon='plus', icon_size='caption', baseline=false) }}</span></a>
                 </p>
               {%- endif %}
-              {% if current_auth.user.profile %}
-                <a href="{{ current_auth.user.profile.url_for() }}"
-                   data-cy="my-profile"
-                   class="nounderline">{% trans %}Go to account{% endtrans %} <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span></a>
-              {%- endif %}
+              <a href="{{ current_auth.user.profile_url }}"
+                  data-cy="my-profile"
+                  class="nounderline">
+                {%- trans %}Go to account{% endtrans %}
+                <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span>
+              </a>
             </div>
           </div>
         </div>
@@ -116,7 +117,10 @@
               {% for extid in current_auth.user.externalids %}
                 <li>
                   {{ faicon(icon=extid.service, icon_size='body2', baseline=false, css_class="mui--text-light icon-img icon-img--smaller") }}
-                  <span class="item">{{ extid.username or (extid.service in login_registry and login_registry[extid.service]['title']) or extid.service }} <small class="subitem"><em>{% trans last_used_at=extid.last_used_at|age %}Last used {{ last_used_at }}{% endtrans %}</em></small></span>
+                  <span class="item">
+                    {{ extid.username or (extid.service in login_registry and login_registry[extid.service]['title']) or extid.service }}
+                    <small class="subitem"><em>{% trans last_used_at=extid.last_used_at|age %}Last used {{ last_used_at }}{% endtrans %}</em></small>
+                  </span>
                   <a href="{{ url_for('remove_extid', service=extid.service, userid=extid.userid) }}"
                      class="mui--pull-right"
                      aria-label="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}</a>
@@ -180,7 +184,9 @@
                       <span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email_legacy', email_hash=useremail.transport_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
                       <a href="{{ url_for('remove_email', email_hash=useremail.transport_hash) }}"
                          aria-label="{% trans %}Remove{% endtrans %}"
-                         class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}</a>
+                         class="mui--pull-right">
+                        {{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}
+                      </a>
                     </li>
                   {% endfor %}
                 </ol>
@@ -228,9 +234,9 @@
                         <span aria-label="{% trans %}Primary{% endtrans %}" title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=false, css_class="mui--text-success input-align-icon") }}</span>
                       {%- endif -%}
                       {% if has_multiple_verified_contacts -%}
-                        <a href="{{ url_for('remove_phone', phone_hash=userphone.transport_hash) }}"
-                           aria-label="{% trans %}Remove{% endtrans %}"
-                           class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}</a>
+                        <a href="{{ url_for('remove_phone', phone_hash=userphone.transport_hash) }}" aria-label="{% trans %}Remove{% endtrans %}" class="mui--pull-right">
+                          {{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}
+                        </a>
                       {%- endif %}
                     </li>
                   {% endfor %}
@@ -316,14 +322,14 @@
             {{ logout_form.hidden_tag() }}
             <div class="card__body">
               <ul class="list--aligned mui-list--unstyled grid-no-left-padding list--border zero-bottom-margin">
-                {%- for user_session in current_auth.user.active_user_sessions %}
+                {%- for login_session in current_auth.user.active_login_sessions %}
                   {%- with
-                      ua=user_session.views.user_agent_details(),
-                      login_service=user_session.views.login_service(),
-                      location=user_session.views.location(),
-                      user_agent=user_session.user_agent,
-                      since=user_session.created_at|age,
-                      last_active=user_session.accessed_at|age %}
+                      ua=login_session.views.user_agent_details(),
+                      login_service=login_session.views.login_service(),
+                      location=login_session.views.location(),
+                      user_agent=login_session.user_agent,
+                      since=login_session.created_at|age,
+                      last_active=login_session.accessed_at|age %}
                     <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session">
                       <div>
                         <ul class="bullet-separated-list"
@@ -344,16 +350,16 @@
                         {%- endif -%}
                       </p>
                       <p class="login-session__body mui--text-light">
-                        {% trans ipaddr=user_session.ipaddr %}{{ location }} – estimated from {{ ipaddr }}{% endtrans %}
+                        {% trans ipaddr=login_session.ipaddr %}{{ location }} – estimated from {{ ipaddr }}{% endtrans %}
                       </p>
                     </div>
                     <div>
-                      {%- if user_session == current_auth.session %}
+                      {%- if login_session == current_auth.session %}
                         {{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=true, css_class="mui--text-success input-align-icon") }}
                       {%- else -%}
                         <button type="submit"
                                 name="sessionid"
-                                value="{{ user_session.buid }}"
+                                value="{{ login_session.buid }}"
                                 title="{% trans %}Logout{% endtrans %}"
                                 aria-label="{% trans %}Logout{% endtrans %}"
                                 class="mui-btn mui-btn--small mui-btn--flat mui-btn--nostyle">

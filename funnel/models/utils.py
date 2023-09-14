@@ -2,24 +2,31 @@
 
 from __future__ import annotations
 
-from typing import NamedTuple, Optional, Set, Union, overload
-from typing_extensions import Literal
+from typing import Literal, NamedTuple, overload
 
 import phonenumbers
 from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from .. import app
 from ..typing import OptionalMigratedTables
-from . import Model
+from .account import (
+    Account,
+    AccountEmail,
+    AccountEmailClaim,
+    AccountExternalId,
+    AccountPhone,
+    Anchor,
+    Model,
+    db,
+)
 from .phone_number import PHONE_LOOKUP_REGIONS
-from .user import Anchor, User, UserEmail, UserEmailClaim, UserExternalId, UserPhone, db
 
 __all__ = [
     'IncompleteUserMigrationError',
-    'UserAndAnchor',
+    'AccountAndAnchor',
     'getextid',
     'getuser',
-    'merge_users',
+    'merge_accounts',
 ]
 
 
@@ -27,55 +34,59 @@ class IncompleteUserMigrationError(Exception):
     """Could not migrate users because of data conflicts."""
 
 
-class UserAndAnchor(NamedTuple):
-    """User and anchor used to find the user (usable as a 2-tuple)."""
+class AccountAndAnchor(NamedTuple):
+    """Account and anchor used to find the user (usable as a 2-tuple)."""
 
-    user: Optional[User]
-    anchor: Optional[Anchor]
+    account: Account | None
+    anchor: Anchor | None
 
 
 @overload
-def getuser(name: str) -> Optional[User]:
+def getuser(name: str) -> Account | None:
     ...
 
 
 @overload
-def getuser(name: str, anchor: Literal[False]) -> Optional[User]:
+def getuser(name: str, anchor: Literal[False]) -> Account | None:
     ...
 
 
 @overload
-def getuser(name: str, anchor: Literal[True]) -> UserAndAnchor:
+def getuser(name: str, anchor: Literal[True]) -> AccountAndAnchor:
     ...
 
 
-def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnchor]:
+def getuser(name: str, anchor: bool = False) -> Account | AccountAndAnchor | None:
     """
-    Get a user with a matching name, email address or phone number.
+    Get an account with a matching name, email address or phone number.
 
-    Optionally returns an anchor (phone or email) instead of the user account.
+    Optionally returns an anchor (phone or email) along with the account.
     """
+    accountemail: AccountEmail | AccountEmailClaim | None = None
+    accountphone: AccountPhone | None = None
     # Treat an '@' or '~' prefix as a username lookup, removing the prefix
     if name.startswith('@') or name.startswith('~'):
         name = name[1:]
     # If there's an '@' in the middle, treat as an email address
     elif '@' in name:
-        useremail: Union[None, UserEmail, UserEmailClaim]
-        useremail = UserEmail.get(email=name)
-        if useremail is None:
+        accountemail = AccountEmail.get(email=name)
+        if accountemail is None:
             # If there's no verified email address, look for a claim.
-            useremail = (
-                UserEmailClaim.all(email=name)
-                .order_by(UserEmailClaim.created_at)
-                .first()
-            )
-        if useremail is not None and useremail.user.state.ACTIVE:
+            try:
+                accountemail = (
+                    AccountEmailClaim.all(email=name)
+                    .order_by(AccountEmailClaim.created_at)
+                    .first()
+                )
+            except ValueError:
+                accountemail = None
+        if accountemail is not None and accountemail.account.state.ACTIVE:
             # Return user only if in active state
             if anchor:
-                return UserAndAnchor(useremail.user, useremail)
-            return useremail.user
+                return AccountAndAnchor(accountemail.account, accountemail)
+            return accountemail.account
         if anchor:
-            return UserAndAnchor(None, None)
+            return AccountAndAnchor(None, None)
         return None
     else:
         # If it wasn't an email address or an @username, check if it's a phone number
@@ -91,66 +102,87 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnc
                     number = phonenumbers.format_number(
                         parsed_number, phonenumbers.PhoneNumberFormat.E164
                     )
-                    userphone = UserPhone.get(number)
-                    if userphone is not None and userphone.user.state.ACTIVE:
+                    accountphone = AccountPhone.get(number)
+                    if accountphone is not None and accountphone.account.state.ACTIVE:
                         if anchor:
-                            return UserAndAnchor(userphone.user, userphone)
-                        return userphone.user
-            # No matching userphone? Continue to trying as a username
+                            return AccountAndAnchor(accountphone.account, accountphone)
+                        return accountphone.account
+            # No matching accountphone? Continue to trying as a username
         except phonenumbers.NumberParseException:
             # This was not a parseable phone number. Continue to trying as a username
             pass
 
     # Last guess: username
-    user = User.get(username=name)
+    user = Account.get(name=name)
 
     # If the caller wanted an anchor, try to return one (phone, then email) instead of
     # the user account
     if anchor:
         if user is None:
-            return UserAndAnchor(None, None)
+            return AccountAndAnchor(None, None)
         if user.phone:
-            return UserAndAnchor(user, user.phone)
-        useremail = user.default_email()
-        if useremail:
-            return UserAndAnchor(user, useremail)
+            return AccountAndAnchor(user, user.phone)
+        accountemail = user.default_email()
+        if accountemail:
+            return AccountAndAnchor(user, accountemail)
         # This user has no anchors
-        return UserAndAnchor(user, None)
+        return AccountAndAnchor(user, None)
 
     # Anchor not requested. Return the user account
     return user
 
 
-def getextid(service: str, userid: str) -> Optional[UserExternalId]:
+def getextid(service: str, userid: str) -> AccountExternalId | None:
     """Return a matching external id."""
-    return UserExternalId.get(service=service, userid=userid)
+    return AccountExternalId.get(service=service, userid=userid)
 
 
-def merge_users(user1: User, user2: User) -> Optional[User]:
+def merge_accounts(current_account: Account, other_account: Account) -> Account | None:
     """Merge two user accounts and return the new user account."""
-    app.logger.info("Preparing to merge users %s and %s", user1, user2)
+    app.logger.info(
+        "Preparing to merge accounts %s and %s", current_account, other_account
+    )
     # Always keep the older account and merge from the newer account. This keeps the
     # UUID stable when there are multiple mergers as new accounts are easy to create,
     # but old accounts cannot be created.
-    if user1.created_at < user2.created_at:
-        keep_user, merge_user = user1, user2
+    current_account_date = current_account.joined_at or current_account.created_at
+    other_account_date = other_account.joined_at or other_account.created_at
+    if current_account_date < other_account_date:
+        keep_account, merge_account = current_account, other_account
     else:
-        keep_user, merge_user = user2, user1
+        keep_account, merge_account = other_account, current_account
 
-    # 1. Inspect all tables for foreign key references to merge_user and switch to
-    # keep_user.
-    safe = do_migrate_instances(merge_user, keep_user, 'migrate_user')
+    # 1. Inspect all tables for foreign key references to merge_account and switch to
+    # keep_account.
+    safe = do_migrate_instances(merge_account, keep_account, 'migrate_account')
     if safe:
-        # 2. Add merge_user's uuid to olduserids and mark user as merged
-        merge_user.mark_merged_into(keep_user)
-        # 3. Commit all of this
+        # 2. Add merge_account's uuid to oldids and mark account as merged
+        merge_account.mark_merged_into(keep_account)
+        # 3. Transfer name and password if required
+        if not keep_account.name:
+            name = merge_account.name
+            merge_account.name = None
+            # Push this change to the db so that the name can be re-assigned
+            db.session.flush()
+            keep_account.name = name
+        if keep_account == other_account:
+            # The user's currently logged in account is being discarded, so transfer
+            # their password over
+            keep_account.pw_hash = merge_account.pw_hash
+            keep_account.pw_set_at = merge_account.pw_set_at
+            keep_account.pw_expires_at = merge_account.pw_expires_at
+            merge_account.pw_hash = None
+            merge_account.pw_set_at = None
+            merge_account.pw_expires_at = None
+
+        # 4. Commit all of this
         db.session.commit()
 
         # 4. Return keep_user.
-        app.logger.info("User merge complete, keeping user %s", keep_user)
-        return keep_user
+        app.logger.info("Account merge complete, keeping account %s", keep_account)
+        return keep_account
 
-    app.logger.error("User merge failed, aborting transaction")
+    app.logger.error("Account merge failed, aborting transaction")
     db.session.rollback()
     return None
 
@@ -158,7 +190,7 @@ def merge_users(user1: User, user2: User) -> Optional[User]:
 def do_migrate_instances(
     old_instance: Model,
     new_instance: Model,
-    helper_method: Optional[str] = None,
+    helper_method: str | None = None,
 ) -> bool:
     """
     Migrate references to old instance of any model to provided new instance.
@@ -176,7 +208,7 @@ def do_migrate_instances(
     session = old_instance.query.session
 
     # Keep track of all migrated tables
-    migrated_tables: Set[str] = set()
+    migrated_tables: set[str] = set()
     safe_to_remove_instance = True
 
     def do_migrate_table(table):
@@ -196,9 +228,8 @@ def do_migrate_instances(
                 # will have a unique index but no model on which to place
                 # helper_method, unless one of the related models handles
                 # migrations AND signals a way for this table to be skipped
-                # here. This is why model.helper_method below (migrate_user or
-                # migrate_profile) returns a list of table names it has
-                # processed.
+                # here. This is why model.helper_method below (migrate_account) returns
+                # a list of table names it has processed.
                 app.logger.error(
                     "do_migrate_table interrupted because column is unique: {column}",
                     extra={'column': column},
@@ -210,7 +241,7 @@ def do_migrate_instances(
             if isinstance(constraint, (PrimaryKeyConstraint, UniqueConstraint)):
                 for column in constraint.columns:
                     if column in target_columns:
-                        # The target column (typically user_id) is part of a unique
+                        # The target column (typically account_id) is part of a unique
                         # or primary key constraint. We can't migrate automatically.
                         app.logger.error(
                             "do_migrate_table interrupted because column is part of a"

@@ -25,13 +25,13 @@ class Fixtures:
         self.piglet = piglet
         self.nameless = nameless
 
-        crusoe_email = models.UserEmail(
-            email="crusoe@keepballin.ca", user=crusoe, primary=True
+        crusoe_email = models.AccountEmail(
+            email="crusoe@keepballin.ca", account=crusoe, primary=True
         )
-        crusoe_phone = models.UserPhone(
-            phone='+918123456789', user=crusoe, primary=True
+        crusoe_phone = models.AccountPhone(
+            phone='+918123456789', account=crusoe, primary=True
         )
-        oakley_email = models.UserEmail(email="huh@keepballin.ca", user=oakley)
+        oakley_email = models.AccountEmail(email="huh@keepballin.ca", account=oakley)
         db_session.add_all([crusoe_email, crusoe_phone, oakley_email])
         self.crusoe_email = crusoe_email
         self.crusoe_phone = crusoe_phone
@@ -48,14 +48,14 @@ class Fixtures:
 
         auth_client = models.AuthClient(
             title="Batdog Adventures",
-            organization=batdog,
+            account=batdog,
             confidential=True,
             website="http://batdogadventures.com",
         )
         db_session.add(auth_client)
         self.auth_client = auth_client
 
-        dachshunds = models.Team(title="Dachshunds", organization=batdog)
+        dachshunds = models.Team(title="Dachshunds", account=batdog)
         db_session.add(dachshunds)
         self.dachshunds = dachshunds
 
@@ -65,11 +65,11 @@ class Fixtures:
         self.auth_client_team_permissions = auth_client_team_permissions
         db_session.add(auth_client_team_permissions)
 
-        auth_client_user_permissions = models.AuthClientUserPermissions(
-            user=crusoe, auth_client=auth_client
+        auth_client_permissions = models.AuthClientPermissions(
+            account=crusoe, auth_client=auth_client
         )
-        db_session.add(auth_client_user_permissions)
-        self.auth_client_user_permissions = auth_client_user_permissions
+        db_session.add(auth_client_permissions)
+        self.auth_client_permissions = auth_client_permissions
 
         message = models.SmsMessage(
             phone=crusoe_phone.phone,

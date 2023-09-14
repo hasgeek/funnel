@@ -39,7 +39,7 @@ from ..forms import (
 )
 from ..models import (
     RSVP_STATUS,
-    Profile,
+    Account,
     Project,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
@@ -57,7 +57,7 @@ from .login_session import (
     requires_site_editor,
     requires_user_not_spammy,
 )
-from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
+from .mixins import AccountViewMixin, DraftViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
 
@@ -177,7 +177,6 @@ def feature_project_tickets(obj: Project) -> bool:
         and 'item_collection_id' in obj.boxoffice_data
         and obj.boxoffice_data['item_collection_id']
         and not obj.state.PAST
-        and not obj.current_roles.ticket_participant
     )
 
 
@@ -190,8 +189,15 @@ def feature_project_tickets_or_rsvp(obj: Project) -> bool:
 def feature_project_subscription(obj: Project) -> bool:
     return (
         obj.boxoffice_data is not None
+        and 'item_collection_id' in obj.boxoffice_data
+        and obj.boxoffice_data['item_collection_id']
         and obj.boxoffice_data.get('is_subscription', True) is True
     )
+
+
+@Project.features('show_tickets', cached_property=True)
+def show_tickets(obj: Project) -> bool:
+    return obj.features.tickets() or obj.features.subscription
 
 
 @Project.features('rsvp_unregistered')
@@ -253,9 +259,9 @@ def project_register_button_text(obj: Project) -> str:
     return _("Register")
 
 
-@Profile.views('project_new')
-@route('/<profile>')
-class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
+@Account.views('project_new')
+@route('/<account>')
+class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
     """Project views inside the account (new project view only)."""
 
     @route('new', methods=['GET', 'POST'])
@@ -264,12 +270,12 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     @requires_user_not_spammy()
     def new_project(self) -> ReturnView:
         """Create a new project."""
-        form = ProjectForm(model=Project, profile=self.obj)
+        form = ProjectForm(model=Project, account=self.obj)
 
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
         if form.validate_on_submit():
-            project = Project(user=current_auth.user, profile=self.obj)
+            project = Project(created_by=current_auth.user, account=self.obj)
             form.populate_obj(project)
             project.make_name()
             db.session.add(project)
@@ -289,13 +295,13 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
         )
 
 
-ProfileProjectView.init_app(app)
+AccountProjectView.init_app(app)
 
 
 # mypy has trouble with the definition of `obj` and `model` between ProjectViewMixin and
 # DraftViewMixin
 @Project.views('main')
-@route('/<profile>/<project>/')
+@route('/<account>/<project>/')
 class ProjectView(  # type: ignore[misc]
     ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
 ):
@@ -333,7 +339,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'editor'})
     def proposals_csv(self) -> Response:
-        filename = f'submissions-{self.obj.profile.name}-{self.obj.name}.csv'
+        filename = f'submissions-{self.obj.account.name}-{self.obj.name}.csv'
         outfile = io.StringIO(newline='')
         out = csv.writer(outfile)
         out.writerow(
@@ -388,7 +394,7 @@ class ProjectView(  # type: ignore[misc]
     def edit_slug(self) -> ReturnView:
         """Edit project's URL slug."""
         form = ProjectNameForm(obj=self.obj)
-        form.name.prefix = self.obj.profile.url_for(_external=True)
+        form.name.prefix = self.obj.account.url_for(_external=True)
         # Add a ``/`` separator if required
         if not form.name.prefix.endswith('/'):
             form.name.prefix += '/'
@@ -426,7 +432,7 @@ class ProjectView(  # type: ignore[misc]
             # WTForms will ignore formdata if it's None.
             form = ProjectForm(
                 obj=self.obj,
-                profile=self.obj.profile,
+                account=self.obj.account,
                 model=Project,
                 formdata=initial_formdata,
             )
@@ -443,7 +449,7 @@ class ProjectView(  # type: ignore[misc]
             )
         if getbool(request.args.get('form.autosave')):
             return self.autosave_post()
-        form = ProjectForm(obj=self.obj, profile=self.obj.profile, model=Project)
+        form = ProjectForm(obj=self.obj, account=self.obj.account, model=Project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
@@ -468,7 +474,7 @@ class ProjectView(  # type: ignore[misc]
 
     @route('delete', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'profile_admin'})
+    @requires_roles({'account_admin'})
     def delete(self) -> ReturnView:
         """Delete project if safe to do so."""
         if not self.obj.is_safe_to_delete():
@@ -490,7 +496,7 @@ class ProjectView(  # type: ignore[misc]
             success=_(
                 "You have deleted project ‘{title}’ and all its associated content"
             ).format(title=self.obj.title),
-            next=self.obj.profile.url_for(),
+            next=self.obj.account.profile_url,
             cancel_url=self.obj.url_for(),
         )
 
@@ -499,7 +505,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_roles({'editor'})
     def update_banner(self) -> ReturnRenderWith:
         """Update project banner."""
-        form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
+        form = ProjectBannerForm(obj=self.obj, account=self.obj.account)
         edit_logo_url = self.obj.url_for('edit_banner')
         delete_logo_url = self.obj.url_for('remove_banner')
         return {
@@ -513,7 +519,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_roles({'editor'})
     def edit_banner(self) -> ReturnView:
         """Edit project banner."""
-        form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
+        form = ProjectBannerForm(obj=self.obj, account=self.obj.account)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)
@@ -579,6 +585,7 @@ class ProjectView(  # type: ignore[misc]
                 is_subscription=boxoffice_data.get('is_subscription', True),
                 register_form_schema=boxoffice_data.get('register_form_schema'),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
+                has_membership=boxoffice_data.get('has_membership', False),
             ),
             model=Project,
         )
@@ -593,6 +600,7 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data[
                 'register_button_txt'
             ] = form.register_button_txt.data
+            self.obj.boxoffice_data['has_membership'] = form.has_membership.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())
@@ -748,8 +756,8 @@ class ProjectView(  # type: ignore[misc]
         for rsvp in self.obj.rsvps_with(state):
             out.writerow(
                 [
-                    rsvp.user.fullname,
-                    rsvp.user.default_email(context=rsvp.project.profile) or '',
+                    rsvp.participant.fullname,
+                    rsvp.participant.default_email(context=rsvp.project.account) or '',
                     rsvp.created_at.astimezone(self.obj.timezone)
                     .replace(second=0, microsecond=0, tzinfo=None)
                     .isoformat(),  # Strip precision from timestamp
@@ -792,11 +800,13 @@ class ProjectView(  # type: ignore[misc]
         form.form_nonce.data = form.form_nonce.default()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
-                user=current_auth.user, project=self.obj
+                account=current_auth.user, project=self.obj
             ).first()
             if form.save.data:
                 if proj_save is None:
-                    proj_save = SavedProject(user=current_auth.user, project=self.obj)
+                    proj_save = SavedProject(
+                        account=current_auth.user, project=self.obj
+                    )
                     form.populate_obj(proj_save)
                     db.session.commit()
             else:
@@ -839,7 +849,7 @@ class ProjectView(  # type: ignore[misc]
                 )
             return render_redirect(self.obj.url_for('admin'))
         return {
-            'profile': self.obj.profile.current_access(datasets=('primary',)),
+            'profile': self.obj.account.current_access(datasets=('primary',)),
             'project': self.obj.current_access(datasets=('without_parent', 'related')),
             'ticket_events': [_e.current_access() for _e in self.obj.ticket_events],
             'ticket_clients': [_c.current_access() for _c in self.obj.ticket_clients],

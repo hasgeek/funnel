@@ -10,7 +10,6 @@ import zipfile
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 from urllib.parse import urljoin
 
 import click
@@ -110,7 +109,7 @@ class GeoAltNameRecord:
     is_historic: str
 
 
-def downloadfile(basepath: str, filename: str, folder: Optional[str] = None) -> None:
+def downloadfile(basepath: str, filename: str, folder: str | None = None) -> None:
     """Download a geoname record file."""
     if not folder:
         folder_file = filename

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Union
-
 from flask import render_template
 from flask_babel import get_locale
 
@@ -16,7 +14,7 @@ from ...models import (
     Rsvp,
 )
 from ...transports import email
-from ...transports.sms import MessageTemplate, SmsTemplate
+from ...transports.sms import MessageTemplate, SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from ..schedule import schedule_ical
@@ -35,6 +33,7 @@ class RegistrationConfirmationTemplate(TemplateVarMixin, SmsTemplate):
         "\n\nhttps://bye.li to stop - Hasgeek"
     )
     plaintext_template = "You have registered for {project} {url}"
+    message_priority = SmsPriority.IMPORTANT
 
     datetime: str
     url: str
@@ -56,6 +55,7 @@ class RegistrationConfirmationWithNextTemplate(TemplateVarMixin, SmsTemplate):
     plaintext_template = (
         "You have registered for {project}, scheduled for {datetime}. {url}"
     )
+    message_priority = SmsPriority.IMPORTANT
 
     datetime: str
     url: str
@@ -67,7 +67,7 @@ class RegistrationBase:
     rsvp: Rsvp
     emoji_prefix = "🎟️ "
 
-    def email_attachments(self) -> Optional[List[email.EmailAttachment]]:
+    def email_attachments(self) -> list[email.EmailAttachment] | None:
         """Provide a calendar attachment."""
         # Attach a vCalendar of schedule, but only if there are sessions.
         # This will include the user as an attendee with RSVP=TRUE/FALSE.
@@ -129,9 +129,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
 
     def sms(
         self,
-    ) -> Union[
-        RegistrationConfirmationTemplate, RegistrationConfirmationWithNextTemplate
-    ]:
+    ) -> RegistrationConfirmationTemplate | RegistrationConfirmationWithNextTemplate:
         project = self.rsvp.project
         next_at = project.next_starting_at()
         url = shortlink(

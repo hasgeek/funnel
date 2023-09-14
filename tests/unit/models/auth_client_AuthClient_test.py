@@ -25,7 +25,7 @@ class TestClient(TestDatabaseFixture):
 
     def test_client_owner(self) -> None:
         """Test if client's owner is said Organization."""
-        owner = self.fixtures.auth_client.owner
+        owner = self.fixtures.auth_client.account
         batdog = self.fixtures.batdog
         assert isinstance(owner, models.Organization)
         assert owner == batdog
@@ -44,24 +44,24 @@ class TestClient(TestDatabaseFixture):
         crusoe = self.fixtures.crusoe
         result = auth_client.authtoken_for(crusoe)
         client_token = models.AuthToken(
-            auth_client=auth_client, user=crusoe, scope='id', validity=0
+            auth_client=auth_client, account=crusoe, scope='id', validity=0
         )
         self.db_session.add(client_token)
-        result = auth_client.authtoken_for(user=crusoe)
+        result = auth_client.authtoken_for(crusoe)
         assert client_token == result
         assert isinstance(result, models.AuthToken)
-        assert result.user == crusoe
+        assert result.account == crusoe
 
         # scenario 2: for a client that has confidential=False
         varys = models.User(username='varys', fullname='Lord Varys')
         house_lannisters = models.AuthClient(
             title='House of Lannisters',
             confidential=False,
-            user=varys,
+            account=varys,
             website='houseoflannisters.westeros',
         )
-        varys_session = models.UserSession(
-            user=varys,
+        varys_session = models.LoginSession(
+            account=varys,
             ipaddr='192.168.1.99',
             user_agent=(
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36'
@@ -71,18 +71,18 @@ class TestClient(TestDatabaseFixture):
         )
         lannisters_auth_token = models.AuthToken(
             auth_client=house_lannisters,
-            user=varys,
+            account=varys,
             scope='throne',
             validity=0,
-            user_session=varys_session,
+            login_session=varys_session,
         )
         self.db_session.add_all(
             [varys, house_lannisters, lannisters_auth_token, varys_session]
         )
         self.db_session.commit()
-        result = house_lannisters.authtoken_for(varys, user_session=varys_session)
+        result = house_lannisters.authtoken_for(varys, login_session=varys_session)
         assert isinstance(result, models.AuthToken)
-        assert "Lord Varys" == result.user.fullname
+        assert result.account == varys
 
     def test_client_get(self) -> None:
         """Test for verifying AuthClient's get method."""
@@ -91,9 +91,10 @@ class TestClient(TestDatabaseFixture):
         key = auth_client.buid
         # scenario 1: without key
         with pytest.raises(TypeError):
+            # pylint: disable=no-value-for-parameter
             models.AuthClient.get()  # type: ignore[call-arg]
         # scenario 2: when given key
         result1 = models.AuthClient.get(buid=key)
         assert isinstance(result1, models.AuthClient)
         assert result1.buid == key
-        assert result1.owner == batdog
+        assert result1.account == batdog

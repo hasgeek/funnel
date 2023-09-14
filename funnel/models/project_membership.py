@@ -2,41 +2,40 @@
 
 from __future__ import annotations
 
-from typing import Set
-
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, declared_attr, relationship, sa
+from . import DynamicMapped, Mapped, Model, backref, declared_attr, relationship, sa
+from .account import Account
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
-from .user import User
 
-__all__ = ['ProjectCrewMembership', 'project_child_role_map']
+__all__ = ['ProjectMembership', 'project_child_role_map']
 
 #: Roles in a project and their remapped names in objects attached to a project
-project_child_role_map = {
-    'editor': {'project_editor'},
-    'promoter': {'project_promoter'},
-    'usher': {'project_usher'},
-    'crew': {'project_crew'},
-    'participant': {'project_participant'},
-    'reader': {'reader'},
+project_child_role_map: dict[str, str] = {
+    'editor': 'project_editor',
+    'promoter': 'project_promoter',
+    'usher': 'project_usher',
+    'crew': 'project_crew',
+    'participant': 'project_participant',
+    'reader': 'reader',
 }
 
-#: ProjectCrewMembership maps project's `profile_admin` role to membership's `editor`
+#: ProjectMembership maps project's `account_admin` role to membership's `editor`
 #: role in addition to the recurring role grant map
-project_membership_role_map = {'profile_admin': {'profile_admin', 'editor'}}
+project_membership_role_map: dict[str, str | set[str]] = {
+    'account_admin': {'account_admin', 'editor'}
+}
 project_membership_role_map.update(project_child_role_map)
 
 
-class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
+class ProjectMembership(ImmutableUserMembershipMixin, Model):
     """Users can be crew members of projects, with specified access rights."""
 
-    __tablename__ = 'project_crew_membership'
-    __allow_unmapped__ = True
+    __tablename__ = 'project_membership'
 
     #: Legacy data has no granted_by
     __null_granted_by__ = True
@@ -48,7 +47,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
         'all': {
             'read': {
                 'urls',
-                'user',
+                'member',
                 'project',
                 'is_editor',
                 'is_promoter',
@@ -77,7 +76,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
             'is_promoter',
             'is_usher',
             'label',
-            'user',
+            'member',
             'project',
         },
         'without_parent': {
@@ -88,7 +87,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
             'is_promoter',
             'is_usher',
             'label',
-            'user',
+            'member',
         },
         'related': {
             'urls',
@@ -107,7 +106,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
     project: Mapped[Project] = with_roles(
         relationship(
             Project,
-            backref=sa.orm.backref(
+            backref=backref(
                 'crew_memberships',
                 lazy='dynamic',
                 cascade='all',
@@ -170,7 +169,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
         return tuple(args)
 
     @cached_property
-    def offered_roles(self) -> Set[str]:
+    def offered_roles(self) -> set[str]:
         """Roles offered by this membership record."""
         roles = {'crew', 'participant'}
         if self.is_editor:
@@ -185,100 +184,92 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, Model):
 # Project relationships: all crew, vs specific roles
 @reopen(Project)
 class __Project:
-    active_crew_memberships: DynamicMapped[ProjectCrewMembership] = with_roles(
+    active_crew_memberships: DynamicMapped[ProjectMembership] = with_roles(
         relationship(
-            ProjectCrewMembership,
+            ProjectMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
-                ProjectCrewMembership.project_id == Project.id,
-                ProjectCrewMembership.is_active,
+                ProjectMembership.project_id == Project.id,
+                ProjectMembership.is_active,
             ),
             viewonly=True,
         ),
-        grants_via={
-            'user': {
-                'editor': {'editor', 'project_editor'},
-                'promoter': {'promoter', 'project_promoter'},
-                'usher': {'usher', 'project_usher'},
-                'participant': {'participant', 'project_participant'},
-                'crew': {'crew', 'project_crew'},
-            }
-        },
+        grants_via={'member': {'editor', 'promoter', 'usher', 'participant', 'crew'}},
     )
 
-    active_editor_memberships: DynamicMapped[ProjectCrewMembership] = relationship(
-        ProjectCrewMembership,
+    active_editor_memberships: DynamicMapped[ProjectMembership] = relationship(
+        ProjectMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectCrewMembership.project_id == Project.id,
-            ProjectCrewMembership.is_active,
-            ProjectCrewMembership.is_editor.is_(True),
+            ProjectMembership.project_id == Project.id,
+            ProjectMembership.is_active,
+            ProjectMembership.is_editor.is_(True),
         ),
         viewonly=True,
     )
 
-    active_promoter_memberships: DynamicMapped[ProjectCrewMembership] = relationship(
-        ProjectCrewMembership,
+    active_promoter_memberships: DynamicMapped[ProjectMembership] = relationship(
+        ProjectMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectCrewMembership.project_id == Project.id,
-            ProjectCrewMembership.is_active,
-            ProjectCrewMembership.is_promoter.is_(True),
+            ProjectMembership.project_id == Project.id,
+            ProjectMembership.is_active,
+            ProjectMembership.is_promoter.is_(True),
         ),
         viewonly=True,
     )
 
-    active_usher_memberships: DynamicMapped[ProjectCrewMembership] = relationship(
-        ProjectCrewMembership,
+    active_usher_memberships: DynamicMapped[ProjectMembership] = relationship(
+        ProjectMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectCrewMembership.project_id == Project.id,
-            ProjectCrewMembership.is_active,
-            ProjectCrewMembership.is_usher.is_(True),
+            ProjectMembership.project_id == Project.id,
+            ProjectMembership.is_active,
+            ProjectMembership.is_usher.is_(True),
         ),
         viewonly=True,
     )
 
-    crew = DynamicAssociationProxy('active_crew_memberships', 'user')
-    editors = DynamicAssociationProxy('active_editor_memberships', 'user')
-    promoters = DynamicAssociationProxy('active_promoter_memberships', 'user')
-    ushers = DynamicAssociationProxy('active_usher_memberships', 'user')
+    crew = DynamicAssociationProxy('active_crew_memberships', 'member')
+    editors = DynamicAssociationProxy('active_editor_memberships', 'member')
+    promoters = DynamicAssociationProxy('active_promoter_memberships', 'member')
+    ushers = DynamicAssociationProxy('active_usher_memberships', 'member')
 
 
 # Similarly for users (add as needs come up)
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     # pylint: disable=invalid-unary-operand-type
 
     # This relationship is only useful to check if the user has ever been a crew member.
     # Most operations will want to use one of the active membership relationships.
-    projects_as_crew_memberships: DynamicMapped[ProjectCrewMembership] = relationship(
-        ProjectCrewMembership,
+    projects_as_crew_memberships: DynamicMapped[ProjectMembership] = relationship(
+        ProjectMembership,
         lazy='dynamic',
-        foreign_keys=[ProjectCrewMembership.user_id],
+        foreign_keys=[ProjectMembership.member_id],
         viewonly=True,
     )
 
     # This is used to determine if it is safe to purge the subject's database record
     projects_as_crew_noninvite_memberships: DynamicMapped[
-        ProjectCrewMembership
+        ProjectMembership
     ] = relationship(
-        ProjectCrewMembership,
+        ProjectMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectCrewMembership.user_id == User.id,
-            ~ProjectCrewMembership.is_invite,
+            ProjectMembership.member_id == Account.id,
+            ~ProjectMembership.is_invite,
         ),
         viewonly=True,
     )
     projects_as_crew_active_memberships: DynamicMapped[
-        ProjectCrewMembership
+        ProjectMembership
     ] = relationship(
-        ProjectCrewMembership,
+        ProjectMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectCrewMembership.user_id == User.id,
-            ProjectCrewMembership.is_active,
+            ProjectMembership.member_id == Account.id,
+            ProjectMembership.is_active,
         ),
         viewonly=True,
     )
@@ -288,14 +279,14 @@ class __User:
     )
 
     projects_as_editor_active_memberships: DynamicMapped[
-        ProjectCrewMembership
+        ProjectMembership
     ] = relationship(
-        ProjectCrewMembership,
+        ProjectMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectCrewMembership.user_id == User.id,
-            ProjectCrewMembership.is_active,
-            ProjectCrewMembership.is_editor.is_(True),
+            ProjectMembership.member_id == Account.id,
+            ProjectMembership.is_active,
+            ProjectMembership.is_editor.is_(True),
         ),
         viewonly=True,
     )
@@ -305,5 +296,5 @@ class __User:
     )
 
 
-User.__active_membership_attrs__.add('projects_as_crew_active_memberships')
-User.__noninvite_membership_attrs__.add('projects_as_crew_noninvite_memberships')
+Account.__active_membership_attrs__.add('projects_as_crew_active_memberships')
+Account.__noninvite_membership_attrs__.add('projects_as_crew_noninvite_memberships')

@@ -8,9 +8,7 @@ from funnel import models
 
 @pytest.fixture()
 def death_membership(db_session, org_ankhmorpork, user_death):
-    membership = models.OrganizationMembership(
-        organization=org_ankhmorpork, user=user_death
-    )
+    membership = models.AccountMembership(account=org_ankhmorpork, member=user_death)
     db_session.add(membership)
     db_session.commit()
     return membership
@@ -18,8 +16,8 @@ def death_membership(db_session, org_ankhmorpork, user_death):
 
 @pytest.fixture()
 def death_owner_membership(db_session, org_ankhmorpork, user_death):
-    membership = models.OrganizationMembership(
-        organization=org_ankhmorpork, user=user_death, is_owner=True
+    membership = models.AccountMembership(
+        account=org_ankhmorpork, member=user_death, is_owner=True
     )
     db_session.add(membership)
     db_session.commit()
@@ -28,8 +26,8 @@ def death_owner_membership(db_session, org_ankhmorpork, user_death):
 
 @pytest.fixture()
 def rincewind_membership(db_session, org_ankhmorpork, user_rincewind):
-    membership = models.OrganizationMembership(
-        organization=org_ankhmorpork, user=user_rincewind
+    membership = models.AccountMembership(
+        account=org_ankhmorpork, member=user_rincewind
     )
     db_session.add(membership)
     db_session.commit()
@@ -38,8 +36,8 @@ def rincewind_membership(db_session, org_ankhmorpork, user_rincewind):
 
 @pytest.fixture()
 def rincewind_owner_membership(db_session, org_ankhmorpork, user_rincewind):
-    membership = models.OrganizationMembership(
-        organization=org_ankhmorpork, user=user_rincewind, is_owner=True
+    membership = models.AccountMembership(
+        account=org_ankhmorpork, member=user_rincewind, is_owner=True
     )
     db_session.add(membership)
     db_session.commit()
@@ -56,7 +54,7 @@ def test_merge_without_membership(
     assert org_ankhmorpork.active_admin_memberships.count() == 1
     assert set(org_ankhmorpork.owner_users) == {user_vetinari}
     assert set(org_ankhmorpork.admin_users) == {user_vetinari}
-    merged = models.merge_users(user_death, user_rincewind)
+    merged = models.merge_accounts(user_death, user_rincewind)
     db_session.commit()
     assert merged == user_death
     assert set(org_ankhmorpork.owner_users) == {user_vetinari}
@@ -75,7 +73,7 @@ def test_merge_with_death_membership(
     assert org_ankhmorpork.active_admin_memberships.count() == 2
     assert set(org_ankhmorpork.owner_users) == {user_vetinari}
     assert set(org_ankhmorpork.admin_users) == {user_vetinari, user_death}
-    merged = models.merge_users(user_death, user_rincewind)
+    merged = models.merge_accounts(user_death, user_rincewind)
     db_session.commit()
     assert merged == user_death
     assert set(org_ankhmorpork.owner_users) == {user_vetinari}
@@ -96,7 +94,7 @@ def test_merge_with_rincewind_membership(
     assert org_ankhmorpork.active_admin_memberships.count() == 2
     assert set(org_ankhmorpork.owner_users) == {user_vetinari}
     assert set(org_ankhmorpork.admin_users) == {user_vetinari, user_rincewind}
-    merged = models.merge_users(user_death, user_rincewind)
+    merged = models.merge_accounts(user_death, user_rincewind)
     db_session.commit()
     assert merged == user_death
     assert set(org_ankhmorpork.owner_users) == {user_vetinari}
@@ -122,7 +120,7 @@ def test_merge_with_admin_membership(
         user_death,
         user_rincewind,
     }
-    merged = models.merge_users(user_death, user_rincewind)
+    merged = models.merge_accounts(user_death, user_rincewind)
     db_session.commit()
     assert merged == user_death
     assert set(org_ankhmorpork.owner_users) == {user_vetinari}
@@ -150,7 +148,7 @@ def test_merge_with_death_owner_membership(
         user_death,
         user_rincewind,
     }
-    merged = models.merge_users(user_death, user_rincewind)
+    merged = models.merge_accounts(user_death, user_rincewind)
     db_session.commit()
     assert merged == user_death
     assert set(org_ankhmorpork.owner_users) == {user_vetinari, user_death}
@@ -178,7 +176,7 @@ def test_merge_with_rincewind_owner_membership(
         user_death,
         user_rincewind,
     }
-    merged = models.merge_users(user_death, user_rincewind)
+    merged = models.merge_accounts(user_death, user_rincewind)
     db_session.commit()
     assert merged == user_death
     assert set(org_ankhmorpork.owner_users) == {user_vetinari, user_death}
@@ -210,7 +208,7 @@ def test_merge_with_owner_membership(
         user_death,
         user_rincewind,
     }
-    merged = models.merge_users(user_death, user_rincewind)
+    merged = models.merge_accounts(user_death, user_rincewind)
     db_session.commit()
     assert merged == user_death
     assert set(org_ankhmorpork.owner_users) == {user_vetinari, user_death}
@@ -233,18 +231,18 @@ def test_merge_multiple_memberships(
     rincewind_owner_membership,
 ) -> None:
     """Merger with memberships across organizations works."""
-    uu_death_owner_membership = models.OrganizationMembership(
-        organization=org_uu, user=user_death, is_owner=True
+    uu_death_owner_membership = models.AccountMembership(
+        account=org_uu, member=user_death, is_owner=True
     )
     db_session.add(uu_death_owner_membership)
     db_session.commit()
-    uu_rincewind_membership = models.OrganizationMembership(
-        organization=org_uu, user=user_rincewind, is_owner=False
+    uu_rincewind_membership = models.AccountMembership(
+        account=org_uu, member=user_rincewind, is_owner=False
     )
     db_session.add(uu_rincewind_membership)
     db_session.commit()
 
-    merged = models.merge_users(user_death, user_rincewind)
+    merged = models.merge_accounts(user_death, user_rincewind)
     db_session.commit()
     assert merged == user_death
 

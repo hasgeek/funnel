@@ -54,7 +54,7 @@ class SessionForm(forms.Form):
     )
     video_url = forms.URLField(
         __("Video URL"),
-        description=__("URL of the uploaded video after the session is over"),
+        description=__("URL of the session’s video (YouTube or Vimeo)"),
         validators=[
             forms.validators.Optional(),
             forms.validators.URL(),
@@ -62,6 +62,9 @@ class SessionForm(forms.Form):
             video_url_validator,
         ],
         filters=nullable_strip_filters,
+    )
+    is_restricted_video = forms.BooleanField(
+        __("Restrict video to participants"), default=False
     )
 
 

@@ -10,7 +10,7 @@
     <br/>
 
     {# Button : BEGIN #}
-    {{ cta_button(view.project.profile.url_for('members', _external=true, **view.tracking_tags()), gettext("See all crew members") )}}
+    {{ cta_button(view.project.account.url_for('members', _external=true, **view.tracking_tags()), gettext("See all crew members") ) }}
     {# Button : END #}
 
 {%- endblock content -%}

@@ -35,7 +35,7 @@ idna
 ijson
 itsdangerous
 linkify-it-py
-markdown-it-py<3.0  # Breaks our plugins, needs refactoring
+markdown-it-py
 mdit-py-plugins
 oauth2
 oauth2client
@@ -52,7 +52,6 @@ python-telegram-bot
 pytz
 PyVimeo
 qrcode
-regex>=2023.6.3;python_version=="3.7"
 requests
 rich
 rq
@@ -68,4 +67,5 @@ urllib3[socks]  # Not required here, but the [socks] extra shows up in test.txt
 user-agents
 werkzeug
 whitenoise
+z-base-32
 zxcvbn

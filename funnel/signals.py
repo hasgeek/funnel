@@ -24,17 +24,19 @@ model_team_new = model_signals.signal('model-team-new')
 model_team_edited = model_signals.signal('model-team-edited')
 model_team_deleted = model_signals.signal('model-team-deleted')
 
-model_useremail_new = model_signals.signal('model-useremail-new')
-model_useremail_edited = model_signals.signal('model-useremail-edited')
-model_useremail_deleted = model_signals.signal('model-useremail-deleted')
+model_accountemail_new = model_signals.signal('model-accountemail-new')
+model_accountemail_edited = model_signals.signal('model-accountemail-edited')
+model_accountemail_deleted = model_signals.signal('model-accountemail-deleted')
 
-model_useremailclaim_new = model_signals.signal('model-useremail-new')
-model_useremailclaim_edited = model_signals.signal('model-useremail-edited')
-model_useremailclaim_deleted = model_signals.signal('model-useremail-deleted')
+model_accountemailclaim_new = model_signals.signal('model-accountemailclaim-new')
+model_accountemailclaim_edited = model_signals.signal('model-accountemailclaim-edited')
+model_accountemailclaim_deleted = model_signals.signal(
+    'model-accountemailclaim-deleted'
+)
 
-model_userphone_new = model_signals.signal('model-useremail-new')
-model_userphone_edited = model_signals.signal('model-useremail-edited')
-model_userphone_deleted = model_signals.signal('model-useremail-deleted')
+model_accountphone_new = model_signals.signal('model-accountphone-new')
+model_accountphone_edited = model_signals.signal('model-accountphone-edited')
+model_accountphone_deleted = model_signals.signal('model-accountphone-deleted')
 
 resource_access_granted = model_signals.signal('resource-access-granted')
 

@@ -6,22 +6,20 @@ Create Date: 2020-09-10 04:23:46.996917
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '2d2797b91909'
 down_revision = 'f9c44ecb5999'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 def upgrade() -> None:
     # Migration auto-generated using Migra
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
 alter table "comment" drop constraint "comment_state_check";
 
@@ -117,7 +115,7 @@ alter table "rsvp" add constraint "rsvp_state_check" CHECK ((state = ANY (ARRAY[
 
 def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
 alter table "organization_membership" drop constraint "organization_membership_record_type_check";
 

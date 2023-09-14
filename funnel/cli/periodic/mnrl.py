@@ -37,7 +37,6 @@ here:
 """
 
 import asyncio
-from typing import List, Set, Tuple
 
 import click
 import httpx
@@ -46,7 +45,7 @@ from rich import get_console, print as rprint
 from rich.progress import Progress
 
 from ... import app
-from ...models import PhoneNumber, UserPhone, db
+from ...models import AccountPhone, PhoneNumber, db
 from . import periodic
 
 
@@ -84,13 +83,13 @@ class AsyncStreamAsFile:
             return b''
 
 
-async def get_existing_phone_numbers(prefix: str) -> Set[str]:
+async def get_existing_phone_numbers(prefix: str) -> set[str]:
     """Async wrapper for PhoneNumber.get_numbers."""
     # TODO: This is actually an async-blocking call. We need full stack async here.
     return PhoneNumber.get_numbers(prefix=prefix, remove=True)
 
 
-async def get_mnrl_json_file_list(apikey: str) -> List[str]:
+async def get_mnrl_json_file_list(apikey: str) -> list[str]:
     """
     Return filenames for the currently published MNRL JSON files.
 
@@ -117,7 +116,7 @@ async def get_mnrl_json_file_list(apikey: str) -> List[str]:
 
 async def get_mnrl_json_file_numbers(
     client: httpx.AsyncClient, apikey: str, filename: str
-) -> Tuple[str, Set[str]]:
+) -> tuple[str, set[str]]:
     """Return phone numbers from an MNRL JSON file URL."""
     async with client.stream(
         'GET',
@@ -136,20 +135,20 @@ async def get_mnrl_json_file_numbers(
         }
 
 
-async def forget_phone_numbers(phone_numbers: Set[str], prefix: str) -> None:
+async def forget_phone_numbers(phone_numbers: set[str], prefix: str) -> None:
     """Mark phone numbers as forgotten."""
     for unprefixed in phone_numbers:
         number = prefix + unprefixed
-        userphone = UserPhone.get(number)
+        userphone = AccountPhone.get(number)
         if userphone is not None:
-            # TODO: Dispatch a notification to userphone.user, but since the
+            # TODO: Dispatch a notification to userphone.account, but since the
             # notification will not know the phone number (it'll already be forgotten),
             # we need a new db model to contain custom messages
             # TODO: Also delay dispatch until the full MNRL scan is complete -- their
             # backup contact phone number may also have expired. That means this
             # function will create notifications and return them, leaving dispatch to
             # the outermost function
-            rprint(f"{userphone} - owned by {userphone.user.pickername}")
+            rprint(f"{userphone} - owned by {userphone.account.pickername}")
             # TODO: MNRL isn't foolproof. Don't delete! Instead, notify the user and
             # only delete if they don't respond (How? Maybe delete and send them a
             # re-add token?)
@@ -166,20 +165,20 @@ async def forget_phone_numbers(phone_numbers: Set[str], prefix: str) -> None:
 
 async def process_mnrl_files(
     apikey: str,
-    existing_phone_numbers: Set[str],
+    existing_phone_numbers: set[str],
     phone_prefix: str,
-    mnrl_filenames: List[str],
-) -> Tuple[Set[str], int, int]:
+    mnrl_filenames: list[str],
+) -> tuple[set[str], int, int]:
     """
     Scan all MNRL files and return a tuple of results.
 
     :return: Tuple of number to be revoked (set), total expired numbers in the MNRL,
         and count of failures when accessing the MNRL lists
     """
-    revoked_phone_numbers: Set[str] = set()
+    revoked_phone_numbers: set[str] = set()
     mnrl_total_count = 0
     failures = 0
-    async_tasks: Set[asyncio.Task] = set()
+    async_tasks: set[asyncio.Task] = set()
     with Progress(transient=True) as progress:
         ptask = progress.add_task(
             f"Processing {len(mnrl_filenames)} MNRL files", total=len(mnrl_filenames)

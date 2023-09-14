@@ -3,19 +3,18 @@
 from __future__ import annotations
 
 import json
-from typing import Optional
 
-from flask import Markup
+from markupsafe import Markup
 
 from baseframe import __, forms
 
 from ..models import (
+    Account,
+    AccountEmail,
     Project,
     TicketClient,
     TicketEvent,
     TicketParticipant,
-    User,
-    UserEmail,
     db,
 )
 from .helpers import nullable_json_filters, validate_and_convert_json
@@ -76,6 +75,10 @@ class ProjectBoxofficeForm(forms.Form):
     is_subscription = forms.BooleanField(
         __("Paid tickets are for a subscription"),
         default=True,
+    )
+    has_membership = forms.BooleanField(
+        __("Tickets on this project represent memberships to the account"),
+        default=False,
     )
     register_button_txt = forms.StringField(
         __("Register button text"),
@@ -162,7 +165,7 @@ class TicketParticipantForm(forms.Form):
     """Form for a participant in a ticket."""
 
     __returns__ = ('user',)
-    user: Optional[User] = None
+    user: Account | None = None
     edit_parent: Project
 
     fullname = forms.StringField(
@@ -217,9 +220,9 @@ class TicketParticipantForm(forms.Form):
         """Validate form."""
         result = super().validate(*args, **kwargs)
         with db.session.no_autoflush:
-            useremail = UserEmail.get(email=self.email.data)
-            if useremail is not None:
-                self.user = useremail.user
+            accountemail = AccountEmail.get(email=self.email.data)
+            if accountemail is not None:
+                self.user = accountemail.account
             else:
                 self.user = None
         return result

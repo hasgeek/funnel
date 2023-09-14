@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Union
-
 from flask import render_template, url_for
 from markupsafe import Markup, escape
 from werkzeug.utils import cached_property
@@ -11,25 +9,25 @@ from werkzeug.utils import cached_property
 from baseframe import _, __
 
 from ...models import (
+    Account,
     Comment,
     CommentModeratorReport,
     CommentReplyNotification,
     CommentReportReceivedNotification,
     Commentset,
-    DuckTypeUser,
+    DuckTypeAccount,
     NewCommentNotification,
     Project,
     Proposal,
-    User,
 )
-from ...transports.sms import OneLineTemplate, SmsTemplate
+from ...transports.sms import OneLineTemplate, SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
 
 
 class CommentReplyTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for RSVP without a next session."""
+    """DLT registered template for a reply to a comment."""
 
     registered_template = (
         '{#var#} has replied to your comment: {#var#}'
@@ -40,12 +38,13 @@ class CommentReplyTemplate(TemplateVarMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop -Hasgeek'
     )
     plaintext_template = '{actor} has replied to your comment: {url}'
+    message_priority = SmsPriority.NORMAL
 
     url: str
 
 
 class CommentProposalTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for RSVP without a next session."""
+    """DLT registered template for a comment on a proposal."""
 
     registered_template = (
         '{#var#} commented on your submission: {#var#}'
@@ -56,12 +55,13 @@ class CommentProposalTemplate(TemplateVarMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop -Hasgeek'
     )
     plaintext_template = '{actor} commented on your submission: {url}'
+    message_priority = SmsPriority.NORMAL
 
     url: str
 
 
 class CommentProjectTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for RSVP without a next session."""
+    """DLT registered template for a comment on a project."""
 
     registered_template = (
         '{#var#} commented on a project you are in: {#var#}'
@@ -72,6 +72,7 @@ class CommentProjectTemplate(TemplateVarMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop -Hasgeek'
     )
     plaintext_template = '{actor} commented on a project you are in: {url}'
+    message_priority = SmsPriority.NORMAL
 
     url: str
 
@@ -121,7 +122,7 @@ class RenderCommentReportReceivedNotification(RenderNotification):
 class CommentNotification(RenderNotification):
     """Render comment notifications for various document types."""
 
-    document: Union[Commentset, Comment]
+    document: Commentset | Comment
     comment: Comment
     aliases = {'fragment': 'comment'}
     emoji_prefix = "💬 "
@@ -129,25 +130,26 @@ class CommentNotification(RenderNotification):
     email_heading = __("New comment!")
 
     @property
-    def actor(self) -> Union[User, DuckTypeUser]:
+    def actor(self) -> Account | DuckTypeAccount:
         """Actor who commented."""
-        return self.comment.user
+        return self.comment.posted_by
 
     @cached_property
-    def commenters(self) -> List[User]:
+    def commenters(self) -> list[Account]:
         """List of unique users from across rolled-up comments. Could be singular."""
         # A set comprehension would have been simpler, but RoleAccessProxy isn't
-        # hashable. Else: ``return {_c.user for _c in self.fragments}``
-        user_ids = set()
-        users = []
+        # hashable. Else: ``return {_c.posted_by for _c in self.fragments}``
+        # TODO: Reconfirm above as RoleAccessProxy has changed to be more transparent
+        posted_by_ids = set()
+        comment_posters = []
         for comment in self.fragments:  # pylint: disable=not-an-iterable
-            if comment.user.uuid not in user_ids:
-                users.append(comment.user)
-                user_ids.add(comment.user.uuid)
-        return users
+            if comment.posted_by.uuid not in posted_by_ids:
+                comment_posters.append(comment.posted_by)
+                posted_by_ids.add(comment.posted_by.uuid)
+        return comment_posters
 
     @property
-    def project(self) -> Optional[Project]:
+    def project(self) -> Project | None:
         if self.document_type == 'project':
             return self.document.project
         if self.document_type == 'proposal':
@@ -155,7 +157,7 @@ class CommentNotification(RenderNotification):
         return None
 
     @property
-    def proposal(self) -> Optional[Proposal]:
+    def proposal(self) -> Proposal | None:
         if self.document_type == 'proposal':
             return self.document.proposal
         return None
@@ -175,7 +177,7 @@ class CommentNotification(RenderNotification):
             return self.document.parent.url_for('view', **kwargs) + '#comments'
         return self.document.url_for('view', **kwargs)
 
-    def activity_template_standalone(self, comment: Optional[Comment] = None) -> str:
+    def activity_template_standalone(self, comment: Comment | None = None) -> str:
         """Activity template for standalone use, such as email subject."""
         if comment is None:
             comment = self.comment
@@ -188,7 +190,7 @@ class CommentNotification(RenderNotification):
         # Unknown document type
         return _("{actor} replied to you")
 
-    def activity_template_inline(self, comment: Optional[Comment] = None) -> str:
+    def activity_template_inline(self, comment: Comment | None = None) -> str:
         """Activity template for inline use with other content, like SMS with URL."""
         if comment is None:
             comment = self.comment
@@ -201,7 +203,7 @@ class CommentNotification(RenderNotification):
         # Unknown document type
         return _("{actor} replied to you:")
 
-    def activity_html(self, comment: Optional[Comment] = None) -> str:
+    def activity_html(self, comment: Comment | None = None) -> str:
         """Activity template rendered into HTML, for use in web and email templates."""
         if comment is None:
             comment = self.comment

@@ -29,7 +29,7 @@ $(() => {
 
     $('.js-toggle-switch').on('change', function toggleNotifications() {
       const checkbox = $(this);
-      const transport = $(this).attr('id');
+      const transport = $(this).attr('data-transport');
       const currentState = this.checked;
       const previousState = !currentState;
       const form = $(this).parents('.js-autosubmit-form')[0];

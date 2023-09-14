@@ -11,7 +11,7 @@ def test_project_crew_membership(
 ) -> None:
     """Test that project crew members get their roles from ProjectCrewMembership."""
     # new_user is account admin
-    assert 'admin' in new_project.profile.roles_for(new_user_owner)
+    assert 'admin' in new_project.account.roles_for(new_user_owner)
     # but it has no role in the project yet
     assert (
         'editor'
@@ -23,16 +23,14 @@ def test_project_crew_membership(
     assert 'usher' not in new_project.roles_for(new_user_owner)
 
     previous_membership = (
-        models.ProjectCrewMembership.query.filter(
-            models.ProjectCrewMembership.is_active
-        )
+        models.ProjectMembership.query.filter(models.ProjectMembership.is_active)
         .filter_by(project=new_project, user=new_user_owner)
         .first()
     )
     assert previous_membership is None
 
-    new_membership = models.ProjectCrewMembership(
-        parent=new_project, user=new_user_owner, is_editor=True
+    new_membership = models.ProjectMembership(
+        parent=new_project, member=new_user_owner, is_editor=True
     )
     db_session.add(new_membership)
     db_session.commit()
@@ -45,8 +43,8 @@ def test_project_crew_membership(
     # only one membership can be active for a user at a time.
     # so adding a new membership without revoking the previous one
     # will raise IntegrityError in database.
-    new_membership_without_revoke = models.ProjectCrewMembership(
-        parent=new_project, user=new_user, is_promoter=True
+    new_membership_without_revoke = models.ProjectMembership(
+        parent=new_project, member=new_user, is_promoter=True
     )
     db_session.add(new_membership_without_revoke)
     with pytest.raises(IntegrityError):
@@ -55,9 +53,7 @@ def test_project_crew_membership(
 
     # let's revoke previous membership
     previous_membership2 = (
-        models.ProjectCrewMembership.query.filter(
-            models.ProjectCrewMembership.is_active
-        )
+        models.ProjectMembership.query.filter(models.ProjectMembership.is_active)
         .filter_by(project=new_project, user=new_user)
         .first()
     )
@@ -71,8 +67,8 @@ def test_project_crew_membership(
     assert 'usher' not in new_project.roles_for(new_user)
 
     # let's add back few more roles
-    new_membership2 = models.ProjectCrewMembership(
-        parent=new_project, user=new_user, is_promoter=True, is_usher=True
+    new_membership2 = models.ProjectMembership(
+        parent=new_project, member=new_user, is_promoter=True, is_usher=True
     )
     db_session.add(new_membership2)
     db_session.commit()
@@ -115,23 +111,23 @@ def test_project_roles_lazy_eval(
     db_session, new_user, new_user_owner, new_organization, new_project2
 ) -> None:
     """Test that the lazy roles evaluator picks up membership-based roles."""
-    assert 'admin' in new_organization.profile.roles_for(new_user_owner)
-    assert 'admin' not in new_organization.profile.roles_for(new_user)
+    assert 'admin' in new_organization.roles_for(new_user_owner)
+    assert 'admin' not in new_organization.roles_for(new_user)
 
-    assert 'profile_admin' in new_project2.roles_for(new_user_owner)
-    assert 'profile_admin' not in new_project2.roles_for(new_user)
+    assert 'account_admin' in new_project2.roles_for(new_user_owner)
+    assert 'account_admin' not in new_project2.roles_for(new_user)
 
 
 def test_membership_amend(
     db_session, user_vetinari, user_ridcully, project_expo2010, org_ankhmorpork
 ):
-    ridcully_admin = models.OrganizationMembership(
-        user=user_ridcully, organization=org_ankhmorpork, granted_by=user_vetinari
+    ridcully_admin = models.AccountMembership(
+        member=user_ridcully, account=org_ankhmorpork, granted_by=user_vetinari
     )
     db_session.add(ridcully_admin)
-    ridcully_member = models.ProjectCrewMembership(
+    ridcully_member = models.ProjectMembership(
         parent=project_expo2010,
-        user=user_ridcully,
+        member=user_ridcully,
         is_editor=True,
         granted_by=user_vetinari,
     )
