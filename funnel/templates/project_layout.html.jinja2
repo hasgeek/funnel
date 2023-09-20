@@ -172,7 +172,10 @@
         </div>
       {%- endif %}
     {% elif project.buy_tickets_url.url -%}
-      <a class="register-block__btn full-width-btn mui-btn mui-btn--primary" href="{{ project.buy_tickets_url.url }}" data-action="external register url" target="_blank" rel="noopener"><span>{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{{ project.views.register_button_text() }}</span></a>
+      <form action="{{ project.url_for('register_external') }}" method="post" class="form-inline">
+        {{ csrf_tag() }}
+        <button class="register-block__btn full-width-btn mui-btn mui-btn--primary" type="submit" name="submit" value="no" data-cy="cancel-rsvp"><span>{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{{ project.views.register_button_text() }}</span></button>
+      </form>
     {% endif %}
     </div>
     {% if project.current_roles.ticket_participant %}

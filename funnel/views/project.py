@@ -820,6 +820,13 @@ class ProjectView(  # type: ignore[misc]
         """Return a CSV of RSVP participants who answered Maybe."""
         return self.get_rsvp_state_csv(state=RSVP_STATUS.MAYBE)
 
+    @route('rsvp_list/awaiting.csv')
+    @requires_login
+    @requires_roles({'promoter'})
+    def rsvp_list_awaiting_csv(self) -> ReturnView:
+        """Return a CSV of RSVP participants with response status Awaiting."""
+        return self.get_rsvp_state_csv(state=RSVP_STATUS.AWAITING)
+
     @route('save', methods=['POST'])
     @requires_login
     @requires_roles({'reader'})
