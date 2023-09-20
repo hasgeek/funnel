@@ -683,6 +683,9 @@ class MarkdownCompositeBase(MutableComposite):
         """Allow a composite column to be assigned a string value."""
         return cls(value)
 
+    # TODO: Add `nullable` as a keyword parameter and add overloads for returning
+    # Mapped[str] or Mapped[str | None] based on nullable
+
     @classmethod
     def create(
         cls: type[_MC],
