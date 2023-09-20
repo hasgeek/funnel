@@ -516,7 +516,7 @@ def transport_worker_wrapper(
                             pass
                         else:
                             # TODO: Implement transport error handling code here
-                            raise
+                            pass
 
     return inner
 
