@@ -172,6 +172,7 @@ def send_email(
             # sender reputation. There is no automated way to flag an email address as
             # no longer bouncing, so it'll require customer support intervention
             if ea.delivery_state.HARD_FAIL:
+                statsd.incr('email_address.send_hard_fail')
                 raise TransportRecipientError(
                     _(
                         "This email address is bouncing messages: {email}. If you"
@@ -180,6 +181,7 @@ def send_email(
                 )
             email_addresses.append(ea)
         except EmailAddressBlockedError as exc:
+            statsd.incr('email_address.send_blocked')
             raise TransportRecipientError(
                 _("This email address has been blocked: {email}").format(email=email)
             ) from exc
@@ -194,7 +196,6 @@ def send_email(
                 message = _("This email address is not valid: {email}").format(
                     email=list(exc.recipients.keys())[0]
                 )
-
         else:
             if len(to) == len(exc.recipients):
                 # We don't know which recipients were rejected, so the error message
@@ -204,6 +205,7 @@ def send_email(
                 message = _("These email addresses are not valid: {emails}").format(
                     emails=_(", ").join(exc.recipients.keys())
                 )
+            statsd.incr('email_address.send_smtp_refused')
         raise TransportRecipientError(message) from exc
 
     # After sending, mark the address as having received an email and also update the
