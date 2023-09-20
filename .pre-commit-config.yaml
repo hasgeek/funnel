@@ -14,7 +14,7 @@ ci:
     ]
 repos:
   - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
-    rev: v1.5.1
+    rev: v1.6.1
     hooks:
       - id: check-pre-commit-ci-config
   - repo: https://github.com/peterdemin/pip-compile-multi
@@ -47,12 +47,12 @@ repos:
           ]
         files: ^requirements/.*\.txt$
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.10.1
+    rev: v3.11.0
     hooks:
       - id: pyupgrade
         args: ['--keep-runtime-typing', '--py310-plus']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.287
+    rev: v0.0.290
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
