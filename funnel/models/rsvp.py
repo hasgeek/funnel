@@ -128,6 +128,17 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
     def rsvp_maybe(self):
         pass
 
+    @with_roles(call={'owner'})
+    @state.transition(
+        None,
+        state.AWAITING,
+        title=__("Awaiting"),
+        message=__("Your response has been saved"),
+        type='accent',
+    )
+    def rsvp_awaiting(self):
+        pass
+
     @with_roles(call={'owner', 'project_promoter'})
     def participant_email(self) -> AccountEmail | None:
         """Participant's preferred email address for this registration."""

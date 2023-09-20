@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from datetime import datetime
 
+from furl import furl
 from pytz import utc
 from sqlalchemy.orm import attribute_keyed_dict
 from werkzeug.utils import cached_property
@@ -71,12 +73,16 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     __tablename__ = 'project'
     reserved_names = RESERVED_NAMES
 
-    created_by_id = sa.orm.mapped_column(sa.ForeignKey('account.id'), nullable=False)
+    created_by_id: Mapped[int] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=False
+    )
     created_by: Mapped[Account] = relationship(
         Account,
         foreign_keys=[created_by_id],
     )
-    account_id = sa.orm.mapped_column(sa.ForeignKey('account.id'), nullable=False)
+    account_id: Mapped[int] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=False
+    )
     account: Mapped[Account] = with_roles(
         relationship(
             Account,
@@ -112,14 +118,14 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     ) = MarkdownCompositeDocument.create('instructions', default='', nullable=True)
     with_roles(instructions, read={'all'})
 
-    location = with_roles(
+    location: Mapped[str | None] = with_roles(
         sa.orm.mapped_column(sa.Unicode(50), default='', nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
     parsed_location: Mapped[types.jsonb_dict]
 
-    website = with_roles(
+    website: Mapped[furl | None] = with_roles(
         sa.orm.mapped_column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent'},
@@ -130,7 +136,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    _state = sa.orm.mapped_column(
+    _state: Mapped[int] = sa.orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', PROJECT_STATE),
@@ -141,7 +147,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     state = with_roles(
         StateManager('_state', PROJECT_STATE, doc="Project state"), call={'all'}
     )
-    _cfp_state = sa.orm.mapped_column(
+    _cfp_state: Mapped[int] = sa.orm.mapped_column(
         'cfp_state',
         sa.Integer,
         StateManager.check_constraint('cfp_state', CFP_STATE),
@@ -154,39 +160,39 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     )
 
     #: Audit timestamp to detect re-publishing to re-surface a project
-    first_published_at = sa.orm.mapped_column(
+    first_published_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: Timestamp of when this project was most recently published
-    published_at = with_roles(
+    published_at: Mapped[datetime | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'all'},
         write={'promoter'},
         datasets={'primary', 'without_parent', 'related'},
     )
     #: Optional start time for schedule, cached from column property schedule_start_at
-    start_at = with_roles(
+    start_at: Mapped[datetime | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'all'},
         write={'editor'},
         datasets={'primary', 'without_parent', 'related'},
     )
     #: Optional end time for schedule, cached from column property schedule_end_at
-    end_at = with_roles(
+    end_at: Mapped[datetime | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'all'},
         write={'editor'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    cfp_start_at = sa.orm.mapped_column(
+    cfp_start_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
-    cfp_end_at = sa.orm.mapped_column(
+    cfp_end_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
 
-    bg_image = with_roles(
+    bg_image: Mapped[furl | None] = with_roles(
         sa.orm.mapped_column(ImgeeType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
@@ -196,13 +202,22 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    buy_tickets_url: Mapped[str | None] = with_roles(
+    buy_tickets_url: Mapped[furl | None] = with_roles(
         sa.orm.mapped_column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-
-    banner_video_url = with_roles(
+    buy_tickets_visits_anon: Mapped[int | None] = with_roles(
+        sa.orm.mapped_column(sa.Integer(), nullable=True),
+        read={'promoter'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
+    buy_tickets_visits_auth: Mapped[int | None] = with_roles(
+        sa.orm.mapped_column(sa.Integer(), nullable=True),
+        read={'promoter'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
+    banner_video_url: Mapped[furl | None] = with_roles(
         sa.orm.mapped_column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent'},
@@ -216,14 +231,14 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         call={'all'},
     )
 
-    hasjob_embed_url = with_roles(
+    hasjob_embed_url: Mapped[furl | None] = with_roles(
         sa.orm.mapped_column(UrlType, nullable=True), read={'all'}
     )
-    hasjob_embed_limit = with_roles(
+    hasjob_embed_limit: Mapped[int | None] = with_roles(
         sa.orm.mapped_column(sa.Integer, default=8), read={'all'}
     )
 
-    commentset_id = sa.orm.mapped_column(
+    commentset_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = relationship(
@@ -234,7 +249,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         back_populates='project',
     )
 
-    parent_id = sa.orm.mapped_column(
+    parent_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
     parent_project: Mapped[Project | None] = relationship(
@@ -243,14 +258,14 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
 
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or account admins.
-    site_featured = with_roles(
+    site_featured: Mapped[bool] = with_roles(
         sa.orm.mapped_column(sa.Boolean, default=False, nullable=False),
         read={'all'},
         write={'site_editor'},
         datasets={'primary', 'without_parent'},
     )
 
-    livestream_urls = with_roles(
+    livestream_urls: Mapped[list[str] | None] = with_roles(
         sa.orm.mapped_column(
             sa.ARRAY(sa.UnicodeText, dimensions=1),
             server_default=sa.text("'{}'::text[]"),
@@ -266,7 +281,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     )
 
     #: Revision number maintained by SQLAlchemy, used for vCal files, starting at 1
-    revisionid = with_roles(
+    revisionid: Mapped[int] = with_roles(
         sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
