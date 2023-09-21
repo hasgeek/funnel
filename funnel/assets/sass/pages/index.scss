@@ -31,6 +31,11 @@
   }
 }
 
+.card--spotlight__body {
+  padding: 0 $mui-grid-padding $mui-grid-padding;
+  position: relative;
+}
+
 @media (min-width: 768px) {
   .homepage {
     .logo-about {
@@ -41,6 +46,10 @@
       padding-top: $mui-header-height;
     }
   }
+  .card--spotlight__body {
+    padding: 0 $mui-grid-padding $mui-grid-padding;
+    position: relative;
+  }
 }
 
 @media (min-width: 992px) {
@@ -49,6 +58,9 @@
     .spotlight-container__details {
       margin-top: 0;
     }
+  }
+  .card--spotlight__body {
+    display: none;
   }
 }
 
@@ -80,15 +92,17 @@
   }
 }
 
+
 .spotlight__badge {
   margin: 0;
-  padding: $mui-grid-padding * 0.25 $mui-grid-padding;
+  padding: $mui-grid-padding * 0.25 $mui-grid-padding * 0.5;
   width: auto;
-  min-width: 32px;
   color: $mui-text-hyperlink;
   text-decoration: none;
   border-radius: 16px;
   font-weight: 700;
+  font-size: 14px;
+  line-height: 14px;
   background: transparentize($mui-primary-color, 0.85);
   border: 2px solid transparentize($mui-primary-color, 0.8);
   .spotlight__badge__footer {
@@ -99,9 +113,14 @@
 @media (min-width: 992px) {
   .card--spotlight {
     display: flex !important;
-    max-width: 100%;
     border-radius: 16px 16px 0 16px;
-    min-height: 290px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+    max-width: 100%;
+    transition: 200ms linear;
+    -webkit-transition: 200ms linear;
+    height: 100%;
+
 
     .card__image-wrapper {
       flex: 100%;
@@ -118,11 +137,9 @@
       }
     }
 
-    .card__body {
-      position: relative;
-      padding: $mui-grid-padding-double $mui-grid-padding;
-      width: 100%;
-    }
+  }
+  .card--spotlight__image-wrapper {
+    border-radius: 16px !important;
   }
   .card--spotlight--live {
     padding: $mui-grid-padding;
