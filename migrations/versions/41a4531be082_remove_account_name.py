@@ -6,8 +6,6 @@ Create Date: 2020-04-16 20:46:50.889210
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
@@ -16,8 +14,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = '41a4531be082'
 down_revision = 'e8665a81606d'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 account_name = table(
     'account_name',
@@ -92,7 +90,7 @@ def downgrade() -> None:
         'ix_account_name_reserved', 'account_name', ['reserved'], unique=False
     )
 
-    op.execute(
+    op.get_bind().execute(
         account_name.insert().from_select(
             [
                 'id',

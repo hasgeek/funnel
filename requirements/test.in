@@ -4,8 +4,8 @@ colorama
 coverage
 coveralls
 lxml
-mock;python_version=="3.7"
 playwright
+py  # Not ours; missing dep in pytest-html, which is a dep for pytest-selenium
 Pygments
 pytest
 pytest-asyncio

@@ -15,8 +15,9 @@ from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, pages
 from ..forms import SavedProjectForm
-from ..models import Profile, Project, sa
+from ..models import Account, Project, sa
 from ..typing import ReturnRenderWith, ReturnView
+from .schedule import schedule_data, session_list_data
 
 
 @dataclass
@@ -45,7 +46,7 @@ class IndexView(ClassView):
     @route('', endpoint='index')
     @render_with('index.html.jinja2')
     def home(self) -> ReturnRenderWith:
-        g.profile = None
+        g.account = None
         projects = Project.all_unsorted()
         # TODO: Move these queries into the Project class
         all_projects = (
@@ -82,6 +83,30 @@ class IndexView(ClassView):
             .limit(1)
             .first()
         )
+        scheduled_sessions_list = (
+            session_list_data(
+                featured_project.scheduled_sessions, with_modal_url='view'
+            )
+            if featured_project
+            else None
+        )
+        featured_project_venues = (
+            [
+                venue.current_access(datasets=('without_parent', 'related'))
+                for venue in featured_project.venues
+            ]
+            if featured_project
+            else None
+        )
+        featured_project_schedule = (
+            schedule_data(
+                featured_project,
+                with_slots=False,
+                scheduled_sessions=scheduled_sessions_list,
+            )
+            if featured_project
+            else None
+        )
         if featured_project in upcoming_projects:
             # if featured project is in upcoming projects, remove it from there and
             # pick one upcoming project from from all projects, only if
@@ -95,8 +120,8 @@ class IndexView(ClassView):
             .all()
         )
         # Get featured accounts
-        featured_accounts = Profile.query.filter(
-            Profile.name_in(app.config['FEATURED_ACCOUNTS'])
+        featured_accounts = Account.query.filter(
+            Account.name_in(app.config['FEATURED_ACCOUNTS'])
         ).all()
         # This list will not be ordered, so we have to re-sort
         featured_account_sort_key = {
@@ -118,12 +143,13 @@ class IndexView(ClassView):
                 for p in open_cfp_projects
             ],
             'featured_project': (
-                featured_project.access_for(
-                    roles={'all'}, datasets=('primary', 'related')
-                )
+                featured_project.current_access(datasets=('primary', 'related'))
                 if featured_project
                 else None
             ),
+            'featured_project_venues': featured_project_venues,
+            'featured_project_sessions': scheduled_sessions_list,
+            'featured_project_schedule': featured_project_schedule,
             'featured_accounts': [
                 p.access_for(roles={'all'}, datasets=('primary', 'related'))
                 for p in featured_accounts
@@ -138,7 +164,7 @@ IndexView.init_app(app)
 @requestargs(('page', int), ('per_page', int))
 @render_with('past_projects_section.html.jinja2')
 def past_projects(page: int = 1, per_page: int = 10) -> ReturnView:
-    g.profile = None
+    g.account = None
     projects = Project.all_unsorted()
     pagination = (
         projects.filter(Project.state.PAST)

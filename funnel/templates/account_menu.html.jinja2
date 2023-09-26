@@ -1,6 +1,6 @@
 {%- from "macros.html.jinja2" import faicon, useravatar, csrf_tag, img_size  %}
 {%- if current_auth -%}
-  {% if current_auth.user.profile %}
+  {% if current_auth.user.name %}
     <li class="bg-accent">
       <div class="header__dropdown__item">
         <div class="user">
@@ -44,18 +44,18 @@
       </li>
       {%- for orgmem in orgmemlist.recent %}
         <li>
-          <a href="{{ orgmem.organization.profile.url_for() }}"
+          <a href="{{ orgmem.account.profile_url }}"
              class="header__dropdown__item header__dropdown__item--flex header__dropdown__item--morepadding mui--text-dark nounderline">
             <span class="profile-avatar margin-right">
-              {%- if orgmem.organization.profile.logo_url.url %}
-                <img src="{{ orgmem.organization.profile.logo_url.resize(img_size.profile_logo_small) }}"
-                     alt="{{ orgmem.organization.title }}"/>
+              {%- if orgmem.account.logo_url.url %}
+                <img src="{{ orgmem.account.logo_url.resize(img_size.profile_logo_small) }}"
+                     alt="{{ orgmem.account.title }}"/>
               {% else %}
                 <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
-                     alt="{{ orgmem.organization.title }}"/>
+                     alt="{{ orgmem.account.title }}"/>
               {% endif %}
             </span>
-            <span class="mui--text-body2 profile-avatar-title profile-avatar-title--prewrap mui--text-dark">{{ orgmem.organization.profile.title }}</span>
+            <span class="mui--text-body2 profile-avatar-title profile-avatar-title--prewrap mui--text-dark">{{ orgmem.account.title }}</span>
           </a>
         </li>
       {%- endfor %}
@@ -65,12 +65,12 @@
              class="header__dropdown__item header__dropdown__item--flex header__dropdown__item--morepadding mui--text-dark nounderline">
             {%- for orgmem in orgmemlist.overflow %}
               <span class="profile-avatar margin-right">
-                {%- if orgmem.organization.profile.logo_url.url %}
-                  <img src="{{ orgmem.organization.profile.logo_url.resize(img_size.profile_logo_small) }}"
-                       alt="{{ orgmem.organization.title }}"/>
+                {%- if orgmem.account.logo_url.url %}
+                  <img src="{{ orgmem.account.logo_url.resize(img_size.profile_logo_small) }}"
+                       alt="{{ orgmem.account.title }}"/>
                 {% else %}
                   <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
-                       alt="{{ orgmem.organization.title }}"/>
+                       alt="{{ orgmem.account.title }}"/>
                 {% endif %}
               </span>
             {%- endfor %}

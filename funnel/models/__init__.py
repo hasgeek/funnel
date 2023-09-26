@@ -23,15 +23,16 @@ from coaster.sqlalchemy import (
     ModelBase,
     NoIdMixin,
     Query,
+    QueryProperty,
     RegistryMixin,
     RoleMixin,
     TimestampMixin,
     UrlType,
     UuidMixin,
+    backref,
     relationship,
     with_roles,
 )
-from coaster.sqlalchemy.model import QueryProperty
 
 
 class Model(ModelBase, DeclarativeBase):
@@ -60,9 +61,9 @@ GeonameModel.init_flask_sqlalchemy(db)
 # pylint: disable=wrong-import-position
 from . import types  # isort:skip
 from .helpers import *  # isort:skip
-from .user import *  # isort:skip
+from .account import *  # isort:skip
 from .user_signals import *  # isort:skip
-from .user_session import *  # isort:skip
+from .login_session import *  # isort:skip
 from .email_address import *  # isort:skip
 from .phone_number import *  # isort:skip
 from .auth_client import *  # isort:skip
@@ -72,7 +73,6 @@ from .draft import *  # isort:skip
 from .sync_ticket import *  # isort:skip
 from .contact_exchange import *  # isort:skip
 from .label import *  # isort:skip
-from .profile import *  # isort:skip
 from .project import *  # isort:skip
 from .update import *  # isort:skip
 from .proposal import *  # isort:skip
@@ -84,7 +84,7 @@ from .venue import *  # isort:skip
 from .video_mixin import *  # isort:skip
 from .mailer import *  # isort:skip
 from .membership_mixin import *  # isort:skip
-from .organization_membership import *  # isort:skip
+from .account_membership import *  # isort:skip
 from .project_membership import *  # isort:skip
 from .sponsor_membership import *  # isort:skip
 from .proposal_membership import *  # isort:skip

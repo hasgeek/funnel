@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ..models import AuthToken
+from ..models import Account, AuthToken, LoginSession, Organization, Team
 from ..signals import (
     org_data_changed,
     session_revoked,
@@ -25,14 +25,14 @@ user_changes_to_notify = {
 
 
 @session_revoked.connect
-def notify_session_revoked(session):
+def notify_session_revoked(session: LoginSession) -> None:
     for auth_client in session.auth_clients:
         if auth_client.trusted and auth_client.notification_uri:
             send_auth_client_notice.queue(
                 auth_client.notification_uri,
                 data={
-                    'userid': session.user.buid,  # XXX: Deprecated parameter
-                    'buid': session.user.buid,
+                    'userid': session.account.buid,  # XXX: Deprecated parameter
+                    'buid': session.account.buid,
                     'type': 'user',
                     'changes': ['logout'],
                     'sessionid': session.buid,
@@ -41,7 +41,7 @@ def notify_session_revoked(session):
 
 
 @user_data_changed.connect
-def notify_user_data_changed(user, changes):
+def notify_user_data_changed(user: Account, changes) -> None:
     """Send notifications to trusted auth clients about relevant user data changes."""
     if user_changes_to_notify & set(changes):
         # We have changes that apps need to hear about
@@ -92,7 +92,9 @@ def notify_user_data_changed(user, changes):
 
 
 @org_data_changed.connect
-def notify_org_data_changed(org, user, changes, team=None):
+def notify_org_data_changed(
+    org: Organization, user: Account, changes, team: Team | None = None
+) -> None:
     """
     Send notifications to trusted auth clients about org data changes.
 
@@ -100,7 +102,7 @@ def notify_org_data_changed(org, user, changes, team=None):
     org to find apps that need to be notified.
     """
     client_users = {}
-    for token in AuthToken.all(users=org.admin_users):
+    for token in AuthToken.all(accounts=org.admin_users):
         if (
             token.auth_client.trusted
             and token.is_valid()
@@ -131,8 +133,8 @@ def notify_org_data_changed(org, user, changes, team=None):
 
 
 @team_data_changed.connect
-def notify_team_data_changed(team, user, changes):
+def notify_team_data_changed(team: Team, user: Account, changes) -> None:
     """Notify :func:`notify_org_data_changed` for changes to the team."""
     notify_org_data_changed(
-        team.organization, user=user, changes=['team-' + c for c in changes], team=team
+        team.account, user=user, changes=['team-' + c for c in changes], team=team
     )

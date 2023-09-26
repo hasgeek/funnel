@@ -21,13 +21,13 @@ TEST_NEW_PHONE = '+918123456789'
 
 
 @pytest.fixture()
-def useremail_rincewind(user_rincewind: models.User) -> models.UserEmail:
+def useremail_rincewind(user_rincewind: models.User) -> models.AccountEmail:
     """Email address for user fixture."""
     return user_rincewind.add_email(TEST_NEW_EMAIL)
 
 
 @pytest.fixture()
-def userphone_rincewind(user_rincewind: models.User) -> models.UserPhone:
+def userphone_rincewind(user_rincewind: models.User) -> models.AccountPhone:
     """Phone number for user fixture."""
     return user_rincewind.add_phone(TEST_NEW_PHONE)
 
@@ -111,7 +111,7 @@ def test_merge_with_email_otp(
         assert user_mort.emails == []
         assert rv2.location == '/account/merge'
         with client.session_transaction() as session:
-            assert session['merge_buid'] == useremail_rincewind.user.buid
+            assert session['merge_buid'] == useremail_rincewind.account.buid
 
 
 def test_add_phone_wrong_otp(
@@ -183,4 +183,4 @@ def test_merge_with_phone_otp(
     assert user_mort.phones == []
     assert rv2.location == '/account/merge'
     with client.session_transaction() as session:
-        assert session['merge_buid'] == userphone_rincewind.user.buid
+        assert session['merge_buid'] == userphone_rincewind.account.buid

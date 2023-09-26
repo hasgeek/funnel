@@ -2,8 +2,8 @@
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
 
+from collections.abc import Generator
 from types import SimpleNamespace
-from typing import Generator
 
 import pytest
 import sqlalchemy as sa
@@ -186,7 +186,7 @@ def test_email_address_mutability() -> None:
     ea.email = None
     assert ea.email is None
     assert ea.domain is None
-    assert ea.blake2b160 == hash_map['example@example.com']  # type: ignore[unreachable]
+    assert ea.blake2b160 == hash_map['example@example.com']
 
     # Restoring allowed (case insensitive)
     ea.email = 'exAmple@exAmple.com'

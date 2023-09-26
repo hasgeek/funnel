@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import datetime, timedelta
 from functools import wraps
 from hashlib import blake2b
-from typing import Callable, Dict, Optional, Set, Union, cast
+from typing import cast
 
 from flask import Response, make_response, request, url_for
 
@@ -28,13 +29,13 @@ def xml_response(f: Callable[P, str]) -> Callable[P, Response]:
 
 
 def xhr_only(
-    redirect_to: Optional[Union[str, Callable[[], str]]] = None
-) -> Callable[[Callable[P, T]], Callable[P, Union[T, ReturnResponse]]]:
+    redirect_to: str | Callable[[], str] | None = None
+) -> Callable[[Callable[P, T]], Callable[P, T | ReturnResponse]]:
     """Render a view only when it's an XHR request."""
 
-    def decorator(f: Callable[P, T]) -> Callable[P, Union[T, ReturnResponse]]:
+    def decorator(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
         @wraps(f)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Union[T, ReturnResponse]:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | ReturnResponse:
             if not request_wants.html_fragment:
                 if redirect_to is None:
                     destination = url_for('index')
@@ -56,8 +57,8 @@ def etag_cache_for_user(
     identifier: str,
     view_version: int,
     timeout: int,
-    max_age: Optional[int] = None,
-    query_params: Optional[Set] = None,
+    max_age: int | None = None,
+    query_params: set | None = None,
 ) -> Callable[[Callable[P, ReturnView]], Callable[P, Response]]:
     """
     Cache and compress a response, and add an ETag header for browser cache.
@@ -115,9 +116,7 @@ def etag_cache_for_user(
 
             # XXX: Typing for cache.get is incorrectly specified as returning
             # Optional[str]
-            cache_data: Optional[Dict] = cache.get(  # type: ignore[assignment]
-                cache_key
-            )
+            cache_data: dict | None = cache.get(cache_key)  # type: ignore[assignment]
             response_data = None
             if cache_data:
                 rhash_data = cache_data.get(rhash, {})

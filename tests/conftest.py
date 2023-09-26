@@ -1200,16 +1200,16 @@ def user_death(models, db_session) -> funnel_models.User:
     """
     Death is the epoch user, present at the beginning and always having the last word.
 
-    Since Death predates all other users in tests, any call to `merge_users` or
-    `migrate_user` always transfers assets to Death. The fixture has created_at set to
-    the epoch to represent this. Death is also a site admin.
+    Since Death predates all other users in tests, any call to `merge_accounts` or
+    `migrate_account` always transfers assets to Death. The fixture has joined_at set
+    to the epoch to represent this. Death is also a site admin.
     """
     user = models.User(
         username='death',
         fullname="Death",
-        created_at=datetime(1970, 1, 1, tzinfo=timezone.utc),
+        joined_at=datetime(1970, 1, 1, tzinfo=timezone.utc),
     )
-    user.profile.is_protected = True
+    user.is_protected = True
     db_session.add(user)
     return user
 
@@ -1219,12 +1219,12 @@ def user_mort(models, db_session) -> funnel_models.User:
     """
     Mort is Death's apprentice, and a site admin in tests.
 
-    Mort has a created_at in the past (the publication date of the book), granting
+    Mort has a joined_at in the past (the publication date of the book), granting
     priority when merging user accounts. Unlike Death, Mort does not have a username or
     profile, so Mort will acquire it from a merged user.
     """
     user = models.User(
-        fullname="Mort", created_at=datetime(1987, 11, 12, tzinfo=timezone.utc)
+        fullname="Mort", joined_at=datetime(1987, 11, 12, tzinfo=timezone.utc)
     )
     db_session.add(user)
     return user
@@ -1417,17 +1417,17 @@ def org_uu(
     org = models.Organization(name='UU', title="Unseen University", owner=user_ridcully)
     db_session.add(org)
     db_session.add(
-        models.OrganizationMembership(
-            organization=org,
-            user=user_librarian,
+        models.AccountMembership(
+            account=org,
+            member=user_librarian,
             is_owner=False,
             granted_by=user_ridcully,
         )
     )
     db_session.add(
-        models.OrganizationMembership(
-            organization=org,
-            user=user_ponder_stibbons,
+        models.AccountMembership(
+            account=org,
+            member=user_ponder_stibbons,
             is_owner=False,
             granted_by=user_ridcully,
         )
@@ -1454,13 +1454,16 @@ def org_citywatch(
     )
     db_session.add(org)
     db_session.add(
-        models.OrganizationMembership(
-            organization=org, user=user_vimes, is_owner=True, granted_by=user_vetinari
+        models.AccountMembership(
+            account=org,
+            member=user_vimes,
+            is_owner=True,
+            granted_by=user_vetinari,
         )
     )
     db_session.add(
-        models.OrganizationMembership(
-            organization=org, user=user_carrot, is_owner=False, granted_by=user_vimes
+        models.AccountMembership(
+            account=org, member=user_carrot, is_owner=False, granted_by=user_vimes
         )
     )
     return org
@@ -1479,8 +1482,8 @@ def project_expo2010(
     db_session.flush()
 
     project = models.Project(
-        profile=org_ankhmorpork.profile,
-        user=user_vetinari,
+        account=org_ankhmorpork,
+        created_by=user_vetinari,
         title="Ankh-Morpork 2010",
         tagline="Welcome to Ankh-Morpork, tourists!",
         description="The city doesn't have tourists. Let’s change that.",
@@ -1497,8 +1500,8 @@ def project_expo2011(
     db_session.flush()
 
     project = models.Project(
-        profile=org_ankhmorpork.profile,
-        user=user_vetinari,
+        account=org_ankhmorpork,
+        created_by=user_vetinari,
         title="Ankh-Morpork 2011",
         tagline="Welcome back, our pub’s changed",
         description="The Broken Drum is gone, but we have The Mended Drum now.",
@@ -1519,8 +1522,8 @@ def project_ai1(
     db_session.flush()
 
     project = models.Project(
-        profile=org_uu.profile,
-        user=user_ponder_stibbons,
+        account=org_uu,
+        created_by=user_ponder_stibbons,
         title="Soul Music",
         tagline="Hex makes an initial appearance",
         description="Hex has its origins in a device that briefly appeared in Soul"
@@ -1546,8 +1549,8 @@ def project_ai2(
     db_session.flush()
 
     project = models.Project(
-        profile=org_uu.profile,
-        user=user_ponder_stibbons,
+        account=org_uu,
+        created_by=user_ponder_stibbons,
         title="Interesting Times",
         tagline="Hex invents parts for itself",
         description="Hex has become a lot more complex, and is constantly reinventing"
@@ -1570,7 +1573,7 @@ def client_hex(models, db_session, org_uu) -> funnel_models.Project:
     # TODO: AuthClient needs to move to account (nee profile) as the parent model
     auth_client = models.AuthClient(
         title="Hex",
-        organization=org_uu,
+        account=org_uu,
         confidential=True,
         website='https://example.org/',
         redirect_uris=['https://example.org/callback'],
@@ -1684,8 +1687,11 @@ def new_organization(
     org = models.Organization(owner=new_user_owner, title="Test org", name='test_org')
     db_session.add(org)
 
-    admin_membership = models.OrganizationMembership(
-        organization=org, user=new_user_admin, is_owner=False, granted_by=new_user_owner
+    admin_membership = models.AccountMembership(
+        account=org,
+        member=new_user_admin,
+        is_owner=False,
+        granted_by=new_user_owner,
     )
     db_session.add(admin_membership)
     db_session.commit()
@@ -1694,7 +1700,7 @@ def new_organization(
 
 @pytest.fixture()
 def new_team(models, db_session, new_user, new_organization) -> funnel_models.Team:
-    team = models.Team(title="Owners", organization=new_organization)
+    team = models.Team(title="Owners", account=new_organization)
     db_session.add(team)
     team.users.append(new_user)
     db_session.commit()
@@ -1706,8 +1712,8 @@ def new_project(
     models, db_session, new_organization, new_user
 ) -> funnel_models.Project:
     project = models.Project(
-        profile=new_organization.profile,
-        user=new_user,
+        account=new_organization,
+        created_by=new_user,
         title="Test Project",
         tagline="Test tagline",
         description="Test description",
@@ -1723,8 +1729,8 @@ def new_project2(
     models, db_session, new_organization, new_user_owner
 ) -> funnel_models.Project:
     project = models.Project(
-        profile=new_organization.profile,
-        user=new_user_owner,
+        account=new_organization,
+        created_by=new_user_owner,
         title="Test Project",
         tagline="Test tagline",
         description="Test description",
@@ -1783,7 +1789,7 @@ def new_label(models, db_session, new_project) -> funnel_models.Label:
 @pytest.fixture()
 def new_proposal(models, db_session, new_user, new_project) -> funnel_models.Proposal:
     proposal = models.Proposal(
-        user=new_user,
+        created_by=new_user,
         project=new_project,
         title="Test Proposal",
         body="Test proposal description",

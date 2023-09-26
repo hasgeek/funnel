@@ -69,7 +69,7 @@
             />
           </div>
         </td>
-        <td data-th="User">{{ comment.user.pickername }}</td>
+        <td data-th="User">{{ comment.posted_by.pickername }}</td>
         <td data-th="User"><a href="{{ comment.url_for() }}">{% trans %}Link{% endtrans %}</a></td>
         <td data-th="Content">{{ comment.message }}</td>
         {#

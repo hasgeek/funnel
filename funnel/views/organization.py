@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from flask import abort, render_template, request, url_for
 
 from baseframe import _
@@ -13,7 +11,7 @@ from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles,
 
 from .. import app
 from ..forms import OrganizationForm, TeamForm
-from ..models import Organization, Team, db
+from ..models import Account, Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
 from ..typing import ReturnView
 from .helpers import render_redirect
@@ -22,39 +20,43 @@ from .login_session import requires_login, requires_sudo, requires_user_not_spam
 # --- Routes: Organizations ---------------------------------------------------
 
 
-@Organization.views('people_and_teams')
-def people_and_teams(obj):
+@Organization.views()
+def people_and_teams(obj: Organization) -> list[tuple[Account, list[Team]]]:
     """Extract a list of users from the org's public teams."""
-    # This depends on user.teams not using lazy='dynamic'. When that changes, we will
-    # need a different approach to match users to teams. Comparison is by id rather
+    # This depends on user.member_teams not using lazy='dynamic'. When that changes, we
+    # will need a different approach to match users to teams. Comparison is by id rather
     # than by object because teams are loaded separately in the two queries, and
     # SQLAlchemy's session management doesn't merge the instances.
     teams = [team for team in obj.teams if team.is_public]
     result = [
         (
             user,
-            [team for team in teams if team.id in (uteam.id for uteam in user.teams)],
+            [
+                team
+                for team in teams
+                if team.id in (uteam.id for uteam in user.member_teams)
+            ],
         )
         for user in obj.people()
     ]
     return result
 
 
-@Organization.views('main')
-@route('/<organization>')
+@Account.views('org')
+@route('/<account>')
 class OrgView(UrlChangeCheck, UrlForView, ModelView):
     """Views for organizations."""
 
     __decorators__ = [requires_login]
-    model = Organization
-    # Map <organization> in URL to attribute `name`, for `url_for` automation
-    route_model_map = {'organization': 'name'}
-    obj: Organization
+    model = Account
+    # Map <account> in URL to attribute `urlname`, for `url_for` automation
+    route_model_map = {'account': 'urlname'}
+    obj: Account
 
-    def loader(self, organization: Optional[str] = None) -> Optional[Organization]:
+    def loader(self, account: str | None = None) -> Account | None:
         """Load an organization if the view requires it."""
-        if organization:
-            obj = Organization.get(name=organization)
+        if account:
+            obj = Account.get(name=account)
             if obj is None:
                 abort(404)
             if not obj.state.ACTIVE:
@@ -67,16 +69,15 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     @requires_user_not_spammy()
     def new(self) -> ReturnView:
         """Create a new organization."""
-        form = OrganizationForm(user=current_auth.user)
+        form = OrganizationForm(edit_user=current_auth.user)
         if form.validate_on_submit():
             org = Organization(owner=current_auth.user)
             form.populate_obj(org)
             db.session.add(org)
-            db.session.flush()  # Required to auto-create `Profile` instance
-            org.profile.make_public()
+            org.make_profile_public()
             db.session.commit()
             org_data_changed.send(org, changes=['new'], user=current_auth.user)
-            return render_redirect(org.profile.url_for('edit'))
+            return render_redirect(org.url_for('edit'))
         return render_form(
             form=form,
             title=_("Create a new organization"),
@@ -90,14 +91,14 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'owner'})
     def delete(self) -> ReturnView:
         """Delete organization if safe to do so."""
-        if self.obj.profile.is_protected:
+        if self.obj.is_protected:
             return render_message(
                 title=_("Protected account"),
                 message=_(
                     "This organization is marked as protected and cannot be deleted"
                 ),
             )
-        if not self.obj.profile.is_safe_to_delete():
+        if not self.obj.is_safe_to_delete():
             return render_message(
                 title=_("This organization has projects"),
                 message=_(
@@ -122,7 +123,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
                 "You have deleted organization ‘{title}’ and all its associated content"
             ).format(title=self.obj.title),
             next=url_for('account'),
-            cancel_url=self.obj.profile.url_for(),
+            cancel_url=self.obj.url_for(),
         )
 
     @route('teams')
@@ -137,7 +138,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
         """Create a new team."""
         form = TeamForm()
         if form.validate_on_submit():
-            team = Team(organization=self.obj)
+            team = Team(account=self.obj)
             db.session.add(team)
             form.populate_obj(team)
             db.session.commit()
@@ -152,7 +153,7 @@ OrgView.init_app(app)
 
 
 @Team.views('main')
-@route('/<organization>/teams/<team>')
+@route('/<account>/teams/<team>')
 class TeamView(UrlChangeCheck, UrlForView, ModelView):
     """Views for teams in organizations."""
 
@@ -160,15 +161,15 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
     model = Team
     # Map <name> and <buid> in URLs to model attributes, for `url_for` automation
     route_model_map = {
-        'organization': 'organization.name',
+        'account': 'account.urlname',
         'team': 'buid',
     }
     obj: Team
 
-    def loader(self, organization: str, team: str) -> Team:
+    def loader(self, account: str, team: str) -> Team:
         """Load a team."""
         obj = Team.get(buid=team, with_parent=True)
-        if obj is None or obj.organization.name != organization:
+        if obj is None or obj.account.urlname != account:
             abort(404)
         return obj
 
@@ -181,13 +182,13 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             team_data_changed.send(self.obj, changes=['edit'], user=current_auth.user)
-            return render_redirect(self.obj.organization.url_for('teams'))
+            return render_redirect(self.obj.account.url_for('teams'))
         return render_form(
             form=form,
             title=_("Edit team: {title}").format(title=self.obj.title),
             formid='team_edit',
             submit=_("Save"),
-            cancel_url=self.obj.organization.url_for('teams'),
+            cancel_url=self.obj.account.url_for('teams'),
             ajax=False,
         )
 
@@ -205,8 +206,8 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
             message=_("Delete team {title}?").format(title=self.obj.title),
             success=_(
                 "You have deleted team ‘{team}’ from organization ‘{org}’"
-            ).format(team=self.obj.title, org=self.obj.organization.title),
-            next=self.obj.organization.url_for('teams'),
+            ).format(team=self.obj.title, org=self.obj.account.title),
+            next=self.obj.account.url_for('teams'),
         )
 
 
