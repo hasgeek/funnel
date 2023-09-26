@@ -1,7 +1,6 @@
 """Test account registration."""
 
 import re
-from typing import Dict
 
 import pytest
 from playwright.sync_api import Page, expect
@@ -37,7 +36,7 @@ def given_anonuser_home_page(live_server, page) -> None:
 )
 def when_anonuser_navigates_login_and_submits(
     app, live_server, phone_or_email, page
-) -> Dict[str, str]:
+) -> dict[str, str]:
     if phone_or_email == "a phone number":
         username = '8123456789'
     elif phone_or_email == "an email address":
@@ -120,7 +119,7 @@ def given_anonymous_project_page(live_server, page, db_session, new_project) -> 
     new_project.publish()
     db_session.add(new_project)
     db_session.commit()
-    page.goto(live_server.url + new_project.profile.name + '/' + new_project.name)
+    page.goto(live_server.url + new_project.account.urlname + '/' + new_project.name)
 
 
 @when("they click on follow")
@@ -140,7 +139,7 @@ def then_register_modal_appear(page) -> None:
     parsers.re("they enter (?P<phone_or_email>a phone number|an email address)"),
     target_fixture='anon_username',
 )
-def when_they_enter_email(page, phone_or_email) -> Dict[str, str]:
+def when_they_enter_email(page, phone_or_email) -> dict[str, str]:
     check_recaptcha_loaded(page)
     if phone_or_email == "a phone number":
         username = '8123456789'
@@ -163,7 +162,7 @@ def given_twoflower_visits_project(
     new_project.publish()
     db_session.add(new_project)
     db_session.commit()
-    page.goto(live_server.url + new_project.profile.name + '/' + new_project.name)
+    page.goto(live_server.url + new_project.account.urlname + '/' + new_project.name)
 
 
 @given("the server uses Recaptcha")
