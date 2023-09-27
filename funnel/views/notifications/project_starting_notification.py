@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Union
-
 from flask import render_template
 
 from baseframe import _, __
@@ -12,8 +10,8 @@ from baseframe.filters import time_filter
 from ...models import (
     Project,
     ProjectStartingNotification,
-    Session,
     ProjectTomorrowNotification,
+    Session,
 )
 from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
@@ -152,9 +150,7 @@ class RenderProjectTomorrowNotification(RenderProjectStartingNotification):
 
     def sms(  # type: ignore[override]
         self,
-    ) -> Union[
-        ProjectStartingTomorrowVenueTemplate, ProjectStartingTomorrowLocationTemplate
-    ]:
+    ) -> ProjectStartingTomorrowVenueTemplate | ProjectStartingTomorrowLocationTemplate:
         venue = self.project.primary_venue
         if venue is not None:
             return ProjectStartingTomorrowVenueTemplate(

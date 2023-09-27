@@ -165,7 +165,7 @@ class ProjectStartingNotification(
 
 
 class ProjectTomorrowNotification(
-    DocumentHasProfile,
+    DocumentHasAccount,
     Notification[Project, Optional[Session]],
     type='project_tomorrow',
     shadows=ProjectStartingNotification,

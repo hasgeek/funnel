@@ -6,7 +6,7 @@ from typing_extensions import Self
 
 import grapheme
 
-from ...models import Account, Project
+from ...models import Account, Project, Venue
 
 _T = TypeVar('_T')  # Host type for SetVar
 _I = TypeVar('_I')  # Input type for SetVar's setter
