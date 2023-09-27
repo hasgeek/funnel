@@ -1,6 +1,6 @@
 """Python to SQLAlchemy type mappings."""
 
-from typing_extensions import Annotated, TypeAlias
+from typing import Annotated, TypeAlias
 
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql

@@ -35,7 +35,7 @@ idna
 ijson
 itsdangerous
 linkify-it-py
-markdown-it-py<3.0  # Breaks our plugins, needs refactoring
+markdown-it-py
 mdit-py-plugins
 oauth2
 oauth2client
@@ -63,7 +63,9 @@ toml
 tweepy
 twilio
 typing-extensions
+urllib3[socks]  # Not required here, but the [socks] extra shows up in test.txt
 user-agents
 werkzeug
 whitenoise
+z-base-32
 zxcvbn

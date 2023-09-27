@@ -40,40 +40,40 @@ def test_valid_name() -> None:
     assert mhelpers.valid_name('-Ab') is False
 
 
-def test_valid_username() -> None:
+def test_valid_account_name() -> None:
     """Usernames contain letters, numbers and non-terminal hyphens."""
-    assert mhelpers.valid_username('example person') is False
-    assert mhelpers.valid_username('example-person') is False
-    assert mhelpers.valid_username('exampleperson') is True
+    assert mhelpers.valid_account_name('example person') is False
+    assert mhelpers.valid_account_name('example-person') is False
+    assert mhelpers.valid_account_name('exampleperson') is True
     assert mhelpers.valid_name('example1person') is True
     assert mhelpers.valid_name('1exampleperson') is True
     assert mhelpers.valid_name('exampleperson1') is True
-    assert mhelpers.valid_username('example_person') is True
-    assert mhelpers.valid_username('a') is True
-    assert mhelpers.valid_username('a-') is False
-    assert mhelpers.valid_username('ab-') is False
-    assert mhelpers.valid_username('a_') is True
-    assert mhelpers.valid_username('ab_') is True
-    assert mhelpers.valid_username('-a') is False
-    assert mhelpers.valid_username('-ab') is False
-    assert mhelpers.valid_username('_a') is False
-    assert mhelpers.valid_username('_ab') is False
-    assert mhelpers.valid_username('Example Person') is False
-    assert mhelpers.valid_username('Example-Person') is False
-    assert mhelpers.valid_username('ExamplePerson') is True
-    assert mhelpers.valid_username('Example1Person') is True
-    assert mhelpers.valid_username('1ExamplePerson') is True
-    assert mhelpers.valid_username('ExamplePerson1') is True
-    assert mhelpers.valid_username('Example_Person') is True
-    assert mhelpers.valid_username('A') is True
-    assert mhelpers.valid_username('A-') is False
-    assert mhelpers.valid_username('Ab-') is False
-    assert mhelpers.valid_username('A_') is True
-    assert mhelpers.valid_username('Ab_') is True
-    assert mhelpers.valid_username('-A') is False
-    assert mhelpers.valid_username('-Ab') is False
-    assert mhelpers.valid_username('_A') is False
-    assert mhelpers.valid_username('_Ab') is False
+    assert mhelpers.valid_account_name('example_person') is True
+    assert mhelpers.valid_account_name('a') is True
+    assert mhelpers.valid_account_name('a-') is False
+    assert mhelpers.valid_account_name('ab-') is False
+    assert mhelpers.valid_account_name('a_') is True
+    assert mhelpers.valid_account_name('ab_') is True
+    assert mhelpers.valid_account_name('-a') is False
+    assert mhelpers.valid_account_name('-ab') is False
+    assert mhelpers.valid_account_name('_a') is False
+    assert mhelpers.valid_account_name('_ab') is False
+    assert mhelpers.valid_account_name('Example Person') is False
+    assert mhelpers.valid_account_name('Example-Person') is False
+    assert mhelpers.valid_account_name('ExamplePerson') is True
+    assert mhelpers.valid_account_name('Example1Person') is True
+    assert mhelpers.valid_account_name('1ExamplePerson') is True
+    assert mhelpers.valid_account_name('ExamplePerson1') is True
+    assert mhelpers.valid_account_name('Example_Person') is True
+    assert mhelpers.valid_account_name('A') is True
+    assert mhelpers.valid_account_name('A-') is False
+    assert mhelpers.valid_account_name('Ab-') is False
+    assert mhelpers.valid_account_name('A_') is True
+    assert mhelpers.valid_account_name('Ab_') is True
+    assert mhelpers.valid_account_name('-A') is False
+    assert mhelpers.valid_account_name('-Ab') is False
+    assert mhelpers.valid_account_name('_A') is False
+    assert mhelpers.valid_account_name('_Ab') is False
 
 
 def test_reopen() -> None:
@@ -248,6 +248,12 @@ def test_imgeetype(db_session, image_models) -> None:
         ('lu_tz', True, r'%lu\_tz%'),
         ('ab[c]_%d', False, r'abc\_\%d%'),
         ('ab[c]_%d', True, r'%abc\_\%d%'),
+        ('\\', False, r'\\%'),
+        ('\\', True, r'%\\%'),
+        ('ab\\cd', False, r'ab\\cd%'),
+        ('ab\\cd', True, r'%ab\\cd%'),
+        ('\\%', False, r'\\\%%'),
+        ('\\%', True, r'%\\\%%'),
     ],
 )
 def test_quote_autocomplete_like(prefix, midway, query) -> None:

@@ -1,6 +1,5 @@
 """API view for creating a shortlink to any content on the website."""
 
-from typing import Dict, Optional, Tuple, Union
 
 from furl import furl
 
@@ -19,8 +18,8 @@ from ..helpers import app_url_for, validate_is_app_url
 @app.route('/api/1/shortlink/create', methods=['POST'])
 @requestform(('url', abort_null), ('shorter', getbool), ('name', abort_null))
 def create_shortlink(
-    url: Union[str, furl], shorter: bool = True, name: Optional[str] = None
-) -> Tuple[Dict[str, str], int]:
+    url: str | furl, shorter: bool = True, name: str | None = None
+) -> tuple[dict[str, str], int]:
     """Create a shortlink that's valid for URLs in the app."""
     # Validate URL to be local before allowing a shortlink to it.
     if url:

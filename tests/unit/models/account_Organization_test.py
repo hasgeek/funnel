@@ -88,19 +88,16 @@ def test_organization_suspend_restore(db_session, org_citywatch) -> None:
     db_session.commit()
     assert org_citywatch.state.ACTIVE
     assert not org_citywatch.state.SUSPENDED
-    assert org_citywatch.profile.is_active
 
     org_citywatch.mark_suspended()
     db_session.commit()
     assert not org_citywatch.state.ACTIVE
     assert org_citywatch.state.SUSPENDED
-    assert not org_citywatch.profile.is_active
 
     org_citywatch.mark_active()
     db_session.commit()
     assert org_citywatch.state.ACTIVE
     assert not org_citywatch.state.SUSPENDED
-    assert org_citywatch.profile.is_active
 
     with pytest.raises(StateTransitionError):
         org_citywatch.mark_active()

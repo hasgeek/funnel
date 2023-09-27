@@ -56,14 +56,14 @@
           </button>
           <div class="comment__header__details user">
             <div class="user__box" v-if="!comment.state">
-              <useravatar :user='comment.user' :addprofilelink=true></useravatar>
+              <useravatar :user='comment.posted_by' :addprofilelink=true></useravatar>
               <div class="user__box__header comment__header__details__user">
                 <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">
-                  <span class="commenter">{{ comment.user.fullname }}</span>
+                  <span class="commenter">{{ comment.posted_by.fullname }}</span>
                   <span class="commenter mui--text-light mui--text-caption" v-if="comment.state && comment.state.DELETED">[deleted]</span>
                   <span class="commenter mui--text-light mui--text-caption" v-if="comment.state && comment.state.SPAM">[removed]</span>
                 </h3>
-                <h3 v-if="comment.user.username" class="mui--text-caption user__box__userid"><span>@{{ comment.user.username }}</span> <span class="badge" v-for="badge in comment.badges">{{ badge }}</span></h3>
+                <h3 v-if="comment.posted_by.username" class="mui--text-caption user__box__userid"><span>@{{ comment.posted_by.username }}</span> <span class="badge" v-for="badge in comment.badges">{{ badge }}</span></h3>
               </div>
             </div>
           </div>

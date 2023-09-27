@@ -1,11 +1,12 @@
 """Notification helpers and mixins."""
 
-from typing import Callable, Generic, Optional, Type, TypeVar, Union, overload
+from collections.abc import Callable
+from typing import Generic, TypeVar, overload
 from typing_extensions import Self
 
 import grapheme
 
-from ...models import Project, User
+from ...models import Account, Project
 
 _T = TypeVar('_T')  # Host type for SetVar
 _I = TypeVar('_I')  # Input type for SetVar's setter
@@ -20,7 +21,7 @@ class SetVar(Generic[_T, _I, _O]):
     def __init__(self, fset: Callable[[_T, _I], _O]) -> None:
         self.fset = fset
 
-    def __set_name__(self, owner: Type[_T], name: str) -> None:
+    def __set_name__(self, owner: type[_T], name: str) -> None:
         if getattr(self, 'name', None) is None:
             self.name = name
         else:
@@ -30,7 +31,7 @@ class SetVar(Generic[_T, _I, _O]):
             copy.__set_name__(owner, name)
 
     @overload
-    def __get__(self, instance: None, owner: Type[_T]) -> Self:
+    def __get__(self, instance: None, owner: type[_T]) -> Self:
         ...
 
     @overload
@@ -38,12 +39,10 @@ class SetVar(Generic[_T, _I, _O]):
         ...
 
     @overload
-    def __get__(self, instance: _T, owner: Type[_T]) -> _O:
+    def __get__(self, instance: _T, owner: type[_T]) -> _O:
         ...
 
-    def __get__(
-        self, instance: Optional[_T], owner: Optional[Type[_T]] = None
-    ) -> Union[Self, _O]:
+    def __get__(self, instance: _T | None, owner: type[_T] | None = None) -> Self | _O:
         if instance is None:
             return self
         try:
@@ -78,15 +77,16 @@ class TemplateVarMixin:
         return title[:index] + '…'
 
     @SetVar
-    def user(self, user: User) -> str:
-        """Set user's display name, truncated to fit."""
-        pickername = user.pickername
+    def account(self, account: Account) -> str:
+        """Set account's display name, truncated to fit."""
+        pickername = account.pickername
         if len(pickername) <= self.var_max_length:
             return pickername
-        fullname = user.fullname
-        if len(fullname) <= self.var_max_length:
-            return fullname
-        index = grapheme.safe_split_index(fullname, self.var_max_length - 1)
-        return fullname[:index] + '…'
+        title = account.title
+        if len(title) <= self.var_max_length:
+            return title
+        index = grapheme.safe_split_index(title, self.var_max_length - 1)
+        return title[:index] + '…'
 
-    actor = user  # This will trigger cloning in SetVar.__set_name__
+    # This will trigger cloning in SetVar.__set_name__
+    actor = user = organization = profile = account

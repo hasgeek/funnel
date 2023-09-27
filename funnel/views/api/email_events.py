@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from email.utils import parseaddr
-from typing import List, Optional, Sequence
 
 import requests
 from flask import current_app, request
@@ -186,7 +186,7 @@ validator: SnsValidator = SnsValidator()
 processor: SesProcessor = SesProcessor()
 
 # SNS Headers that should be present in all messages
-sns_headers: List[str] = [
+sns_headers: list[str] = [
     'x-amz-sns-message-type',
     'x-amz-sns-message-id',
     'x-amz-sns-topic-arn',
@@ -228,9 +228,7 @@ def process_ses_event() -> ReturnView:
 
     # Validate the message
     try:
-        config_topics: Optional[Sequence[str]] = app.config.get(
-            'SES_NOTIFICATION_TOPICS'
-        )
+        config_topics: Sequence[str] | None = app.config.get('SES_NOTIFICATION_TOPICS')
         if not config_topics:
             app.logger.error("Config key SES_NOTIFICATION_TOPICS is not set")
         validator.topics = config_topics or []

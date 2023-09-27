@@ -21,7 +21,7 @@ RESERVED_VENUEROOM = ['new', 'edit', 'delete']
 
 
 @Project.views('venue')
-@route('/<profile>/<project>/venues')
+@route('/<account>/<project>/venues')
 class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('venues.html.jinja2')
@@ -102,7 +102,7 @@ ProjectVenueView.init_app(app)
 
 
 @Venue.views('main')
-@route('/<profile>/<project>/venues/<venue>')
+@route('/<account>/<project>/venues/<venue>')
 class VenueView(VenueViewMixin, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_login
@@ -165,7 +165,7 @@ VenueView.init_app(app)
 
 
 @VenueRoom.views('main')
-@route('/<profile>/<project>/venues/<venue>/<room>')
+@route('/<account>/<project>/venues/<venue>/<room>')
 class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_login

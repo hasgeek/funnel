@@ -6,8 +6,6 @@ Create Date: 2020-04-20 03:31:29.101725
 
 """
 
-from typing import Optional, Tuple, Union
-
 import progressbar.widgets
 import sqlalchemy as sa
 from alembic import op
@@ -17,8 +15,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = 'e2b28adfa135'
 down_revision = '41a4531be082'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 proposal = table(
     'proposal',
@@ -56,7 +54,7 @@ def upgrade() -> None:
     # Import inside the `upgrade` function because `uuid2suuid` will be removed from
     # Coaster shortly. Importing this migration should not break in the future unless
     # also attempting to perform the migration, which will hopefully be unnecessary
-    from coaster.utils import uuid2suuid
+    from coaster.utils import uuid2suuid  # type: ignore[attr-defined]
 
     op.create_table(
         'proposal_suuid_redirect',

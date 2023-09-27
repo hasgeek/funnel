@@ -1,22 +1,23 @@
 """Helper functions for account delete validation."""
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, List, Optional, TypeVar
+from typing import TypeVar
 
 from baseframe import __
 
-from ..models import User
+from ..models import Account
 
 # --- Delete validator registry --------------------------------------------------------
 
-ValidatorFunc = TypeVar('ValidatorFunc', bound=Callable[[User], bool])
+ValidatorFunc = TypeVar('ValidatorFunc', bound=Callable[[Account], bool])
 
 
 @dataclass
 class DeleteValidator:
     """Delete validator metadata."""
 
-    validate: Callable[[User], bool]
+    validate: Callable[[Account], bool]
     name: str
     title: str
     message: str
@@ -24,11 +25,11 @@ class DeleteValidator:
 
 #: A list of validators that confirm there is no objection to deleting a user
 #: account (returning True to allow deletion to proceed).
-account_delete_validators: List[DeleteValidator] = []
+account_delete_validators: list[DeleteValidator] = []
 
 
 def delete_validator(
-    title: str, message: str, name: Optional[str] = None
+    title: str, message: str, name: str | None = None
 ) -> Callable[[ValidatorFunc], ValidatorFunc]:
     """Register an account delete validator."""
 
@@ -49,9 +50,9 @@ def delete_validator(
     title=__("This account is protected"),
     message=__("Protected accounts cannot be deleted"),
 )
-def profile_is_protected(user: User) -> bool:
+def profile_is_protected(user: Account) -> bool:
     """Block deletion if the user has a protected account."""
-    if user.profile is not None and user.profile.is_protected:
+    if user.is_protected:
         return False
     return True
 
@@ -63,7 +64,7 @@ def profile_is_protected(user: User) -> bool:
         " account can be deleted"
     ),
 )
-def single_owner_organization(user: User) -> bool:
+def single_owner_organization(user: Account) -> bool:
     """Fail if user is the sole owner of one or more organizations."""
     # TODO: Optimize org.owner_users lookup for large organizations
     return all(tuple(org.owner_users) != (user,) for org in user.organizations_as_owner)
@@ -76,13 +77,9 @@ def single_owner_organization(user: User) -> bool:
         " transferred to a new host before the account can be deleted"
     ),
 )
-def profile_has_projects(user: User) -> bool:
+def profile_has_projects(user: Account) -> bool:
     """Fail if user has projects in their account."""
-    if user.profile is not None:
-        # TODO: Break down `is_safe_to_delete()` into individual components
-        # and apply to org delete as well
-        return user.profile.is_safe_to_delete()
-    return True
+    return user.is_safe_to_delete()
 
 
 @delete_validator(
@@ -92,7 +89,7 @@ def profile_has_projects(user: User) -> bool:
         " can be deleted"
     ),
 )
-def user_owns_apps(user: User) -> bool:
+def user_owns_apps(user: Account) -> bool:
     """Fail if user is the owner of client apps."""
     if user.clients:
         return False
@@ -102,8 +99,8 @@ def user_owns_apps(user: User) -> bool:
 # --- Delete validator view helper -----------------------------------------------------
 
 
-@User.views()
-def validate_account_delete(obj: User) -> Optional[DeleteValidator]:
+@Account.views()
+def validate_account_delete(obj: Account) -> DeleteValidator | None:
     """Validate if user account is safe to delete, returning an optional objection."""
     for validator in account_delete_validators:
         proceed = validator.validate(obj)

@@ -3,7 +3,6 @@ process.traceDeprecation = true;
 const webpack = require('webpack');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const path = require('path');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { InjectManifest } = require('workbox-webpack-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -142,9 +141,6 @@ module.exports = {
     }),
     new webpack.DefinePlugin({
       'process.env': { NODE_ENV: JSON.stringify(nodeEnv) },
-    }),
-    new CleanWebpackPlugin({
-      root: path.join(__dirname, 'funnel/static'),
     }),
     new WebpackManifestPlugin({
       fileName: path.join(__dirname, 'funnel/static/build/manifest.json'),

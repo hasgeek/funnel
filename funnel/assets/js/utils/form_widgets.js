@@ -121,8 +121,8 @@ export async function activateFormWidgets() {
     }
   });
 
-  // Change username field input mode to tel
-  if ($('#username').length > 0) {
+  // Change username field input mode to tel in login form
+  if ($('#loginformwrapper').length && $('#username').length) {
     $('#username').attr('inputmode', 'tel');
     $('#username').attr('autocomplete', 'tel');
     $('.js-keyboard-switcher[data-inputmode="tel"]').addClass('active');

@@ -8,7 +8,6 @@ Create Date: 2020-06-17 02:13:45.493791
 """
 
 import hashlib
-from typing import Optional, Tuple, Union
 
 import idna
 import progressbar.widgets
@@ -21,8 +20,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = 'e3b3ccbca3b9'
 down_revision = 'ae075a249493'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 # --- Tables ---------------------------------------------------------------------------

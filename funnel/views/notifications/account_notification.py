@@ -7,8 +7,9 @@ from flask import render_template
 from baseframe import _, __
 
 from ... import app
-from ...models import AccountPasswordNotification, User
+from ...models import AccountPasswordNotification
 from ...transports.sms import SmsTemplate
+from ...models import Account, AccountPasswordNotification
 from ..notification import RenderNotification
 
 
@@ -37,7 +38,7 @@ class PasswordResetNotificationTemplate(SmsTemplate):
 class RenderAccountPasswordNotification(RenderNotification):
     """Notify user when their password is changed."""
 
-    user: User
+    user: Account
     aliases = {'document': 'user'}
     emoji_prefix = "⚠️ "
     hero_image = 'img/email/chars-v1/password.png'
@@ -46,9 +47,10 @@ class RenderAccountPasswordNotification(RenderNotification):
     @property
     def actor(self):
         # This notification won't have an actor when dispatched from password reset.
-        # i.e., self.notification.user is None. However, password reset is presumably
-        # performed by the owner of the user account, i.e., self.document, so we use
-        # that as the actor instead, here via the `user` alias (as specified above).
+        # i.e., self.notification.created_by is None. However, password reset is
+        # presumably performed by the owner of the user account, i.e., self.document, so
+        # we use that as the actor instead, here via the `user` alias (as specified
+        # above).
         return self.user
 
     def web(self):
