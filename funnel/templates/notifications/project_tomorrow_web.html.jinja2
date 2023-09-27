@@ -2,12 +2,12 @@
 {%- from "macros.html.jinja2" import useravatar %}
 
 {%- block avatar %}
-  {{ useravatar(view.project.profile.owner) }}
+  {{ useravatar(view.project.account) }}
 {%- endblock avatar -%}
 
 {%- block content -%}
   <p>
-    {% trans project=view.project.joined_title, url=view.project.url_for(), start_datetime=(view.session or view.project).start_at_localized|datetime, venue=project.primary_venue.title -%}
+    {% trans project=view.project.joined_title, url=view.project.url_for(), start_datetime=(view.session or view.project).start_at_localized|datetime, venue=view.project.primary_venue.title -%}
       <a href="{{ url }}">{{ project }}</a> has an in-person session at {{ venue }}, starting {{ start_datetime }}
     {%- endtrans %}
   </p>
