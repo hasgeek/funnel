@@ -7,9 +7,8 @@ from flask import render_template
 from baseframe import _, __
 
 from ... import app
-from ...models import AccountPasswordNotification
-from ...transports.sms import SmsTemplate
 from ...models import Account, AccountPasswordNotification
+from ...transports.sms import SmsTemplate
 from ..notification import RenderNotification
 
 
