@@ -987,15 +987,15 @@ class NotificationRecipient(NotificationRecipientMixin, NoIdMixin, Model):
 
     # --- Dispatch helper methods ------------------------------------------------------
 
-    def user_preferences(self) -> NotificationPreferences:
-        """Return the user's notification preferences for this notification type."""
-        prefs = self.user.notification_preferences.get(self.notification_pref_type)
+    def recipient_preferences(self) -> NotificationPreferences:
+        """Return the account's notification preferences for this notification type."""
+        prefs = self.recipient.notification_preferences.get(self.notification_pref_type)
         if prefs is None:
             prefs = NotificationPreferences(
-                notification_type=self.notification_pref_type, account=self.user
+                notification_type=self.notification_pref_type, account=self.recipient
             )
             db.session.add(prefs)
-            self.user.notification_preferences[self.notification_pref_type] = prefs
+            self.recipient.notification_preferences[self.notification_pref_type] = prefs
         return prefs
 
     def has_transport(self, transport: str) -> bool:
@@ -1012,13 +1012,13 @@ class NotificationRecipient(NotificationRecipientMixin, NoIdMixin, Model):
         # This property inserts the row if not already present. An immediate database
         # commit is required to ensure a parallel worker processing another notification
         # doesn't make a conflicting row.
-        main_prefs = self.user.main_notification_preferences
-        user_prefs = self.user_preferences()
+        main_prefs = self.recipient.main_notification_preferences
+        user_prefs = self.recipient_preferences()
         return (
             self.notification.allow_transport(transport)
             and main_prefs.by_transport(transport)
             and user_prefs.by_transport(transport)
-            and self.user.has_transport(transport)
+            and self.recipient.has_transport(transport)
         )
 
     def transport_for(self, transport: str) -> AccountEmail | AccountPhone | None:
@@ -1032,14 +1032,14 @@ class NotificationRecipient(NotificationRecipientMixin, NoIdMixin, Model):
         3. The user's per-type preference allows it
         4. The user has this transport (verified email or phone, etc)
         """
-        main_prefs = self.user.main_notification_preferences
-        user_prefs = self.user_preferences()
+        main_prefs = self.recipient.main_notification_preferences
+        user_prefs = self.recipient_preferences()
         if (
             self.notification.allow_transport(transport)
             and main_prefs.by_transport(transport)
             and user_prefs.by_transport(transport)
         ):
-            return self.user.transport_for(
+            return self.recipient.transport_for(
                 transport, self.notification.preference_context
             )
         return None
