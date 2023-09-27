@@ -59,7 +59,7 @@ const WebShare = {
             if (document.execCommand('copy')) {
               toastr.success(gettext('Link copied'));
             } else {
-              toastr.success(gettext('Could not copy link'));
+              toastr.error(gettext('Could not copy link'));
             }
             selection.removeAllRanges();
           }
@@ -71,9 +71,10 @@ const WebShare = {
             .then((shortlink) => {
               $(linkElem).find('.js-copy-url').text(shortlink);
               $(linkElem).attr('data-shortlink', true);
-            })
-            .finally(() => {
               copyLink();
+            })
+            .catch((errMsg) => {
+              toastr.error(errMsg);
             });
         }
       });

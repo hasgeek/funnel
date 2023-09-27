@@ -2,33 +2,33 @@
 
 from typing import Union
 
+from .account import Account, AccountOldId, Team
 from .auth_client import AuthClient
 from .comment import Comment, Commentset
 from .label import Label
+from .login_session import LoginSession
 from .membership_mixin import ImmutableMembershipMixin
 from .moderation import CommentModeratorReport
-from .profile import Profile
 from .project import Project
 from .proposal import Proposal
 from .rsvp import Rsvp
 from .session import Session
 from .sync_ticket import TicketParticipant
 from .update import Update
-from .user import Organization, Team, User, UserOldId
-from .user_session import UserSession
 from .venue import Venue, VenueRoom
 
 __all__ = ['UuidModelUnion', 'SearchModelUnion', 'MarkdownModelUnion']
 
 # All models with a `uuid` attr
 UuidModelUnion = Union[
+    Account,
+    AccountOldId,
     AuthClient,
     Comment,
     CommentModeratorReport,
     Commentset,
     ImmutableMembershipMixin,
-    Organization,
-    Profile,
+    LoginSession,
     Project,
     Proposal,
     Rsvp,
@@ -36,19 +36,14 @@ UuidModelUnion = Union[
     Team,
     TicketParticipant,
     Update,
-    User,
-    UserOldId,
-    UserSession,
     Venue,
     VenueRoom,
 ]
 
 # All models with a `search_vector` attr
-SearchModelUnion = Union[
-    Comment, Label, Organization, Profile, Project, Proposal, Session, Update, User
-]
+SearchModelUnion = Union[Account, Comment, Label, Project, Proposal, Session, Update]
 
 # All models with one or more markdown composite columns
 MarkdownModelUnion = Union[
-    Comment, Profile, Project, Proposal, Session, Update, Venue, VenueRoom
+    Account, Comment, Project, Proposal, Session, Update, Venue, VenueRoom
 ]

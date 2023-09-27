@@ -5,6 +5,15 @@ from __future__ import annotations
 from sqlalchemy import event
 
 from ..signals import (
+    model_accountemail_deleted,
+    model_accountemail_edited,
+    model_accountemail_new,
+    model_accountemailclaim_deleted,
+    model_accountemailclaim_edited,
+    model_accountemailclaim_new,
+    model_accountphone_deleted,
+    model_accountphone_edited,
+    model_accountphone_new,
     model_org_deleted,
     model_org_edited,
     model_org_new,
@@ -14,30 +23,28 @@ from ..signals import (
     model_user_deleted,
     model_user_edited,
     model_user_new,
-    model_useremail_deleted,
-    model_useremail_edited,
-    model_useremail_new,
-    model_useremailclaim_deleted,
-    model_useremailclaim_edited,
-    model_useremailclaim_new,
-    model_userphone_deleted,
-    model_userphone_edited,
-    model_userphone_new,
 )
-from .user import Organization, Team, User, UserEmail, UserEmailClaim, UserPhone
+from .account import (
+    Account,
+    AccountEmail,
+    AccountEmailClaim,
+    AccountPhone,
+    Organization,
+    Team,
+)
 
 
-@event.listens_for(User, 'after_insert')
+@event.listens_for(Account, 'after_insert')
 def _user_new(_mapper, _connection, target):
     model_user_new.send(target)
 
 
-@event.listens_for(User, 'after_update')
+@event.listens_for(Account, 'after_update')
 def _user_edited(_mapper, _connection, target):
     model_user_edited.send(target)
 
 
-@event.listens_for(User, 'after_delete')
+@event.listens_for(Account, 'after_delete')
 def _user_deleted(_mapper, _connection, target):
     model_user_deleted.send(target)
 
@@ -72,46 +79,46 @@ def _team_deleted(_mapper, _connection, target):
     model_team_deleted.send(target)
 
 
-@event.listens_for(UserEmail, 'after_insert')
-def _useremail_new(_mapper, _connection, target):
-    model_useremail_new.send(target)
+@event.listens_for(AccountEmail, 'after_insert')
+def _accountemail_new(_mapper, _connection, target):
+    model_accountemail_new.send(target)
 
 
-@event.listens_for(UserEmail, 'after_update')
-def _useremail_edited(_mapper, _connection, target):
-    model_useremail_edited.send(target)
+@event.listens_for(AccountEmail, 'after_update')
+def _accountemail_edited(_mapper, _connection, target):
+    model_accountemail_edited.send(target)
 
 
-@event.listens_for(UserEmail, 'after_delete')
-def _useremail_deleted(_mapper, _connection, target):
-    model_useremail_deleted.send(target)
+@event.listens_for(AccountEmail, 'after_delete')
+def _accountemail_deleted(_mapper, _connection, target):
+    model_accountemail_deleted.send(target)
 
 
-@event.listens_for(UserEmailClaim, 'after_insert')
-def _useremailclaim_new(_mapper, _connection, target):
-    model_useremailclaim_new.send(target)
+@event.listens_for(AccountEmailClaim, 'after_insert')
+def _accountemailclaim_new(_mapper, _connection, target):
+    model_accountemailclaim_new.send(target)
 
 
-@event.listens_for(UserEmailClaim, 'after_update')
-def _useremailclaim_edited(_mapper, _connection, target):
-    model_useremailclaim_edited.send(target)
+@event.listens_for(AccountEmailClaim, 'after_update')
+def _accountemailclaim_edited(_mapper, _connection, target):
+    model_accountemailclaim_edited.send(target)
 
 
-@event.listens_for(UserEmailClaim, 'after_delete')
-def _useremailclaim_deleted(_mapper, _connection, target):
-    model_useremailclaim_deleted.send(target)
+@event.listens_for(AccountEmailClaim, 'after_delete')
+def _accountemailclaim_deleted(_mapper, _connection, target):
+    model_accountemailclaim_deleted.send(target)
 
 
-@event.listens_for(UserPhone, 'after_insert')
-def _userphone_new(_mapper, _connection, target):
-    model_userphone_new.send(target)
+@event.listens_for(AccountPhone, 'after_insert')
+def _accountphone_new(_mapper, _connection, target):
+    model_accountphone_new.send(target)
 
 
-@event.listens_for(UserPhone, 'after_update')
-def _userphone_edited(_mapper, _connection, target):
-    model_userphone_edited.send(target)
+@event.listens_for(AccountPhone, 'after_update')
+def _accountphone_edited(_mapper, _connection, target):
+    model_accountphone_edited.send(target)
 
 
-@event.listens_for(UserPhone, 'after_delete')
-def _userphone_deleted(_mapper, _connection, target):
-    model_userphone_deleted.send(target)
+@event.listens_for(AccountPhone, 'after_delete')
+def _accountphone_deleted(_mapper, _connection, target):
+    model_accountphone_deleted.send(target)

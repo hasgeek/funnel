@@ -2,7 +2,6 @@
 
 from base64 import b64encode
 from secrets import token_urlsafe
-from typing import Dict
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
@@ -29,7 +28,7 @@ def test_authcode_wellformed(
     login.as_(user_rincewind)
 
     # Incomplete request
-    query_params: Dict[str, str] = {}
+    query_params: dict[str, str] = {}
     rv = client.get('/api/1/auth', query_string=query_params)
     assert rv.status_code == 403
     assert "Missing client_id" in rv.get_data(as_text=True)
@@ -74,7 +73,7 @@ def test_auth_untrusted_confidential(
     assert rv.status_code == 200
 
     # There is no existing AuthToken for this client and user
-    assert models.AuthToken.get_for(client_hex, user=user_rincewind) is None
+    assert models.AuthToken.get_for(client_hex, account=user_rincewind) is None
 
     # Submit form with `accept` and CSRF token
     rv = client.post(
@@ -118,7 +117,7 @@ def test_auth_untrusted_confidential(
     assert data['access_token'] is not None
     assert data['scope'] == authtoken_params['scope']
 
-    authtoken = models.AuthToken.get_for(client_hex, user=user_rincewind)
+    authtoken = models.AuthToken.get_for(client_hex, account=user_rincewind)
     assert authtoken is not None
     assert authtoken.token == data['access_token']
     assert authtoken.token_type == data['token_type']

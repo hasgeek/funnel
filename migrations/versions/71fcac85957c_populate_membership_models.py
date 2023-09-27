@@ -6,7 +6,6 @@ Create Date: 2020-04-21 02:01:52.012077
 
 """
 
-from typing import Optional, Tuple, Union
 from uuid import uuid4
 
 import sqlalchemy as sa
@@ -16,8 +15,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = '71fcac85957c'
 down_revision = '8829241430b6'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 class MEMBERSHIP_RECORD_TYPE:  # noqa: N801
@@ -134,13 +133,13 @@ def upgrade() -> None:
             .where(team.c.id == org_owners_id)
             .where(team_membership.c.team_id == team.c.id)
         )
-        owners_dict = dict(owner_team_users)
+        owners_dict = {r.user_id: r.created_at for r in owner_team_users}
         admin_team_users = conn.execute(
             sa.select(team_membership.c.user_id, team_membership.c.created_at)
             .where(profile.c.organization_id == org_id)
             .where(team_membership.c.team_id == profile.c.admin_team_id)
         )
-        admins_dict = dict(admin_team_users)
+        admins_dict = {r.user_id: r.created_at for r in admin_team_users}
         all_profile_admins = set(owners_dict.keys()) | set(admins_dict.keys())
 
         for user_id in all_profile_admins:
@@ -180,19 +179,19 @@ def upgrade() -> None:
                 team_membership.c.team_id == checkin_team_id
             )
         )
-        checkin_dict = dict(checkin_team_users)
+        checkin_dict = {r.user_id: r.created_at for r in checkin_team_users}
         review_team_users = conn.execute(
             sa.select(team_membership.c.user_id, team_membership.c.created_at).where(
                 team_membership.c.team_id == review_team_id
             )
         )
-        review_dict = dict(review_team_users)
+        review_dict = {r.user_id: r.created_at for r in review_team_users}
         admin_team_users = conn.execute(
             sa.select(team_membership.c.user_id, team_membership.c.created_at).where(
                 team_membership.c.team_id == admin_team_id
             )
         )
-        admin_dict = dict(admin_team_users)
+        admin_dict = {r.user_id: r.created_at for r in admin_team_users}
         all_users = (
             set(checkin_dict.keys()) | set(review_dict.keys()) | set(admin_dict.keys())
         )

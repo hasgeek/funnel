@@ -2,19 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    Iterable,
-    Optional,
-    Set,
-    Union,
-    overload,
-)
-from typing_extensions import Literal, Self
+from typing import Any, ClassVar, Literal, overload
+from typing_extensions import Self
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
@@ -49,20 +40,18 @@ __all__ = [
 
 # --- Markdown dataclasses -------------------------------------------------------------
 
-OptionStrings = Literal['html', 'breaks', 'linkify', 'typographer']
-
 
 @dataclass
 class MarkdownPlugin:
     """Markdown plugin registry with configuration."""
 
     #: Registry of instances
-    registry: ClassVar[Dict[str, MarkdownPlugin]] = {}
+    registry: ClassVar[dict[str, MarkdownPlugin]] = {}
 
     #: Optional name for this config
-    name: Optional[str]
+    name: str | None
     func: Callable
-    config: Optional[Dict[str, Any]] = None
+    config: dict[str, Any] | None = None
 
     @classmethod
     def register(cls, name: str, *args, **kwargs) -> Self:
@@ -79,26 +68,26 @@ class MarkdownConfig:
     """Markdown processor with custom configuration, with a registry."""
 
     #: Registry of named instances
-    registry: ClassVar[Dict[str, MarkdownConfig]] = {}
+    registry: ClassVar[dict[str, MarkdownConfig]] = {}
 
     #: Optional name for this config, for adding to the registry
-    name: Optional[str] = None
+    name: str | None = None
 
     #: Markdown-it preset configuration
     preset: Literal[
         'default', 'zero', 'commonmark', 'js-default', 'gfm-like'
     ] = 'commonmark'
     #: Updated options against the preset
-    options_update: Optional[Dict[OptionStrings, bool]] = None
+    options_update: Mapping | None = None
     #: Allow only inline rules (skips all block rules)?
     inline: bool = False
 
     #: Use these plugins
-    plugins: Iterable[Union[str, MarkdownPlugin]] = ()
+    plugins: Iterable[str | MarkdownPlugin] = ()
     #: Enable these rules (provided by plugins)
-    enable_rules: Optional[Set[str]] = None
+    enable_rules: set[str] | None = None
     #: Disable these rules
-    disable_rules: Optional[Set[str]] = None
+    disable_rules: set[str] | None = None
 
     #: If linkify is enabled, apply to fuzzy links too?
     linkify_fuzzy_link: bool = False
@@ -131,7 +120,7 @@ class MarkdownConfig:
     def render(self, text: str) -> Markup:
         ...
 
-    def render(self, text: Optional[str]) -> Optional[Markup]:
+    def render(self, text: str | None) -> Markup | None:
         """Parse and render Markdown using markdown-it-py with the selected config."""
         if text is None:
             return None

@@ -6,18 +6,17 @@ from typing import Optional
 
 from baseframe import __
 
+from .account import Account
+from .account_membership import AccountMembership
 from .comment import Comment, Commentset
 from .moderation import CommentModeratorReport
 from .notification import Notification, notification_categories
-from .organization_membership import OrganizationMembership
-from .profile import Profile
 from .project import Project
-from .project_membership import ProjectCrewMembership
+from .project_membership import ProjectMembership
 from .proposal import Proposal
 from .rsvp import Rsvp
 from .session import Session
 from .update import Update
-from .user import Organization, User
 
 __all__ = [
     'AccountPasswordNotification',
@@ -44,24 +43,35 @@ class DocumentHasProject:
     """Mixin class for documents linked to a project."""
 
     @property
-    def preference_context(self) -> Profile:
+    def preference_context(self) -> Account:
         """Return document's project's account as preference context."""
-        return self.document.project.profile  # type: ignore[attr-defined]
+        return self.document.project.account  # type: ignore[attr-defined]
 
 
-class DocumentHasProfile:
-    """Mixin class for documents linked to an account (nee profile)."""
+class DocumentHasAccount:
+    """Mixin class for documents linked to an account."""
 
     @property
-    def preference_context(self) -> Profile:
+    def preference_context(self) -> Account:
         """Return document's account as preference context."""
-        return self.document.profile  # type: ignore[attr-defined]
+        return self.document.account  # type: ignore[attr-defined]
+
+
+class DocumentIsAccount:
+    """Mixin class for when the account is the document."""
+
+    @property
+    def preference_context(self) -> Account:
+        """Return document itself as preference context."""
+        return self.document  # type: ignore[attr-defined]
 
 
 # --- Account notifications ------------------------------------------------------------
 
 
-class AccountPasswordNotification(Notification[User, None], type='user_password_set'):
+class AccountPasswordNotification(
+    DocumentIsAccount, Notification[Account, None], type='user_password_set'
+):
     """Notification when the user's password changes."""
 
     category = notification_categories.account
@@ -140,7 +150,7 @@ class ProposalSubmittedNotification(
 
 
 class ProjectStartingNotification(
-    DocumentHasProfile,
+    DocumentHasAccount,
     Notification[Project, Optional[Session]],
     type='project_starting',
 ):
@@ -195,8 +205,8 @@ class CommentReplyNotification(Notification[Comment, Comment], type='comment_rep
 
 
 class ProjectCrewMembershipNotification(
-    DocumentHasProfile,
-    Notification[Project, ProjectCrewMembership],
+    DocumentHasAccount,
+    Notification[Project, ProjectMembership],
     type='project_crew_membership_granted',
 ):
     """Notification of being granted crew membership (including role changes)."""
@@ -205,24 +215,24 @@ class ProjectCrewMembershipNotification(
     title = __("When a project crew member is added or removed")
     description = __("Crew members have access to the project’s settings and data")
 
-    roles = ['subject', 'project_crew']
+    roles = ['member', 'project_crew']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
 class ProjectCrewMembershipRevokedNotification(
-    DocumentHasProfile,
-    Notification[Project, ProjectCrewMembership],
+    DocumentHasAccount,
+    Notification[Project, ProjectMembership],
     type='project_crew_membership_revoked',
     shadows=ProjectCrewMembershipNotification,
 ):
     """Notification of being removed from crew membership (including role changes)."""
 
-    roles = ['subject', 'project_crew']
+    roles = ['member', 'project_crew']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
 class ProposalReceivedNotification(
-    DocumentHasProfile, Notification[Project, Proposal], type='proposal_received'
+    DocumentHasAccount, Notification[Project, Proposal], type='proposal_received'
 ):
     """Notification to editors of new proposals."""
 
@@ -234,7 +244,7 @@ class ProposalReceivedNotification(
 
 
 class RegistrationReceivedNotification(
-    DocumentHasProfile, Notification[Project, Rsvp], type='rsvp_received'
+    DocumentHasAccount, Notification[Project, Rsvp], type='rsvp_received'
 ):
     """Notification to promoters of new registrations."""
 
@@ -251,8 +261,8 @@ class RegistrationReceivedNotification(
 
 
 class OrganizationAdminMembershipNotification(
-    DocumentHasProfile,
-    Notification[Organization, OrganizationMembership],
+    DocumentHasAccount,
+    Notification[Account, AccountMembership],
     type='organization_membership_granted',
 ):
     """Notification of being granted admin membership (including role changes)."""
@@ -261,19 +271,19 @@ class OrganizationAdminMembershipNotification(
     title = __("When account admins change")
     description = __("Account admins control all projects under the account")
 
-    roles = ['subject', 'profile_admin']
+    roles = ['member', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
 class OrganizationAdminMembershipRevokedNotification(
-    DocumentHasProfile,
-    Notification[Organization, OrganizationMembership],
+    DocumentHasAccount,
+    Notification[Account, AccountMembership],
     type='organization_membership_revoked',
     shadows=OrganizationAdminMembershipNotification,
 ):
     """Notification of being granted admin membership (including role changes)."""
 
-    roles = ['subject', 'profile_admin']
+    roles = ['member', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 

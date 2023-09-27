@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import base64
 import re
+from collections.abc import Sequence
 from enum import Enum, IntFlag
-from typing import Dict, Pattern, Sequence, cast
+from re import Pattern
+from typing import cast
 
 import requests
 from cryptography import x509
@@ -91,20 +93,20 @@ class SnsValidator:
         self.cert_regex = cert_regex
         self.sig_version = sig_version
         #: Cache of public keys (per Python process)
-        self.public_keys: Dict[str, RSAPublicKey] = {}
+        self.public_keys: dict[str, RSAPublicKey] = {}
 
-    def _check_topics(self, message: Dict[str, str]) -> None:
+    def _check_topics(self, message: dict[str, str]) -> None:
         topic = message.get('TopicArn')
         if not topic:
             raise SnsTopicError("No Topic")
         if topic not in self.topics:
             raise SnsTopicError("Received topic is not in the list of interest")
 
-    def _check_signature_version(self, message: Dict[str, str]) -> None:
+    def _check_signature_version(self, message: dict[str, str]) -> None:
         if message.get('SignatureVersion') != self.sig_version:
             raise SnsSignatureVersionError("Signature version is invalid")
 
-    def _check_cert_url(self, message: Dict[str, str]) -> None:
+    def _check_cert_url(self, message: dict[str, str]) -> None:
         cert_url = message.get('SigningCertURL')
         if not cert_url:
             raise SnsCertURLError("Missing SigningCertURL field in message")
@@ -112,7 +114,7 @@ class SnsValidator:
             raise SnsCertURLError("Invalid certificate URL")
 
     @staticmethod
-    def _get_text_to_sign(message: Dict[str, str]) -> str:
+    def _get_text_to_sign(message: dict[str, str]) -> str:
         """
         Extract the plain text that was used for signing to compare signatures.
 
@@ -158,7 +160,7 @@ class SnsValidator:
         pairs = [f'{key}\n{message.get(key)}' for key in keys]
         return '\n'.join(pairs) + '\n'
 
-    def _get_public_key(self, message: Dict[str, str]) -> RSAPublicKey:
+    def _get_public_key(self, message: dict[str, str]) -> RSAPublicKey:
         """
         Get the public key using an internal per-process cache.
 
@@ -181,7 +183,7 @@ class SnsValidator:
                 raise SnsSignatureFailureError(exc) from exc
         return public_key
 
-    def _check_signature(self, message: Dict[str, str]) -> None:
+    def _check_signature(self, message: dict[str, str]) -> None:
         """
         Check Signature by comparing the message with the Signature.
 
@@ -203,7 +205,7 @@ class SnsValidator:
 
     def check(
         self,
-        message: Dict[str, str],
+        message: dict[str, str],
         checks: SnsValidatorChecks = SnsValidatorChecks.ALL,
     ) -> None:
         """

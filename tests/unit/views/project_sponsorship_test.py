@@ -10,7 +10,7 @@ from funnel import models
 def org_uu_sponsorship(db_session, user_vetinari, org_uu, project_expo2010):
     sponsorship = models.ProjectSponsorMembership(
         granted_by=user_vetinari,
-        profile=org_uu.profile,
+        member=org_uu,
         project=project_expo2010,
         is_promoted=True,
         label="Diamond",
@@ -23,7 +23,7 @@ def org_uu_sponsorship(db_session, user_vetinari, org_uu, project_expo2010):
 @pytest.fixture()
 def user_vetinari_site_editor(db_session, user_vetinari):
     site_editor = models.SiteMembership(
-        user=user_vetinari, granted_by=user_vetinari, is_site_editor=True
+        member=user_vetinari, granted_by=user_vetinari, is_site_editor=True
     )
     db_session.add(site_editor)
     db_session.commit()
@@ -33,7 +33,7 @@ def user_vetinari_site_editor(db_session, user_vetinari):
 @pytest.fixture()
 def user_twoflower_not_site_editor(db_session, user_twoflower):
     not_site_editor = models.SiteMembership(
-        user=user_twoflower, granted_by=user_twoflower, is_comment_moderator=True
+        member=user_twoflower, granted_by=user_twoflower, is_comment_moderator=True
     )
     db_session.add(not_site_editor)
     db_session.commit()
@@ -47,7 +47,7 @@ def user_twoflower_not_site_editor(db_session, user_twoflower):
 def test_check_site_editor_edit_sponsorship(
     request, app, client, login, org_uu_sponsorship, user_site_membership, status_code
 ) -> None:
-    login.as_(request.getfixturevalue(user_site_membership).user)
+    login.as_(request.getfixturevalue(user_site_membership).member)
     endpoint = org_uu_sponsorship.url_for('edit')
     rv = client.get(endpoint)
     assert rv.status_code == status_code
@@ -73,10 +73,10 @@ def test_sponsorship_add(
     is_promoted,
     csrf_token,
 ) -> None:
-    login.as_(user_vetinari_site_editor.user)
+    login.as_(user_vetinari_site_editor.member)
     endpoint = project_expo2010.url_for('add_sponsor')
     data = {
-        'profile': org_uu.name,
+        'member': org_uu.name,
         'label': label,
         'csrf_token': csrf_token,
     }
@@ -90,10 +90,10 @@ def test_sponsorship_add(
     added_sponsorship = models.ProjectSponsorMembership.query.filter(
         models.ProjectSponsorMembership.is_active,
         models.ProjectSponsorMembership.project == project_expo2010,
-        models.ProjectSponsorMembership.profile == org_uu.profile,
+        models.ProjectSponsorMembership.member == org_uu,
     ).one_or_none()
     assert added_sponsorship is not None
-    assert added_sponsorship.profile == org_uu.profile
+    assert added_sponsorship.member == org_uu
     assert added_sponsorship.label == label
     assert added_sponsorship.is_promoted is is_promoted
 
@@ -107,7 +107,7 @@ def test_sponsorship_edit(
     csrf_token,
 ) -> None:
     assert org_uu_sponsorship.is_promoted is True
-    login.as_(user_vetinari_site_editor.user)
+    login.as_(user_vetinari_site_editor.member)
     endpoint = org_uu_sponsorship.url_for('edit')
     data = {
         'label': "Edited",
@@ -120,7 +120,7 @@ def test_sponsorship_edit(
     edited_sponsorship = models.ProjectSponsorMembership.query.filter(
         models.ProjectSponsorMembership.is_active,
         models.ProjectSponsorMembership.project == org_uu_sponsorship.project,
-        models.ProjectSponsorMembership.profile == org_uu_sponsorship.profile,
+        models.ProjectSponsorMembership.member == org_uu_sponsorship.member,
     ).one_or_none()
     assert edited_sponsorship.label == "Edited"
     assert edited_sponsorship.is_promoted is False
@@ -149,7 +149,7 @@ def test_sponsorship_remove(
     no_sponsor = models.ProjectSponsorMembership.query.filter(
         models.ProjectSponsorMembership.is_active,
         models.ProjectSponsorMembership.project == org_uu_sponsorship.project,
-        models.ProjectSponsorMembership.profile == org_uu_sponsorship.profile,
+        models.ProjectSponsorMembership.member == org_uu_sponsorship.member,
     ).one_or_none()
     assert no_sponsor is None
     assert org_uu_sponsorship.is_active is False

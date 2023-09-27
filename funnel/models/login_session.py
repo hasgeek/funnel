@@ -3,48 +3,56 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Optional
 
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
-from . import BaseMixin, DynamicMapped, Mapped, Model, UuidMixin, relationship, sa
+from . import (
+    BaseMixin,
+    DynamicMapped,
+    Mapped,
+    Model,
+    UuidMixin,
+    backref,
+    relationship,
+    sa,
+)
+from .account import Account
 from .helpers import reopen
-from .user import User
 
 __all__ = [
-    'UserSession',
-    'UserSessionError',
-    'UserSessionExpiredError',
-    'UserSessionRevokedError',
-    'UserSessionInactiveUserError',
-    'auth_client_user_session',
-    'USER_SESSION_VALIDITY_PERIOD',
+    'LoginSession',
+    'LoginSessionError',
+    'LoginSessionExpiredError',
+    'LoginSessionRevokedError',
+    'LoginSessionInactiveUserError',
+    'auth_client_login_session',
+    'LOGIN_SESSION_VALIDITY_PERIOD',
 ]
 
 
-class UserSessionError(Exception):
+class LoginSessionError(Exception):
     """Base exception for user session errors."""
 
 
-class UserSessionExpiredError(UserSessionError):
+class LoginSessionExpiredError(LoginSessionError):
     """This user session has expired and cannot be marked as currently active."""
 
 
-class UserSessionRevokedError(UserSessionError):
+class LoginSessionRevokedError(LoginSessionError):
     """This user session has been revoked and cannot be marked as currently active."""
 
 
-class UserSessionInactiveUserError(UserSessionError):
+class LoginSessionInactiveUserError(LoginSessionError):
     """This user is not in ACTIVE state and cannot have a currently active session."""
 
 
-USER_SESSION_VALIDITY_PERIOD = timedelta(days=365)
+LOGIN_SESSION_VALIDITY_PERIOD = timedelta(days=365)
 
 #: When a user logs into an client app, the user's session is logged against
 #: the client app in this table
-auth_client_user_session = sa.Table(
-    'auth_client_user_session',
+auth_client_login_session = sa.Table(
+    'auth_client_login_session',
     Model.metadata,
     sa.Column(
         'auth_client_id',
@@ -54,9 +62,9 @@ auth_client_user_session = sa.Table(
         primary_key=True,
     ),
     sa.Column(
-        'user_session_id',
+        'login_session_id',
         sa.Integer,
-        sa.ForeignKey('user_session.id'),
+        sa.ForeignKey('login_session.id'),
         nullable=False,
         primary_key=True,
     ),
@@ -75,13 +83,15 @@ auth_client_user_session = sa.Table(
 )
 
 
-class UserSession(UuidMixin, BaseMixin, Model):
-    __tablename__ = 'user_session'
-    __allow_unmapped__ = True
+class LoginSession(UuidMixin, BaseMixin, Model):
+    __tablename__ = 'login_session'
 
-    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user: Mapped[User] = relationship(
-        User, backref=sa.orm.backref('all_user_sessions', cascade='all', lazy='dynamic')
+    account_id: Mapped[int] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=False
+    )
+    account: Mapped[Account] = relationship(
+        Account,
+        backref=backref('all_login_sessions', cascade='all', lazy='dynamic'),
     )
 
     #: User's last known IP address
@@ -126,11 +136,11 @@ class UserSession(UuidMixin, BaseMixin, Model):
             session_revoked.send(self)
 
     @classmethod
-    def get(cls, buid: str) -> Optional[UserSession]:
+    def get(cls, buid: str) -> LoginSession | None:
         return cls.query.filter_by(buid=buid).one_or_none()
 
     @classmethod
-    def authenticate(cls, buid: str, silent: bool = False) -> Optional[UserSession]:
+    def authenticate(cls, buid: str, silent: bool = False) -> LoginSession | None:
         """
         Retrieve a user session that is supposed to be active.
 
@@ -139,42 +149,42 @@ class UserSession(UuidMixin, BaseMixin, Model):
         """
         if silent:
             return (
-                cls.query.join(User)
+                cls.query.join(Account)
                 .filter(
                     # Session key must match.
                     cls.buid == buid,
                     # Sessions are valid for one year...
-                    cls.accessed_at > sa.func.utcnow() - USER_SESSION_VALIDITY_PERIOD,
+                    cls.accessed_at > sa.func.utcnow() - LOGIN_SESSION_VALIDITY_PERIOD,
                     # ...unless explicitly revoked (or user logged out).
                     cls.revoked_at.is_(None),
-                    # User account must be active
-                    User.state.ACTIVE,
+                    # Account must be active
+                    Account.state.ACTIVE,
                 )
                 .one_or_none()
             )
 
         # Not silent? Raise exceptions on expired and revoked sessions
-        user_session = cls.query.join(User).filter(cls.buid == buid).one_or_none()
-        if user_session is not None:
-            if user_session.accessed_at <= utcnow() - USER_SESSION_VALIDITY_PERIOD:
-                raise UserSessionExpiredError(user_session)
-            if user_session.revoked_at is not None:
-                raise UserSessionRevokedError(user_session)
-            if not user_session.user.state.ACTIVE:
-                raise UserSessionInactiveUserError(user_session)
-        return user_session
+        login_session = cls.query.join(Account).filter(cls.buid == buid).one_or_none()
+        if login_session is not None:
+            if login_session.accessed_at <= utcnow() - LOGIN_SESSION_VALIDITY_PERIOD:
+                raise LoginSessionExpiredError(login_session)
+            if login_session.revoked_at is not None:
+                raise LoginSessionRevokedError(login_session)
+            if not login_session.account.state.ACTIVE:
+                raise LoginSessionInactiveUserError(login_session)
+        return login_session
 
 
-@reopen(User)
-class __User:
-    active_user_sessions: DynamicMapped[UserSession] = relationship(
-        UserSession,
+@reopen(Account)
+class __Account:
+    active_login_sessions: DynamicMapped[LoginSession] = relationship(
+        LoginSession,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            UserSession.user_id == User.id,
-            UserSession.accessed_at > sa.func.utcnow() - USER_SESSION_VALIDITY_PERIOD,
-            UserSession.revoked_at.is_(None),
+            LoginSession.account_id == Account.id,
+            LoginSession.accessed_at > sa.func.utcnow() - LOGIN_SESSION_VALIDITY_PERIOD,
+            LoginSession.revoked_at.is_(None),
         ),
-        order_by=UserSession.accessed_at.desc(),
+        order_by=LoginSession.accessed_at.desc(),
         viewonly=True,
     )

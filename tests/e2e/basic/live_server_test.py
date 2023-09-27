@@ -9,7 +9,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 def test_open_homepage(live_server, selenium, db_session, org_uu) -> None:
     """Launch a live server and visit homepage."""
     wait = WebDriverWait(selenium, 10)
-    org_uu.profile.is_verified = True
+    org_uu.is_verified = True
     db_session.commit()
     selenium.get(live_server.url)
     wait.until(ec.visibility_of_element_located((By.CLASS_NAME, 'project-headline')))

@@ -46,10 +46,10 @@
           </div>
           <h3 class="mui--text-heading text-bold margin-bottom"><a class="mui--text-dark nounderline" :href="update.urls.view">{{ update.title }}</a></h3>
           <div class="user__box mui--clearfix update__header">
-            <useravatar :user='update.user' :addprofilelink=true></useravatar>
+            <useravatar :user='update.created_by' :addprofilelink=true></useravatar>
             <div class="user__box__header">
-              <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ update.user.fullname }}</h3>
-              <h3 v-if="update.user.username" class="mui--text-caption user__box__userid"><span>@{{ update.user.username }}</span></h3>
+              <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ update.created_by.fullname }}</h3>
+              <h3 v-if="update.created_by.username" class="mui--text-caption user__box__userid"><span>@{{ update.created_by.username }}</span></h3>
             </div>
           </div>
           <div v-if="!update.is_currently_restricted">

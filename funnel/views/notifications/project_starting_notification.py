@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Union
 
 from flask import render_template
 
@@ -12,10 +12,10 @@ from baseframe.filters import time_filter
 from ...models import (
     Project,
     ProjectStartingNotification,
-    ProjectTomorrowNotification,
     Session,
+    ProjectTomorrowNotification,
 )
-from ...transports.sms import SmsTemplate
+from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
@@ -33,6 +33,7 @@ class ProjectStartingTemplate(TemplateVarMixin, SmsTemplate):
         "\n\nhttps://bye.li to stop - Hasgeek"
     )
     plaintext_template = "Reminder: {project} is starting soon. Join at {url}"
+    message_priority = SmsPriority.IMPORTANT
 
     url: str
 
@@ -86,7 +87,7 @@ class RenderProjectStartingNotification(RenderNotification):
     """Notify crew and participants when the project's schedule is about to start."""
 
     project: Project
-    session: Optional[Session]
+    session: Session | None
     aliases = {'document': 'project', 'fragment': 'session'}
     emoji_prefix = "⏰ "
     reason = __("You are receiving this because you have registered for this project")

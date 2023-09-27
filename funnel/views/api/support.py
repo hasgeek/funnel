@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, Dict, Tuple
+from typing import Any
 
 from flask import abort, request
 
@@ -34,7 +35,7 @@ def requires_support_auth_token(f: Callable[P, T]) -> Callable[P, T]:
 @app.route('/api/1/support/callerid', methods=['POST'])
 @requires_support_auth_token
 @requestform('number')
-def support_callerid(number: str) -> Tuple[Dict[str, Any], int]:
+def support_callerid(number: str) -> tuple[dict[str, Any], int]:
     """Retrieve information about a phone number for caller id."""
     parsed_number = parse_phone_number(number)
     if not parsed_number:
@@ -57,11 +58,11 @@ def support_callerid(number: str) -> Tuple[Dict[str, Any], int]:
         'active_at': phone_number.active_at,
         'is_blocked': phone_number.is_blocked,
     }
-    if phone_number.used_in_user_phone:
-        user_phone = phone_number.used_in_user_phone[0]
+    if phone_number.used_in_account_phone:
+        user_phone = phone_number.used_in_account_phone[0]
         info['account'] = {
-            'title': user_phone.user.fullname,
-            'name': user_phone.user.username,
+            'title': user_phone.account.fullname,
+            'name': user_phone.account.username,
         }
     return {'status': 'ok', 'result': info}, 200
     # TODO: Check in TicketParticipant.phone

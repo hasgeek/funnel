@@ -3,7 +3,6 @@
 
 from datetime import datetime, timedelta
 from types import SimpleNamespace
-from typing import Dict, List, Optional
 
 import pytest
 import sqlalchemy as sa
@@ -103,7 +102,7 @@ def block_of_sessions(db_session, new_project) -> SimpleNamespace:
     return SimpleNamespace(**locals())
 
 
-def find_projects(starting_times, within, gap) -> Dict[datetime, List[models.Project]]:
+def find_projects(starting_times, within, gap) -> dict[datetime, list[models.Project]]:
     # Keep the timestamps at which projects were found, plus the project. Criteria:
     # starts at `timestamp` + up to `within` period, with `gap` from prior sessions
     return {
@@ -296,12 +295,12 @@ def test_next_session_at_property(
     db_session,
     project_expo2010,
     project_expo2011,
-    project_dates: Optional[tuple],
-    session_dates: List[tuple],
-    expected_session: Optional[int],
-    project2_dates: Optional[tuple],
-    session2_dates: List[tuple],
-    expected2_session: Optional[int],
+    project_dates: tuple | None,
+    session_dates: list[tuple],
+    expected_session: int | None,
+    project2_dates: tuple | None,
+    session2_dates: list[tuple],
+    expected2_session: int | None,
 ) -> None:
     """Test next_session_at to work for projects with sessions and without."""
     if project_dates:

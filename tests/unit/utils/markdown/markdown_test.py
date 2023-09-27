@@ -38,7 +38,7 @@ def test_markdown_cases(
 
 
 @pytest.mark.debug_markdown_output()
-def test_markdown_debug_output(pytestconfig, markdown_test_registry):
+def test_markdown_debug_output(pytestconfig, markdown_test_registry) -> None:
     has_mark = pytestconfig.getoption('-m', default=None) == 'debug_markdown_output'
     if not has_mark:
         pytest.skip('Skipping update of debug output file for markdown test cases')

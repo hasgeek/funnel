@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from logging.config import fileConfig
-from typing import List
 
 from alembic import context
 from flask import current_app
@@ -26,7 +25,7 @@ config.set_main_option(
     'sqlalchemy.url',
     str(current_app.extensions['migrate'].db.engines[None].url).replace('%', '%%'),
 )
-bind_names: List[str] = []
+bind_names: list[str] = []
 if current_app.config.get('SQLALCHEMY_BINDS') is not None:
     bind_names = list(current_app.config['SQLALCHEMY_BINDS'].keys())
 else:

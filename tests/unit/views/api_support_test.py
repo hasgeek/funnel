@@ -24,13 +24,13 @@ def mock_api_key() -> str:
 
 
 @pytest.fixture()
-def user_twoflower_phone(user_twoflower: models.User) -> models.UserPhone:
+def user_twoflower_phone(user_twoflower: models.User) -> models.AccountPhone:
     """User phone fixture."""
     return user_twoflower.add_phone(VALID_PHONE_INTL)
 
 
 @pytest.fixture()
-def user_rincewind_phone(user_rincewind: models.User) -> models.UserPhone:
+def user_rincewind_phone(user_rincewind: models.User) -> models.AccountPhone:
     """User phone fixture."""
     return user_rincewind.add_phone(VALID_PHONE)
 
@@ -87,7 +87,7 @@ def test_valid_phone_unaffiliated(
 def test_valid_phone_affiliated(
     app: Flask,
     client: FlaskClient,
-    user_rincewind_phone: models.UserPhone,
+    user_rincewind_phone: models.AccountPhone,
     number: str,
 ) -> None:
     """Test phone number affiliated with a user account."""
@@ -102,8 +102,8 @@ def test_valid_phone_affiliated(
     assert isinstance(data['result'], dict)
     assert data['result']['number'] == VALID_PHONE
     assert data['result']['account'] == {
-        'title': user_rincewind_phone.user.fullname,
-        'name': user_rincewind_phone.user.username,
+        'title': user_rincewind_phone.account.fullname,
+        'name': user_rincewind_phone.account.username,
     }
 
 
@@ -112,7 +112,7 @@ def test_valid_phone_affiliated(
 def test_valid_phone_intl(
     app: Flask,
     client: FlaskClient,
-    user_twoflower_phone: models.UserPhone,
+    user_twoflower_phone: models.AccountPhone,
     number: str,
 ) -> None:
     """Test phone number affiliated with a user account."""
@@ -127,6 +127,6 @@ def test_valid_phone_intl(
     assert isinstance(data['result'], dict)
     assert data['result']['number'] == VALID_PHONE_INTL
     assert data['result']['account'] == {
-        'title': user_twoflower_phone.user.fullname,
-        'name': user_twoflower_phone.user.username,
+        'title': user_twoflower_phone.account.fullname,
+        'name': user_twoflower_phone.account.username,
     }
