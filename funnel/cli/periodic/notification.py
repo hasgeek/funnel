@@ -69,7 +69,7 @@ def project_starting_tomorrow_alert() -> None:
         .all()
     ):
         dispatch_notification(
-            models.ProjectStartingNotification(
+            models.ProjectTomorrowNotification(
                 document=project,
                 fragment=project.next_session_from(start_time),
             )

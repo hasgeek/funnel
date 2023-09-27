@@ -154,7 +154,7 @@ class RenderProjectTomorrowNotification(RenderProjectStartingNotification):
         venue = self.project.primary_venue
         if venue is not None:
             return ProjectStartingTomorrowVenueTemplate(
-                project=self.project,
+                account=self.project.account,
                 venue=venue,
                 url=shortlink(
                     self.project.url_for(_external=True, **self.tracking_tags('sms')),
@@ -162,7 +162,7 @@ class RenderProjectTomorrowNotification(RenderProjectStartingNotification):
                 ),
             )
         return ProjectStartingTomorrowLocationTemplate(
-            project=self.project,
+            account=self.project.account,
             location=self.project.location,
             url=shortlink(
                 self.project.url_for(_external=True, **self.tracking_tags('sms')),
