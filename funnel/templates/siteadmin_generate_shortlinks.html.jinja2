@@ -7,30 +7,74 @@
 {% endblock pageheaders %}
 
 {% block content %}
-  <div class="mui-form">
+  <form id="js-generate-shortlink" method="post" action="{{ url_for('create_shortlink') }}" accept-charset="UTF-8" class="mui-form mui-form--margins">
     <div class="mui-form__fields">
       <div class="mui-form__controls">
-        <div class="mui-textfield">
-          <input class="field-url js-url-inputbox" {% if request.referrer %}value="{{ request.referrer }}?utm_campaign="{%- endif -%} type="text" placeholder="Enter url"/>
-          <label for="title">Enter url with utm tags</label>
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="title" class="field-url js-campaign-url js-inbox-change" {% if request.referrer %}value="{{ request.referrer }}"{%- endif -%} type="text"/>
+          <label for="title">Url</label>
         </div>
       </div>
     </div>
-    <a href="#" onclick="return false;" class="js-copy-link margin-top" role="button" aria-label="{% trans %}Copy link{% endtrans %}">
-      <span class="js-copy-url mui-panel display-block" aria-hidden="true"></span>
-      <span class="js-shorturl-generate mui-btn mui-btn--primary mui-btn--small zero-bottom-margin zero-top-margin">{% trans %}Shorten link{% endtrans %}</span>
-    </a>
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="id" class="field-campaign-id js-campaign-id js-inbox-change" type="text"/>
+          <label for="id">Campaign ID</label>
+        </div>
+      </div>
+    </div>
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="source" class="field-campaign-source js-campaign-source js-inbox-change" type="text"/>
+          <label for="source">Campaign source</label>
+        </div>
+      </div>
+    </div>
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="medium" class="field-campaign-medium js-campaign-medium js-inbox-change" type="text"/>
+          <label for="medium">Campaign medium</label>
+        </div>
+      </div>
+    </div>
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="name" class="field-campaign-name js-campaign-name js-inbox-change" type="text"/>
+          <label for="name">Campaign name</label>
+        </div>
+      </div>
+    </div>
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="term" class="field-campaign-term js-campaign-term js-inbox-change" type="text"/>
+          <label for="term">Campaign term</label>
+        </div>
+      </div>
+    </div>
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="content" class="field-campaign-content js-campaign-content js-inbox-change" type="text"/>
+          <label for="content">Campaign content</label>
+        </div>
+      </div>
+    </div>
+    <button type="submit" class="mui-btn mui-btn--raised  mui-btn--primary" data-cy="form-submit-btn">{% trans %}Generate shortlink{% endtrans %}</button>
+  </form>
+
+  <div class="flex-wrapper flex-wrapper--center margin-bottom">
+    <div class="mui-panel flex-item-grow zero-bottom-margin" aria-hidden="true">
+      <p class="mui--text-subhead zero-bottom-margin js-generated-url"></p>
+    </div>
+    <span class="js-copy-shortlink link"aria-label="{% trans %}Copy shortlink{% endtrans %}" role="button">{{ faicon(icon='copy', baseline=true, icon_size='title', css_class="fa-icon--left-margin") }}</span>
   </div>
 {% endblock content %}
 
 {% block footerscripts %}
-  <script type="text/javascript">
-    $(() => {
-      $('.js-url-inputbox').on('change keyup paste', function() {
-        var url = $(this).val();
-        $("[data-shortlink]").attr('data-shortlink', '');
-        $('.js-copy-url').text(url);
-      });
-    });
-  </script>
+  <script src="{{ manifest('shortlink_form.js') }}" type="text/javascript"></script>
 {% endblock footerscripts %}

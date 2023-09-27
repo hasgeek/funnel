@@ -1,4 +1,6 @@
 /* global gettext */
+import toastr from 'toastr';
+
 const Utils = {
   // convert array of objects into hashmap
   tohashMap(objectArray, key) {
@@ -226,6 +228,28 @@ const Utils = {
         $('input[name="csrf_token"]').val(data.csrf_token);
       },
     });
+  },
+  copyToClipboard(elem) {
+    const textElem = document.querySelector(elem);
+    const stringToCopy = textElem.innerHTML;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(stringToCopy).then(
+        () => toastr.success(window.gettext('Link copied')),
+        () => toastr.success(window.gettext('Could not copy link'))
+      );
+    } else {
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(textElem);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      if (document.execCommand('copy')) {
+        toastr.success(window.gettext('Link copied'));
+      } else {
+        toastr.error(window.gettext('Could not copy link'));
+      }
+      selection.removeAllRanges();
+    }
   },
 };
 
