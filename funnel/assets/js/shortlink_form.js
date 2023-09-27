@@ -1,4 +1,5 @@
 import toastr from 'toastr';
+import Utils from './utils/helper';
 
 $(() => {
   async function getShortlink(url) {
@@ -25,29 +26,13 @@ $(() => {
 
   $('.js-copy-shortlink').on('click', function clickCopyLink(event) {
     event.preventDefault();
-    const url = $('.js-generated-url').text();
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(
-        () => toastr.success(window.gettext('Link copied')),
-        () => toastr.success(window.gettext('Could not copy link'))
-      );
-    } else {
-      const selection = window.getSelection();
-      const range = document.createRange();
-      range.selectNodeContents(url[0]);
-      selection.removeAllRanges();
-      selection.addRange(range);
-      if (document.execCommand('copy')) {
-        toastr.success(window.gettext('Link copied'));
-      } else {
-        toastr.error(window.gettext('Could not copy link'));
-      }
-      selection.removeAllRanges();
-    }
+    Utils.copyToClipboard('.js-generated-url');
   });
 
   $('#js-generate-shortlink').on('submit', (event) => {
     event.preventDefault();
+    $('.js-generated-url').text();
+
     const url = $('.js-campaign-url').val();
     const id = $('.js-campaign-id').val();
     const source = $('.js-campaign-source').val();
