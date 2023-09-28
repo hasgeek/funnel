@@ -2,11 +2,8 @@
 
 from flask import render_template
 from html2image import Html2Image
-from ..models import Project, db
-from .jobs import rqjob
-from ..signals import project_data_changed
 
-from ..models import Project
+from ..models import Project, db
 from ..signals import project_data_change
 from .jobs import rqjob
 
@@ -24,7 +21,9 @@ def render_thumbnail_image(project=Project) -> None:
 
     image_html = render_template('thumbnail_preview.html.jinja2', project=project)
 
-    thumbnail_image = thumbnail.screenshot(html_str=image_html, save_as=f'{project.id}_thumbnail.png', size=(640, 360))
+    thumbnail_image = thumbnail.screenshot(
+        html_str=image_html, save_as=f'{project.id}_thumbnail.png', size=(640, 360)
+    )
 
     project.thumbnail_image = thumbnail_image
     db.session.add(project)
