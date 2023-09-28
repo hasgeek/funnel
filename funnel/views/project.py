@@ -48,7 +48,7 @@ from ..models import (
     db,
     sa,
 )
-from ..signals import project_role_change, project_data_change
+from ..signals import project_data_change, project_role_change
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
