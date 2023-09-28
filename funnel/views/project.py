@@ -48,7 +48,7 @@ from ..models import (
     db,
     sa,
 )
-from ..signals import project_role_change, project_data_change
+from ..signals import project_role_change, project_data_changed
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
@@ -283,7 +283,7 @@ class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
 
             flash(_("Your new project has been created"), 'info')
 
-            project_data_change.send(self.obj)
+            project_data_changed.send(self.obj, changes=['new'])
 
             # tag locations
             tag_locations.queue(project.id)
@@ -457,7 +457,7 @@ class ProjectView(  # type: ignore[misc]
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             tag_locations.queue(self.obj.id)
-            project_data_change.send(self.obj)
+            project_data_changed.send(self.obj, changes=['edit'])
 
             # Find and delete draft if it exists
             if self.get_draft() is not None:
