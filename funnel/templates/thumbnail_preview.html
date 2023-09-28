@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ manifest('css/app.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ manifest('css/project.css') }}" />
+  </head>
+  <body>
+    <main>
+      <div class="main-wrapper">
+        <div class="title-wrapper">
+          <h5>{{project.account.title}}</h5>
+          <h1 class="post-title">
+            {{ project.title }}
+          </h1>
+          <div class="mui--text-heading mui--text-light zero-bottom-margin">
+            {{ project.tagline }}
+          </div>
+        </div>
+          {{ project.datelocation }}
+          {{ project.primary_venue }}
+      </div>
+    </main>
+  </body>
+</html>

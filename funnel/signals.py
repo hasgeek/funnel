@@ -60,3 +60,6 @@ session_revoked = app_signals.signal('session-revoked')
 # Commentset role change signals (sends user, document)
 project_role_change = app_signals.signal('project_role_change')
 proposal_role_change = app_signals.signal('proposal_role_change')
+
+# Project data change signal
+project_data_change = app_signals.signal('project_data_change')
