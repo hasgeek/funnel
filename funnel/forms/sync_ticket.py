@@ -219,14 +219,16 @@ class TicketParticipantForm(forms.Form):
     def validate(self, *args, **kwargs) -> bool:
         """Validate form."""
         result = super().validate(*args, **kwargs)
-        if self.email is not None:
-            with db.session.no_autoflush:
-                accountemail = AccountEmail.get(email=self.email.data)
-                if accountemail is not None:
-                    self.user = accountemail.account
-                else:
-                    self.user = None
-            return result
+        if self.email.data is None:
+            self.user = None
+            return True
+        with db.session.no_autoflush:
+            accountemail = AccountEmail.get(email=self.email.data)
+            if accountemail is not None:
+                self.user = accountemail.account
+            else:
+                self.user = None
+        return result
 
 
 @TicketParticipant.forms('badge')
