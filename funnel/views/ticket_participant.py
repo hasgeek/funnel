@@ -96,7 +96,9 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
         'puuid_b58': puuid_b58,
         'fullname': ticket_participant.fullname,
         'company': ticket_participant.company,
-        'email': mask_email(ticket_participant.email) if ticket_participant.email else None,
+        'email': mask_email(ticket_participant.email)
+        if ticket_participant.email
+        else None,
         'badge_printed': ticket_participant.badge_printed,
         'checked_in': ticket_participant.checked_in,
         'ticket_type_titles': ticket_participant.ticket_type_titles,

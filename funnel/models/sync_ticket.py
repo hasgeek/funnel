@@ -376,7 +376,9 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
                 TicketEventParticipant,
                 TicketParticipant.id == TicketEventParticipant.ticket_participant_id,
             )
-            .outerjoin(EmailAddress, EmailAddress.id == TicketParticipant.email_address_id)
+            .outerjoin(
+                EmailAddress, EmailAddress.id == TicketParticipant.email_address_id
+            )
             .outerjoin(
                 SyncTicket, TicketParticipant.id == SyncTicket.ticket_participant_id
             )
