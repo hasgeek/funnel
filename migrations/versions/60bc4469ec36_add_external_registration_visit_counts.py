@@ -1,7 +1,7 @@
 """Add external registration visit counts.
 
 Revision ID: 60bc4469ec36
-Revises: 4f9ca10b7b9d
+Revises: 017c60414c03
 Create Date: 2023-09-20 15:35:34.613245
 
 """
@@ -12,7 +12,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '60bc4469ec36'
-down_revision: str = '4f9ca10b7b9d'
+down_revision: str = '017c60414c03'
 branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
