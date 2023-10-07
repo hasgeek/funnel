@@ -646,7 +646,7 @@ def requires_sudo(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
                 return render_redirect(url_for('change_password'))
 
         elif request.method == 'POST':
-            formid = abort_null(request.form.get('form.id'))
+            formid = request.form.get('form.id')
             if formid == FORMID_SUDO_OTP:
                 try:
                     otp_session = OtpSession.retrieve('sudo')

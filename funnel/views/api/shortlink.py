@@ -10,13 +10,12 @@ from coaster.views import requestform
 
 from ... import app, shortlinkapp
 from ...models import Shortlink, db
-from ...utils import abort_null
 from ..helpers import app_url_for, validate_is_app_url
 
 
 # Add future hasjobapp route here
 @app.route('/api/1/shortlink/create', methods=['POST'])
-@requestform(('url', abort_null), ('shorter', getbool), ('name', abort_null))
+@requestform('url', ('shorter', getbool), 'name')
 def create_shortlink(
     url: str | furl, shorter: bool = True, name: str | None = None
 ) -> tuple[dict[str, str], int]:
