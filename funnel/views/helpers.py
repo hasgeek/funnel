@@ -580,6 +580,16 @@ def shortlink(url: str, actor: Account | None = None, shorter: bool = True) -> s
 # --- Request/response handlers --------------------------------------------------------
 
 
+@app.before_request
+def no_null_in_form():
+    """Disallow NULL characters in any form submit (but don't scan file attachments)."""
+    if request.method == 'POST':
+        for values in request.form.listvalues():
+            for each in values:
+                if each is not None and '\x00' in each:
+                    abort(400)
+
+
 @app.after_request
 def commit_db_session(response: ResponseType) -> ResponseType:
     """Commit database session at the end of a request if asked to."""

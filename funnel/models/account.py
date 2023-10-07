@@ -113,9 +113,14 @@ class PROFILE_STATE(LabeledEnum):  # noqa: N801
 class ZBase32Comparator(Comparator[str]):  # pylint: disable=abstract-method
     """Comparator to allow lookup by Account.uuid_zbase32."""
 
-    def __eq__(self, other: str) -> sa.ColumnElement[bool]:  # type: ignore[override]
+    def __eq__(self, other: object) -> sa.ColumnElement[bool]:  # type: ignore[override]
         """Return an expression for column == other."""
-        return self.__clause_element__() == UUID(bytes=zbase32_decode(other))
+        try:
+            return self.__clause_element__() == UUID(  # type: ignore[return-value]
+                bytes=zbase32_decode(str(other))
+            )
+        except ValueError:  # zbase32 call failed, so it's not a valid string
+            return sa.false()
 
 
 class Account(UuidMixin, BaseMixin, Model):
