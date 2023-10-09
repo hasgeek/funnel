@@ -56,7 +56,15 @@ def jsonld_view_action(description: str, url: str, title: str) -> dict[str, obje
     }
 
 
-def jsonld_register_action(description: str, url: str, title: str, start_date: str, location: str, venue: dict, fullname:str) -> dict[str, object]:
+def jsonld_register_action(
+    description: str,
+    url: str,
+    title: str,
+    start_date: str,
+    location: str,
+    venue: dict,
+    fullname: str,
+) -> dict[str, object]:
     location = {
         "@type": "Place",
         "name": location,

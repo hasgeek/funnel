@@ -127,7 +127,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
                 self.rsvp.project.start_at,
                 self.rsvp.project.location,
                 self.rsvp.project.primary_venue,
-                self.rsvp.participant.fullname
+                self.rsvp.participant.fullname,
             ),
         )
 
