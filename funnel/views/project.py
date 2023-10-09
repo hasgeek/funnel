@@ -808,6 +808,7 @@ class ProjectView(  # type: ignore[misc]
                         account=current_auth.user, project=self.obj
                     )
                     form.populate_obj(proj_save)
+                    db.session.add(proj_save)
                     db.session.commit()
             else:
                 if proj_save is not None:
