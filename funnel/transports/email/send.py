@@ -23,6 +23,7 @@ from ..exc import TransportRecipientError
 __all__ = [
     'EmailAttachment',
     'jsonld_confirm_action',
+    'jsonld_register_action',
     'jsonld_view_action',
     'process_recipient',
     'send_email',
@@ -52,6 +53,46 @@ def jsonld_view_action(description: str, url: str, title: str) -> dict[str, obje
             "name": current_app.config['SITE_TITLE'],
             "url": 'https://' + current_app.config['DEFAULT_DOMAIN'] + '/',
         },
+    }
+
+
+def jsonld_register_action(description: str, url: str, title: str, start_date: str, venue: dict, fullname:str) -> dict[str, object]:
+    location = {
+        "@type": "Place",
+        "name": "Undecided"
+    }
+    if venue:
+        location["name"] = venue.title
+        if venue.address1:
+            postal_address = {
+                "@type": "PostalAddress",
+                "streetAddress": venue.address1,
+                "addressLocality": venue.city,
+                "addressRegion": venue.state,
+                "postalCode": venue.postcode,
+                "addressCountry": venue.country,
+            }
+            location["address"] = postal_address
+    return {
+        "@context": "http://schema.org",
+        "@type": "EventReservation",
+        "reservationStatus": "http://schema.org/Confirmed",
+        "underName": {
+            "@type": "Person",
+            "name": fullname,
+        },
+        "reservationFor": {
+            "@type": "Event",
+            "name": title,
+            "url": url,
+            "performer": {
+                "@type": "Organization",
+                "name": description,
+            },
+            "startDate": start_date,
+            "location": location,
+        },
+        "numSeats": "1",
     }
 
 
