@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+import time
 import typing as t
 import warnings
 from contextlib import ExitStack
@@ -847,20 +848,50 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
 
 def _truncate_all_tables(engine: sa.Engine) -> None:
     """Truncate all tables in the given database engine."""
-    with engine.begin() as transaction:
-        transaction.execute(
-            sa.text(
-                '''
-            DO $$
-            DECLARE tablenames text;
-            BEGIN
-                tablenames := string_agg(
-                    quote_ident(schemaname) || '.' || quote_ident(tablename), ', ')
-                    FROM pg_tables WHERE schemaname = 'public';
-                EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
-            END; $$'''
-            )
-        )
+    deadlock_retries = 0
+    while True:
+        try:
+            with engine.begin() as transaction:
+                transaction.execute(
+                    sa.text(
+                        '''
+                        DO $$
+                        DECLARE tablenames text;
+                        BEGIN
+                            tablenames := string_agg(
+                                quote_ident(schemaname)
+                                || '.'
+                                || quote_ident(tablename), ', '
+                            ) FROM pg_tables WHERE schemaname = 'public';
+                            EXECUTE
+                                'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
+                        END; $$'''
+                    )
+                )
+            break
+        except sa.exc.OperationalError:
+            # The TRUNCATE TABLE call will occasionally have a deadlock when the
+            # background server process has not finalised the transaction. SQLAlchemy
+            # recasts :exc:`psycopg.errors.DeadlockDetected` as
+            # :exc:`sqlalchemy.exc.OperationalError`. Pytest will show as::
+            #
+            #     ERROR <filename> - sqlalchemy.exc.OperationalError:
+            #     (psycopg.errors.DeadlockDetected) deadlock detected
+            #     DETAIL: Process <pid1> waits for AccessExclusiveLock on relation
+            #     <rel1> of database <db>; blocked by process <pid2>. Process <pid2>
+            #     waits for AccessShareLock on relation <rel2> of database <db>;
+            #     blocked by process <pid1>.
+            #
+            # We overcome the deadlock by rolling back the transaction, sleeping a
+            # second and attempting to truncate again, retrying two more times. If the
+            # deadlock remains unresolved, we raise the error to pytest. We are not
+            # explicitly checking for OperationalError wrapping DeadlockDetected on the
+            # assumption that this retry is safe for all operational errors. Any new
+            # type of non-transient error will be reported by the final raise.
+            if (deadlock_retries := deadlock_retries + 1) > 3:
+                raise
+            transaction.rollback()
+            time.sleep(1)
 
 
 @pytest.fixture(scope='session')

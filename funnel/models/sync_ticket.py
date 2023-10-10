@@ -207,7 +207,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     """A participant in one or more events, synced from an external ticket source."""
 
     __tablename__ = 'ticket_participant'
-    __email_optional__ = False
+    __email_optional__ = True
     __email_for__ = 'participant'
 
     fullname = with_roles(
@@ -376,7 +376,9 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
                 TicketEventParticipant,
                 TicketParticipant.id == TicketEventParticipant.ticket_participant_id,
             )
-            .join(EmailAddress, EmailAddress.id == TicketParticipant.email_address_id)
+            .outerjoin(
+                EmailAddress, EmailAddress.id == TicketParticipant.email_address_id
+            )
             .outerjoin(
                 SyncTicket, TicketParticipant.id == SyncTicket.ticket_participant_id
             )

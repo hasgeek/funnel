@@ -12,7 +12,7 @@ from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
 
-__all__ = ['ProjectMembership', 'project_child_role_map']
+__all__ = ['ProjectMembership', 'project_child_role_map', 'project_child_role_set']
 
 #: Roles in a project and their remapped names in objects attached to a project
 project_child_role_map: dict[str, str] = {
@@ -23,6 +23,9 @@ project_child_role_map: dict[str, str] = {
     'participant': 'project_participant',
     'reader': 'reader',
 }
+
+#: A model that is indirectly under a project needs the role names without remapping
+project_child_role_set: set[str] = set(project_child_role_map.values())
 
 #: ProjectMembership maps project's `account_admin` role to membership's `editor`
 #: role in addition to the recurring role grant map

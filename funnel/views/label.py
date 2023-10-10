@@ -13,7 +13,6 @@ from .. import app
 from ..forms import LabelForm, LabelOptionForm
 from ..models import Account, Label, Project, db
 from ..typing import ReturnRenderWith, ReturnView
-from ..utils import abort_null
 from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import AccountCheckMixin, ProjectViewMixin
@@ -29,7 +28,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     def labels(self) -> ReturnRenderWith:
         form = forms.Form()
         if form.validate_on_submit():
-            namelist = [abort_null(x) for x in request.values.getlist('name')]
+            namelist = request.values.getlist('name')
             for idx, lname in enumerate(namelist, start=1):
                 lbl = Label.query.filter_by(project=self.obj, name=lname).first()
                 if lbl is not None:
@@ -51,8 +50,8 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             # and those values are also available at `form.data`.
             # But in case there are options, the option values are in the list
             # in the order they appeared on the create form.
-            titlelist = [abort_null(x) for x in request.values.getlist('title')]
-            emojilist = [abort_null(x) for x in request.values.getlist('icon_emoji')]
+            titlelist = request.values.getlist('title')
+            emojilist = request.values.getlist('icon_emoji')
             # first values of both lists belong to the parent label
             titlelist.pop(0)
             emojilist.pop(0)
@@ -143,9 +142,9 @@ class LabelView(AccountCheckMixin, UrlForView, ModelView):
             return render_redirect(self.obj.project.url_for('labels'))
 
         if form.validate_on_submit():
-            namelist = [abort_null(x) for x in request.values.getlist('name')]
-            titlelist = [abort_null(x) for x in request.values.getlist('title')]
-            emojilist = [abort_null(x) for x in request.values.getlist('icon_emoji')]
+            namelist = request.values.getlist('name')
+            titlelist = request.values.getlist('title')
+            emojilist = request.values.getlist('icon_emoji')
 
             namelist.pop(0)
             titlelist.pop(0)
