@@ -8,18 +8,21 @@ const Video = {
   */
   getVideoTypeAndId(url) {
     const regexMatch = url.match(
-      /(http:|https:|)\/\/(player.|www.)?(y2u\.be|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|live\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?(\?h=([^&]+))?/
+      /(http:|https:|)\/\/(player.|www.)?(?<service>y2u\.be|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|live\/|watch\?v=|v\/)?(?<videoId>[A-Za-z0-9._%-]*)(&\S+)?(\?h=(?<paramId>[^&]+))?/
     );
     let type = '';
     if (regexMatch && regexMatch.length > 5) {
-      if (regexMatch[3].indexOf('youtu') > -1 || regexMatch[3].indexOf('y2u') > -1) {
+      if (
+        regexMatch.groups.service.indexOf('youtu') > -1 ||
+        regexMatch.groups.service.indexOf('y2u') > -1
+      ) {
         type = 'youtube';
-      } else if (regexMatch[3].indexOf('vimeo') > -1) {
+      } else if (regexMatch.groups.service.indexOf('vimeo') > -1) {
         type = 'vimeo';
         return {
           type,
-          videoId: regexMatch[6],
-          paramId: regexMatch[9],
+          videoId: regexMatch.groups.videoId,
+          paramId: regexMatch.groups.paramId,
         };
       }
       return {
@@ -38,7 +41,9 @@ const Video = {
     if (type === 'youtube') {
       videoEmbedUrl = `<iframe src='//www.youtube.com/embed/${videoId}' frameborder='0' allowfullscreen></iframe>`;
     } else if (type === 'vimeo') {
-      videoEmbedUrl = `<iframe src='https://player.vimeo.com/video/${videoId}?h=${paramId}' frameborder='0' allowfullscreen></iframe>`;
+      videoEmbedUrl = `<iframe src='https://player.vimeo.com/video/${videoId}${
+        paramId ? `?h=${paramId}` : ''
+      }' frameborder='0' allowfullscreen></iframe>`;
     }
     if (videoEmbedUrl) {
       videoWrapper.innerHTML = videoEmbedUrl;
