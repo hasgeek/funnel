@@ -17,13 +17,13 @@ from werkzeug.datastructures import Headers
 from baseframe import _, statsd
 
 from ... import app
-from ...models import Account, EmailAddress, EmailAddressBlockedError
+from ...models import Account, EmailAddress, EmailAddressBlockedError, Venue
 from ..exc import TransportRecipientError
 
 __all__ = [
     'EmailAttachment',
     'jsonld_confirm_action',
-    'jsonld_register_action',
+    'jsonld_event_reservation',
     'jsonld_view_action',
     'process_recipient',
     'send_email',
@@ -44,75 +44,75 @@ class EmailAttachment:
 
 def jsonld_view_action(description: str, url: str, title: str) -> dict[str, object]:
     return {
-        "@context": "http://schema.org",
-        "@type": "EmailMessage",
-        "description": description,
-        "potentialAction": {"@type": "ViewAction", "name": title, "url": url},
-        "publisher": {
-            "@type": "Organization",
-            "name": current_app.config['SITE_TITLE'],
-            "url": 'https://' + current_app.config['DEFAULT_DOMAIN'] + '/',
+        '@context': 'http://schema.org',
+        '@type': 'EmailMessage',
+        'description': description,
+        'potentialAction': {'@type': 'ViewAction', 'name': title, 'url': url},
+        'publisher': {
+            '@type': 'Organization',
+            'name': current_app.config['SITE_TITLE'],
+            'url': 'https://' + current_app.config['DEFAULT_DOMAIN'] + '/',
         },
     }
 
 
-def jsonld_register_action(
+def jsonld_event_reservation(
     description: str,
     url: str,
     title: str,
     start_date: str,
     location: str,
-    venue: dict,
+    venue: Venue | None,
     fullname: str,
 ) -> dict[str, object]:
-    location = {
-        "@type": "Place",
-        "name": location,
+    location_schema: dict[str, object] = {
+        '@type': 'Place',
+        'name': location,
     }
-    if venue:
-        location["name"] = venue.title
+    if venue is not None:
+        location_schema['name'] = venue.title
         if venue.address1:
             postal_address = {
-                "@type": "PostalAddress",
-                "streetAddress": venue.address1,
-                "addressLocality": venue.city,
-                "addressRegion": venue.state,
-                "postalCode": venue.postcode,
-                "addressCountry": venue.country,
+                '@type': 'PostalAddress',
+                'streetAddress': venue.address1,
+                'addressLocality': venue.city,
+                'addressRegion': venue.state,
+                'postalCode': venue.postcode,
+                'addressCountry': venue.country,
             }
-            location["address"] = postal_address
+            location_schema['address'] = postal_address
     return {
-        "@context": "http://schema.org",
-        "@type": "EventReservation",
-        "reservationStatus": "http://schema.org/Confirmed",
-        "underName": {
-            "@type": "Person",
-            "name": fullname,
+        '@context': 'http://schema.org',
+        '@type': 'EventReservation',
+        'reservationStatus': 'http://schema.org/Confirmed',
+        'underName': {
+            '@type': 'Person',
+            'name': fullname,
         },
-        "reservationFor": {
-            "@type": "Event",
-            "name": title,
-            "url": url,
-            "performer": {
-                "@type": "Organization",
-                "name": description,
+        'reservationFor': {
+            '@type': 'Event',
+            'name': title,
+            'url': url,
+            'performer': {
+                '@type': 'Organization',
+                'name': description,
             },
-            "startDate": start_date,
-            "location": location,
+            'startDate': start_date,
+            'location': location_schema,
         },
-        "numSeats": "1",
+        'numSeats': '1',
     }
 
 
 def jsonld_confirm_action(description: str, url: str, title: str) -> dict[str, object]:
     return {
-        "@context": "http://schema.org",
-        "@type": "EmailMessage",
-        "description": description,
-        "potentialAction": {
-            "@type": "ConfirmAction",
-            "name": title,
-            "handler": {"@type": "HttpActionHandler", "url": url},
+        '@context': 'http://schema.org',
+        '@type': 'EmailMessage',
+        'description': description,
+        'potentialAction': {
+            '@type': 'ConfirmAction',
+            'name': title,
+            'handler': {'@type': 'HttpActionHandler', 'url': url},
         },
     }
 
