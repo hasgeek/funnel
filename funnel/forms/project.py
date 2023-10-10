@@ -166,6 +166,7 @@ class ProjectLivestreamForm(forms.Form):
                             'y2u.be',
                             'www.vimeo.com',
                             'vimeo.com',
+                            'player.vimeo.com',
                         ),
                         message_schemes=__("A https:// URL is required"),
                         message_domains=__("Livestream must be on YouTube or Vimeo"),
