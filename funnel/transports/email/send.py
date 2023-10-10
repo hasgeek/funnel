@@ -17,7 +17,7 @@ from werkzeug.datastructures import Headers
 from baseframe import _, statsd
 
 from ... import app
-from ...models import Account, EmailAddress, EmailAddressBlockedError, Venue
+from ...models import Account, EmailAddress, EmailAddressBlockedError, Rsvp
 from ..exc import TransportRecipientError
 
 __all__ = [
@@ -43,8 +43,9 @@ class EmailAttachment:
 
 
 def jsonld_view_action(description: str, url: str, title: str) -> dict[str, object]:
+    """Schema.org JSON-LD markup for an email view action."""
     return {
-        '@context': 'http://schema.org',
+        '@context': 'https://schema.org',
         '@type': 'EmailMessage',
         'description': description,
         'potentialAction': {'@type': 'ViewAction', 'name': title, 'url': url},
@@ -56,21 +57,29 @@ def jsonld_view_action(description: str, url: str, title: str) -> dict[str, obje
     }
 
 
-def jsonld_event_reservation(
-    description: str,
-    url: str,
-    title: str,
-    start_date: str,
-    location: str,
-    venue: Venue | None,
-    fullname: str,
-) -> dict[str, object]:
-    location_schema: dict[str, object] = {
-        '@type': 'Place',
-        'name': location,
+def jsonld_confirm_action(description: str, url: str, title: str) -> dict[str, object]:
+    """Schema.org JSON-LD markup for an email confirmation action."""
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'EmailMessage',
+        'description': description,
+        'potentialAction': {
+            '@type': 'ConfirmAction',
+            'name': title,
+            'handler': {'@type': 'HttpActionHandler', 'url': url},
+        },
     }
+
+
+def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
+    """Schema.org JSON-LD markup for an event reservation."""
+    location: str | dict[str, object]
+    venue = rsvp.project.primary_venue
     if venue is not None:
-        location_schema['name'] = venue.title
+        location = {
+            '@type': 'Place',
+            'name': venue.title,
+        }
         if venue.address1:
             postal_address = {
                 '@type': 'PostalAddress',
@@ -80,40 +89,36 @@ def jsonld_event_reservation(
                 'postalCode': venue.postcode,
                 'addressCountry': venue.country,
             }
-            location_schema['address'] = postal_address
+            location['address'] = postal_address
+    else:
+        location = rsvp.project.location
     return {
-        '@context': 'http://schema.org',
+        '@context': 'https://schema.org',
         '@type': 'EventReservation',
-        'reservationStatus': 'http://schema.org/Confirmed',
+        'reservationNumber': rsvp.uuid_b58,
+        'reservationStatus': (
+            'https://schema.org/ReservationConfirmed'
+            if rsvp.state.YES
+            else 'https://schema.org/ReservationCancelled'
+            if rsvp.state.NO
+            else 'https://schema.org/ReservationPending'
+        ),
         'underName': {
             '@type': 'Person',
-            'name': fullname,
+            'name': rsvp.participant.fullname,
         },
         'reservationFor': {
             '@type': 'Event',
-            'name': title,
-            'url': url,
+            'name': rsvp.project.joined_title,
+            'url': rsvp.project.absolute_url,
+            'startDate': rsvp.project.start_at,
+            'location': location,
             'performer': {
                 '@type': 'Organization',
-                'name': description,
+                'name': rsvp.project.account.title,
             },
-            'startDate': start_date,
-            'location': location_schema,
         },
         'numSeats': '1',
-    }
-
-
-def jsonld_confirm_action(description: str, url: str, title: str) -> dict[str, object]:
-    return {
-        '@context': 'http://schema.org',
-        '@type': 'EmailMessage',
-        'description': description,
-        'potentialAction': {
-            '@type': 'ConfirmAction',
-            'name': title,
-            'handler': {'@type': 'HttpActionHandler', 'url': url},
-        },
     }
 
 
