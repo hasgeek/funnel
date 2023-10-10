@@ -8,7 +8,7 @@ const Video = {
   */
   getVideoTypeAndId(url) {
     const regexMatch = url.match(
-      /(http:|https:|)\/\/(player.|www.)?(y2u\.be|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|live\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/
+      /(http:|https:|)\/\/(player.|www.)?(y2u\.be|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|live\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?(\?h=([^&]+))?/
     );
     let type = '';
     if (regexMatch && regexMatch.length > 5) {
@@ -16,6 +16,11 @@ const Video = {
         type = 'youtube';
       } else if (regexMatch[3].indexOf('vimeo') > -1) {
         type = 'vimeo';
+        return {
+          type,
+          videoId: regexMatch[6],
+          paramId: regexMatch[9],
+        };
       }
       return {
         type,
@@ -29,11 +34,11 @@ const Video = {
   },
   embedIframe(videoWrapper, videoUrl) {
     let videoEmbedUrl = '';
-    const { type, videoId } = this.getVideoTypeAndId(videoUrl);
+    const { type, videoId, paramId } = this.getVideoTypeAndId(videoUrl);
     if (type === 'youtube') {
       videoEmbedUrl = `<iframe src='//www.youtube.com/embed/${videoId}' frameborder='0' allowfullscreen></iframe>`;
     } else if (type === 'vimeo') {
-      videoEmbedUrl = `<iframe src='https://player.vimeo.com/video/${videoId}' frameborder='0' allowfullscreen></iframe>`;
+      videoEmbedUrl = `<iframe src='https://player.vimeo.com/video/${videoId}?h=${paramId}' frameborder='0' allowfullscreen></iframe>`;
     }
     if (videoEmbedUrl) {
       videoWrapper.innerHTML = videoEmbedUrl;
