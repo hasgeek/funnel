@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import tempfile
 import os
+import tempfile
 
 from flask import Response, render_template
 from html2image import Html2Image
@@ -11,6 +11,7 @@ from html2image import Html2Image
 from ..models import Project, db
 from ..signals import project_data_change
 from .jobs import rqjob
+
 
 @project_data_change.connect
 def generate_thumbnail_image(project: Project) -> None:
@@ -32,7 +33,7 @@ def render_thumbnail_image(project: Project) -> Response:
         html_str=image_html, save_as='thumbnail_image.png', size=(640, 360)
     )
 
-    with open(os.path.join(temp_dir[0],'thumbnail_image.png'), mode='rb') as file:
+    with open(os.path.join(temp_dir[0], 'thumbnail_image.png'), mode='rb') as file:
         thumbnail_data = bytearray(file.read())
         project.thumbnail_image = thumbnail_data
         print(thumbnail_data)
