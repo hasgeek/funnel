@@ -6,9 +6,10 @@ from dataclasses import dataclass
 from json import JSONDecodeError
 from types import SimpleNamespace
 
-from flask import Response, abort, current_app, flash, render_template, request
+from flask import Response, abort, current_app, flash, render_template, request, send_file
 from flask_babel import format_number
 from markupsafe import Markup
+from PIL import Image
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -49,7 +50,7 @@ from ..models import (
     sa,
 )
 from ..signals import project_data_change, project_role_change
-from ..typing import ReturnRenderWith, ReturnView
+from ..typing import ReturnRenderWith, ReturnView, IO
 from .helpers import html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import (
@@ -283,7 +284,7 @@ class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
 
             flash(_("Your new project has been created"), 'info')
 
-            project_data_change.send(self.obj, changes=['new'])
+            project_data_change.send(self.obj)
 
             # tag locations
             tag_locations.queue(project.id)
@@ -457,7 +458,7 @@ class ProjectView(  # type: ignore[misc]
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             tag_locations.queue(self.obj.id)
-            project_data_change.send(self.obj, changes=['edit'])
+            project_data_change.send(self.obj)
 
             # Find and delete draft if it exists
             if self.get_draft() is not None:
@@ -908,6 +909,20 @@ class ProjectView(  # type: ignore[misc]
                 'message': _("This project is no longer featured"),
             }
         return render_redirect(get_next_url(referrer=True))
-
+    @app.route('/thumbnail_image', methods=['GET'])
+    def thumbnail_image(self) -> IO | str:
+        """Return the project thumbnail image from db."""
+        if self.obj.thumbnail_image :
+            thumbnail_io = io.BytesIO(self.obj.thumbnail_image)
+            img = Image.open(thumbnail_io)
+            img.save(thumbnail_io, format='PNG')
+            thumbnail_io.seek(0)
+            return send_file(
+                thumbnail_io,
+                as_attachment=False,
+                mimetype='image/png'
+            )
+        else:
+            return self.obj.bg_image
 
 ProjectView.init_app(app)

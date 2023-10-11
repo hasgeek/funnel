@@ -1,23 +1,115 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" type="text/css" href="{{ manifest('css/app.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ manifest('css/project.css') }}" />
-  </head>
-  <body>
-    <main>
-      <div class="main-wrapper">
-        <div class="title-wrapper">
-          <h5>{{project.account.title}}</h5>
-          <h1 class="post-title">{{ project.title }}</h1>
-          <div class="mui--text-heading mui--text-light zero-bottom-margin">
-            {{ project.tagline }}
-          </div>
-        </div>
-        {{ project.datelocation }} {{ project.primary_venue }}
-      </div>
-    </main>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>
+            * {
+              box-sizing: border-box;
+              color: #1f2d3d;
+              font-weight: 700;
+              font-family: 'SegoeUI', 'Montserrat', 'Helvetica', sans-serif;
+              padding: 0;
+              margin: 0;
+            }
+
+            body {
+                width: 640px;
+                height: 360px
+            }
+
+            .main-wrapper {
+                width: 100%;
+                height: 100%;
+                position: relative;
+                display: flex;
+                align-items: start;
+                justify-content: space-between;
+            }
+
+            .main-content {
+              width: -webkit-fill-available;
+            }
+
+            .project-title {
+                font-size: 2.5em;
+                text-align: left;
+                padding-bottom: 1rem;
+                font-weight: 500;
+                border-bottom: 1px solid #1f2d3d;
+            }
+
+            .project-tagline {
+                padding-top: 1rem;
+                font-size: 1.5rem;
+                font-weight: 300;
+            }
+            .title-wrapper{
+                line-height: 1.2;
+                text-align: left;
+                padding: 1.5em;
+            }
+
+            .organization-label{
+              text-transform: uppercase;
+              padding-bottom: 0.5rem;
+            }
+
+
+            .datetime-wrapper {
+              position: absolute;
+              left: 1.5em;
+              bottom: 2em;
+              gap: 8em;
+              text-align: left;
+              display: flex;
+              justify-content: space-between;
+            }
+        </style>
+    </head>
+    <body>
+        <main class="main-wrapper" id="container">
+            <div class="main-content">
+                <div class="title-wrapper">
+                <h5 class="organization-label">{{project.account.title}}</h5>
+                    <h1 class="project-title">{{ project.title }}</h1>
+                    <div class="project-tagline">
+                      {{ project.tagline }}
+                    </div>
+                </div>
+                <div class="datetime-wrapper">
+                    <p>{{ project.datelocation }}</p>
+                    <p>{{ project.primary_venue }}</p>
+                </div>
+            </div>
+        </main>
+        <script>
+            const randomizeIndex = (count) => {
+                return Math.floor(count * Math.random());
+            };
+
+            const randomizeElements = (array) => {
+                const result = [];
+                const randomSelection = new Set();
+                while (result.length < 2) {
+                    const index = randomizeIndex(array.length);
+                    const element = array[index];
+                    if (randomSelection.has(element)) {
+                        continue;
+                    }
+                    randomSelection.add(element);
+                    result.push(element);
+                }
+                return result;
+            };
+
+            window.addEventListener("load", () => {
+                var hueValues = [5, 23, 39, 48, 92, 172, 201, 220, 273, 335]
+                huePair = randomizeElements(hueValues, 2);
+                var gradient = 'linear-gradient(to bottom right, hsl('+ huePair[0] +', 100%, 87%), hsl('+ (huePair[0]+(huePair[1]-huePair[0])*0.33) +', 100%, 87%), hsl('+ (huePair[0]+(huePair[1]-huePair[0])*0.66) +', 100%, 87%), hsl('+ huePair[1] +', 100%, 87%))';
+                console.log(gradient);
+                document.getElementById("container").style.background = gradient;
+            })
+        </script>
+    </body>
 </html>
