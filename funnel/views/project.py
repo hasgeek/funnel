@@ -278,8 +278,7 @@ class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
             project = Project(created_by=current_auth.user, account=self.obj)
             form.populate_obj(project)
             project.make_name()
-            # trigger signal to generate thumbnail image
-            project_data_change.send(self.obj)
+            project_data_change.send(project)
             db.session.add(project)
             db.session.commit()
 
@@ -453,7 +452,6 @@ class ProjectView(  # type: ignore[misc]
         form = ProjectForm(obj=self.obj, account=self.obj.account, model=Project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
-            # trigger signal to generate thumbnail image
             project_data_change.send(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
