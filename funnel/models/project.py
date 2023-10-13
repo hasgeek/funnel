@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from pytz import utc
-from sqlalchemy import LargeBinary
 from sqlalchemy.orm import attribute_keyed_dict
 from werkzeug.utils import cached_property
 
@@ -194,7 +193,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     )
 
     thumbnail_image = with_roles(
-        sa.orm.mapped_column(LargeBinary, nullable=True),
+        sa.orm.mapped_column(sa.LargeBinary, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
