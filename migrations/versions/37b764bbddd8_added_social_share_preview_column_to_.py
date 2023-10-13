@@ -6,8 +6,8 @@ Create Date: 2023-10-13 20:08:06.483116
 
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '37b764bbddd8'
@@ -29,7 +29,9 @@ def downgrade(engine_name: str = '') -> None:
 def upgrade_() -> None:
     """Upgrade default database."""
     with op.batch_alter_table('project', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('social_share_preview', sa.LargeBinary(), nullable=True))
+        batch_op.add_column(
+            sa.Column('social_share_preview', sa.LargeBinary(), nullable=True)
+        )
 
 
 def downgrade_() -> None:
