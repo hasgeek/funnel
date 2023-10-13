@@ -192,11 +192,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    thumbnail_image = with_roles(
-        sa.orm.mapped_column(sa.LargeBinary, nullable=True),
-        read={'all'},
-        datasets={'primary', 'without_parent', 'related'},
-    )
+    social_share_preview: Mapped[bytes | None] = sa.orm.mapped_column(sa.LargeBinary, nullable=True, deferred=True)
 
     allow_rsvp: Mapped[bool] = with_roles(
         sa.orm.mapped_column(sa.Boolean, default=True, nullable=False),
