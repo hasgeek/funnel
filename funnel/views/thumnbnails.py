@@ -13,4 +13,3 @@ def generate_thumbnail_image(project: Project) -> None:
 
 def render_thumbnail_image(project: Project) -> None:
     """Render the thumbnail image and cache the file using a background task"""
-    pass
