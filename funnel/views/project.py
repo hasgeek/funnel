@@ -278,8 +278,8 @@ class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
             project = Project(created_by=current_auth.user, account=self.obj)
             form.populate_obj(project)
             project.make_name()
-            project_data_change.send(project)
             db.session.add(project)
+            project_data_change.send(project)
             db.session.commit()
 
             flash(_("Your new project has been created"), 'info')
