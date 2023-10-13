@@ -48,7 +48,7 @@ from ..models import (
     db,
     sa,
 )
-from ..signals import project_role_change
+from ..signals import project_data_change, project_role_change
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
@@ -279,10 +279,10 @@ class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
             form.populate_obj(project)
             project.make_name()
             db.session.add(project)
+            project_data_change.send(project)
             db.session.commit()
 
             flash(_("Your new project has been created"), 'info')
-
             # tag locations
             tag_locations.queue(project.id)
 
@@ -452,6 +452,7 @@ class ProjectView(  # type: ignore[misc]
         form = ProjectForm(obj=self.obj, account=self.obj.account, model=Project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
+            project_data_change.send(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             tag_locations.queue(self.obj.id)
