@@ -14,7 +14,7 @@ click
 cryptography
 dataclasses-json
 Flask
-Flask-Assets
+Flask-Assets2
 Flask-Babel
 Flask-Executor
 Flask-FlatPages
