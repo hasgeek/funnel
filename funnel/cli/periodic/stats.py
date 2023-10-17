@@ -367,6 +367,18 @@ async def user_stats() -> dict[str, ResourceStats]:
     return stats
 
 
+async def projects_stats() -> list[models.Project]:
+    """Fetch all the projects that have been created in the last 24 hours."""
+
+    tz = pytz.timezone(app.config['TIMEZONE'])
+    now = utcnow().astimezone(tz)
+    today = midnight_to_utc(now)
+    new_projects = models.Project.query.filter(
+        models.Project.created_at >= today,
+    ).all()
+    return new_projects
+
+
 # --- Commands -------------------------------------------------------------------------
 
 
@@ -386,7 +398,9 @@ async def dailystats() -> None:
     now = utcnow().astimezone(tz)
     display_date = now - relativedelta(days=1)
 
-    user_data, matomo_data = await asyncio.gather(user_stats(), matomo_stats())
+    user_data, matomo_data, project_data = await asyncio.gather(
+        user_stats(), matomo_stats(), projects_stats()
+    )
     message = (
         f"*Traffic #statistics for {display_date.strftime('%a, %-d %b %Y')}*\n"
         f"\n"
@@ -448,6 +462,11 @@ async def dailystats() -> None:
         message += "\n*Socials:*\n"
         for mdata in matomo_data.socials:
             message += f"{mdata.nb_visits}: {mdata.label.strip()}\n"
+
+    if project_data:
+        message += "\n*New projects:*\n"
+        for project in project_data:
+            message += f"→ [{project.joined_title}]({project.url_for()})\n"
 
     bot = telegram.Bot(app.config["TELEGRAM_STATS_APIKEY"])
     await bot.send_message(
