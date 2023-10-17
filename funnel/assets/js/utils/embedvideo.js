@@ -8,7 +8,7 @@ const Video = {
   */
   getVideoTypeAndId(url) {
     const regexMatch = url.match(
-      /(http:|https:|)\/\/(player.|www.)?(?<service>y2u\.be|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|live\/|watch\?v=|v\/)?(?<videoId>[A-Za-z0-9._%-]*)(&\S+)?(\?h=(?<paramId>[^&]+))?/
+      /(http:|https:|)\/\/(player.|www.)?(?<service>y2u\.be|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|live\/|watch\?v=|v\/)?(?<videoId>[A-Za-z0-9._%-]*)(&\S+)?((\?h=)(?<paramId>[^&]+))?/
     );
     let type = '';
     if (regexMatch && regexMatch.length > 5) {
