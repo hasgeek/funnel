@@ -63,6 +63,7 @@ def support_callerid(number: str) -> tuple[dict[str, Any], int]:
         info['account'] = {
             'title': user_phone.account.fullname,
             'name': user_phone.account.username,
+            'urlname': user_phone.account.urlname,
         }
     return {'status': 'ok', 'result': info}, 200
     # TODO: Check in TicketParticipant.phone
