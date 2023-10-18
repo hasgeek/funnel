@@ -160,6 +160,8 @@ def validate_is_app_url(url: str | furl, method: str = 'GET') -> bool:
     """Confirm if an external URL is served by the current app (runtime-only)."""
     # Parse or copy URL and remove username and password before further analysis
     parsed_url = furl(url).remove(username=True, password=True)
+    path = parsed_url.pathstr.strip('/')
+    parsed_url.set(path=path)
     if not parsed_url.host or not parsed_url.scheme:
         return False  # This validator requires a full URL
 
