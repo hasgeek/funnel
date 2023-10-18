@@ -34,7 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest] # TODO: Figure out macos-latest and Docker
-        python-version: ['3.11']
+        python-version: ['3.11', '3.12']
 
     services:
       redis:

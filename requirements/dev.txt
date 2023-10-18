@@ -16,7 +16,7 @@ astroid==3.0.1
     # via pylint
 bandit==1.7.5
     # via -r requirements/dev.in
-black==23.9.1
+black==23.10.0
     # via -r requirements/dev.in
 build==1.0.3
     # via pip-tools
@@ -81,7 +81,7 @@ gherkin-official==24.0.0
     # via reformat-gherkin
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.37
+gitpython==3.1.38
     # via bandit
 html-tag-names==0.1.2
     # via djlint
@@ -106,7 +106,7 @@ mccabe==0.7.0
     # via
     #   flake8
     #   pylint
-mypy==1.6.0
+mypy==1.6.1
     # via -r requirements/dev.in
 mypy-json-report==1.0.4
     # via -r requirements/dev.in
@@ -149,7 +149,7 @@ pyupgrade==3.15.0
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
-ruff==0.0.292
+ruff==0.1.0
     # via -r requirements/dev.in
 smmap==5.0.1
     # via gitdb
@@ -179,7 +179,7 @@ types-pytz==2023.3.1.1
     # via -r requirements/dev.in
 types-redis==4.6.0.7
     # via -r requirements/dev.in
-types-requests==2.31.0.9
+types-requests==2.31.0.10
     # via -r requirements/dev.in
 virtualenv==20.24.5
     # via pre-commit
