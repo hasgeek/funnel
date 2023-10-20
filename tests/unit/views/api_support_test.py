@@ -104,6 +104,7 @@ def test_valid_phone_affiliated(
     assert data['result']['account'] == {
         'title': user_rincewind_phone.account.fullname,
         'name': user_rincewind_phone.account.username,
+        'url': user_rincewind_phone.account.profile_url,
     }
 
 
@@ -129,4 +130,5 @@ def test_valid_phone_intl(
     assert data['result']['account'] == {
         'title': user_twoflower_phone.account.fullname,
         'name': user_twoflower_phone.account.username,
+        'url': user_twoflower_phone.account.profile_url,
     }
