@@ -2,17 +2,22 @@
 
 from __future__ import annotations
 
+import csv
 from collections import Counter
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import timedelta
 from functools import wraps
 from io import StringIO
-from typing import Any, Dict, Optional, cast
-import csv
-
-from sqlalchemy.dialects.postgresql import INTERVAL
+from typing import Any
 
 from flask import abort, current_app, flash, render_template, request, url_for
+from sqlalchemy.dialects.postgresql import INTERVAL
+
+try:
+    import rq_dashboard
+except ModuleNotFoundError:
+    rq_dashboard = None
 
 from baseframe import _
 from baseframe.forms import Form
@@ -23,16 +28,17 @@ from .. import app
 from ..forms import ModeratorReportForm
 from ..models import (
     MODERATOR_REPORT_TYPE,
+    Account,
     AuthClient,
     Comment,
     CommentModeratorReport,
+    LoginSession,
     User,
-    UserSession,
-    auth_client_user_session,
+    auth_client_login_session,
     db,
     sa,
 )
-from ..typing import ReturnRenderWith, ReturnResponse, ReturnView, WrappedFunc
+from ..typing import P, ReturnRenderWith, ReturnResponse, ReturnView, T
 from ..utils import abort_null
 from .helpers import render_redirect
 from .login_session import requires_login
@@ -56,7 +62,7 @@ class AuthClientUserReport:
     auth_client_id: int
     title: str
     website: str
-    counts: Dict[str, int] = field(default_factory=counts_template.copy)
+    counts: dict[str, int] = field(default_factory=counts_template.copy)
 
 
 @dataclass
@@ -67,28 +73,64 @@ class ReportCounter:
     frequency: int
 
 
-def requires_siteadmin(f: WrappedFunc) -> WrappedFunc:
+def requires_siteadmin(f: Callable[P, T]) -> Callable[P, T]:
     """Decorate a view to require siteadmin privilege."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         if not current_auth.user or not current_auth.user.is_site_admin:
             abort(403)
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
 
 
-def requires_comment_moderator(f: WrappedFunc) -> WrappedFunc:
+def requires_site_editor(f: Callable[P, T]) -> Callable[P, T]:
+    """Decorate a view to require site editor privilege."""
+
+    @wraps(f)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+        if not current_auth.user or not current_auth.user.is_site_editor:
+            abort(403)
+        return f(*args, **kwargs)
+
+    return wrapper
+
+
+def requires_user_moderator(f: Callable[P, T]) -> Callable[P, T]:
+    """Decorate a view to require user moderator privilege."""
+
+    @wraps(f)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+        if not current_auth.user or not current_auth.user.is_user_moderator:
+            abort(403)
+        return f(*args, **kwargs)
+
+    return wrapper
+
+
+def requires_comment_moderator(f: Callable[P, T]) -> Callable[P, T]:
     """Decorate a view to require comment moderator privilege."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         if not current_auth.user or not current_auth.user.is_comment_moderator:
             abort(403)
         return f(*args, **kwargs)
 
-    return cast(WrappedFunc, wrapper)
+    return wrapper
+
+
+def requires_sysadmin(f: Callable[P, T]) -> Callable[P, T]:
+    """Decorate a view to require sysadmin privilege."""
+
+    @wraps(f)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
+        if not current_auth.user or not current_auth.user.is_sysadmin:
+            abort(403)
+        return f(*args, **kwargs)
+
+    return wrapper
 
 
 @route('/siteadmin')
@@ -102,14 +144,14 @@ class SiteadminView(ClassView):
     @requires_siteadmin
     def dashboard(self) -> ReturnView:
         """Render siteadmin dashboard landing page."""
-        user_count = User.active_user_count()
+        user_count = User.active_count()
         mau = (
-            db.session.query(sa.func.count(sa.func.distinct(UserSession.user_id)))
-            .select_from(UserSession)
-            .join(User, UserSession.user)
+            db.session.query(sa.func.count(sa.func.distinct(LoginSession.account_id)))
+            .select_from(LoginSession)
+            .join(Account, LoginSession.account)
             .filter(
-                User.state.ACTIVE,
-                UserSession.accessed_at > sa.func.utcnow() - timedelta(days=30),
+                Account.state.ACTIVE,
+                LoginSession.accessed_at > sa.func.utcnow() - timedelta(days=30),
             )
             .scalar()
         )
@@ -118,17 +160,24 @@ class SiteadminView(ClassView):
             'auth_dashboard.html.jinja2', user_count=user_count, mau=mau
         )
 
+    @route('shortlink', endpoint='shortlink')
+    def generate_shortlink(self) -> ReturnView:
+        """Form to generate a custom shortlink."""
+        return render_template('siteadmin_generate_shortlinks.html.jinja2')
+
     @route('data/users_by_month.csv', endpoint='dashboard_data_users_by_month')
     @requires_siteadmin
     def dashboard_data_users_by_month(self) -> ReturnView:
         """Render CSV of registered users by month."""
         users_by_month = (
             db.session.query(
-                sa.func.date_trunc('month', User.created_at).label('month'),
+                sa.func.date_trunc('month', Account.joined_at).label('month'),
                 sa.func.count().label('count'),
             )
-            .select_from(User)
-            .filter(User.state.ACTIVE)
+            .select_from(Account)
+            .filter(
+                Account.state.ACTIVE, Account.joined_at.isnot(None), User.type_filter()
+            )
             .group_by('month')
             .order_by('month')
         )
@@ -144,7 +193,7 @@ class SiteadminView(ClassView):
     @requires_siteadmin
     def dashboard_data_users_by_client(self) -> ReturnView:
         """Render CSV of active user counts per time period and auth client."""
-        client_users: Dict[int, AuthClientUserReport] = {}
+        client_users: dict[int, AuthClientUserReport] = {}
 
         for label, interval in (
             ('hour', '1 hour'),
@@ -157,19 +206,19 @@ class SiteadminView(ClassView):
         ):
             query_client_users = (
                 db.session.query(
-                    UserSession.user_id.label('user_id'),
-                    auth_client_user_session.c.auth_client_id.label('auth_client_id'),
+                    LoginSession.account_id.label('account_id'),
+                    auth_client_login_session.c.auth_client_id.label('auth_client_id'),
                 )
-                .select_from(UserSession, auth_client_user_session, User)
+                .select_from(LoginSession, auth_client_login_session, Account)
                 .filter(
-                    UserSession.user_id == User.id,
-                    auth_client_user_session.c.user_session_id == UserSession.id,
-                    User.state.ACTIVE,
-                    auth_client_user_session.c.accessed_at
+                    LoginSession.account_id == Account.id,
+                    auth_client_login_session.c.login_session_id == LoginSession.id,
+                    Account.state.ACTIVE,
+                    auth_client_login_session.c.accessed_at
                     >= sa.func.utcnow() - sa.func.cast(interval, INTERVAL),
                 )
                 .group_by(
-                    auth_client_user_session.c.auth_client_id, UserSession.user_id
+                    auth_client_login_session.c.auth_client_id, LoginSession.account_id
                 )
                 .subquery()
             )
@@ -234,7 +283,7 @@ class SiteadminView(ClassView):
     @render_with('siteadmin_comments.html.jinja2')
     @requestargs(('query', abort_null), ('page', int), ('per_page', int))
     def comments(
-        self, query: str = '', page: Optional[int] = None, per_page: int = 100
+        self, query: str = '', page: int | None = None, per_page: int = 100
     ) -> ReturnRenderWith:
         """Render a list of all comments matching a query."""
         comments = Comment.query.filter(Comment.state.REPORTABLE).order_by(
@@ -242,10 +291,10 @@ class SiteadminView(ClassView):
         )
         tsquery = sa.func.websearch_to_tsquery(query or '')
         if query:
-            comments = comments.join(User).filter(
+            comments = comments.join(Account).filter(
                 sa.or_(
                     Comment.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
+                    Account.search_vector.bool_op('@@')(tsquery),
                 )
             )
 
@@ -275,9 +324,7 @@ class SiteadminView(ClassView):
         # Avoid request.form.getlist('comment_id') here
         if comment_spam_form.validate_on_submit():
             comments = Comment.query.filter(
-                Comment.uuid_b58.in_(  # type: ignore[attr-defined]
-                    request.form.getlist('comment_id')
-                )
+                Comment.uuid_b58.in_(request.form.getlist('comment_id'))
             )
             for comment in comments:
                 CommentModeratorReport.submit(actor=current_auth.user, comment=comment)
@@ -320,7 +367,7 @@ class SiteadminView(ClassView):
             flash(_("You cannot review same comment twice"), 'error')
             return render_redirect(url_for('siteadmin_review_comments_random'))
 
-        if comment_report.user == current_auth.user:
+        if comment_report.reported_by == current_auth.user:
             flash(_("You cannot review your own report"), 'error')
             return render_redirect(url_for('siteadmin_review_comments_random'))
 
@@ -381,7 +428,7 @@ class SiteadminView(ClassView):
                 # e.g. existing report was spam, current report is not spam,
                 # we'll create the new report and wait for a 3rd report.
                 new_report = CommentModeratorReport(
-                    user=current_auth.user,
+                    reported_by=current_auth.user,
                     comment=comment_report.comment,
                     report_type=report_form.report_type.data,
                 )
@@ -400,3 +447,14 @@ class SiteadminView(ClassView):
 
 
 SiteadminView.init_app(app)
+
+
+def init_rq_dashboard():
+    """Register RQ Dashboard Blueprint if available for import."""
+    if rq_dashboard is not None:
+        rq_dashboard.blueprint.before_request(
+            lambda: (
+                None if current_auth and current_auth.user.is_sysadmin else abort(403)
+            )
+        )
+        app.register_blueprint(rq_dashboard.blueprint, url_prefix='/siteadmin/rq')

@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
+import csv
 from datetime import datetime, timedelta
 from io import StringIO
-from typing import Dict, Optional
-import csv
-
-from sqlalchemy.exc import IntegrityError
 
 from flask import Response, current_app, render_template, request
+from sqlalchemy.exc import IntegrityError
 
 from baseframe import _
 from coaster.auth import current_auth
@@ -19,11 +17,11 @@ from coaster.views import ClassView, render_with, requestargs, route
 from .. import app
 from ..models import ContactExchange, Project, TicketParticipant, db, sa
 from ..typing import ReturnRenderWith, ReturnView
-from ..utils import abort_null, format_twitter_handle
+from ..utils import format_twitter_handle
 from .login_session import requires_login
 
 
-def contact_details(ticket_participant: TicketParticipant) -> Dict[str, Optional[str]]:
+def contact_details(ticket_participant: TicketParticipant) -> dict[str, str | None]:
     return {
         'fullname': ticket_participant.fullname,
         'company': ticket_participant.company,
@@ -143,7 +141,7 @@ class ContactView(ClassView):
 
     @route('scan/connect', endpoint='scan_connect', methods=['POST'])
     @requires_login
-    @requestargs(('puk', abort_null), ('key', abort_null))
+    @requestargs('puk', 'key')
     def connect(self, puk: str, key: str) -> ReturnView:
         """Verify a badge scan and create a contact."""
         ticket_participant = TicketParticipant.query.filter_by(puk=puk, key=key).first()
@@ -170,7 +168,7 @@ class ContactView(ClassView):
 
             try:
                 contact_exchange = ContactExchange(
-                    user=current_auth.actor, ticket_participant=ticket_participant
+                    account=current_auth.actor, ticket_participant=ticket_participant
                 )
                 db.session.add(contact_exchange)
                 db.session.commit()

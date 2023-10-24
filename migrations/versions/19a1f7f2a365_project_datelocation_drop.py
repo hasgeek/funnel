@@ -9,15 +9,15 @@ Create Date: 2018-12-04 21:00:12.445853
 revision = '19a1f7f2a365'
 down_revision = '9a0d8fa7da29'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_column('project', 'datelocation')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'project',
         sa.Column(

@@ -22,13 +22,13 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = ${repr(branch_labels)}
 depends_on: Optional[Union[str, Tuple[str, ...]]] = ${repr(depends_on)}
 
 
-def upgrade(engine_name='') -> None:
+def upgrade(engine_name: str = '') -> None:
     """Upgrade all databases."""
     # Do not modify. Edit `upgrade_` instead
     globals().get(f'upgrade_{engine_name}', lambda: None)()
 
 
-def downgrade(engine_name='') -> None:
+def downgrade(engine_name: str = '') -> None:
     """Downgrade all databases."""
     # Do not modify. Edit `downgrade_` instead
     globals().get(f'downgrade_{engine_name}', lambda: None)()
@@ -51,12 +51,20 @@ def downgrade(engine_name='') -> None:
 % for db_name in db_names:
 
 def upgrade_${db_name}() -> None:
-    """Upgrade database bind '${db_name}'."""
+    % if db_name == '':
+    """Upgrade default database."""
+    % else:
+    """Upgrade ${db_name} database."""
+    % endif
     ${context.get("%s_upgrades" % db_name, "pass")}
 
 
 def downgrade_${db_name}() -> None:
-    """Downgrade database bind '${db_name}'."""
+    % if db_name == '':
+    """Downgrade default database."""
+    % else:
+    """Downgrade ${db_name} database."""
+    % endif
     ${context.get("%s_downgrades" % db_name, "pass")}
 
 % endfor

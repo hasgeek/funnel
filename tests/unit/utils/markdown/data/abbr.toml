@@ -1,0 +1,2717 @@
+markdown = """
+## Testing abbreviations plugin
+### Tests for `*[Short Form]: Long form` syntax for `<abbr>`
+
+*[HT\\ML]: HyperText Markup Language
+*[html]: HyperText Markup Language
+
+The language [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML) is a markup language for webpages.
+
+*[CSS]: Cascading Style Sheets
+
+CSS is a language used to define the presentation of HTML webpages.
+
+> You can find more about CSS on https://developer.mozilla.org/en-US/docs/Web/CSS
+
+Abbreviations should not be marked inside code: `That means html and CSS should not be marked here.`
+
+Nor should they be marked in the code blocks below:
+```
+HTML or CSS?
+```
+```js
+let html ='';
+```
+
+### Tests for padding characters
+*[ABBR]: Abbreviation
+
+[ABBR[
+\u0020ABBR\u0020
+!ABBR!
+"ABBR"
+#ABBR#
+%ABBR%
+&ABBR&
+'ABBR'
+(ABBR(
+)ABBR)
+*ABBR*
+,ABBR,
+-ABBR-
+.ABBR.
+/ABBR/
+:ABBR:
+;ABBR;
+?ABBR?
+@ABBR@
+\\ABBR\\
+[ABBR[
+]ABBR]
+_ABBR_
+{ABBR{
+}ABBR}
+\u00a0ABBR\u00a0
+\u00a1ABBR\u00a1
+\u00a7ABBR\u00a7
+\u00abABBR\u00ab
+\u00b6ABBR\u00b6
+\u00b7ABBR\u00b7
+\u00bbABBR\u00bb
+\u00bfABBR\u00bf
+\u037eABBR\u037e
+\u0387ABBR\u0387
+\u055aABBR\u055a
+\u055bABBR\u055b
+\u055cABBR\u055c
+\u055dABBR\u055d
+\u055eABBR\u055e
+\u055fABBR\u055f
+\u0589ABBR\u0589
+\u058aABBR\u058a
+\u05beABBR\u05be
+\u05c0ABBR\u05c0
+\u05c3ABBR\u05c3
+\u05c6ABBR\u05c6
+\u05f3ABBR\u05f3
+\u05f4ABBR\u05f4
+\u0609ABBR\u0609
+\u060aABBR\u060a
+\u060cABBR\u060c
+\u060dABBR\u060d
+\u061bABBR\u061b
+\u061dABBR\u061d
+\u061eABBR\u061e
+\u061fABBR\u061f
+\u066aABBR\u066a
+\u066bABBR\u066b
+\u066cABBR\u066c
+\u066dABBR\u066d
+\u06d4ABBR\u06d4
+\u0700ABBR\u0700
+\u0701ABBR\u0701
+\u0702ABBR\u0702
+\u0703ABBR\u0703
+\u0704ABBR\u0704
+\u0705ABBR\u0705
+\u0706ABBR\u0706
+\u0707ABBR\u0707
+\u0708ABBR\u0708
+\u0709ABBR\u0709
+\u070aABBR\u070a
+\u070bABBR\u070b
+\u070cABBR\u070c
+\u070dABBR\u070d
+\u07f7ABBR\u07f7
+\u07f8ABBR\u07f8
+\u07f9ABBR\u07f9
+\u0830ABBR\u0830
+\u0831ABBR\u0831
+\u0832ABBR\u0832
+\u0833ABBR\u0833
+\u0834ABBR\u0834
+\u0835ABBR\u0835
+\u0836ABBR\u0836
+\u0837ABBR\u0837
+\u0838ABBR\u0838
+\u0839ABBR\u0839
+\u083aABBR\u083a
+\u083bABBR\u083b
+\u083cABBR\u083c
+\u083dABBR\u083d
+\u083eABBR\u083e
+\u085eABBR\u085e
+\u0964ABBR\u0964
+\u0965ABBR\u0965
+\u0970ABBR\u0970
+\u09fdABBR\u09fd
+\u0a76ABBR\u0a76
+\u0af0ABBR\u0af0
+\u0c77ABBR\u0c77
+\u0c84ABBR\u0c84
+\u0df4ABBR\u0df4
+\u0e4fABBR\u0e4f
+\u0e5aABBR\u0e5a
+\u0e5bABBR\u0e5b
+\u0f04ABBR\u0f04
+\u0f05ABBR\u0f05
+\u0f06ABBR\u0f06
+\u0f07ABBR\u0f07
+\u0f08ABBR\u0f08
+\u0f09ABBR\u0f09
+\u0f0aABBR\u0f0a
+\u0f0bABBR\u0f0b
+\u0f0cABBR\u0f0c
+\u0f0dABBR\u0f0d
+\u0f0eABBR\u0f0e
+\u0f0fABBR\u0f0f
+\u0f10ABBR\u0f10
+\u0f11ABBR\u0f11
+\u0f12ABBR\u0f12
+\u0f14ABBR\u0f14
+\u0f3aABBR\u0f3a
+\u0f3bABBR\u0f3b
+\u0f3cABBR\u0f3c
+\u0f3dABBR\u0f3d
+\u0f85ABBR\u0f85
+\u0fd0ABBR\u0fd0
+\u0fd1ABBR\u0fd1
+\u0fd2ABBR\u0fd2
+\u0fd3ABBR\u0fd3
+\u0fd4ABBR\u0fd4
+\u0fd9ABBR\u0fd9
+\u0fdaABBR\u0fda
+\u104aABBR\u104a
+\u104bABBR\u104b
+\u104cABBR\u104c
+\u104dABBR\u104d
+\u104eABBR\u104e
+\u104fABBR\u104f
+\u10fbABBR\u10fb
+\u1360ABBR\u1360
+\u1361ABBR\u1361
+\u1362ABBR\u1362
+\u1363ABBR\u1363
+\u1364ABBR\u1364
+\u1365ABBR\u1365
+\u1366ABBR\u1366
+\u1367ABBR\u1367
+\u1368ABBR\u1368
+\u1400ABBR\u1400
+\u166eABBR\u166e
+\u1680ABBR\u1680
+\u169bABBR\u169b
+\u169cABBR\u169c
+\u16ebABBR\u16eb
+\u16ecABBR\u16ec
+\u16edABBR\u16ed
+\u1735ABBR\u1735
+\u1736ABBR\u1736
+\u17d4ABBR\u17d4
+\u17d5ABBR\u17d5
+\u17d6ABBR\u17d6
+\u17d8ABBR\u17d8
+\u17d9ABBR\u17d9
+\u17daABBR\u17da
+\u1800ABBR\u1800
+\u1801ABBR\u1801
+\u1802ABBR\u1802
+\u1803ABBR\u1803
+\u1804ABBR\u1804
+\u1805ABBR\u1805
+\u1806ABBR\u1806
+\u1807ABBR\u1807
+\u1808ABBR\u1808
+\u1809ABBR\u1809
+\u180aABBR\u180a
+\u1944ABBR\u1944
+\u1945ABBR\u1945
+\u1a1eABBR\u1a1e
+\u1a1fABBR\u1a1f
+\u1aa0ABBR\u1aa0
+\u1aa1ABBR\u1aa1
+\u1aa2ABBR\u1aa2
+\u1aa3ABBR\u1aa3
+\u1aa4ABBR\u1aa4
+\u1aa5ABBR\u1aa5
+\u1aa6ABBR\u1aa6
+\u1aa8ABBR\u1aa8
+\u1aa9ABBR\u1aa9
+\u1aaaABBR\u1aaa
+\u1aabABBR\u1aab
+\u1aacABBR\u1aac
+\u1aadABBR\u1aad
+\u1b5aABBR\u1b5a
+\u1b5bABBR\u1b5b
+\u1b5cABBR\u1b5c
+\u1b5dABBR\u1b5d
+\u1b5eABBR\u1b5e
+\u1b5fABBR\u1b5f
+\u1b60ABBR\u1b60
+\u1b7dABBR\u1b7d
+\u1b7eABBR\u1b7e
+\u1bfcABBR\u1bfc
+\u1bfdABBR\u1bfd
+\u1bfeABBR\u1bfe
+\u1bffABBR\u1bff
+\u1c3bABBR\u1c3b
+\u1c3cABBR\u1c3c
+\u1c3dABBR\u1c3d
+\u1c3eABBR\u1c3e
+\u1c3fABBR\u1c3f
+\u1c7eABBR\u1c7e
+\u1c7fABBR\u1c7f
+\u1cc0ABBR\u1cc0
+\u1cc1ABBR\u1cc1
+\u1cc2ABBR\u1cc2
+\u1cc3ABBR\u1cc3
+\u1cc4ABBR\u1cc4
+\u1cc5ABBR\u1cc5
+\u1cc6ABBR\u1cc6
+\u1cc7ABBR\u1cc7
+\u1cd3ABBR\u1cd3
+\u2000ABBR\u2000
+\u2001ABBR\u2001
+\u2002ABBR\u2002
+\u2003ABBR\u2003
+\u2004ABBR\u2004
+\u2005ABBR\u2005
+\u2006ABBR\u2006
+\u2007ABBR\u2007
+\u2008ABBR\u2008
+\u2009ABBR\u2009
+\u200aABBR\u200a
+\u2010ABBR\u2010
+\u2011ABBR\u2011
+\u2012ABBR\u2012
+\u2013ABBR\u2013
+\u2014ABBR\u2014
+\u2015ABBR\u2015
+\u2016ABBR\u2016
+\u2017ABBR\u2017
+\u2018ABBR\u2018
+\u2019ABBR\u2019
+\u201aABBR\u201a
+\u201bABBR\u201b
+\u201cABBR\u201c
+\u201dABBR\u201d
+\u201eABBR\u201e
+\u201fABBR\u201f
+\u2020ABBR\u2020
+\u2021ABBR\u2021
+\u2022ABBR\u2022
+\u2023ABBR\u2023
+\u2024ABBR\u2024
+\u2025ABBR\u2025
+\u2026ABBR\u2026
+\u2027ABBR\u2027
+\u2028ABBR\u2028
+\u2029ABBR\u2029
+\u202fABBR\u202f
+\u2030ABBR\u2030
+\u2031ABBR\u2031
+\u2032ABBR\u2032
+\u2033ABBR\u2033
+\u2034ABBR\u2034
+\u2035ABBR\u2035
+\u2036ABBR\u2036
+\u2037ABBR\u2037
+\u2038ABBR\u2038
+\u2039ABBR\u2039
+\u203aABBR\u203a
+\u203bABBR\u203b
+\u203cABBR\u203c
+\u203dABBR\u203d
+\u203eABBR\u203e
+\u203fABBR\u203f
+\u2040ABBR\u2040
+\u2041ABBR\u2041
+\u2042ABBR\u2042
+\u2043ABBR\u2043
+\u2045ABBR\u2045
+\u2046ABBR\u2046
+\u2047ABBR\u2047
+\u2048ABBR\u2048
+\u2049ABBR\u2049
+\u204aABBR\u204a
+\u204bABBR\u204b
+\u204cABBR\u204c
+\u204dABBR\u204d
+\u204eABBR\u204e
+\u204fABBR\u204f
+\u2050ABBR\u2050
+\u2051ABBR\u2051
+\u2053ABBR\u2053
+\u2054ABBR\u2054
+\u2055ABBR\u2055
+\u2056ABBR\u2056
+\u2057ABBR\u2057
+\u2058ABBR\u2058
+\u2059ABBR\u2059
+\u205aABBR\u205a
+\u205bABBR\u205b
+\u205cABBR\u205c
+\u205dABBR\u205d
+\u205eABBR\u205e
+\u205fABBR\u205f
+\u207dABBR\u207d
+\u207eABBR\u207e
+\u208dABBR\u208d
+\u208eABBR\u208e
+\u2308ABBR\u2308
+\u2309ABBR\u2309
+\u230aABBR\u230a
+\u230bABBR\u230b
+\u2329ABBR\u2329
+\u232aABBR\u232a
+\u2768ABBR\u2768
+\u2769ABBR\u2769
+\u276aABBR\u276a
+\u276bABBR\u276b
+\u276cABBR\u276c
+\u276dABBR\u276d
+\u276eABBR\u276e
+\u276fABBR\u276f
+\u2770ABBR\u2770
+\u2771ABBR\u2771
+\u2772ABBR\u2772
+\u2773ABBR\u2773
+\u2774ABBR\u2774
+\u2775ABBR\u2775
+\u27c5ABBR\u27c5
+\u27c6ABBR\u27c6
+\u27e6ABBR\u27e6
+\u27e7ABBR\u27e7
+\u27e8ABBR\u27e8
+\u27e9ABBR\u27e9
+\u27eaABBR\u27ea
+\u27ebABBR\u27eb
+\u27ecABBR\u27ec
+\u27edABBR\u27ed
+\u27eeABBR\u27ee
+\u27efABBR\u27ef
+\u2983ABBR\u2983
+\u2984ABBR\u2984
+\u2985ABBR\u2985
+\u2986ABBR\u2986
+\u2987ABBR\u2987
+\u2988ABBR\u2988
+\u2989ABBR\u2989
+\u298aABBR\u298a
+\u298bABBR\u298b
+\u298cABBR\u298c
+\u298dABBR\u298d
+\u298eABBR\u298e
+\u298fABBR\u298f
+\u2990ABBR\u2990
+\u2991ABBR\u2991
+\u2992ABBR\u2992
+\u2993ABBR\u2993
+\u2994ABBR\u2994
+\u2995ABBR\u2995
+\u2996ABBR\u2996
+\u2997ABBR\u2997
+\u2998ABBR\u2998
+\u29d8ABBR\u29d8
+\u29d9ABBR\u29d9
+\u29daABBR\u29da
+\u29dbABBR\u29db
+\u29fcABBR\u29fc
+\u29fdABBR\u29fd
+\u2cf9ABBR\u2cf9
+\u2cfaABBR\u2cfa
+\u2cfbABBR\u2cfb
+\u2cfcABBR\u2cfc
+\u2cfeABBR\u2cfe
+\u2cffABBR\u2cff
+\u2d70ABBR\u2d70
+\u2e00ABBR\u2e00
+\u2e01ABBR\u2e01
+\u2e02ABBR\u2e02
+\u2e03ABBR\u2e03
+\u2e04ABBR\u2e04
+\u2e05ABBR\u2e05
+\u2e06ABBR\u2e06
+\u2e07ABBR\u2e07
+\u2e08ABBR\u2e08
+\u2e09ABBR\u2e09
+\u2e0aABBR\u2e0a
+\u2e0bABBR\u2e0b
+\u2e0cABBR\u2e0c
+\u2e0dABBR\u2e0d
+\u2e0eABBR\u2e0e
+\u2e0fABBR\u2e0f
+\u2e10ABBR\u2e10
+\u2e11ABBR\u2e11
+\u2e12ABBR\u2e12
+\u2e13ABBR\u2e13
+\u2e14ABBR\u2e14
+\u2e15ABBR\u2e15
+\u2e16ABBR\u2e16
+\u2e17ABBR\u2e17
+\u2e18ABBR\u2e18
+\u2e19ABBR\u2e19
+\u2e1aABBR\u2e1a
+\u2e1bABBR\u2e1b
+\u2e1cABBR\u2e1c
+\u2e1dABBR\u2e1d
+\u2e1eABBR\u2e1e
+\u2e1fABBR\u2e1f
+\u2e20ABBR\u2e20
+\u2e21ABBR\u2e21
+\u2e22ABBR\u2e22
+\u2e23ABBR\u2e23
+\u2e24ABBR\u2e24
+\u2e25ABBR\u2e25
+\u2e26ABBR\u2e26
+\u2e27ABBR\u2e27
+\u2e28ABBR\u2e28
+\u2e29ABBR\u2e29
+\u2e2aABBR\u2e2a
+\u2e2bABBR\u2e2b
+\u2e2cABBR\u2e2c
+\u2e2dABBR\u2e2d
+\u2e2eABBR\u2e2e
+\u2e30ABBR\u2e30
+\u2e31ABBR\u2e31
+\u2e32ABBR\u2e32
+\u2e33ABBR\u2e33
+\u2e34ABBR\u2e34
+\u2e35ABBR\u2e35
+\u2e36ABBR\u2e36
+\u2e37ABBR\u2e37
+\u2e38ABBR\u2e38
+\u2e39ABBR\u2e39
+\u2e3aABBR\u2e3a
+\u2e3bABBR\u2e3b
+\u2e3cABBR\u2e3c
+\u2e3dABBR\u2e3d
+\u2e3eABBR\u2e3e
+\u2e3fABBR\u2e3f
+\u2e40ABBR\u2e40
+\u2e41ABBR\u2e41
+\u2e42ABBR\u2e42
+\u2e43ABBR\u2e43
+\u2e44ABBR\u2e44
+\u2e45ABBR\u2e45
+\u2e46ABBR\u2e46
+\u2e47ABBR\u2e47
+\u2e48ABBR\u2e48
+\u2e49ABBR\u2e49
+\u2e4aABBR\u2e4a
+\u2e4bABBR\u2e4b
+\u2e4cABBR\u2e4c
+\u2e4dABBR\u2e4d
+\u2e4eABBR\u2e4e
+\u2e4fABBR\u2e4f
+\u2e52ABBR\u2e52
+\u2e53ABBR\u2e53
+\u2e54ABBR\u2e54
+\u2e55ABBR\u2e55
+\u2e56ABBR\u2e56
+\u2e57ABBR\u2e57
+\u2e58ABBR\u2e58
+\u2e59ABBR\u2e59
+\u2e5aABBR\u2e5a
+\u2e5bABBR\u2e5b
+\u2e5cABBR\u2e5c
+\u2e5dABBR\u2e5d
+\u3000ABBR\u3000
+\u3001ABBR\u3001
+\u3002ABBR\u3002
+\u3003ABBR\u3003
+\u3008ABBR\u3008
+\u3009ABBR\u3009
+\u300aABBR\u300a
+\u300bABBR\u300b
+\u300cABBR\u300c
+\u300dABBR\u300d
+\u300eABBR\u300e
+\u300fABBR\u300f
+\u3010ABBR\u3010
+\u3011ABBR\u3011
+\u3014ABBR\u3014
+\u3015ABBR\u3015
+\u3016ABBR\u3016
+\u3017ABBR\u3017
+\u3018ABBR\u3018
+\u3019ABBR\u3019
+\u301aABBR\u301a
+\u301bABBR\u301b
+\u301cABBR\u301c
+\u301dABBR\u301d
+\u301eABBR\u301e
+\u301fABBR\u301f
+\u3030ABBR\u3030
+\u303dABBR\u303d
+\u30a0ABBR\u30a0
+\u30fbABBR\u30fb
+\ua4feABBR\ua4fe
+\ua4ffABBR\ua4ff
+\ua60dABBR\ua60d
+\ua60eABBR\ua60e
+\ua60fABBR\ua60f
+\ua673ABBR\ua673
+\ua67eABBR\ua67e
+\ua6f2ABBR\ua6f2
+\ua6f3ABBR\ua6f3
+\ua6f4ABBR\ua6f4
+\ua6f5ABBR\ua6f5
+\ua6f6ABBR\ua6f6
+\ua6f7ABBR\ua6f7
+\ua874ABBR\ua874
+\ua875ABBR\ua875
+\ua876ABBR\ua876
+\ua877ABBR\ua877
+\ua8ceABBR\ua8ce
+\ua8cfABBR\ua8cf
+\ua8f8ABBR\ua8f8
+\ua8f9ABBR\ua8f9
+\ua8faABBR\ua8fa
+\ua8fcABBR\ua8fc
+\ua92eABBR\ua92e
+\ua92fABBR\ua92f
+\ua95fABBR\ua95f
+\ua9c1ABBR\ua9c1
+\ua9c2ABBR\ua9c2
+\ua9c3ABBR\ua9c3
+\ua9c4ABBR\ua9c4
+\ua9c5ABBR\ua9c5
+\ua9c6ABBR\ua9c6
+\ua9c7ABBR\ua9c7
+\ua9c8ABBR\ua9c8
+\ua9c9ABBR\ua9c9
+\ua9caABBR\ua9ca
+\ua9cbABBR\ua9cb
+\ua9ccABBR\ua9cc
+\ua9cdABBR\ua9cd
+\ua9deABBR\ua9de
+\ua9dfABBR\ua9df
+\uaa5cABBR\uaa5c
+\uaa5dABBR\uaa5d
+\uaa5eABBR\uaa5e
+\uaa5fABBR\uaa5f
+\uaadeABBR\uaade
+\uaadfABBR\uaadf
+\uaaf0ABBR\uaaf0
+\uaaf1ABBR\uaaf1
+\uabebABBR\uabeb
+\ufd3eABBR\ufd3e
+\ufd3fABBR\ufd3f
+\ufe10ABBR\ufe10
+\ufe11ABBR\ufe11
+\ufe12ABBR\ufe12
+\ufe13ABBR\ufe13
+\ufe14ABBR\ufe14
+\ufe15ABBR\ufe15
+\ufe16ABBR\ufe16
+\ufe17ABBR\ufe17
+\ufe18ABBR\ufe18
+\ufe19ABBR\ufe19
+\ufe30ABBR\ufe30
+\ufe31ABBR\ufe31
+\ufe32ABBR\ufe32
+\ufe33ABBR\ufe33
+\ufe34ABBR\ufe34
+\ufe35ABBR\ufe35
+\ufe36ABBR\ufe36
+\ufe37ABBR\ufe37
+\ufe38ABBR\ufe38
+\ufe39ABBR\ufe39
+\ufe3aABBR\ufe3a
+\ufe3bABBR\ufe3b
+\ufe3cABBR\ufe3c
+\ufe3dABBR\ufe3d
+\ufe3eABBR\ufe3e
+\ufe3fABBR\ufe3f
+\ufe40ABBR\ufe40
+\ufe41ABBR\ufe41
+\ufe42ABBR\ufe42
+\ufe43ABBR\ufe43
+\ufe44ABBR\ufe44
+\ufe45ABBR\ufe45
+\ufe46ABBR\ufe46
+\ufe47ABBR\ufe47
+\ufe48ABBR\ufe48
+\ufe49ABBR\ufe49
+\ufe4aABBR\ufe4a
+\ufe4bABBR\ufe4b
+\ufe4cABBR\ufe4c
+\ufe4dABBR\ufe4d
+\ufe4eABBR\ufe4e
+\ufe4fABBR\ufe4f
+\ufe50ABBR\ufe50
+\ufe51ABBR\ufe51
+\ufe52ABBR\ufe52
+\ufe54ABBR\ufe54
+\ufe55ABBR\ufe55
+\ufe56ABBR\ufe56
+\ufe57ABBR\ufe57
+\ufe58ABBR\ufe58
+\ufe59ABBR\ufe59
+\ufe5aABBR\ufe5a
+\ufe5bABBR\ufe5b
+\ufe5cABBR\ufe5c
+\ufe5dABBR\ufe5d
+\ufe5eABBR\ufe5e
+\ufe5fABBR\ufe5f
+\ufe60ABBR\ufe60
+\ufe61ABBR\ufe61
+\ufe63ABBR\ufe63
+\ufe68ABBR\ufe68
+\ufe6aABBR\ufe6a
+\ufe6bABBR\ufe6b
+\uff01ABBR\uff01
+\uff02ABBR\uff02
+\uff03ABBR\uff03
+\uff05ABBR\uff05
+\uff06ABBR\uff06
+\uff07ABBR\uff07
+\uff08ABBR\uff08
+\uff09ABBR\uff09
+\uff0aABBR\uff0a
+\uff0cABBR\uff0c
+\uff0dABBR\uff0d
+\uff0eABBR\uff0e
+\uff0fABBR\uff0f
+\uff1aABBR\uff1a
+\uff1bABBR\uff1b
+\uff1fABBR\uff1f
+\uff20ABBR\uff20
+\uff3bABBR\uff3b
+\uff3cABBR\uff3c
+\uff3dABBR\uff3d
+\uff3fABBR\uff3f
+\uff5bABBR\uff5b
+\uff5dABBR\uff5d
+\uff5fABBR\uff5f
+\uff60ABBR\uff60
+\uff61ABBR\uff61
+\uff62ABBR\uff62
+\uff63ABBR\uff63
+\uff64ABBR\uff64
+\uff65ABBR\uff65
+\rABBR\r
+$ABBR$
++ABBR+
+<ABBR<
+=ABBR=
+>ABBR>
+^ABBR^
+`ABBR`
+|ABBR|
+~ABBR~
+]ABBR]
+"""
+
+[config]
+profiles = [ "basic", "document",]
+
+[config.custom_profiles.abbr]
+preset = "default"
+plugins = [ "abbr",]
+
+[expected_output]
+basic = """<h2>Testing abbreviations plugin</h2>
+<h3>Tests for <code>*[Short Form]: Long form</code> syntax for <code>&lt;abbr&gt;</code></h3>
+<p>*[HT\\ML]: HyperText Markup Language<br />
+*[html]: HyperText Markup Language</p>
+<p>The language <a href="https://developer.mozilla.org/en-US/docs/Web/HTML">HTML</a> is a markup language for webpages.</p>
+<p>*[CSS]: Cascading Style Sheets</p>
+<p>CSS is a language used to define the presentation of HTML webpages.</p>
+<blockquote>
+<p>You can find more about CSS on https://developer.mozilla.org/en-US/docs/Web/CSS</p>
+</blockquote>
+<p>Abbreviations should not be marked inside code: <code>That means html and CSS should not be marked here.</code></p>
+<p>Nor should they be marked in the code blocks below:</p>
+<pre><code class="language-none">HTML or CSS?
+</code></pre>
+<pre><code class="language-js">let html ='';
+</code></pre>
+<h3>Tests for padding characters</h3>
+<p>*[ABBR]: Abbreviation</p>
+<p>[ABBR[<br />
+ABBR<br />
+!ABBR!<br />
+&quot;ABBR&quot;<br />
+#ABBR#<br />
+%ABBR%<br />
+&amp;ABBR&amp;<br />
+'ABBR'<br />
+(ABBR(<br />
+)ABBR)<br />
+<em>ABBR</em><br />
+,ABBR,<br />
+-ABBR-<br />
+.ABBR.<br />
+/ABBR/<br />
+:ABBR:<br />
+;ABBR;<br />
+?ABBR?<br />
+@ABBR@<br />
+\\ABBR<br />
+[ABBR[<br />
+]ABBR]<br />
+<em>ABBR</em><br />
+{ABBR{<br />
+}ABBR}<br />
+ABBR<br />
+\u00a1ABBR\u00a1<br />
+\u00a7ABBR\u00a7<br />
+\u00abABBR\u00ab<br />
+\u00b6ABBR\u00b6<br />
+\u00b7ABBR\u00b7<br />
+\u00bbABBR\u00bb<br />
+\u00bfABBR\u00bf<br />
+\u037eABBR\u037e<br />
+\u0387ABBR\u0387<br />
+\u055aABBR\u055a<br />
+\u055bABBR\u055b<br />
+\u055cABBR\u055c<br />
+\u055dABBR\u055d<br />
+\u055eABBR\u055e<br />
+\u055fABBR\u055f<br />
+\u0589ABBR\u0589<br />
+\u058aABBR\u058a<br />
+\u05beABBR\u05be<br />
+\u05c0ABBR\u05c0<br />
+\u05c3ABBR\u05c3<br />
+\u05c6ABBR\u05c6<br />
+\u05f3ABBR\u05f3<br />
+\u05f4ABBR\u05f4<br />
+\u0609ABBR\u0609<br />
+\u060aABBR\u060a<br />
+\u060cABBR\u060c<br />
+\u060dABBR\u060d<br />
+\u061bABBR\u061b<br />
+\u061dABBR\u061d<br />
+\u061eABBR\u061e<br />
+\u061fABBR\u061f<br />
+\u066aABBR\u066a<br />
+\u066bABBR\u066b<br />
+\u066cABBR\u066c<br />
+\u066dABBR\u066d<br />
+\u06d4ABBR\u06d4<br />
+\u0700ABBR\u0700<br />
+\u0701ABBR\u0701<br />
+\u0702ABBR\u0702<br />
+\u0703ABBR\u0703<br />
+\u0704ABBR\u0704<br />
+\u0705ABBR\u0705<br />
+\u0706ABBR\u0706<br />
+\u0707ABBR\u0707<br />
+\u0708ABBR\u0708<br />
+\u0709ABBR\u0709<br />
+\u070aABBR\u070a<br />
+\u070bABBR\u070b<br />
+\u070cABBR\u070c<br />
+\u070dABBR\u070d<br />
+\u07f7ABBR\u07f7<br />
+\u07f8ABBR\u07f8<br />
+\u07f9ABBR\u07f9<br />
+\u0830ABBR\u0830<br />
+\u0831ABBR\u0831<br />
+\u0832ABBR\u0832<br />
+\u0833ABBR\u0833<br />
+\u0834ABBR\u0834<br />
+\u0835ABBR\u0835<br />
+\u0836ABBR\u0836<br />
+\u0837ABBR\u0837<br />
+\u0838ABBR\u0838<br />
+\u0839ABBR\u0839<br />
+\u083aABBR\u083a<br />
+\u083bABBR\u083b<br />
+\u083cABBR\u083c<br />
+\u083dABBR\u083d<br />
+\u083eABBR\u083e<br />
+\u085eABBR\u085e<br />
+\u0964ABBR\u0964<br />
+\u0965ABBR\u0965<br />
+\u0970ABBR\u0970<br />
+\u09fdABBR\u09fd<br />
+\u0a76ABBR\u0a76<br />
+\u0af0ABBR\u0af0<br />
+\u0c77ABBR\u0c77<br />
+\u0c84ABBR\u0c84<br />
+\u0df4ABBR\u0df4<br />
+\u0e4fABBR\u0e4f<br />
+\u0e5aABBR\u0e5a<br />
+\u0e5bABBR\u0e5b<br />
+\u0f04ABBR\u0f04<br />
+\u0f05ABBR\u0f05<br />
+\u0f06ABBR\u0f06<br />
+\u0f07ABBR\u0f07<br />
+\u0f08ABBR\u0f08<br />
+\u0f09ABBR\u0f09<br />
+\u0f0aABBR\u0f0a<br />
+\u0f0bABBR\u0f0b<br />
+\u0f0cABBR\u0f0c<br />
+\u0f0dABBR\u0f0d<br />
+\u0f0eABBR\u0f0e<br />
+\u0f0fABBR\u0f0f<br />
+\u0f10ABBR\u0f10<br />
+\u0f11ABBR\u0f11<br />
+\u0f12ABBR\u0f12<br />
+\u0f14ABBR\u0f14<br />
+\u0f3aABBR\u0f3a<br />
+\u0f3bABBR\u0f3b<br />
+\u0f3cABBR\u0f3c<br />
+\u0f3dABBR\u0f3d<br />
+\u0f85ABBR\u0f85<br />
+\u0fd0ABBR\u0fd0<br />
+\u0fd1ABBR\u0fd1<br />
+\u0fd2ABBR\u0fd2<br />
+\u0fd3ABBR\u0fd3<br />
+\u0fd4ABBR\u0fd4<br />
+\u0fd9ABBR\u0fd9<br />
+\u0fdaABBR\u0fda<br />
+\u104aABBR\u104a<br />
+\u104bABBR\u104b<br />
+\u104cABBR\u104c<br />
+\u104dABBR\u104d<br />
+\u104eABBR\u104e<br />
+\u104fABBR\u104f<br />
+\u10fbABBR\u10fb<br />
+\u1360ABBR\u1360<br />
+\u1361ABBR\u1361<br />
+\u1362ABBR\u1362<br />
+\u1363ABBR\u1363<br />
+\u1364ABBR\u1364<br />
+\u1365ABBR\u1365<br />
+\u1366ABBR\u1366<br />
+\u1367ABBR\u1367<br />
+\u1368ABBR\u1368<br />
+\u1400ABBR\u1400<br />
+\u166eABBR\u166e<br />
+ABBR<br />
+\u169bABBR\u169b<br />
+\u169cABBR\u169c<br />
+\u16ebABBR\u16eb<br />
+\u16ecABBR\u16ec<br />
+\u16edABBR\u16ed<br />
+\u1735ABBR\u1735<br />
+\u1736ABBR\u1736<br />
+\u17d4ABBR\u17d4<br />
+\u17d5ABBR\u17d5<br />
+\u17d6ABBR\u17d6<br />
+\u17d8ABBR\u17d8<br />
+\u17d9ABBR\u17d9<br />
+\u17daABBR\u17da<br />
+\u1800ABBR\u1800<br />
+\u1801ABBR\u1801<br />
+\u1802ABBR\u1802<br />
+\u1803ABBR\u1803<br />
+\u1804ABBR\u1804<br />
+\u1805ABBR\u1805<br />
+\u1806ABBR\u1806<br />
+\u1807ABBR\u1807<br />
+\u1808ABBR\u1808<br />
+\u1809ABBR\u1809<br />
+\u180aABBR\u180a<br />
+\u1944ABBR\u1944<br />
+\u1945ABBR\u1945<br />
+\u1a1eABBR\u1a1e<br />
+\u1a1fABBR\u1a1f<br />
+\u1aa0ABBR\u1aa0<br />
+\u1aa1ABBR\u1aa1<br />
+\u1aa2ABBR\u1aa2<br />
+\u1aa3ABBR\u1aa3<br />
+\u1aa4ABBR\u1aa4<br />
+\u1aa5ABBR\u1aa5<br />
+\u1aa6ABBR\u1aa6<br />
+\u1aa8ABBR\u1aa8<br />
+\u1aa9ABBR\u1aa9<br />
+\u1aaaABBR\u1aaa<br />
+\u1aabABBR\u1aab<br />
+\u1aacABBR\u1aac<br />
+\u1aadABBR\u1aad<br />
+\u1b5aABBR\u1b5a<br />
+\u1b5bABBR\u1b5b<br />
+\u1b5cABBR\u1b5c<br />
+\u1b5dABBR\u1b5d<br />
+\u1b5eABBR\u1b5e<br />
+\u1b5fABBR\u1b5f<br />
+\u1b60ABBR\u1b60<br />
+\u1b7dABBR\u1b7d<br />
+\u1b7eABBR\u1b7e<br />
+\u1bfcABBR\u1bfc<br />
+\u1bfdABBR\u1bfd<br />
+\u1bfeABBR\u1bfe<br />
+\u1bffABBR\u1bff<br />
+\u1c3bABBR\u1c3b<br />
+\u1c3cABBR\u1c3c<br />
+\u1c3dABBR\u1c3d<br />
+\u1c3eABBR\u1c3e<br />
+\u1c3fABBR\u1c3f<br />
+\u1c7eABBR\u1c7e<br />
+\u1c7fABBR\u1c7f<br />
+\u1cc0ABBR\u1cc0<br />
+\u1cc1ABBR\u1cc1<br />
+\u1cc2ABBR\u1cc2<br />
+\u1cc3ABBR\u1cc3<br />
+\u1cc4ABBR\u1cc4<br />
+\u1cc5ABBR\u1cc5<br />
+\u1cc6ABBR\u1cc6<br />
+\u1cc7ABBR\u1cc7<br />
+\u1cd3ABBR\u1cd3<br />
+ABBR<br />
+ABBR<br />
+ABBR<br />
+ABBR<br />
+ABBR<br />
+ABBR<br />
+ABBR<br />
+ABBR<br />
+ABBR<br />
+ABBR<br />
+ABBR<br />
+\u2010ABBR\u2010<br />
+\u2011ABBR\u2011<br />
+\u2012ABBR\u2012<br />
+\u2013ABBR\u2013<br />
+\u2014ABBR\u2014<br />
+\u2015ABBR\u2015<br />
+\u2016ABBR\u2016<br />
+\u2017ABBR\u2017<br />
+\u2018ABBR\u2018<br />
+\u2019ABBR\u2019<br />
+\u201aABBR\u201a<br />
+\u201bABBR\u201b<br />
+\u201cABBR\u201c<br />
+\u201dABBR\u201d<br />
+\u201eABBR\u201e<br />
+\u201fABBR\u201f<br />
+\u2020ABBR\u2020<br />
+\u2021ABBR\u2021<br />
+\u2022ABBR\u2022<br />
+\u2023ABBR\u2023<br />
+\u2024ABBR\u2024<br />
+\u2025ABBR\u2025<br />
+\u2026ABBR\u2026<br />
+\u2027ABBR\u2027<br />
+ABBR<br />
+ABBR<br />
+ABBR<br />
+\u2030ABBR\u2030<br />
+\u2031ABBR\u2031<br />
+\u2032ABBR\u2032<br />
+\u2033ABBR\u2033<br />
+\u2034ABBR\u2034<br />
+\u2035ABBR\u2035<br />
+\u2036ABBR\u2036<br />
+\u2037ABBR\u2037<br />
+\u2038ABBR\u2038<br />
+\u2039ABBR\u2039<br />
+\u203aABBR\u203a<br />
+\u203bABBR\u203b<br />
+\u203cABBR\u203c<br />
+\u203dABBR\u203d<br />
+\u203eABBR\u203e<br />
+\u203fABBR\u203f<br />
+\u2040ABBR\u2040<br />
+\u2041ABBR\u2041<br />
+\u2042ABBR\u2042<br />
+\u2043ABBR\u2043<br />
+\u2045ABBR\u2045<br />
+\u2046ABBR\u2046<br />
+\u2047ABBR\u2047<br />
+\u2048ABBR\u2048<br />
+\u2049ABBR\u2049<br />
+\u204aABBR\u204a<br />
+\u204bABBR\u204b<br />
+\u204cABBR\u204c<br />
+\u204dABBR\u204d<br />
+\u204eABBR\u204e<br />
+\u204fABBR\u204f<br />
+\u2050ABBR\u2050<br />
+\u2051ABBR\u2051<br />
+\u2053ABBR\u2053<br />
+\u2054ABBR\u2054<br />
+\u2055ABBR\u2055<br />
+\u2056ABBR\u2056<br />
+\u2057ABBR\u2057<br />
+\u2058ABBR\u2058<br />
+\u2059ABBR\u2059<br />
+\u205aABBR\u205a<br />
+\u205bABBR\u205b<br />
+\u205cABBR\u205c<br />
+\u205dABBR\u205d<br />
+\u205eABBR\u205e<br />
+ABBR<br />
+\u207dABBR\u207d<br />
+\u207eABBR\u207e<br />
+\u208dABBR\u208d<br />
+\u208eABBR\u208e<br />
+\u2308ABBR\u2308<br />
+\u2309ABBR\u2309<br />
+\u230aABBR\u230a<br />
+\u230bABBR\u230b<br />
+\u2329ABBR\u2329<br />
+\u232aABBR\u232a<br />
+\u2768ABBR\u2768<br />
+\u2769ABBR\u2769<br />
+\u276aABBR\u276a<br />
+\u276bABBR\u276b<br />
+\u276cABBR\u276c<br />
+\u276dABBR\u276d<br />
+\u276eABBR\u276e<br />
+\u276fABBR\u276f<br />
+\u2770ABBR\u2770<br />
+\u2771ABBR\u2771<br />
+\u2772ABBR\u2772<br />
+\u2773ABBR\u2773<br />
+\u2774ABBR\u2774<br />
+\u2775ABBR\u2775<br />
+\u27c5ABBR\u27c5<br />
+\u27c6ABBR\u27c6<br />
+\u27e6ABBR\u27e6<br />
+\u27e7ABBR\u27e7<br />
+\u27e8ABBR\u27e8<br />
+\u27e9ABBR\u27e9<br />
+\u27eaABBR\u27ea<br />
+\u27ebABBR\u27eb<br />
+\u27ecABBR\u27ec<br />
+\u27edABBR\u27ed<br />
+\u27eeABBR\u27ee<br />
+\u27efABBR\u27ef<br />
+\u2983ABBR\u2983<br />
+\u2984ABBR\u2984<br />
+\u2985ABBR\u2985<br />
+\u2986ABBR\u2986<br />
+\u2987ABBR\u2987<br />
+\u2988ABBR\u2988<br />
+\u2989ABBR\u2989<br />
+\u298aABBR\u298a<br />
+\u298bABBR\u298b<br />
+\u298cABBR\u298c<br />
+\u298dABBR\u298d<br />
+\u298eABBR\u298e<br />
+\u298fABBR\u298f<br />
+\u2990ABBR\u2990<br />
+\u2991ABBR\u2991<br />
+\u2992ABBR\u2992<br />
+\u2993ABBR\u2993<br />
+\u2994ABBR\u2994<br />
+\u2995ABBR\u2995<br />
+\u2996ABBR\u2996<br />
+\u2997ABBR\u2997<br />
+\u2998ABBR\u2998<br />
+\u29d8ABBR\u29d8<br />
+\u29d9ABBR\u29d9<br />
+\u29daABBR\u29da<br />
+\u29dbABBR\u29db<br />
+\u29fcABBR\u29fc<br />
+\u29fdABBR\u29fd<br />
+\u2cf9ABBR\u2cf9<br />
+\u2cfaABBR\u2cfa<br />
+\u2cfbABBR\u2cfb<br />
+\u2cfcABBR\u2cfc<br />
+\u2cfeABBR\u2cfe<br />
+\u2cffABBR\u2cff<br />
+\u2d70ABBR\u2d70<br />
+\u2e00ABBR\u2e00<br />
+\u2e01ABBR\u2e01<br />
+\u2e02ABBR\u2e02<br />
+\u2e03ABBR\u2e03<br />
+\u2e04ABBR\u2e04<br />
+\u2e05ABBR\u2e05<br />
+\u2e06ABBR\u2e06<br />
+\u2e07ABBR\u2e07<br />
+\u2e08ABBR\u2e08<br />
+\u2e09ABBR\u2e09<br />
+\u2e0aABBR\u2e0a<br />
+\u2e0bABBR\u2e0b<br />
+\u2e0cABBR\u2e0c<br />
+\u2e0dABBR\u2e0d<br />
+\u2e0eABBR\u2e0e<br />
+\u2e0fABBR\u2e0f<br />
+\u2e10ABBR\u2e10<br />
+\u2e11ABBR\u2e11<br />
+\u2e12ABBR\u2e12<br />
+\u2e13ABBR\u2e13<br />
+\u2e14ABBR\u2e14<br />
+\u2e15ABBR\u2e15<br />
+\u2e16ABBR\u2e16<br />
+\u2e17ABBR\u2e17<br />
+\u2e18ABBR\u2e18<br />
+\u2e19ABBR\u2e19<br />
+\u2e1aABBR\u2e1a<br />
+\u2e1bABBR\u2e1b<br />
+\u2e1cABBR\u2e1c<br />
+\u2e1dABBR\u2e1d<br />
+\u2e1eABBR\u2e1e<br />
+\u2e1fABBR\u2e1f<br />
+\u2e20ABBR\u2e20<br />
+\u2e21ABBR\u2e21<br />
+\u2e22ABBR\u2e22<br />
+\u2e23ABBR\u2e23<br />
+\u2e24ABBR\u2e24<br />
+\u2e25ABBR\u2e25<br />
+\u2e26ABBR\u2e26<br />
+\u2e27ABBR\u2e27<br />
+\u2e28ABBR\u2e28<br />
+\u2e29ABBR\u2e29<br />
+\u2e2aABBR\u2e2a<br />
+\u2e2bABBR\u2e2b<br />
+\u2e2cABBR\u2e2c<br />
+\u2e2dABBR\u2e2d<br />
+\u2e2eABBR\u2e2e<br />
+\u2e30ABBR\u2e30<br />
+\u2e31ABBR\u2e31<br />
+\u2e32ABBR\u2e32<br />
+\u2e33ABBR\u2e33<br />
+\u2e34ABBR\u2e34<br />
+\u2e35ABBR\u2e35<br />
+\u2e36ABBR\u2e36<br />
+\u2e37ABBR\u2e37<br />
+\u2e38ABBR\u2e38<br />
+\u2e39ABBR\u2e39<br />
+\u2e3aABBR\u2e3a<br />
+\u2e3bABBR\u2e3b<br />
+\u2e3cABBR\u2e3c<br />
+\u2e3dABBR\u2e3d<br />
+\u2e3eABBR\u2e3e<br />
+\u2e3fABBR\u2e3f<br />
+\u2e40ABBR\u2e40<br />
+\u2e41ABBR\u2e41<br />
+\u2e42ABBR\u2e42<br />
+\u2e43ABBR\u2e43<br />
+\u2e44ABBR\u2e44<br />
+\u2e45ABBR\u2e45<br />
+\u2e46ABBR\u2e46<br />
+\u2e47ABBR\u2e47<br />
+\u2e48ABBR\u2e48<br />
+\u2e49ABBR\u2e49<br />
+\u2e4aABBR\u2e4a<br />
+\u2e4bABBR\u2e4b<br />
+\u2e4cABBR\u2e4c<br />
+\u2e4dABBR\u2e4d<br />
+\u2e4eABBR\u2e4e<br />
+\u2e4fABBR\u2e4f<br />
+\u2e52ABBR\u2e52<br />
+\u2e53ABBR\u2e53<br />
+\u2e54ABBR\u2e54<br />
+\u2e55ABBR\u2e55<br />
+\u2e56ABBR\u2e56<br />
+\u2e57ABBR\u2e57<br />
+\u2e58ABBR\u2e58<br />
+\u2e59ABBR\u2e59<br />
+\u2e5aABBR\u2e5a<br />
+\u2e5bABBR\u2e5b<br />
+\u2e5cABBR\u2e5c<br />
+\u2e5dABBR\u2e5d<br />
+ABBR<br />
+\u3001ABBR\u3001<br />
+\u3002ABBR\u3002<br />
+\u3003ABBR\u3003<br />
+\u3008ABBR\u3008<br />
+\u3009ABBR\u3009<br />
+\u300aABBR\u300a<br />
+\u300bABBR\u300b<br />
+\u300cABBR\u300c<br />
+\u300dABBR\u300d<br />
+\u300eABBR\u300e<br />
+\u300fABBR\u300f<br />
+\u3010ABBR\u3010<br />
+\u3011ABBR\u3011<br />
+\u3014ABBR\u3014<br />
+\u3015ABBR\u3015<br />
+\u3016ABBR\u3016<br />
+\u3017ABBR\u3017<br />
+\u3018ABBR\u3018<br />
+\u3019ABBR\u3019<br />
+\u301aABBR\u301a<br />
+\u301bABBR\u301b<br />
+\u301cABBR\u301c<br />
+\u301dABBR\u301d<br />
+\u301eABBR\u301e<br />
+\u301fABBR\u301f<br />
+\u3030ABBR\u3030<br />
+\u303dABBR\u303d<br />
+\u30a0ABBR\u30a0<br />
+\u30fbABBR\u30fb<br />
+\ua4feABBR\ua4fe<br />
+\ua4ffABBR\ua4ff<br />
+\ua60dABBR\ua60d<br />
+\ua60eABBR\ua60e<br />
+\ua60fABBR\ua60f<br />
+\ua673ABBR\ua673<br />
+\ua67eABBR\ua67e<br />
+\ua6f2ABBR\ua6f2<br />
+\ua6f3ABBR\ua6f3<br />
+\ua6f4ABBR\ua6f4<br />
+\ua6f5ABBR\ua6f5<br />
+\ua6f6ABBR\ua6f6<br />
+\ua6f7ABBR\ua6f7<br />
+\ua874ABBR\ua874<br />
+\ua875ABBR\ua875<br />
+\ua876ABBR\ua876<br />
+\ua877ABBR\ua877<br />
+\ua8ceABBR\ua8ce<br />
+\ua8cfABBR\ua8cf<br />
+\ua8f8ABBR\ua8f8<br />
+\ua8f9ABBR\ua8f9<br />
+\ua8faABBR\ua8fa<br />
+\ua8fcABBR\ua8fc<br />
+\ua92eABBR\ua92e<br />
+\ua92fABBR\ua92f<br />
+\ua95fABBR\ua95f<br />
+\ua9c1ABBR\ua9c1<br />
+\ua9c2ABBR\ua9c2<br />
+\ua9c3ABBR\ua9c3<br />
+\ua9c4ABBR\ua9c4<br />
+\ua9c5ABBR\ua9c5<br />
+\ua9c6ABBR\ua9c6<br />
+\ua9c7ABBR\ua9c7<br />
+\ua9c8ABBR\ua9c8<br />
+\ua9c9ABBR\ua9c9<br />
+\ua9caABBR\ua9ca<br />
+\ua9cbABBR\ua9cb<br />
+\ua9ccABBR\ua9cc<br />
+\ua9cdABBR\ua9cd<br />
+\ua9deABBR\ua9de<br />
+\ua9dfABBR\ua9df<br />
+\uaa5cABBR\uaa5c<br />
+\uaa5dABBR\uaa5d<br />
+\uaa5eABBR\uaa5e<br />
+\uaa5fABBR\uaa5f<br />
+\uaadeABBR\uaade<br />
+\uaadfABBR\uaadf<br />
+\uaaf0ABBR\uaaf0<br />
+\uaaf1ABBR\uaaf1<br />
+\uabebABBR\uabeb<br />
+\ufd3eABBR\ufd3e<br />
+\ufd3fABBR\ufd3f<br />
+\ufe10ABBR\ufe10<br />
+\ufe11ABBR\ufe11<br />
+\ufe12ABBR\ufe12<br />
+\ufe13ABBR\ufe13<br />
+\ufe14ABBR\ufe14<br />
+\ufe15ABBR\ufe15<br />
+\ufe16ABBR\ufe16<br />
+\ufe17ABBR\ufe17<br />
+\ufe18ABBR\ufe18<br />
+\ufe19ABBR\ufe19<br />
+\ufe30ABBR\ufe30<br />
+\ufe31ABBR\ufe31<br />
+\ufe32ABBR\ufe32<br />
+\ufe33ABBR\ufe33<br />
+\ufe34ABBR\ufe34<br />
+\ufe35ABBR\ufe35<br />
+\ufe36ABBR\ufe36<br />
+\ufe37ABBR\ufe37<br />
+\ufe38ABBR\ufe38<br />
+\ufe39ABBR\ufe39<br />
+\ufe3aABBR\ufe3a<br />
+\ufe3bABBR\ufe3b<br />
+\ufe3cABBR\ufe3c<br />
+\ufe3dABBR\ufe3d<br />
+\ufe3eABBR\ufe3e<br />
+\ufe3fABBR\ufe3f<br />
+\ufe40ABBR\ufe40<br />
+\ufe41ABBR\ufe41<br />
+\ufe42ABBR\ufe42<br />
+\ufe43ABBR\ufe43<br />
+\ufe44ABBR\ufe44<br />
+\ufe45ABBR\ufe45<br />
+\ufe46ABBR\ufe46<br />
+\ufe47ABBR\ufe47<br />
+\ufe48ABBR\ufe48<br />
+\ufe49ABBR\ufe49<br />
+\ufe4aABBR\ufe4a<br />
+\ufe4bABBR\ufe4b<br />
+\ufe4cABBR\ufe4c<br />
+\ufe4dABBR\ufe4d<br />
+\ufe4eABBR\ufe4e<br />
+\ufe4fABBR\ufe4f<br />
+\ufe50ABBR\ufe50<br />
+\ufe51ABBR\ufe51<br />
+\ufe52ABBR\ufe52<br />
+\ufe54ABBR\ufe54<br />
+\ufe55ABBR\ufe55<br />
+\ufe56ABBR\ufe56<br />
+\ufe57ABBR\ufe57<br />
+\ufe58ABBR\ufe58<br />
+\ufe59ABBR\ufe59<br />
+\ufe5aABBR\ufe5a<br />
+\ufe5bABBR\ufe5b<br />
+\ufe5cABBR\ufe5c<br />
+\ufe5dABBR\ufe5d<br />
+\ufe5eABBR\ufe5e<br />
+\ufe5fABBR\ufe5f<br />
+\ufe60ABBR\ufe60<br />
+\ufe61ABBR\ufe61<br />
+\ufe63ABBR\ufe63<br />
+\ufe68ABBR\ufe68<br />
+\ufe6aABBR\ufe6a<br />
+\ufe6bABBR\ufe6b<br />
+\uff01ABBR\uff01<br />
+\uff02ABBR\uff02<br />
+\uff03ABBR\uff03<br />
+\uff05ABBR\uff05<br />
+\uff06ABBR\uff06<br />
+\uff07ABBR\uff07<br />
+\uff08ABBR\uff08<br />
+\uff09ABBR\uff09<br />
+\uff0aABBR\uff0a<br />
+\uff0cABBR\uff0c<br />
+\uff0dABBR\uff0d<br />
+\uff0eABBR\uff0e<br />
+\uff0fABBR\uff0f<br />
+\uff1aABBR\uff1a<br />
+\uff1bABBR\uff1b<br />
+\uff1fABBR\uff1f<br />
+\uff20ABBR\uff20<br />
+\uff3bABBR\uff3b<br />
+\uff3cABBR\uff3c<br />
+\uff3dABBR\uff3d<br />
+\uff3fABBR\uff3f<br />
+\uff5bABBR\uff5b<br />
+\uff5dABBR\uff5d<br />
+\uff5fABBR\uff5f<br />
+\uff60ABBR\uff60<br />
+\uff61ABBR\uff61<br />
+\uff62ABBR\uff62<br />
+\uff63ABBR\uff63<br />
+\uff64ABBR\uff64<br />
+\uff65ABBR\uff65</p>
+<p>ABBR<br />
+$ABBR$<br />
++ABBR+<br />
+&lt;ABBR&lt;<br />
+=ABBR=</p>
+<blockquote>
+<p>ABBR&gt;<br />
+^ABBR^<br />
+<code>ABBR</code><br />
+|ABBR|<br />
+~ABBR~<br />
+]ABBR]</p>
+</blockquote>
+"""
+document = """<h2 id="h:testing-abbreviations-plugin"><a href="#h:testing-abbreviations-plugin">Testing abbreviations plugin</a></h2>
+<h3 id="h:tests-for-short-form-long-form-syntax-for-abbr"><a href="#h:tests-for-short-form-long-form-syntax-for-abbr">Tests for <code>*[Short Form]: Long form</code> syntax for <code>&lt;abbr&gt;</code></a></h3>
+<p>The language <a href="https://developer.mozilla.org/en-US/docs/Web/HTML"><abbr title="HyperText Markup Language">HTML</abbr></a> is a markup language for webpages.</p>
+<p><abbr title="Cascading Style Sheets">CSS</abbr> is a language used to define the presentation of <abbr title="HyperText Markup Language">HTML</abbr> webpages.</p>
+<blockquote>
+<p>You can find more about <abbr title="Cascading Style Sheets">CSS</abbr> on <a href="https://developer.mozilla.org/en-US/docs/Web/CSS">https://developer.mozilla.org/en-US/docs/Web/<abbr title="Cascading Style Sheets">CSS</abbr></a></p>
+</blockquote>
+<p>Abbreviations should not be marked inside code: <code>That means html and CSS should not be marked here.</code></p>
+<p>Nor should they be marked in the code blocks below:</p>
+<pre><code class="language-none">HTML or CSS?
+</code></pre>
+<pre><code class="language-js">let html ='';
+</code></pre>
+<h3 id="h:tests-for-padding-characters"><a href="#h:tests-for-padding-characters">Tests for padding characters</a></h3>
+<p>[<abbr title="Abbreviation">ABBR</abbr>[<br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+!<abbr title="Abbreviation">ABBR</abbr>!<br />
+“<abbr title="Abbreviation">ABBR</abbr>”<br />
+#<abbr title="Abbreviation">ABBR</abbr>#<br />
+%<abbr title="Abbreviation">ABBR</abbr>%<br />
+&amp;<abbr title="Abbreviation">ABBR</abbr>&amp;<br />
+‘<abbr title="Abbreviation">ABBR</abbr>’<br />
+(<abbr title="Abbreviation">ABBR</abbr>(<br />
+)<abbr title="Abbreviation">ABBR</abbr>)<br />
+<em><abbr title="Abbreviation">ABBR</abbr></em><br />
+,<abbr title="Abbreviation">ABBR</abbr>,<br />
+-<abbr title="Abbreviation">ABBR</abbr>-<br />
+.<abbr title="Abbreviation">ABBR</abbr>.<br />
+/<abbr title="Abbreviation">ABBR</abbr>/<br />
+:<abbr title="Abbreviation">ABBR</abbr>:<br />
+;<abbr title="Abbreviation">ABBR</abbr>;<br />
+?<abbr title="Abbreviation">ABBR</abbr>?<br />
+@<abbr title="Abbreviation">ABBR</abbr>@<br />
+\\ABBR<br />
+[<abbr title="Abbreviation">ABBR</abbr>[<br />
+]<abbr title="Abbreviation">ABBR</abbr>]<br />
+<em><abbr title="Abbreviation">ABBR</abbr></em><br />
+{<abbr title="Abbreviation">ABBR</abbr>{<br />
+}<abbr title="Abbreviation">ABBR</abbr>}<br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+\u00a1<abbr title="Abbreviation">ABBR</abbr>\u00a1<br />
+\u00a7<abbr title="Abbreviation">ABBR</abbr>\u00a7<br />
+\u00ab<abbr title="Abbreviation">ABBR</abbr>\u00ab<br />
+\u00b6<abbr title="Abbreviation">ABBR</abbr>\u00b6<br />
+\u00b7<abbr title="Abbreviation">ABBR</abbr>\u00b7<br />
+\u00bb<abbr title="Abbreviation">ABBR</abbr>\u00bb<br />
+\u00bf<abbr title="Abbreviation">ABBR</abbr>\u00bf<br />
+\u037e<abbr title="Abbreviation">ABBR</abbr>\u037e<br />
+\u0387<abbr title="Abbreviation">ABBR</abbr>\u0387<br />
+\u055a<abbr title="Abbreviation">ABBR</abbr>\u055a<br />
+\u055b<abbr title="Abbreviation">ABBR</abbr>\u055b<br />
+\u055c<abbr title="Abbreviation">ABBR</abbr>\u055c<br />
+\u055d<abbr title="Abbreviation">ABBR</abbr>\u055d<br />
+\u055e<abbr title="Abbreviation">ABBR</abbr>\u055e<br />
+\u055f<abbr title="Abbreviation">ABBR</abbr>\u055f<br />
+\u0589<abbr title="Abbreviation">ABBR</abbr>\u0589<br />
+\u058a<abbr title="Abbreviation">ABBR</abbr>\u058a<br />
+\u05be<abbr title="Abbreviation">ABBR</abbr>\u05be<br />
+\u05c0<abbr title="Abbreviation">ABBR</abbr>\u05c0<br />
+\u05c3<abbr title="Abbreviation">ABBR</abbr>\u05c3<br />
+\u05c6<abbr title="Abbreviation">ABBR</abbr>\u05c6<br />
+\u05f3<abbr title="Abbreviation">ABBR</abbr>\u05f3<br />
+\u05f4<abbr title="Abbreviation">ABBR</abbr>\u05f4<br />
+\u0609<abbr title="Abbreviation">ABBR</abbr>\u0609<br />
+\u060a<abbr title="Abbreviation">ABBR</abbr>\u060a<br />
+\u060c<abbr title="Abbreviation">ABBR</abbr>\u060c<br />
+\u060d<abbr title="Abbreviation">ABBR</abbr>\u060d<br />
+\u061b<abbr title="Abbreviation">ABBR</abbr>\u061b<br />
+\u061d<abbr title="Abbreviation">ABBR</abbr>\u061d<br />
+\u061e<abbr title="Abbreviation">ABBR</abbr>\u061e<br />
+\u061f<abbr title="Abbreviation">ABBR</abbr>\u061f<br />
+\u066a<abbr title="Abbreviation">ABBR</abbr>\u066a<br />
+\u066b<abbr title="Abbreviation">ABBR</abbr>\u066b<br />
+\u066c<abbr title="Abbreviation">ABBR</abbr>\u066c<br />
+\u066d<abbr title="Abbreviation">ABBR</abbr>\u066d<br />
+\u06d4<abbr title="Abbreviation">ABBR</abbr>\u06d4<br />
+\u0700<abbr title="Abbreviation">ABBR</abbr>\u0700<br />
+\u0701<abbr title="Abbreviation">ABBR</abbr>\u0701<br />
+\u0702<abbr title="Abbreviation">ABBR</abbr>\u0702<br />
+\u0703<abbr title="Abbreviation">ABBR</abbr>\u0703<br />
+\u0704<abbr title="Abbreviation">ABBR</abbr>\u0704<br />
+\u0705<abbr title="Abbreviation">ABBR</abbr>\u0705<br />
+\u0706<abbr title="Abbreviation">ABBR</abbr>\u0706<br />
+\u0707<abbr title="Abbreviation">ABBR</abbr>\u0707<br />
+\u0708<abbr title="Abbreviation">ABBR</abbr>\u0708<br />
+\u0709<abbr title="Abbreviation">ABBR</abbr>\u0709<br />
+\u070a<abbr title="Abbreviation">ABBR</abbr>\u070a<br />
+\u070b<abbr title="Abbreviation">ABBR</abbr>\u070b<br />
+\u070c<abbr title="Abbreviation">ABBR</abbr>\u070c<br />
+\u070d<abbr title="Abbreviation">ABBR</abbr>\u070d<br />
+\u07f7<abbr title="Abbreviation">ABBR</abbr>\u07f7<br />
+\u07f8<abbr title="Abbreviation">ABBR</abbr>\u07f8<br />
+\u07f9<abbr title="Abbreviation">ABBR</abbr>\u07f9<br />
+\u0830<abbr title="Abbreviation">ABBR</abbr>\u0830<br />
+\u0831<abbr title="Abbreviation">ABBR</abbr>\u0831<br />
+\u0832<abbr title="Abbreviation">ABBR</abbr>\u0832<br />
+\u0833<abbr title="Abbreviation">ABBR</abbr>\u0833<br />
+\u0834<abbr title="Abbreviation">ABBR</abbr>\u0834<br />
+\u0835<abbr title="Abbreviation">ABBR</abbr>\u0835<br />
+\u0836<abbr title="Abbreviation">ABBR</abbr>\u0836<br />
+\u0837<abbr title="Abbreviation">ABBR</abbr>\u0837<br />
+\u0838<abbr title="Abbreviation">ABBR</abbr>\u0838<br />
+\u0839<abbr title="Abbreviation">ABBR</abbr>\u0839<br />
+\u083a<abbr title="Abbreviation">ABBR</abbr>\u083a<br />
+\u083b<abbr title="Abbreviation">ABBR</abbr>\u083b<br />
+\u083c<abbr title="Abbreviation">ABBR</abbr>\u083c<br />
+\u083d<abbr title="Abbreviation">ABBR</abbr>\u083d<br />
+\u083e<abbr title="Abbreviation">ABBR</abbr>\u083e<br />
+\u085e<abbr title="Abbreviation">ABBR</abbr>\u085e<br />
+\u0964<abbr title="Abbreviation">ABBR</abbr>\u0964<br />
+\u0965<abbr title="Abbreviation">ABBR</abbr>\u0965<br />
+\u0970<abbr title="Abbreviation">ABBR</abbr>\u0970<br />
+\u09fd<abbr title="Abbreviation">ABBR</abbr>\u09fd<br />
+\u0a76<abbr title="Abbreviation">ABBR</abbr>\u0a76<br />
+\u0af0<abbr title="Abbreviation">ABBR</abbr>\u0af0<br />
+\u0c77<abbr title="Abbreviation">ABBR</abbr>\u0c77<br />
+\u0c84<abbr title="Abbreviation">ABBR</abbr>\u0c84<br />
+\u0df4<abbr title="Abbreviation">ABBR</abbr>\u0df4<br />
+\u0e4f<abbr title="Abbreviation">ABBR</abbr>\u0e4f<br />
+\u0e5a<abbr title="Abbreviation">ABBR</abbr>\u0e5a<br />
+\u0e5b<abbr title="Abbreviation">ABBR</abbr>\u0e5b<br />
+\u0f04<abbr title="Abbreviation">ABBR</abbr>\u0f04<br />
+\u0f05<abbr title="Abbreviation">ABBR</abbr>\u0f05<br />
+\u0f06<abbr title="Abbreviation">ABBR</abbr>\u0f06<br />
+\u0f07<abbr title="Abbreviation">ABBR</abbr>\u0f07<br />
+\u0f08<abbr title="Abbreviation">ABBR</abbr>\u0f08<br />
+\u0f09<abbr title="Abbreviation">ABBR</abbr>\u0f09<br />
+\u0f0a<abbr title="Abbreviation">ABBR</abbr>\u0f0a<br />
+\u0f0b<abbr title="Abbreviation">ABBR</abbr>\u0f0b<br />
+\u0f0c<abbr title="Abbreviation">ABBR</abbr>\u0f0c<br />
+\u0f0d<abbr title="Abbreviation">ABBR</abbr>\u0f0d<br />
+\u0f0e<abbr title="Abbreviation">ABBR</abbr>\u0f0e<br />
+\u0f0f<abbr title="Abbreviation">ABBR</abbr>\u0f0f<br />
+\u0f10<abbr title="Abbreviation">ABBR</abbr>\u0f10<br />
+\u0f11<abbr title="Abbreviation">ABBR</abbr>\u0f11<br />
+\u0f12<abbr title="Abbreviation">ABBR</abbr>\u0f12<br />
+\u0f14<abbr title="Abbreviation">ABBR</abbr>\u0f14<br />
+\u0f3a<abbr title="Abbreviation">ABBR</abbr>\u0f3a<br />
+\u0f3b<abbr title="Abbreviation">ABBR</abbr>\u0f3b<br />
+\u0f3c<abbr title="Abbreviation">ABBR</abbr>\u0f3c<br />
+\u0f3d<abbr title="Abbreviation">ABBR</abbr>\u0f3d<br />
+\u0f85<abbr title="Abbreviation">ABBR</abbr>\u0f85<br />
+\u0fd0<abbr title="Abbreviation">ABBR</abbr>\u0fd0<br />
+\u0fd1<abbr title="Abbreviation">ABBR</abbr>\u0fd1<br />
+\u0fd2<abbr title="Abbreviation">ABBR</abbr>\u0fd2<br />
+\u0fd3<abbr title="Abbreviation">ABBR</abbr>\u0fd3<br />
+\u0fd4<abbr title="Abbreviation">ABBR</abbr>\u0fd4<br />
+\u0fd9<abbr title="Abbreviation">ABBR</abbr>\u0fd9<br />
+\u0fda<abbr title="Abbreviation">ABBR</abbr>\u0fda<br />
+\u104a<abbr title="Abbreviation">ABBR</abbr>\u104a<br />
+\u104b<abbr title="Abbreviation">ABBR</abbr>\u104b<br />
+\u104c<abbr title="Abbreviation">ABBR</abbr>\u104c<br />
+\u104d<abbr title="Abbreviation">ABBR</abbr>\u104d<br />
+\u104e<abbr title="Abbreviation">ABBR</abbr>\u104e<br />
+\u104f<abbr title="Abbreviation">ABBR</abbr>\u104f<br />
+\u10fb<abbr title="Abbreviation">ABBR</abbr>\u10fb<br />
+\u1360<abbr title="Abbreviation">ABBR</abbr>\u1360<br />
+\u1361<abbr title="Abbreviation">ABBR</abbr>\u1361<br />
+\u1362<abbr title="Abbreviation">ABBR</abbr>\u1362<br />
+\u1363<abbr title="Abbreviation">ABBR</abbr>\u1363<br />
+\u1364<abbr title="Abbreviation">ABBR</abbr>\u1364<br />
+\u1365<abbr title="Abbreviation">ABBR</abbr>\u1365<br />
+\u1366<abbr title="Abbreviation">ABBR</abbr>\u1366<br />
+\u1367<abbr title="Abbreviation">ABBR</abbr>\u1367<br />
+\u1368<abbr title="Abbreviation">ABBR</abbr>\u1368<br />
+\u1400<abbr title="Abbreviation">ABBR</abbr>\u1400<br />
+\u166e<abbr title="Abbreviation">ABBR</abbr>\u166e<br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+\u169b<abbr title="Abbreviation">ABBR</abbr>\u169b<br />
+\u169c<abbr title="Abbreviation">ABBR</abbr>\u169c<br />
+\u16eb<abbr title="Abbreviation">ABBR</abbr>\u16eb<br />
+\u16ec<abbr title="Abbreviation">ABBR</abbr>\u16ec<br />
+\u16ed<abbr title="Abbreviation">ABBR</abbr>\u16ed<br />
+\u1735<abbr title="Abbreviation">ABBR</abbr>\u1735<br />
+\u1736<abbr title="Abbreviation">ABBR</abbr>\u1736<br />
+\u17d4<abbr title="Abbreviation">ABBR</abbr>\u17d4<br />
+\u17d5<abbr title="Abbreviation">ABBR</abbr>\u17d5<br />
+\u17d6<abbr title="Abbreviation">ABBR</abbr>\u17d6<br />
+\u17d8<abbr title="Abbreviation">ABBR</abbr>\u17d8<br />
+\u17d9<abbr title="Abbreviation">ABBR</abbr>\u17d9<br />
+\u17da<abbr title="Abbreviation">ABBR</abbr>\u17da<br />
+\u1800<abbr title="Abbreviation">ABBR</abbr>\u1800<br />
+\u1801<abbr title="Abbreviation">ABBR</abbr>\u1801<br />
+\u1802<abbr title="Abbreviation">ABBR</abbr>\u1802<br />
+\u1803<abbr title="Abbreviation">ABBR</abbr>\u1803<br />
+\u1804<abbr title="Abbreviation">ABBR</abbr>\u1804<br />
+\u1805<abbr title="Abbreviation">ABBR</abbr>\u1805<br />
+\u1806<abbr title="Abbreviation">ABBR</abbr>\u1806<br />
+\u1807<abbr title="Abbreviation">ABBR</abbr>\u1807<br />
+\u1808<abbr title="Abbreviation">ABBR</abbr>\u1808<br />
+\u1809<abbr title="Abbreviation">ABBR</abbr>\u1809<br />
+\u180a<abbr title="Abbreviation">ABBR</abbr>\u180a<br />
+\u1944<abbr title="Abbreviation">ABBR</abbr>\u1944<br />
+\u1945<abbr title="Abbreviation">ABBR</abbr>\u1945<br />
+\u1a1e<abbr title="Abbreviation">ABBR</abbr>\u1a1e<br />
+\u1a1f<abbr title="Abbreviation">ABBR</abbr>\u1a1f<br />
+\u1aa0<abbr title="Abbreviation">ABBR</abbr>\u1aa0<br />
+\u1aa1<abbr title="Abbreviation">ABBR</abbr>\u1aa1<br />
+\u1aa2<abbr title="Abbreviation">ABBR</abbr>\u1aa2<br />
+\u1aa3<abbr title="Abbreviation">ABBR</abbr>\u1aa3<br />
+\u1aa4<abbr title="Abbreviation">ABBR</abbr>\u1aa4<br />
+\u1aa5<abbr title="Abbreviation">ABBR</abbr>\u1aa5<br />
+\u1aa6<abbr title="Abbreviation">ABBR</abbr>\u1aa6<br />
+\u1aa8<abbr title="Abbreviation">ABBR</abbr>\u1aa8<br />
+\u1aa9<abbr title="Abbreviation">ABBR</abbr>\u1aa9<br />
+\u1aaa<abbr title="Abbreviation">ABBR</abbr>\u1aaa<br />
+\u1aab<abbr title="Abbreviation">ABBR</abbr>\u1aab<br />
+\u1aac<abbr title="Abbreviation">ABBR</abbr>\u1aac<br />
+\u1aad<abbr title="Abbreviation">ABBR</abbr>\u1aad<br />
+\u1b5a<abbr title="Abbreviation">ABBR</abbr>\u1b5a<br />
+\u1b5b<abbr title="Abbreviation">ABBR</abbr>\u1b5b<br />
+\u1b5c<abbr title="Abbreviation">ABBR</abbr>\u1b5c<br />
+\u1b5d<abbr title="Abbreviation">ABBR</abbr>\u1b5d<br />
+\u1b5e<abbr title="Abbreviation">ABBR</abbr>\u1b5e<br />
+\u1b5f<abbr title="Abbreviation">ABBR</abbr>\u1b5f<br />
+\u1b60<abbr title="Abbreviation">ABBR</abbr>\u1b60<br />
+\u1b7d<abbr title="Abbreviation">ABBR</abbr>\u1b7d<br />
+\u1b7e<abbr title="Abbreviation">ABBR</abbr>\u1b7e<br />
+\u1bfc<abbr title="Abbreviation">ABBR</abbr>\u1bfc<br />
+\u1bfd<abbr title="Abbreviation">ABBR</abbr>\u1bfd<br />
+\u1bfe<abbr title="Abbreviation">ABBR</abbr>\u1bfe<br />
+\u1bff<abbr title="Abbreviation">ABBR</abbr>\u1bff<br />
+\u1c3b<abbr title="Abbreviation">ABBR</abbr>\u1c3b<br />
+\u1c3c<abbr title="Abbreviation">ABBR</abbr>\u1c3c<br />
+\u1c3d<abbr title="Abbreviation">ABBR</abbr>\u1c3d<br />
+\u1c3e<abbr title="Abbreviation">ABBR</abbr>\u1c3e<br />
+\u1c3f<abbr title="Abbreviation">ABBR</abbr>\u1c3f<br />
+\u1c7e<abbr title="Abbreviation">ABBR</abbr>\u1c7e<br />
+\u1c7f<abbr title="Abbreviation">ABBR</abbr>\u1c7f<br />
+\u1cc0<abbr title="Abbreviation">ABBR</abbr>\u1cc0<br />
+\u1cc1<abbr title="Abbreviation">ABBR</abbr>\u1cc1<br />
+\u1cc2<abbr title="Abbreviation">ABBR</abbr>\u1cc2<br />
+\u1cc3<abbr title="Abbreviation">ABBR</abbr>\u1cc3<br />
+\u1cc4<abbr title="Abbreviation">ABBR</abbr>\u1cc4<br />
+\u1cc5<abbr title="Abbreviation">ABBR</abbr>\u1cc5<br />
+\u1cc6<abbr title="Abbreviation">ABBR</abbr>\u1cc6<br />
+\u1cc7<abbr title="Abbreviation">ABBR</abbr>\u1cc7<br />
+\u1cd3<abbr title="Abbreviation">ABBR</abbr>\u1cd3<br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+\u2010<abbr title="Abbreviation">ABBR</abbr>\u2010<br />
+\u2011<abbr title="Abbreviation">ABBR</abbr>\u2011<br />
+\u2012<abbr title="Abbreviation">ABBR</abbr>\u2012<br />
+\u2013<abbr title="Abbreviation">ABBR</abbr>\u2013<br />
+\u2014<abbr title="Abbreviation">ABBR</abbr>\u2014<br />
+\u2015<abbr title="Abbreviation">ABBR</abbr>\u2015<br />
+\u2016<abbr title="Abbreviation">ABBR</abbr>\u2016<br />
+\u2017<abbr title="Abbreviation">ABBR</abbr>\u2017<br />
+\u2018<abbr title="Abbreviation">ABBR</abbr>\u2018<br />
+\u2019<abbr title="Abbreviation">ABBR</abbr>\u2019<br />
+\u201a<abbr title="Abbreviation">ABBR</abbr>\u201a<br />
+\u201b<abbr title="Abbreviation">ABBR</abbr>\u201b<br />
+\u201c<abbr title="Abbreviation">ABBR</abbr>\u201c<br />
+\u201d<abbr title="Abbreviation">ABBR</abbr>\u201d<br />
+\u201e<abbr title="Abbreviation">ABBR</abbr>\u201e<br />
+\u201f<abbr title="Abbreviation">ABBR</abbr>\u201f<br />
+\u2020<abbr title="Abbreviation">ABBR</abbr>\u2020<br />
+\u2021<abbr title="Abbreviation">ABBR</abbr>\u2021<br />
+\u2022<abbr title="Abbreviation">ABBR</abbr>\u2022<br />
+\u2023<abbr title="Abbreviation">ABBR</abbr>\u2023<br />
+\u2024<abbr title="Abbreviation">ABBR</abbr>\u2024<br />
+\u2025<abbr title="Abbreviation">ABBR</abbr>\u2025<br />
+\u2026<abbr title="Abbreviation">ABBR</abbr>\u2026<br />
+\u2027<abbr title="Abbreviation">ABBR</abbr>\u2027<br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+\u2030<abbr title="Abbreviation">ABBR</abbr>\u2030<br />
+\u2031<abbr title="Abbreviation">ABBR</abbr>\u2031<br />
+\u2032<abbr title="Abbreviation">ABBR</abbr>\u2032<br />
+\u2033<abbr title="Abbreviation">ABBR</abbr>\u2033<br />
+\u2034<abbr title="Abbreviation">ABBR</abbr>\u2034<br />
+\u2035<abbr title="Abbreviation">ABBR</abbr>\u2035<br />
+\u2036<abbr title="Abbreviation">ABBR</abbr>\u2036<br />
+\u2037<abbr title="Abbreviation">ABBR</abbr>\u2037<br />
+\u2038<abbr title="Abbreviation">ABBR</abbr>\u2038<br />
+\u2039<abbr title="Abbreviation">ABBR</abbr>\u2039<br />
+\u203a<abbr title="Abbreviation">ABBR</abbr>\u203a<br />
+\u203b<abbr title="Abbreviation">ABBR</abbr>\u203b<br />
+\u203c<abbr title="Abbreviation">ABBR</abbr>\u203c<br />
+\u203d<abbr title="Abbreviation">ABBR</abbr>\u203d<br />
+\u203e<abbr title="Abbreviation">ABBR</abbr>\u203e<br />
+\u203f<abbr title="Abbreviation">ABBR</abbr>\u203f<br />
+\u2040<abbr title="Abbreviation">ABBR</abbr>\u2040<br />
+\u2041<abbr title="Abbreviation">ABBR</abbr>\u2041<br />
+\u2042<abbr title="Abbreviation">ABBR</abbr>\u2042<br />
+\u2043<abbr title="Abbreviation">ABBR</abbr>\u2043<br />
+\u2045<abbr title="Abbreviation">ABBR</abbr>\u2045<br />
+\u2046<abbr title="Abbreviation">ABBR</abbr>\u2046<br />
+\u2047<abbr title="Abbreviation">ABBR</abbr>\u2047<br />
+\u2048<abbr title="Abbreviation">ABBR</abbr>\u2048<br />
+\u2049<abbr title="Abbreviation">ABBR</abbr>\u2049<br />
+\u204a<abbr title="Abbreviation">ABBR</abbr>\u204a<br />
+\u204b<abbr title="Abbreviation">ABBR</abbr>\u204b<br />
+\u204c<abbr title="Abbreviation">ABBR</abbr>\u204c<br />
+\u204d<abbr title="Abbreviation">ABBR</abbr>\u204d<br />
+\u204e<abbr title="Abbreviation">ABBR</abbr>\u204e<br />
+\u204f<abbr title="Abbreviation">ABBR</abbr>\u204f<br />
+\u2050<abbr title="Abbreviation">ABBR</abbr>\u2050<br />
+\u2051<abbr title="Abbreviation">ABBR</abbr>\u2051<br />
+\u2053<abbr title="Abbreviation">ABBR</abbr>\u2053<br />
+\u2054<abbr title="Abbreviation">ABBR</abbr>\u2054<br />
+\u2055<abbr title="Abbreviation">ABBR</abbr>\u2055<br />
+\u2056<abbr title="Abbreviation">ABBR</abbr>\u2056<br />
+\u2057<abbr title="Abbreviation">ABBR</abbr>\u2057<br />
+\u2058<abbr title="Abbreviation">ABBR</abbr>\u2058<br />
+\u2059<abbr title="Abbreviation">ABBR</abbr>\u2059<br />
+\u205a<abbr title="Abbreviation">ABBR</abbr>\u205a<br />
+\u205b<abbr title="Abbreviation">ABBR</abbr>\u205b<br />
+\u205c<abbr title="Abbreviation">ABBR</abbr>\u205c<br />
+\u205d<abbr title="Abbreviation">ABBR</abbr>\u205d<br />
+\u205e<abbr title="Abbreviation">ABBR</abbr>\u205e<br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+\u207d<abbr title="Abbreviation">ABBR</abbr>\u207d<br />
+\u207e<abbr title="Abbreviation">ABBR</abbr>\u207e<br />
+\u208d<abbr title="Abbreviation">ABBR</abbr>\u208d<br />
+\u208e<abbr title="Abbreviation">ABBR</abbr>\u208e<br />
+\u2308<abbr title="Abbreviation">ABBR</abbr>\u2308<br />
+\u2309<abbr title="Abbreviation">ABBR</abbr>\u2309<br />
+\u230a<abbr title="Abbreviation">ABBR</abbr>\u230a<br />
+\u230b<abbr title="Abbreviation">ABBR</abbr>\u230b<br />
+\u2329<abbr title="Abbreviation">ABBR</abbr>\u2329<br />
+\u232a<abbr title="Abbreviation">ABBR</abbr>\u232a<br />
+\u2768<abbr title="Abbreviation">ABBR</abbr>\u2768<br />
+\u2769<abbr title="Abbreviation">ABBR</abbr>\u2769<br />
+\u276a<abbr title="Abbreviation">ABBR</abbr>\u276a<br />
+\u276b<abbr title="Abbreviation">ABBR</abbr>\u276b<br />
+\u276c<abbr title="Abbreviation">ABBR</abbr>\u276c<br />
+\u276d<abbr title="Abbreviation">ABBR</abbr>\u276d<br />
+\u276e<abbr title="Abbreviation">ABBR</abbr>\u276e<br />
+\u276f<abbr title="Abbreviation">ABBR</abbr>\u276f<br />
+\u2770<abbr title="Abbreviation">ABBR</abbr>\u2770<br />
+\u2771<abbr title="Abbreviation">ABBR</abbr>\u2771<br />
+\u2772<abbr title="Abbreviation">ABBR</abbr>\u2772<br />
+\u2773<abbr title="Abbreviation">ABBR</abbr>\u2773<br />
+\u2774<abbr title="Abbreviation">ABBR</abbr>\u2774<br />
+\u2775<abbr title="Abbreviation">ABBR</abbr>\u2775<br />
+\u27c5<abbr title="Abbreviation">ABBR</abbr>\u27c5<br />
+\u27c6<abbr title="Abbreviation">ABBR</abbr>\u27c6<br />
+\u27e6<abbr title="Abbreviation">ABBR</abbr>\u27e6<br />
+\u27e7<abbr title="Abbreviation">ABBR</abbr>\u27e7<br />
+\u27e8<abbr title="Abbreviation">ABBR</abbr>\u27e8<br />
+\u27e9<abbr title="Abbreviation">ABBR</abbr>\u27e9<br />
+\u27ea<abbr title="Abbreviation">ABBR</abbr>\u27ea<br />
+\u27eb<abbr title="Abbreviation">ABBR</abbr>\u27eb<br />
+\u27ec<abbr title="Abbreviation">ABBR</abbr>\u27ec<br />
+\u27ed<abbr title="Abbreviation">ABBR</abbr>\u27ed<br />
+\u27ee<abbr title="Abbreviation">ABBR</abbr>\u27ee<br />
+\u27ef<abbr title="Abbreviation">ABBR</abbr>\u27ef<br />
+\u2983<abbr title="Abbreviation">ABBR</abbr>\u2983<br />
+\u2984<abbr title="Abbreviation">ABBR</abbr>\u2984<br />
+\u2985<abbr title="Abbreviation">ABBR</abbr>\u2985<br />
+\u2986<abbr title="Abbreviation">ABBR</abbr>\u2986<br />
+\u2987<abbr title="Abbreviation">ABBR</abbr>\u2987<br />
+\u2988<abbr title="Abbreviation">ABBR</abbr>\u2988<br />
+\u2989<abbr title="Abbreviation">ABBR</abbr>\u2989<br />
+\u298a<abbr title="Abbreviation">ABBR</abbr>\u298a<br />
+\u298b<abbr title="Abbreviation">ABBR</abbr>\u298b<br />
+\u298c<abbr title="Abbreviation">ABBR</abbr>\u298c<br />
+\u298d<abbr title="Abbreviation">ABBR</abbr>\u298d<br />
+\u298e<abbr title="Abbreviation">ABBR</abbr>\u298e<br />
+\u298f<abbr title="Abbreviation">ABBR</abbr>\u298f<br />
+\u2990<abbr title="Abbreviation">ABBR</abbr>\u2990<br />
+\u2991<abbr title="Abbreviation">ABBR</abbr>\u2991<br />
+\u2992<abbr title="Abbreviation">ABBR</abbr>\u2992<br />
+\u2993<abbr title="Abbreviation">ABBR</abbr>\u2993<br />
+\u2994<abbr title="Abbreviation">ABBR</abbr>\u2994<br />
+\u2995<abbr title="Abbreviation">ABBR</abbr>\u2995<br />
+\u2996<abbr title="Abbreviation">ABBR</abbr>\u2996<br />
+\u2997<abbr title="Abbreviation">ABBR</abbr>\u2997<br />
+\u2998<abbr title="Abbreviation">ABBR</abbr>\u2998<br />
+\u29d8<abbr title="Abbreviation">ABBR</abbr>\u29d8<br />
+\u29d9<abbr title="Abbreviation">ABBR</abbr>\u29d9<br />
+\u29da<abbr title="Abbreviation">ABBR</abbr>\u29da<br />
+\u29db<abbr title="Abbreviation">ABBR</abbr>\u29db<br />
+\u29fc<abbr title="Abbreviation">ABBR</abbr>\u29fc<br />
+\u29fd<abbr title="Abbreviation">ABBR</abbr>\u29fd<br />
+\u2cf9<abbr title="Abbreviation">ABBR</abbr>\u2cf9<br />
+\u2cfa<abbr title="Abbreviation">ABBR</abbr>\u2cfa<br />
+\u2cfb<abbr title="Abbreviation">ABBR</abbr>\u2cfb<br />
+\u2cfc<abbr title="Abbreviation">ABBR</abbr>\u2cfc<br />
+\u2cfe<abbr title="Abbreviation">ABBR</abbr>\u2cfe<br />
+\u2cff<abbr title="Abbreviation">ABBR</abbr>\u2cff<br />
+\u2d70<abbr title="Abbreviation">ABBR</abbr>\u2d70<br />
+\u2e00<abbr title="Abbreviation">ABBR</abbr>\u2e00<br />
+\u2e01<abbr title="Abbreviation">ABBR</abbr>\u2e01<br />
+\u2e02<abbr title="Abbreviation">ABBR</abbr>\u2e02<br />
+\u2e03<abbr title="Abbreviation">ABBR</abbr>\u2e03<br />
+\u2e04<abbr title="Abbreviation">ABBR</abbr>\u2e04<br />
+\u2e05<abbr title="Abbreviation">ABBR</abbr>\u2e05<br />
+\u2e06<abbr title="Abbreviation">ABBR</abbr>\u2e06<br />
+\u2e07<abbr title="Abbreviation">ABBR</abbr>\u2e07<br />
+\u2e08<abbr title="Abbreviation">ABBR</abbr>\u2e08<br />
+\u2e09<abbr title="Abbreviation">ABBR</abbr>\u2e09<br />
+\u2e0a<abbr title="Abbreviation">ABBR</abbr>\u2e0a<br />
+\u2e0b<abbr title="Abbreviation">ABBR</abbr>\u2e0b<br />
+\u2e0c<abbr title="Abbreviation">ABBR</abbr>\u2e0c<br />
+\u2e0d<abbr title="Abbreviation">ABBR</abbr>\u2e0d<br />
+\u2e0e<abbr title="Abbreviation">ABBR</abbr>\u2e0e<br />
+\u2e0f<abbr title="Abbreviation">ABBR</abbr>\u2e0f<br />
+\u2e10<abbr title="Abbreviation">ABBR</abbr>\u2e10<br />
+\u2e11<abbr title="Abbreviation">ABBR</abbr>\u2e11<br />
+\u2e12<abbr title="Abbreviation">ABBR</abbr>\u2e12<br />
+\u2e13<abbr title="Abbreviation">ABBR</abbr>\u2e13<br />
+\u2e14<abbr title="Abbreviation">ABBR</abbr>\u2e14<br />
+\u2e15<abbr title="Abbreviation">ABBR</abbr>\u2e15<br />
+\u2e16<abbr title="Abbreviation">ABBR</abbr>\u2e16<br />
+\u2e17<abbr title="Abbreviation">ABBR</abbr>\u2e17<br />
+\u2e18<abbr title="Abbreviation">ABBR</abbr>\u2e18<br />
+\u2e19<abbr title="Abbreviation">ABBR</abbr>\u2e19<br />
+\u2e1a<abbr title="Abbreviation">ABBR</abbr>\u2e1a<br />
+\u2e1b<abbr title="Abbreviation">ABBR</abbr>\u2e1b<br />
+\u2e1c<abbr title="Abbreviation">ABBR</abbr>\u2e1c<br />
+\u2e1d<abbr title="Abbreviation">ABBR</abbr>\u2e1d<br />
+\u2e1e<abbr title="Abbreviation">ABBR</abbr>\u2e1e<br />
+\u2e1f<abbr title="Abbreviation">ABBR</abbr>\u2e1f<br />
+\u2e20<abbr title="Abbreviation">ABBR</abbr>\u2e20<br />
+\u2e21<abbr title="Abbreviation">ABBR</abbr>\u2e21<br />
+\u2e22<abbr title="Abbreviation">ABBR</abbr>\u2e22<br />
+\u2e23<abbr title="Abbreviation">ABBR</abbr>\u2e23<br />
+\u2e24<abbr title="Abbreviation">ABBR</abbr>\u2e24<br />
+\u2e25<abbr title="Abbreviation">ABBR</abbr>\u2e25<br />
+\u2e26<abbr title="Abbreviation">ABBR</abbr>\u2e26<br />
+\u2e27<abbr title="Abbreviation">ABBR</abbr>\u2e27<br />
+\u2e28<abbr title="Abbreviation">ABBR</abbr>\u2e28<br />
+\u2e29<abbr title="Abbreviation">ABBR</abbr>\u2e29<br />
+\u2e2a<abbr title="Abbreviation">ABBR</abbr>\u2e2a<br />
+\u2e2b<abbr title="Abbreviation">ABBR</abbr>\u2e2b<br />
+\u2e2c<abbr title="Abbreviation">ABBR</abbr>\u2e2c<br />
+\u2e2d<abbr title="Abbreviation">ABBR</abbr>\u2e2d<br />
+\u2e2e<abbr title="Abbreviation">ABBR</abbr>\u2e2e<br />
+\u2e30<abbr title="Abbreviation">ABBR</abbr>\u2e30<br />
+\u2e31<abbr title="Abbreviation">ABBR</abbr>\u2e31<br />
+\u2e32<abbr title="Abbreviation">ABBR</abbr>\u2e32<br />
+\u2e33<abbr title="Abbreviation">ABBR</abbr>\u2e33<br />
+\u2e34<abbr title="Abbreviation">ABBR</abbr>\u2e34<br />
+\u2e35<abbr title="Abbreviation">ABBR</abbr>\u2e35<br />
+\u2e36<abbr title="Abbreviation">ABBR</abbr>\u2e36<br />
+\u2e37<abbr title="Abbreviation">ABBR</abbr>\u2e37<br />
+\u2e38<abbr title="Abbreviation">ABBR</abbr>\u2e38<br />
+\u2e39<abbr title="Abbreviation">ABBR</abbr>\u2e39<br />
+\u2e3a<abbr title="Abbreviation">ABBR</abbr>\u2e3a<br />
+\u2e3b<abbr title="Abbreviation">ABBR</abbr>\u2e3b<br />
+\u2e3c<abbr title="Abbreviation">ABBR</abbr>\u2e3c<br />
+\u2e3d<abbr title="Abbreviation">ABBR</abbr>\u2e3d<br />
+\u2e3e<abbr title="Abbreviation">ABBR</abbr>\u2e3e<br />
+\u2e3f<abbr title="Abbreviation">ABBR</abbr>\u2e3f<br />
+\u2e40<abbr title="Abbreviation">ABBR</abbr>\u2e40<br />
+\u2e41<abbr title="Abbreviation">ABBR</abbr>\u2e41<br />
+\u2e42<abbr title="Abbreviation">ABBR</abbr>\u2e42<br />
+\u2e43<abbr title="Abbreviation">ABBR</abbr>\u2e43<br />
+\u2e44<abbr title="Abbreviation">ABBR</abbr>\u2e44<br />
+\u2e45<abbr title="Abbreviation">ABBR</abbr>\u2e45<br />
+\u2e46<abbr title="Abbreviation">ABBR</abbr>\u2e46<br />
+\u2e47<abbr title="Abbreviation">ABBR</abbr>\u2e47<br />
+\u2e48<abbr title="Abbreviation">ABBR</abbr>\u2e48<br />
+\u2e49<abbr title="Abbreviation">ABBR</abbr>\u2e49<br />
+\u2e4a<abbr title="Abbreviation">ABBR</abbr>\u2e4a<br />
+\u2e4b<abbr title="Abbreviation">ABBR</abbr>\u2e4b<br />
+\u2e4c<abbr title="Abbreviation">ABBR</abbr>\u2e4c<br />
+\u2e4d<abbr title="Abbreviation">ABBR</abbr>\u2e4d<br />
+\u2e4e<abbr title="Abbreviation">ABBR</abbr>\u2e4e<br />
+\u2e4f<abbr title="Abbreviation">ABBR</abbr>\u2e4f<br />
+\u2e52<abbr title="Abbreviation">ABBR</abbr>\u2e52<br />
+\u2e53<abbr title="Abbreviation">ABBR</abbr>\u2e53<br />
+\u2e54<abbr title="Abbreviation">ABBR</abbr>\u2e54<br />
+\u2e55<abbr title="Abbreviation">ABBR</abbr>\u2e55<br />
+\u2e56<abbr title="Abbreviation">ABBR</abbr>\u2e56<br />
+\u2e57<abbr title="Abbreviation">ABBR</abbr>\u2e57<br />
+\u2e58<abbr title="Abbreviation">ABBR</abbr>\u2e58<br />
+\u2e59<abbr title="Abbreviation">ABBR</abbr>\u2e59<br />
+\u2e5a<abbr title="Abbreviation">ABBR</abbr>\u2e5a<br />
+\u2e5b<abbr title="Abbreviation">ABBR</abbr>\u2e5b<br />
+\u2e5c<abbr title="Abbreviation">ABBR</abbr>\u2e5c<br />
+\u2e5d<abbr title="Abbreviation">ABBR</abbr>\u2e5d<br />
+<abbr title="Abbreviation">ABBR</abbr><br />
+\u3001<abbr title="Abbreviation">ABBR</abbr>\u3001<br />
+\u3002<abbr title="Abbreviation">ABBR</abbr>\u3002<br />
+\u3003<abbr title="Abbreviation">ABBR</abbr>\u3003<br />
+\u3008<abbr title="Abbreviation">ABBR</abbr>\u3008<br />
+\u3009<abbr title="Abbreviation">ABBR</abbr>\u3009<br />
+\u300a<abbr title="Abbreviation">ABBR</abbr>\u300a<br />
+\u300b<abbr title="Abbreviation">ABBR</abbr>\u300b<br />
+\u300c<abbr title="Abbreviation">ABBR</abbr>\u300c<br />
+\u300d<abbr title="Abbreviation">ABBR</abbr>\u300d<br />
+\u300e<abbr title="Abbreviation">ABBR</abbr>\u300e<br />
+\u300f<abbr title="Abbreviation">ABBR</abbr>\u300f<br />
+\u3010<abbr title="Abbreviation">ABBR</abbr>\u3010<br />
+\u3011<abbr title="Abbreviation">ABBR</abbr>\u3011<br />
+\u3014<abbr title="Abbreviation">ABBR</abbr>\u3014<br />
+\u3015<abbr title="Abbreviation">ABBR</abbr>\u3015<br />
+\u3016<abbr title="Abbreviation">ABBR</abbr>\u3016<br />
+\u3017<abbr title="Abbreviation">ABBR</abbr>\u3017<br />
+\u3018<abbr title="Abbreviation">ABBR</abbr>\u3018<br />
+\u3019<abbr title="Abbreviation">ABBR</abbr>\u3019<br />
+\u301a<abbr title="Abbreviation">ABBR</abbr>\u301a<br />
+\u301b<abbr title="Abbreviation">ABBR</abbr>\u301b<br />
+\u301c<abbr title="Abbreviation">ABBR</abbr>\u301c<br />
+\u301d<abbr title="Abbreviation">ABBR</abbr>\u301d<br />
+\u301e<abbr title="Abbreviation">ABBR</abbr>\u301e<br />
+\u301f<abbr title="Abbreviation">ABBR</abbr>\u301f<br />
+\u3030<abbr title="Abbreviation">ABBR</abbr>\u3030<br />
+\u303d<abbr title="Abbreviation">ABBR</abbr>\u303d<br />
+\u30a0<abbr title="Abbreviation">ABBR</abbr>\u30a0<br />
+\u30fb<abbr title="Abbreviation">ABBR</abbr>\u30fb<br />
+\ua4fe<abbr title="Abbreviation">ABBR</abbr>\ua4fe<br />
+\ua4ff<abbr title="Abbreviation">ABBR</abbr>\ua4ff<br />
+\ua60d<abbr title="Abbreviation">ABBR</abbr>\ua60d<br />
+\ua60e<abbr title="Abbreviation">ABBR</abbr>\ua60e<br />
+\ua60f<abbr title="Abbreviation">ABBR</abbr>\ua60f<br />
+\ua673<abbr title="Abbreviation">ABBR</abbr>\ua673<br />
+\ua67e<abbr title="Abbreviation">ABBR</abbr>\ua67e<br />
+\ua6f2<abbr title="Abbreviation">ABBR</abbr>\ua6f2<br />
+\ua6f3<abbr title="Abbreviation">ABBR</abbr>\ua6f3<br />
+\ua6f4<abbr title="Abbreviation">ABBR</abbr>\ua6f4<br />
+\ua6f5<abbr title="Abbreviation">ABBR</abbr>\ua6f5<br />
+\ua6f6<abbr title="Abbreviation">ABBR</abbr>\ua6f6<br />
+\ua6f7<abbr title="Abbreviation">ABBR</abbr>\ua6f7<br />
+\ua874<abbr title="Abbreviation">ABBR</abbr>\ua874<br />
+\ua875<abbr title="Abbreviation">ABBR</abbr>\ua875<br />
+\ua876<abbr title="Abbreviation">ABBR</abbr>\ua876<br />
+\ua877<abbr title="Abbreviation">ABBR</abbr>\ua877<br />
+\ua8ce<abbr title="Abbreviation">ABBR</abbr>\ua8ce<br />
+\ua8cf<abbr title="Abbreviation">ABBR</abbr>\ua8cf<br />
+\ua8f8<abbr title="Abbreviation">ABBR</abbr>\ua8f8<br />
+\ua8f9<abbr title="Abbreviation">ABBR</abbr>\ua8f9<br />
+\ua8fa<abbr title="Abbreviation">ABBR</abbr>\ua8fa<br />
+\ua8fc<abbr title="Abbreviation">ABBR</abbr>\ua8fc<br />
+\ua92e<abbr title="Abbreviation">ABBR</abbr>\ua92e<br />
+\ua92f<abbr title="Abbreviation">ABBR</abbr>\ua92f<br />
+\ua95f<abbr title="Abbreviation">ABBR</abbr>\ua95f<br />
+\ua9c1<abbr title="Abbreviation">ABBR</abbr>\ua9c1<br />
+\ua9c2<abbr title="Abbreviation">ABBR</abbr>\ua9c2<br />
+\ua9c3<abbr title="Abbreviation">ABBR</abbr>\ua9c3<br />
+\ua9c4<abbr title="Abbreviation">ABBR</abbr>\ua9c4<br />
+\ua9c5<abbr title="Abbreviation">ABBR</abbr>\ua9c5<br />
+\ua9c6<abbr title="Abbreviation">ABBR</abbr>\ua9c6<br />
+\ua9c7<abbr title="Abbreviation">ABBR</abbr>\ua9c7<br />
+\ua9c8<abbr title="Abbreviation">ABBR</abbr>\ua9c8<br />
+\ua9c9<abbr title="Abbreviation">ABBR</abbr>\ua9c9<br />
+\ua9ca<abbr title="Abbreviation">ABBR</abbr>\ua9ca<br />
+\ua9cb<abbr title="Abbreviation">ABBR</abbr>\ua9cb<br />
+\ua9cc<abbr title="Abbreviation">ABBR</abbr>\ua9cc<br />
+\ua9cd<abbr title="Abbreviation">ABBR</abbr>\ua9cd<br />
+\ua9de<abbr title="Abbreviation">ABBR</abbr>\ua9de<br />
+\ua9df<abbr title="Abbreviation">ABBR</abbr>\ua9df<br />
+\uaa5c<abbr title="Abbreviation">ABBR</abbr>\uaa5c<br />
+\uaa5d<abbr title="Abbreviation">ABBR</abbr>\uaa5d<br />
+\uaa5e<abbr title="Abbreviation">ABBR</abbr>\uaa5e<br />
+\uaa5f<abbr title="Abbreviation">ABBR</abbr>\uaa5f<br />
+\uaade<abbr title="Abbreviation">ABBR</abbr>\uaade<br />
+\uaadf<abbr title="Abbreviation">ABBR</abbr>\uaadf<br />
+\uaaf0<abbr title="Abbreviation">ABBR</abbr>\uaaf0<br />
+\uaaf1<abbr title="Abbreviation">ABBR</abbr>\uaaf1<br />
+\uabeb<abbr title="Abbreviation">ABBR</abbr>\uabeb<br />
+\ufd3e<abbr title="Abbreviation">ABBR</abbr>\ufd3e<br />
+\ufd3f<abbr title="Abbreviation">ABBR</abbr>\ufd3f<br />
+\ufe10<abbr title="Abbreviation">ABBR</abbr>\ufe10<br />
+\ufe11<abbr title="Abbreviation">ABBR</abbr>\ufe11<br />
+\ufe12<abbr title="Abbreviation">ABBR</abbr>\ufe12<br />
+\ufe13<abbr title="Abbreviation">ABBR</abbr>\ufe13<br />
+\ufe14<abbr title="Abbreviation">ABBR</abbr>\ufe14<br />
+\ufe15<abbr title="Abbreviation">ABBR</abbr>\ufe15<br />
+\ufe16<abbr title="Abbreviation">ABBR</abbr>\ufe16<br />
+\ufe17<abbr title="Abbreviation">ABBR</abbr>\ufe17<br />
+\ufe18<abbr title="Abbreviation">ABBR</abbr>\ufe18<br />
+\ufe19<abbr title="Abbreviation">ABBR</abbr>\ufe19<br />
+\ufe30<abbr title="Abbreviation">ABBR</abbr>\ufe30<br />
+\ufe31<abbr title="Abbreviation">ABBR</abbr>\ufe31<br />
+\ufe32<abbr title="Abbreviation">ABBR</abbr>\ufe32<br />
+\ufe33<abbr title="Abbreviation">ABBR</abbr>\ufe33<br />
+\ufe34<abbr title="Abbreviation">ABBR</abbr>\ufe34<br />
+\ufe35<abbr title="Abbreviation">ABBR</abbr>\ufe35<br />
+\ufe36<abbr title="Abbreviation">ABBR</abbr>\ufe36<br />
+\ufe37<abbr title="Abbreviation">ABBR</abbr>\ufe37<br />
+\ufe38<abbr title="Abbreviation">ABBR</abbr>\ufe38<br />
+\ufe39<abbr title="Abbreviation">ABBR</abbr>\ufe39<br />
+\ufe3a<abbr title="Abbreviation">ABBR</abbr>\ufe3a<br />
+\ufe3b<abbr title="Abbreviation">ABBR</abbr>\ufe3b<br />
+\ufe3c<abbr title="Abbreviation">ABBR</abbr>\ufe3c<br />
+\ufe3d<abbr title="Abbreviation">ABBR</abbr>\ufe3d<br />
+\ufe3e<abbr title="Abbreviation">ABBR</abbr>\ufe3e<br />
+\ufe3f<abbr title="Abbreviation">ABBR</abbr>\ufe3f<br />
+\ufe40<abbr title="Abbreviation">ABBR</abbr>\ufe40<br />
+\ufe41<abbr title="Abbreviation">ABBR</abbr>\ufe41<br />
+\ufe42<abbr title="Abbreviation">ABBR</abbr>\ufe42<br />
+\ufe43<abbr title="Abbreviation">ABBR</abbr>\ufe43<br />
+\ufe44<abbr title="Abbreviation">ABBR</abbr>\ufe44<br />
+\ufe45<abbr title="Abbreviation">ABBR</abbr>\ufe45<br />
+\ufe46<abbr title="Abbreviation">ABBR</abbr>\ufe46<br />
+\ufe47<abbr title="Abbreviation">ABBR</abbr>\ufe47<br />
+\ufe48<abbr title="Abbreviation">ABBR</abbr>\ufe48<br />
+\ufe49<abbr title="Abbreviation">ABBR</abbr>\ufe49<br />
+\ufe4a<abbr title="Abbreviation">ABBR</abbr>\ufe4a<br />
+\ufe4b<abbr title="Abbreviation">ABBR</abbr>\ufe4b<br />
+\ufe4c<abbr title="Abbreviation">ABBR</abbr>\ufe4c<br />
+\ufe4d<abbr title="Abbreviation">ABBR</abbr>\ufe4d<br />
+\ufe4e<abbr title="Abbreviation">ABBR</abbr>\ufe4e<br />
+\ufe4f<abbr title="Abbreviation">ABBR</abbr>\ufe4f<br />
+\ufe50<abbr title="Abbreviation">ABBR</abbr>\ufe50<br />
+\ufe51<abbr title="Abbreviation">ABBR</abbr>\ufe51<br />
+\ufe52<abbr title="Abbreviation">ABBR</abbr>\ufe52<br />
+\ufe54<abbr title="Abbreviation">ABBR</abbr>\ufe54<br />
+\ufe55<abbr title="Abbreviation">ABBR</abbr>\ufe55<br />
+\ufe56<abbr title="Abbreviation">ABBR</abbr>\ufe56<br />
+\ufe57<abbr title="Abbreviation">ABBR</abbr>\ufe57<br />
+\ufe58<abbr title="Abbreviation">ABBR</abbr>\ufe58<br />
+\ufe59<abbr title="Abbreviation">ABBR</abbr>\ufe59<br />
+\ufe5a<abbr title="Abbreviation">ABBR</abbr>\ufe5a<br />
+\ufe5b<abbr title="Abbreviation">ABBR</abbr>\ufe5b<br />
+\ufe5c<abbr title="Abbreviation">ABBR</abbr>\ufe5c<br />
+\ufe5d<abbr title="Abbreviation">ABBR</abbr>\ufe5d<br />
+\ufe5e<abbr title="Abbreviation">ABBR</abbr>\ufe5e<br />
+\ufe5f<abbr title="Abbreviation">ABBR</abbr>\ufe5f<br />
+\ufe60<abbr title="Abbreviation">ABBR</abbr>\ufe60<br />
+\ufe61<abbr title="Abbreviation">ABBR</abbr>\ufe61<br />
+\ufe63<abbr title="Abbreviation">ABBR</abbr>\ufe63<br />
+\ufe68<abbr title="Abbreviation">ABBR</abbr>\ufe68<br />
+\ufe6a<abbr title="Abbreviation">ABBR</abbr>\ufe6a<br />
+\ufe6b<abbr title="Abbreviation">ABBR</abbr>\ufe6b<br />
+\uff01<abbr title="Abbreviation">ABBR</abbr>\uff01<br />
+\uff02<abbr title="Abbreviation">ABBR</abbr>\uff02<br />
+\uff03<abbr title="Abbreviation">ABBR</abbr>\uff03<br />
+\uff05<abbr title="Abbreviation">ABBR</abbr>\uff05<br />
+\uff06<abbr title="Abbreviation">ABBR</abbr>\uff06<br />
+\uff07<abbr title="Abbreviation">ABBR</abbr>\uff07<br />
+\uff08<abbr title="Abbreviation">ABBR</abbr>\uff08<br />
+\uff09<abbr title="Abbreviation">ABBR</abbr>\uff09<br />
+\uff0a<abbr title="Abbreviation">ABBR</abbr>\uff0a<br />
+\uff0c<abbr title="Abbreviation">ABBR</abbr>\uff0c<br />
+\uff0d<abbr title="Abbreviation">ABBR</abbr>\uff0d<br />
+\uff0e<abbr title="Abbreviation">ABBR</abbr>\uff0e<br />
+\uff0f<abbr title="Abbreviation">ABBR</abbr>\uff0f<br />
+\uff1a<abbr title="Abbreviation">ABBR</abbr>\uff1a<br />
+\uff1b<abbr title="Abbreviation">ABBR</abbr>\uff1b<br />
+\uff1f<abbr title="Abbreviation">ABBR</abbr>\uff1f<br />
+\uff20<abbr title="Abbreviation">ABBR</abbr>\uff20<br />
+\uff3b<abbr title="Abbreviation">ABBR</abbr>\uff3b<br />
+\uff3c<abbr title="Abbreviation">ABBR</abbr>\uff3c<br />
+\uff3d<abbr title="Abbreviation">ABBR</abbr>\uff3d<br />
+\uff3f<abbr title="Abbreviation">ABBR</abbr>\uff3f<br />
+\uff5b<abbr title="Abbreviation">ABBR</abbr>\uff5b<br />
+\uff5d<abbr title="Abbreviation">ABBR</abbr>\uff5d<br />
+\uff5f<abbr title="Abbreviation">ABBR</abbr>\uff5f<br />
+\uff60<abbr title="Abbreviation">ABBR</abbr>\uff60<br />
+\uff61<abbr title="Abbreviation">ABBR</abbr>\uff61<br />
+\uff62<abbr title="Abbreviation">ABBR</abbr>\uff62<br />
+\uff63<abbr title="Abbreviation">ABBR</abbr>\uff63<br />
+\uff64<abbr title="Abbreviation">ABBR</abbr>\uff64<br />
+\uff65<abbr title="Abbreviation">ABBR</abbr>\uff65</p>
+<p><abbr title="Abbreviation">ABBR</abbr><br />
+$<abbr title="Abbreviation">ABBR</abbr>$<br />
++<abbr title="Abbreviation">ABBR</abbr>+<br />
+&lt;<abbr title="Abbreviation">ABBR</abbr>&lt;<br />
+=<abbr title="Abbreviation">ABBR</abbr>=</p>
+<blockquote>
+<p><abbr title="Abbreviation">ABBR</abbr>&gt;<br />
+<sup><abbr title="Abbreviation">ABBR</abbr></sup><br />
+<code>ABBR</code><br />
+|<abbr title="Abbreviation">ABBR</abbr>|<br />
+<sub><abbr title="Abbreviation">ABBR</abbr></sub><br />
+]<abbr title="Abbreviation">ABBR</abbr>]</p>
+</blockquote>
+"""
+abbr = """<h2>Testing abbreviations plugin</h2>
+<h3>Tests for <code>*[Short Form]: Long form</code> syntax for <code>&lt;abbr&gt;</code></h3>
+<p>The language <a href="https://developer.mozilla.org/en-US/docs/Web/HTML"><abbr title="HyperText Markup Language">HTML</abbr></a> is a markup language for webpages.</p>
+<p><abbr title="Cascading Style Sheets">CSS</abbr> is a language used to define the presentation of <abbr title="HyperText Markup Language">HTML</abbr> webpages.</p>
+<blockquote>
+<p>You can find more about <abbr title="Cascading Style Sheets">CSS</abbr> on https://developer.mozilla.org/en-US/docs/Web/<abbr title="Cascading Style Sheets">CSS</abbr></p>
+</blockquote>
+<p>Abbreviations should not be marked inside code: <code>That means html and CSS should not be marked here.</code></p>
+<p>Nor should they be marked in the code blocks below:</p>
+<pre><code>HTML or CSS?
+</code></pre>
+<pre><code class="language-js">let html ='';
+</code></pre>
+<h3>Tests for padding characters</h3>
+<p>[<abbr title="Abbreviation">ABBR</abbr>[
+<abbr title="Abbreviation">ABBR</abbr>
+!<abbr title="Abbreviation">ABBR</abbr>!
+&quot;<abbr title="Abbreviation">ABBR</abbr>&quot;
+#<abbr title="Abbreviation">ABBR</abbr>#
+%<abbr title="Abbreviation">ABBR</abbr>%
+&amp;<abbr title="Abbreviation">ABBR</abbr>&amp;
+'<abbr title="Abbreviation">ABBR</abbr>'
+(<abbr title="Abbreviation">ABBR</abbr>(
+)<abbr title="Abbreviation">ABBR</abbr>)
+<em><abbr title="Abbreviation">ABBR</abbr></em>
+,<abbr title="Abbreviation">ABBR</abbr>,
+-<abbr title="Abbreviation">ABBR</abbr>-
+.<abbr title="Abbreviation">ABBR</abbr>.
+/<abbr title="Abbreviation">ABBR</abbr>/
+:<abbr title="Abbreviation">ABBR</abbr>:
+;<abbr title="Abbreviation">ABBR</abbr>;
+?<abbr title="Abbreviation">ABBR</abbr>?
+@<abbr title="Abbreviation">ABBR</abbr>@
+\\ABBR<br>
+[<abbr title="Abbreviation">ABBR</abbr>[
+]<abbr title="Abbreviation">ABBR</abbr>]
+<em><abbr title="Abbreviation">ABBR</abbr></em>
+{<abbr title="Abbreviation">ABBR</abbr>{
+}<abbr title="Abbreviation">ABBR</abbr>}
+<abbr title="Abbreviation">ABBR</abbr>
+\u00a1<abbr title="Abbreviation">ABBR</abbr>\u00a1
+\u00a7<abbr title="Abbreviation">ABBR</abbr>\u00a7
+\u00ab<abbr title="Abbreviation">ABBR</abbr>\u00ab
+\u00b6<abbr title="Abbreviation">ABBR</abbr>\u00b6
+\u00b7<abbr title="Abbreviation">ABBR</abbr>\u00b7
+\u00bb<abbr title="Abbreviation">ABBR</abbr>\u00bb
+\u00bf<abbr title="Abbreviation">ABBR</abbr>\u00bf
+\u037e<abbr title="Abbreviation">ABBR</abbr>\u037e
+\u0387<abbr title="Abbreviation">ABBR</abbr>\u0387
+\u055a<abbr title="Abbreviation">ABBR</abbr>\u055a
+\u055b<abbr title="Abbreviation">ABBR</abbr>\u055b
+\u055c<abbr title="Abbreviation">ABBR</abbr>\u055c
+\u055d<abbr title="Abbreviation">ABBR</abbr>\u055d
+\u055e<abbr title="Abbreviation">ABBR</abbr>\u055e
+\u055f<abbr title="Abbreviation">ABBR</abbr>\u055f
+\u0589<abbr title="Abbreviation">ABBR</abbr>\u0589
+\u058a<abbr title="Abbreviation">ABBR</abbr>\u058a
+\u05be<abbr title="Abbreviation">ABBR</abbr>\u05be
+\u05c0<abbr title="Abbreviation">ABBR</abbr>\u05c0
+\u05c3<abbr title="Abbreviation">ABBR</abbr>\u05c3
+\u05c6<abbr title="Abbreviation">ABBR</abbr>\u05c6
+\u05f3<abbr title="Abbreviation">ABBR</abbr>\u05f3
+\u05f4<abbr title="Abbreviation">ABBR</abbr>\u05f4
+\u0609<abbr title="Abbreviation">ABBR</abbr>\u0609
+\u060a<abbr title="Abbreviation">ABBR</abbr>\u060a
+\u060c<abbr title="Abbreviation">ABBR</abbr>\u060c
+\u060d<abbr title="Abbreviation">ABBR</abbr>\u060d
+\u061b<abbr title="Abbreviation">ABBR</abbr>\u061b
+\u061d<abbr title="Abbreviation">ABBR</abbr>\u061d
+\u061e<abbr title="Abbreviation">ABBR</abbr>\u061e
+\u061f<abbr title="Abbreviation">ABBR</abbr>\u061f
+\u066a<abbr title="Abbreviation">ABBR</abbr>\u066a
+\u066b<abbr title="Abbreviation">ABBR</abbr>\u066b
+\u066c<abbr title="Abbreviation">ABBR</abbr>\u066c
+\u066d<abbr title="Abbreviation">ABBR</abbr>\u066d
+\u06d4<abbr title="Abbreviation">ABBR</abbr>\u06d4
+\u0700<abbr title="Abbreviation">ABBR</abbr>\u0700
+\u0701<abbr title="Abbreviation">ABBR</abbr>\u0701
+\u0702<abbr title="Abbreviation">ABBR</abbr>\u0702
+\u0703<abbr title="Abbreviation">ABBR</abbr>\u0703
+\u0704<abbr title="Abbreviation">ABBR</abbr>\u0704
+\u0705<abbr title="Abbreviation">ABBR</abbr>\u0705
+\u0706<abbr title="Abbreviation">ABBR</abbr>\u0706
+\u0707<abbr title="Abbreviation">ABBR</abbr>\u0707
+\u0708<abbr title="Abbreviation">ABBR</abbr>\u0708
+\u0709<abbr title="Abbreviation">ABBR</abbr>\u0709
+\u070a<abbr title="Abbreviation">ABBR</abbr>\u070a
+\u070b<abbr title="Abbreviation">ABBR</abbr>\u070b
+\u070c<abbr title="Abbreviation">ABBR</abbr>\u070c
+\u070d<abbr title="Abbreviation">ABBR</abbr>\u070d
+\u07f7<abbr title="Abbreviation">ABBR</abbr>\u07f7
+\u07f8<abbr title="Abbreviation">ABBR</abbr>\u07f8
+\u07f9<abbr title="Abbreviation">ABBR</abbr>\u07f9
+\u0830<abbr title="Abbreviation">ABBR</abbr>\u0830
+\u0831<abbr title="Abbreviation">ABBR</abbr>\u0831
+\u0832<abbr title="Abbreviation">ABBR</abbr>\u0832
+\u0833<abbr title="Abbreviation">ABBR</abbr>\u0833
+\u0834<abbr title="Abbreviation">ABBR</abbr>\u0834
+\u0835<abbr title="Abbreviation">ABBR</abbr>\u0835
+\u0836<abbr title="Abbreviation">ABBR</abbr>\u0836
+\u0837<abbr title="Abbreviation">ABBR</abbr>\u0837
+\u0838<abbr title="Abbreviation">ABBR</abbr>\u0838
+\u0839<abbr title="Abbreviation">ABBR</abbr>\u0839
+\u083a<abbr title="Abbreviation">ABBR</abbr>\u083a
+\u083b<abbr title="Abbreviation">ABBR</abbr>\u083b
+\u083c<abbr title="Abbreviation">ABBR</abbr>\u083c
+\u083d<abbr title="Abbreviation">ABBR</abbr>\u083d
+\u083e<abbr title="Abbreviation">ABBR</abbr>\u083e
+\u085e<abbr title="Abbreviation">ABBR</abbr>\u085e
+\u0964<abbr title="Abbreviation">ABBR</abbr>\u0964
+\u0965<abbr title="Abbreviation">ABBR</abbr>\u0965
+\u0970<abbr title="Abbreviation">ABBR</abbr>\u0970
+\u09fd<abbr title="Abbreviation">ABBR</abbr>\u09fd
+\u0a76<abbr title="Abbreviation">ABBR</abbr>\u0a76
+\u0af0<abbr title="Abbreviation">ABBR</abbr>\u0af0
+\u0c77<abbr title="Abbreviation">ABBR</abbr>\u0c77
+\u0c84<abbr title="Abbreviation">ABBR</abbr>\u0c84
+\u0df4<abbr title="Abbreviation">ABBR</abbr>\u0df4
+\u0e4f<abbr title="Abbreviation">ABBR</abbr>\u0e4f
+\u0e5a<abbr title="Abbreviation">ABBR</abbr>\u0e5a
+\u0e5b<abbr title="Abbreviation">ABBR</abbr>\u0e5b
+\u0f04<abbr title="Abbreviation">ABBR</abbr>\u0f04
+\u0f05<abbr title="Abbreviation">ABBR</abbr>\u0f05
+\u0f06<abbr title="Abbreviation">ABBR</abbr>\u0f06
+\u0f07<abbr title="Abbreviation">ABBR</abbr>\u0f07
+\u0f08<abbr title="Abbreviation">ABBR</abbr>\u0f08
+\u0f09<abbr title="Abbreviation">ABBR</abbr>\u0f09
+\u0f0a<abbr title="Abbreviation">ABBR</abbr>\u0f0a
+\u0f0b<abbr title="Abbreviation">ABBR</abbr>\u0f0b
+\u0f0c<abbr title="Abbreviation">ABBR</abbr>\u0f0c
+\u0f0d<abbr title="Abbreviation">ABBR</abbr>\u0f0d
+\u0f0e<abbr title="Abbreviation">ABBR</abbr>\u0f0e
+\u0f0f<abbr title="Abbreviation">ABBR</abbr>\u0f0f
+\u0f10<abbr title="Abbreviation">ABBR</abbr>\u0f10
+\u0f11<abbr title="Abbreviation">ABBR</abbr>\u0f11
+\u0f12<abbr title="Abbreviation">ABBR</abbr>\u0f12
+\u0f14<abbr title="Abbreviation">ABBR</abbr>\u0f14
+\u0f3a<abbr title="Abbreviation">ABBR</abbr>\u0f3a
+\u0f3b<abbr title="Abbreviation">ABBR</abbr>\u0f3b
+\u0f3c<abbr title="Abbreviation">ABBR</abbr>\u0f3c
+\u0f3d<abbr title="Abbreviation">ABBR</abbr>\u0f3d
+\u0f85<abbr title="Abbreviation">ABBR</abbr>\u0f85
+\u0fd0<abbr title="Abbreviation">ABBR</abbr>\u0fd0
+\u0fd1<abbr title="Abbreviation">ABBR</abbr>\u0fd1
+\u0fd2<abbr title="Abbreviation">ABBR</abbr>\u0fd2
+\u0fd3<abbr title="Abbreviation">ABBR</abbr>\u0fd3
+\u0fd4<abbr title="Abbreviation">ABBR</abbr>\u0fd4
+\u0fd9<abbr title="Abbreviation">ABBR</abbr>\u0fd9
+\u0fda<abbr title="Abbreviation">ABBR</abbr>\u0fda
+\u104a<abbr title="Abbreviation">ABBR</abbr>\u104a
+\u104b<abbr title="Abbreviation">ABBR</abbr>\u104b
+\u104c<abbr title="Abbreviation">ABBR</abbr>\u104c
+\u104d<abbr title="Abbreviation">ABBR</abbr>\u104d
+\u104e<abbr title="Abbreviation">ABBR</abbr>\u104e
+\u104f<abbr title="Abbreviation">ABBR</abbr>\u104f
+\u10fb<abbr title="Abbreviation">ABBR</abbr>\u10fb
+\u1360<abbr title="Abbreviation">ABBR</abbr>\u1360
+\u1361<abbr title="Abbreviation">ABBR</abbr>\u1361
+\u1362<abbr title="Abbreviation">ABBR</abbr>\u1362
+\u1363<abbr title="Abbreviation">ABBR</abbr>\u1363
+\u1364<abbr title="Abbreviation">ABBR</abbr>\u1364
+\u1365<abbr title="Abbreviation">ABBR</abbr>\u1365
+\u1366<abbr title="Abbreviation">ABBR</abbr>\u1366
+\u1367<abbr title="Abbreviation">ABBR</abbr>\u1367
+\u1368<abbr title="Abbreviation">ABBR</abbr>\u1368
+\u1400<abbr title="Abbreviation">ABBR</abbr>\u1400
+\u166e<abbr title="Abbreviation">ABBR</abbr>\u166e
+<abbr title="Abbreviation">ABBR</abbr>
+\u169b<abbr title="Abbreviation">ABBR</abbr>\u169b
+\u169c<abbr title="Abbreviation">ABBR</abbr>\u169c
+\u16eb<abbr title="Abbreviation">ABBR</abbr>\u16eb
+\u16ec<abbr title="Abbreviation">ABBR</abbr>\u16ec
+\u16ed<abbr title="Abbreviation">ABBR</abbr>\u16ed
+\u1735<abbr title="Abbreviation">ABBR</abbr>\u1735
+\u1736<abbr title="Abbreviation">ABBR</abbr>\u1736
+\u17d4<abbr title="Abbreviation">ABBR</abbr>\u17d4
+\u17d5<abbr title="Abbreviation">ABBR</abbr>\u17d5
+\u17d6<abbr title="Abbreviation">ABBR</abbr>\u17d6
+\u17d8<abbr title="Abbreviation">ABBR</abbr>\u17d8
+\u17d9<abbr title="Abbreviation">ABBR</abbr>\u17d9
+\u17da<abbr title="Abbreviation">ABBR</abbr>\u17da
+\u1800<abbr title="Abbreviation">ABBR</abbr>\u1800
+\u1801<abbr title="Abbreviation">ABBR</abbr>\u1801
+\u1802<abbr title="Abbreviation">ABBR</abbr>\u1802
+\u1803<abbr title="Abbreviation">ABBR</abbr>\u1803
+\u1804<abbr title="Abbreviation">ABBR</abbr>\u1804
+\u1805<abbr title="Abbreviation">ABBR</abbr>\u1805
+\u1806<abbr title="Abbreviation">ABBR</abbr>\u1806
+\u1807<abbr title="Abbreviation">ABBR</abbr>\u1807
+\u1808<abbr title="Abbreviation">ABBR</abbr>\u1808
+\u1809<abbr title="Abbreviation">ABBR</abbr>\u1809
+\u180a<abbr title="Abbreviation">ABBR</abbr>\u180a
+\u1944<abbr title="Abbreviation">ABBR</abbr>\u1944
+\u1945<abbr title="Abbreviation">ABBR</abbr>\u1945
+\u1a1e<abbr title="Abbreviation">ABBR</abbr>\u1a1e
+\u1a1f<abbr title="Abbreviation">ABBR</abbr>\u1a1f
+\u1aa0<abbr title="Abbreviation">ABBR</abbr>\u1aa0
+\u1aa1<abbr title="Abbreviation">ABBR</abbr>\u1aa1
+\u1aa2<abbr title="Abbreviation">ABBR</abbr>\u1aa2
+\u1aa3<abbr title="Abbreviation">ABBR</abbr>\u1aa3
+\u1aa4<abbr title="Abbreviation">ABBR</abbr>\u1aa4
+\u1aa5<abbr title="Abbreviation">ABBR</abbr>\u1aa5
+\u1aa6<abbr title="Abbreviation">ABBR</abbr>\u1aa6
+\u1aa8<abbr title="Abbreviation">ABBR</abbr>\u1aa8
+\u1aa9<abbr title="Abbreviation">ABBR</abbr>\u1aa9
+\u1aaa<abbr title="Abbreviation">ABBR</abbr>\u1aaa
+\u1aab<abbr title="Abbreviation">ABBR</abbr>\u1aab
+\u1aac<abbr title="Abbreviation">ABBR</abbr>\u1aac
+\u1aad<abbr title="Abbreviation">ABBR</abbr>\u1aad
+\u1b5a<abbr title="Abbreviation">ABBR</abbr>\u1b5a
+\u1b5b<abbr title="Abbreviation">ABBR</abbr>\u1b5b
+\u1b5c<abbr title="Abbreviation">ABBR</abbr>\u1b5c
+\u1b5d<abbr title="Abbreviation">ABBR</abbr>\u1b5d
+\u1b5e<abbr title="Abbreviation">ABBR</abbr>\u1b5e
+\u1b5f<abbr title="Abbreviation">ABBR</abbr>\u1b5f
+\u1b60<abbr title="Abbreviation">ABBR</abbr>\u1b60
+\u1b7d<abbr title="Abbreviation">ABBR</abbr>\u1b7d
+\u1b7e<abbr title="Abbreviation">ABBR</abbr>\u1b7e
+\u1bfc<abbr title="Abbreviation">ABBR</abbr>\u1bfc
+\u1bfd<abbr title="Abbreviation">ABBR</abbr>\u1bfd
+\u1bfe<abbr title="Abbreviation">ABBR</abbr>\u1bfe
+\u1bff<abbr title="Abbreviation">ABBR</abbr>\u1bff
+\u1c3b<abbr title="Abbreviation">ABBR</abbr>\u1c3b
+\u1c3c<abbr title="Abbreviation">ABBR</abbr>\u1c3c
+\u1c3d<abbr title="Abbreviation">ABBR</abbr>\u1c3d
+\u1c3e<abbr title="Abbreviation">ABBR</abbr>\u1c3e
+\u1c3f<abbr title="Abbreviation">ABBR</abbr>\u1c3f
+\u1c7e<abbr title="Abbreviation">ABBR</abbr>\u1c7e
+\u1c7f<abbr title="Abbreviation">ABBR</abbr>\u1c7f
+\u1cc0<abbr title="Abbreviation">ABBR</abbr>\u1cc0
+\u1cc1<abbr title="Abbreviation">ABBR</abbr>\u1cc1
+\u1cc2<abbr title="Abbreviation">ABBR</abbr>\u1cc2
+\u1cc3<abbr title="Abbreviation">ABBR</abbr>\u1cc3
+\u1cc4<abbr title="Abbreviation">ABBR</abbr>\u1cc4
+\u1cc5<abbr title="Abbreviation">ABBR</abbr>\u1cc5
+\u1cc6<abbr title="Abbreviation">ABBR</abbr>\u1cc6
+\u1cc7<abbr title="Abbreviation">ABBR</abbr>\u1cc7
+\u1cd3<abbr title="Abbreviation">ABBR</abbr>\u1cd3
+<abbr title="Abbreviation">ABBR</abbr>
+<abbr title="Abbreviation">ABBR</abbr>
+<abbr title="Abbreviation">ABBR</abbr>
+<abbr title="Abbreviation">ABBR</abbr>
+<abbr title="Abbreviation">ABBR</abbr>
+<abbr title="Abbreviation">ABBR</abbr>
+<abbr title="Abbreviation">ABBR</abbr>
+<abbr title="Abbreviation">ABBR</abbr>
+<abbr title="Abbreviation">ABBR</abbr>
+<abbr title="Abbreviation">ABBR</abbr>
+<abbr title="Abbreviation">ABBR</abbr>
+\u2010<abbr title="Abbreviation">ABBR</abbr>\u2010
+\u2011<abbr title="Abbreviation">ABBR</abbr>\u2011
+\u2012<abbr title="Abbreviation">ABBR</abbr>\u2012
+\u2013<abbr title="Abbreviation">ABBR</abbr>\u2013
+\u2014<abbr title="Abbreviation">ABBR</abbr>\u2014
+\u2015<abbr title="Abbreviation">ABBR</abbr>\u2015
+\u2016<abbr title="Abbreviation">ABBR</abbr>\u2016
+\u2017<abbr title="Abbreviation">ABBR</abbr>\u2017
+\u2018<abbr title="Abbreviation">ABBR</abbr>\u2018
+\u2019<abbr title="Abbreviation">ABBR</abbr>\u2019
+\u201a<abbr title="Abbreviation">ABBR</abbr>\u201a
+\u201b<abbr title="Abbreviation">ABBR</abbr>\u201b
+\u201c<abbr title="Abbreviation">ABBR</abbr>\u201c
+\u201d<abbr title="Abbreviation">ABBR</abbr>\u201d
+\u201e<abbr title="Abbreviation">ABBR</abbr>\u201e
+\u201f<abbr title="Abbreviation">ABBR</abbr>\u201f
+\u2020<abbr title="Abbreviation">ABBR</abbr>\u2020
+\u2021<abbr title="Abbreviation">ABBR</abbr>\u2021
+\u2022<abbr title="Abbreviation">ABBR</abbr>\u2022
+\u2023<abbr title="Abbreviation">ABBR</abbr>\u2023
+\u2024<abbr title="Abbreviation">ABBR</abbr>\u2024
+\u2025<abbr title="Abbreviation">ABBR</abbr>\u2025
+\u2026<abbr title="Abbreviation">ABBR</abbr>\u2026
+\u2027<abbr title="Abbreviation">ABBR</abbr>\u2027
+<abbr title="Abbreviation">ABBR</abbr>
+<abbr title="Abbreviation">ABBR</abbr>
+<abbr title="Abbreviation">ABBR</abbr>
+\u2030<abbr title="Abbreviation">ABBR</abbr>\u2030
+\u2031<abbr title="Abbreviation">ABBR</abbr>\u2031
+\u2032<abbr title="Abbreviation">ABBR</abbr>\u2032
+\u2033<abbr title="Abbreviation">ABBR</abbr>\u2033
+\u2034<abbr title="Abbreviation">ABBR</abbr>\u2034
+\u2035<abbr title="Abbreviation">ABBR</abbr>\u2035
+\u2036<abbr title="Abbreviation">ABBR</abbr>\u2036
+\u2037<abbr title="Abbreviation">ABBR</abbr>\u2037
+\u2038<abbr title="Abbreviation">ABBR</abbr>\u2038
+\u2039<abbr title="Abbreviation">ABBR</abbr>\u2039
+\u203a<abbr title="Abbreviation">ABBR</abbr>\u203a
+\u203b<abbr title="Abbreviation">ABBR</abbr>\u203b
+\u203c<abbr title="Abbreviation">ABBR</abbr>\u203c
+\u203d<abbr title="Abbreviation">ABBR</abbr>\u203d
+\u203e<abbr title="Abbreviation">ABBR</abbr>\u203e
+\u203f<abbr title="Abbreviation">ABBR</abbr>\u203f
+\u2040<abbr title="Abbreviation">ABBR</abbr>\u2040
+\u2041<abbr title="Abbreviation">ABBR</abbr>\u2041
+\u2042<abbr title="Abbreviation">ABBR</abbr>\u2042
+\u2043<abbr title="Abbreviation">ABBR</abbr>\u2043
+\u2045<abbr title="Abbreviation">ABBR</abbr>\u2045
+\u2046<abbr title="Abbreviation">ABBR</abbr>\u2046
+\u2047<abbr title="Abbreviation">ABBR</abbr>\u2047
+\u2048<abbr title="Abbreviation">ABBR</abbr>\u2048
+\u2049<abbr title="Abbreviation">ABBR</abbr>\u2049
+\u204a<abbr title="Abbreviation">ABBR</abbr>\u204a
+\u204b<abbr title="Abbreviation">ABBR</abbr>\u204b
+\u204c<abbr title="Abbreviation">ABBR</abbr>\u204c
+\u204d<abbr title="Abbreviation">ABBR</abbr>\u204d
+\u204e<abbr title="Abbreviation">ABBR</abbr>\u204e
+\u204f<abbr title="Abbreviation">ABBR</abbr>\u204f
+\u2050<abbr title="Abbreviation">ABBR</abbr>\u2050
+\u2051<abbr title="Abbreviation">ABBR</abbr>\u2051
+\u2053<abbr title="Abbreviation">ABBR</abbr>\u2053
+\u2054<abbr title="Abbreviation">ABBR</abbr>\u2054
+\u2055<abbr title="Abbreviation">ABBR</abbr>\u2055
+\u2056<abbr title="Abbreviation">ABBR</abbr>\u2056
+\u2057<abbr title="Abbreviation">ABBR</abbr>\u2057
+\u2058<abbr title="Abbreviation">ABBR</abbr>\u2058
+\u2059<abbr title="Abbreviation">ABBR</abbr>\u2059
+\u205a<abbr title="Abbreviation">ABBR</abbr>\u205a
+\u205b<abbr title="Abbreviation">ABBR</abbr>\u205b
+\u205c<abbr title="Abbreviation">ABBR</abbr>\u205c
+\u205d<abbr title="Abbreviation">ABBR</abbr>\u205d
+\u205e<abbr title="Abbreviation">ABBR</abbr>\u205e
+<abbr title="Abbreviation">ABBR</abbr>
+\u207d<abbr title="Abbreviation">ABBR</abbr>\u207d
+\u207e<abbr title="Abbreviation">ABBR</abbr>\u207e
+\u208d<abbr title="Abbreviation">ABBR</abbr>\u208d
+\u208e<abbr title="Abbreviation">ABBR</abbr>\u208e
+\u2308<abbr title="Abbreviation">ABBR</abbr>\u2308
+\u2309<abbr title="Abbreviation">ABBR</abbr>\u2309
+\u230a<abbr title="Abbreviation">ABBR</abbr>\u230a
+\u230b<abbr title="Abbreviation">ABBR</abbr>\u230b
+\u2329<abbr title="Abbreviation">ABBR</abbr>\u2329
+\u232a<abbr title="Abbreviation">ABBR</abbr>\u232a
+\u2768<abbr title="Abbreviation">ABBR</abbr>\u2768
+\u2769<abbr title="Abbreviation">ABBR</abbr>\u2769
+\u276a<abbr title="Abbreviation">ABBR</abbr>\u276a
+\u276b<abbr title="Abbreviation">ABBR</abbr>\u276b
+\u276c<abbr title="Abbreviation">ABBR</abbr>\u276c
+\u276d<abbr title="Abbreviation">ABBR</abbr>\u276d
+\u276e<abbr title="Abbreviation">ABBR</abbr>\u276e
+\u276f<abbr title="Abbreviation">ABBR</abbr>\u276f
+\u2770<abbr title="Abbreviation">ABBR</abbr>\u2770
+\u2771<abbr title="Abbreviation">ABBR</abbr>\u2771
+\u2772<abbr title="Abbreviation">ABBR</abbr>\u2772
+\u2773<abbr title="Abbreviation">ABBR</abbr>\u2773
+\u2774<abbr title="Abbreviation">ABBR</abbr>\u2774
+\u2775<abbr title="Abbreviation">ABBR</abbr>\u2775
+\u27c5<abbr title="Abbreviation">ABBR</abbr>\u27c5
+\u27c6<abbr title="Abbreviation">ABBR</abbr>\u27c6
+\u27e6<abbr title="Abbreviation">ABBR</abbr>\u27e6
+\u27e7<abbr title="Abbreviation">ABBR</abbr>\u27e7
+\u27e8<abbr title="Abbreviation">ABBR</abbr>\u27e8
+\u27e9<abbr title="Abbreviation">ABBR</abbr>\u27e9
+\u27ea<abbr title="Abbreviation">ABBR</abbr>\u27ea
+\u27eb<abbr title="Abbreviation">ABBR</abbr>\u27eb
+\u27ec<abbr title="Abbreviation">ABBR</abbr>\u27ec
+\u27ed<abbr title="Abbreviation">ABBR</abbr>\u27ed
+\u27ee<abbr title="Abbreviation">ABBR</abbr>\u27ee
+\u27ef<abbr title="Abbreviation">ABBR</abbr>\u27ef
+\u2983<abbr title="Abbreviation">ABBR</abbr>\u2983
+\u2984<abbr title="Abbreviation">ABBR</abbr>\u2984
+\u2985<abbr title="Abbreviation">ABBR</abbr>\u2985
+\u2986<abbr title="Abbreviation">ABBR</abbr>\u2986
+\u2987<abbr title="Abbreviation">ABBR</abbr>\u2987
+\u2988<abbr title="Abbreviation">ABBR</abbr>\u2988
+\u2989<abbr title="Abbreviation">ABBR</abbr>\u2989
+\u298a<abbr title="Abbreviation">ABBR</abbr>\u298a
+\u298b<abbr title="Abbreviation">ABBR</abbr>\u298b
+\u298c<abbr title="Abbreviation">ABBR</abbr>\u298c
+\u298d<abbr title="Abbreviation">ABBR</abbr>\u298d
+\u298e<abbr title="Abbreviation">ABBR</abbr>\u298e
+\u298f<abbr title="Abbreviation">ABBR</abbr>\u298f
+\u2990<abbr title="Abbreviation">ABBR</abbr>\u2990
+\u2991<abbr title="Abbreviation">ABBR</abbr>\u2991
+\u2992<abbr title="Abbreviation">ABBR</abbr>\u2992
+\u2993<abbr title="Abbreviation">ABBR</abbr>\u2993
+\u2994<abbr title="Abbreviation">ABBR</abbr>\u2994
+\u2995<abbr title="Abbreviation">ABBR</abbr>\u2995
+\u2996<abbr title="Abbreviation">ABBR</abbr>\u2996
+\u2997<abbr title="Abbreviation">ABBR</abbr>\u2997
+\u2998<abbr title="Abbreviation">ABBR</abbr>\u2998
+\u29d8<abbr title="Abbreviation">ABBR</abbr>\u29d8
+\u29d9<abbr title="Abbreviation">ABBR</abbr>\u29d9
+\u29da<abbr title="Abbreviation">ABBR</abbr>\u29da
+\u29db<abbr title="Abbreviation">ABBR</abbr>\u29db
+\u29fc<abbr title="Abbreviation">ABBR</abbr>\u29fc
+\u29fd<abbr title="Abbreviation">ABBR</abbr>\u29fd
+\u2cf9<abbr title="Abbreviation">ABBR</abbr>\u2cf9
+\u2cfa<abbr title="Abbreviation">ABBR</abbr>\u2cfa
+\u2cfb<abbr title="Abbreviation">ABBR</abbr>\u2cfb
+\u2cfc<abbr title="Abbreviation">ABBR</abbr>\u2cfc
+\u2cfe<abbr title="Abbreviation">ABBR</abbr>\u2cfe
+\u2cff<abbr title="Abbreviation">ABBR</abbr>\u2cff
+\u2d70<abbr title="Abbreviation">ABBR</abbr>\u2d70
+\u2e00<abbr title="Abbreviation">ABBR</abbr>\u2e00
+\u2e01<abbr title="Abbreviation">ABBR</abbr>\u2e01
+\u2e02<abbr title="Abbreviation">ABBR</abbr>\u2e02
+\u2e03<abbr title="Abbreviation">ABBR</abbr>\u2e03
+\u2e04<abbr title="Abbreviation">ABBR</abbr>\u2e04
+\u2e05<abbr title="Abbreviation">ABBR</abbr>\u2e05
+\u2e06<abbr title="Abbreviation">ABBR</abbr>\u2e06
+\u2e07<abbr title="Abbreviation">ABBR</abbr>\u2e07
+\u2e08<abbr title="Abbreviation">ABBR</abbr>\u2e08
+\u2e09<abbr title="Abbreviation">ABBR</abbr>\u2e09
+\u2e0a<abbr title="Abbreviation">ABBR</abbr>\u2e0a
+\u2e0b<abbr title="Abbreviation">ABBR</abbr>\u2e0b
+\u2e0c<abbr title="Abbreviation">ABBR</abbr>\u2e0c
+\u2e0d<abbr title="Abbreviation">ABBR</abbr>\u2e0d
+\u2e0e<abbr title="Abbreviation">ABBR</abbr>\u2e0e
+\u2e0f<abbr title="Abbreviation">ABBR</abbr>\u2e0f
+\u2e10<abbr title="Abbreviation">ABBR</abbr>\u2e10
+\u2e11<abbr title="Abbreviation">ABBR</abbr>\u2e11
+\u2e12<abbr title="Abbreviation">ABBR</abbr>\u2e12
+\u2e13<abbr title="Abbreviation">ABBR</abbr>\u2e13
+\u2e14<abbr title="Abbreviation">ABBR</abbr>\u2e14
+\u2e15<abbr title="Abbreviation">ABBR</abbr>\u2e15
+\u2e16<abbr title="Abbreviation">ABBR</abbr>\u2e16
+\u2e17<abbr title="Abbreviation">ABBR</abbr>\u2e17
+\u2e18<abbr title="Abbreviation">ABBR</abbr>\u2e18
+\u2e19<abbr title="Abbreviation">ABBR</abbr>\u2e19
+\u2e1a<abbr title="Abbreviation">ABBR</abbr>\u2e1a
+\u2e1b<abbr title="Abbreviation">ABBR</abbr>\u2e1b
+\u2e1c<abbr title="Abbreviation">ABBR</abbr>\u2e1c
+\u2e1d<abbr title="Abbreviation">ABBR</abbr>\u2e1d
+\u2e1e<abbr title="Abbreviation">ABBR</abbr>\u2e1e
+\u2e1f<abbr title="Abbreviation">ABBR</abbr>\u2e1f
+\u2e20<abbr title="Abbreviation">ABBR</abbr>\u2e20
+\u2e21<abbr title="Abbreviation">ABBR</abbr>\u2e21
+\u2e22<abbr title="Abbreviation">ABBR</abbr>\u2e22
+\u2e23<abbr title="Abbreviation">ABBR</abbr>\u2e23
+\u2e24<abbr title="Abbreviation">ABBR</abbr>\u2e24
+\u2e25<abbr title="Abbreviation">ABBR</abbr>\u2e25
+\u2e26<abbr title="Abbreviation">ABBR</abbr>\u2e26
+\u2e27<abbr title="Abbreviation">ABBR</abbr>\u2e27
+\u2e28<abbr title="Abbreviation">ABBR</abbr>\u2e28
+\u2e29<abbr title="Abbreviation">ABBR</abbr>\u2e29
+\u2e2a<abbr title="Abbreviation">ABBR</abbr>\u2e2a
+\u2e2b<abbr title="Abbreviation">ABBR</abbr>\u2e2b
+\u2e2c<abbr title="Abbreviation">ABBR</abbr>\u2e2c
+\u2e2d<abbr title="Abbreviation">ABBR</abbr>\u2e2d
+\u2e2e<abbr title="Abbreviation">ABBR</abbr>\u2e2e
+\u2e30<abbr title="Abbreviation">ABBR</abbr>\u2e30
+\u2e31<abbr title="Abbreviation">ABBR</abbr>\u2e31
+\u2e32<abbr title="Abbreviation">ABBR</abbr>\u2e32
+\u2e33<abbr title="Abbreviation">ABBR</abbr>\u2e33
+\u2e34<abbr title="Abbreviation">ABBR</abbr>\u2e34
+\u2e35<abbr title="Abbreviation">ABBR</abbr>\u2e35
+\u2e36<abbr title="Abbreviation">ABBR</abbr>\u2e36
+\u2e37<abbr title="Abbreviation">ABBR</abbr>\u2e37
+\u2e38<abbr title="Abbreviation">ABBR</abbr>\u2e38
+\u2e39<abbr title="Abbreviation">ABBR</abbr>\u2e39
+\u2e3a<abbr title="Abbreviation">ABBR</abbr>\u2e3a
+\u2e3b<abbr title="Abbreviation">ABBR</abbr>\u2e3b
+\u2e3c<abbr title="Abbreviation">ABBR</abbr>\u2e3c
+\u2e3d<abbr title="Abbreviation">ABBR</abbr>\u2e3d
+\u2e3e<abbr title="Abbreviation">ABBR</abbr>\u2e3e
+\u2e3f<abbr title="Abbreviation">ABBR</abbr>\u2e3f
+\u2e40<abbr title="Abbreviation">ABBR</abbr>\u2e40
+\u2e41<abbr title="Abbreviation">ABBR</abbr>\u2e41
+\u2e42<abbr title="Abbreviation">ABBR</abbr>\u2e42
+\u2e43<abbr title="Abbreviation">ABBR</abbr>\u2e43
+\u2e44<abbr title="Abbreviation">ABBR</abbr>\u2e44
+\u2e45<abbr title="Abbreviation">ABBR</abbr>\u2e45
+\u2e46<abbr title="Abbreviation">ABBR</abbr>\u2e46
+\u2e47<abbr title="Abbreviation">ABBR</abbr>\u2e47
+\u2e48<abbr title="Abbreviation">ABBR</abbr>\u2e48
+\u2e49<abbr title="Abbreviation">ABBR</abbr>\u2e49
+\u2e4a<abbr title="Abbreviation">ABBR</abbr>\u2e4a
+\u2e4b<abbr title="Abbreviation">ABBR</abbr>\u2e4b
+\u2e4c<abbr title="Abbreviation">ABBR</abbr>\u2e4c
+\u2e4d<abbr title="Abbreviation">ABBR</abbr>\u2e4d
+\u2e4e<abbr title="Abbreviation">ABBR</abbr>\u2e4e
+\u2e4f<abbr title="Abbreviation">ABBR</abbr>\u2e4f
+\u2e52<abbr title="Abbreviation">ABBR</abbr>\u2e52
+\u2e53<abbr title="Abbreviation">ABBR</abbr>\u2e53
+\u2e54<abbr title="Abbreviation">ABBR</abbr>\u2e54
+\u2e55<abbr title="Abbreviation">ABBR</abbr>\u2e55
+\u2e56<abbr title="Abbreviation">ABBR</abbr>\u2e56
+\u2e57<abbr title="Abbreviation">ABBR</abbr>\u2e57
+\u2e58<abbr title="Abbreviation">ABBR</abbr>\u2e58
+\u2e59<abbr title="Abbreviation">ABBR</abbr>\u2e59
+\u2e5a<abbr title="Abbreviation">ABBR</abbr>\u2e5a
+\u2e5b<abbr title="Abbreviation">ABBR</abbr>\u2e5b
+\u2e5c<abbr title="Abbreviation">ABBR</abbr>\u2e5c
+\u2e5d<abbr title="Abbreviation">ABBR</abbr>\u2e5d
+<abbr title="Abbreviation">ABBR</abbr>
+\u3001<abbr title="Abbreviation">ABBR</abbr>\u3001
+\u3002<abbr title="Abbreviation">ABBR</abbr>\u3002
+\u3003<abbr title="Abbreviation">ABBR</abbr>\u3003
+\u3008<abbr title="Abbreviation">ABBR</abbr>\u3008
+\u3009<abbr title="Abbreviation">ABBR</abbr>\u3009
+\u300a<abbr title="Abbreviation">ABBR</abbr>\u300a
+\u300b<abbr title="Abbreviation">ABBR</abbr>\u300b
+\u300c<abbr title="Abbreviation">ABBR</abbr>\u300c
+\u300d<abbr title="Abbreviation">ABBR</abbr>\u300d
+\u300e<abbr title="Abbreviation">ABBR</abbr>\u300e
+\u300f<abbr title="Abbreviation">ABBR</abbr>\u300f
+\u3010<abbr title="Abbreviation">ABBR</abbr>\u3010
+\u3011<abbr title="Abbreviation">ABBR</abbr>\u3011
+\u3014<abbr title="Abbreviation">ABBR</abbr>\u3014
+\u3015<abbr title="Abbreviation">ABBR</abbr>\u3015
+\u3016<abbr title="Abbreviation">ABBR</abbr>\u3016
+\u3017<abbr title="Abbreviation">ABBR</abbr>\u3017
+\u3018<abbr title="Abbreviation">ABBR</abbr>\u3018
+\u3019<abbr title="Abbreviation">ABBR</abbr>\u3019
+\u301a<abbr title="Abbreviation">ABBR</abbr>\u301a
+\u301b<abbr title="Abbreviation">ABBR</abbr>\u301b
+\u301c<abbr title="Abbreviation">ABBR</abbr>\u301c
+\u301d<abbr title="Abbreviation">ABBR</abbr>\u301d
+\u301e<abbr title="Abbreviation">ABBR</abbr>\u301e
+\u301f<abbr title="Abbreviation">ABBR</abbr>\u301f
+\u3030<abbr title="Abbreviation">ABBR</abbr>\u3030
+\u303d<abbr title="Abbreviation">ABBR</abbr>\u303d
+\u30a0<abbr title="Abbreviation">ABBR</abbr>\u30a0
+\u30fb<abbr title="Abbreviation">ABBR</abbr>\u30fb
+\ua4fe<abbr title="Abbreviation">ABBR</abbr>\ua4fe
+\ua4ff<abbr title="Abbreviation">ABBR</abbr>\ua4ff
+\ua60d<abbr title="Abbreviation">ABBR</abbr>\ua60d
+\ua60e<abbr title="Abbreviation">ABBR</abbr>\ua60e
+\ua60f<abbr title="Abbreviation">ABBR</abbr>\ua60f
+\ua673<abbr title="Abbreviation">ABBR</abbr>\ua673
+\ua67e<abbr title="Abbreviation">ABBR</abbr>\ua67e
+\ua6f2<abbr title="Abbreviation">ABBR</abbr>\ua6f2
+\ua6f3<abbr title="Abbreviation">ABBR</abbr>\ua6f3
+\ua6f4<abbr title="Abbreviation">ABBR</abbr>\ua6f4
+\ua6f5<abbr title="Abbreviation">ABBR</abbr>\ua6f5
+\ua6f6<abbr title="Abbreviation">ABBR</abbr>\ua6f6
+\ua6f7<abbr title="Abbreviation">ABBR</abbr>\ua6f7
+\ua874<abbr title="Abbreviation">ABBR</abbr>\ua874
+\ua875<abbr title="Abbreviation">ABBR</abbr>\ua875
+\ua876<abbr title="Abbreviation">ABBR</abbr>\ua876
+\ua877<abbr title="Abbreviation">ABBR</abbr>\ua877
+\ua8ce<abbr title="Abbreviation">ABBR</abbr>\ua8ce
+\ua8cf<abbr title="Abbreviation">ABBR</abbr>\ua8cf
+\ua8f8<abbr title="Abbreviation">ABBR</abbr>\ua8f8
+\ua8f9<abbr title="Abbreviation">ABBR</abbr>\ua8f9
+\ua8fa<abbr title="Abbreviation">ABBR</abbr>\ua8fa
+\ua8fc<abbr title="Abbreviation">ABBR</abbr>\ua8fc
+\ua92e<abbr title="Abbreviation">ABBR</abbr>\ua92e
+\ua92f<abbr title="Abbreviation">ABBR</abbr>\ua92f
+\ua95f<abbr title="Abbreviation">ABBR</abbr>\ua95f
+\ua9c1<abbr title="Abbreviation">ABBR</abbr>\ua9c1
+\ua9c2<abbr title="Abbreviation">ABBR</abbr>\ua9c2
+\ua9c3<abbr title="Abbreviation">ABBR</abbr>\ua9c3
+\ua9c4<abbr title="Abbreviation">ABBR</abbr>\ua9c4
+\ua9c5<abbr title="Abbreviation">ABBR</abbr>\ua9c5
+\ua9c6<abbr title="Abbreviation">ABBR</abbr>\ua9c6
+\ua9c7<abbr title="Abbreviation">ABBR</abbr>\ua9c7
+\ua9c8<abbr title="Abbreviation">ABBR</abbr>\ua9c8
+\ua9c9<abbr title="Abbreviation">ABBR</abbr>\ua9c9
+\ua9ca<abbr title="Abbreviation">ABBR</abbr>\ua9ca
+\ua9cb<abbr title="Abbreviation">ABBR</abbr>\ua9cb
+\ua9cc<abbr title="Abbreviation">ABBR</abbr>\ua9cc
+\ua9cd<abbr title="Abbreviation">ABBR</abbr>\ua9cd
+\ua9de<abbr title="Abbreviation">ABBR</abbr>\ua9de
+\ua9df<abbr title="Abbreviation">ABBR</abbr>\ua9df
+\uaa5c<abbr title="Abbreviation">ABBR</abbr>\uaa5c
+\uaa5d<abbr title="Abbreviation">ABBR</abbr>\uaa5d
+\uaa5e<abbr title="Abbreviation">ABBR</abbr>\uaa5e
+\uaa5f<abbr title="Abbreviation">ABBR</abbr>\uaa5f
+\uaade<abbr title="Abbreviation">ABBR</abbr>\uaade
+\uaadf<abbr title="Abbreviation">ABBR</abbr>\uaadf
+\uaaf0<abbr title="Abbreviation">ABBR</abbr>\uaaf0
+\uaaf1<abbr title="Abbreviation">ABBR</abbr>\uaaf1
+\uabeb<abbr title="Abbreviation">ABBR</abbr>\uabeb
+\ufd3e<abbr title="Abbreviation">ABBR</abbr>\ufd3e
+\ufd3f<abbr title="Abbreviation">ABBR</abbr>\ufd3f
+\ufe10<abbr title="Abbreviation">ABBR</abbr>\ufe10
+\ufe11<abbr title="Abbreviation">ABBR</abbr>\ufe11
+\ufe12<abbr title="Abbreviation">ABBR</abbr>\ufe12
+\ufe13<abbr title="Abbreviation">ABBR</abbr>\ufe13
+\ufe14<abbr title="Abbreviation">ABBR</abbr>\ufe14
+\ufe15<abbr title="Abbreviation">ABBR</abbr>\ufe15
+\ufe16<abbr title="Abbreviation">ABBR</abbr>\ufe16
+\ufe17<abbr title="Abbreviation">ABBR</abbr>\ufe17
+\ufe18<abbr title="Abbreviation">ABBR</abbr>\ufe18
+\ufe19<abbr title="Abbreviation">ABBR</abbr>\ufe19
+\ufe30<abbr title="Abbreviation">ABBR</abbr>\ufe30
+\ufe31<abbr title="Abbreviation">ABBR</abbr>\ufe31
+\ufe32<abbr title="Abbreviation">ABBR</abbr>\ufe32
+\ufe33<abbr title="Abbreviation">ABBR</abbr>\ufe33
+\ufe34<abbr title="Abbreviation">ABBR</abbr>\ufe34
+\ufe35<abbr title="Abbreviation">ABBR</abbr>\ufe35
+\ufe36<abbr title="Abbreviation">ABBR</abbr>\ufe36
+\ufe37<abbr title="Abbreviation">ABBR</abbr>\ufe37
+\ufe38<abbr title="Abbreviation">ABBR</abbr>\ufe38
+\ufe39<abbr title="Abbreviation">ABBR</abbr>\ufe39
+\ufe3a<abbr title="Abbreviation">ABBR</abbr>\ufe3a
+\ufe3b<abbr title="Abbreviation">ABBR</abbr>\ufe3b
+\ufe3c<abbr title="Abbreviation">ABBR</abbr>\ufe3c
+\ufe3d<abbr title="Abbreviation">ABBR</abbr>\ufe3d
+\ufe3e<abbr title="Abbreviation">ABBR</abbr>\ufe3e
+\ufe3f<abbr title="Abbreviation">ABBR</abbr>\ufe3f
+\ufe40<abbr title="Abbreviation">ABBR</abbr>\ufe40
+\ufe41<abbr title="Abbreviation">ABBR</abbr>\ufe41
+\ufe42<abbr title="Abbreviation">ABBR</abbr>\ufe42
+\ufe43<abbr title="Abbreviation">ABBR</abbr>\ufe43
+\ufe44<abbr title="Abbreviation">ABBR</abbr>\ufe44
+\ufe45<abbr title="Abbreviation">ABBR</abbr>\ufe45
+\ufe46<abbr title="Abbreviation">ABBR</abbr>\ufe46
+\ufe47<abbr title="Abbreviation">ABBR</abbr>\ufe47
+\ufe48<abbr title="Abbreviation">ABBR</abbr>\ufe48
+\ufe49<abbr title="Abbreviation">ABBR</abbr>\ufe49
+\ufe4a<abbr title="Abbreviation">ABBR</abbr>\ufe4a
+\ufe4b<abbr title="Abbreviation">ABBR</abbr>\ufe4b
+\ufe4c<abbr title="Abbreviation">ABBR</abbr>\ufe4c
+\ufe4d<abbr title="Abbreviation">ABBR</abbr>\ufe4d
+\ufe4e<abbr title="Abbreviation">ABBR</abbr>\ufe4e
+\ufe4f<abbr title="Abbreviation">ABBR</abbr>\ufe4f
+\ufe50<abbr title="Abbreviation">ABBR</abbr>\ufe50
+\ufe51<abbr title="Abbreviation">ABBR</abbr>\ufe51
+\ufe52<abbr title="Abbreviation">ABBR</abbr>\ufe52
+\ufe54<abbr title="Abbreviation">ABBR</abbr>\ufe54
+\ufe55<abbr title="Abbreviation">ABBR</abbr>\ufe55
+\ufe56<abbr title="Abbreviation">ABBR</abbr>\ufe56
+\ufe57<abbr title="Abbreviation">ABBR</abbr>\ufe57
+\ufe58<abbr title="Abbreviation">ABBR</abbr>\ufe58
+\ufe59<abbr title="Abbreviation">ABBR</abbr>\ufe59
+\ufe5a<abbr title="Abbreviation">ABBR</abbr>\ufe5a
+\ufe5b<abbr title="Abbreviation">ABBR</abbr>\ufe5b
+\ufe5c<abbr title="Abbreviation">ABBR</abbr>\ufe5c
+\ufe5d<abbr title="Abbreviation">ABBR</abbr>\ufe5d
+\ufe5e<abbr title="Abbreviation">ABBR</abbr>\ufe5e
+\ufe5f<abbr title="Abbreviation">ABBR</abbr>\ufe5f
+\ufe60<abbr title="Abbreviation">ABBR</abbr>\ufe60
+\ufe61<abbr title="Abbreviation">ABBR</abbr>\ufe61
+\ufe63<abbr title="Abbreviation">ABBR</abbr>\ufe63
+\ufe68<abbr title="Abbreviation">ABBR</abbr>\ufe68
+\ufe6a<abbr title="Abbreviation">ABBR</abbr>\ufe6a
+\ufe6b<abbr title="Abbreviation">ABBR</abbr>\ufe6b
+\uff01<abbr title="Abbreviation">ABBR</abbr>\uff01
+\uff02<abbr title="Abbreviation">ABBR</abbr>\uff02
+\uff03<abbr title="Abbreviation">ABBR</abbr>\uff03
+\uff05<abbr title="Abbreviation">ABBR</abbr>\uff05
+\uff06<abbr title="Abbreviation">ABBR</abbr>\uff06
+\uff07<abbr title="Abbreviation">ABBR</abbr>\uff07
+\uff08<abbr title="Abbreviation">ABBR</abbr>\uff08
+\uff09<abbr title="Abbreviation">ABBR</abbr>\uff09
+\uff0a<abbr title="Abbreviation">ABBR</abbr>\uff0a
+\uff0c<abbr title="Abbreviation">ABBR</abbr>\uff0c
+\uff0d<abbr title="Abbreviation">ABBR</abbr>\uff0d
+\uff0e<abbr title="Abbreviation">ABBR</abbr>\uff0e
+\uff0f<abbr title="Abbreviation">ABBR</abbr>\uff0f
+\uff1a<abbr title="Abbreviation">ABBR</abbr>\uff1a
+\uff1b<abbr title="Abbreviation">ABBR</abbr>\uff1b
+\uff1f<abbr title="Abbreviation">ABBR</abbr>\uff1f
+\uff20<abbr title="Abbreviation">ABBR</abbr>\uff20
+\uff3b<abbr title="Abbreviation">ABBR</abbr>\uff3b
+\uff3c<abbr title="Abbreviation">ABBR</abbr>\uff3c
+\uff3d<abbr title="Abbreviation">ABBR</abbr>\uff3d
+\uff3f<abbr title="Abbreviation">ABBR</abbr>\uff3f
+\uff5b<abbr title="Abbreviation">ABBR</abbr>\uff5b
+\uff5d<abbr title="Abbreviation">ABBR</abbr>\uff5d
+\uff5f<abbr title="Abbreviation">ABBR</abbr>\uff5f
+\uff60<abbr title="Abbreviation">ABBR</abbr>\uff60
+\uff61<abbr title="Abbreviation">ABBR</abbr>\uff61
+\uff62<abbr title="Abbreviation">ABBR</abbr>\uff62
+\uff63<abbr title="Abbreviation">ABBR</abbr>\uff63
+\uff64<abbr title="Abbreviation">ABBR</abbr>\uff64
+\uff65<abbr title="Abbreviation">ABBR</abbr>\uff65</p>
+<p><abbr title="Abbreviation">ABBR</abbr>
+$<abbr title="Abbreviation">ABBR</abbr>$
++<abbr title="Abbreviation">ABBR</abbr>+
+&lt;<abbr title="Abbreviation">ABBR</abbr>&lt;
+=<abbr title="Abbreviation">ABBR</abbr>=</p>
+<blockquote>
+<p><abbr title="Abbreviation">ABBR</abbr>&gt;
+^<abbr title="Abbreviation">ABBR</abbr>^
+<code>ABBR</code>
+|<abbr title="Abbreviation">ABBR</abbr>|
+~<abbr title="Abbreviation">ABBR</abbr>~
+]<abbr title="Abbreviation">ABBR</abbr>]</p>
+</blockquote>
+"""

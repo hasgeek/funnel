@@ -10,11 +10,11 @@ Create Date: 2014-04-06 18:49:43.418238
 revision = '1bb2df0df8e2'
 down_revision = '523c53593e3c'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'user',
         sa.Column('status', sa.Integer(), nullable=False, server_default=sa.text('0')),
@@ -46,7 +46,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('proposal_space_profile_id_name_key', 'proposal_space')
     op.create_unique_constraint('proposal_space_name_key', 'proposal_space', ['name'])
     op.drop_column('proposal_space', 'profile_id')

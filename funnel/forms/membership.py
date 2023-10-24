@@ -5,7 +5,8 @@ from __future__ import annotations
 from baseframe import _, __, forms
 from coaster.utils import getbool
 
-from ..models import OrganizationMembership, ProjectCrewMembership
+from ..models import AccountMembership, ProjectMembership
+from .helpers import nullable_strip_filters
 
 __all__ = [
     'OrganizationMembershipForm',
@@ -14,7 +15,7 @@ __all__ = [
 ]
 
 
-@OrganizationMembership.forms('main')
+@AccountMembership.forms('main')
 class OrganizationMembershipForm(forms.Form):
     """Form to add a member to an organization (admin or owner)."""
 
@@ -37,7 +38,7 @@ class OrganizationMembershipForm(forms.Form):
     )
 
 
-@ProjectCrewMembership.forms('main')
+@ProjectMembership.forms('main')
 class ProjectCrewMembershipForm(forms.Form):
     """Form to add a project crew member."""
 
@@ -65,17 +66,22 @@ class ProjectCrewMembershipForm(forms.Form):
             "Can check-in a participant using their badge at a physical event"
         ),
     )
+    label = forms.StringField(
+        __("Role"),
+        description=__("Optional – Name this person’s role"),
+        filters=nullable_strip_filters,
+    )
 
-    def validate(self, *args, **kwargs):
+    def validate(self, *args, **kwargs) -> bool:
         """Validate form."""
         is_valid = super().validate(*args, **kwargs)
         if not any([self.is_editor.data, self.is_promoter.data, self.is_usher.data]):
-            self.is_usher.errors.append("Please select one or more roles")
+            self.is_usher.errors.append(_("Select one or more roles"))
             is_valid = False
         return is_valid
 
 
-@ProjectCrewMembership.forms('invite')
+@ProjectMembership.forms('invite')
 class ProjectCrewMembershipInviteForm(forms.Form):
     """Form to invite a user to be a project crew member."""
 

@@ -35,7 +35,15 @@ function invert(color) {
   return rgbToHex(color);
 }
 
-toastr.options = {
+function activate_widgets() {
+  /* Upgrade to jquery 3.6 select2 autofocus isn't working. This is to fix that problem.
+    select2/select2#5993  */
+  $(document).on('select2:open', function () {
+    document.querySelector('.select2-search__field').focus();
+  });
+}
+
+window.toastr.options = {
   positionClass: 'toast-bottom-right',
 };
 
@@ -82,7 +90,8 @@ $(function () {
             });
             calendar.render();
           });
-          this.color_form.submit(function () {
+          this.color_form.submit(function (event) {
+            event.preventDefault();
             var json = {};
 
             $('input[name="uuid"]').each(function (index, element) {
@@ -114,13 +123,13 @@ $(function () {
               contentType: 'application/json',
               data: JSON.stringify(json),
               success: function (result) {
-                toastr.success(
+                window.toastr.success(
                   gettext('The room sequence and colours have been updated')
                 );
               },
               complete: function (xhr, type) {
                 if (type == 'error' || type == 'timeout') {
-                  toastr.error(
+                  window.toastr.error(
                     gettext(
                       'The server could not be reached. Check connection and try again'
                     )
@@ -220,7 +229,7 @@ $(function () {
             },
             complete: function (xhr, type) {
               if (type == 'error' || type == 'timeout') {
-                toastr.error(
+                window.toastr.error(
                   gettext(
                     'The server could not be reached. Check connection and try again'
                   )
@@ -263,7 +272,7 @@ $(function () {
         complete: function (xhr, type) {
           if (type == 'error' || type == 'timeout') {
             popup.close();
-            toastr.error(
+            window.toastr.error(
               gettext('The server could not be reached. Check connection and try again')
             );
           }
@@ -467,13 +476,13 @@ $(function () {
                     events.add_unscheduled(event.title, response.modal_url);
                   obj.remove(event);
                   if (response.msg) {
-                    toastr.warning(response.message);
+                    window.toastr.warning(response.message);
                   }
                 }
               },
               complete: function (xhr, type) {
                 if (type == 'error' || type == 'timeout') {
-                  toastr.error(
+                  window.toastr.error(
                     gettext(
                       'The server could not be reached. Check connection and try again'
                     )
@@ -703,14 +712,14 @@ $(function () {
             if (type == 'error' || type == 'timeout') {
               calendar.buttons.save.enable(gettext('Save'));
               if (e.length > 2) {
-                toastr.error(
+                window.toastr.error(
                   gettext(
                     'The server could not be reached. There are %d unsaved sessions. Check connection and try again',
                     e.length
                   )
                 );
               } else {
-                toastr.error(
+                window.toastr.error(
                   gettext(
                     'The server could not be reached. There is 1 unsaved session. Check connection and try again'
                   )

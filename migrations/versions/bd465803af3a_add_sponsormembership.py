@@ -6,20 +6,17 @@ Create Date: 2021-04-22 05:02:07.027690
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
-from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'bd465803af3a'
 down_revision = 'c3483d25178c'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'sponsor_membership',
         sa.Column('granted_at', sa.TIMESTAMP(timezone=True), nullable=False),
@@ -32,7 +29,7 @@ def upgrade():
         sa.Column('profile_id', sa.Integer(), nullable=False),
         sa.Column('revoked_by_id', sa.Integer(), nullable=True),
         sa.Column('granted_by_id', sa.Integer(), nullable=False),
-        sa.Column('id', postgresql.UUID(), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(['granted_by_id'], ['user.id'], ondelete='SET NULL'),
@@ -66,7 +63,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index('ix_sponsor_membership_seq', table_name='sponsor_membership')
     op.drop_index(
         op.f('ix_sponsor_membership_profile_id'), table_name='sponsor_membership'

@@ -1,5 +1,5 @@
 markdown = """
-Using the heading-anchors plugin with it's default config:
+Using the heading-anchors plugin with its default config:
 
 The below headings should convert and get linked.
 Only the specified headings in extension defaults should get linked.
@@ -29,10 +29,15 @@ profiles = [ "basic", "document",]
 [config.custom_profiles.heading_anchors]
 preset = "default"
 options_update = {"breaks" = true}
-plugins = [ "heading_anchors",]
+plugins = [ "heading_anchors"]
+
+[config.custom_profiles.heading_anchors_fix]
+preset = "default"
+options_update = {"breaks" = true}
+plugins = [ "heading_anchors", "heading_anchors_fix"]
 
 [expected_output]
-basic = """<p>Using the heading-anchors plugin with it's default config:</p>
+basic = """<p>Using the heading-anchors plugin with its default config:</p>
 <p>The below headings should convert and get linked.<br />
 Only the specified headings in extension defaults should get linked.</p>
 <h1>h1 Heading</h1>
@@ -51,15 +56,15 @@ Only the specified headings in extension defaults should get linked.</p>
 ######h6 Heading</p>
 <h2>Text with 2 or more hyphens below it converts to H2</h2>
 """
-document = """<p>Using the heading-anchors plugin with it’s default config:</p>
+document = """<p>Using the heading-anchors plugin with its default config:</p>
 <p>The below headings should convert and get linked.<br />
 Only the specified headings in extension defaults should get linked.</p>
-<h1 id="h:h1-heading">h1 Heading <a class="header-anchor" href="#h:h1-heading">#</a></h1>
-<h2 id="h:h2-heading">h2 Heading <a class="header-anchor" href="#h:h2-heading">#</a></h2>
-<h3 id="h:h3-heading">h3 Heading <a class="header-anchor" href="#h:h3-heading">#</a></h3>
-<h4 id="h:h4-heading">h4 Heading <a class="header-anchor" href="#h:h4-heading">#</a></h4>
-<h5 id="h:h5-heading">h5 Heading <a class="header-anchor" href="#h:h5-heading">#</a></h5>
-<h6 id="h:h6-heading">h6 Heading <a class="header-anchor" href="#h:h6-heading">#</a></h6>
+<h1 id="h:h1-heading"><a href="#h:h1-heading">h1 Heading</a></h1>
+<h2 id="h:h2-heading"><a href="#h:h2-heading">h2 Heading</a></h2>
+<h3 id="h:h3-heading"><a href="#h:h3-heading">h3 Heading</a></h3>
+<h4 id="h:h4-heading"><a href="#h:h4-heading">h4 Heading</a></h4>
+<h5 id="h:h5-heading"><a href="#h:h5-heading">h5 Heading</a></h5>
+<h6 id="h:h6-heading"><a href="#h:h6-heading">h6 Heading</a></h6>
 <hr />
 <p>The below headings should not convert due to lack of space between markup and text<br />
 #h1 Heading<br />
@@ -68,17 +73,17 @@ Only the specified headings in extension defaults should get linked.</p>
 ####h4 Heading<br />
 #####h5 Heading<br />
 ######h6 Heading</p>
-<h2 id="h:text-with-2-or-more-hyphens-below-it-converts-to-h">Text with 2 or more hyphens below it converts to H2 <a class="header-anchor" href="#h:text-with-2-or-more-hyphens-below-it-converts-to-h">#</a></h2>
+<h2 id="h:text-with-2-or-more-hyphens-below-it-converts-to-h"><a href="#h:text-with-2-or-more-hyphens-below-it-converts-to-h">Text with 2 or more hyphens below it converts to H2</a></h2>
 """
-heading_anchors = """<p>Using the heading-anchors plugin with it's default config:</p>
+heading_anchors = """<p>Using the heading-anchors plugin with its default config:</p>
 <p>The below headings should convert and get linked.<br>
 Only the specified headings in extension defaults should get linked.</p>
-<h1 id="h:h1-heading">h1 Heading <a class="header-anchor" href="#h:h1-heading">#</a></h1>
-<h2 id="h:h2-heading">h2 Heading <a class="header-anchor" href="#h:h2-heading">#</a></h2>
-<h3 id="h:h3-heading">h3 Heading <a class="header-anchor" href="#h:h3-heading">#</a></h3>
-<h4 id="h:h4-heading">h4 Heading <a class="header-anchor" href="#h:h4-heading">#</a></h4>
-<h5 id="h:h5-heading">h5 Heading <a class="header-anchor" href="#h:h5-heading">#</a></h5>
-<h6 id="h:h6-heading">h6 Heading <a class="header-anchor" href="#h:h6-heading">#</a></h6>
+<h1 id="h:h1-heading">h1 Heading<a class="header-anchor" href="#h:h1-heading">#</a></h1>
+<h2 id="h:h2-heading">h2 Heading<a class="header-anchor" href="#h:h2-heading">#</a></h2>
+<h3 id="h:h3-heading">h3 Heading<a class="header-anchor" href="#h:h3-heading">#</a></h3>
+<h4 id="h:h4-heading">h4 Heading<a class="header-anchor" href="#h:h4-heading">#</a></h4>
+<h5 id="h:h5-heading">h5 Heading<a class="header-anchor" href="#h:h5-heading">#</a></h5>
+<h6 id="h:h6-heading">h6 Heading<a class="header-anchor" href="#h:h6-heading">#</a></h6>
 <hr>
 <p>The below headings should not convert due to lack of space between markup and text<br>
 #h1 Heading<br>
@@ -87,5 +92,24 @@ Only the specified headings in extension defaults should get linked.</p>
 ####h4 Heading<br>
 #####h5 Heading<br>
 ######h6 Heading</p>
-<h2 id="h:text-with-2-or-more-hyphens-below-it-converts-to-h">Text with 2 or more hyphens below it converts to H2 <a class="header-anchor" href="#h:text-with-2-or-more-hyphens-below-it-converts-to-h">#</a></h2>
+<h2 id="h:text-with-2-or-more-hyphens-below-it-converts-to-h">Text with 2 or more hyphens below it converts to H2<a class="header-anchor" href="#h:text-with-2-or-more-hyphens-below-it-converts-to-h">#</a></h2>
+"""
+heading_anchors_fix = """<p>Using the heading-anchors plugin with its default config:</p>
+<p>The below headings should convert and get linked.<br>
+Only the specified headings in extension defaults should get linked.</p>
+<h1 id="h:h1-heading"><a href="#h:h1-heading">h1 Heading</a></h1>
+<h2 id="h:h2-heading"><a href="#h:h2-heading">h2 Heading</a></h2>
+<h3 id="h:h3-heading"><a href="#h:h3-heading">h3 Heading</a></h3>
+<h4 id="h:h4-heading"><a href="#h:h4-heading">h4 Heading</a></h4>
+<h5 id="h:h5-heading"><a href="#h:h5-heading">h5 Heading</a></h5>
+<h6 id="h:h6-heading"><a href="#h:h6-heading">h6 Heading</a></h6>
+<hr>
+<p>The below headings should not convert due to lack of space between markup and text<br>
+#h1 Heading<br>
+##h2 Heading<br>
+###h3 Heading<br>
+####h4 Heading<br>
+#####h5 Heading<br>
+######h6 Heading</p>
+<h2 id="h:text-with-2-or-more-hyphens-below-it-converts-to-h"><a href="#h:text-with-2-or-more-hyphens-below-it-converts-to-h">Text with 2 or more hyphens below it converts to H2</a></h2>
 """

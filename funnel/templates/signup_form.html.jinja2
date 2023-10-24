@@ -2,7 +2,7 @@
   {% extends "account_formlayout.html.jinja2" %}
 {%- else -%}
   {% extends "ajaxform.html.jinja2" %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/login_form.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/login_form.css') }}" />
 {% endif %}
 {% from "password_login_form.html.jinja2" import sociallogin %}
 
@@ -13,7 +13,7 @@
   <p class="mui--text-body2 mui--text-light login-page__box__title mui--text-center top-padding"><span class="login-page__box__title__txt">{% trans %}or use your email instead{% endtrans %}</span></p>
   <form data-parsley-validate="true" data-parsley-trigger="keyup" id="{{ ref_id }}" method="post" class="mui-form mui-form--margins" accept-charset="UTF-8">
     {{ renderform_inner(form, formid) }}
-    {{ rendersubmit([(none, "Sign up", 'mui-btn--primary')]) }}
+    {{ rendersubmit([(none, _("Sign up"), 'mui-btn--primary')]) }}
   </form>
   <p class="mui--text-caption">{% trans terms_url = url_for('policy', path='policy/terms'), privacy_path =url_for('policy', path='policy/privacy') %}By signing in, you agree to Hasgeek’s <a href="{{ terms_url }}" target="_blank" rel="noopener">terms of service</a> and <a href="{{ privacy_path }}" target="_blank" rel="noopener">privacy policy</a>{% endtrans %}</p>
   <p class="mui--text-subhead login-page__box__note">{% trans %}Already have an account?{% endtrans %} <a href="{{ url_for('login') }}">{% trans %}Login{% endtrans %}</a></p>

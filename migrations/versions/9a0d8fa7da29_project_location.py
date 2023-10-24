@@ -9,13 +9,13 @@ Create Date: 2018-11-28 10:48:57.245376
 revision = '9a0d8fa7da29'
 down_revision = 'eec2fad0f3e9'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 from coaster.sqlalchemy import JsonDict
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'project_location',
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -41,7 +41,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('project', 'parsed_location')
     op.drop_column('project', 'location')
     op.drop_index(op.f('ix_project_location_geonameid'), table_name='project_location')

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 from coaster.utils import getbool
 from coaster.views import requestargs
 
@@ -37,7 +35,7 @@ def geo_get_by_name(
 @app.route('/api/1/geo/get_by_names')
 @requestargs('name[]', ('related', getbool), ('alternate_titles', getbool))
 def geo_get_by_names(
-    name: List[str], related: bool = False, alternate_titles: bool = False
+    name: list[str], related: bool = False, alternate_titles: bool = False
 ) -> ReturnRenderWith:
     """Get geoname records matching given URL stub names or geonameids."""
     geonames = []
@@ -59,7 +57,7 @@ def geo_get_by_names(
 
 @app.route('/api/1/geo/get_by_title')
 @requestargs('title[]', 'lang')
-def geo_get_by_title(title: List[str], lang: Optional[str] = None) -> ReturnRenderWith:
+def geo_get_by_title(title: list[str], lang: str | None = None) -> ReturnRenderWith:
     """Get locations matching given titles."""
     return {
         'status': 'ok',
@@ -71,9 +69,9 @@ def geo_get_by_title(title: List[str], lang: Optional[str] = None) -> ReturnRend
 @requestargs('q', 'special[]', 'lang', 'bias[]', ('alternate_titles', getbool))
 def geo_parse_location(
     q: str,
-    special: Optional[List[str]] = None,
-    lang: Optional[str] = None,
-    bias: Optional[List[str]] = None,
+    special: list[str] | None = None,
+    lang: str | None = None,
+    bias: list[str] | None = None,
     alternate_titles: bool = False,
 ) -> ReturnRenderWith:
     """Parse locations from a string of locations."""
@@ -87,7 +85,7 @@ def geo_parse_location(
 @app.route('/api/1/geo/autocomplete')
 @requestargs('q', 'lang', ('limit', int))
 def geo_autocomplete(
-    q: str, lang: Optional[str] = None, limit: int = 100
+    q: str, lang: str | None = None, limit: int = 100
 ) -> ReturnRenderWith:
     """Autocomplete a geoname record."""
     return {

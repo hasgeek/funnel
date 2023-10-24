@@ -6,23 +6,20 @@ Create Date: 2020-05-14 16:32:52.553441
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
-from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '34a95ee0c3a0'
 down_revision = '887db555cca9'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'site_membership',
-        sa.Column('id', postgresql.UUID(), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('granted_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('revoked_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('record_type', sa.Integer(), nullable=False),
@@ -55,7 +52,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(op.f('ix_site_membership_user_id'), table_name='site_membership')
     op.drop_index('ix_site_membership_active', table_name='site_membership')
     op.drop_table('site_membership')

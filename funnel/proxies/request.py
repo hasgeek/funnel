@@ -2,21 +2,22 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, Optional, Set, TypeVar, cast
+from typing import TYPE_CHECKING
 
 from flask import has_request_context, request
 from werkzeug.local import LocalProxy
 from werkzeug.utils import cached_property
 
-from ..typing import ResponseType, ReturnDecorator
+from ..typing import ResponseType, T
 
 __all__ = ['request_wants']
 
-TestFunc = TypeVar('TestFunc', bound=Callable[['RequestWants'], Any])
 
-
-def test_uses(*headers: str) -> ReturnDecorator:
+def test_uses(
+    *headers: str,
+) -> Callable[[Callable[[RequestWants], T]], cached_property[T | None]]:
     """
     Identify HTTP headers accessed in this test, to be set in the response Vary header.
 
@@ -24,15 +25,15 @@ def test_uses(*headers: str) -> ReturnDecorator:
     method into a cached property.
     """
 
-    def decorator(f: TestFunc) -> TestFunc:
+    def decorator(f: Callable[[RequestWants], T]) -> cached_property[T | None]:
         @wraps(f)
-        def wrapper(self: RequestWants) -> Any:
+        def wrapper(self: RequestWants) -> T | None:
             self.response_vary.update(headers)
             if not has_request_context():
-                return False
+                return None
             return f(self)
 
-        return cast(TestFunc, cached_property(wrapper))
+        return cached_property(wrapper)
 
     return decorator
 
@@ -50,7 +51,7 @@ class RequestWants:
     """
 
     def __init__(self) -> None:
-        self.response_vary: Set[str] = set()
+        self.response_vary: set[str] = set()
 
     def __bool__(self) -> bool:
         return has_request_context()
@@ -95,26 +96,31 @@ class RequestWants:
         return request.environ.get('HTTP_HX_REQUEST') == 'true'
 
     @test_uses('HX-Trigger')
-    def hx_trigger(self) -> Optional[str]:
+    def hx_trigger(self) -> str | None:
         """Id of element that triggered a HTMX request."""
         return request.environ.get('HTTP_HX_TRIGGER')
 
     @test_uses('HX-Trigger-Name')
-    def hx_trigger_name(self) -> Optional[str]:
+    def hx_trigger_name(self) -> str | None:
         """Name of element that triggered a HTMX request."""
         return request.environ.get('HTTP_HX_TRIGGER_NAME')
 
     @test_uses('HX-Target')
-    def hx_target(self) -> Optional[str]:
+    def hx_target(self) -> str | None:
         """Target of a HTMX request."""
         return request.environ.get('HTTP_HX_TARGET')
 
     @test_uses('HX-Prompt')
-    def hx_prompt(self) -> Optional[str]:
+    def hx_prompt(self) -> str | None:
         """Content of user prompt in HTMX."""
         return request.environ.get('HTTP_HX_PROMPT')
 
     # --- End of request_wants tests ---------------------------------------------------
+
+    if TYPE_CHECKING:
+
+        def _get_current_object(self) -> RequestWants:
+            """Type hint for the LocalProxy wrapper method."""
 
 
 def _get_request_wants() -> RequestWants:
@@ -133,10 +139,10 @@ def _get_request_wants() -> RequestWants:
     return RequestWants()
 
 
-request_wants = LocalProxy(_get_request_wants)
+request_wants: RequestWants = LocalProxy(_get_request_wants)  # type: ignore[assignment]
 
 
 def response_varies(response: ResponseType) -> ResponseType:
     """App ``after_request`` handler to set response ``Vary`` header."""
-    response.vary.update(request_wants.response_vary)  # type: ignore[union-attr]
+    response.vary.update(request_wants.response_vary)
     return response

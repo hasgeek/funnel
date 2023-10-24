@@ -6,17 +6,14 @@ Create Date: 2020-04-07 01:51:58.147168
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
-from sqlalchemy_utils import UUIDType
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '382cde270594'
 down_revision = '09562978e3de'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 upgrade_triggers = '''
 CREATE OR REPLACE FUNCTION user_user_email_primary_validate()
@@ -70,11 +67,11 @@ DROP FUNCTION user_user_email_primary_validate();
 '''
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'organization',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('uuid', UUIDType(binary=False), nullable=False),
+        sa.Column('uuid', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('owners_id', sa.Integer(), nullable=True),
@@ -100,7 +97,7 @@ def upgrade():
     op.create_table(
         'user',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('uuid', UUIDType(binary=False), nullable=False),
+        sa.Column('uuid', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('fullname', sa.Unicode(length=80), nullable=False),
@@ -115,7 +112,7 @@ def upgrade():
     )
     op.create_table(
         'account_name',
-        sa.Column('id', UUIDType(binary=False), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('name', sa.Unicode(length=63), nullable=False),
@@ -141,7 +138,7 @@ def upgrade():
     op.create_table(
         'auth_client',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('uuid', UUIDType(binary=False), nullable=False),
+        sa.Column('uuid', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=True),
@@ -186,7 +183,7 @@ def upgrade():
     op.create_table(
         'team',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('uuid', UUIDType(binary=False), nullable=False),
+        sa.Column('uuid', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('title', sa.Unicode(length=250), nullable=False),
@@ -258,7 +255,7 @@ def upgrade():
     )
     op.create_table(
         'user_oldid',
-        sa.Column('id', UUIDType(binary=False), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
@@ -301,7 +298,7 @@ def upgrade():
     op.create_table(
         'user_session',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('uuid', UUIDType(binary=False), nullable=False),
+        sa.Column('uuid', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
@@ -548,34 +545,34 @@ def upgrade():
     op.create_foreign_key('vote_user_id_fkey', 'vote', 'user', ['user_id'], ['id'])
 
     op.execute(
-        sa.DDL(
+        sa.text(
             "CREATE UNIQUE INDEX ix_account_name_name_lower ON account_name (lower(name) varchar_pattern_ops);"
         )
     )
     op.execute(
-        sa.DDL(
+        sa.text(
             "CREATE INDEX ix_user_fullname_lower ON \"user\" (lower(fullname) varchar_pattern_ops);"
         )
     )
     op.execute(
-        sa.DDL(
+        sa.text(
             "CREATE UNIQUE INDEX ix_user_email_email_lower ON user_email (lower(email) varchar_pattern_ops);"
         )
     )
     op.execute(
-        sa.DDL(
+        sa.text(
             "CREATE INDEX ix_user_externalid_username_lower ON user_externalid (lower(username) varchar_pattern_ops);"
         )
     )
 
-    op.execute(sa.DDL(upgrade_triggers))
+    op.execute(sa.text(upgrade_triggers))
 
     print("ALERT! Import data from Lastuser before the next migration")  # noqa: T201
     print("Use `pg_dump --data-only --exclude-table=alembic_version`")  # noqa: T201
 
 
-def downgrade():
-    op.execute(sa.DDL(downgrade_triggers))
+def downgrade() -> None:
+    op.execute(sa.text(downgrade_triggers))
 
     op.drop_index('ix_user_externalid_username_lower', table_name='user_externalid')
     op.drop_index('ix_user_email_email_lower', table_name='user_email')

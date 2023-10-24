@@ -55,6 +55,8 @@ function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 
       }
     },
   });
+
+  $(`#${markdownId}`).addClass('activated').removeClass('activating');
   document.querySelector(`#${markdownId}`).parentNode.append(view.dom);
   return view;
 }

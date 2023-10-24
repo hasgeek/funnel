@@ -1,11 +1,13 @@
+import toastr from 'toastr';
 import Form from './utils/formhelper';
-import Utils from './utils/helper';
+import { Widgets } from './utils/form_widgets';
+import WebShare from './utils/webshare';
 import initEmbed from './utils/initembed';
 
 export const Submission = {
   init(toggleId) {
-    if (toggleId) Form.activateToggleSwitch(toggleId);
-    Utils.enableWebShare();
+    if (toggleId) Widgets.activateToggleSwitch(toggleId);
+    WebShare.enableWebShare();
     $('.js-subscribe-btn').on('click', function subscribeComments(event) {
       event.preventDefault();
       const form = $(this).parents('form')[0];
@@ -21,12 +23,14 @@ export const Submission = {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams(new FormData(form)).toString(),
-    }).catch(Form.handleFetchNetworkError);
+    }).catch(() => {
+      toastr.error(window.Hasgeek.Config.errorMsg.networkError);
+    });
     if (response && response.ok) {
       const responseData = await response.json();
       if (responseData) {
         if (responseData.message) {
-          window.toastr.success(responseData.message);
+          toastr.success(responseData.message);
         }
         $('.js-subscribed, .js-unsubscribed').toggleClass('mui--hide');
         Form.updateFormNonce(responseData);

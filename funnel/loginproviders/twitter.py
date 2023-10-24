@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from flask import redirect, request
-
 import tweepy
+from flask import redirect, request
 
 from baseframe import _
 
@@ -27,7 +26,7 @@ class TwitterProvider(LoginProvider):
         try:
             redirect_url = auth.get_authorization_url()
             return redirect(redirect_url)
-        except tweepy.TweepError as exc:
+        except tweepy.errors.TweepyException as exc:
             raise LoginInitError(
                 _("Twitter had a temporary problem. Try again?")
             ) from exc
@@ -55,7 +54,7 @@ class TwitterProvider(LoginProvider):
             twuser = api.verify_credentials(
                 include_entities='false', skip_status='true', include_email='true'
             )
-        except tweepy.TweepError as exc:
+        except tweepy.errors.TweepyException as exc:
             raise LoginCallbackError(
                 _("Twitter had an intermittent problem. Try again?")
             ) from exc

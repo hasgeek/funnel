@@ -241,8 +241,8 @@ basic = """<h1>mermaid tests</h1>
 
 </code></pre>
 """
-document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" href="#h:mermaid-tests">#</a></h1>
-<h2 id="h:flowchart">Flowchart <a class="header-anchor" href="#h:flowchart">#</a></h2>
+document = """<h1 id="h:mermaid-tests"><a href="#h:mermaid-tests">mermaid tests</a></h1>
+<h2 id="h:flowchart"><a href="#h:flowchart">Flowchart</a></h2>
 <div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">graph TD
  A[Christmas] --&gt;|Get money| B(Go shopping)
  B --&gt; C{Let me think}
@@ -250,14 +250,14 @@ document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" hr
  C --&gt;|Two| E[iPhone]
  C --&gt;|Three| F[fa:fa-car Car]
 </pre><div class="embed-container"></div></div>
-<h2 id="h:sequence-diagrams">Sequence Diagrams <a class="header-anchor" href="#h:sequence-diagrams">#</a></h2>
+<h2 id="h:sequence-diagrams"><a href="#h:sequence-diagrams">Sequence Diagrams</a></h2>
 <div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">sequenceDiagram
  Alice-&gt;&gt;+John: Hello John, how are you?
  Alice-&gt;&gt;+John: John, can you hear me?
  John--&gt;&gt;-Alice: Hi Alice, I can hear you!
  John--&gt;&gt;-Alice: I feel great!
 </pre><div class="embed-container"></div></div>
-<h2 id="h:class-diagram">Class Diagram <a class="header-anchor" href="#h:class-diagram">#</a></h2>
+<h2 id="h:class-diagram"><a href="#h:class-diagram">Class Diagram</a></h2>
 <div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">classDiagram
  Animal &lt;|-- Duck
  Animal &lt;|-- Fish
@@ -280,7 +280,7 @@ document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" hr
    +run()
  }
 </pre><div class="embed-container"></div></div>
-<h2 id="h:state-diagram">State Diagram <a class="header-anchor" href="#h:state-diagram">#</a></h2>
+<h2 id="h:state-diagram"><a href="#h:state-diagram">State Diagram</a></h2>
 <div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">stateDiagram-v2
  [*] --&gt; Still
  Still --&gt; [*]
@@ -289,7 +289,7 @@ document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" hr
  Moving --&gt; Crash
  Crash --&gt; [*]
 </pre><div class="embed-container"></div></div>
-<h2 id="h:gantt-chart">Gantt Chart <a class="header-anchor" href="#h:gantt-chart">#</a></h2>
+<h2 id="h:gantt-chart"><a href="#h:gantt-chart">Gantt Chart</a></h2>
 <div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content"> title A Gantt Diagram
  dateFormat  YYYY-MM-DD
  section Section
@@ -299,14 +299,14 @@ document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" hr
  Task in sec :2014-01-12  , 12d
  another task : 24d
 </pre><div class="embed-container"></div></div>
-<h2 id="h:pie-chart">Pie Chart <a class="header-anchor" href="#h:pie-chart">#</a></h2>
+<h2 id="h:pie-chart"><a href="#h:pie-chart">Pie Chart</a></h2>
 <div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">pie title Pets adopted by volunteers
  &quot;Dogs&quot; : 386
  &quot;Cats&quot; : 85
  &quot;Rats&quot; : 15
 
 </pre><div class="embed-container"></div></div>
-<h2 id="h:er-diagram">ER Diagram <a class="header-anchor" href="#h:er-diagram">#</a></h2>
+<h2 id="h:er-diagram"><a href="#h:er-diagram">ER Diagram</a></h2>
 <div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">erDiagram
        CUSTOMER }|..|{ DELIVERY-ADDRESS : has
        CUSTOMER ||--o{ ORDER : places
@@ -317,7 +317,7 @@ document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" hr
        PRODUCT-CATEGORY ||--|{ PRODUCT : contains
        PRODUCT ||--o{ ORDER-ITEM : &quot;ordered in&quot;
 </pre><div class="embed-container"></div></div>
-<h2 id="h:user-journey">User Journey <a class="header-anchor" href="#h:user-journey">#</a></h2>
+<h2 id="h:user-journey"><a href="#h:user-journey">User Journey</a></h2>
 <div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">journey
  title My working day
  section Go to work
@@ -329,7 +329,7 @@ document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" hr
    Sit down: 3: Me
 
 </pre><div class="embed-container"></div></div>
-<h2 id="h:git-graph">Git Graph <a class="header-anchor" href="#h:git-graph">#</a></h2>
+<h2 id="h:git-graph"><a href="#h:git-graph">Git Graph</a></h2>
 <div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content"> gitGraph
    commit
    commit

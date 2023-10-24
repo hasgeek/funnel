@@ -7,9 +7,9 @@ and mdit_py_plugins.colon_fence.
 
 from __future__ import annotations
 
+import re
 from collections.abc import MutableMapping, Sequence
 from math import floor
-import re
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import charCodeAt
@@ -67,7 +67,7 @@ def embeds_plugin(
 
         # Check out the first character quickly,
         # this should filter out most of non-containers
-        if marker_char != state.srcCharCode[start]:
+        if marker_char != ord(state.src[start]):
             return False
 
         # Check out the rest of the marker string
@@ -115,7 +115,7 @@ def embeds_plugin(
                 #  test
                 break
 
-            if marker_char != state.srcCharCode[start]:
+            if marker_char != ord(state.src[start]):
                 continue
 
             if state.sCount[next_line] - state.blkIndent >= 4:

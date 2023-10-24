@@ -4,12 +4,11 @@
 {%- else -%}
   {% extends "project_spa_layout.html.jinja2" %}
 {% endif %}
-{% from "forms.html.jinja2" import renderfield, widgetscripts %}
 {%- from "js/comments.js.jinja2" import comments_tree, comment_template %}
 {% block title %}{% trans %}Comments{% endtrans %}{% endblock title %}
 
 {%- block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/comments.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/comments.css') }}" />
 {% endblock pageheaders %}
 
 {% block left_col %}
@@ -22,7 +21,7 @@
 {% endblock left_col %}
 
 {% block footerinnerscripts %}
-  <script src="{{ built_asset('comments.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('comments.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     window.Hasgeek.subpageTitle = {{ self.title()|tojson }};
     window.Hasgeek.subpageHasVideo = false;
@@ -34,7 +33,7 @@
         divElem: "#comments-wrapper",
         commentTemplate: '#comment-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
-        user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
+        user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.logo_url, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
         loginUrl: "{{ url_for('login') }}",
         lastSeenUrl: {% if subscribed %}{{ last_seen_url|tojson }}{% else %}false{% endif %},
       };

@@ -6,20 +6,18 @@ Create Date: 2022-07-13 22:41:32.454251
 
 """
 
-from typing import List, Optional, Tuple, Union
-
 from alembic import op
 from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision: str = '6d031c17a6ee'
 down_revision: str = 'a116118d086b'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 # (table, column, check, values)
-table_column_check_values: List[Tuple[str, str, Optional[str], Tuple[int, ...]]] = [
+table_column_check_values: list[tuple[str, str, str | None, tuple[int, ...]]] = [
     ('comment_moderator_report', 'report_type', None, (1, 2)),
     ('comment', 'state', 'comment_state_check', (1, 2, 3, 4, 5, 6)),
     (

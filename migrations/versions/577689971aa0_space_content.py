@@ -10,13 +10,13 @@ Create Date: 2014-03-02 23:32:16.343014
 revision = '577689971aa0'
 down_revision = '1195a2789872'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 from coaster.sqlalchemy import JsonDict
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'proposal_space',
         sa.Column('content', JsonDict, server_default='{}', nullable=False),
@@ -24,5 +24,5 @@ def upgrade():
     op.alter_column('proposal_space', 'content', server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('proposal_space', 'content')

@@ -10,11 +10,11 @@ Create Date: 2015-01-30 16:09:42.434798
 revision = '14d1424b47'
 down_revision = '1c496c114b6'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'rsvp',
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -38,6 +38,6 @@ def upgrade():
     op.alter_column('proposal_space', 'allow_rsvp', server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('proposal_space', 'allow_rsvp')
     op.drop_table('rsvp')

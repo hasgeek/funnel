@@ -3,7 +3,7 @@
 {% block title %}{% trans %}Schedule{% endtrans %}{% endblock title %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/schedule.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/schedule.css') }}" />
   {% assets 'css_fullcalendar' -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets %}
@@ -20,7 +20,7 @@
         <div class="datepicker-wrapper">
           <div class="textfield mui--pull-left">
             <label>{% trans %}Select date{% endtrans %}</label>
-            <input type="date" class="datetime-date" id="select-date" placeholder="yyyy-mm-dd" value="" />
+            <input type="date" class="datetime-date" id="select-date" placeholder="{% trans %}yyyy-mm-dd{% endtrans %}" value="" />
           </div>
           <p class="mui--text-subhead mui--pull-left datepicker-wrapper__tz">{{ timezone }}</p>
         </div>
@@ -46,12 +46,12 @@
         <div id="list" class="mui-tabs__pane mui--is-active schedule-settings" role="tabpanel" aria-labelledby="tab-list" tabindex="0">
           {%- for proposal in proposals['unscheduled'] %}
             <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">
-              {%- for member in proposal.memberships %}{% if not member.is_uncredited %}
+              {%- for membership in proposal.memberships %}{% if not membership.is_uncredited %}
                 <div class="user user--smaller">
                   <div class="user__box">
-                    {{ useravatar(member.user) }}
+                    {{ useravatar(membership.member) }}
                     <div class="user__box__header">
-                      <p class="mui--text-caption user__box__fullname">{{ member.user.fullname }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif %}</p>
+                      <p class="mui--text-caption user__box__fullname">{{ membership.member.fullname }} {%- if membership.label %} <span class="badge">{{ membership.label }}</span>{% endif %}</p>
                     </div>
                   </div>
                 </div>

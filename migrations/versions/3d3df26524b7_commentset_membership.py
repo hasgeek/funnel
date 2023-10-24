@@ -6,20 +6,17 @@ Create Date: 2020-12-04 13:03:31.208857
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
-from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '3d3df26524b7'
 down_revision = 'ad5013552ec6'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'commentset_membership',
         sa.Column('granted_at', sa.TIMESTAMP(timezone=True), nullable=False),
@@ -30,7 +27,7 @@ def upgrade():
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('revoked_by_id', sa.Integer(), nullable=True),
         sa.Column('granted_by_id', sa.Integer(), nullable=True),
-        sa.Column('id', postgresql.UUID(), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
@@ -56,7 +53,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(
         op.f('ix_commentset_membership_user_id'), table_name='commentset_membership'
     )

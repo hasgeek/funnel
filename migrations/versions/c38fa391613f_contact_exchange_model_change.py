@@ -10,14 +10,14 @@ Create Date: 2019-05-20 14:41:42.347664
 revision = 'c38fa391613f'
 down_revision = '4b7fe9b25c6c'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     # Remove duplicate entries before dropping the project_id column
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
         DELETE FROM contact_exchange WHERE (user_id, project_id, participant_id) IN (
             SELECT user_id, project_id, participant_id
@@ -48,7 +48,7 @@ def upgrade():
     op.drop_column('contact_exchange', 'project_id')
 
 
-def downgrade():
+def downgrade() -> None:
     # Re-add project_id column and populate it from participant.project_id,
     # then make it a foreign key
     op.add_column(
@@ -56,7 +56,7 @@ def downgrade():
         sa.Column('project_id', sa.INTEGER(), autoincrement=False, nullable=True),
     )
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
         UPDATE contact_exchange
         SET project_id = participant.project_id

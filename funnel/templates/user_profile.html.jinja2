@@ -1,9 +1,8 @@
-{% extends "layout.html.jinja2" %}
-{% block title %}{{ profile.title }}{% endblock title %}
-{%- from "macros.html.jinja2" import faicon, profile_header, video_thumbnail, projectcard, proposal_list, profile_admin_buttons %}
+{% extends "profile_layout.html.jinja2" %}
+{%- from "macros.html.jinja2" import faicon, video_thumbnail, projectcard, proposal_list %}
 
 {%- block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/profile.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/profile.css') }}" />
   <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
   <script type="application/ld+json">
     {
@@ -30,15 +29,6 @@
     }
   </script>
 {%- endblock pageheaders %}
-
-{% block bodyattrs %}class="bg-primary mobile-header"{% endblock bodyattrs %}
-
-{% block contenthead %}
-{% endblock contenthead %}
-
-{% block baseheadline %}
-  {{ profile_header(profile) }}
-{% endblock baseheadline %}
 
 {% block basecontent %}
   <div class="bg-accent top-padding">

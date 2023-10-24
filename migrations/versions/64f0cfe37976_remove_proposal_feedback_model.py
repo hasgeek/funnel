@@ -6,24 +6,22 @@ Create Date: 2021-04-28 02:37:36.369238
 
 """
 
-from typing import Optional, Tuple, Union
-
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '64f0cfe37976'
 down_revision = 'baf3d9aab272'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_table('proposal_feedback')
 
 
-def downgrade():
+def downgrade() -> None:
     op.create_table(
         'proposal_feedback',
         sa.Column('id', sa.INTEGER(), autoincrement=True, nullable=False),

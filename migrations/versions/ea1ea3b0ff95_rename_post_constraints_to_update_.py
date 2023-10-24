@@ -7,16 +7,15 @@ Create Date: 2020-08-08 08:40:19.751509
 """
 
 from textwrap import dedent
-from typing import Optional, Tuple, Union
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'ea1ea3b0ff95'
 down_revision = '851473d61beb'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 # (old, new)
 renamed_constraints = [
@@ -29,13 +28,13 @@ renamed_constraints = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column('update', 'project_id', existing_type=sa.INTEGER(), nullable=False)
     for old, new in renamed_constraints:
-        op.execute(sa.DDL(f'ALTER TABLE update RENAME CONSTRAINT "{old}" TO "{new}"'))
+        op.execute(sa.text(f'ALTER TABLE update RENAME CONSTRAINT "{old}" TO "{new}"'))
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         DROP TRIGGER post_search_vector_trigger ON update;
@@ -46,7 +45,7 @@ def upgrade():
     )
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         CREATE FUNCTION update_search_vector_update() RETURNS trigger AS $$
@@ -64,9 +63,9 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         DROP TRIGGER update_search_vector_trigger ON update;
@@ -77,7 +76,7 @@ def downgrade():
     )
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         CREATE FUNCTION post_search_vector_update() RETURNS trigger AS $$
@@ -95,5 +94,5 @@ def downgrade():
     )
 
     for old, new in renamed_constraints:
-        op.execute(sa.DDL(f'ALTER TABLE update RENAME CONSTRAINT "{new}" TO "{old}"'))
+        op.execute(sa.text(f'ALTER TABLE update RENAME CONSTRAINT "{new}" TO "{old}"'))
     op.alter_column('update', 'project_id', existing_type=sa.INTEGER(), nullable=True)

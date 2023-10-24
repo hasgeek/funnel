@@ -10,11 +10,11 @@ Create Date: 2015-12-29 13:04:34.484205
 revision = '3b189f2e5c56'
 down_revision = '416a2f958279'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'proposal_space',
         sa.Column(
@@ -23,5 +23,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('proposal_space', 'inherit_sections')

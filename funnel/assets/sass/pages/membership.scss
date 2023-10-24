@@ -3,7 +3,7 @@
 @media (min-width: 1200px) {
   .membership-wrapper--half {
     float: left;
-    width: calc(50% - #{$mui-grid-padding/2});
+    width: calc(50% - #{$mui-grid-padding * 0.5});
   }
   .membership-wrapper--half:first-child {
     margin-right: $mui-grid-padding;

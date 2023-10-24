@@ -6,37 +6,35 @@ name: Pytest
 
 on:
   push:
-    branches: ['main']
-  pull_request:
-    branches: ['main']
     paths:
       - '**.py'
       - '**.js'
+      - '**.scss'
       - '**.jinja2'
+      - '.flaskenv'
+      - '.testenv'
+      - 'package-lock.json'
       - 'requirements/base.txt'
       - 'requirements/test.txt'
-  workflow_call:
-    inputs:
-      requirements:
-        description: Updated requirements/base.txt
-        type: string
-      requirements_dev:
-        description: Updated requirements/dev.txt
-        type: string
-      requirements_test:
-        description: Updated requirements/test.txt
-        type: string
+      - '.github/workflows/pytest.yml'
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.10']
+        os: [ubuntu-latest] # TODO: Figure out macos-latest and Docker
+        python-version: ['3.11', '3.12']
 
     services:
       redis:
@@ -58,6 +56,9 @@ jobs:
           - 5432:5432
 
     steps:
+      - name: Setup Docker on macOS
+        uses: docker-practice/actions-setup-docker@1.0.11
+        if: ${{ matrix.os == 'macos-latest' }}
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Install Firefox (for browser testing)
@@ -70,39 +71,50 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: 'requirements/*.txt'
+      - name: Cache python packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements/base.txt') }}-${{ hashFiles('requirements.txt/test.txt') }}
+      - name: Install Python dependencies
+        run: make install-python-test
       - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version: latest
+          node-version: 20
           cache: npm
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ join(matrix.*, '-') }}-node_modules-${{ hashFiles('package-lock.json') }}
+      - name: Cache built assets
+        uses: actions/cache@v3
+        with:
+          path: funnel/static/build
+          key: ${{ join(matrix.*, '-') }}-assets-build
+      - name: Cache .webpack_cache
+        uses: actions/cache@v3
+        with:
+          path: .webpack_cache
+          key: ${{ join(matrix.*, '-') }}-webpack_cache
+      - name: Install Node dependencies
+        run: make install-npm
+      - name: Build Webpack assets
+        run: make assets
+      - name: Annotate Pytest failures in PR
+        run: pip install pytest-github-actions-annotate-failures
       - name: Setup hostnames
         run: |
           sudo -- sh -c "echo '127.0.0.1  funnel.test' >> /etc/hosts"
           sudo -- sh -c "echo '127.0.0.1  f.test' >> /etc/hosts"
-      - name: Optionally replace requirements/base.txt
-        if: ${{ inputs.requirements }}
-        run: |
-          echo ${{ inputs.requirements }} > requirements/base.txt
-      - name: Optionally replace requirements/dev.txt
-        if: ${{ inputs.requirements_dev }}
-        run: |
-          echo ${{ inputs.requirements_dev }} > requirements/dev.txt
-      - name: Optionally replace requirements/test.txt
-        if: ${{ inputs.requirements_test }}
-        run: |
-          echo ${{ inputs.requirements_test }} > requirements/test.txt
-      - name: Install Node and Python dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools
-          make install-test
-      - name: Annotate Pytest failures in PR
-        run: pip install pytest-github-actions-annotate-failures
       - name: Create PostgreSQL databases
         run: |
           sudo apt-get install postgresql-client -y
           psql -h localhost -U postgres -c "create user $(whoami);"
           psql -h localhost -U postgres -c "create database funnel_testing;"
           psql -h localhost -U postgres -c "create database geoname_testing;"
+          set -a; source .testenv; set +a
           FLASK_ENV=testing flask dbconfig | psql -h localhost -U postgres funnel_testing
           FLASK_ENV=testing flask dbconfig | psql -h localhost -U postgres geoname_testing
           psql -h localhost -U postgres -c "grant all privileges on database funnel_testing to $(whoami);"
@@ -111,7 +123,7 @@ jobs:
           psql -h localhost -U postgres geoname_testing -c "grant all privileges on schema public to $(whoami); grant all privileges on all tables in schema public to $(whoami); grant all privileges on all sequences in schema public to $(whoami);"
       - name: Test with pytest
         run: |
-          pytest -vv --showlocals --splinter-headless --cov=funnel
+          pytest --disable-warnings --gherkin-terminal-reporter -vv --showlocals --cov=funnel
       - name: Prepare coverage report
         run: |
           mkdir -p coverage

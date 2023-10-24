@@ -1,13 +1,13 @@
 {% from "macros.html.jinja2" import faicon %}
 {% from "forms.html.jinja2" import renderfield %}
 
-<link rel="stylesheet" type="text/css" href="{{ built_asset('css/imgee_modal.scss') }}" />
+<link rel="stylesheet" type="text/css" href="{{ manifest('css/imgee_modal.css') }}" />
 
 <div class="modal__inner img-upload-modal">
   <div class="modal__header">
     <a class="modal__close mui--text-dark" data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size="title") }}</a>
   </div>
-  <ul class="mui-list--unstyled list--border list--aligned grid-no-left-padding zero-bottom-margin">
+  <ul class="mui-list--unstyled list--border list--aligned zero-bottom-margin">
     <li class="top-padding bottom-padding"><a href="{{ edit_logo_url }}" class="mui--text-title mui--text-dark nounderline" rel="modal:open">{{ faicon(icon='image', icon_size='title', baseline=true, css_class="icon-img--smaller") }} {% trans %}New image{% endtrans %}</a></li>
     <li class="top-padding bottom-padding">
       <form method="post" action="{{ delete_logo_url }}">

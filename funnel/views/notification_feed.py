@@ -9,7 +9,7 @@ from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
-from ..models import UserNotification, db
+from ..models import NotificationRecipient, db
 from ..typing import ReturnRenderWith
 from .login_session import requires_login
 
@@ -24,7 +24,7 @@ class AllNotificationsView(ClassView):
     @render_with('notification_feed.html.jinja2', json=True)
     @requestargs(('page', int), ('per_page', int))
     def view(self, unread_only: bool, page=1, per_page=10) -> ReturnRenderWith:
-        pagination = UserNotification.web_notifications_for(
+        pagination = NotificationRecipient.web_notifications_for(
             current_auth.user, unread_only
         ).paginate(page=page, per_page=per_page, max_per_page=100)
         results = {
@@ -32,23 +32,23 @@ class AllNotificationsView(ClassView):
             'show_transport_alert': not current_auth.user.has_transport_sms(),
             'notifications': [
                 {
-                    'notification': un.current_access(datasets=('primary', 'related')),
-                    'html': un.views.render.web(),
-                    'document_type': un.notification.document_type,
-                    'document': un.document.current_access(
+                    'notification': nr.current_access(datasets=('primary', 'related')),
+                    'html': nr.views.render.web(),
+                    'document_type': nr.notification.document_type,
+                    'document': nr.document.current_access(
                         datasets=('primary', 'related')
                     )
-                    if un.document
+                    if nr.document
                     else None,
-                    'fragment_type': un.notification.fragment_type,
-                    'fragment': un.fragment.current_access(
+                    'fragment_type': nr.notification.fragment_type,
+                    'fragment': nr.fragment.current_access(
                         datasets=('primary', 'related')
                     )
-                    if un.fragment
+                    if nr.fragment
                     else None,
                 }
-                for un in pagination.items
-                if un.is_not_deleted(revoke=True)
+                for nr in pagination.items
+                if nr.is_not_deleted(revoke=True)
             ],
             'has_next': pagination.has_next,
             'has_prev': pagination.has_prev,
@@ -63,7 +63,7 @@ class AllNotificationsView(ClassView):
         return results
 
     def unread_count(self) -> int:
-        return UserNotification.unread_count_for(current_auth.user)
+        return NotificationRecipient.unread_count_for(current_auth.user)
 
     @route('count', endpoint='notifications_count')
     def unread(self) -> ReturnRenderWith:
@@ -84,10 +84,10 @@ class AllNotificationsView(ClassView):
         form = forms.Form()
         del form.form_nonce
         if form.validate_on_submit():
-            un = UserNotification.get_for(current_auth.user, eventid_b58)
-            if un is None:
+            nr = NotificationRecipient.get_for(current_auth.user, eventid_b58)
+            if nr is None:
                 abort(404)
-            un.is_read = True
+            nr.is_read = True
             db.session.commit()
             return {'status': 'ok', 'unread': self.unread_count()}
         return {'status': 'error', 'error': 'csrf'}, 400
@@ -102,10 +102,10 @@ class AllNotificationsView(ClassView):
         form = forms.Form()
         del form.form_nonce
         if form.validate_on_submit():
-            un = UserNotification.get_for(current_auth.user, eventid_b58)
-            if un is None:
+            nr = NotificationRecipient.get_for(current_auth.user, eventid_b58)
+            if nr is None:
                 abort(404)
-            un.is_read = False
+            nr.is_read = False
             db.session.commit()
             return {'status': 'ok', 'unread': self.unread_count()}
         return {'status': 'error', 'error': 'csrf'}, 400

@@ -7,9 +7,9 @@
 {% endblock pageheaders %}
 
 {% block content %}
-  <h2>{% trans active=mau %}{{ active }} monthly active users{% endtrans %}</h2>
+  <h2>{% trans active=mau|numberformat %}{{ active }} monthly active users{% endtrans %}</h2>
   <div id="monthly-users"></div>
-  <h2>{% trans count=user_count %}{{ count }} total users{% endtrans %}</h2>
+  <h2>{% trans count=user_count|numberformat %}{{ count }} total users{% endtrans %}</h2>
   <div id="total-users"></div>
 {% endblock content %}
 

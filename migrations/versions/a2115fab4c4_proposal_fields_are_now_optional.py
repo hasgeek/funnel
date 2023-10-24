@@ -10,11 +10,11 @@ Create Date: 2015-01-16 01:34:45.460775
 revision = 'a2115fab4c4'
 down_revision = '39af75387b10'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column(
         'proposal', 'description_html', existing_type=sa.TEXT(), nullable=True
     )
@@ -51,7 +51,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         'proposal',
         'technical_level',

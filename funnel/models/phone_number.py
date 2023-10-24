@@ -2,19 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Set, Union, overload
 import hashlib
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, overload
 
-from sqlalchemy import event, inspect
-from sqlalchemy.orm import mapper
-from sqlalchemy.orm.attributes import NO_VALUE
-from sqlalchemy.sql.expression import ColumnElement
-
-from werkzeug.utils import cached_property
-
-from typing_extensions import Literal
 import base58
 import phonenumbers
+from sqlalchemy import event, inspect
+from sqlalchemy.orm import Mapper
+from sqlalchemy.orm.attributes import NO_VALUE
+from sqlalchemy.sql.expression import ColumnElement
+from werkzeug.utils import cached_property
 
 from baseframe import _
 from coaster.sqlalchemy import immutable, with_roles
@@ -24,10 +21,12 @@ from ..signals import phonenumber_refcount_dropping
 from . import (
     BaseMixin,
     Mapped,
+    Model,
     db,
     declarative_mixin,
     declared_attr,
     hybrid_property,
+    relationship,
     sa,
 )
 
@@ -98,50 +97,50 @@ class PhoneNumberInUseError(PhoneNumberError):
 
 
 @overload
-def parse_phone_number(candidate: str) -> Optional[str]:
+def parse_phone_number(candidate: str) -> str | None:
     ...
 
 
 @overload
-def parse_phone_number(candidate: str, sms: Literal[False]) -> Optional[str]:
+def parse_phone_number(candidate: str, sms: Literal[False]) -> str | None:
     ...
 
 
 @overload
 def parse_phone_number(
     candidate: str, sms: Literal[False], parsed: Literal[True]
-) -> Optional[phonenumbers.PhoneNumber]:
+) -> phonenumbers.PhoneNumber | None:
     ...
 
 
 @overload
 def parse_phone_number(
-    candidate: str, sms: Union[bool, Literal[True]]
-) -> Optional[Union[str, Literal[False]]]:
+    candidate: str, sms: bool | Literal[True]
+) -> str | Literal[False] | None:
     ...
 
 
 @overload
 def parse_phone_number(
     candidate: str,
-    sms: Union[bool, Literal[True]],
+    sms: bool | Literal[True],
     parsed: Literal[True],
-) -> Optional[Union[phonenumbers.PhoneNumber, Literal[False]]]:
+) -> phonenumbers.PhoneNumber | Literal[False] | None:
     ...
 
 
 @overload
 def parse_phone_number(
     candidate: str,
-    sms: Union[bool, Literal[True]],
-    parsed: Union[bool, Literal[False]],
-) -> Optional[Union[phonenumbers.PhoneNumber, Literal[False]]]:
+    sms: bool | Literal[True],
+    parsed: bool | Literal[False],
+) -> phonenumbers.PhoneNumber | Literal[False] | None:
     ...
 
 
 def parse_phone_number(
     candidate: str, sms: bool = False, parsed: bool = False
-) -> Optional[Union[str, phonenumbers.PhoneNumber, Literal[False]]]:
+) -> str | phonenumbers.PhoneNumber | Literal[False] | None:
     """
     Attempt to parse and validate a phone number and return in E164 format.
 
@@ -151,6 +150,8 @@ def parse_phone_number(
     :param sms: Validate that the number is from a range that supports SMS delivery,
         returning `False` if it isn't
 
+    :param parsed: Return :class:`phonenumbers.PhoneNumber` object instead of a string
+
     :returns: E164-formatted phone number if found and valid, `None` if not found, or
         `False` if the number is valid but does not support SMS delivery
     """
@@ -159,19 +160,18 @@ def parse_phone_number(
     # candidate that is likely to be a valid number. This behaviour differentiates it
     # from similar code in :func:`~funnel.models.utils.getuser`, where the loop exits
     # with the _last_ valid candidate (as it's coupled with a
-    # :class:`~funnel.models.user.UserPhone` lookup)
+    # :class:`~funnel.models.account.AccountPhone` lookup)
     sms_invalid = False
     try:
         for region in PHONE_LOOKUP_REGIONS:
             parsed_number = phonenumbers.parse(candidate, region)
             if phonenumbers.is_valid_number(parsed_number):
-                if sms:
-                    if phonenumbers.number_type(parsed_number) not in (
-                        phonenumbers.PhoneNumberType.MOBILE,
-                        phonenumbers.PhoneNumberType.FIXED_LINE_OR_MOBILE,
-                    ):
-                        sms_invalid = True
-                        continue  # Not valid for SMS, continue searching regions
+                if sms and phonenumbers.number_type(parsed_number) not in (
+                    phonenumbers.PhoneNumberType.MOBILE,
+                    phonenumbers.PhoneNumberType.FIXED_LINE_OR_MOBILE,
+                ):
+                    sms_invalid = True
+                    continue  # Not valid for SMS, continue searching regions
                 if parsed:
                     return parsed_number
                 return phonenumbers.format_number(
@@ -186,7 +186,7 @@ def parse_phone_number(
     return None
 
 
-def validate_phone_number(candidate: Union[str, phonenumbers.PhoneNumber]) -> str:
+def validate_phone_number(candidate: str | phonenumbers.PhoneNumber) -> str:
     """
     Validate an international phone number and return in E164 format.
 
@@ -206,7 +206,7 @@ def validate_phone_number(candidate: Union[str, phonenumbers.PhoneNumber]) -> st
     raise PhoneNumberInvalidError(f"Not a valid phone number: {candidate}")
 
 
-def canonical_phone_number(candidate: Union[str, phonenumbers.PhoneNumber]) -> str:
+def canonical_phone_number(candidate: str | phonenumbers.PhoneNumber) -> str:
     """Normalize an international phone number by rendering in E164 format."""
     if not isinstance(candidate, phonenumbers.PhoneNumber):
         try:
@@ -217,7 +217,7 @@ def canonical_phone_number(candidate: Union[str, phonenumbers.PhoneNumber]) -> s
 
 
 def phone_blake2b160_hash(
-    phone: Union[str, phonenumbers.PhoneNumber],
+    phone: str | phonenumbers.PhoneNumber,
     *,
     _pre_validated_formatted: bool = False,
 ) -> bytes:
@@ -232,12 +232,12 @@ def phone_blake2b160_hash(
 # --- Models ---------------------------------------------------------------------------
 
 
-class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
+class PhoneNumber(BaseMixin, Model):
     """
     Represents a phone number as a standalone entity, with associated metadata.
 
     Prior to this model, phone numbers were stored in the
-    :class:`~funnel.models.user.UserPhone` and
+    :class:`~funnel.models.account.AccountPhone` and
     :class:`~funnel.models.notification.SmsMessage models, with no ability to store
     preferences against a number, such as enforcing a block list or scraping against
     mobile number revocation lists.
@@ -250,24 +250,23 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     """
 
     __tablename__ = 'phone_number'
-    __allow_unmapped__ = True
 
     #: Backrefs to this model from other models, populated by :class:`PhoneNumberMixin`
     #: Contains the name of the relationship in the :class:`PhoneNumber` model
-    __backrefs__: Set[str] = set()
+    __backrefs__: ClassVar[set[str]] = set()
     #: These backrefs claim exclusive use of the phone number for their linked owner.
     #: See :class:`PhoneNumberMixin` for implementation detail
-    __exclusive_backrefs__: Set[str] = set()
+    __exclusive_backrefs__: ClassVar[set[str]] = set()
 
     #: The phone number, centrepiece of this model. Stored normalized in E164 format.
     #: Validated by the :func:`_validate_phone` event handler
-    number = sa.Column(sa.Unicode, nullable=True, unique=True)
+    number = sa.orm.mapped_column(sa.Unicode, nullable=True, unique=True)
 
     #: BLAKE2b 160-bit hash of :attr:`phone`. Kept permanently even if phone is
     #: removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the name,
     #: we're only storing 20 bytes
     blake2b160 = immutable(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.LargeBinary,
             sa.CheckConstraint(
                 'LENGTH(blake2b160) = 20',
@@ -283,41 +282,45 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     # device, we record distinct timestamps for last sent, delivery and failure.
 
     #: Cached state for whether this phone number is known to have SMS support
-    has_sms = sa.Column(sa.Boolean, nullable=True)
+    has_sms = sa.orm.mapped_column(sa.Boolean, nullable=True)
     #: Timestamp at which this number was determined to be valid/invalid for SMS
-    has_sms_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    has_sms_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: Cached state for whether this phone number is known to be on WhatsApp or not
-    has_wa = sa.Column(sa.Boolean, nullable=True)
+    has_wa = sa.orm.mapped_column(sa.Boolean, nullable=True)
     #: Timestamp at which this number was tested for availability on WhatsApp
-    has_wa_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    has_wa_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Timestamp of last SMS sent
-    msg_sms_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_sms_sent_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: Timestamp of last SMS delivered
-    msg_sms_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_sms_delivered_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
     #: Timestamp of last SMS delivery failure
-    msg_sms_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_sms_failed_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Timestamp of last WA message sent
-    msg_wa_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_wa_sent_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: Timestamp of last WA message delivered
-    msg_wa_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_wa_delivered_at = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
     #: Timestamp of last WA message delivery failure
-    msg_wa_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_wa_failed_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Timestamp of last known recipient activity resulting from sent messages
-    active_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    active_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Is this phone number blocked from being used? :attr:`phone` should be null if so.
-    blocked_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    blocked_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     __table_args__ = (
         # If `blocked_at` is not None, `number` and `has_*` must be None
         sa.CheckConstraint(
-            sa.or_(  # type: ignore[arg-type]
+            sa.or_(
                 blocked_at.is_(None),  # or...
                 sa.and_(
-                    blocked_at.isnot(None),
+                    blocked_at.is_not(None),
                     number.is_(None),
                     has_sms.is_(None),
                     has_sms_at.is_(None),
@@ -330,20 +333,21 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         sa.CheckConstraint(
             sa.or_(
                 sa.and_(has_sms.is_(None), has_sms_at.is_(None)),
-                sa.and_(has_sms.isnot(None), has_sms_at.isnot(None)),
+                sa.and_(has_sms.is_not(None), has_sms_at.is_not(None)),
             ),
             'phone_number_has_sms_check',
         ),
         sa.CheckConstraint(
             sa.or_(
                 sa.and_(has_wa.is_(None), has_wa_at.is_(None)),
-                sa.and_(has_wa.isnot(None), has_wa_at.isnot(None)),
+                sa.and_(has_wa.is_not(None), has_wa_at.is_not(None)),
             ),
             'phone_number_has_wa_check',
         ),
     )
 
     def __init__(self, phone: str, *, _pre_validated_formatted: bool = False) -> None:
+        super().__init__()
         if not isinstance(phone, str):
             raise ValueError("A string phone number is required")
         if not _pre_validated_formatted:
@@ -374,10 +378,11 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         with db.session.no_autoflush:
             return self.blocked_at is not None
 
-    @is_blocked.expression
-    def is_blocked(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    @is_blocked.inplace.expression
+    @classmethod
+    def _is_blocked_expression(cls) -> sa.ColumnElement[bool]:
         """Expression form of is_blocked check."""
-        return cls.blocked_at.isnot(None)
+        return cls.blocked_at.is_not(None)
 
     @with_roles(read={'all'})
     @cached_property
@@ -389,19 +394,16 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     transport_hash = phone_hash
 
     @with_roles(call={'all'})
-    def md5(self) -> Optional[str]:
+    def md5(self) -> str | None:
         """MD5 hash of :attr:`phone`, for legacy use only."""
-        # TODO: After upgrading to Python 3.9, use usedforsecurity=False
         return (
-            hashlib.md5(  # nosec  # skipcq: PTC-W1003
-                self.number.encode('utf-8')
-            ).hexdigest()
+            hashlib.md5(self.number.encode('utf-8'), usedforsecurity=False).hexdigest()
             if self.number
             else None
         )
 
     @cached_property
-    def parsed(self) -> Optional[phonenumbers.PhoneNumber]:
+    def parsed(self) -> phonenumbers.PhoneNumber | None:
         """Return parsed phone number using libphonenumbers."""
         if self.number:
             return phonenumbers.parse(self.number)
@@ -427,8 +429,8 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: object) -> bool:
-        """Return True if this PhoneNumber is available for the given owner."""
+    def is_available_for(self, owner: Account | None) -> bool:
+        """Return True if this PhoneNumber is available for the proposed owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
                 curr_owner = getattr(related_obj, related_obj.__phone_for__)
@@ -494,18 +496,18 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     @overload
     @classmethod
     def get_filter(
-        cls, *, phone: Union[str, phonenumbers.PhoneNumber]
-    ) -> Optional[ColumnElement]:
+        cls, *, phone: str | phonenumbers.PhoneNumber
+    ) -> ColumnElement[bool]:
         ...
 
     @overload
     @classmethod
-    def get_filter(cls, *, blake2b160: bytes) -> ColumnElement:
+    def get_filter(cls, *, blake2b160: bytes) -> ColumnElement[bool]:
         ...
 
     @overload
     @classmethod
-    def get_filter(cls, *, phone_hash: str) -> ColumnElement:
+    def get_filter(cls, *, phone_hash: str) -> ColumnElement[bool]:
         ...
 
     @overload
@@ -513,20 +515,20 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     def get_filter(
         cls,
         *,
-        phone: Optional[Union[str, phonenumbers.PhoneNumber]],
-        blake2b160: Optional[bytes],
-        phone_hash: Optional[str],
-    ) -> Optional[ColumnElement]:
+        phone: str | phonenumbers.PhoneNumber | None,
+        blake2b160: bytes | None,
+        phone_hash: str | None,
+    ) -> ColumnElement[bool]:
         ...
 
     @classmethod
     def get_filter(
         cls,
         *,
-        phone: Optional[Union[str, phonenumbers.PhoneNumber]] = None,
-        blake2b160: Optional[bytes] = None,
-        phone_hash: Optional[str] = None,
-    ) -> Optional[ColumnElement]:
+        phone: str | phonenumbers.PhoneNumber | None = None,
+        blake2b160: bytes | None = None,
+        phone_hash: str | None = None,
+    ) -> ColumnElement[bool]:
         """
         Get an filter condition for retriving a :class:`PhoneNumber`.
 
@@ -546,10 +548,10 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def get(
         cls,
-        phone: Union[str, phonenumbers.PhoneNumber],
+        phone: str | phonenumbers.PhoneNumber,
         *,
-        is_blocked: Optional[bool] = None,
-    ) -> Optional[PhoneNumber]:
+        is_blocked: bool | None = None,
+    ) -> PhoneNumber | None:
         ...
 
     @overload
@@ -558,8 +560,8 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         cls,
         *,
         blake2b160: bytes,
-        is_blocked: Optional[bool] = None,
-    ) -> Optional[PhoneNumber]:
+        is_blocked: bool | None = None,
+    ) -> PhoneNumber | None:
         ...
 
     @overload
@@ -568,19 +570,19 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         cls,
         *,
         phone_hash: str,
-        is_blocked: Optional[bool] = None,
-    ) -> Optional[PhoneNumber]:
+        is_blocked: bool | None = None,
+    ) -> PhoneNumber | None:
         ...
 
     @classmethod
     def get(
         cls,
-        phone: Optional[Union[str, phonenumbers.PhoneNumber]] = None,
+        phone: str | phonenumbers.PhoneNumber | None = None,
         *,
-        blake2b160: Optional[bytes] = None,
-        phone_hash: Optional[str] = None,
-        is_blocked: Optional[bool] = None,
-    ) -> Optional[PhoneNumber]:
+        blake2b160: bytes | None = None,
+        phone_hash: str | None = None,
+        is_blocked: bool | None = None,
+    ) -> PhoneNumber | None:
         """
         Get an :class:`PhoneNumber` instance by normalized phone number or its hash.
 
@@ -596,13 +598,13 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             return None  # phone number was not valid
         if is_blocked is not None:
             if is_blocked:
-                query = query.filter(cls.blocked_at.isnot(None))
+                query = query.filter(cls.blocked_at.is_not(None))
             else:
                 query = query.filter(cls.blocked_at.is_(None))
         return query.one_or_none()
 
     @classmethod
-    def add(cls, phone: Union[str, phonenumbers.PhoneNumber]) -> PhoneNumber:
+    def add(cls, phone: str | phonenumbers.PhoneNumber) -> PhoneNumber:
         """
         Create a new :class:`PhoneNumber` after normalization and validation.
 
@@ -628,7 +630,9 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     @classmethod
     def add_for(
-        cls, owner: Optional[object], phone: Union[str, phonenumbers.PhoneNumber]
+        cls,
+        owner: Account | None,
+        phone: str | phonenumbers.PhoneNumber,
     ) -> PhoneNumber:
         """
         Create a new :class:`PhoneNumber` after validation.
@@ -655,19 +659,20 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[object],
-        phone: Union[str, phonenumbers.PhoneNumber],
+        owner: Account | None,
+        phone: str | phonenumbers.PhoneNumber,
         new: bool = False,
-    ) -> Union[bool, Literal['invalid', 'not_new', 'blocked']]:
+    ) -> Literal['taken', 'invalid', 'not_new', 'blocked'] | None:
         """
-        Validate whether the phone number is available to the given owner.
+        Validate whether the phone number is available to the proposed owner.
 
-        Returns False if the number is blocked or in use by another owner, True if
-        available without issues, or a string value indicating the concern:
+        Returns None if available without issues, or a string value indicating the
+        concern:
 
-        1. 'not_new': Phone number is already attached to owner (if `new` is True)
-        2. 'invalid': Invalid syntax and therefore unusable
-        3. 'blocked': Phone number has been blocked from use
+        1. 'taken': Phone number has another owner
+        2. 'not_new': Phone number is already attached to owner (if `new` is True)
+        3. 'invalid': Invalid syntax and therefore unusable
+        4. 'blocked': Phone number has been blocked from use
 
         :param owner: Proposed owner of this phone number (may be None)
         :param phone: Phone number to validate
@@ -679,20 +684,33 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             return 'invalid'
         existing = cls.get(phone)
         if existing is None:
-            return True
+            return None
         # There's an existing? Is it blocked?
         if existing.is_blocked:
             return 'blocked'
         # Is the existing phone mumber available for this owner?
         if not existing.is_available_for(owner):
             # Not available, so return False
-            return False
+            return 'taken'
         # Caller is asking to confirm this is not already belonging to this owner
         if new and existing.is_exclusive():
             # It's in an exclusive relationship, and we're already determined it's
             # available to this owner, so it must be exclusive to them
             return 'not_new'
-        return True
+        return None
+
+    @classmethod
+    def get_numbers(cls, prefix: str, remove: bool = True) -> set[str]:
+        """Get all numbers with the given prefix as a Python set."""
+        query = (
+            cls.query.filter(cls.number.startswith(prefix))
+            .options(sa.orm.load_only(cls.number))
+            .yield_per(1000)
+        )
+        if remove:
+            skip = len(prefix)
+            return {r.number[skip:] for r in query}
+        return {r.number for r in query}
 
 
 @declarative_mixin
@@ -709,20 +727,20 @@ class PhoneNumberMixin:
     __tablename__: str
 
     #: This class has an optional dependency on PhoneNumber
-    __phone_optional__: bool = True
+    __phone_optional__: ClassVar[bool] = True
     #: This class has a unique constraint on the fkey to PhoneNumber
-    __phone_unique__: bool = False
+    __phone_unique__: ClassVar[bool] = False
     #: A relationship from this model is for the (single) owner at this attr
-    __phone_for__: Optional[str] = None
+    __phone_for__: ClassVar[str | None] = None
     #: If `__phone_for__` is specified and this flag is True, the phone number is
     #: considered exclusive to this owner and may not be used by any other owner
-    __phone_is_exclusive__: bool = False
+    __phone_is_exclusive__: ClassVar[bool] = False
 
     @declared_attr
     @classmethod
     def phone_number_id(cls) -> Mapped[int]:
         """Foreign key to phone_number table."""
-        return sa.Column(
+        return sa.orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('phone_number.id', ondelete='SET NULL'),
             nullable=cls.__phone_optional__,
@@ -731,18 +749,17 @@ class PhoneNumberMixin:
         )
 
     @declared_attr
-    def phone_number(  # pylint: disable=no-self-argument
-        cls,
-    ) -> Mapped[PhoneNumber]:
+    @classmethod
+    def phone_number(cls) -> Mapped[PhoneNumber]:
         """Instance of :class:`PhoneNumber` as a relationship."""
         backref_name = 'used_in_' + cls.__tablename__
         PhoneNumber.__backrefs__.add(backref_name)
         if cls.__phone_for__ and cls.__phone_is_exclusive__:
             PhoneNumber.__exclusive_backrefs__.add(backref_name)
-        return sa.orm.relationship(PhoneNumber, backref=backref_name)
+        return relationship(PhoneNumber, backref=backref_name)
 
     @property
-    def phone(self) -> Optional[str]:
+    def phone(self) -> str | None:
         """
         Shorthand for ``self.phone_number.number``.
 
@@ -759,7 +776,7 @@ class PhoneNumberMixin:
         return None
 
     @phone.setter
-    def phone(self, value: Optional[str]) -> None:
+    def phone(self, value: str | None) -> None:
         if self.__phone_for__:
             if value is not None:
                 self.phone_number = PhoneNumber.add_for(
@@ -784,7 +801,7 @@ class PhoneNumberMixin:
         return True
 
     @property
-    def transport_hash(self) -> Optional[str]:
+    def transport_hash(self) -> str | None:
         """Phone hash using the compatibility name for notifications framework."""
         return (
             self.phone_number.phone_hash
@@ -804,7 +821,9 @@ def _clear_cached_properties(target: PhoneNumber) -> None:
 
 
 @event.listens_for(PhoneNumber.number, 'set', retval=True)
-def _validate_number(target: PhoneNumber, value: Any, old_value: Any, initiator) -> Any:
+def _validate_number(
+    target: PhoneNumber, value: Any, old_value: Any, _initiator: Any
+) -> Any:
     # First: check if value is acceptable and phone attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
@@ -840,16 +859,20 @@ def _validate_number(target: PhoneNumber, value: Any, old_value: Any, initiator)
     raise ValueError(f"Invalid value for phone number: {value}")
 
 
-def _send_refcount_event_remove(target, value, initiator):
+def _send_refcount_event_remove(
+    target: PhoneNumber, _value: Any, _initiator: Any
+) -> None:
     phonenumber_refcount_dropping.send(target)
 
 
-def _send_refcount_event_before_delete(mapper_, connection, target):
+def _send_refcount_event_before_delete(
+    _mapper: Any, _connection: Any, target: PhoneNumberMixin
+) -> None:
     if target.phone_number:
         phonenumber_refcount_dropping.send(target.phone_number)
 
 
-@event.listens_for(mapper, 'after_configured')
+@event.listens_for(Mapper, 'after_configured')
 def _setup_refcount_events() -> None:
     for backref_name in PhoneNumber.__backrefs__:
         attr = getattr(PhoneNumber, backref_name)
@@ -857,17 +880,25 @@ def _setup_refcount_events() -> None:
 
 
 def _phone_number_mixin_set_validator(
-    target, value: Optional[PhoneNumber], old_value, initiator
+    target: PhoneNumberMixin,
+    value: PhoneNumber | None,
+    old_value: PhoneNumber | None,
+    _initiator: Any,
 ) -> None:
-    if value != old_value and target.__phone_for__:
-        if value is not None:
-            if value.is_blocked:
-                raise PhoneNumberBlockedError("This phone number has been blocked")
-            if not value.is_available_for(getattr(target, target.__phone_for__)):
-                raise PhoneNumberInUseError("This phone number it not available")
+    if value is not None and value != old_value and target.__phone_for__:
+        if value.is_blocked:
+            raise PhoneNumberBlockedError("This phone number has been blocked")
+        if not value.is_available_for(getattr(target, target.__phone_for__)):
+            raise PhoneNumberInUseError("This phone number it not available")
 
 
 @event.listens_for(PhoneNumberMixin, 'mapper_configured', propagate=True)
-def _phone_number_mixin_configure_events(mapper_, cls: PhoneNumberMixin):
+def _phone_number_mixin_configure_events(
+    _mapper: Any, cls: type[PhoneNumberMixin]
+) -> None:
     event.listen(cls.phone_number, 'set', _phone_number_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)
+
+
+if TYPE_CHECKING:
+    from .account import Account

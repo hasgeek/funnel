@@ -1,7 +1,42 @@
-* text=auto
+* text=auto eol=lf
 
-*.py text eol=lf
-*.js text eol=lf
-*.scss text eol=lf
+*.gif binary
+*.ico binary
+*.jpg binary
+*.mo binary
+*.png binary
+*.webp binary
+
+.coveragerc text eol=lf
+.dockerignore text eol=lf
+.flaskenv text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf
+Dockerfile text eol=lf
+HOSTALIASES text eol=lf
+Makefile text eol=lf
+*.cfg text eol=lf
+*.css text eol=lf
+*.Dockerfile text eol=lf
+*.env text eol=lf
+*.feature text eol=lf
+*.html text eol=lf
+*.in text eol=lf
+*.ini text eol=lf
 *.jinja2 text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.po text eol=lf
+*.pot text eol=lf
+*.py text eol=lf
+*.rb text eol=lf
+*.rst text eol=lf
+*.sample text eol=lf
+*.scss text eol=lf
+*.sh text eol=lf
+*.svg text eol=lf
 *.toml text eol=lf
+*.txt text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf

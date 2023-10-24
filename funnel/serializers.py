@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from itsdangerous import JSONWebSignatureSerializer, URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer
 
 from coaster.app import KeyRotationWrapper
 
@@ -12,7 +12,7 @@ from . import app
 # Lastuser cookie serializer
 def lastuser_serializer() -> KeyRotationWrapper:
     return KeyRotationWrapper(
-        JSONWebSignatureSerializer, app.config['LASTUSER_SECRET_KEYS']
+        URLSafeTimedSerializer, app.config['LASTUSER_SECRET_KEYS']
     )
 
 

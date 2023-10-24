@@ -10,16 +10,16 @@ Create Date: 2014-12-03 03:46:34.962222
 revision = '50a8f43b4e5f'
 down_revision = '411fc4124fb5'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     with op.batch_alter_table('proposal', schema=None) as batch_op:
         batch_op.drop_column('blog_post')
 
 
-def downgrade():
+def downgrade() -> None:
     with op.batch_alter_table('proposal', schema=None) as batch_op:
         batch_op.add_column(
             sa.Column(

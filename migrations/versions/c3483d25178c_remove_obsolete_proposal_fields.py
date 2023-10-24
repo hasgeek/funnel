@@ -5,23 +5,21 @@ Revises: a23e88f06478
 Create Date: 2021-04-05 20:36:55.734125
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'c3483d25178c'
 down_revision = 'a23e88f06478'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 # This migration removes the obsolete proposal fields that were deprecated four months
 # ago (Dec 2020) in migration ad5013552ec6. The deletion in this migration is permanent.
 # The email, phone and location fields are not redundant and will be lost.
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_index('ix_proposal_email_address_id', table_name='proposal')
     op.drop_constraint('proposal_email_address_id_fkey', 'proposal', type_='foreignkey')
     op.drop_column('proposal', 'outline_html')
@@ -39,7 +37,7 @@ def upgrade():
     op.drop_column('proposal', 'requirements_text')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'proposal',
         sa.Column('requirements_text', sa.TEXT(), autoincrement=False, nullable=True),

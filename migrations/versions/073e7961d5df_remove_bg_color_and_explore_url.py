@@ -6,23 +6,21 @@ Create Date: 2020-05-21 15:48:14.035503
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision = '073e7961d5df'
 down_revision = '34a95ee0c3a0'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_column('project', 'explore_url')
     op.drop_column('project', 'bg_color')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'project',
         sa.Column('bg_color', sa.VARCHAR(length=6), autoincrement=False, nullable=True),

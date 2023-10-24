@@ -9,11 +9,11 @@ Create Date: 2015-04-15 17:04:28.666090
 revision = '2c64e60b80a'
 down_revision = '522d776a42ed'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'contact_exchange',
         sa.Column('id', sa.Integer(), nullable=False),
@@ -30,5 +30,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_table('contact_exchange')

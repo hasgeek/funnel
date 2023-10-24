@@ -10,15 +10,15 @@ Create Date: 2014-12-03 00:57:54.098592
 revision = 'f8204bcd438'
 down_revision = '55b1ef63bee'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 from coaster.gfm import markdown
 from coaster.sqlalchemy import JsonDict
 
 
-def upgrade():
+def upgrade() -> None:
     connection = op.get_bind()
     proposal_space = table(
         'proposal_space',
@@ -30,7 +30,7 @@ def upgrade():
 
     results = connection.execute(proposal_space.select())
     for space in results:
-        if space['content']:
+        if space.content:
             for section, title in [
                 ('format', "Format"),
                 ('criteria', "Criteria for proposals"),
@@ -40,8 +40,8 @@ def upgrade():
                 ('themes', "Theme"),
             ]:
                 modified = False
-                text = space['description_text']
-                if space['content'].get(section):
+                text = space.description_text
+                if space.content.get(section):
                     modified = True
                     text = (
                         text
@@ -49,13 +49,13 @@ def upgrade():
                         + "## "
                         + title
                         + '\r\n\r\n'
-                        + space['content'][section]
+                        + space.content[section]
                     )
                 if modified:
                     html = markdown(text)
                     connection.execute(
                         proposal_space.update()
-                        .where(proposal_space.c.id == space['id'])
+                        .where(proposal_space.c.id == space.id)
                         .values(
                             {
                                 'description_text': text,
@@ -66,6 +66,6 @@ def upgrade():
                     )
 
 
-def downgrade():
+def downgrade() -> None:
     # XXX: There is no downgrade since we clobbered the content column's content. We're one-way.
     pass

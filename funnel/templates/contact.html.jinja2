@@ -3,7 +3,7 @@
 {%- from "macros.html.jinja2" import page_footer %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/about.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/about.css') }}" />
 {% endblock pageheaders %}
 
 {% block contenthead %}
@@ -26,7 +26,7 @@
 {% block contentwrapper -%}
   <div class="grid">
     <div class="grid__col-xs-12 grid__col-sm-7 grid__col-md-8 grid__col-lg-9">
-      {{ page.html | safe }}
+      {{ page.html|safe }}
     </div>
   </div>
 {%- endblock contentwrapper %}

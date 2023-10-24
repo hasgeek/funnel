@@ -2,20 +2,17 @@
 
 from __future__ import annotations
 
-from html import unescape as html_unescape
-from typing import Any, List, Optional
-from urllib.parse import quote as urlquote
 import re
-
-from sqlalchemy.sql import expression
-from sqlalchemy.sql.elements import ColumnElement
-
-from flask import Markup, request, url_for
-
+from html import unescape as html_unescape
+from typing import Any, TypeVar
 from typing_extensions import TypedDict
+from urllib.parse import quote as urlquote
+
+from flask import request, url_for
+from markupsafe import Markup
+from sqlalchemy.sql import expression
 
 from baseframe import __
-from coaster.sqlalchemy import Query
 from coaster.views import (
     ClassView,
     ModelView,
@@ -28,16 +25,16 @@ from coaster.views import (
 
 from .. import app, executor
 from ..models import (
+    Account,
     Comment,
     Commentset,
-    Organization,
-    Profile,
     Project,
     Proposal,
     ProposalMembership,
+    Query,
+    SearchModelUnion,
     Session,
     Update,
-    User,
     db,
     sa,
     visual_field_delimiter,
@@ -45,9 +42,12 @@ from ..models import (
 from ..typing import ReturnRenderWith
 from ..utils import abort_null
 from .helpers import render_redirect
-from .mixins import ProfileViewMixin, ProjectViewMixin
+from .mixins import AccountViewMixin, ProjectViewMixin
 
 # --- Definitions ----------------------------------------------------------------------
+
+_Q = TypeVar('_Q', bound=Query)
+
 
 # PostgreSQL ts_headline markers
 pg_startsel = '<mark>'
@@ -75,7 +75,7 @@ class SearchProvider:
     #: Label to use in UI
     label: str
     #: Model to query against
-    model: Any  # type: ignore[name-defined]
+    model: type[SearchModelUnion]
     #: Does this model have a title column?
     has_title: bool = True
 
@@ -85,12 +85,12 @@ class SearchProvider:
         return self.model.search_vector.type.options.get('regconfig', 'english')
 
     @property
-    def title_column(self):
+    def title_column(self) -> sa.ColumnElement[str]:
         """Return a column or column expression representing the object's title."""
         return self.model.title
 
     @property
-    def hltext(self) -> ColumnElement:
+    def hltext(self) -> sa.ColumnElement[str]:
         """Return concatenation of all text in search_vector, for highlighting."""
         model_hltext = self.model.search_vector.type.options.get('hltext')
         if model_hltext is not None:
@@ -102,7 +102,9 @@ class SearchProvider:
             *(getattr(self.model, c) for c in self.model.search_vector.type.columns),
         )
 
-    def hltitle_column(self, tsquery: sa.sql.functions.Function) -> ColumnElement:
+    def hltitle_column(
+        self, tsquery: sa.sql.functions.Function
+    ) -> sa.ColumnElement[str]:
         """Return a column expression for title with search terms highlighted."""
         return sa.func.ts_headline(
             self.regconfig,
@@ -112,7 +114,9 @@ class SearchProvider:
             type_=sa.UnicodeText,
         )
 
-    def hlsnippet_column(self, tsquery: sa.sql.functions.Function) -> ColumnElement:
+    def hlsnippet_column(
+        self, tsquery: sa.sql.functions.Function
+    ) -> sa.ColumnElement[str]:
         """Return a column expression for a snippet of text with highlights."""
         return sa.func.ts_headline(
             self.regconfig,
@@ -124,7 +128,9 @@ class SearchProvider:
             type_=sa.UnicodeText,
         )
 
-    def matched_text_column(self, tsquery: sa.sql.functions.Function) -> ColumnElement:
+    def matched_text_column(
+        self, tsquery: sa.sql.functions.Function
+    ) -> sa.ColumnElement[str]:
         """Return a column expression for matching text, without highlighting."""
         return sa.func.ts_headline(
             self.regconfig,
@@ -136,7 +142,7 @@ class SearchProvider:
 
     # --- Query methods
 
-    def add_order_by(self, tsquery: sa.sql.functions.Function, query: Query) -> Query:
+    def add_order_by(self, tsquery: sa.sql.functions.Function, query: _Q) -> _Q:
         """Add an order_by condition to the query."""
         return query.order_by(
             sa.desc(sa.func.ts_rank_cd(self.model.search_vector, tsquery)),
@@ -152,27 +158,27 @@ class SearchProvider:
         return self.all_query(tsquery).options(sa.orm.load_only(self.model.id)).count()
 
 
-class SearchInProfileProvider(SearchProvider):
+class SearchInAccountProvider(SearchProvider):
     """Base class for search providers that support searching in an account."""
 
-    def profile_query(
-        self, tsquery: sa.sql.functions.Function, profile: Profile
+    def account_query(
+        self, tsquery: sa.sql.functions.Function, account: Account
     ) -> Query:
         """Search in an account."""
-        raise NotImplementedError("Subclasses must implement profile_query")
+        raise NotImplementedError("Subclasses must implement account_query")
 
-    def profile_count(
-        self, tsquery: sa.sql.functions.Function, profile: Profile
+    def account_count(
+        self, tsquery: sa.sql.functions.Function, account: Account
     ) -> int:
-        """Return count of results for :meth:`profile_query`."""
+        """Return count of results for :meth:`account_query`."""
         return (
-            self.profile_query(tsquery, profile)
+            self.account_query(tsquery, account)
             .options(sa.orm.load_only(self.model.id))
             .count()
         )
 
 
-class SearchInProjectProvider(SearchInProfileProvider):
+class SearchInProjectProvider(SearchInAccountProvider):
     """Base class for search providers that support searching in a project."""
 
     def project_query(
@@ -195,32 +201,20 @@ class SearchInProjectProvider(SearchInProfileProvider):
 # --- Search providers -----------------------------------------------------------------
 
 
-class ProjectSearch(SearchInProfileProvider):
+class ProjectSearch(SearchInAccountProvider):
     """Search for projects."""
 
     label = __("Projects")
     model = Project
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query:
+    def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Project]:
         """Search entire site for projects."""
         return (
-            Project.query.join(Profile, Project.profile_id == Profile.id)
-            .outerjoin(User, Profile.user_id == User.id)
-            .outerjoin(Organization, Profile.organization_id == Organization.id)
-            .filter(
-                Profile.state.ACTIVE_AND_PUBLIC,
+            Project.query.join(Account, Project.account).filter(
+                Account.profile_state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
-                sa.or_(
-                    # Search conditions. Any of:
-                    # 1. Project has search terms
-                    Project.search_vector.bool_op('@@')(tsquery),
-                    # 2. Project's account (for org) has a match in the org title
-                    Organization.search_vector.bool_op('@@')(tsquery),
-                    # 3. Project's account (for user) has a match in the user's name
-                    User.search_vector.bool_op('@@')(tsquery),
-                ),
+                Project.search_vector.bool_op('@@')(tsquery),
             )
-            .options(sa.orm.joinedload(Project.profile))
             # TODO: Replace `start_at` in distance with a new `nearest_session_at`.
             # The existing `next_session_at` is not suitable as it is future-only.
             .order_by(
@@ -237,9 +231,9 @@ class ProjectSearch(SearchInProfileProvider):
                         'epoch',
                         sa.func.utcnow()
                         - sa.case(
-                            (Project.start_at.isnot(None), Project.start_at),
+                            (Project.start_at.is_not(None), Project.start_at),
                             (
-                                Project.published_at.isnot(None),
+                                Project.published_at.is_not(None),
                                 Project.published_at,
                             ),
                             else_=Project.created_at,
@@ -256,99 +250,73 @@ class ProjectSearch(SearchInProfileProvider):
         return (
             db.session.query(sa.func.count('*'))
             .select_from(Project)
-            .join(Profile, Project.profile_id == Profile.id)
-            .outerjoin(User, Profile.user_id == User.id)
-            .outerjoin(Organization, Profile.organization_id == Organization.id)
+            .join(Account, Project.account)
             .filter(
-                Profile.state.ACTIVE_AND_PUBLIC,
+                Account.profile_state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
-                sa.or_(
-                    Project.search_vector.bool_op('@@')(tsquery),
-                    Organization.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
-                ),
+                Project.search_vector.bool_op('@@')(tsquery),
             )
             .scalar()
         )
 
-    def profile_query(
-        self, tsquery: sa.sql.functions.Function, profile: Profile
-    ) -> Query:
+    def account_query(
+        self, tsquery: sa.sql.functions.Function, account: Account
+    ) -> Query[Project]:
         """Search within an account for projects."""
-        return (
-            Project.query.filter(
-                Project.profile == profile,
-                Project.state.PUBLISHED,
-                Project.search_vector.bool_op('@@')(tsquery),
-            )
-            # Disabled because it breaks add_columns
-            # .options(sa.orm.joinedload(Profile))
-            .order_by(
-                # Order by:
-                # 1. Projects with start_at/published_at (ts is None == False)
-                # 2. Projects without those (ts is None == True)
-                sa.case(
-                    (Project.start_at.is_(None), Project.published_at),
-                    else_=Project.start_at,
-                ).is_(None),
-                # Second, order by distance from present
-                # TODO: Replace `start_at` in distance with a new `nearest_session_at`.
-                # The existing `next_session_at` is not suitable as it is future-only.
-                sa.func.abs(
-                    sa.func.extract(
-                        'epoch',
-                        sa.func.utcnow()
-                        - sa.case(
-                            (Project.start_at.isnot(None), Project.start_at),
-                            (
-                                Project.published_at.isnot(None),
-                                Project.published_at,
-                            ),
-                            else_=Project.created_at,
+        return Project.query.filter(
+            Project.account == account,
+            Project.state.PUBLISHED,
+            Project.search_vector.bool_op('@@')(tsquery),
+        ).order_by(
+            # Order by:
+            # 1. Projects with start_at/published_at (ts is None == False)
+            # 2. Projects without those (ts is None == True)
+            sa.case(
+                (Project.start_at.is_(None), Project.published_at),
+                else_=Project.start_at,
+            ).is_(None),
+            # Second, order by distance from present
+            # TODO: Replace `start_at` in distance with a new `nearest_session_at`.
+            # The existing `next_session_at` is not suitable as it is future-only.
+            sa.func.abs(
+                sa.func.extract(
+                    'epoch',
+                    sa.func.utcnow()
+                    - sa.case(
+                        (Project.start_at.isnot(None), Project.start_at),
+                        (
+                            Project.published_at.isnot(None),
+                            Project.published_at,
                         ),
-                    )
-                ),
-                # Third, order by relevance of search results
-                sa.desc(sa.func.ts_rank_cd(Project.search_vector, tsquery)),
-            )
+                        else_=Project.created_at,
+                    ),
+                )
+            ),
+            # Third, order by relevance of search results
+            sa.desc(sa.func.ts_rank_cd(Project.search_vector, tsquery)),
         )
 
 
-class ProfileSearch(SearchProvider):
+class AccountSearch(SearchProvider):
     """Search for accounts."""
 
     label = __("Accounts")
-    model = Profile
+    model = Account
 
     @property
-    def title_column(self) -> ColumnElement:
-        """Return title from user or organization that the account is attached to."""
-        return sa.case(
-            (Profile.user_id.isnot(None), User.fullname),
-            (Profile.organization_id.isnot(None), Organization.title),
-            else_=Profile.name,
-        )
-
-    @property
-    def hltext(self) -> ColumnElement:
+    def hltext(self) -> sa.ColumnElement[str]:
         """Return text from which matches will be highlighted."""
         return sa.func.concat_ws(
-            visual_field_delimiter, self.title_column, Profile.description_html
+            visual_field_delimiter, Account.title, Account.description_html
         )
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query:
+    def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Account]:
         """Search for accounts."""
         return self.add_order_by(
             tsquery,
-            Profile.query.outerjoin(User)
-            .outerjoin(Organization)
-            .filter(
-                Profile.state.ACTIVE_AND_PUBLIC,
-                sa.or_(
-                    Profile.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
-                    Organization.search_vector.bool_op('@@')(tsquery),
-                ),
+            Account.query.filter(
+                Account.profile_state.ACTIVE_AND_PUBLIC,
+                Account.search_vector.bool_op('@@')(tsquery),
             ),
         )
 
@@ -359,34 +327,34 @@ class SessionSearch(SearchInProjectProvider):
     label = __("Sessions")
     model = Session
 
-    def add_order_by(self, tsquery: sa.sql.functions.Function, query: Query) -> Query:
+    def add_order_by(self, tsquery: sa.sql.functions.Function, query: _Q) -> _Q:
         """Add an order_by condition to the query."""
         return query.order_by(
             sa.desc(sa.func.ts_rank_cd(Session.search_vector, tsquery)),
             sa.case(
-                (Session.start_at.isnot(None), Session.start_at),
+                (Session.start_at.is_not(None), Session.start_at),
                 else_=Session.created_at,
             ).desc(),
         )
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query:
+    def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Session]:
         """Search for sessions across the site."""
         return self.add_order_by(
             tsquery,
             Session.query.join(Project, Session.project)
-            .join(Profile, Project.profile)
+            .join(Account, Project.account)
             .outerjoin(Proposal, Session.proposal)
             .filter(
-                Profile.state.ACTIVE_AND_PUBLIC,
+                Account.profile_state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Session.scheduled,
                 Session.search_vector.bool_op('@@')(tsquery),
             ),
         )
 
-    def profile_query(
-        self, tsquery: sa.sql.functions.Function, profile: Profile
-    ) -> Query:
+    def account_query(
+        self, tsquery: sa.sql.functions.Function, account: Account
+    ) -> Query[Session]:
         """Search for sessions within an account."""
         return self.add_order_by(
             tsquery,
@@ -394,7 +362,7 @@ class SessionSearch(SearchInProjectProvider):
             .outerjoin(Proposal, Session.proposal)
             .filter(
                 Project.state.PUBLISHED,
-                Project.profile == profile,
+                Project.account == account,
                 Session.scheduled,
                 Session.search_vector.bool_op('@@')(tsquery),
             ),
@@ -402,7 +370,7 @@ class SessionSearch(SearchInProjectProvider):
 
     def project_query(
         self, tsquery: sa.sql.functions.Function, project: Project
-    ) -> Query:
+    ) -> Query[Session]:
         """Search for sessions within a project."""
         return self.add_order_by(
             tsquery,
@@ -420,32 +388,32 @@ class ProposalSearch(SearchInProjectProvider):
     label = __("Submissions")
     model = Proposal
 
-    def add_order_by(self, tsquery: sa.sql.functions.Function, query: Query) -> Query:
+    def add_order_by(self, tsquery: sa.sql.functions.Function, query: _Q) -> _Q:
         """Add an order_by condition to the query."""
         return query.order_by(
             sa.desc(sa.func.ts_rank_cd(Proposal.search_vector, tsquery)),
             Proposal.created_at.desc(),
         )
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query:
+    def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Proposal]:
         """Search for proposals across the site."""
         return self.add_order_by(
             tsquery,
             Proposal.query.join(Project, Proposal.project)
-            .join(Profile, Project.profile)
+            .join(Account, Project.account)
             .filter(
-                Profile.state.ACTIVE_AND_PUBLIC,
+                Account.profile_state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Proposal.state.PUBLIC,
                 sa.or_(
                     Proposal.search_vector.bool_op('@@')(tsquery),
-                    ProposalMembership.query.join(User, ProposalMembership.user)
+                    ProposalMembership.query.join(Account, ProposalMembership.member)
                     .filter(
                         ProposalMembership.proposal_id == Proposal.id,
-                        ProposalMembership.user_id == User.id,
+                        ProposalMembership.member_id == Account.id,
                         ProposalMembership.is_uncredited.is_(False),
                         ProposalMembership.is_active,
-                        User.search_vector.bool_op('@@')(tsquery),
+                        Account.search_vector.bool_op('@@')(tsquery),
                     )
                     .exists()
                     .correlate(Proposal),
@@ -453,25 +421,25 @@ class ProposalSearch(SearchInProjectProvider):
             ),
         )
 
-    def profile_query(
-        self, tsquery: sa.sql.functions.Function, profile: Profile
-    ) -> Query:
+    def account_query(
+        self, tsquery: sa.sql.functions.Function, account: Account
+    ) -> Query[Proposal]:
         """Search for proposals within an account."""
         return self.add_order_by(
             tsquery,
             Proposal.query.join(Project, Proposal.project).filter(
                 Project.state.PUBLISHED,
-                Project.profile == profile,
+                Project.account == account,
                 Proposal.state.PUBLIC,
                 sa.or_(
                     Proposal.search_vector.bool_op('@@')(tsquery),
-                    ProposalMembership.query.join(User, ProposalMembership.user)
+                    ProposalMembership.query.join(Account, ProposalMembership.member)
                     .filter(
                         ProposalMembership.proposal_id == Proposal.id,
-                        ProposalMembership.user_id == User.id,
+                        ProposalMembership.member_id == Account.id,
                         ProposalMembership.is_uncredited.is_(False),
                         ProposalMembership.is_active,
-                        User.search_vector.bool_op('@@')(tsquery),
+                        Account.search_vector.bool_op('@@')(tsquery),
                     )
                     .exists()
                     .correlate(Proposal),
@@ -481,7 +449,7 @@ class ProposalSearch(SearchInProjectProvider):
 
     def project_query(
         self, tsquery: sa.sql.functions.Function, project: Project
-    ) -> Query:
+    ) -> Query[Proposal]:
         """Search for proposals within a project."""
         return self.add_order_by(
             tsquery,
@@ -490,13 +458,13 @@ class ProposalSearch(SearchInProjectProvider):
                 Proposal.state.PUBLIC,
                 sa.or_(
                     Proposal.search_vector.bool_op('@@')(tsquery),
-                    ProposalMembership.query.join(User, ProposalMembership.user)
+                    ProposalMembership.query.join(Account, ProposalMembership.member)
                     .filter(
                         ProposalMembership.proposal_id == Proposal.id,
-                        ProposalMembership.user_id == User.id,
+                        ProposalMembership.member_id == Account.id,
                         ProposalMembership.is_uncredited.is_(False),
                         ProposalMembership.is_active,
-                        User.search_vector.bool_op('@@')(tsquery),
+                        Account.search_vector.bool_op('@@')(tsquery),
                     )
                     .exists()
                     .correlate(Proposal),
@@ -511,24 +479,24 @@ class UpdateSearch(SearchInProjectProvider):
     label = __("Updates")
     model = Update
 
-    def add_order_by(self, tsquery: sa.sql.functions.Function, query: Query) -> Query:
+    def add_order_by(self, tsquery: sa.sql.functions.Function, query: _Q) -> _Q:
         """Add an order_by condition to the query."""
         return query.order_by(
             sa.desc(sa.func.ts_rank_cd(Update.search_vector, tsquery)),
             sa.case(
-                (Update.published_at.isnot(None), Update.published_at),
+                (Update.published_at.is_not(None), Update.published_at),
                 else_=Update.created_at,
             ).desc(),
         )
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query:
+    def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Update]:
         """Search for updates across the site."""
         return self.add_order_by(
             tsquery,
             Update.query.join(Project, Update.project)
-            .join(Profile, Project.profile)
+            .join(Account, Project.account)
             .filter(
-                Profile.state.ACTIVE_AND_PUBLIC,
+                Account.profile_state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Update.state.PUBLISHED,
                 Update.visibility_state.PUBLIC,  # TODO: Add role check for RESTRICTED
@@ -536,15 +504,15 @@ class UpdateSearch(SearchInProjectProvider):
             ),
         )
 
-    def profile_query(
-        self, tsquery: sa.sql.functions.Function, profile: Profile
-    ) -> Query:
+    def account_query(
+        self, tsquery: sa.sql.functions.Function, account: Account
+    ) -> Query[Update]:
         """Search for updates within an account."""
         return self.add_order_by(
             tsquery,
             Update.query.join(Project, Update.project).filter(
                 Project.state.PUBLISHED,
-                Project.profile == profile,
+                Project.account == account,
                 Update.state.PUBLISHED,
                 Update.search_vector.bool_op('@@')(tsquery),
             ),
@@ -552,7 +520,7 @@ class UpdateSearch(SearchInProjectProvider):
 
     def project_query(
         self, tsquery: sa.sql.functions.Function, project: Project
-    ) -> Query:
+    ) -> Query[Update]:
         """Search for updates within a project."""
         return self.add_order_by(
             tsquery,
@@ -575,19 +543,19 @@ class CommentSearch(SearchInProjectProvider):
         """Comments don't have titles, so return a null expression here."""
         return expression.null()
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query:
+    def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Comment]:
         """Search for comments across the site."""
         return (
-            Comment.query.join(User, Comment.user_id == User.id)
+            Comment.query.join(Account, Comment.posted_by_id == Account.id)
             .join(Project, Project.commentset_id == Comment.commentset_id)
-            .join(Profile, Project.profile_id == Profile.id)
+            .join(Account, Project.account)
             .filter(
-                Profile.state.ACTIVE_AND_PUBLIC,
+                Account.profile_state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Comment.state.PUBLIC,
                 sa.or_(
                     Comment.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
+                    Account.search_vector.bool_op('@@')(tsquery),
                 ),
             )
             .order_by(
@@ -595,17 +563,19 @@ class CommentSearch(SearchInProjectProvider):
                 sa.desc(Comment.created_at),
             )
             .union_all(
-                Comment.query.join(User, Comment.user_id == User.id)
+                Comment.query.join(Account, Comment.posted_by_id == Account.id)
                 .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
-                .join(Project, Proposal.project_id == Project.id)
-                .join(Profile, Project.profile_id == Profile.id)
+                .join(Project, Proposal.project)
+                .join(Account, Project.account)
                 .filter(
-                    Profile.state.ACTIVE_AND_PUBLIC,
+                    # FIXME: "Account" is ambiguous here and needs an alias
+                    # (for Project.account)
+                    Account.profile_state.ACTIVE_AND_PUBLIC,
                     Project.state.PUBLISHED,
                     Comment.state.PUBLIC,
                     sa.or_(
                         Comment.search_vector.bool_op('@@')(tsquery),
-                        User.search_vector.bool_op('@@')(tsquery),
+                        Account.search_vector.bool_op('@@')(tsquery),
                     ),
                 )
                 .order_by(
@@ -616,20 +586,20 @@ class CommentSearch(SearchInProjectProvider):
             )
         )
 
-    def profile_query(
-        self, tsquery: sa.sql.functions.Function, profile: Profile
-    ) -> Query:
+    def account_query(
+        self, tsquery: sa.sql.functions.Function, account: Account
+    ) -> Query[Comment]:
         """Search for comments within an account."""
         return (
-            Comment.query.join(User, Comment.user_id == User.id)
+            Comment.query.join(Account, Comment.posted_by_id == Account.id)
             .join(Project, Project.commentset_id == Comment.commentset_id)
             .filter(
-                Project.profile == profile,
+                Project.account == account,
                 Project.state.PUBLISHED,
                 Comment.state.PUBLIC,
                 sa.or_(
                     Comment.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
+                    Account.search_vector.bool_op('@@')(tsquery),
                 ),
             )
             .order_by(
@@ -637,16 +607,16 @@ class CommentSearch(SearchInProjectProvider):
                 sa.desc(Comment.created_at),
             )
             .union_all(
-                Comment.query.join(User, Comment.user_id == User.id)
+                Comment.query.join(Account, Comment.posted_by_id == Account.id)
                 .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
-                .join(Project, Proposal.project_id == Project.id)
+                .join(Project, Proposal.project)
                 .filter(
-                    Project.profile == profile,
+                    Project.account == account,
                     Project.state.PUBLISHED,
                     Comment.state.PUBLIC,
                     sa.or_(
                         Comment.search_vector.bool_op('@@')(tsquery),
-                        User.search_vector.bool_op('@@')(tsquery),
+                        Account.search_vector.bool_op('@@')(tsquery),
                     ),
                 )
                 .order_by(
@@ -659,17 +629,17 @@ class CommentSearch(SearchInProjectProvider):
 
     def project_query(
         self, tsquery: sa.sql.functions.Function, project: Project
-    ) -> Query:
+    ) -> Query[Comment]:
         """Search for comments within a project."""
         return (
-            Comment.query.join(User, Comment.user_id == User.id)
+            Comment.query.join(Account, Comment.posted_by_id == Account.id)
             .join(Commentset, Comment.commentset_id == Commentset.id)
             .filter(
                 Commentset.id == project.commentset_id,
                 Comment.state.PUBLIC,
                 sa.or_(
                     Comment.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
+                    Account.search_vector.bool_op('@@')(tsquery),
                 ),
             )
             .order_by(
@@ -677,7 +647,7 @@ class CommentSearch(SearchInProjectProvider):
                 sa.desc(Comment.created_at),
             )
             .union_all(
-                Comment.query.join(User, Comment.user_id == User.id)
+                Comment.query.join(Account, Comment.posted_by_id == Account.id)
                 .join(
                     Proposal,
                     sa.and_(
@@ -689,7 +659,7 @@ class CommentSearch(SearchInProjectProvider):
                     Comment.state.PUBLIC,
                     sa.or_(
                         Comment.search_vector.bool_op('@@')(tsquery),
-                        User.search_vector.bool_op('@@')(tsquery),
+                        Account.search_vector.bool_op('@@')(tsquery),
                     ),
                 )
                 .order_by(
@@ -702,9 +672,9 @@ class CommentSearch(SearchInProjectProvider):
 
 
 #: Ordered dictionary of search providers
-search_providers = {
+search_providers: dict[str, SearchProvider] = {
     'project': ProjectSearch(),
-    'profile': ProfileSearch(),
+    'account': AccountSearch(),
     'session': SessionSearch(),
     'submission': ProposalSearch(),
     'update': UpdateSearch(),
@@ -725,7 +695,7 @@ def escape_quotes(text: str) -> Markup:
     return Markup(text.replace('"', '&quot;').replace("'", '&#39;'))
 
 
-def get_tsquery(text: Optional[str]) -> sa.sql.functions.Function:
+def get_tsquery(text: str | None) -> sa.sql.functions.Function:
     """
     Parse a web search query into a PostgreSQL ``tsquery``.
 
@@ -758,16 +728,16 @@ class SearchCountType(TypedDict, total=False):
 # @cache.memoize(timeout=300)
 def search_counts(
     tsquery: sa.sql.functions.Function,
-    profile: Optional[Profile] = None,
-    project: Optional[Project] = None,
-) -> List[SearchCountType]:
+    account: Account | None = None,
+    project: Project | None = None,
+) -> list[SearchCountType]:
     """
     Return counts of search results.
 
     This function requires an active request as it uses Flask-Executor to perform
     queries in parallel.
     """
-    results: List[SearchCountType]
+    results: list[SearchCountType]
     if project is not None:
         results = [
             {
@@ -778,18 +748,18 @@ def search_counts(
             for stype, sp in search_providers.items()
             if isinstance(sp, SearchInProjectProvider)
         ]
-    elif profile is not None:
+    elif account is not None:
         results = [
             {
                 'type': stype,
                 'label': sp.label,
-                'job': executor.submit(sp.profile_count, tsquery, profile),
+                'job': executor.submit(sp.account_count, tsquery, account),
             }
             for stype, sp in search_providers.items()
-            if isinstance(sp, SearchInProfileProvider)
+            if isinstance(sp, SearchInAccountProvider)
         ]
     else:
-        # Not scoped to `profile` or `project`:
+        # Not scoped to `account` or `project`:
         results = [
             {
                 'type': stype,
@@ -806,13 +776,13 @@ def search_counts(
 
 
 # @cache.memoize(timeout=300)
-def search_results(  # pylint: disable=too-many-arguments
+def search_results(
     tsquery: sa.sql.functions.Function,
     stype: str,
-    page=1,
-    per_page=20,
-    profile: Optional[Profile] = None,
-    project: Optional[Project] = None,
+    page: int = 1,
+    per_page: int = 20,
+    account: Account | None = None,
+    project: Project | None = None,
 ):
     """Return search results."""
     # Pick up model data for the given type string
@@ -822,10 +792,10 @@ def search_results(  # pylint: disable=too-many-arguments
         if not isinstance(sp, SearchInProjectProvider):
             raise TypeError(f"No project search for {sp.label}")
         query = sp.project_query(tsquery, project)
-    elif profile is not None:
-        if not isinstance(sp, SearchInProfileProvider):
+    elif account is not None:
+        if not isinstance(sp, SearchInAccountProvider):
             raise TypeError(f"No account search for {sp.label}")
-        query = sp.profile_query(tsquery, profile)
+        query = sp.account_query(tsquery, account)
     else:
         query = sp.all_query(tsquery)
 
@@ -869,11 +839,13 @@ class SearchView(ClassView):
     @route('/search', endpoint='search')
     @render_with('search.html.jinja2', json=True)
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
-    def search(self, q=None, page=1, per_page=20) -> ReturnRenderWith:
+    def search(
+        self, q: str | None = None, page: int = 1, per_page: int = 20
+    ) -> ReturnRenderWith:
         """Perform site-level search."""
         tsquery = get_tsquery(q)
         # Can't use @requestargs for stype as it doesn't support name changes
-        stype: Optional[str] = abort_null(request.args.get('type'))
+        stype: str | None = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
             return render_redirect(url_for('index'), 302)
         if stype is None or stype not in search_providers:
@@ -895,58 +867,60 @@ class SearchView(ClassView):
 SearchView.init_app(app)
 
 
-@Profile.views('search')
-@route('/<profile>')
-class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
+@Account.views('search')
+@route('/<account>')
+class AccountSearchView(AccountViewMixin, UrlForView, ModelView):
     @route('search', endpoint='search_account')
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
-    def search(self, q=None, page=1, per_page=20) -> ReturnRenderWith:
+    def search(
+        self, q: str | None = None, page: int = 1, per_page: int = 20
+    ) -> ReturnRenderWith:
         """Perform search within an account."""
         tsquery = get_tsquery(q)
-        stype: Optional[str] = abort_null(
-            request.args.get('type')
-        )  # Can't use requestargs as it doesn't support name changes
+        # Can't use @requestargs as it doesn't support name changes
+        stype: str | None = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
             return render_redirect(url_for('index'), 302)
         if (
             stype is None
             or stype not in search_providers
-            or not isinstance(search_providers[stype], SearchInProfileProvider)
+            or not isinstance(search_providers[stype], SearchInAccountProvider)
         ):
             return {
                 'status': 'ok',
                 'type': None,
-                'counts': search_counts(tsquery, profile=self.obj),
+                'counts': search_counts(tsquery, account=self.obj),
             }
         return {
             'status': 'ok',
-            'profile': self.obj.current_access(datasets=('primary', 'related')),
+            'account': self.obj.current_access(datasets=('primary', 'related')),
             'type': stype,
-            'counts': search_counts(tsquery, profile=self.obj),
+            'counts': search_counts(tsquery, account=self.obj),
             'results': search_results(
-                tsquery, stype, page=page, per_page=per_page, profile=self.obj
+                tsquery, stype, page=page, per_page=per_page, account=self.obj
             ),
         }
 
 
-ProfileSearchView.init_app(app)
+AccountSearchView.init_app(app)
 
 
 @Project.views('search')
-@route('/<profile>/<project>/')
+@route('/<account>/<project>/')
 class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
     @route('search', endpoint='search_project')
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'crew', 'participant'})
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
-    def search(self, q=None, page=1, per_page=20) -> ReturnRenderWith:
+    def search(
+        self, q: str | None = None, page: int = 1, per_page: int = 20
+    ) -> ReturnRenderWith:
         """Perform search within a project."""
         tsquery = get_tsquery(q)
-        stype: Optional[str] = abort_null(
-            request.args.get('type')
-        )  # Can't use requestargs as it doesn't support name changes
+        # Can't use @requestargs as it doesn't support name changes
+        stype: str | None = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
             return render_redirect(url_for('index'), 302)
         if (

@@ -13,7 +13,7 @@ down_revision = '347c236041d3'
 from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint('project_admin_team_id_fkey', 'project', type_='foreignkey')
     op.create_foreign_key(
         'project_admin_team_id_fkey',
@@ -52,7 +52,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('project_admin_team_id_fkey', 'project', type_='foreignkey')
     op.create_foreign_key(
         'project_admin_team_id_fkey', 'project', 'team', ['admin_team_id'], ['id']

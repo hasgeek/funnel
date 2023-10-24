@@ -10,13 +10,11 @@ Create Date: 2018-12-07 20:21:02.169857
 revision = '69c2ced88981'
 down_revision = 'b34aa62af7fc'
 
-from alembic import op
-from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 
 from coaster.utils import buid2uuid, uuid2buid
 
@@ -24,7 +22,7 @@ team = table(
     'team',
     column('id', sa.Integer()),
     column('orgid', sa.String(22)),
-    column('org_uuid', UUIDType(binary=False)),
+    column('org_uuid', sa.Uuid()),
 )
 
 
@@ -44,10 +42,10 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
-    op.add_column('team', sa.Column('org_uuid', UUIDType(binary=False), nullable=True))
+    op.add_column('team', sa.Column('org_uuid', sa.Uuid(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()
@@ -66,7 +64,7 @@ def upgrade():
     op.drop_column('team', 'orgid')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     op.add_column(

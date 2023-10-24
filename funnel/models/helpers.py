@@ -2,42 +2,28 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from textwrap import dedent
-from typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Set,
-    Type,
-    TypeVar,
-    cast,
-)
 import os.path
 import re
+from collections.abc import Callable, Iterable
+from dataclasses import dataclass
+from textwrap import dedent
+from typing import Any, ClassVar, TypeVar, cast
 
+from better_profanity import profanity
+from furl import furl
+from markupsafe import Markup, escape as html_escape
 from sqlalchemy.dialects.postgresql import TSQUERY
 from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
 from sqlalchemy.ext.mutable import MutableComposite
-from sqlalchemy.orm import composite
-
-from flask import Markup
-from flask import escape as html_escape
-
-from better_profanity import profanity
-from furl import furl
+from sqlalchemy.orm import Mapped, composite
 from zxcvbn import zxcvbn
 
 from .. import app
 from ..typing import T
-from ..utils import MarkdownConfig, markdown_escape
-from . import UrlType, sa
+from ..utils import MarkdownConfig, MarkdownString, markdown_escape
+from . import Model, UrlType, sa
 
 __all__ = [
     'RESERVED_NAMES',
@@ -49,8 +35,9 @@ __all__ = [
     'add_search_trigger',
     'visual_field_delimiter',
     'valid_name',
-    'valid_username',
+    'valid_account_name',
     'quote_autocomplete_like',
+    'quote_autocomplete_tsquery',
     'ImgeeFurl',
     'ImgeeType',
     'MarkdownCompositeBase',
@@ -59,7 +46,7 @@ __all__ = [
     'MarkdownCompositeInline',
 ]
 
-RESERVED_NAMES: Set[str] = {
+RESERVED_NAMES: set[str] = {
     '_baseframe',
     'about',
     'account',
@@ -165,7 +152,7 @@ class PasswordCheckType:
     is_weak: bool
     score: int  # One of 0, 1, 2, 3, 4
     warning: str
-    suggestions: List[str]
+    suggestions: list[str]
 
 
 #: Minimum length for a password
@@ -178,7 +165,7 @@ PASSWORD_MIN_SCORE = 3
 
 
 def check_password_strength(
-    password: str, user_inputs: Optional[Iterable[str]] = None
+    password: str, user_inputs: Iterable[str] | None = None
 ) -> PasswordCheckType:
     """Check the strength of a password using zxcvbn."""
     result = zxcvbn(password, user_inputs)
@@ -196,7 +183,7 @@ def check_password_strength(
 
 # re.IGNORECASE needs re.ASCII because of a quirk in the characters it matches.
 # https://docs.python.org/3/library/re.html#re.I
-_username_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.I | re.A)
+_account_name_valid_re = re.compile('^[a-z0-9][a-z0-9_]*$', re.I | re.A)
 _name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
 
 
@@ -213,7 +200,7 @@ with open(
 visual_field_delimiter = ' ¦ '
 
 
-def add_to_class(cls: Type, name: Optional[str] = None) -> Callable[[T], T]:
+def add_to_class(cls: type, name: str | None = None) -> Callable[[T], T]:
     """
     Add a new method to a class via a decorator. Takes an optional attribute name.
 
@@ -230,7 +217,7 @@ def add_to_class(cls: Type, name: Optional[str] = None) -> Callable[[T], T]:
     """
 
     def decorator(attr: T) -> T:
-        use_name: Optional[str] = name or getattr(attr, '__name__', None)
+        use_name: str | None = name or getattr(attr, '__name__', None)
         if not use_name:  # pragma: no cover
             # None or '' not allowed
             raise ValueError(f"Could not determine name for {attr!r}")
@@ -278,7 +265,6 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     This decorator is intended to aid legibility of bi-directional relationships in
     SQLAlchemy models, specifically where a basic backref is augmented with methods or
     properties that do more processing.
-
     """
 
     def decorator(temp_cls: TempType) -> ReopenedType:
@@ -319,13 +305,13 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     return decorator
 
 
-def valid_username(candidate: str) -> bool:
+def valid_account_name(candidate: str) -> bool:
     """
     Check if a username is valid.
 
-    Letters, numbers and non-terminal hyphens only.
+    Letters, numbers and underscores only.
     """
-    return not _username_valid_re.search(candidate) is None
+    return _account_name_valid_re.search(candidate) is not None
 
 
 def valid_name(candidate: str) -> bool:
@@ -334,7 +320,7 @@ def valid_name(candidate: str) -> bool:
 
     Lowercase letters, numbers and non-terminal hyphens only.
     """
-    return not _name_valid_re.search(candidate) is None
+    return _name_valid_re.search(candidate) is not None
 
 
 def pgquote(identifier: str) -> str:
@@ -342,55 +328,78 @@ def pgquote(identifier: str) -> str:
     return f'"{identifier}"' if identifier in POSTGRESQL_RESERVED_WORDS else identifier
 
 
-def quote_autocomplete_like(query):
+def quote_autocomplete_like(prefix: str, midway: bool = False) -> str:
     """
     Construct a LIKE query string for prefix-based matching (autocomplete).
 
+    :param midway: Search midway using the ``%letters%`` syntax. This requires a
+        trigram index to be efficient
+
     Usage::
 
-        column.like(quote_autocomplete_like(query))
+        column.like(quote_autocomplete_like(prefix))
 
     For case-insensitive queries, add an index on LOWER(column) and use::
 
-        sa.func.lower(column).like(sa.func.lower(quote_autocomplete_like(query)))
+        sa.func.lower(column).like(sa.func.lower(quote_autocomplete_like(prefix)))
+
+    This function will return an empty string if the prefix has no content after
+    stripping whitespace and special characters. It is prudent to test before usage::
+
+        like_query = quote_autocomplete_like(prefix)
+        if like_query:
+            # Proceed with query
+            query = Model.query.filter(
+                sa.func.lower(Model.column).like(sa.func.lower(like_query))
+            )
     """
     # Escape the '%' and '_' wildcards in SQL LIKE clauses.
     # Some SQL dialects respond to '[' and ']', so remove them.
     # Suffix a '%' to make a prefix-match query.
-    return (
-        query.replace('%', r'\%').replace('_', r'\_').replace('[', '').replace(']', '')
+    like_query = (
+        prefix.replace('\\', r'\\')
+        .replace('%', r'\%')
+        .replace('_', r'\_')
+        .replace('[', '')
+        .replace(']', '')
         + '%'
     )
+    lstrip_like_query = like_query.lstrip()
+    if lstrip_like_query == '%':
+        return ''
+    if midway:
+        return '%' + like_query
+    return lstrip_like_query
 
 
-def quote_autocomplete_tsquery(query: str) -> TSQUERY:
+def quote_autocomplete_tsquery(prefix: str) -> TSQUERY:
     """Return a PostgreSQL tsquery suitable for autocomplete-type matches."""
     return cast(
         TSQUERY,
         sa.func.cast(
-            sa.func.concat(sa.func.phraseto_tsquery(query or ''), ':*'), TSQUERY
+            sa.func.concat(sa.func.phraseto_tsquery('simple', prefix or ''), ':*'),
+            TSQUERY,
         ),
     )
 
 
-def add_search_trigger(
-    model: Any, column_name: str  # type: ignore[name-defined]
-) -> Dict[str, str]:
+def add_search_trigger(model: type[Model], column_name: str) -> dict[str, str]:
     """
     Add a search trigger and returns SQL for use in migrations.
 
     Typical use::
 
-        class MyModel(db.Model):  # type: ignore[name-defined]
+        class MyModel(Model):
             ...
-            search_vector: Mapped[TSVectorType] = sa.orm.deferred(sa.Column(
+            search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
                 TSVectorType(
                     'name', 'title', *indexed_columns,
                     weights={'name': 'A', 'title': 'B'},
                     regconfig='english'
                 ),
                 nullable=False,
-            ))
+                deferred=True,
+            )
 
             __table_args__ = (
                 sa.Index(
@@ -449,19 +458,20 @@ def add_search_trigger(
         END
         $$ LANGUAGE plpgsql;
 
-        CREATE TRIGGER {trigger_name} BEFORE INSERT OR UPDATE ON {table_name}
-        FOR EACH ROW EXECUTE PROCEDURE {function_name}();
+        CREATE TRIGGER {trigger_name} BEFORE INSERT OR UPDATE OF {source_columns}
+        ON {table_name} FOR EACH ROW EXECUTE PROCEDURE {function_name}();
         '''.format(  # nosec
             function_name=pgquote(function_name),
             column_name=pgquote(column_name),
             trigger_expr=trigger_expr,
             trigger_name=pgquote(trigger_name),
+            source_columns=', '.join(pgquote(col) for col in column.type.columns),
             table_name=pgquote(model.__tablename__),
         )
     )
 
     update_statement = (
-        f'UPDATE {pgquote(model.__tablename__)}'
+        f'UPDATE {pgquote(model.__tablename__)}'  # nosec
         f' SET {pgquote(column_name)} = {update_expr};'
     )
 
@@ -499,27 +509,35 @@ class MessageComposite:
     :param tag: Optional wrapper tag for HTML rendering
     """
 
-    def __init__(self, text: str, tag: Optional[str] = None):
+    def __init__(self, text: str, tag: str | None = None) -> None:
         self.text = text
         self.tag = tag
 
-    def __markdown__(self) -> str:
+    def __markdown__(self) -> MarkdownString:
         """Return Markdown source (for escaper)."""
         return markdown_escape(self.text)
 
-    def __html__(self) -> str:
+    def __markdown_format__(self, format_spec: str) -> str:
+        """Implement format_spec support as required by MarkdownString."""
+        return self.__markdown__().__markdown_format__(format_spec)
+
+    def __html__(self) -> Markup:
         """Return HTML version of string."""
         # Localize lazy string on demand
         tag = self.tag
         if tag:
-            return f'<p><{tag}>{html_escape(self.text)}</{tag}></p>'
-        return f'<p>{html_escape(self.text)}</p>'
+            return Markup(f'<p><{tag}>{html_escape(self.text)}</{tag}></p>')
+        return Markup(f'<p>{html_escape(self.text)}</p>')
+
+    def __html_format__(self, format_spec: str) -> str:
+        """Implement format_spec support as required by Markup."""
+        return self.__html__().__html_format__(format_spec)
 
     @property
     def html(self) -> Markup:
         return Markup(self.__html__())
 
-    def __json__(self) -> Dict[str, Any]:
+    def __json__(self) -> dict[str, Any]:
         """Return JSON-compatible rendering of contents."""
         return {'text': self.text, 'html': self.__html__()}
 
@@ -527,7 +545,7 @@ class MessageComposite:
 class ImgeeFurl(furl):
     """Furl with a resize method specifically for Imgee URLs."""
 
-    def resize(self, width: int, height: Optional[int] = None) -> furl:
+    def resize(self, width: int, height: int | None = None) -> furl:
         """
         Return image url with `?size=WxH` suffixed to it.
 
@@ -547,7 +565,7 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
     url_parser = ImgeeFurl
     cache_ok = True
 
-    def process_bind_param(self, value, dialect):
+    def process_bind_param(self, value: Any, dialect: Any) -> furl:
         value = super().process_bind_param(value, dialect)
         if value:
             allowed_domains = app.config.get('IMAGE_URL_DOMAINS', [])
@@ -562,68 +580,82 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
         return value
 
 
+_MC = TypeVar('_MC', bound='MarkdownCompositeBase')
+
+
 class MarkdownCompositeBase(MutableComposite):
     """Represents Markdown text and rendered HTML as a composite column."""
 
     config: ClassVar[MarkdownConfig]
 
-    def __init__(self, text, html=None):
+    def __init__(self, text: str | None, html: str | None = None) -> None:
         """Create a composite."""
         if html is None:
             self.text = text  # This will regenerate HTML
         else:
             self._text = text
-            self._html = html
+            self._html: str | None = html
 
-    # Return column values for SQLAlchemy to insert into the database
-    def __composite_values__(self):
-        """Return composite values."""
+    def __composite_values__(self) -> tuple[str | None, str | None]:
+        """Return composite values for SQLAlchemy."""
         return (self._text, self._html)
 
     # Return a string representation of the text (see class decorator)
-    def __str__(self):
+    def __str__(self) -> str:
         """Return string representation."""
         return self._text or ''
 
-    def __markdown__(self):
+    def __markdown__(self) -> str:
         """Return source Markdown (for escaper)."""
         return self._text or ''
 
-    # Return a HTML representation of the text
-    def __html__(self):
+    def __markdown_format__(self, format_spec: str) -> str:
+        """Implement format_spec support as required by MarkdownString."""
+        # This call's MarkdownString's __format__ instead of __markdown_format__ as the
+        # content has not been manipulated from the source string
+        return self.__markdown__().__format__(format_spec)
+
+    def __html__(self) -> str:
         """Return HTML representation."""
         return self._html or ''
 
+    def __html_format__(self, format_spec: str) -> str:
+        """Implement format_spec support as required by Markup."""
+        # This call's Markup's __format__ instead of __html_format__ as the
+        # content has not been manipulated from the source string
+        return self.__html__().__format__(format_spec)
+
     # Return a Markup string of the HTML
     @property
-    def html(self):
+    def html(self) -> Markup | None:
         """Return HTML as a read-only property."""
         return Markup(self._html) if self._html is not None else None
 
     @property
-    def text(self):
+    def text(self) -> str | None:
         """Return text as a property."""
         return self._text
 
     @text.setter
-    def text(self, value):
+    def text(self, value: str | None) -> None:
         """Set the text value."""
         self._text = None if value is None else str(value)
         self._html = self.config.render(self._text)
         self.changed()
 
-    def __json__(self) -> Dict[str, Optional[str]]:
+    def __json__(self) -> dict[str, str | None]:
         """Return JSON-compatible rendering of composite."""
         return {'text': self._text, 'html': self._html}
 
-    # Compare text value
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Compare for equality."""
-        return isinstance(other, self.__class__) and (
-            self.__composite_values__() == other.__composite_values__()
+        return (
+            isinstance(other, self.__class__)
+            and (self.__composite_values__() == other.__composite_values__())
+            or self._text == other
         )
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         """Compare for inequality."""
         return not self.__eq__(other)
 
@@ -631,37 +663,62 @@ class MarkdownCompositeBase(MutableComposite):
     # tested here as we don't use them.
     # https://docs.sqlalchemy.org/en/13/orm/extensions/mutable.html#id1
 
-    def __getstate__(self):
+    def __getstate__(self) -> tuple[str | None, str | None]:
         """Get state for pickling."""
         # Return state for pickling
         return (self._text, self._html)
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: tuple[str | None, str | None]) -> None:
         """Set state from pickle."""
         # Set state from pickle
         self._text, self._html = state
         self.changed()
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """Return boolean value."""
         return bool(self._text)
 
     @classmethod
-    def coerce(cls, key, value):
+    def coerce(cls: type[_MC], key: str, value: Any) -> _MC:
         """Allow a composite column to be assigned a string value."""
         return cls(value)
 
+    # TODO: Add `nullable` as a keyword parameter and add overloads for returning
+    # Mapped[str] or Mapped[str | None] based on nullable
+
     @classmethod
     def create(
-        cls, name: str, deferred: bool = False, group: Optional[str] = None, **kwargs
-    ):
+        cls: type[_MC],
+        name: str,
+        deferred: bool = False,
+        deferred_group: str | None = None,
+        **kwargs,
+    ) -> tuple[sa.orm.Composite[_MC], Mapped[str], Mapped[str]]:
         """Create a composite column and backing individual columns."""
-        return composite(
-            cls,
-            sa.Column(name + '_text', sa.UnicodeText, **kwargs),
-            sa.Column(name + '_html', sa.UnicodeText, **kwargs),
+        col_text = sa.orm.mapped_column(
+            name + '_text',
+            sa.UnicodeText,
             deferred=deferred,
-            group=group or name,
+            deferred_group=deferred_group,
+            **kwargs,
+        )
+        col_html = sa.orm.mapped_column(
+            name + '_html',
+            sa.UnicodeText,
+            deferred=deferred,
+            deferred_group=deferred_group,
+            **kwargs,
+        )
+        return (
+            composite(
+                cls,
+                col_text,
+                col_html,
+                deferred=deferred,
+                group=deferred_group,
+            ),
+            col_text,
+            col_html,
         )
 
 

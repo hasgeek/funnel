@@ -2,21 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Set
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
-
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import Mapped, db, sa
+from . import DynamicMapped, Mapped, Model, backref, db, relationship, sa
+from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
-    ImmutableProfileMembershipMixin,
+    ImmutableUserMembershipMixin,
     ReorderMembershipMixin,
 )
-from .profile import Profile
 from .project import Project
 from .proposal import Proposal
 
@@ -26,13 +23,12 @@ __all__ = ['ProjectSponsorMembership', 'ProposalSponsorMembership']
 class ProjectSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
-    ImmutableProfileMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
+    ImmutableUserMembershipMixin,
+    Model,
 ):
     """Sponsor of a project."""
 
     __tablename__ = 'project_sponsor_membership'
-    __allow_unmapped__ = True
 
     # List of data columns in this model that must be copied into revisions
     __data_columns__ = ('seq', 'is_promoted', 'label', 'title')
@@ -42,21 +38,21 @@ class ProjectSponsorMembership(  # type: ignore[misc]
             'read': {
                 'is_promoted',
                 'label',
-                'profile',
+                'member',
                 'project',
                 'seq',
                 'title',
                 'urls',
             },
             'call': {'url_for'},
-        },
+        }
     }
     __datasets__ = {
         'primary': {
             'is_promoted',
             'label',
             'offered_roles',
-            'profile',
+            'member',
             'project',
             'seq',
             'title',
@@ -67,7 +63,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
             'is_promoted',
             'label',
             'offered_roles',
-            'profile',
+            'member',
             'seq',
             'title',
             'urls',
@@ -84,14 +80,14 @@ class ProjectSponsorMembership(  # type: ignore[misc]
         },
     }
 
-    revoke_on_subject_delete = False
+    revoke_on_member_delete = False
 
-    project_id: Mapped[int] = sa.Column(
+    project_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
-    project: Mapped[Project] = sa.orm.relationship(
+    project: Mapped[Project] = relationship(
         Project,
-        backref=sa.orm.backref(
+        backref=backref(
             'all_sponsor_memberships',
             lazy='dynamic',
             cascade='all',
@@ -104,11 +100,11 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
     #: Is this sponsor being promoted for commercial reasons? Projects may have a legal
     #: obligation to reveal this. This column records a declaration from the project.
-    is_promoted = immutable(sa.Column(sa.Boolean, nullable=False))
+    is_promoted = immutable(sa.orm.mapped_column(sa.Boolean, nullable=False))
 
     #: Optional label, indicating the type of sponsor
     label = immutable(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='project_sponsor_membership_label_check'
@@ -123,20 +119,20 @@ class ProjectSponsorMembership(  # type: ignore[misc]
     # a page id reference column whenever that model is ready.
 
     @cached_property
-    def offered_roles(self) -> Set[str]:
+    def offered_roles(self) -> set[str]:
         """Return empty set as this membership does not offer any roles on Project."""
         return set()
 
 
 @reopen(Project)
 class __Project:
-    sponsor_memberships = with_roles(
-        sa.orm.relationship(
+    sponsor_memberships: DynamicMapped[ProjectSponsorMembership] = with_roles(
+        relationship(
             ProjectSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
                 ProjectSponsorMembership.project_id == Project.id,
-                ProjectSponsorMembership.is_active,  # type: ignore[arg-type]
+                ProjectSponsorMembership.is_active,
             ),
             order_by=ProjectSponsorMembership.seq,
             viewonly=True,
@@ -146,22 +142,23 @@ class __Project:
 
     @with_roles(read={'all'})
     @cached_property
-    def has_sponsors(self):
+    def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy('sponsor_memberships', 'profile')
+    sponsors = DynamicAssociationProxy('sponsor_memberships', 'member')
 
 
+# FIXME: Replace this with existing proposal collaborator as they're now both related
+# to "account"
 class ProposalSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
-    ImmutableProfileMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
+    ImmutableUserMembershipMixin,
+    Model,
 ):
     """Sponsor of a proposal."""
 
     __tablename__ = 'proposal_sponsor_membership'
-    __allow_unmapped__ = True
 
     # List of data columns in this model that must be copied into revisions
     __data_columns__ = ('seq', 'is_promoted', 'label', 'title')
@@ -171,7 +168,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
             'read': {
                 'is_promoted',
                 'label',
-                'profile',
+                'member',
                 'proposal',
                 'seq',
                 'title',
@@ -185,7 +182,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
             'is_promoted',
             'label',
             'offered_roles',
-            'profile',
+            'member',
             'proposal',
             'seq',
             'title',
@@ -196,7 +193,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
             'is_promoted',
             'label',
             'offered_roles',
-            'profile',
+            'member',
             'seq',
             'title',
             'urls',
@@ -213,14 +210,14 @@ class ProposalSponsorMembership(  # type: ignore[misc]
         },
     }
 
-    revoke_on_subject_delete = False
+    revoke_on_member_delete = False
 
-    proposal_id: Mapped[int] = sa.Column(
+    proposal_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
-    proposal: Mapped[Proposal] = sa.orm.relationship(
+    proposal: Mapped[Proposal] = relationship(
         Proposal,
-        backref=sa.orm.backref(
+        backref=backref(
             'all_sponsor_memberships',
             lazy='dynamic',
             cascade='all',
@@ -233,11 +230,11 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
     #: Is this sponsor being promoted for commercial reasons? Proposals may have a legal
     #: obligation to reveal this. This column records a declaration from the proposal.
-    is_promoted = immutable(sa.Column(sa.Boolean, nullable=False))
+    is_promoted = immutable(sa.orm.mapped_column(sa.Boolean, nullable=False))
 
     #: Optional label, indicating the type of sponsor
     label = immutable(
-        sa.Column(
+        sa.orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='proposal_sponsor_membership_label_check'
@@ -247,20 +244,20 @@ class ProposalSponsorMembership(  # type: ignore[misc]
     )
 
     @cached_property
-    def offered_roles(self) -> Set[str]:
+    def offered_roles(self) -> set[str]:
         """Return empty set as this membership does not offer any roles on Proposal."""
         return set()
 
 
 @reopen(Proposal)
 class __Proposal:
-    sponsor_memberships = with_roles(
-        sa.orm.relationship(
+    sponsor_memberships: DynamicMapped[ProposalSponsorMembership] = with_roles(
+        relationship(
             ProposalSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
                 ProposalSponsorMembership.proposal_id == Proposal.id,
-                ProposalSponsorMembership.is_active,  # type: ignore[arg-type]
+                ProposalSponsorMembership.is_active,
             ),
             order_by=ProposalSponsorMembership.seq,
             viewonly=True,
@@ -270,45 +267,49 @@ class __Proposal:
 
     @with_roles(read={'all'})
     @cached_property
-    def has_sponsors(self):
+    def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy('sponsor_memberships', 'profile')
+    sponsors = DynamicAssociationProxy('sponsor_memberships', 'member')
 
 
-@reopen(Profile)
-class __Profile:
+@reopen(Account)
+class __Account:
     # pylint: disable=invalid-unary-operand-type
-    noninvite_project_sponsor_memberships = sa.orm.relationship(
+    noninvite_project_sponsor_memberships: DynamicMapped[
+        ProjectSponsorMembership
+    ] = relationship(
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectSponsorMembership.profile_id == Profile.id,
-            ~ProjectSponsorMembership.is_invite,  # type: ignore[operator]
+            ProjectSponsorMembership.member_id == Account.id,
+            ~ProjectSponsorMembership.is_invite,
         ),
         order_by=ProjectSponsorMembership.granted_at.desc(),
         viewonly=True,
     )
 
-    project_sponsor_memberships = sa.orm.relationship(
+    project_sponsor_memberships: DynamicMapped[ProjectSponsorMembership] = relationship(
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectSponsorMembership.profile_id == Profile.id,
-            ProjectSponsorMembership.is_active,  # type: ignore[arg-type]
+            ProjectSponsorMembership.member_id == Account.id,
+            ProjectSponsorMembership.is_active,
         ),
         order_by=ProjectSponsorMembership.granted_at.desc(),
         viewonly=True,
     )
 
-    project_sponsor_membership_invites = with_roles(
-        sa.orm.relationship(
+    project_sponsor_membership_invites: DynamicMapped[
+        ProjectSponsorMembership
+    ] = with_roles(
+        relationship(
             ProjectSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
-                ProjectSponsorMembership.profile_id == Profile.id,
-                ProjectSponsorMembership.is_invite,  # type: ignore[arg-type]
-                ProjectSponsorMembership.revoked_at.is_(None),  # type: ignore[has-type]
+                ProjectSponsorMembership.member_id == Account.id,
+                ProjectSponsorMembership.is_invite,
+                ProjectSponsorMembership.revoked_at.is_(None),
             ),
             order_by=ProjectSponsorMembership.granted_at.desc(),
             viewonly=True,
@@ -316,38 +317,42 @@ class __Profile:
         read={'admin'},
     )
 
-    noninvite_proposal_sponsor_memberships = sa.orm.relationship(
+    noninvite_proposal_sponsor_memberships: DynamicMapped[
+        ProposalSponsorMembership
+    ] = relationship(
         ProposalSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalSponsorMembership.profile_id == Profile.id,
-            ~ProposalSponsorMembership.is_invite,  # type: ignore[operator]
+            ProposalSponsorMembership.member_id == Account.id,
+            ~ProposalSponsorMembership.is_invite,
         ),
         order_by=ProposalSponsorMembership.granted_at.desc(),
         viewonly=True,
     )
 
-    proposal_sponsor_memberships = sa.orm.relationship(
+    proposal_sponsor_memberships: DynamicMapped[
+        ProposalSponsorMembership
+    ] = relationship(
         ProposalSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalSponsorMembership.profile_id == Profile.id,
-            ProposalSponsorMembership.is_active,  # type: ignore[arg-type]
+            ProposalSponsorMembership.member_id == Account.id,
+            ProposalSponsorMembership.is_active,
         ),
         order_by=ProposalSponsorMembership.granted_at.desc(),
         viewonly=True,
     )
 
-    proposal_sponsor_membership_invites = with_roles(
-        sa.orm.relationship(
+    proposal_sponsor_membership_invites: DynamicMapped[
+        ProposalSponsorMembership
+    ] = with_roles(
+        relationship(
             ProposalSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
-                ProposalSponsorMembership.profile_id == Profile.id,
-                ProposalSponsorMembership.is_invite,  # type: ignore[arg-type]
-                ProposalSponsorMembership.revoked_at.is_(  # type: ignore[has-type]
-                    None
-                ),
+                ProposalSponsorMembership.member_id == Account.id,
+                ProposalSponsorMembership.is_invite,
+                ProposalSponsorMembership.revoked_at.is_(None),
             ),
             order_by=ProposalSponsorMembership.granted_at.desc(),
             viewonly=True,
@@ -364,9 +369,9 @@ class __Profile:
     )
 
 
-Profile.__active_membership_attrs__.update(
+Account.__active_membership_attrs__.update(
     {'project_sponsor_memberships', 'proposal_sponsor_memberships'}
 )
-Profile.__noninvite_membership_attrs__.update(
+Account.__noninvite_membership_attrs__.update(
     {'noninvite_project_sponsor_memberships', 'noninvite_proposal_sponsor_memberships'}
 )

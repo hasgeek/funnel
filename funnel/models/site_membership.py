@@ -2,39 +2,38 @@
 
 from __future__ import annotations
 
-from typing import Set
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
-
 from werkzeug.utils import cached_property
 
-from ..typing import Mapped
-from . import User, db, declared_attr, sa
+from . import Mapped, Model, declared_attr, relationship, sa
+from .account import Account
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 
 __all__ = ['SiteMembership']
 
 
-class SiteMembership(
-    ImmutableUserMembershipMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class SiteMembership(ImmutableUserMembershipMixin, Model):
     """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'
-    __allow_unmapped__ = True
 
     # List of is_role columns in this model
-    __data_columns__ = {'is_comment_moderator', 'is_user_moderator', 'is_site_editor'}
+    __data_columns__ = {
+        'is_comment_moderator',
+        'is_user_moderator',
+        'is_site_editor',
+        'is_sysadmin',
+    }
 
     __roles__ = {
-        'all': {
+        'member': {
             'read': {
                 'urls',
-                'user',
+                'member',
                 'is_comment_moderator',
                 'is_user_moderator',
                 'is_site_editor',
+                'is_sysadmin',
             }
         }
     }
@@ -47,15 +46,21 @@ class SiteMembership(
     # Site admin roles (at least one must be True):
 
     #: Comment moderators can delete comments
-    is_comment_moderator: Mapped[bool] = sa.Column(
+    is_comment_moderator: Mapped[bool] = sa.orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: User moderators can suspend users
-    is_user_moderator: Mapped[bool] = sa.Column(
+    is_user_moderator: Mapped[bool] = sa.orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: Site editors can feature or reject projects
-    is_site_editor: Mapped[bool] = sa.Column(sa.Boolean, nullable=False, default=False)
+    is_site_editor: Mapped[bool] = sa.orm.mapped_column(
+        sa.Boolean, nullable=False, default=False
+    )
+    #: Sysadmins can manage technical settings
+    is_sysadmin: Mapped[bool] = sa.orm.mapped_column(
+        sa.Boolean, nullable=False, default=False
+    )
 
     @declared_attr.directive
     @classmethod
@@ -64,10 +69,11 @@ class SiteMembership(
         args = list(super().__table_args__)
         args.append(
             sa.CheckConstraint(
-                sa.or_(  # type: ignore[arg-type]
+                sa.or_(
                     cls.is_comment_moderator.is_(True),
                     cls.is_user_moderator.is_(True),
                     cls.is_site_editor.is_(True),
+                    cls.is_sysadmin.is_(True),
                 ),
                 name='site_membership_has_role',
             )
@@ -78,17 +84,17 @@ class SiteMembership(
         """Return representation of membership."""
         # pylint: disable=using-constant-test
         return (
-            f'<{self.__class__.__name__} {self.subject!r} '
+            f'<{self.__class__.__name__} {self.member!r} '
             + ('active' if self.is_active else 'revoked')
             + '>'
         )
 
     @cached_property
-    def offered_roles(self) -> Set[str]:
+    def offered_roles(self) -> set[str]:
         """
         Roles offered by this membership record.
 
-        This property will typically not be used, as the ``User.is_*`` properties
+        This property will typically not be used, as the ``Account.is_*`` properties
         directly test the role columns. This property exists solely to satisfy the
         :attr:`offered_roles` membership ducktype.
         """
@@ -99,18 +105,20 @@ class SiteMembership(
             roles.add('user_moderator')
         if self.is_site_editor:
             roles.add('site_editor')
+        if self.is_sysadmin:
+            roles.add('sysadmin')
         return roles
 
 
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     # Singular, as only one can be active
-    active_site_membership = sa.orm.relationship(
+    active_site_membership: Mapped[SiteMembership] = relationship(
         SiteMembership,
         lazy='select',
         primaryjoin=sa.and_(
-            SiteMembership.user_id == User.id,  # type: ignore[has-type]
-            SiteMembership.is_active,  # type: ignore[arg-type]
+            SiteMembership.member_id == Account.id,  # type: ignore[has-type]
+            SiteMembership.is_active,
         ),
         viewonly=True,
         uselist=False,
@@ -138,6 +146,14 @@ class __User:
         return (
             self.active_site_membership is not None
             and self.active_site_membership.is_site_editor
+        )
+
+    @cached_property
+    def is_sysadmin(self) -> bool:
+        """Test if this user is a sysadmin."""
+        return (
+            self.active_site_membership is not None
+            and self.active_site_membership.is_sysadmin
         )
 
     # site_admin means user has one or more of above roles

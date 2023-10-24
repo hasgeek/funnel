@@ -11,20 +11,20 @@ describe('Responding yes to attend a project', () => {
 
     cy.get('.upcoming').find('.card').contains(project.title).click({ force: true });
     cy.location('pathname').should('contain', project.url);
-    cy.get('a.js-register-btn:visible').click();
+    cy.get('a#rsvp-btn:visible').click();
     cy.wait(2000);
     cy.get('button[data-cy="confirm"]:visible').click();
     cy.get('[data-cy="registered"]').should('exist');
     cy.wait(2000);
-    cy.get('button[data-cy="rsvp-menu"]:visible').click();
-    cy.get('a.js-register-btn:visible').click();
+    cy.get('a#cancel-rsvp-btn:visible').click();
     cy.wait(2000);
     cy.get('button[data-cy="cancel-rsvp"]:visible').click();
     cy.get('[data-cy="unregistered"]').should('exist');
     cy.wait(2000);
-    cy.get('a.js-register-btn:visible').click();
+    cy.get('a#rsvp-btn:visible').click();
     cy.wait(2000);
     cy.get('button[data-cy="confirm"]:visible').click();
+    cy.wait(2000);
     cy.get('button[data-cy="bookmark"]').click();
     cy.wait('@bookmark-project');
     cy.get('button[data-cy="bookmarked"]').should('exist');

@@ -5,7 +5,7 @@
 {% block title %}{% if unread_only %}{% trans %}Unread updates{% endtrans %}{% else %}{% trans %}Updates{% endtrans %}{% endif %}{% endblock title %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/update.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/update.css') }}" />
 {% endblock pageheaders %}
 
 {% block top_title %}
@@ -34,7 +34,7 @@
 {% endblock basecontent %}
 
 {% block footerscripts %}
-  <script src="{{ built_asset('notification_list.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('notification_list.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var notificationConfig = {

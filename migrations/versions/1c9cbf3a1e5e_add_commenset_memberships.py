@@ -6,22 +6,19 @@ Create Date: 2021-03-11 09:07:56.611054
 
 """
 
-from typing import Optional, Tuple, Union
 from uuid import uuid4
 
-from alembic import op
-from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision = '1c9cbf3a1e5e'
 down_revision = '7d5b77aada1e'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 project = table(
@@ -43,7 +40,7 @@ rsvp = table(
 commentset = table(
     'commentset',
     column('id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
+    column('uuid', sa.Uuid()),
     column('type', sa.Integer()),
     column('count', sa.Integer()),
 )
@@ -52,7 +49,7 @@ commentset = table(
 proposal = table(
     'proposal',
     column('id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
+    column('uuid', sa.Uuid()),
     column('user_id', sa.Integer()),
     column('commentset_id', sa.Integer()),
 )
@@ -60,7 +57,7 @@ proposal = table(
 
 commentset_membership = table(
     'commentset_membership',
-    column('id', UUIDType(binary=False)),
+    column('id', sa.Uuid()),
     column('user_id', sa.Integer()),
     column('commentset_id', sa.Integer()),
     column('record_type', sa.Integer()),
@@ -76,7 +73,7 @@ commentset_membership = table(
 
 project_crew_membership = table(
     'project_crew_membership',
-    column('id', UUIDType(binary=False)),
+    column('id', sa.Uuid()),
     column('user_id', sa.Integer()),
     column('project_id', sa.Integer()),
     column('granted_at', sa.TIMESTAMP(timezone=True)),
@@ -86,7 +83,7 @@ project_crew_membership = table(
 
 proposal_membership = table(
     'proposal_membership',
-    column('id', UUIDType(binary=False)),
+    column('id', sa.Uuid()),
     column('user_id', sa.Integer()),
     column('proposal_id', sa.Integer()),
     column('granted_at', sa.TIMESTAMP(timezone=True)),

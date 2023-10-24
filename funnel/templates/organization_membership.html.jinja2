@@ -1,19 +1,16 @@
-{% extends "layout.html.jinja2" %}
-{% block title %}{{ profile.title }}{% endblock title %}
-{%- from "macros.html.jinja2" import faicon, profile_header %}
+{% extends "profile_layout.html.jinja2" %}
+{%- from "macros.html.jinja2" import faicon %}
 {%- from "js/membership.js.jinja2" import membership_template, profile_member_template %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/profile.scss') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/membership.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/profile.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/membership.css') }}" />
 {% endblock pageheaders %}
 
 {% block bodyattrs %}class="bg-primary no-sticky-header mobile-header"{% endblock bodyattrs %}
 
-{% block contenthead %}{% endblock contenthead %}
-
 {% block baseheadline %}
-  {{ profile_header(profile, class="mui--hidden-xs mui--hidden-sm", current_page="admins", title=gettext("Admins")) }}
+  {{ profile_header(account, class="mui--hidden-xs mui--hidden-sm", current_page="admins", title=_("Admins")) }}
 {% endblock baseheadline %}
 
 {% block basecontent %}
@@ -32,12 +29,12 @@
 {% endblock basecontent %}
 
 {% block footerscripts %}
-  <script src="{{ built_asset('membership.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('membership.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
 
       var membershipConfig = {
-        newMemberUrl: "{{ profile.url_for('new_member') }}",
+        newMemberUrl: "{{ account.url_for('new_member') }}",
         members: {{ memberships|tojson }},
         roles: [
           {
@@ -47,8 +44,8 @@
           },
         ],
         divElem: "#manage-membership",
-        memberTemplate: '#member-template',
-        isUserProfileAdmin: {%- if profile.current_roles.owner %} true {% else %} false {%- endif %},
+        memberTemplate: '#profile-member-template',
+        isUserProfileAdmin: {%- if account.current_roles.owner %} true {% else %} false {%- endif %},
       };
 
       Hasgeek.membershipInit(membershipConfig);

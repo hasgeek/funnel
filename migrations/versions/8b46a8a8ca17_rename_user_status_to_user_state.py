@@ -6,16 +6,14 @@ Create Date: 2020-11-05 11:01:13.504106
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '8b46a8a8ca17'
 down_revision = '5f1ab3e04f73'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 USER_STATES = {
     0: "Active",
@@ -26,7 +24,7 @@ USER_STATES = {
 }
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column('user', 'status', new_column_name='state')
     op.create_check_constraint(
         'user_state_check',
@@ -35,6 +33,6 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('user_state_check', 'user', type_='check')
     op.alter_column('user', 'state', new_column_name='status')

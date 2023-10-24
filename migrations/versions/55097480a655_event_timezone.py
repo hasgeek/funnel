@@ -10,11 +10,11 @@ Create Date: 2013-11-09 15:53:48.318340
 revision = '55097480a655'
 down_revision = '3a6b2ab00e3e'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'proposal_space',
         sa.Column(
@@ -24,5 +24,5 @@ def upgrade():
     op.alter_column('proposal_space', 'timezone', server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('proposal_space', 'timezone')

@@ -1,0 +1,82 @@
+# Cache files
+**/*.egg-info
+**/*.pyc
+.coverage
+.mypy_cache
+.pytest_cache
+.ropeproject
+**/.sass-cache
+**/.webassets-cache
+**/__pycache__
+.webpack_cache
+.cache
+
+# MacOS file
+**/.DS_Store
+
+# Assets and static files
+funnel/static/build
+funnel/static/service-worker.js
+funnel/static/service-worker.js.map
+funnel/static/img/fa5-packed.svg
+**/node_modules
+**/*.packed.css
+**/*.packed.js
+**/baseframe-packed.*
+
+# Download files
+geoname_data/
+download/
+
+# Dependencies
+build/dependencies
+
+# Log and test files
+error.log
+error.log.*
+ghostdriver.log
+geckodriver.log
+tests/cypress/screenshots
+tests/cypress/videos
+tests/screenshots
+tests/unit/utils/markdown/data/output.html
+coverage/
+
+# Instance files that should not be checked-in
+instance/development.py
+instance/hasgeekapp.py
+instance/production.py
+instance/settings.py
+instance/container_env
+
+# Forbidden secrets
+secrets.dev
+secrets.test
+newrelic.ini
+.env
+.env.*
+
+# Local venvs (Idea creates them)
+venv/
+env/
+.python-version
+
+# Editors
+.idea/
+.vscode/
+.project
+.pydevproject
+.settings
+*.wpr
+.vscode
+*.sublime-workspace
+
+# Versioning files
+.git
+
+# Local DBs
+dump.rdb
+test.db
+*.bz2
+*.gz
+*.sql

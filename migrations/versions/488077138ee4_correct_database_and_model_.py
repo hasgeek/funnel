@@ -11,9 +11,9 @@ Create Date: 2018-11-12 13:54:09.987761
 revision = '488077138ee4'
 down_revision = '2cbfbcca4737'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.schema import CreateSequence, DropSequence, Sequence
-import sqlalchemy as sa
 
 from coaster.sqlalchemy import JsonDict
 
@@ -31,7 +31,7 @@ tables_with_name_column = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     for tablename in tables_with_name_column:
         # Create CHECK constraint on name
         op.create_check_constraint(tablename + '_name_check', tablename, "name <> ''")
@@ -82,7 +82,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column('user', 'userinfo', type_=sa.TEXT(), existing_type=JsonDict())
 
     op.execute(CreateSequence(Sequence('proposal_redirect_url_id_seq')))

@@ -15,10 +15,10 @@
 {%- block pageheaders -%}
   <link rel="stylesheet"
         type="text/css"
-        href="{{ built_asset('css/submission.scss') }}"/>
+        href="{{ manifest('css/submission.css') }}"/>
   <link rel="stylesheet"
         type="text/css"
-        href="{{ built_asset('css/comments.scss') }}"/>
+        href="{{ manifest('css/comments.css') }}"/>
 {%- endblock pageheaders -%}
 {%- block bodyattrs -%}
   class="bg-accent no-sticky-header mobile-header proposal-page subproject-page {% if proposal.views.video or proposal.session and proposal.session.views.video %}mobile-hide-livestream{% endif %}"
@@ -29,9 +29,8 @@
     class="hg-link-btn mui--hide mui--text-dark"
     data-ga="Share dropdown"
     data-cy="share-project"
-    data-url="{{ proposal.url_for(_external=true, utm_campaign='webshare') }}">
-    {{ faicon(icon='share-alt', icon_size=icon_size, baseline=false, css_class="mui--align-middle") }}
-  </a>
+    data-url="{{ proposal.url_for(_external=true, utm_source='webshare') }}"
+    aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size=icon_size, baseline=false, css_class="mui--align-middle") }}</a>
   <div class="mui-dropdown">
     <a href="#"
       onclick="return false;"
@@ -53,7 +52,13 @@
         class="mui--text-dark"
         data-mui-toggle="dropdown"
         data-ga="Subscribe"
-        data-cy="subscribe-proposal">
+        data-cy="subscribe-proposal"
+        aria-label="
+          {%- if subscribed -%}
+            {% trans %}Unsubscribe{% endtrans %}
+          {%- else -%}
+            {% trans %}Subscribe{% endtrans %}
+          {%- endif -%}">
         {%- if subscribed -%}
           {{ faicon(icon='bell', icon_size='title', baseline=false, css_class="mui--align-middle fa-icon--left-margin js-subscribed mui--hide") }}
           {{ faicon(icon='bell-solid', icon_size='title', baseline=false, css_class="mui--align-middle fa-icon--left-margin js-unsubscribed") }}
@@ -114,8 +119,7 @@
           <li>
             <a class="mui--text-subhead"
               href="{{ proposal.url_for('edit') }}#field-video_url"
-              data-cy="edit-proposal-video"
-              aria-label="{% trans %}Add proposal video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">
+              data-cy="edit-proposal-video">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">
               {%- if proposal.views.video -%}
                 {% trans %}Replace video{% endtrans %}
               {%- else -%}
@@ -131,6 +135,11 @@
           </li>
         {%- endif %}
         {%- if proposal.current_roles.project_editor %}
+          <li>
+            <a class="mui--text-subhead"
+              href="{{ proposal.url_for('contacts_json') }}"
+              data-cy-admin="view contact details">{{ faicon(icon='eye', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}View contact details{% endtrans %}</span></a>
+          </li>
           <li>
             <a href="{{ proposal.url_for('admin') }}"
               class="mui--text-subhead"
@@ -225,127 +234,134 @@
   {% endif %}
   <div class="page-card page-card--nomargin">
     <div class="details">
+      {% with seq = 1 %}
       {% if proposal.session and proposal.session.views.video or proposal.views.video or proposal.current_roles.editor %}
         <div class="details__box mui-tabs__bar">
-          {% with seq = 1 %}
-            {% if proposal.session and proposal.session.views.video and proposal.session.views.video.url %}
-              <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}"
-                  id="pane-justified-{{ seq }}">
-                <div class="details__box__video bg-primary-dark embed-video-wrapper"
-                    data-cy="session-video">
-                  {{ embed_video_player(proposal.session.views.video) }}
-                </div>
-                <div class="details__box__control mui--clearfix">
-                  {{ video_action_bar(proposal.session.views.video, '', proposal.session, false)}}
-                </div>
+          {% if proposal.session and proposal.session.views.video and (not proposal.session.is_restricted_video or proposal.session.current_roles.project_participant) %}
+            <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}"
+                id="pane-justified-{{ seq }}">
+              <div class="details__box__video bg-primary-dark embed-video-wrapper"
+                  data-cy="session-video">
+                {{ embed_video_player(proposal.session.views.video) }}
               </div>
-              {% set seq = seq + 1 %}
-            {%- endif -%}
-            {% if proposal.views.video %}
-              <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}"
-                  id="pane-justified-{{ seq }}">
-                <div class="details__box__video bg-primary-dark embed-video-wrapper"
-                    data-cy="proposal-video">
-                  {{ embed_video_player(proposal.views.video) }}
-                </div>
-                <div class="details__box__control mui--clearfix">
-                  {{ video_action_bar(proposal.views.video, proposal, '', false) }}
-                </div>
+              <div class="details__box__control mui--clearfix">
+                {{ video_action_bar(proposal.session.views.video, '', proposal.session, false) }}
               </div>
-            {%- elif proposal.current_roles.editor %}
-              <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}"
-                  id="pane-justified-{{ seq }}">
-                <div class="details__box__video details__box__video--novideo embed-video-wrapper">
-                  <div class="details__box__video__icon mui--text-center">
-                    {{ faicon(icon='video-slash', icon_size='headline', baseline=false, css_class="mui-text-light") }}
-                    <p class="mui-text-light mui--text-body2">{% trans %}No video{% endtrans %}</p>
-                  </div>
-                  <p>
-                    <a href="{{ proposal.url_for('edit') }}#field-video"
-                      class="mui-btn mui-btn--raised icon-btn details__box__video__add-btn"
-                      aria-label="{% trans %}Add video{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a>
-                  </p>
-                </div>
+            </div>
+            {% set seq = seq + 1 %}
+          {%- endif -%}
+          {% if proposal.views.video %}
+            <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}"
+                id="pane-justified-{{ seq }}">
+              <div class="details__box__video bg-primary-dark embed-video-wrapper"
+                  data-cy="proposal-video">
+                {{ embed_video_player(proposal.views.video) }}
               </div>
-            {% endif %}
-          {% endwith %}
+              <div class="details__box__control mui--clearfix">
+                {{ video_action_bar(proposal.views.video, proposal, '', false) }}
+              </div>
+            </div>
+          {%- elif proposal.current_roles.editor %}
+            <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}"
+                id="pane-justified-{{ seq }}">
+              <div class="details__box__video details__box__video--novideo embed-video-wrapper">
+                <div class="details__box__video__icon mui--text-center">
+                  {{ faicon(icon='video-slash', icon_size='headline', baseline=false, css_class="mui-text-light") }}
+                  <p class="mui-text-light mui--text-body2">{% trans %}No video{% endtrans %}</p>
+                </div>
+                <p>
+                  <a href="{{ proposal.url_for('edit') }}#field-video"
+                    class="mui-btn mui-btn--raised icon-btn details__box__video__add-btn"
+                    aria-label="{% trans %}Add video{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a>
+                </p>
+              </div>
+            </div>
+          {% endif %}
         </div>
       {% endif %}
       {% if proposal.views.video and proposal.session and proposal.session.views.video %}
         <div class="details__box details__box--right">
           <div class="gallery mui-tabs__bar">
-            {% with seq = 1 %}
+            {% with seq_pane = 1 %}
               {% if proposal.session and proposal.session.views.video and proposal.session.views.video.url %}
-                <h3 class="mui--text-subhead mui--text-accent text-bold gallery__text">
-                  {%- trans %}Session video{% endtrans -%}
-                </h3>
-                <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
-                  <a class="display-inlineblock"
-                    role="tab"
-                    data-mui-toggle="tab"
-                    data-mui-controls="pane-justified-{{ seq }}">
-                    <img src="{{ proposal.session.views.video.thumbnail }}"
-                        class="img-responsive"
-                        data-cy="session-video-thumbnail"
-                        alt="{% trans %}Session video{% endtrans %}"/>
-                    <div class="overlay"></div>
-                    <div class="gallery__thumbnail__play-icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
-                  </a>
-                </div>
-                {% set seq = seq + 1 %}
-              {% endif %}
-              <h3 class="mui--text-subhead mui--text-accent text-bold gallery__text">
-                {% trans %}Submission video{% endtrans %}
-              </h3>
-              {% if proposal.views.video %}
-                <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
-                  <a class="display-inlineblock"
-                    role="tab"
-                    data-mui-toggle="tab"
-                    data-mui-controls="pane-justified-{{ seq }}">
-                    <img src="{{ proposal.views.video.thumbnail }}"
-                        class="img-responsive"
-                        data-cy="proposal-video-thumbnail"
-                        alt="{% trans %}Submission video{% endtrans %}"/>
-                    <div class="overlay"></div>
-                    <div class="gallery__thumbnail__play-icon">
-                      {{ faicon(icon='play', icon_size='headline', baseline=false) }}
+                <div class="gallery__thumbnail tabs__item {% if seq == 2 %}mui--is-active{%- endif -%}">
+                  {% if proposal.session.is_restricted_video and not proposal.session.current_roles.project_participant %}
+                    <div class="display-inlineblock">
+                      <img src="{{ proposal.session.views.video.thumbnail }}"
+                            class="img-responsive"
+                            data-cy="session-video-thumbnail"
+                            alt="{% trans %}Session video{% endtrans %}"/>
+                      <span class="gallery__thumbnail__play-icon">
+                        {{ faicon(icon='lock-alt', icon_size='headline', baseline=false) }}
+                        <h3 class="mui--text-subhead text-bold">{% trans %}For members{% endtrans %}</h3>
+                      </span>
                     </div>
-                  </a>
-                </div>
-              {%- else %}
-                <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
-                  <a role="tab"
+                  {% else %}
+                    <a class="display-inlineblock"
+                    role="tab"
                     data-mui-toggle="tab"
-                    data-mui-controls="pane-justified-{{ seq }}">
-                    <h3 class="mui--text-subhead mui--text-accent text-bold">
-                      No preview video
-                    </h3>
-                  </a>
+                    data-mui-controls="pane-justified-{{ seq_pane }}"
+                    aria-label="{% trans %}Play video{% endtrans %}">
+                      <img src="{{ proposal.session.views.video.thumbnail }}"
+                          class="img-responsive"
+                          data-cy="session-video-thumbnail"
+                          alt="{% trans %}Session video{% endtrans %}"/>
+                      <span class="gallery__thumbnail__play-icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</span>
+                    </a>
+                  {% endif %}
+                  {% set seq_pane = seq_pane + 1 %}
                 </div>
+              {% endif %}
+              {% if proposal.views.video %}
+                  <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
+                    <a class="display-inlineblock"
+                      role="tab"
+                      data-mui-toggle="tab"
+                      data-mui-controls="pane-justified-{{ seq_pane }}">
+                      <img src="{{ proposal.views.video.thumbnail }}"
+                          class="img-responsive"
+                          data-cy="proposal-video-thumbnail"
+                          alt="{% trans %}Submission video{% endtrans %}"/>
+                      <div class="overlay"></div>
+                      <div class="gallery__thumbnail__play-icon">
+                        {{ faicon(icon='play', icon_size='headline', baseline=false) }}
+                      </div>
+                    </a>
+                  </div>
+                {%- else %}
+                  <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
+                    <a class="display-inlineblock" role="tab"
+                      data-mui-toggle="tab"
+                      data-mui-controls="pane-justified-{{ seq }}">
+                      <h3 class="mui--text-subhead mui--text-accent text-bold">
+                        No preview video
+                      </h3>
+                    </a>
+                  </div>
               {% endif %}
             {% endwith %}
           </div>
         </div>
       {% endif %}
+      {% endwith %}
     </div>
     <section class="proposal__section" id="submission">
       <div class="display-inlineblock proposal__section__members">
         <div class="flex-wrapper flex-wrapper--center flex-wrapper--wrap">
-          {% for member in proposal.memberships %}
-            {%- if not member.is_uncredited %}
+          {% for membership in proposal.memberships %}
+            {%- if not membership.is_uncredited %}
               <div class="user right-padding">
                 <div class="user__box">
-                  {{ useravatar(member.user) }}
+                  {{ useravatar(membership.member) }}
                   <div class="user__box__header">
                     <p class="mui--text-body2 user__box__fullname">
-                      {{ member.user.fullname }}
+                      {{ membership.member.fullname }}
                     </p>
-                    {%- if member.user.username %}
+                    {%- if membership.member.username %}
                       <p class="mui--text-caption user__box__userid">
-                        @{{ member.user.username }}
-                        {% if member.label -%}
-                          <span class="badge">{{ member.label }}</span>
+                        @{{ membership.member.username }}
+                        {% if membership.label -%}
+                          <span class="badge">{{ membership.label }}</span>
                         {% endif -%}
                       </p>
                     {%- endif -%}
@@ -411,8 +427,8 @@
     </div>
   {% endblock left_col %}
   {% block footerinnerscripts %}
-    <script src="{{ built_asset('submission.js') }}" type="text/javascript"></script>
-    <script src="{{ built_asset('comments.js') }}" type="text/javascript"></script>
+    <script src="{{ manifest('submission.js') }}" type="text/javascript"></script>
+    <script src="{{ manifest('comments.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
     window.Hasgeek.subpageTitle = {{ self.title()|tojson }};
     window.Hasgeek.subpageHasVideo = {% if proposal.views.video or proposal.session and proposal.session.views.video %}true{% else %}false{% endif %};
@@ -423,7 +439,7 @@
         divElem: "#comments-wrapper",
         commentTemplate: '#comment-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
-        user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
+        user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.logo_url, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
         loginUrl: "{{ url_for('login') }}",
         lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
       };

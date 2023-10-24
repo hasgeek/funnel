@@ -7,8 +7,8 @@ https://github.com/markdown-it/markdown-it-sup/blob/master/dist/markdown-it-sup.
 
 from __future__ import annotations
 
-from collections.abc import MutableMapping, Sequence
 import re
+from collections.abc import MutableMapping, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import OptionsDict, RendererHTML
@@ -17,7 +17,7 @@ from markdown_it.token import Token
 
 __all__ = ['sup_plugin']
 
-CARET_CHAR = 0x5E  # ASCII value for `^`
+CARET_CHAR = '^'
 
 WHITESPACE_RE = re.compile(r'(^|[^\\])(\\\\)*\s')
 UNESCAPE_RE = re.compile(r'\\([ \\!"#$%&\'()*+,.\/:;<=>?@[\]^_`{|}~-])')
@@ -25,14 +25,14 @@ UNESCAPE_RE = re.compile(r'\\([ \\!"#$%&\'()*+,.\/:;<=>?@[\]^_`{|}~-])')
 
 def tokenize(state: StateInline, silent: bool) -> bool:
     start = state.pos
-    marker = state.srcCharCode[start]
+    ch = state.src[start]
     maximum = state.posMax
     found = False
 
     if silent:
         return False
 
-    if marker != CARET_CHAR:
+    if ch != CARET_CHAR:
         return False
 
     # Don't run any pairs in validation mode
@@ -42,7 +42,7 @@ def tokenize(state: StateInline, silent: bool) -> bool:
     state.pos = start + 1
 
     while state.pos < maximum:
-        if state.srcCharCode[state.pos] == CARET_CHAR:
+        if state.src[state.pos] == CARET_CHAR:
             found = True
             break
         state.md.inline.skipToken(state)
@@ -63,13 +63,13 @@ def tokenize(state: StateInline, silent: bool) -> bool:
 
     # Earlier we checked "not silent", but this implementation does not need it
     token = state.push('sup_open', 'sup', 1)
-    token.markup = '^'
+    token.markup = CARET_CHAR
 
     token = state.push('text', '', 0)
     token.content = UNESCAPE_RE.sub('$1', content)
 
     token = state.push('sup_close', 'sup', -1)
-    token.markup = '^'
+    token.markup = CARET_CHAR
 
     state.pos = state.posMax + 1
     state.posMax = maximum

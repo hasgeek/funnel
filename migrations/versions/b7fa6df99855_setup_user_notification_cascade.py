@@ -6,18 +6,16 @@ Create Date: 2020-08-19 10:34:20.503741
 
 """
 
-from typing import Optional, Tuple, Union
-
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'b7fa6df99855'
 down_revision = '7f8114c73092'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint(
         'user_notification_eventid_notification_id_fkey',
         'user_notification',
@@ -33,7 +31,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'user_notification_eventid_notification_id_fkey',
         'user_notification',

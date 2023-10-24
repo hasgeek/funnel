@@ -7,14 +7,14 @@ base58
 bcrypt
 better_profanity!=0.7.0  # https://github.com/snguyenthanh/better_profanity/issues/19
 blinker
+boto3  # Required in Imgee not here, but has a pin on urllib3 version
 Brotli
 chevron
 click
 cryptography
 dataclasses-json
-fabric3
 Flask
-Flask-Assets
+Flask-Assets2
 Flask-Babel
 Flask-Executor
 Flask-FlatPages
@@ -26,15 +26,15 @@ Flask-SQLAlchemy
 Flask-WTF
 furl
 geoip2
-greenlet
+grapheme
+gunicorn
 html2text
+httpx[http2]
 icalendar
 idna
-itsdangerous<2.1.0  # https://github.com/pallets/itsdangerous/pull/273
-js2py
-jsmin
+ijson
+itsdangerous
 linkify-it-py
-Markdown
 markdown-it-py
 mdit-py-plugins
 oauth2
@@ -43,19 +43,19 @@ passlib
 phonenumbers
 premailer
 progressbar2
-psycopg2-binary
+psycopg[binary]
 pycountry
-Pygments
 pyIsEmail
-pymdown-extensions
 python-dateutil
-python-dotenv<1.0  # 1.0 drops Python 3.7 support
+python-dotenv
+python-telegram-bot
 pytz
 PyVimeo
 qrcode
 requests
 rich
 rq
+rq-dashboard @ git+https://github.com/jace/rq-dashboard
 SQLAlchemy
 sqlalchemy-json
 SQLAlchemy-Utils
@@ -63,7 +63,9 @@ toml
 tweepy
 twilio
 typing-extensions
+urllib3[socks]  # Not required here, but the [socks] extra shows up in test.txt
 user-agents
 werkzeug
 whitenoise
+z-base-32
 zxcvbn

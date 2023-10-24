@@ -1,3 +1,4 @@
+import toastr from 'toastr';
 import Form from './formhelper';
 
 const SaveProject = ({
@@ -20,18 +21,19 @@ const SaveProject = ({
           $(this).addClass('animate-btn--show');
           if ($(this).hasClass('animate-btn--saved')) {
             $(this).addClass('animate-btn--animate');
-            window.toastr.success(
-              window.gettext('Project added to Account > Saved projects')
-            );
+            toastr.success(window.gettext('Project added to Account > Saved projects'));
           }
         }
       });
     Form.updateFormNonce(response);
   };
 
-  const onError = (response) => Form.handleAjaxError(response);
+  const onError = (error) => {
+    const errorMsg = Form.handleAjaxError(error);
+    toastr.error(errorMsg);
+  };
 
-  window.Hasgeek.Forms.handleFormSubmit(formId, postUrl, onSuccess, onError, config);
+  Form.handleFormSubmit(formId, postUrl, onSuccess, onError, config);
 };
 
 export default SaveProject;

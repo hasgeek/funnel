@@ -3,7 +3,6 @@ process.traceDeprecation = true;
 const webpack = require('webpack');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const path = require('path');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { InjectManifest } = require('workbox-webpack-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -16,6 +15,10 @@ module.exports = {
       fs: false,
       path: require.resolve('path-browserify'),
     },
+  },
+  cache: {
+    type: 'filesystem',
+    cacheDirectory: path.resolve(__dirname, '.webpack_cache'),
   },
   devtool: 'source-map',
   externals: {
@@ -45,11 +48,13 @@ module.exports = {
       'funnel/assets/js/notification_settings.js'
     ),
     account_saved: path.resolve(__dirname, 'funnel/assets/js/account_saved.js'),
+    autosave_form: path.resolve(__dirname, 'funnel/assets/js/autosave_form.js'),
     form: path.resolve(__dirname, 'funnel/assets/js/form.js'),
     account_form: path.resolve(__dirname, 'funnel/assets/js/account_form.js'),
     submission_form: path.resolve(__dirname, 'funnel/assets/js/submission_form.js'),
     labels_form: path.resolve(__dirname, 'funnel/assets/js/labels_form.js'),
     cfp_form: path.resolve(__dirname, 'funnel/assets/js/cfp_form.js'),
+    rsvp_form_modal: path.resolve(__dirname, 'funnel/assets/js/rsvp_form_modal.js'),
     app_css: path.resolve(__dirname, 'funnel/assets/sass/app.scss'),
     form_css: path.resolve(__dirname, 'funnel/assets/sass/form.scss'),
     index_css: path.resolve(__dirname, 'funnel/assets/sass/pages/index.scss'),
@@ -96,6 +101,8 @@ module.exports = {
         loader: 'babel-loader',
         options: {
           plugins: ['@babel/plugin-syntax-dynamic-import'],
+          cacheCompression: false,
+          cacheDirectory: true,
         },
       },
       {
@@ -114,6 +121,7 @@ module.exports = {
   plugins: [
     new ESLintPlugin({
       fix: true,
+      cache: true,
     }),
     new CopyWebpackPlugin({
       patterns: [
@@ -133,9 +141,6 @@ module.exports = {
     }),
     new webpack.DefinePlugin({
       'process.env': { NODE_ENV: JSON.stringify(nodeEnv) },
-    }),
-    new CleanWebpackPlugin({
-      root: path.join(__dirname, 'funnel/static'),
     }),
     new WebpackManifestPlugin({
       fileName: path.join(__dirname, 'funnel/static/build/manifest.json'),
