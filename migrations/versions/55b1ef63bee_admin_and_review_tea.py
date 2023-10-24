@@ -10,11 +10,11 @@ Create Date: 2014-04-19 19:30:27.529641
 revision = '55b1ef63bee'
 down_revision = '18052b0cd282'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'profile',
         sa.Column(
@@ -35,7 +35,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('proposal_space', 'review_team_id')
     op.drop_column('proposal_space', 'admin_team_id')
     op.drop_column('profile', 'admin_team_id')

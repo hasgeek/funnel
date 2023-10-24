@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
+import requests
 from flask import current_app, redirect, request
-
 from furl import furl
 from sentry_sdk import capture_exception
-import requests
 
 from baseframe import _
 
@@ -42,7 +41,7 @@ class GitHubProvider(LoginProvider):
             if request.args['error'] == 'redirect_uri_mismatch':
                 # TODO: Log this as an exception for the server admin to look at
                 raise LoginCallbackError(
-                    _("This server's callback URL is misconfigured")
+                    _("This server’s callback URL is misconfigured")
                 )
             raise LoginCallbackError(_("Unknown failure"))
         code = request.args.get('code', None)

@@ -30,13 +30,14 @@ describe('Add sponsor to project', () => {
     cy.get('.select2-results__option').contains(sponsor.name).click();
     cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');
     cy.get('button[data-cy="form-submit-btn"]').click();
+    cy.wait(2000);
     cy.get('[data-cy="profile-link"]').contains(sponsor.title);
 
     cy.get('a[data-cy="edit-sponsor"]:visible').click();
     cy.wait('@edit-sponsor-form');
     cy.get('#is_promoted').click();
     cy.get('button[data-cy="form-submit-btn"]').click();
-
+    cy.wait(2000);
     cy.get('[data-cy="sponsor-card"]').find('[data-cy="promoted"]').should('exist');
 
     cy.get('a[data-cy="remove-sponsor"]:visible').click();

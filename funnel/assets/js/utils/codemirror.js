@@ -30,6 +30,7 @@ function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 
 
   const extensions = [
     EditorView.lineWrapping,
+    EditorView.contentAttributes.of({ autocapitalize: 'on' }),
     closeBrackets(),
     history(),
     foldGutter(),
@@ -54,6 +55,8 @@ function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 
       }
     },
   });
+
+  $(`#${markdownId}`).addClass('activated').removeClass('activating');
   document.querySelector(`#${markdownId}`).parentNode.append(view.dom);
   return view;
 }

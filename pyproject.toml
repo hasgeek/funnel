@@ -3,7 +3,7 @@
 
 [tool.black]
 line-length = 88
-target_version = ['py37']
+target_version = ['py311']
 skip-string-normalization = true
 include = '\.pyi?$'
 exclude = '''
@@ -25,10 +25,10 @@ exclude = '''
 '''
 
 [tool.djlint]
-profile='jinja'
-extension='.html.jinja2'
-indent=2
-ignore="T002,T028,H006,H016,H020,H023,H030,H031"
+profile = 'jinja'
+extension = '.html.jinja2'
+indent = 2
+ignore = "T002,T028,H006,H016,H020,H023,H030,H031"
 
 [tool.curlylint]
 # Curlylint is not used, but the configuration is preserved here for future use
@@ -70,54 +70,48 @@ image_alt = true
 tabindex_no_positive = true
 
 [tool.isort]
+# Some isort functionality is replicated in ruff, which should have matching config
 profile = 'black'
 multi_line_output = 3
 include_trailing_comma = true
 line_length = 88
 order_by_type = true
 use_parentheses = true
-from_first = true
-# add_imports = 'from __future__ import annotations'
-known_future_library = ['__future__', 'six']
-known_first_party = ['baseframe', 'coaster', 'funnel']
-known_sqlalchemy = ['alembic', 'sqlalchemy', 'sqlalchemy_utils', 'flask_sqlalchemy', 'psycopg2', 'sqlalchemy_json']
-known_flask = [
-  'flask',
-  'click',
-  'werkzeug',
-  'itsdangerous',
-  'wtforms',
-  'webassets',
-  'flask_assets',
-  'flask_babel',
-  'flask_executor',
-  'flask_flatpages',
-  'flask_mailman',
-  'flask_migrate',
-  'flask_redis',
-  'flask_rq2',
-]
+combine_as_imports = true
+split_on_trailing_comma = false
+extra_standard_library = ['typing_extensions']
+known_repo = ['funnel']
+known_first_party = ['baseframe', 'coaster', 'flask_lastuser']
 default_section = 'THIRDPARTY'
-sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
+sections = [
+  'FUTURE',
+  'STDLIB',
+  'THIRDPARTY',
+  'FIRSTPARTY',
+  'REPO',
+  'LOCALFOLDER',
+]
 
 [tool.pytest.ini_options]
-minversion = "6.1"  # For config.rootpath
+minversion = "6.1" # For config.rootpath
 required_plugins = [
+  'pytest-asyncio',
   'pytest-bdd',
   'pytest-cov',
   'pytest-dotenv',
   'pytest-env',
-  'pytest-remotedata',
   'pytest-rerunfailures',
-  'pytest-splinter',
+  'pytest-socket',
   'requests-mock',
 ]
 addopts = [
   '--cov-report=term-missing',
-  '--splinter-screenshot-dir=tests/screenshots',
-  '--remote-data=any',
+  '--driver=firefox',
+  '--disable-socket',
+  '--allow-unix-socket',         # Required for Selenium driver
+  '--allow-hosts=127.0.0.1,::1', # Add Docker IPs here
   '--strict-markers',
-  '--splinter-headless'
+  # '--typeguard-packages=funnel,tests',  # This breaks on toc.py in markdown
 ]
 markers = [
   'dbcommit: Test requires true database commits',
@@ -125,33 +119,24 @@ markers = [
   'formuser("user"): User fixture for editing a form',
   'update_markdown_data: Regenerate markdown test output (dev use only)',
   'debug_markdown_output: Generate markdown debug file tests/data/markdown/output.html (dev use only)',
-  'requires_config("feature"): Run test only if specified app config is available'
+  'requires_config("app", "feature"): Run test only if app config is available',
+  'mock_config("app", config_dict): Create mock configuration for a feature',
 ]
-filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
-mocked-sessions = 'funnel.db.db.session'  # For pytest-flask-sqlalchemy (unused)
-remote_data_strict = true
-env = [
-  'FLASK_ENV=testing',
-  # For macOS: https://stackoverflow.com/a/52230415/78903
-  'OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES',
-  'D:HOSTALIASES={PWD}/HOSTALIASES'
-]
+bdd_features_base_dir = 'tests/features/'
+env = ['FLASK_ENV=testing', 'FLASK_TESTING=true']
 env_override_existing_values = false
-env_files = ['.env', '.env.testing']
+env_files = ['.env.testing', '.testenv', '.env', '.flaskenv']
 
 [tool.pyright]
-venv = 'hasgeek'
+venv = '.venv'
 reportMissingImports = true
 reportMissingTypeStubs = false
 reportShadowedImports = false
-
-pythonVersion = '3.7'
+pythonVersion = '3.11'
 
 [tool.mypy]
 files = '**/*.py'
-exclude = 'node_modules'
-# plugins = ['sqlalchemy.ext.mypy.plugin']
-plugins = ['sqlmypy']
+exclude = ['node_modules', 'build']
 ignore_missing_imports = true
 show_error_codes = true
 warn_unreachable = true
@@ -160,17 +145,11 @@ warn_redundant_casts = false
 check_untyped_defs = false
 
 [[tool.mypy.overrides]]
-# This override doesn't seem to work
-module = ['tests']
+module = 'tests.*'
 check_untyped_defs = true
 warn_unreachable = false
 
-[[tool.mypy.overrides]]
-module = ['flask_sqlalchemy']
-follow_imports = 'skip'
-
 [tool.pylint.master]
-load-plugins = ['pylint_pytest', 'pylint_flask_sqlalchemy']
 max-parents = 10
 init-hook = """
 import os, astroid.bases, pathlib
@@ -186,19 +165,22 @@ astroid.bases.POSSIBLE_PROPERTIES.add('cached_property')
 [tool.pylint.message_control]
 max-line-length = 88
 disable = [
-  'comparison-with-callable',  # Pylint is confused by SQLAlchemy attributes
-  'cyclic-import',  # We have tail imports all over
-  'duplicate-code',  # Too many false positives
-  'fixme',  # Our workflow is to tag for future fixes
-  'invalid-name',  # Flake8 covers our naming convention requirements
-  'no-member',  # Pylint gets confused over how some members become part of an instance
-  'too-few-public-methods',  # Data classes and validator classes have few methods
-  'too-many-ancestors',  # Our models have a large number of mixin classes
-  'too-many-instance-attributes',  # Some instances are just bags of attributes
-  'too-many-lines',  # We have large files that include all related functionality
-  'too-many-public-methods',  # Models and views have many public methods
-  'unused-argument',  # Arguments required for spec compatibility aren't always used
-  'wrong-import-position',  # Let black and isort handle this
+  'comparison-with-callable',     # Pylint is confused by SQLAlchemy attributes
+  'cyclic-import',                # We have tail imports all over
+  'duplicate-code',               # Too many false positives
+  'fixme',                        # Our workflow is to tag for future fixes
+  'invalid-name',                 # Flake8 covers our naming convention requirements
+  'line-too-long',                # Long lines are okay if Black doesn't wrap them
+  'no-member',                    # Pylint gets confused over how some members become part of an instance
+  'too-few-public-methods',       # Data classes and validator classes have few methods
+  'too-many-ancestors',           # Our models have a large number of mixin classes
+  'too-many-arguments',           # Callables can have many optional arguments
+  'too-many-instance-attributes', # Some instances are just bags of attributes
+  'too-many-lines',               # We have large files that include all related functionality
+  'too-many-public-methods',      # Models and views have many public methods
+  'unused-argument',              # Arguments required for spec compatibility aren't always used
+  'wrong-import-order',           # Let isort and ruff handle this
+  'wrong-import-position',        # Let black, isort and ruff handle this
 
   # Temporarily disabled pending audit and fixes
   'missing-class-docstring',
@@ -212,6 +194,124 @@ disable = [
 
 [tool.bandit]
 exclude_dirs = ['node_modules']
+skips = [
+  'B113', # Handled by pylint; bandit incorrectly flags requests_mock for timeout
+  'B608', # Raw SQL detector is noisy for migrations and not configurable
+]
 
 [tool.bandit.assert_used]
-skips = ['*/*_test.py', '*/test_*.py', '*/conftest.py']
+skips = ['**/*_test.py', '**/test_*.py', '**/conftest.py']
+
+[tool.ruff]
+# This is a slight customisation of the default rules
+# 1. Rule E402 (module-level import not top-level) is disabled as isort handles it
+# 2. Rule E501 (line too long) is left to Black; some strings are worse for wrapping
+
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F"]
+ignore = ["E402", "E501"]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "I",
+  "N",
+  "Q",
+  "S",
+  "T",
+  "W",
+  "ANN",
+  "ARG",
+  "BLE",
+  "COM",
+  "DJ",
+  "DTZ",
+  "EM",
+  "ERA",
+  "EXE",
+  "FBT",
+  "ICN",
+  "INP",
+  "ISC",
+  "NPY",
+  "PD",
+  "PGH",
+  "PIE",
+  "PL",
+  "PT",
+  "PTH",
+  "PYI",
+  "RET",
+  "RSE",
+  "RUF",
+  "SIM",
+  "SLF",
+  "TCH",
+  "TID",
+  "TRY",
+  "UP",
+  "YTT",
+]
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+]
+
+# Same as Black.
+line-length = 88
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Target Python 3.11
+target-version = "py311"
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+[tool.ruff.isort]
+# These config options should match isort config above under [tool.isort]
+combine-as-imports = true
+extra-standard-library = ['typing_extensions']
+split-on-trailing-comma = false
+relative-imports-order = 'furthest-to-closest'
+known-first-party = ['baseframe', 'coaster', 'flask_lastuser']
+section-order = [
+  'future',
+  'standard-library',
+  'third-party',
+  'first-party',
+  'repo',
+  'local-folder',
+]
+
+[tool.ruff.isort.sections]
+repo = ['funnel']

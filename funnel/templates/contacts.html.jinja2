@@ -4,7 +4,7 @@
 {% block title %}{% trans %}My contacts{% endtrans %}{% endblock title %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/contacts.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/contacts.css') }}" />
 {% endblock pageheaders %}
 
 {% block bodyattrs %}class="bg-primary tabs-navbar"{% endblock bodyattrs %}
@@ -35,7 +35,7 @@
               </button>
               <ul class="mui-dropdown__menu mui-dropdown__menu--right">
                 <li>
-                  <a href="{{ url_for('contacts_project_csv', uuid_b58=project.uuid_b58) }}" download aria-label="{% trans %}Download CSV{% endtrans %}">
+                  <a href="{{ url_for('contacts_project_csv', uuid_b58=project.uuid_b58) }}" aria-label="{% trans %}Download CSV{% endtrans %}">
                     {{ faicon(icon='download', icon_size='subhead') }} {% trans %}CSV{% endtrans %}
                   </a>
                 </li>
@@ -56,7 +56,7 @@
                     </button>
                     <ul class="mui-dropdown__menu mui-dropdown__menu--right">
                       <li>
-                        <a href="{{ url_for('contacts_project_date_csv', uuid_b58=project.uuid_b58, datestr=daterow.date) }}" download arial-label="{% trans %}Download contacts CSV{% endtrans %}">
+                        <a href="{{ url_for('contacts_project_date_csv', uuid_b58=project.uuid_b58, datestr=daterow.date) }}" aria-label="{% trans %}Download contacts CSV{% endtrans %}">
                           {{ faicon(icon='download', icon_size='subhead') }} {% trans %}CSV{% endtrans %}
                         </a>
                       </li>
@@ -67,14 +67,14 @@
                       <div class="mui--clearfix">
                         <div class="user mui--pull-left">
                           <div class="user__box">
-                            {{ useravatar(contact.ticket_participant.user) }}
+                            {{ useravatar(contact.ticket_participant.participant) }}
                             <div class="user__box__header">
                                 <p class="mui--text-subhead zero-bottom-margin">{{ contact.ticket_participant.fullname }}</p>
                                 <p class="mui--text-body2 zero-bottom-margin">{{ contact.ticket_participant.email }}</p>
                             </div>
                           </div>
                         </div>
-                        <a class="mui--pull-right contact-download-btn" onclick="Hasgeek.downloadVcard(this,'{{ contact.ticket_participant.fullname }}', '{{ contact.ticket_participant.email }}', '{{ contact.ticket_participant.phone }}', '{{ contact.ticket_participant.company }}')" aria-label="download contact" download href="#" onclick="return false;">{{ faicon(icon='address-card', icon_size='headline') }}</a>
+                        <a class="mui--pull-right contact-download-btn" onclick="Hasgeek.downloadVcard(this,'{{ contact.ticket_participant.fullname }}', '{{ contact.ticket_participant.email }}', '{{ contact.ticket_participant.phone }}', '{{ contact.ticket_participant.company }}')" aria-label="{% trans %}Download contact{% endtrans %}" href="#" onclick="return false;">{{ faicon(icon='address-card', icon_size='headline') }}</a>
                       </div>
                     {%- endfor -%}
                   </div>
@@ -89,5 +89,5 @@
 {% endblock basecontent %}
 
 {% block footerscripts %}
-  <script src="{{ built_asset('contact.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('contact.js') }}" type="text/javascript"></script>
 {% endblock footerscripts %}

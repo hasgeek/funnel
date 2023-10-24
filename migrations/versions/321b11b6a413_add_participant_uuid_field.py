@@ -12,16 +12,14 @@ down_revision = '664141d5ec56'
 
 from uuid import uuid4
 
-from alembic import op
-from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 
 participant = table(
-    'participant', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
+    'participant', column('id', sa.Integer()), column('uuid', sa.Uuid())
 )
 
 
@@ -41,17 +39,15 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
-    op.add_column(
-        'participant', sa.Column('uuid', UUIDType(binary=False), nullable=True)
-    )
+    op.add_column('participant', sa.Column('uuid', sa.Uuid(), nullable=True))
     # migrate past participants
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(participant))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(participant))
     progress = get_progressbar("Participants", count)
     progress.start()
-    items = conn.execute(sa.select([participant.c.id]))
+    items = conn.execute(sa.select(participant.c.id))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(participant)
@@ -65,6 +61,6 @@ def upgrade():
     op.create_unique_constraint('participant_uuid_key', 'participant', ['uuid'])
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('participant_uuid_key', 'participant', type_='unique')
     op.drop_column('participant', 'uuid')

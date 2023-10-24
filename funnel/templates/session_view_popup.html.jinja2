@@ -21,7 +21,7 @@
       {% endif %}
     </div>
     <div class="mui-dropdown mui--pull-right">
-      <a href="#" onclick="return false;" class="hg-link-btn mui--hide left-padding" data-url="{{ session.url_for(_external=true, utm_campaign='webshare') }}" role="button" aria-label="{% trans %}Share this session{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
+      <a href="#" onclick="return false;" class="hg-link-btn mui--hide left-padding" data-url="{{ session.url_for(_external=true, utm_source='webshare') }}" role="button" aria-label="{% trans %}Share this session{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
       <a href="#" onclick="return false;" class="project-links left-padding" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" aria-label="{% trans %}Share{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='share-alt', baseline=true, icon_size='subhead', css_class="mui--text-light") }}</a>
       {{ share_dropdown(session.url_for(_external=true), session.title) }}
     </div>
@@ -30,16 +30,29 @@
 
 <div class="modal__body">
   {% if session.views.video and session.views.video.url %}
-    <div class="details">
-      <div class="details__box details__box--left">
-        <div class="details__box__video bg-primary-dark embed-video-wrapper" data-cy="session-video">
-          {{ embed_video_player(session.views.video) }}
-        </div>
-        <div class="details__box__control">
-          {{ video_action_bar(session.views.video, '', session) }}
+    {%- if not session.is_restricted_video or session.current_roles.project_participant %}
+      <div class="details">
+        <div class="details__box details__box--left">
+          <div class="details__box__video bg-primary-dark embed-video-wrapper" data-cy="session-video">
+            {{ embed_video_player(session.views.video) }}
+          </div>
+          <div class="details__box__control">
+            {{ video_action_bar(session.views.video, '', session) }}
+          </div>
         </div>
       </div>
-    </div>
+    {%- else %}
+      <div class="details">
+        <div class="details__box details__box--left">
+          <div class="details__box__video bg-primary-dark embed-video-wrapper">
+            <div class="video_txt">
+              <p>{{ faicon(icon='video-slash', icon_size='display1') }}</p>
+              <p class="mui--text-light">{% trans %}This video is for members only{% endtrans %}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    {%- endif %}
   {% else %}
     <div class="details">
       <div class="details__box details__box--left">
@@ -49,7 +62,7 @@
             <p class="mui--text-light">{% trans %}The session has no attached video{% endtrans %}</p>
             {% if not session.views.video and session.project.current_roles.editor %}
               <div>
-                <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ session.url_for('edit') }}" data-cy-admin="edit-session" aria-label="{% trans %}Add session video{% endtrans %}">Edit session</a>
+                <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ session.url_for('edit') }}" data-cy-admin="edit-session" aria-label="{% trans %}Add session video{% endtrans %}">{% trans %}Edit session{% endtrans %}</a>
               </div>
             {%- endif %}
           </div>

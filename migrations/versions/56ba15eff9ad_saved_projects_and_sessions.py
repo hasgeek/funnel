@@ -10,11 +10,11 @@ Create Date: 2019-07-04 14:32:53.383544
 revision = '56ba15eff9ad'
 down_revision = '5e06feda611d'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'saved_project',
         sa.Column('user_id', sa.Integer(), nullable=False),
@@ -54,7 +54,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(op.f('ix_saved_session_session_id'), table_name='saved_session')
     op.drop_table('saved_session')
 

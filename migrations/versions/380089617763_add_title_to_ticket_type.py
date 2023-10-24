@@ -10,11 +10,11 @@ Create Date: 2015-09-14 19:29:00.133699
 revision = '380089617763'
 down_revision = '39eed1e99156'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'ticket_type', sa.Column('title', sa.Unicode(length=250), nullable=True)
     )
@@ -25,7 +25,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         "ticket_type_proposal_space_id_name_key", 'ticket_type', type_='unique'
     )

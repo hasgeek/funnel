@@ -7,22 +7,20 @@ Create Date: 2021-02-09 10:01:25.069803
 """
 
 from textwrap import dedent
-from typing import Optional, Tuple, Union
 
-from alembic import op
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 
 from coaster.utils import markdown
 
 # revision identifiers, used by Alembic.
 revision = '284c10efdbce'
 down_revision = '2cc791c09075'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 session = table(
@@ -57,10 +55,10 @@ def session_description(row):
     return description
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(session))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(session))
     progress = get_progressbar("Sessions", count)
     progress.start()
     items = conn.execute(session.select())
@@ -79,7 +77,7 @@ def upgrade():
     progress.finish()
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
                 UPDATE session SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(description_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(speaker, '')), 'A');
@@ -105,7 +103,7 @@ def upgrade():
     op.drop_column('session', 'speaker_bio_html')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'session',
         sa.Column(
@@ -130,7 +128,7 @@ def downgrade():
     op.alter_column('session', 'speaker_bio_text', server_default=None)
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
                 UPDATE session SET search_vector = setweight(to_tsvector('english', COALESCE(title, '')), 'A') || setweight(to_tsvector('english', COALESCE(description_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(speaker_bio_text, '')), 'B') || setweight(to_tsvector('english', COALESCE(speaker, '')), 'A');

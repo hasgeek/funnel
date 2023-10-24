@@ -2,29 +2,31 @@
 
 from __future__ import annotations
 
+from uuid import UUID
+
 from werkzeug.datastructures import MultiDict
 
-from . import NoIdMixin, UUIDType, db, json_type, sa
+from . import Mapped, Model, NoIdMixin, sa, types
 
 __all__ = ['Draft']
 
 
-class Draft(NoIdMixin, db.Model):  # type: ignore[name-defined]
+class Draft(NoIdMixin, Model):
     """Store for autosaved, unvalidated drafts on behalf of other models."""
 
     __tablename__ = 'draft'
 
-    table = sa.Column(sa.UnicodeText, primary_key=True)
-    table_row_id = sa.Column(UUIDType(binary=False), primary_key=True)
-    body = sa.Column(json_type, nullable=False, server_default='{}')
-    revision = sa.Column(UUIDType(binary=False))
+    table: Mapped[types.text] = sa.orm.mapped_column(primary_key=True)
+    table_row_id: Mapped[UUID] = sa.orm.mapped_column(primary_key=True)
+    body: Mapped[types.jsonb_dict | None]  # Optional only when instance is new
+    revision: Mapped[UUID | None]
 
     @property
-    def formdata(self):
-        return MultiDict(self.body.get('form', {}))
+    def formdata(self) -> MultiDict:
+        return MultiDict(self.body.get('form', {}) if self.body is not None else {})
 
     @formdata.setter
-    def formdata(self, value):
+    def formdata(self, value: MultiDict | dict) -> None:
         if self.body is not None:
             self.body['form'] = value
         else:

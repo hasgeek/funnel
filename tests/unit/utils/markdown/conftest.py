@@ -1,14 +1,12 @@
 """Test configuration for markdown tests."""
-# pylint: disable=too-many-arguments
 
 from copy import copy
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
 
+import tomlkit
 from bs4 import BeautifulSoup
 from markupsafe import Markup
-import tomlkit
 
 from funnel.utils.markdown import MarkdownConfig
 
@@ -24,8 +22,8 @@ def pytest_generate_tests(metafunc) -> None:
             md_testname: str,
             mdtext: str,
             md_configname: str,
-            config: Optional[Dict] = None,
-            expected_output: Optional[str] = None,
+            config: dict | None = None,
+            expected_output: str | None = None,
         ) -> None:
             self.md_testname = md_testname
             self.mdtext = mdtext
@@ -45,7 +43,7 @@ def pytest_generate_tests(metafunc) -> None:
             return f'{self.md_testname}-{self.md_configname}'
 
         @property
-        def markdown_config(self) -> Union[str, MarkdownConfig]:
+        def markdown_config(self) -> str | MarkdownConfig:
             """
             Return the markdown config for the test case.
 
@@ -62,8 +60,8 @@ def pytest_generate_tests(metafunc) -> None:
             self.expected_output = self.output
 
     class MarkdownTestRegistry:
-        test_map: Optional[Dict[str, Dict[str, MarkdownCase]]] = None
-        test_files: Dict[str, tomlkit.TOMLDocument]
+        test_map: dict[str, dict[str, MarkdownCase]] | None = None
+        test_files: dict[str, tomlkit.TOMLDocument]
 
         @classmethod
         def load(cls) -> None:
@@ -115,7 +113,7 @@ def pytest_generate_tests(metafunc) -> None:
                     (md_tests_data_root / md_testname).write_text(tomlkit.dumps(data))
 
         @classmethod
-        def test_cases(cls) -> List[Tuple[str, str]]:
+        def test_cases(cls) -> list[tuple[str, str]]:
             cls.load()
             return (
                 [

@@ -1,11 +1,11 @@
 {% set current_page = 'update' %}
 {% extends "project_layout.html.jinja2" %}
-{% from "forms.html.jinja2" import renderform %}
+{% from "forms.html.jinja2" import renderform, ajaxform %}
 {%- from "js/update.js.jinja2" import updates_template %}
 {% block title %}{{ update.title }}{% endblock title %}
 
 {%- block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/update.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/update.css') }}" />
 {% endblock pageheaders %}
 
 {% block mobile_header_title %}{% endblock mobile_header_title %}
@@ -29,7 +29,7 @@
       {{ updates_template() }}
       {% if update.features.publish() %}
         <div class="publish-form bottom-padding">
-          {{ renderform(form=publish_form, submit="Publish update", action=update.url_for('publish')) }}
+          {{ renderform(form=publish_form, ref_id='form-update', submit="Publish update", action=update.url_for('publish')) }}
         </div>
       {% endif %}
     </div>
@@ -37,7 +37,9 @@
 {% endblock left_col %}
 
 {% block footerinnerscripts %}
-  <script src="{{ built_asset('update.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('form.js') }}" type="text/javascript"></script>
+  {{ ajaxform(ref_id='form-update', request=request) }}
+  <script src="{{ manifest('update.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
 

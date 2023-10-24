@@ -15,7 +15,7 @@ class CommentForm(forms.Form):
 
     message = forms.MarkdownField(
         "",
-        id="comment_message",
+        id='comment_message',
         validators=[forms.validators.DataRequired()],
     )
 

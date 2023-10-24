@@ -6,19 +6,17 @@ Create Date: 2020-04-21 02:01:52.012077
 
 """
 
-from typing import Optional, Tuple, Union
 from uuid import uuid4
 
-from alembic import op
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql import column, table
 import sqlalchemy as sa
+from alembic import op
+from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision = '71fcac85957c'
 down_revision = '8829241430b6'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 class MEMBERSHIP_RECORD_TYPE:  # noqa: N801
@@ -32,13 +30,13 @@ organization = table(
     'organization',
     column('id', sa.Integer()),
     column('owners_id', sa.Integer()),
-    column('uuid', postgresql.UUID(as_uuid=True)),
+    column('uuid', sa.Uuid(as_uuid=True)),
 )
 
 profile = table(
     'profile',
     column('id', sa.Integer()),
-    column('uuid', postgresql.UUID(as_uuid=True)),
+    column('uuid', sa.Uuid(as_uuid=True)),
     column('user_id', sa.Integer()),
     column('organization_id', sa.Integer()),
     column('admin_team_id', sa.Integer()),
@@ -77,7 +75,7 @@ proposal = table(
 
 project_crew_membership = table(
     'project_crew_membership',
-    column('id', postgresql.UUID(as_uuid=True)),
+    column('id', sa.Uuid(as_uuid=True)),
     column('project_id', sa.Integer()),
     column('user_id', sa.Integer()),
     column('is_editor', sa.Boolean()),
@@ -94,7 +92,7 @@ project_crew_membership = table(
 
 organization_membership = table(
     'organization_membership',
-    column('id', postgresql.UUID(as_uuid=True)),
+    column('id', sa.Uuid(as_uuid=True)),
     column('organization_id', sa.Integer()),
     column('user_id', sa.Integer()),
     column('is_owner', sa.Boolean()),
@@ -109,7 +107,7 @@ organization_membership = table(
 
 proposal_membership = table(
     'proposal_membership',
-    column('id', postgresql.UUID(as_uuid=True)),
+    column('id', sa.Uuid(as_uuid=True)),
     column('proposal_id', sa.Integer()),
     column('user_id', sa.Integer()),
     column('is_reviewer', sa.Boolean()),
@@ -124,24 +122,24 @@ proposal_membership = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     #: Create OrganizationMembership record for owners team members of Organization
-    orgs = conn.execute(sa.select([organization.c.id, organization.c.owners_id]))
+    orgs = conn.execute(sa.select(organization.c.id, organization.c.owners_id))
     for org_id, org_owners_id in orgs:
         owner_team_users = conn.execute(
-            sa.select([team_membership.c.user_id, team_membership.c.created_at])
+            sa.select(team_membership.c.user_id, team_membership.c.created_at)
             .where(team.c.id == org_owners_id)
             .where(team_membership.c.team_id == team.c.id)
         )
-        owners_dict = {user_id: created_at for user_id, created_at in owner_team_users}
+        owners_dict = {r.user_id: r.created_at for r in owner_team_users}
         admin_team_users = conn.execute(
-            sa.select([team_membership.c.user_id, team_membership.c.created_at])
+            sa.select(team_membership.c.user_id, team_membership.c.created_at)
             .where(profile.c.organization_id == org_id)
             .where(team_membership.c.team_id == profile.c.admin_team_id)
         )
-        admins_dict = {user_id: created_at for user_id, created_at in admin_team_users}
+        admins_dict = {r.user_id: r.created_at for r in admin_team_users}
         all_profile_admins = set(owners_dict.keys()) | set(admins_dict.keys())
 
         for user_id in all_profile_admins:
@@ -169,35 +167,31 @@ def upgrade():
     # checkin_team and review_team members of Projects
     projects = conn.execute(
         sa.select(
-            [
-                project.c.id,
-                project.c.checkin_team_id,
-                project.c.review_team_id,
-                project.c.admin_team_id,
-            ]
+            project.c.id,
+            project.c.checkin_team_id,
+            project.c.review_team_id,
+            project.c.admin_team_id,
         )
     )
     for project_id, checkin_team_id, review_team_id, admin_team_id in projects:
         checkin_team_users = conn.execute(
-            sa.select([team_membership.c.user_id, team_membership.c.created_at]).where(
+            sa.select(team_membership.c.user_id, team_membership.c.created_at).where(
                 team_membership.c.team_id == checkin_team_id
             )
         )
-        checkin_dict = {
-            user_id: created_at for user_id, created_at in checkin_team_users
-        }
+        checkin_dict = {r.user_id: r.created_at for r in checkin_team_users}
         review_team_users = conn.execute(
-            sa.select([team_membership.c.user_id, team_membership.c.created_at]).where(
+            sa.select(team_membership.c.user_id, team_membership.c.created_at).where(
                 team_membership.c.team_id == review_team_id
             )
         )
-        review_dict = {user_id: created_at for user_id, created_at in review_team_users}
+        review_dict = {r.user_id: r.created_at for r in review_team_users}
         admin_team_users = conn.execute(
-            sa.select([team_membership.c.user_id, team_membership.c.created_at]).where(
+            sa.select(team_membership.c.user_id, team_membership.c.created_at).where(
                 team_membership.c.team_id == admin_team_id
             )
         )
-        admin_dict = {user_id: created_at for user_id, created_at in admin_team_users}
+        admin_dict = {r.user_id: r.created_at for r in admin_team_users}
         all_users = (
             set(checkin_dict.keys()) | set(review_dict.keys()) | set(admin_dict.keys())
         )
@@ -233,7 +227,7 @@ def upgrade():
             )
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
     conn.execute(project_crew_membership.delete())
     conn.execute(organization_membership.delete())

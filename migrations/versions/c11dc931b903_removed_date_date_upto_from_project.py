@@ -10,9 +10,9 @@ Create Date: 2019-06-08 10:58:13.772112
 revision = 'c11dc931b903'
 down_revision = '56ba15eff9ad'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 project = table(
     'project',
@@ -31,23 +31,23 @@ session = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_column('project', 'date')
     op.drop_column('project', 'date_upto')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     op.add_column('project', sa.Column('date', sa.Date(), nullable=True))
     op.add_column('project', sa.Column('date_upto', sa.Date(), nullable=True))
 
-    projects = conn.execute(sa.select([project.c.id]))
+    projects = conn.execute(sa.select(project.c.id))
     for project_id in projects:
         first_session = conn.execute(
-            sa.select([session.c.start])
+            sa.select(session.c.start)
             .where(session.c.project_id == project_id[0])
-            .where(session.c.start.isnot(None))
+            .where(session.c.start.is_not(None))
             .order_by(session.c.start.asc())
         ).fetchone()
         if first_session is not None:
@@ -57,9 +57,9 @@ def downgrade():
                 .values(date=first_session[0].date())
             )
         last_session = conn.execute(
-            sa.select([session.c.end])
+            sa.select(session.c.end)
             .where(session.c.project_id == project_id[0])
-            .where(session.c.end.isnot(None))
+            .where(session.c.end.is_not(None))
             .order_by(session.c.end.desc())
         ).fetchone()
         if last_session is not None:

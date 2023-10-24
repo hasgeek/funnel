@@ -1,7 +1,7 @@
 import 'jquery-ui';
 import 'jquery-ui-sortable-npm';
 import 'jquery-ui-touch-punch';
-import Form from './utils/formhelper';
+import { Widgets } from './utils/form_widgets';
 
 $(() => {
   function applySortable() {
@@ -27,5 +27,5 @@ $(() => {
   const onSuccessFn = () => {
     window.location.reload();
   };
-  Form.handleDelete('.js-delete-btn', onSuccessFn);
+  Widgets.handleDelete('.js-delete-btn', onSuccessFn);
 });

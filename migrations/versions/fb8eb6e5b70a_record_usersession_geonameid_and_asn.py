@@ -6,19 +6,17 @@ Create Date: 2021-04-28 03:24:28.554095
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'fb8eb6e5b70a'
 down_revision = '64f0cfe37976'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'user_session', sa.Column('geonameid_city', sa.Integer(), nullable=True)
     )
@@ -31,7 +29,7 @@ def upgrade():
     op.add_column('user_session', sa.Column('geoip_asn', sa.Integer(), nullable=True))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('user_session', 'geoip_asn')
     op.drop_column('user_session', 'geonameid_country')
     op.drop_column('user_session', 'geonameid_subdivision')

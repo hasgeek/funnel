@@ -26,40 +26,40 @@ from ..forms import (
     ProfileLogoForm,
     ProfileTransitionForm,
 )
-from ..models import Profile, Project, db, sa
+from ..models import Account, Project, Session, db, sa
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
-from .mixins import ProfileViewMixin
+from .mixins import AccountViewMixin
+from .schedule import schedule_data, session_list_data
 
 
-@Profile.features('new_project')
+@Account.features('new_project')
 def feature_profile_new_project(obj):
     return (
         obj.is_organization_profile
         and obj.current_roles.admin
-        and bool(obj.state.PUBLIC)
+        and bool(obj.profile_state.PUBLIC)
     )
 
 
-@Profile.features('new_user_project')
-def feature_profile_new_user_project(obj):
+@Account.features('new_user_project')
+def feature_profile_new_user_project(obj: Account):
     return (
         obj.is_user_profile
         and obj.current_roles.admin
-        and obj.is_active
-        and bool(obj.state.PUBLIC)
+        and bool(obj.profile_state.ACTIVE_AND_PUBLIC)
     )
 
 
-@Profile.features('make_public')
-def feature_profile_make_public(obj):
-    return obj.current_roles.admin and obj.make_public.is_available
+@Account.features('make_public')
+def feature_profile_make_public(obj: Account):
+    return obj.current_roles.admin and obj.make_profile_public.is_available
 
 
-@Profile.features('make_private')
-def feature_profile_make_private(obj):
-    return obj.current_roles.admin and obj.make_private.is_available
+@Account.features('make_private')
+def feature_profile_make_private(obj: Account):
+    return obj.current_roles.admin and obj.make_profile_private.is_available
 
 
 def template_switcher(templateargs):
@@ -67,9 +67,9 @@ def template_switcher(templateargs):
     return render_template(template, **templateargs)
 
 
-@Profile.views('main')
-@route('/<profile>')
-class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
+@Account.views('main')
+@route('/<account>')
+class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
     @requires_roles({'reader', 'admin'})
@@ -80,7 +80,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_user_profile:
             template_name = 'user_profile.html.jinja2'
 
-            submitted_proposals = self.obj.user.public_proposals
+            submitted_proposals = self.obj.public_proposals
 
             tagged_sessions = [
                 proposal.session
@@ -109,7 +109,8 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                         Project.state.LIVE,
                         Project.state.UPCOMING,
                         sa.and_(
-                            Project.start_at.is_(None), Project.published_at.isnot(None)
+                            Project.start_at.is_(None),
+                            Project.published_at.is_not(None),
                         ),
                     ),
                 )
@@ -125,7 +126,8 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                         Project.state.LIVE,
                         Project.state.UPCOMING,
                         sa.and_(
-                            Project.start_at.is_(None), Project.published_at.isnot(None)
+                            Project.start_at.is_(None),
+                            Project.published_at.is_not(None),
                         ),
                     ),
                     Project.site_featured.is_(True),
@@ -134,7 +136,34 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 .limit(1)
                 .first()
             )
-            if featured_project in upcoming_projects:
+            has_membership_project = self.obj.projects.filter(
+                Project.boxoffice_data.op('@>')({'has_membership': True})
+            ).first()
+            scheduled_sessions_list = (
+                session_list_data(
+                    featured_project.scheduled_sessions, with_modal_url='view'
+                )
+                if featured_project is not None
+                else None
+            )
+            featured_project_venues = (
+                [
+                    venue.current_access(datasets=('without_parent', 'related'))
+                    for venue in featured_project.venues
+                ]
+                if featured_project is not None
+                else None
+            )
+            featured_project_schedule = (
+                schedule_data(
+                    featured_project,
+                    with_slots=False,
+                    scheduled_sessions=scheduled_sessions_list,
+                )
+                if featured_project is not None
+                else None
+            )
+            if featured_project is not None and featured_project in upcoming_projects:
                 upcoming_projects.remove(featured_project)
             open_cfp_projects = (
                 projects.filter(Project.cfp_state.OPEN)
@@ -185,9 +214,12 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     featured_project.current_access(
                         datasets=('without_parent', 'related')
                     )
-                    if featured_project
+                    if featured_project is not None
                     else None
                 ),
+                'featured_project_venues': featured_project_venues,
+                'featured_project_sessions': scheduled_sessions_list,
+                'featured_project_schedule': featured_project_schedule,
                 'sponsored_projects': [
                     _p.current_access(datasets=('primary', 'related'))
                     for _p in sponsored_projects
@@ -196,6 +228,13 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     _p.current_access(datasets=('primary', 'related'))
                     for _p in sponsored_submissions
                 ],
+                'has_membership_project': (
+                    has_membership_project.current_access(
+                        datasets=('without_parent', 'related')
+                    )
+                    if has_membership_project is not None
+                    else None
+                ),
             }
         else:
             abort(404)  # Reserved account
@@ -209,8 +248,8 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_organization_profile:
             abort(404)
 
-        participated_projects = set(self.obj.user.projects_as_crew) | {
-            _p.project for _p in self.obj.user.public_proposals
+        participated_projects = set(self.obj.projects_as_crew) | {
+            _p.project for _p in self.obj.public_proposals
         }
 
         return {
@@ -229,7 +268,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_organization_profile:
             abort(404)
 
-        submitted_proposals = self.obj.user.public_proposals
+        submitted_proposals = self.obj.public_proposals
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
@@ -266,14 +305,40 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ],
         }
 
+    @route('past.sessions')
+    @requestargs(('page', int), ('per_page', int))
+    @render_with('past_sessions_section.html.jinja2')
+    def past_sessions(self, page: int = 1, per_page: int = 10) -> ReturnView:
+        featured_sessions = (
+            Session.query.join(Project, Session.project_id == Project.id)
+            .filter(
+                Session.featured.is_(True),
+                Session.video_id.is_not(None),
+                Session.video_source.is_not(None),
+                Project.state.PUBLISHED,
+                Project.account == self.obj,
+            )
+            .order_by(Session.start_at.desc())
+        )
+        pagination = featured_sessions.paginate(page=page, per_page=per_page)
+        return {
+            'status': 'ok',
+            'profile': self.obj,
+            'next_page': (
+                pagination.page + 1 if pagination.page < pagination.pages else ''
+            ),
+            'total_pages': pagination.pages,
+            'past_sessions': pagination.items,
+        }
+
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     @requires_user_not_spammy()
     def edit(self) -> ReturnView:
         form = ProfileForm(
-            obj=self.obj, model=Profile, profile=self.obj, user=current_auth.user
+            obj=self.obj, model=Account, account=self.obj, edit_user=current_auth.user
         )
-        if self.obj.user:
+        if self.obj.is_user_profile:
             form.make_for_user()
         if form.validate_on_submit():
             form.populate_obj(self.obj)
@@ -292,7 +357,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_logo(self) -> ReturnRenderWith:
-        form = ProfileLogoForm(profile=self.obj)
+        form = ProfileLogoForm(account=self.obj)
         edit_logo_url = self.obj.url_for('edit_logo_url')
         delete_logo_url = self.obj.url_for('remove_logo')
         return {
@@ -305,7 +370,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'admin'})
     @requires_user_not_spammy()
     def edit_logo_url(self) -> ReturnView:
-        form = ProfileLogoForm(obj=self.obj, profile=self.obj)
+        form = ProfileLogoForm(obj=self.obj, account=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)
@@ -340,7 +405,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_banner(self) -> ReturnRenderWith:
-        form = ProfileBannerForm(profile=self.obj)
+        form = ProfileBannerForm(account=self.obj)
         edit_logo_url = self.obj.url_for('edit_banner_image_url')
         delete_logo_url = self.obj.url_for('remove_banner')
         return {
@@ -352,7 +417,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit_banner', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_banner_image_url(self) -> ReturnView:
-        form = ProfileBannerForm(obj=self.obj, profile=self.obj)
+        form = ProfileBannerForm(obj=self.obj, account=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)
@@ -389,6 +454,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('transition', methods=['POST'])
     @requires_login
     @requires_roles({'owner'})
+    @requires_user_not_spammy()
     def transition(self) -> ReturnView:
         form = ProfileTransitionForm(obj=self.obj)
         if form.validate_on_submit():

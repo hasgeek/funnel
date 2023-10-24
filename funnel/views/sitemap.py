@@ -5,12 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional, Tuple, Union
-
-from flask import abort, render_template, url_for
 
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import DAILY, MONTHLY, rrule
+from flask import abort, render_template, url_for
 from pytz import utc
 
 from baseframe import cache
@@ -18,7 +16,7 @@ from coaster.utils import utcnow
 from coaster.views import ClassView, route
 
 from .. import app, executor
-from ..models import Profile, Project, Proposal, Session, Update
+from ..models import Account, Project, Proposal, Session, Update
 from .decorators import xml_response
 from .index import policy_pages
 
@@ -46,7 +44,7 @@ class SitemapIndex:
     """Sitemap index."""
 
     loc: str
-    lastmod: Optional[datetime] = None
+    lastmod: datetime | None = None
 
 
 @dataclass
@@ -54,9 +52,9 @@ class SitemapPage:
     """Sitemap page."""
 
     loc: str
-    lastmod: Optional[datetime] = None
-    changefreq: Optional[ChangeFreq] = None
-    priority: Optional[float] = None
+    lastmod: datetime | None = None
+    changefreq: ChangeFreq | None = None
+    priority: float | None = None
 
 
 # --- Helper functions -----------------------------------------------------------------
@@ -101,8 +99,8 @@ def all_sitemap_months(until: datetime) -> list:
 
 
 def validate_daterange(
-    year: Union[str, int], month: Union[str, int], day: Optional[Union[str, int]]
-) -> Tuple[datetime, datetime]:
+    year: str | int, month: str | int, day: str | int | None
+) -> tuple[datetime, datetime]:
     """
     Validate year, month and day as provided to a view, and return a date range.
 
@@ -172,16 +170,16 @@ def changefreq_for_age(age: timedelta) -> ChangeFreq:
 
 
 @executor.job
-def query_profile(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
+def query_account(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
-            profile.urls['view'],
-            lastmod=profile.updated_at.replace(second=0, microsecond=0),
+            account.urls['view'],
+            lastmod=account.updated_at.replace(second=0, microsecond=0),
             changefreq=changefreq,
         )
-        for profile in Profile.all_public()
-        .filter(Profile.updated_at >= dtstart, Profile.updated_at < dtend)
-        .order_by(Profile.updated_at.desc())
+        for account in Account.all_public()
+        .filter(Account.updated_at >= dtstart, Account.updated_at < dtend)
+        .order_by(Account.updated_at.desc())
     ]
 
 
@@ -319,14 +317,14 @@ class SitemapView(ClassView):
     @xml_response
     @cache.cached(timeout=3600)
     def by_date(  # skipcq: PYL-R0201
-        self, year: str, month: str, day: Optional[str]
+        self, year: str, month: str, day: str | None
     ) -> str:
         dtstart, dtend = validate_daterange(year, month, day)
         age = utcnow() - dtend
         changefreq = changefreq_for_age(age)
 
         jobs = [
-            query_profile.submit(dtstart, dtend, changefreq),
+            query_account.submit(dtstart, dtend, changefreq),
             query_project.submit(dtstart, dtend, changefreq),
             query_update.submit(dtstart, dtend, changefreq),
             query_proposal.submit(dtstart, dtend, changefreq),

@@ -1,0 +1,71 @@
+-e file:./build/dependencies/baseframe
+-e file:./build/dependencies/coaster
+alembic
+argon2-cffi
+Babel
+base58
+bcrypt
+better_profanity!=0.7.0  # https://github.com/snguyenthanh/better_profanity/issues/19
+blinker
+boto3  # Required in Imgee not here, but has a pin on urllib3 version
+Brotli
+chevron
+click
+cryptography
+dataclasses-json
+Flask
+Flask-Assets2
+Flask-Babel
+Flask-Executor
+Flask-FlatPages
+flask-mailman
+Flask-Migrate
+Flask-Redis
+Flask-RQ2
+Flask-SQLAlchemy
+Flask-WTF
+furl
+geoip2
+grapheme
+gunicorn
+html2text
+httpx[http2]
+icalendar
+idna
+ijson
+itsdangerous
+linkify-it-py
+markdown-it-py
+mdit-py-plugins
+oauth2
+oauth2client
+passlib
+phonenumbers
+premailer
+progressbar2
+psycopg[binary]
+pycountry
+pyIsEmail
+python-dateutil
+python-dotenv
+python-telegram-bot
+pytz
+PyVimeo
+qrcode
+requests
+rich
+rq
+rq-dashboard @ git+https://github.com/jace/rq-dashboard
+SQLAlchemy
+sqlalchemy-json
+SQLAlchemy-Utils
+toml
+tweepy
+twilio
+typing-extensions
+urllib3[socks]  # Not required here, but the [socks] extra shows up in test.txt
+user-agents
+werkzeug
+whitenoise
+z-base-32
+zxcvbn

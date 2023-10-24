@@ -4,6 +4,7 @@
   'mui/form';
 @import 'base/variable', 'base/typography', 'components/draggablebox',
   'components/switch', 'components/codemirror';
+@import 'node_modules/select2/dist/css/select2';
 
 // ============================================================================
 // Form
@@ -15,13 +16,13 @@
 
 .mui-form {
   .mui-form__fields {
-    margin-bottom: $mui-grid-padding/2;
+    margin-bottom: $mui-grid-padding * 0.5;
   }
 
   .mui-textfield,
   .mui-radio,
   .mui-checkbox {
-    margin-bottom: $mui-grid-padding/4;
+    margin-bottom: $mui-grid-padding * 0.25;
   }
 
   .mui-radio,
@@ -34,7 +35,7 @@
       > input[type='radio'],
       > input[type='checkbox'] {
         position: relative;
-        margin: 0 $mui-grid-padding/2 0 0;
+        margin: 0 $mui-grid-padding * 0.5 0 0;
       }
     }
   }
@@ -53,7 +54,7 @@
   .mui-form__sidetext,
   .mui-form__helptext {
     color: $mui-text-light;
-    margin: $mui-grid-padding/2 0 0;
+    margin: $mui-grid-padding * 0.5 0 0;
     @extend .mui--text-caption;
   }
 
@@ -87,23 +88,24 @@
   }
 
   // Codemirror editor will be initialized
-  textarea.markdown {
+  textarea.markdown,
+  textarea.stylesheet {
     display: none;
   }
 
   .mui-form__label {
     position: static;
-    margin: 0 0 $mui-grid-padding/2;
+    margin: 0 0 $mui-grid-padding * 0.5;
     color: $mui-label-font-color;
     @extend .mui--text-subhead;
   }
 
   .mui-form__error {
     color: $mui-text-white;
-    margin: $mui-grid-padding/2 0 0;
+    margin: $mui-grid-padding * 0.5 0 0;
     background: $mui-text-danger;
     border: 1px solid transparentize($mui-text-danger, 0.8);
-    padding: $mui-grid-padding/2 $mui-grid-padding;
+    padding: $mui-grid-padding * 0.5 $mui-grid-padding;
     position: relative;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.14);
     border-radius: 2px;
@@ -112,7 +114,7 @@
 
     > li {
       list-style: none;
-      margin-top: $mui-grid-padding/2;
+      margin-top: $mui-grid-padding * 0.5;
     }
   }
 
@@ -159,7 +161,7 @@
       font-weight: 500;
       @extend .mui--text-body2;
       transform: none;
-      top: -$mui-grid-padding/4;
+      top: -$mui-grid-padding * 0.25;
     }
   }
 }
@@ -174,10 +176,10 @@
 // ============================================================================
 
 .mui-select {
-  margin-top: $mui-grid-padding/2;
+  margin-top: $mui-grid-padding * 0.5;
   margin-bottom: 0;
   > label {
-    top: -$mui-grid-padding/4;
+    top: -$mui-grid-padding * 0.25;
   }
   .select2 {
     width: 100% !important;
@@ -231,7 +233,7 @@
   .imgee__url-holder {
     display: block;
     max-width: 200px;
-    margin-bottom: $mui-grid-padding/2;
+    margin-bottom: $mui-grid-padding * 0.5;
   }
 
   .imgee__loader {
@@ -243,7 +245,7 @@
   }
 
   .imgee__button {
-    margin-bottom: $mui-grid-padding/2;
+    margin-bottom: $mui-grid-padding * 0.5;
   }
 }
 
@@ -301,9 +303,10 @@
 
 .modal--form {
   min-width: 100%;
-  min-height: 325px;
+  min-height: 100%;
   height: 100%;
   border-radius: 0;
+  overflow: auto;
 
   .modal--form__action-box {
     padding: 20px;
@@ -345,7 +348,6 @@
 @media (min-width: 768px) {
   .jquery-modal.blocker.current .modal.modal--form {
     min-width: 50%;
-    min-height: 80%;
     height: auto;
     border-radius: 4px;
   }
@@ -396,8 +398,7 @@
     cursor: not-allowed;
     height: 32px !important;
     position: relative !important;
-    padding-left: $mui-grid-padding/2 !important;
-    width: calc(100% + $mui-grid-padding) !important;
+    padding-left: $mui-grid-padding * 0.5 !important;
   }
   .mui-select:focus > label,
   .mui-select > select:focus ~ label {
@@ -414,23 +415,75 @@
 }
 
 // ============================================================================
-// Keyboard switcher
+// Input field helper icon (keyboard switch/Show password)
 // ============================================================================
 
-.tabs.keyboard-switch {
+.field-toggle {
   display: none;
-  justify-content: space-between;
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  z-index: 2;
-  padding: $mui-grid-padding/2;
-  margin: 0;
-  background: $mui-bg-color-primary;
-  margin-bottom: calc(env(keyboard-inset-height)); // Position it above the keyboard
 }
 
-input#username:focus ~ .keyboard-switch {
-  display: flex;
+// ============================================================================
+// Select2
+// ============================================================================
+
+.select2-hidden-accessible ~ .mui-select__menu {
+  display: none !important;
+}
+
+.select2-container .select2-selection {
+  border: none;
+  border-radius: 0;
+  background-image: none;
+  background-color: transparent;
+  border-bottom: 1px solid #ccc;
+  box-shadow: none;
+}
+
+.select2-container .select2-dropdown {
+  border: none;
+  border-radius: 0;
+  -webkit-box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.select2-container.select2-container--focus .select2-selection,
+.select2-container.select2-container--open .select2-selection {
+  box-shadow: none;
+  border: none;
+  border-bottom: 1px solid #ccc;
+}
+
+.select2-container .select2-results__option--highlighted[aria-selected] {
+  background-color: #eee;
+  color: #1f2d3d;
+}
+
+.select2-container .select2-selection--single .select2-selection__arrow {
+  background-color: transparent;
+  border: none;
+  background-image: none;
+}
+
+// ============================================================================
+// Google Map in the form
+// ============================================================================
+
+.map {
+  position: relative;
+  .map__marker {
+    margin-top: $mui-grid-padding * 0.5;
+    width: 100%;
+    height: 40em;
+  }
+  .map__clear {
+    position: absolute;
+    top: 22px;
+    right: 0;
+    z-index: 2;
+    background: #fff;
+  }
 }

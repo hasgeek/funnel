@@ -1,4 +1,6 @@
 @import 'table';
+@import 'node_modules/prismjs/themes/prism';
+@import 'node_modules/prismjs/plugins/match-braces/prism-match-braces';
 
 .markdown {
   overflow-wrap: break-word;
@@ -13,16 +15,7 @@
     font-weight: 700;
     a {
       color: $mui-text-dark;
-      display: none;
-    }
-    &:hover a {
-      display: inline;
-    }
-    @media (any-pointer: coarse) {
-      a {
-        display: inline;
-        color: $mui-text-accent;
-      }
+      text-decoration: none;
     }
   }
 

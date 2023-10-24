@@ -1,11 +1,15 @@
 import Gettext from './gettext';
 
+const AVAILABLE_LANGUAGES = {
+  en: 'en_IN',
+  hi: 'hi_IN',
+};
+
 function getLocale() {
   // Instantiate i18n with browser context
   const { lang } = document.documentElement;
   const langShortForm = lang.substring(0, 2);
-  window.Hasgeek.Config.locale =
-    window.Hasgeek.Config.availableLanguages[langShortForm];
+  window.Hasgeek.Config.locale = AVAILABLE_LANGUAGES[langShortForm];
   return window.Hasgeek.Config.locale;
 }
 

@@ -12,23 +12,18 @@ down_revision = 'e417a13e136d'
 
 from uuid import uuid4
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa
 
-venue_room = table(
-    'venue_room', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
-)
+venue_room = table('venue_room', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
-    op.add_column(
-        'venue_room', sa.Column('uuid', UUIDType(binary=False), nullable=True)
-    )
-    items = conn.execute(sa.select([venue_room.c.id]))
+    op.add_column('venue_room', sa.Column('uuid', sa.Uuid(), nullable=True))
+    items = conn.execute(sa.select(venue_room.c.id))
     for item in items:
         conn.execute(
             sa.update(venue_room).where(venue_room.c.id == item.id).values(uuid=uuid4())
@@ -37,6 +32,6 @@ def upgrade():
     op.create_unique_constraint('venue_room_uuid_key', 'venue_room', ['uuid'])
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('venue_room_uuid_key', 'venue_room', type_='unique')
     op.drop_column('venue_room', 'uuid')

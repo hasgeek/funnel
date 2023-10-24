@@ -10,12 +10,12 @@ Create Date: 2015-10-15 18:33:31.847676
 revision = '2d55f804a4ed'
 down_revision = '48ce908329c0'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, select, table
-import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint(
         'sync_ticket_proposal_space_id_order_no_ticket_no_key',
         'sync_ticket',
@@ -32,7 +32,7 @@ def upgrade():
     op.drop_column('sync_ticket', 'proposal_space_id')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'sync_ticket',
         sa.Column(
@@ -64,7 +64,7 @@ def downgrade():
     op.execute(
         sync_ticket.update().values(
             {
-                'proposal_space_id': select([ticket_client.c.proposal_space_id]).where(
+                'proposal_space_id': select(ticket_client.c.proposal_space_id).where(
                     ticket_client.c.id == sync_ticket.c.ticket_client_id
                 )
             }

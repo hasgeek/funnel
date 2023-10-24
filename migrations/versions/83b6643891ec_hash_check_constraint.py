@@ -6,16 +6,13 @@ Create Date: 2023-01-20 01:16:50.246175
 
 """
 
-from typing import Optional, Tuple, Union
-
 from alembic import op
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '83b6643891ec'
 down_revision: str = '63c44675b6cd'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 def upgrade(engine_name='') -> None:
@@ -35,12 +32,12 @@ def upgrade_() -> None:
     op.create_check_constraint(
         'phone_number_blake2b160_check',
         'phone_number',
-        sa.func.length(sa.sql.column('blake2b160')) == 20,
+        'LENGTH(blake2b160) = 20',
     )
     op.create_check_constraint(
         'email_address_blake2b160_check',
         'email_address',
-        sa.func.length(sa.sql.column('blake2b160')) == 20,
+        'LENGTH(blake2b160) = 20',
     )
 
 

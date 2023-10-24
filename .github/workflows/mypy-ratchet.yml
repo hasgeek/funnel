@@ -1,0 +1,30 @@
+name: Mypy Ratchet
+
+on:
+  push:
+    paths:
+      - '**.py'
+      - 'requirements/*.txt'
+      - '.github/workflows/mypy-ratchet.yml'
+
+jobs:
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: 'requirements/*.txt'
+
+      - name: Install Python dependencies
+        run: |
+          make install-python-dev
+
+      - name: Run mypy
+        run: |
+          mypy . --strict --no-warn-unused-ignores | mypy-json-report parse --diff-old-report mypy-ratchet.json --output-file mypy-ratchet.json || true

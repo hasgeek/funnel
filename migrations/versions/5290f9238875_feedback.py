@@ -10,11 +10,11 @@ Create Date: 2013-09-16 21:48:11.320616
 revision = '5290f9238875'
 down_revision = '4b630fb42760'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'proposal_feedback',
         sa.Column('id', sa.Integer(), nullable=False),
@@ -34,5 +34,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_table('proposal_feedback')

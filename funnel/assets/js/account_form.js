@@ -1,4 +1,5 @@
 import 'htmx.org';
+import toastr from 'toastr';
 import Form from './utils/formhelper';
 
 window.Hasgeek.Accountform = ({
@@ -37,7 +38,7 @@ window.Hasgeek.Accountform = ({
           csrf_token: $('meta[name="csrf-token"]').attr('content'),
         }),
       }).catch(() => {
-        window.toastr.error(window.Hasgeek.Config.errorMsg.networkError);
+        toastr.error(window.Hasgeek.Config.errorMsg.networkError);
       });
       if (response && response.ok) {
         const remoteData = await response.json();
@@ -82,7 +83,7 @@ window.Hasgeek.Accountform = ({
           csrf_token: $('meta[name="csrf-token"]').attr('content'),
         }),
       }).catch(() => {
-        window.toastr.error(window.Hasgeek.Config.errorMsg.networkError);
+        toastr.error(window.Hasgeek.Config.errorMsg.networkError);
       });
       if (response && response.ok) {
         const remoteData = await response.json();

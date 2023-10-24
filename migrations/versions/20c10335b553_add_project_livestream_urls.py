@@ -10,11 +10,11 @@ Create Date: 2019-12-13 21:13:14.307378
 revision = '20c10335b553'
 down_revision = 'c11dc931b903'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'project',
         sa.Column(
@@ -24,5 +24,5 @@ def upgrade():
     op.alter_column('project', 'livestream_urls', server_default='{}')
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('project', 'livestream_urls')

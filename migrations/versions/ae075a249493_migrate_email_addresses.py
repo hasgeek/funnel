@@ -6,23 +6,21 @@ Create Date: 2020-06-11 08:01:40.108228
 
 """
 
-from typing import Optional, Tuple, Union
 import hashlib
 
-from alembic import op
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import idna
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision = 'ae075a249493'
 down_revision = '9333436765cd'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 # --- Tables ---------------------------------------------------------------------------
@@ -161,7 +159,7 @@ def email_domain_naive(email):
 # --- Migrations -----------------------------------------------------------------------
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     # --- UserEmail --------------------------------------------------------------------
@@ -169,23 +167,21 @@ def upgrade():
         'user_email', sa.Column('email_address_id', sa.Integer(), nullable=True)
     )
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_email))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email))
     progress = get_progressbar("Emails", count)
     progress.start()
     items = conn.execute(
         sa.select(
-            [
-                user_email.c.id,
-                user_email.c.email,
-                user_email.c.created_at,
-                user_email.c.updated_at,
-            ]
+            user_email.c.id,
+            user_email.c.email,
+            user_email.c.created_at,
+            user_email.c.updated_at,
         ).order_by(user_email.c.id)
     )
     for counter, item in enumerate(items):
         blake2b160 = email_blake2b160_hash(item.email)
         existing = conn.execute(
-            sa.select([email_address.c.id, email_address.c.created_at])
+            sa.select(email_address.c.id, email_address.c.created_at)
             .where(email_address.c.blake2b160 == blake2b160)
             .limit(1)
         ).fetchone()
@@ -198,7 +194,7 @@ def upgrade():
                     .values(created_at=item.created_at)
                 )
         else:
-            ea_id = conn.execute(
+            ea_id = conn.scalar(
                 email_address.insert()
                 .values(
                     created_at=item.created_at,
@@ -214,7 +210,7 @@ def upgrade():
                     is_blocked=False,
                 )
                 .returning(email_address.c.id)
-            ).fetchone()[0]
+            )
 
         conn.execute(
             user_email.update()
@@ -263,23 +259,21 @@ def upgrade():
         ondelete='SET NULL',
     )
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_email_claim))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email_claim))
     progress = get_progressbar("Email claims", count)
     progress.start()
     items = conn.execute(
         sa.select(
-            [
-                user_email_claim.c.id,
-                user_email_claim.c.email,
-                user_email_claim.c.created_at,
-                user_email_claim.c.updated_at,
-            ]
+            user_email_claim.c.id,
+            user_email_claim.c.email,
+            user_email_claim.c.created_at,
+            user_email_claim.c.updated_at,
         ).order_by(user_email_claim.c.id)
     )
     for counter, item in enumerate(items):
         blake2b160 = email_blake2b160_hash(item.email)
         existing = conn.execute(
-            sa.select([email_address.c.id, email_address.c.created_at])
+            sa.select(email_address.c.id, email_address.c.created_at)
             .where(email_address.c.blake2b160 == blake2b160)
             .limit(1)
         ).fetchone()
@@ -292,7 +286,7 @@ def upgrade():
                     .values(created_at=item.created_at)
                 )
         else:
-            ea_id = conn.execute(
+            ea_id = conn.scalar(
                 email_address.insert()
                 .values(
                     created_at=item.created_at,
@@ -308,7 +302,7 @@ def upgrade():
                     is_blocked=False,
                 )
                 .returning(email_address.c.id)
-            ).fetchone()[0]
+            )
         conn.execute(
             user_email_claim.update()
             .where(user_email_claim.c.id == item.id)
@@ -354,21 +348,21 @@ def upgrade():
     )
 
     count = conn.scalar(
-        sa.select([sa.func.count('*')])
+        sa.select(sa.func.count('*'))
         .select_from(proposal)
-        .where(proposal.c.email.isnot(None))
+        .where(proposal.c.email.is_not(None))
     )
     progress = get_progressbar("Proposals", count)
     progress.start()
     items = conn.execute(
-        sa.select([proposal.c.id, proposal.c.email, proposal.c.created_at])
-        .where(proposal.c.email.isnot(None))
+        sa.select(proposal.c.id, proposal.c.email, proposal.c.created_at)
+        .where(proposal.c.email.is_not(None))
         .order_by(proposal.c.id)
     )
     for counter, item in enumerate(items):
         blake2b160 = email_blake2b160_hash(item.email)
         existing = conn.execute(
-            sa.select([email_address.c.id, email_address.c.created_at])
+            sa.select(email_address.c.id, email_address.c.created_at)
             .where(email_address.c.blake2b160 == blake2b160)
             .limit(1)
         ).fetchone()
@@ -381,7 +375,7 @@ def upgrade():
                     .values(created_at=item.created_at)
                 )
         else:
-            ea_id = conn.execute(
+            ea_id = conn.scalar(
                 email_address.insert()
                 .values(
                     created_at=item.created_at,
@@ -397,7 +391,7 @@ def upgrade():
                     is_blocked=False,
                 )
                 .returning(email_address.c.id)
-            ).fetchone()[0]
+            )
         conn.execute(
             proposal.update()
             .where(proposal.c.id == item.id)
@@ -409,7 +403,7 @@ def upgrade():
     op.drop_column('proposal', 'email')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     # --- Proposal ---------------------------------------------------------------------
@@ -419,14 +413,14 @@ def downgrade():
     )
 
     count = conn.scalar(
-        sa.select([sa.func.count('*')])
+        sa.select(sa.func.count('*'))
         .select_from(proposal)
-        .where(proposal.c.email_address_id.isnot(None))
+        .where(proposal.c.email_address_id.is_not(None))
     )
     progress = get_progressbar("Proposals", count)
     progress.start()
     items = conn.execute(
-        sa.select([proposal.c.id, email_address.c.email]).where(
+        sa.select(proposal.c.id, email_address.c.email).where(
             proposal.c.email_address_id == email_address.c.id
         )
     )
@@ -455,11 +449,11 @@ def downgrade():
         sa.Column('email', sa.VARCHAR(length=254), autoincrement=False, nullable=True),
     )
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_email_claim))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email_claim))
     progress = get_progressbar("Email claims", count)
     progress.start()
     items = conn.execute(
-        sa.select([user_email_claim.c.id, email_address.c.email]).where(
+        sa.select(user_email_claim.c.id, email_address.c.email).where(
             user_email_claim.c.email_address_id == email_address.c.id
         )
     )
@@ -525,11 +519,11 @@ def downgrade():
         sa.Column('blake2b', postgresql.BYTEA(), autoincrement=False, nullable=True),
     )
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_email))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email))
     progress = get_progressbar("Emails", count)
     progress.start()
     items = conn.execute(
-        sa.select([user_email.c.id, email_address.c.email]).where(
+        sa.select(user_email.c.id, email_address.c.email).where(
             user_email.c.email_address_id == email_address.c.id
         )
     )
@@ -563,5 +557,5 @@ def downgrade():
     op.drop_column('user_email', 'email_address_id')
 
     # --- Drop imported contents and restart sequence ----------------------------------
-    op.execute(email_address.delete())
+    op.get_bind().execute(email_address.delete())
     op.execute(sa.text('ALTER SEQUENCE email_address_id_seq RESTART'))

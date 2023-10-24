@@ -2,21 +2,25 @@
 
 from __future__ import annotations
 
-from typing import Optional
+import json
+
+from markupsafe import Markup
 
 from baseframe import __, forms
 
 from ..models import (
+    Account,
+    AccountEmail,
     Project,
     TicketClient,
     TicketEvent,
     TicketParticipant,
-    User,
-    UserEmail,
     db,
 )
+from .helpers import nullable_json_filters, validate_and_convert_json
 
 __all__ = [
+    'FORM_SCHEMA_PLACEHOLDER',
     'ProjectBoxofficeForm',
     'TicketClientForm',
     'TicketEventForm',
@@ -25,7 +29,30 @@ __all__ = [
     'TicketTypeForm',
 ]
 
+
 BOXOFFICE_DETAILS_PLACEHOLDER = {'org': 'hasgeek', 'item_collection_id': ''}
+
+FORM_SCHEMA_PLACEHOLDER = {
+    'fields': [
+        {
+            'name': 'field_name',
+            'title': "Field label shown to user",
+            'description': "An explanation for this field",
+            'type': "string",
+        },
+        {
+            'name': 'has_checked',
+            'title': "I accept the terms",
+            'type': 'boolean',
+        },
+        {
+            'name': 'choice',
+            'title': "Choose one",
+            'type': 'select',
+            'choices': ["First choice", "Second choice", "Third choice"],
+        },
+    ]
+}
 
 
 @Project.forms('boxoffice')
@@ -42,10 +69,37 @@ class ProjectBoxofficeForm(forms.Form):
         filters=[forms.filters.strip()],
     )
     allow_rsvp = forms.BooleanField(
-        __("Allow rsvp"),
+        __("Allow free registrations"),
         default=False,
-        description=__("If checked, both free and buy tickets will shown on project"),
     )
+    is_subscription = forms.BooleanField(
+        __("Paid tickets are for a subscription"),
+        default=True,
+    )
+    has_membership = forms.BooleanField(
+        __("Tickets on this project represent memberships to the account"),
+        default=False,
+    )
+    register_button_txt = forms.StringField(
+        __("Register button text"),
+        filters=[forms.filters.strip()],
+        description=__("Optional – Use with care to replace the button text"),
+    )
+    register_form_schema = forms.StylesheetField(
+        __("Registration form"),
+        description=__("Optional – Specify fields as JSON (limited support)"),
+        filters=nullable_json_filters,
+        validators=[forms.validators.Optional(), validate_and_convert_json],
+    )
+
+    def set_queries(self):
+        """Set form schema description."""
+        self.register_form_schema.description = Markup(
+            '<p>{description}</p><pre><code>{schema}</code></pre>'
+        ).format(
+            description=self.register_form_schema.description,
+            schema=json.dumps(FORM_SCHEMA_PLACEHOLDER, indent=2),
+        )
 
 
 @TicketEvent.forms('main')
@@ -59,7 +113,7 @@ class TicketEventForm(forms.Form):
     )
     badge_template = forms.URLField(
         __("Badge template URL"),
-        description="URL of background image for the badge",
+        description=__("URL of background image for the badge"),
         validators=[forms.validators.Optional(), forms.validators.ValidUrl()],
     )
 
@@ -111,7 +165,7 @@ class TicketParticipantForm(forms.Form):
     """Form for a participant in a ticket."""
 
     __returns__ = ('user',)
-    user: Optional[User] = None
+    user: Account | None = None
     edit_parent: Project
 
     fullname = forms.StringField(
@@ -121,8 +175,8 @@ class TicketParticipantForm(forms.Form):
     )
     email = forms.EmailField(
         __("Email"),
-        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
-        filters=[forms.filters.strip()],
+        validators=[forms.validators.Optional(), forms.validators.ValidEmail()],
+        filters=[forms.filters.none_if_empty()],
     )
     phone = forms.StringField(
         __("Phone number"),
@@ -165,10 +219,13 @@ class TicketParticipantForm(forms.Form):
     def validate(self, *args, **kwargs) -> bool:
         """Validate form."""
         result = super().validate(*args, **kwargs)
+        if self.email.data is None:
+            self.user = None
+            return True
         with db.session.no_autoflush:
-            useremail = UserEmail.get(email=self.email.data)
-            if useremail is not None:
-                self.user = useremail.user
+            accountemail = AccountEmail.get(email=self.email.data)
+            if accountemail is not None:
+                self.user = accountemail.account
             else:
                 self.user = None
         return result

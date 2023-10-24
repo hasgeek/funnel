@@ -4,13 +4,13 @@
 {% block content %}
   {%- if view.is_rollup %}
     <p>
-      {%- trans project=project.joined_title, project_url=project.url_for(), count=view.fragments|length %}
+      {%- trans project=project.joined_title, project_url=project.url_for(), count=view.fragments|length|numberformat %}
         Your project <a href="{{ project_url }}">{{ project }}</a> has received {{ count }} new submissions:
       {%- endtrans %}
     </p>
     <ol class="list--aligned">
       {%- for proposal in view.fragments %}
-      <li>{% trans url=proposal.url_for(), proposal=proposal.title, actor=proposal.user.pickername, age=proposal.datetime|age %}
+      <li>{% trans url=proposal.url_for(), proposal=proposal.title, actor=proposal.first_user.pickername, age=proposal.datetime|age %}
         <a href="{{ url }}">{{ proposal }}</a> by {{ actor }} {{ age }}
           {% endtrans %}
       </li>

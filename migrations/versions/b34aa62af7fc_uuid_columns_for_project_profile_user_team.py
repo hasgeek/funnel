@@ -12,38 +12,34 @@ down_revision = '19a1f7f2a365'
 
 from uuid import uuid4
 
-from alembic import op
-from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 
 from coaster.utils import buid2uuid, uuid2buid
 
-project = table(
-    'project', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
-)
+project = table('project', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 profile = table(
     'profile',
     column('id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
+    column('uuid', sa.Uuid()),
     column('userid', sa.String(22)),
 )
 
 user = table(
     'user',
     column('id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
+    column('uuid', sa.Uuid()),
     column('userid', sa.String(22)),
 )
 
 team = table(
     'team',
     column('id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
+    column('uuid', sa.Uuid()),
     column('userid', sa.String(22)),
 )
 
@@ -64,15 +60,15 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     # --- Project
-    op.add_column('project', sa.Column('uuid', UUIDType(binary=False), nullable=True))
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(project))
+    op.add_column('project', sa.Column('uuid', sa.Uuid(), nullable=True))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(project))
     progress = get_progressbar("Projects", count)
     progress.start()
-    items = conn.execute(sa.select([project.c.id]))
+    items = conn.execute(sa.select(project.c.id))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(project).where(project.c.id == item.id).values(uuid=uuid4())
@@ -83,11 +79,11 @@ def upgrade():
     op.create_unique_constraint('project_uuid_key', 'project', ['uuid'])
 
     # --- Profile
-    op.add_column('profile', sa.Column('uuid', UUIDType(binary=False), nullable=True))
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(profile))
+    op.add_column('profile', sa.Column('uuid', sa.Uuid(), nullable=True))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(profile))
     progress = get_progressbar("Profiles", count)
     progress.start()
-    items = conn.execute(sa.select([profile.c.id, profile.c.userid]))
+    items = conn.execute(sa.select(profile.c.id, profile.c.userid))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(profile)
@@ -102,11 +98,11 @@ def upgrade():
     op.drop_column('profile', 'userid')
 
     # --- Team
-    op.add_column('team', sa.Column('uuid', UUIDType(binary=False), nullable=True))
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(team))
+    op.add_column('team', sa.Column('uuid', sa.Uuid(), nullable=True))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()
-    items = conn.execute(sa.select([team.c.id, team.c.userid]))
+    items = conn.execute(sa.select(team.c.id, team.c.userid))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(team)
@@ -121,11 +117,11 @@ def upgrade():
     op.drop_column('team', 'userid')
 
     # --- User
-    op.add_column('user', sa.Column('uuid', UUIDType(binary=False), nullable=True))
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user))
+    op.add_column('user', sa.Column('uuid', sa.Uuid(), nullable=True))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user))
     progress = get_progressbar("Users", count)
     progress.start()
-    items = conn.execute(sa.select([user.c.id, user.c.userid]))
+    items = conn.execute(sa.select(user.c.id, user.c.userid))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(user)
@@ -140,16 +136,16 @@ def upgrade():
     op.drop_column('user', 'userid')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     # --- User
     op.add_column('user', sa.Column('userid', sa.String(22), nullable=True))
     op.create_unique_constraint('user_userid_key', 'user', ['userid'])
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user))
     progress = get_progressbar("Users", count)
     progress.start()
-    items = conn.execute(sa.select([user.c.id, user.c.uuid]))
+    items = conn.execute(sa.select(user.c.id, user.c.uuid))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(user)
@@ -165,10 +161,10 @@ def downgrade():
     # --- Team
     op.add_column('team', sa.Column('userid', sa.String(22), nullable=True))
     op.create_unique_constraint('team_userid_key', 'team', ['userid'])
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(team))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()
-    items = conn.execute(sa.select([team.c.id, team.c.uuid]))
+    items = conn.execute(sa.select(team.c.id, team.c.uuid))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(team)
@@ -184,10 +180,10 @@ def downgrade():
     # --- Profile
     op.add_column('profile', sa.Column('userid', sa.String(22), nullable=True))
     op.create_unique_constraint('profile_userid_key', 'profile', ['userid'])
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(profile))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(profile))
     progress = get_progressbar("Profiles", count)
     progress.start()
-    items = conn.execute(sa.select([profile.c.id, profile.c.uuid]))
+    items = conn.execute(sa.select(profile.c.id, profile.c.uuid))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(profile)

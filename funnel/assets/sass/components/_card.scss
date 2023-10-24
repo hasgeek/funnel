@@ -13,7 +13,7 @@
   }
 
   .card__title__heading {
-    margin: $mui-grid-padding/4 auto;
+    margin: $mui-grid-padding * 0.25 auto;
   }
 
   .card__header {
@@ -23,16 +23,22 @@
 
   .card__header__title {
     width: 80%;
+    margin-top: 8px;
+    margin-bottom: 8px;
   }
 
+  .card__header--danger {
+    padding: $mui-grid-padding;
+    background: $mui-danger-color;
+  }
   .card__body {
-    padding: $mui-grid-padding/2 $mui-grid-padding;
+    padding: $mui-grid-padding * 0.5 $mui-grid-padding;
     word-break: break-word;
   }
 
   .card__footer {
     clear: both;
-    padding: 0 $mui-grid-padding/2;
+    padding: 0 $mui-grid-padding * 0.5;
   }
 
   .mui-btn + .mui-btn {
@@ -53,6 +59,10 @@
 
 .card--shaped {
   border-radius: 16px 16px 0 16px;
+  .card__image-wrapper {
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+  }
 }
 
 .clickable-card:focus,
@@ -102,7 +112,7 @@
 }
 
 .card__calendar {
-  padding: $mui-grid-padding/2 0 $mui-grid-padding-double;
+  padding: $mui-grid-padding * 0.5 0 $mui-grid-padding-double;
   margin-left: -$mui-grid-padding;
   margin-right: -$mui-grid-padding;
 
@@ -364,18 +374,13 @@
     padding: 0 $mui-grid-padding $mui-grid-padding;
     position: relative;
 
-    .card__body__location {
-      float: left;
-      max-width: 90%;
-    }
-
     .card__body__bookmark {
       float: right;
-      margin: $mui-grid-padding/4 0 0;
+      margin: $mui-grid-padding * 0.25 0 0;
     }
 
     .card__body__title {
-      margin: 0 0 $mui-grid-padding/2;
+      margin: 0 0 $mui-grid-padding * 0.5;
     }
 
     .card__body__title--smaller {
@@ -387,10 +392,6 @@
       max-width: calc(100% - 20px);
     }
 
-    .card__body__location {
-      margin: 0 0 $mui-grid-padding/2;
-      float: left;
-    }
     .card__body__divider {
       height: 4px;
       background-color: $mui-bg-color-primary-dark;
@@ -404,7 +405,9 @@
 }
 
 .card--upcoming:hover {
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.25),
+    0 10px 10px rgba(0, 0, 0, 0.22);
 }
 
 @media (min-width: 1200px) {
@@ -423,7 +426,7 @@
 .card__image-wrapper--default:after {
   content: '';
   position: absolute;
-  z-index: 2;
+  z-index: 1;
   top: 0;
   left: 0;
   background-color: $mui-primary-color;
@@ -484,7 +487,7 @@
   }
   .profile-card__btn-wrapper {
     margin-top: auto;
-    margin-bottom: $mui-grid-padding/2;
+    margin-bottom: $mui-grid-padding * 0.5;
   }
 }
 

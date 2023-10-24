@@ -1,5 +1,6 @@
 import jsQR from 'jsqr';
 import vCardsJS from 'vcards-js';
+import toastr from 'toastr';
 import Form from './utils/formhelper';
 import { RactiveApp } from './utils/ractive_util';
 
@@ -69,7 +70,9 @@ const badgeScan = {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
           body: formValues,
-        }).catch(Form.handleFetchNetworkError);
+        }).catch(() => {
+          toastr.error(window.Hasgeek.Config.errorMsg.networkError);
+        });
         if (response && response.ok) {
           const responseData = await response.json();
           if (responseData) {

@@ -11,17 +11,13 @@ down_revision = 'ae68621248af'
 
 from uuid import uuid4
 
-from alembic import op
-from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 
-venue = table(
-    'venue', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
-)
+venue = table('venue', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 
 def get_progressbar(label, maxval):
@@ -40,14 +36,14 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
-    op.add_column('venue', sa.Column('uuid', UUIDType(binary=False), nullable=True))
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(venue))
+    op.add_column('venue', sa.Column('uuid', sa.Uuid(), nullable=True))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(venue))
     progress = get_progressbar("Venues", count)
     progress.start()
-    items = conn.execute(sa.select([venue.c.id]))
+    items = conn.execute(sa.select(venue.c.id))
     for counter, item in enumerate(items):
         conn.execute(sa.update(venue).where(venue.c.id == item.id).values(uuid=uuid4()))
         progress.update(counter)
@@ -56,6 +52,6 @@ def upgrade():
     op.create_unique_constraint('venue_uuid_key', 'venue', ['uuid'])
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('venue_uuid_key', 'venue', type_='unique')
     op.drop_column('venue', 'uuid')

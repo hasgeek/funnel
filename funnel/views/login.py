@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import urllib.parse
 from datetime import timedelta
 from secrets import token_urlsafe
-from typing import TYPE_CHECKING, Union
-import urllib.parse
+from typing import TYPE_CHECKING
 
+import itsdangerous
 from flask import (
     abort,
     current_app,
@@ -17,7 +18,6 @@ from flask import (
     session,
     url_for,
 )
-import itsdangerous
 
 from baseframe import _, __, forms, statsd
 from baseframe.forms import render_message
@@ -38,16 +38,15 @@ from ..forms import (
     RegisterWithOtp,
 )
 from ..models import (
+    Account,
+    AccountEmail,
+    AccountEmailClaim,
+    AccountExternalId,
     AuthClientCredential,
-    Profile,
-    User,
-    UserEmail,
-    UserEmailClaim,
-    UserExternalId,
-    UserSession,
+    LoginSession,
     db,
     getextid,
-    merge_users,
+    merge_accounts,
     sa,
 )
 from ..proxies import request_wants
@@ -58,7 +57,8 @@ from ..registry import (
     login_registry,
 )
 from ..serializers import crossapp_serializer
-from ..signals import user_data_changed
+from ..signals import user_data_changed, user_registered
+from ..transports import TransportError, TransportRecipientError
 from ..typing import ReturnView
 from ..utils import abort_null
 from .email import send_email_verify_link
@@ -69,6 +69,7 @@ from .login_session import (
     register_internal,
     reload_for_cookies,
     requires_login,
+    requires_sudo,
     save_session_next_url,
     set_loginmethod_cookie,
 )
@@ -86,7 +87,7 @@ block_iframe = {'X-Frame-Options': 'SAMEORIGIN'}
 LOGOUT_ERRORMSG = __("Are you trying to logout? Try again to confirm")
 
 
-def get_otp_form(otp_session: OtpSession) -> Union[OtpForm, RegisterOtpForm]:
+def get_otp_form(otp_session: OtpSession) -> OtpForm | RegisterOtpForm:
     """Return variant of OTP form depending on whether there's a user account."""
     if otp_session.user:
         form = OtpForm(valid_otp=otp_session.otp)
@@ -96,7 +97,7 @@ def get_otp_form(otp_session: OtpSession) -> Union[OtpForm, RegisterOtpForm]:
 
 
 def render_otp_form(
-    form: Union[OtpForm, RegisterOtpForm], cancel_url: str
+    form: OtpForm | RegisterOtpForm, cancel_url: str, action: str
 ) -> ReturnView:
     """Render OTP form."""
     form.form_nonce.data = form.form_nonce.default()
@@ -106,7 +107,7 @@ def render_otp_form(
             form=form,
             formid='login-otp',
             ref_id='form-otp',
-            action=url_for('login'),
+            action=action,
             submit=_("Confirm"),
             cancel_url=cancel_url,
             with_chrome=request_wants.html_fragment,  # with_chrome is a legacy name
@@ -116,7 +117,7 @@ def render_otp_form(
     )
 
 
-def render_login_form(form: LoginForm) -> ReturnView:
+def render_login_form(form: LoginForm, action: str) -> ReturnView:
     """Render login form."""
     return (
         render_template(
@@ -124,6 +125,7 @@ def render_login_form(form: LoginForm) -> ReturnView:
             form=form,
             formid='passwordlogin',
             ref_id='form-passwordlogin',
+            action=action,
             with_chrome=request_wants.html_fragment,  # with_chrome is a legacy name
         ),
         200,
@@ -141,13 +143,17 @@ def login() -> ReturnView:
     # Remember where the user came from if it wasn't already saved.
     save_session_next_url()
     next_url = session['next']
+    action_url = url_for('login', next=next_url)
+    if request.args.get('modal') in ('register-modal',):
+        next_url = next_url + '#' + request.args['modal']
+        action_url = url_for('login', next=next_url, modal=request.args['modal'])
 
     loginform = LoginForm()
     loginmethod = None
     if request.method == 'GET':
         loginmethod = request.cookies.get('login')
 
-    formid = abort_null(request.form.get('form.id'))
+    formid = request.form.get('form.id')
     if request.method == 'POST' and formid == 'passwordlogin':
         try:
             success = loginform.validate()
@@ -168,7 +174,7 @@ def login() -> ReturnView:
             if success:
                 user = loginform.user
                 if TYPE_CHECKING:
-                    assert isinstance(user, User)  # nosec
+                    assert isinstance(user, Account)  # nosec
                 login_internal(user, login_service='password')
                 db.session.commit()
                 if loginform.weak_password:
@@ -244,13 +250,21 @@ def login() -> ReturnView:
                 phone=loginform.new_phone,
                 email=loginform.new_email,
             )
-            if otp_session.send():
-                return render_otp_form(
-                    get_otp_form(otp_session), url_for('login', next=next_url)
-                )
-            # If an OTP could not be sent, flash messages from otp_session.send() will
-            # be rendered and this view will fallback to the default render of the
-            # initial screen
+            try:
+                if otp_session.send(flash_failure=False):
+                    return render_otp_form(
+                        get_otp_form(otp_session),
+                        url_for('login', next=next_url),
+                        action_url,
+                    )
+            except TransportRecipientError as exc:
+                # If an OTP could not be sent, report the problem to the user as a form
+                # validation error. The view will flow to re-rendering the original
+                # login form
+                loginform.username.errors.append(str(exc))
+            except TransportError as exc:
+                flash(str(exc), 'error')
+
     elif request.method == 'POST' and formid == 'login-otp':
         try:
             otp_session = OtpSession.retrieve('login')
@@ -264,7 +278,7 @@ def login() -> ReturnView:
                     # Register an account
                     user = register_internal(None, otp_form.fullname.data, None)
                     if TYPE_CHECKING:
-                        assert isinstance(user, User)  # nosec
+                        assert isinstance(user, Account)  # nosec
                     if otp_session.email:
                         db.session.add(user.add_email(otp_session.email, primary=True))
                     if otp_session.phone:
@@ -278,6 +292,7 @@ def login() -> ReturnView:
                         user,
                         session.get('next', ''),
                     )
+                    user_registered.send(current_auth.user, changes=['registered-otp'])
                     flash(
                         _("You are now one of us. Welcome aboard!"), category='success'
                     )
@@ -295,17 +310,19 @@ def login() -> ReturnView:
                     render_redirect(get_next_url(session=True)),
                     'otp',
                 )
-            return render_otp_form(otp_form, url_for('login', next=next_url))
+            return render_otp_form(
+                otp_form, url_for('login', next=next_url), action_url
+            )
         except OtpTimeoutError as exc:
             reason = str(exc)
             current_app.logger.info("Login OTP timed out with %s", reason)
             flash(_("The OTP has expired. Try again?"), category='error')
-            return render_login_form(loginform)
+            return render_login_form(loginform, action_url)
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
         abort(422)
     if request_wants.html_fragment and formid == 'passwordlogin':
-        return render_login_form(loginform)
+        return render_login_form(loginform, action_url)
 
     # Default action, render the full login page
     return (
@@ -317,6 +334,7 @@ def login() -> ReturnView:
             formid='passwordlogin',
             ref_id='form-passwordlogin',
             title=_("Login"),
+            action=action_url,
             ajax=True,
             with_chrome=request_wants.html_fragment,
         ),
@@ -325,7 +343,7 @@ def login() -> ReturnView:
     )
 
 
-def logout_client():
+def logout_client() -> ReturnView:
     """Process auth client-initiated logout."""
     cred = AuthClientCredential.get(abort_null(request.args['client_id']))
     auth_client = cred.auth_client if cred is not None else None
@@ -373,8 +391,8 @@ def account_logout() -> ReturnView:
     """Process a logout request."""
     form = LogoutForm(user=current_auth.user)
     if form.validate():
-        if form.user_session:
-            form.user_session.revoke()
+        if form.login_session:
+            form.login_session.revoke()
             db.session.commit()
             if request_wants.json:
                 return {'status': 'ok'}
@@ -444,17 +462,18 @@ def get_user_extid(service, userdata):
     extid = getextid(service=service, userid=userdata.userid)
 
     user = None
-    useremail = None
+    accountemail = None
 
     if userdata.email:
-        useremail = UserEmail.get(email=userdata.email)
+        accountemail = AccountEmail.get(email=userdata.email)
 
     if extid is not None:
-        user = extid.user
-    # It is possible at this time that extid.user and useremail.user are different.
-    # We do not handle it here, but in the parent function login_service_postcallback.
-    elif useremail is not None and useremail.user is not None:
-        user = useremail.user
+        user = extid.account
+    # It is possible at this time that extid.account and accountemail.account are
+    # different. We do not handle it here, but in the parent function
+    # login_service_postcallback.
+    elif accountemail is not None and accountemail.account is not None:
+        user = accountemail.account
     else:
         # Cross-check with all other instances of the same LoginProvider (if we don't
         # have a user) This is (for eg) for when we have two Twitter services with
@@ -466,11 +485,11 @@ def get_user_extid(service, userdata):
             ):
                 other_extid = getextid(service=other_service, userid=userdata.userid)
                 if other_extid is not None:
-                    user = other_extid.user
+                    user = other_extid.account
                     break
 
     # TODO: Make this work when we have multiple confirmed email addresses available
-    return user, extid, useremail
+    return user, extid, accountemail
 
 
 def login_service_postcallback(service: str, userdata: LoginProviderData) -> ReturnView:
@@ -480,11 +499,12 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     Called from :func:`login_service_callback` after receiving data from the upstream
     login service.
     """
+    new_registration = False
     # 1. Check whether we have an existing UserExternalId
-    user, extid, useremail = get_user_extid(service, userdata)
-    # If extid is not None, user.extid == user, guaranteed.
-    # If extid is None but useremail is not None, user == useremail.user
-    # However, if both extid and useremail are present, they may be different users
+    user, extid, accountemail = get_user_extid(service, userdata)
+    # If extid is not None, extid.account == user, guaranteed.
+    # If extid is None but accountemail is not None, user == accountemail.account
+    # However, if both extid and accountemail are present, they may be different users
     if extid is not None:
         extid.oauth_token = userdata.oauth_token
         extid.oauth_token_secret = userdata.oauth_token_secret
@@ -495,13 +515,13 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
         extid.oauth_expires_at = (
             (utcnow() + timedelta(seconds=userdata.oauth_expires_in))
             if userdata.oauth_expires_in
-            else None,
+            else None
         )
         extid.last_used_at = sa.func.utcnow()
     else:
         # New external id. Register it.
-        extid = UserExternalId(
-            user=user,  # This may be None right now. Will be handled below
+        extid = AccountExternalId(
+            account=user,  # This may be None right now. Will be handled below
             service=service,
             userid=userdata.userid,
             username=userdata.username,
@@ -520,27 +540,28 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
         if current_auth:
             # Attach this id to currently logged-in user
             user = current_auth.user
-            extid.user = user
+            extid.account = user
         else:
             # Register a new user
             user = register_internal(None, userdata.fullname, None)
-            extid.user = user
+            extid.account = user
             if userdata.username:
-                if Profile.is_available_name(userdata.username):
+                if Account.is_available_name(userdata.username):
                     # Set a username for this user if it's available
                     user.username = userdata.username
-    else:  # We have an existing user account from extid or useremail
+            new_registration = True
+    else:  # We have an existing user account from extid or accountemail
         if current_auth and current_auth.user != user:
             # Woah! Account merger handler required
             # Always confirm with user before doing an account merger
             session['merge_buid'] = user.buid
-        elif useremail and useremail.user != user:
-            # Once again, account merger required since the extid and useremail are
-            # linked to different users
-            session['merge_buid'] = useremail.user.buid
+        elif accountemail and accountemail.account != user:
+            # Once again, account merger required since the extid and accountemail are
+            # linked to different accounts
+            session['merge_buid'] = accountemail.account.buid
 
     # Check for new email addresses
-    if userdata.email and not useremail:
+    if userdata.email and not accountemail:
         db.session.add(user.add_email(userdata.email))
 
     # If there are multiple email addresses, add any that are not already claimed.
@@ -549,15 +570,15 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     # isn't already one pending
     if userdata.emails:
         for email in userdata.emails:
-            existing = UserEmail.get(email)
+            existing = AccountEmail.get(email)
             if existing is not None:
-                if existing.user != user and 'merge_buid' not in session:
-                    session['merge_buid'] = existing.user.buid
+                if existing.account != user and 'merge_buid' not in session:
+                    session['merge_buid'] = existing.account.buid
             else:
                 db.session.add(user.add_email(email))
 
     if userdata.emailclaim:
-        emailclaim = UserEmailClaim(user=user, email=userdata.emailclaim)
+        emailclaim = AccountEmailClaim(account=user, email=userdata.emailclaim)
         db.session.add(emailclaim)
         send_email_verify_link(emailclaim)
 
@@ -577,6 +598,8 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 
     db.session.add(extid)  # If we made a new extid, add it to the session now
     db.session.commit()
+    if new_registration:
+        user_registered.send(current_auth.user, changes=['registered-extid'])
 
     # Finally: set a login method cookie and send user on their way
     if not current_auth.user.is_profile_complete():
@@ -592,19 +615,19 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 
 
 @app.route('/account/merge', methods=['GET', 'POST'])
-@requires_login
+@requires_sudo
 def account_merge() -> ReturnView:
     """Merge two accounts."""
     if 'merge_buid' not in session:
         return render_redirect(get_next_url())
-    other_user = User.get(buid=session['merge_buid'])
+    other_user = Account.get(buid=session['merge_buid'])
     if other_user is None:
         session.pop('merge_buid', None)
         return render_redirect(get_next_url())
     form = forms.Form()
     if form.validate_on_submit():
         if 'merge' in request.form:
-            new_user = merge_users(current_auth.user, other_user)
+            new_user = merge_accounts(current_auth.user, other_user)
             if new_user is not None:
                 login_internal(
                     new_user,
@@ -644,9 +667,9 @@ def account_merge() -> ReturnView:
 #     3. Redirect user to `app` /login/hasjob?code={code}
 
 # 2. `app` /login/hasjob does:
-#     1. Ask user to login if required (@requires_login_no_message)
+#     1. Ask user to login if required (@requires_login(''))
 #     2. Verify signature of code
-#     3. Create a timestamped token using (nonce, user_session.buid)
+#     3. Create a timestamped token using (nonce, login_session.buid)
 #     4. Redirect user to `hasjobapp` /login/callback?token={token}
 
 # 3. `hasjobapp` /login/callback does:
@@ -656,6 +679,7 @@ def account_merge() -> ReturnView:
 
 
 # Retained for future hasjob integration
+
 
 # @hasjobapp.route('/login', endpoint='login')
 @requestargs(('cookietest', getbool))
@@ -685,7 +709,7 @@ def hasjob_login(cookietest: bool = False) -> ReturnView:
 
 # @app.route('/login/hasjob')
 # @reload_for_cookies
-# @requires_login_no_message  # 1. Ensure user login
+# @requires_login('')  # 1. Ensure user login
 # @requestargs('code')
 # def login_hasjob(code):
 #     """Process a request for login initiated from Hasjob."""
@@ -732,14 +756,14 @@ def hasjobapp_login_callback(token):
         return render_redirect(url_for('index'))
 
     # 2. Load user session and 3. Redirect user back to where they came from
-    user_session = UserSession.get(request_token['sessionid'])
-    if user_session is not None:
-        user = user_session.user
-        login_internal(user, user_session)
+    login_session = LoginSession.get(request_token['sessionid'])
+    if login_session is not None:
+        user = login_session.account
+        login_internal(user, login_session)
         db.session.commit()
         flash(_("You are now logged in"), category='success')
         current_app.logger.debug(
-            "hasjobapp login succeeded for %r, %r", user, user_session
+            "hasjobapp login succeeded for %r, %r", user, login_session
         )
         return render_redirect(get_next_url(session=True))
 

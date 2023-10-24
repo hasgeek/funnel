@@ -2,23 +2,22 @@
 
 from __future__ import annotations
 
-from base64 import urlsafe_b64decode, urlsafe_b64encode
-from os import urandom
-from typing import Iterable, Optional, Union, overload
 import hashlib
 import re
+from base64 import urlsafe_b64decode, urlsafe_b64encode
+from collections.abc import Iterable
+from os import urandom
+from typing import Any, Literal, overload
 
+from furl import furl
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.hybrid import Comparator
 
-from furl import furl
-from typing_extensions import Literal
-
 from coaster.sqlalchemy import immutable, with_roles
 
-from . import Mapped, NoIdMixin, UrlType, db, hybrid_property, sa
+from . import Mapped, Model, NoIdMixin, UrlType, db, hybrid_property, relationship, sa
+from .account import Account
 from .helpers import profanity
-from .user import User
 
 __all__ = ['Shortlink']
 
@@ -49,7 +48,7 @@ _valid_name_re = re.compile('^[A-Za-z0-9_-]*$')
 # --- Helpers --------------------------------------------------------------------------
 
 
-def normalize_url(url: Union[str, furl], default_scheme: str = 'https') -> furl:
+def normalize_url(url: str | furl, default_scheme: str = 'https') -> furl:
     """Normalize a URL with a default scheme and path."""
     url = furl(url)
     if not url.scheme:
@@ -78,7 +77,7 @@ def random_bigint(smaller: bool = False) -> int:
     return val
 
 
-def name_to_bigint(value: Union[str, bytes]) -> int:
+def name_to_bigint(value: str | bytes) -> int:
     """
     Convert from a URL-safe Base64-encoded shortlink name to bigint.
 
@@ -141,7 +140,7 @@ def bigint_to_name(value: int) -> str:
     )
 
 
-def url_blake2b160_hash(value: Union[str, furl]) -> bytes:
+def url_blake2b160_hash(value: str | furl) -> bytes:
     """
     Hash a URL, for duplicate URL lookup.
 
@@ -166,19 +165,29 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
     If the provided name is invalid, :func:`name_to_bigint` will raise exceptions.
     """
 
-    def __eq__(self, other: Union[str, bytes]):  # type: ignore[override]
+    def __eq__(self, other: Any) -> sa.ColumnElement[bool]:  # type: ignore[override]
         """Return an expression for column == other."""
-        return self.__clause_element__() == name_to_bigint(other)
+        if isinstance(other, (str, bytes)):
+            return self.__clause_element__() == name_to_bigint(
+                other
+            )  # type: ignore[return-value]
+        return sa.sql.expression.false()
 
-    def in_(self, other: Iterable[Union[str, bytes]]):  # type: ignore[override]
+    is_ = __eq__  # type: ignore[assignment]
+
+    def in_(  # type: ignore[override]
+        self, other: Iterable[str | bytes]
+    ) -> sa.ColumnElement:
         """Return an expression for other IN column."""
-        return self.__clause_element__().in_([name_to_bigint(v) for v in other])
+        return self.__clause_element__().in_(  # type: ignore[attr-defined]
+            [name_to_bigint(v) for v in other]
+        )
 
 
 # --- Models ---------------------------------------------------------------------------
 
 
-class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
+class Shortlink(NoIdMixin, Model):
     """A short link to a full-size link, for use over SMS."""
 
     __tablename__ = 'shortlink'
@@ -191,23 +200,25 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
     id = with_roles(  # noqa: A003
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
         # handling collisions. This needs an "immutable after commit" handler
-        sa.Column(sa.BigInteger, autoincrement=False, nullable=False, primary_key=True),
+        sa.orm.mapped_column(
+            sa.BigInteger, autoincrement=False, nullable=False, primary_key=True
+        ),
         read={'all'},
     )
     #: URL target of this shortlink
     url = with_roles(
-        immutable(sa.Column(UrlType, nullable=False, index=True)),
+        immutable(sa.orm.mapped_column(UrlType, nullable=False, index=True)),
         read={'all'},
     )
-    #: Id of user who created this shortlink (optional)
-    user_id = sa.Column(
-        sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+    #: Id of account that created this shortlink (optional)
+    created_by_id: Mapped[int | None] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
     )
-    #: User who created this shortlink (optional)
-    user: Mapped[Optional[User]] = sa.orm.relationship(User)
+    #: Account that created this shortlink (optional)
+    created_by: Mapped[Account | None] = relationship(Account)
 
     #: Is this link enabled? If not, render 410 Gone
-    enabled = sa.Column(sa.Boolean, nullable=False, default=True)
+    enabled = sa.orm.mapped_column(sa.Boolean, nullable=False, default=True)
 
     @hybrid_property
     def name(self) -> str:
@@ -216,26 +227,27 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
             return ''
         return bigint_to_name(self.id)
 
-    @name.setter
-    def name(self, value: Union[str, bytes]):
+    @name.inplace.setter
+    def _name_setter(self, value: str | bytes) -> None:
         """Set a name."""
         self.id = name_to_bigint(value)
 
-    @name.comparator
-    def name(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    @name.inplace.comparator
+    @classmethod
+    def _name_comparator(cls):
         """Compare name to id in a SQL expression."""
         return ShortLinkToBigIntComparator(cls.id)
 
     # --- Validators
 
     @sa.orm.validates('id')
-    def _validate_id_not_zero(self, key, value: int) -> int:  # skipcq: PYL-R0201
+    def _validate_id_not_zero(self, _key: str, value: int) -> int:
         if value == 0:
             raise ValueError("Id cannot be zero")
         return value
 
     @sa.orm.validates('url')
-    def _validate_url(self, key, value) -> str:  # skipcq: PYL-R0201
+    def _validate_url(self, _key: str, value: str) -> str:
         value = str(normalize_url(value))
         # If URL hashes are added to the model, the value must be set here using
         # `url_blake2b160_hash(value)`
@@ -251,12 +263,12 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def new(
         cls,
-        url: Union[str, furl],
+        url: str | furl,
         *,
-        name: Optional[str] = None,
+        name: str | None = None,
         shorter: bool = False,
         reuse: Literal[False] = False,
-        actor: Optional[User] = None,
+        actor: Account | None = None,
     ) -> Shortlink:
         ...
 
@@ -264,24 +276,24 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def new(
         cls,
-        url: Union[str, furl],
+        url: str | furl,
         *,
         name: Literal[None] = None,
         shorter: bool = False,
         reuse: Literal[True] = True,
-        actor: Optional[User] = None,
+        actor: Account | None = None,
     ) -> Shortlink:
         ...
 
     @classmethod
     def new(
         cls,
-        url: Union[str, furl],
+        url: str | furl,
         *,
-        name: Optional[str] = None,
+        name: str | None = None,
         shorter: bool = False,
         reuse: bool = False,
-        actor: Optional[User] = None,
+        actor: Account | None = None,
     ) -> Shortlink:
         """
         Create a new shortlink.
@@ -317,7 +329,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
         if name:
             # User wants a custom name? Try using it, but no guarantee this will work
             try:
-                shortlink = cls(name=name, url=url, user=actor)
+                shortlink = cls(name=name, url=url, created_by=actor)
                 shortlink.is_new = True
                 # 1. Emit `BEGIN SAVEPOINT`
                 savepoint = db.session.begin_nested()
@@ -333,7 +345,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
             return shortlink
 
         # Not a custom name. Keep trying ids until one succeeds
-        shortlink = cls(id=random_bigint(shorter), url=url, user=actor)
+        shortlink = cls(id=random_bigint(shorter), url=url, created_by=actor)
         shortlink.is_new = True
         while True:
             if profanity.contains_profanity(shortlink.name):
@@ -364,9 +376,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
             return False
 
     @classmethod
-    def get(
-        cls, name: Union[str, bytes], ignore_enabled: bool = False
-    ) -> Optional[Shortlink]:
+    def get(cls, name: str | bytes, ignore_enabled: bool = False) -> Shortlink | None:
         """
         Get a shortlink by name, if existing and not disabled.
 
@@ -376,7 +386,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
             idv = name_to_bigint(name)
         except (ValueError, TypeError):
             return None
-        obj = db.session.get(  # type: ignore[attr-defined]
+        obj = db.session.get(
             cls, idv, options=[sa.orm.load_only(cls.id, cls.url, cls.enabled)]
         )
         if obj is not None and (ignore_enabled or obj.enabled):

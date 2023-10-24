@@ -72,7 +72,7 @@
       left: 0;
       right: 0;
       text-align: right;
-      padding: $mui-grid-padding/2;
+      padding: $mui-grid-padding * 0.5;
     }
     .header,
     .footer {
@@ -80,7 +80,7 @@
     }
     .login-page__box {
       position: relative;
-      padding: ($mui-grid-padding * 2 + $mui-grid-padding/2) $mui-grid-padding * 2
+      padding: ($mui-grid-padding * 2 + $mui-grid-padding * 0.5) $mui-grid-padding * 2
         $mui-grid-padding * 2;
       border-radius: 16px;
       margin: 0 auto $mui-grid-padding * 2;
@@ -172,15 +172,25 @@ a.loginbutton.hidden,
 }
 
 // ============================================================================
+// Input field helper icon
+// ============================================================================
+
+.field-toggle {
+  padding: $mui-grid-padding * 0.5;
+  position: absolute;
+  right: -$mui-grid-padding * 0.5;
+  bottom: -$mui-grid-padding * 0.25;
+  float: right;
+  z-index: 3;
+}
+
+// ============================================================================
 // Password field
 // ============================================================================
 
 .mui-textfield--password {
   .password-toggle {
-    position: relative;
-    right: 0;
-    bottom: 22px;
-    float: right;
+    display: inline-block;
   }
   .password-strength-icon {
     position: absolute;
@@ -193,10 +203,12 @@ a.loginbutton.hidden,
   }
   .progress {
     height: 4px;
-    margin: $mui-grid-padding/2 0 25px;
+    margin: $mui-grid-padding * 0.5 0 25px;
     background-color: #f5f5f5;
     border-radius: 4px;
-    box-shadow: 0 1px 3px $mui-box-shadow-grey, 0 1px 2px $mui-box-shadow-grey;
+    box-shadow:
+      0 1px 3px $mui-box-shadow-grey,
+      0 1px 2px $mui-box-shadow-grey;
     position: relative;
     display: none;
 
@@ -248,4 +260,23 @@ a.loginbutton.hidden,
 
 .password-field-sidetext {
   margin: 0 0 20px;
+}
+
+// ============================================================================
+// Keyboard switcher
+// ============================================================================
+
+.mui-textfield {
+  .field-toggle:last-child {
+    right: 20px;
+  }
+  input#username:focus ~ .keyboard-switch .field-toggle {
+    display: inline-block;
+  }
+  .field-toggle {
+    color: $mui-text-accent;
+  }
+  .field-toggle.active {
+    color: $mui-text-light;
+  }
 }

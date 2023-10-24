@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TypeVar, Union
+from datetime import datetime
+from typing import TYPE_CHECKING, ClassVar, TypeVar
 from uuid import UUID
 
-from coaster.sqlalchemy import Query
-
-from . import Mapped, db, declarative_mixin, sa
+from . import Mapped, QueryProperty, db, declarative_mixin, sa
 
 __all__ = ['ReorderMixin']
 
@@ -21,18 +20,20 @@ Reorderable = TypeVar('Reorderable', bound='ReorderMixin')
 class ReorderMixin:
     """Adds support for re-ordering sequences within a parent container."""
 
-    #: Subclasses must have a created_at column
-    created_at: Mapped[sa.TIMESTAMP]
-    #: Subclass must have a primary key that is int or uuid
-    id: Mapped[sa.Integer]  # noqa: A003
-    #: Subclass must declare a parent_id synonym to the parent model fkey column
-    parent_id: Mapped[Union[int, UUID]]
-    #: Subclass must declare a seq column or synonym, holding a sequence id. It need not
-    #: be unique, but reordering is meaningless when both items have the same number
-    seq: Mapped[int]
+    if TYPE_CHECKING:
+        #: Subclasses must have a created_at column
+        created_at: Mapped[datetime]
+        #: Subclass must have a primary key that is int or uuid
+        id: Mapped[int]  # noqa: A001
+        #: Subclass must declare a parent_id synonym to the parent model fkey column
+        parent_id: Mapped[int | UUID]
+        #: Subclass must declare a seq column or synonym, holding a sequence id. It
+        #: need not be unique, but reordering is meaningless when both items have the
+        #: same number
+        seq: Mapped[int]
 
-    #: Subclass must offer a SQLAlchemy query (this is standard from base classes)
-    query: Query
+        #: Subclass must offer a SQLAlchemy query (this is standard from base classes)
+        query: ClassVar[QueryProperty]
 
     @property
     def parent_scoped_reorder_query_filter(self: Reorderable):
@@ -98,11 +99,9 @@ class ReorderMixin:
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
         self.seq = (
-            sa.select(  # type: ignore[attr-defined]
-                [sa.func.coalesce(sa.func.max(cls.seq) + 1, 1)]
-            )
+            sa.select(sa.func.coalesce(sa.func.max(cls.seq) + 1, 1))
             .where(self.parent_scoped_reorder_query_filter)
-            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
+            .scalar_subquery()
         )
         # Flush it so the db doesn't complain when there's a unique constraint
         db.session.flush()

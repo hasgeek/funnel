@@ -6,17 +6,14 @@ Create Date: 2022-07-13 20:59:11.442605
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
-from sqlalchemy.sql import column
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = 'a116118d086b'
 down_revision: str = 'b7165507d80c'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 # (old, new)
@@ -82,7 +79,9 @@ def upgrade_() -> None:
         'proposal_membership', sa.Column('title', sa.Unicode(), nullable=True)
     )
     op.create_check_constraint(
-        'proposal_membership_title_check', 'proposal_membership', column('title') != ''
+        'proposal_membership_title_check',
+        'proposal_membership',
+        "title <> ''",
     )
     op.add_column(
         'proposal_sponsor_membership', sa.Column('title', sa.Unicode(), nullable=True)
@@ -90,7 +89,7 @@ def upgrade_() -> None:
     op.create_check_constraint(
         'proposal_sponsor_membership_title_check',
         'proposal_sponsor_membership',
-        column('title') != '',
+        "title <> ''",
     )
     op.add_column(
         'project_sponsor_membership', sa.Column('title', sa.Unicode(), nullable=True)
@@ -98,7 +97,7 @@ def upgrade_() -> None:
     op.create_check_constraint(
         'project_sponsor_membership_title_check',
         'project_sponsor_membership',
-        column('title') != '',
+        "title <> ''",
     )
 
 

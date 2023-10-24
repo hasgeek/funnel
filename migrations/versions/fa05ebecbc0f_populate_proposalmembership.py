@@ -6,22 +6,19 @@ Create Date: 2021-04-30 04:07:47.387372
 
 """
 
-from typing import Optional, Tuple, Union
 from uuid import uuid4
 
-from alembic import op
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision = 'fa05ebecbc0f'
 down_revision = '82303877b746'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 #: Label for proposers who were asking for someone else to speak (legacy use, English)
 PROPOSING_LABEL = "Proposing"
@@ -44,7 +41,7 @@ proposal = table(
 
 proposal_membership = table(
     'proposal_membership',
-    column('id', postgresql.UUID()),
+    column('id', sa.Uuid()),
     column('created_at', sa.TIMESTAMP(timezone=True)),
     column('updated_at', sa.TIMESTAMP(timezone=True)),
     column('granted_at', sa.TIMESTAMP(timezone=True)),
@@ -87,21 +84,19 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     # Adapts from `proposal` table to an empty `proposal_membership` table.
     conn = op.get_bind()
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(proposal))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(proposal))
 
     progress = get_progressbar("Proposals", count)
     progress.start()
     proposals = conn.execute(
         sa.select(
-            [
-                proposal.c.id,
-                proposal.c.created_at,
-                proposal.c.user_id,
-                proposal.c.speaker_id,
-            ]
+            proposal.c.id,
+            proposal.c.created_at,
+            proposal.c.user_id,
+            proposal.c.speaker_id,
         )
     )
 
@@ -126,6 +121,6 @@ def upgrade():
     progress.finish()
 
 
-def downgrade():
+def downgrade() -> None:
     # Removes all items from `proposal_membership` table
-    op.execute(proposal_membership.delete())
+    op.get_bind().execute(proposal_membership.delete())

@@ -10,11 +10,11 @@ Create Date: 2015-01-16 02:14:52.672861
 revision = '2db4d4be1fdf'
 down_revision = 'a2115fab4c4'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'proposal_space_redirect',
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -30,5 +30,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_table('proposal_space_redirect')

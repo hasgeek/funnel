@@ -2,23 +2,21 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime
-from decimal import Decimal
-from typing import Optional
-from urllib.parse import urljoin
 import csv
 import os
 import sys
 import time
 import zipfile
+from dataclasses import dataclass
+from datetime import datetime
+from decimal import Decimal
+from urllib.parse import urljoin
 
-from flask.cli import AppGroup
 import click
-
-from unidecode import unidecode
 import requests
 import rich.progress
+from flask.cli import AppGroup
+from unidecode import unidecode
 
 from coaster.utils import getbool
 
@@ -34,7 +32,7 @@ from ..models import (
 
 csv.field_size_limit(sys.maxsize)
 
-geo = AppGroup('geoname', help="Process geoname data.")
+geo = AppGroup('geonames', help="Process geonames data.")
 
 
 @dataclass
@@ -111,7 +109,7 @@ class GeoAltNameRecord:
     is_historic: str
 
 
-def downloadfile(basepath: str, filename: str, folder: Optional[str] = None) -> None:
+def downloadfile(basepath: str, filename: str, folder: str | None = None) -> None:
     """Download a geoname record file."""
     if not folder:
         folder_file = filename
@@ -372,7 +370,7 @@ def load_admin1_codes(filename: str) -> None:
         if item.geonameid:
             rec = GeoAdmin1Code.query.get(item.geonameid)
             if rec is None:
-                rec = GeoAdmin1Code(geonameid=item.geonameid)
+                rec = GeoAdmin1Code(geonameid=int(item.geonameid))
                 db.session.add(rec)
             rec.title = item.title
             rec.ascii_title = item.ascii_title
@@ -413,7 +411,7 @@ def load_admin2_codes(filename: str) -> None:
 @geo.command('download')
 def download() -> None:
     """Download geoname data."""
-    os.makedirs('geoname_data', exist_ok=True)
+    os.makedirs('download/geonames', exist_ok=True)
     for filename in (
         'countryInfo.txt',
         'admin1CodesASCII.txt',
@@ -423,19 +421,19 @@ def download() -> None:
         'alternateNames.zip',
     ):
         downloadfile(
-            'http://download.geonames.org/export/dump/', filename, 'geoname_data'
+            'http://download.geonames.org/export/dump/', filename, 'download/geonames'
         )
 
 
 @geo.command('process')
 def process() -> None:
     """Process downloaded geonames data."""
-    load_country_info('geoname_data/countryInfo.txt')
-    load_admin1_codes('geoname_data/admin1CodesASCII.txt')
-    load_admin2_codes('geoname_data/admin2Codes.txt')
-    load_geonames('geoname_data/IN.txt')
-    load_geonames('geoname_data/allCountries.txt')
-    load_alt_names('geoname_data/alternateNames.txt')
+    load_country_info('download/geonames/countryInfo.txt')
+    load_admin1_codes('download/geonames/admin1CodesASCII.txt')
+    load_admin2_codes('download/geonames/admin2Codes.txt')
+    load_geonames('download/geonames/IN.txt')
+    load_geonames('download/geonames/allCountries.txt')
+    load_alt_names('download/geonames/alternateNames.txt')
 
 
 app.cli.add_command(geo)

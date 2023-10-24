@@ -10,12 +10,12 @@ Create Date: 2014-04-18 12:43:12.100890
 revision = '18052b0cd282'
 down_revision = '140c9b68d65b'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     proposal_space = table(
         'proposal_space',
         column('name', sa.Unicode(250)),
@@ -42,7 +42,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('proposal_proposal_space_id_url_id_key', 'proposal')
     op.drop_column('proposal', 'url_id')
     op.drop_constraint('proposal_space_legacy_name_key', 'proposal_space')

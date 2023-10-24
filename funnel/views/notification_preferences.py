@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Optional
 
-from flask import abort, current_app, flash, redirect, request, session, url_for
 import itsdangerous
+from flask import abort, current_app, flash, redirect, request, session, url_for
 
 from baseframe import _, __
 from baseframe.forms import render_form, render_message
@@ -17,10 +16,10 @@ from coaster.views import ClassView, render_with, requestargs, route
 from .. import app
 from ..forms import SetNotificationPreferenceForm, UnsubscribeForm, transport_labels
 from ..models import (
+    Account,
     EmailAddress,
     NotificationPreferences,
     PhoneNumber,
-    User,
     db,
     notification_categories,
     notification_type_registry,
@@ -66,7 +65,9 @@ class AccountNotificationView(ClassView):
     current_section = 'account'
 
     @route('', endpoint='notification_preferences')
-    @requires_login
+    @requires_login(
+        __("Your phone number or email address is required to change your preferences")
+    )
     @render_with('notification_preferences.html.jinja2')
     def notification_preferences(self) -> ReturnRenderWith:
         """View for notification preferences."""
@@ -82,7 +83,7 @@ class AccountNotificationView(ClassView):
             if ncls.category.priority_id in preferences:
                 if ntype not in user_preferences:
                     user_preferences[ntype] = NotificationPreferences(
-                        user=current_auth.user, notification_type=ntype
+                        notification_type=ntype, account=current_auth.user
                     )
                     commit_new_preferences = True
                 preferences[ncls.category.priority_id]['types'].append(
@@ -142,7 +143,7 @@ class AccountNotificationView(ClassView):
                 not in current_auth.user.notification_preferences
             ):
                 prefs = NotificationPreferences(
-                    user=current_auth.user,
+                    account=current_auth.user,
                     notification_type=form.notification_type.data,
                 )
                 db.session.add(prefs)
@@ -186,7 +187,7 @@ class AccountNotificationView(ClassView):
         # if they'd like to resubscribe
         try:
             payload = token_serializer().loads(
-                token, max_age=365 * 24 * 60 * 60  # Validity 1 year (365 days)
+                token, max_age=365 * 86400  # Validity 1 year (365 days)
             )
         except itsdangerous.SignatureExpired:
             # Link has expired. It's been over a year!
@@ -196,7 +197,7 @@ class AccountNotificationView(ClassView):
             flash(unsubscribe_link_invalid, 'error')
             return render_redirect(url_for('notification_preferences'))
 
-        user = User.get(buid=payload['buid'])
+        user = Account.get(buid=payload['buid'])
         if user is None:
             current_app.logger.error(
                 "Auto unsubscribe view cannot find user with buid %s", payload['buid']
@@ -243,9 +244,7 @@ class AccountNotificationView(ClassView):
         endpoint='notification_unsubscribe_do',
     )
     @requestargs(('cookietest', getbool))
-    def unsubscribe(
-        self, token: str, token_type: Optional[str], cookietest: bool = False
-    ):
+    def unsubscribe(self, token: str, token_type: str | None, cookietest: bool = False):
         """View for unsubscribing from a notification type or disabling a transport."""
         # This route strips the token from the URL before rendering the page, to avoid
         # leaking the token to web analytics software.
@@ -323,7 +322,7 @@ class AccountNotificationView(ClassView):
                 # in the POST request because we'll move it over during the GET request.
                 payload = token_serializer().loads(
                     session.get('unsub_token') or request.form['token'],
-                    max_age=365 * 24 * 60 * 60,  # Validity 1 year (365 days)
+                    max_age=365 * 86400,  # Validity 1 year (365 days)
                 )
             except itsdangerous.SignatureExpired:
                 # Link has expired. It's been over a year!
@@ -339,7 +338,6 @@ class AccountNotificationView(ClassView):
 
         # --- Cached tokens (SMS)
         elif token_type == 'cached':  # nosec
-
             # Enforce a rate limit per IP on cached tokens, to slow down enumeration.
             # Some ISPs use carrier-grade NAT and will have a single IP for a very
             # large number of users, so we have generous limits. 100 unsubscribes per
@@ -388,7 +386,7 @@ class AccountNotificationView(ClassView):
 
         # Step 6. Load the user. The contents of `payload` are defined in
         # :meth:`NotificationView.unsubscribe_token` above
-        user = User.get(buid=payload['buid'])
+        user = Account.get(buid=payload['buid'])
         if user is None:
             current_app.logger.error(
                 "Unsubscribe view cannot find user with buid %s", payload['buid']

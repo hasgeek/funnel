@@ -7,23 +7,21 @@ Create Date: 2020-06-17 02:13:45.493791
 
 """
 
-from typing import Optional, Tuple, Union
 import hashlib
 
-from alembic import op
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
-from pyisemail import is_email
 import idna
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from pyisemail import is_email
+from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision = 'e3b3ccbca3b9'
 down_revision = 'ae075a249493'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 # --- Tables ---------------------------------------------------------------------------
@@ -126,7 +124,7 @@ def email_domain(email):
     return idna.encode(email.split('@', 1)[1], uts46=True).decode()
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     op.add_column(
@@ -141,17 +139,15 @@ def upgrade():
         ondelete='SET NULL',
     )
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(participant))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(participant))
     progress = get_progressbar("Participants", count)
     progress.start()
     items = conn.execute(
         sa.select(
-            [
-                participant.c.id,
-                participant.c.project_id,
-                participant.c.email,
-                participant.c.created_at,
-            ]
+            participant.c.id,
+            participant.c.project_id,
+            participant.c.email,
+            participant.c.created_at,
         ).order_by(participant.c.id)
     )
     dupe_counter = {}  # (project_id, blake2b160): counter
@@ -172,7 +168,7 @@ def upgrade():
             blake2b160 = email_blake2b160_hash(email)
 
         existing = conn.execute(
-            sa.select([email_address.c.id, email_address.c.created_at])
+            sa.select(email_address.c.id, email_address.c.created_at)
             .where(email_address.c.blake2b160 == blake2b160)
             .limit(1)
         ).fetchone()
@@ -186,7 +182,7 @@ def upgrade():
                 )
             # Get linked user via user_email if present
             user_id = conn.scalar(
-                sa.select([user.c.id]).where(
+                sa.select(user.c.id).where(
                     sa.and_(
                         email_address.c.id == ea_id,
                         user_email.c.email_address_id == email_address.c.id,
@@ -241,18 +237,18 @@ def upgrade():
     op.drop_column('participant', 'email')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     op.add_column(
         'participant',
         sa.Column('email', sa.VARCHAR(length=254), autoincrement=False, nullable=True),
     )
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(participant))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(participant))
     progress = get_progressbar("Participants", count)
     progress.start()
     items = conn.execute(
-        sa.select([participant.c.id, email_address.c.email]).where(
+        sa.select(participant.c.id, email_address.c.email).where(
             participant.c.email_address_id == email_address.c.id
         )
     )

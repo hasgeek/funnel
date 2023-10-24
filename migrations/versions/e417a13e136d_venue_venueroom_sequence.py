@@ -9,9 +9,9 @@ Create Date: 2019-02-07 09:58:40.632722
 revision = 'e417a13e136d'
 down_revision = 'c3069d33419a'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 project = table('project', column('id', sa.Integer()))
 
@@ -32,19 +32,19 @@ venue_room = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column('venue', sa.Column('seq', sa.Integer(), nullable=True))
     op.add_column('venue_room', sa.Column('seq', sa.Integer(), nullable=True))
 
     connection = op.get_bind()
 
     # update venue sequences
-    projects = connection.execute(sa.select([project.c.id]))
+    projects = connection.execute(sa.select(project.c.id))
     project_ids = [proj_tuple[0] for proj_tuple in projects]
 
     for project_id in project_ids:
         venues = connection.execute(
-            sa.select([venue.c.id])
+            sa.select(venue.c.id)
             .where(venue.c.project_id == project_id)
             .order_by('created_at')
         )
@@ -56,7 +56,7 @@ def upgrade():
 
             # update venue_room sequences
             venue_rooms = connection.execute(
-                sa.select([venue_room.c.id])
+                sa.select(venue_room.c.id)
                 .where(venue_room.c.venue_id == venue_id)
                 .order_by('created_at')
             )
@@ -73,6 +73,6 @@ def upgrade():
     op.alter_column('venue_room', 'seq', existing_type=sa.Integer(), nullable=False)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('venue_room', 'seq')
     op.drop_column('venue', 'seq')

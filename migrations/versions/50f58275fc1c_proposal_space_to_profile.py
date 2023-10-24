@@ -13,7 +13,7 @@ down_revision = '50a8f43b4e5f'
 from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_foreign_key(
         'proposal_space_profile_id_fkey',
         'proposal_space',
@@ -23,7 +23,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'proposal_space_profile_id_fkey', 'proposal_space', type_='foreignkey'
     )

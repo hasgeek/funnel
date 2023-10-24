@@ -6,21 +6,19 @@ Create Date: 2023-01-17 22:58:23.556730
 
 """
 
-from typing import Optional, Tuple, Union
 import hashlib
-
-from alembic import op
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 import phonenumbers
 import rich.progress
+import sqlalchemy as sa
+from alembic import op
+from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision: str = '63c44675b6cd'
 down_revision: str = 'fb90ab2af4c2'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 # SMS delivery status in sms_message table
@@ -112,22 +110,20 @@ def upgrade_() -> None:
     op.add_column(
         'user_phone', sa.Column('phone_number_id', sa.Integer(), nullable=True)
     )
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_phone))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_phone))
     items = conn.execute(
         sa.select(
-            [
-                user_phone.c.id,
-                user_phone.c.phone,
-                user_phone.c.created_at,
-                user_phone.c.updated_at,
-            ]
+            user_phone.c.id,
+            user_phone.c.phone,
+            user_phone.c.created_at,
+            user_phone.c.updated_at,
         ).order_by(user_phone.c.id)
     )
     for item in rich.progress.track(items, "user_phone", total=count):
         number = clean_phone_number(item.phone)
         blake2b160 = phone_blake2b160_hash(number)
         existing = conn.execute(
-            sa.select([phone_number.c.id, phone_number.c.created_at])
+            sa.select(phone_number.c.id, phone_number.c.created_at)
             .where(phone_number.c.blake2b160 == blake2b160)
             .limit(1)
         ).fetchone()
@@ -152,7 +148,9 @@ def upgrade_() -> None:
                     allow_sm=False,
                 )
                 .returning(phone_number.c.id)
-            ).fetchone()[0]
+            ).fetchone()[
+                0
+            ]  # type: ignore[index]
 
         conn.execute(
             user_phone.update()
@@ -185,17 +183,15 @@ def upgrade_() -> None:
 
     rows_to_delete = set()
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(sms_message))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(sms_message))
     items = conn.execute(
         sa.select(
-            [
-                sms_message.c.id,
-                sms_message.c.phone_number,
-                sms_message.c.created_at,
-                sms_message.c.updated_at,
-                sms_message.c.status,
-                sms_message.c.status_at,
-            ]
+            sms_message.c.id,
+            sms_message.c.phone_number,
+            sms_message.c.created_at,
+            sms_message.c.updated_at,
+            sms_message.c.status,
+            sms_message.c.status_at,
         ).order_by(sms_message.c.id)
     )
     for item in rich.progress.track(items, "sms_message", total=count):
@@ -207,14 +203,12 @@ def upgrade_() -> None:
         blake2b160 = phone_blake2b160_hash(number)
         existing = conn.execute(
             sa.select(
-                [
-                    phone_number.c.id,
-                    phone_number.c.created_at,
-                    phone_number.c.updated_at,
-                    phone_number.c.msg_sms_sent_at,
-                    phone_number.c.msg_sms_delivered_at,
-                    phone_number.c.msg_sms_failed_at,
-                ]
+                phone_number.c.id,
+                phone_number.c.created_at,
+                phone_number.c.updated_at,
+                phone_number.c.msg_sms_sent_at,
+                phone_number.c.msg_sms_delivered_at,
+                phone_number.c.msg_sms_failed_at,
             )
             .where(phone_number.c.blake2b160 == blake2b160)
             .limit(1)
@@ -285,7 +279,9 @@ def upgrade_() -> None:
                     **timestamps,
                 )
                 .returning(phone_number.c.id)
-            ).fetchone()[0]
+            ).fetchone()[
+                0
+            ]  # type: ignore[index]
         conn.execute(
             sms_message.update()
             .where(sms_message.c.id == item.id)
@@ -332,9 +328,9 @@ def downgrade_() -> None:
             nullable=True,
         ),
     )
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(sms_message))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(sms_message))
     items = conn.execute(
-        sa.select([sms_message.c.id, phone_number.c.number]).where(
+        sa.select(sms_message.c.id, phone_number.c.number).where(
             sms_message.c.phone_number_id == phone_number.c.id
         )
     )
@@ -366,9 +362,9 @@ def downgrade_() -> None:
     op.add_column(
         'user_phone', sa.Column('phone', sa.TEXT(), autoincrement=False, nullable=True)
     )
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_phone))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_phone))
     items = conn.execute(
-        sa.select([user_phone.c.id, phone_number.c.number]).where(
+        sa.select(user_phone.c.id, phone_number.c.number).where(
             user_phone.c.phone_number_id == phone_number.c.id
         )
     )

@@ -1,9 +1,12 @@
-{% extends "layout.html.jinja2" %}
+{% extends "profile_layout.html.jinja2" %}
 {% block title %}{{ config['SITE_TITLE'] }}{% endblock title %}
-{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, featured_section, upcoming_section, open_cfp_section, all_projects_section, past_projects_section, profilecard %}
+{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, profilecard %}
 
 {%- block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/index.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/index.css') }}" />
+  {% if featured_project and featured_project.schedule_start_at -%}
+    <link rel="stylesheet" type="text/css" href="{{ manifest('css/schedule.css') }}"/>
+  {%- endif %}
   <meta name="author" href="/humans.txt" />
   <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
   <script type="application/ld+json">
@@ -14,7 +17,7 @@
        "url" : {{ url_for('index', _external=true)|tojson }},
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
+        "target": "{{ url_for('search', _external=true) }}?q={query}",
         "query-input": "required name=query"
       }
     }
@@ -55,11 +58,11 @@
 {% endblock baseheadline %}
 
 {% block basecontent %}
-  <a href="{{ url_for('about') }}" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}</a>
+  <a href="{{ url_for('about') }}" class="logo-about"><span class="emoji-hand" aria-hidden="true">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}</a>
   {{ featured_section(featured_project, heading=false) }}
   {{ upcoming_section(upcoming_projects) }}
 
-  {% if featured_profiles %}
+  {% if featured_accounts %}
     <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
@@ -71,9 +74,9 @@
       <div class="featured-profiles">
         <div class="mui-container">
           <ul class="grid projects flex-wrapper flex-wrapper--nowrap" role="list">
-            {% for profile in featured_profiles %}
+            {% for account in featured_accounts %}
               <li class="grid__col-12 grid-no-right-padding" role="listitem">
-                {{ profilecard(profile) }}
+                {{ profilecard(account) }}
               </li>
             {%- endfor -%}
           </ul>
@@ -87,11 +90,21 @@
   {{ past_projects_section() }}
 {% endblock basecontent %}
 
-{% block footerscripts %}
-  <script src="{{ built_asset('index.js') }}" type="text/javascript"></script>
+{% block innerscripts %}
+  <script src="{{ manifest('index.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      window.Hasgeek.homeInit();
+      var tickets;
+      {% if featured_project and featured_project.features.show_tickets -%}
+        tickets = {
+          boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
+          widgetElem: "#boxoffice-widget",
+          org: {{ featured_project.boxoffice_data.org|tojson }},
+          itemCollectionId: {{ featured_project.boxoffice_data.item_collection_id|tojson }},
+          itemCollectionTitle: {{ featured_project.title|tojson }}
+        };
+      {%- endif %}
+      window.Hasgeek.homeInit('.markdown', tickets);
     });
 
     if ('serviceWorker' in navigator) {
@@ -104,4 +117,4 @@
       });
     }
   </script>
-{% endblock footerscripts %}
+{% endblock innerscripts %}

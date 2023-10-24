@@ -6,27 +6,25 @@ Create Date: 2021-04-27 06:02:19.879566
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '08cef852ca39'
 down_revision = '4aea03545045'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 SCHEDULE_STATE_PUBLISHED = 1
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_index('ix_project_schedule_state', table_name='project')
     op.drop_column('project', 'schedule_state')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'project',
         sa.Column(

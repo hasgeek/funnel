@@ -9,11 +9,11 @@ Create Date: 2018-11-20 17:22:11.582473
 revision = 'd6b1904bea0e'
 down_revision = '70ffbc1bcf88'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'session',
         sa.Column(
@@ -26,5 +26,5 @@ def upgrade():
     op.alter_column('session', 'featured', server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('session', 'featured')

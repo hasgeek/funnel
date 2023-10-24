@@ -2,11 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
-from sqlalchemy.exc import IntegrityError
-
 from flask import abort, flash, request
+from sqlalchemy.exc import IntegrityError
 
 from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form
@@ -21,7 +18,7 @@ from ..forms import (
     TicketTypeForm,
 )
 from ..models import (
-    Profile,
+    Account,
     Project,
     SyncTicket,
     TicketClient,
@@ -29,17 +26,16 @@ from ..models import (
     TicketParticipant,
     TicketType,
     db,
-    sa,
 )
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .jobs import import_tickets
 from .login_session import requires_login, requires_sudo
-from .mixins import ProfileCheckMixin, ProjectViewMixin, TicketEventViewMixin
+from .mixins import AccountCheckMixin, ProjectViewMixin, TicketEventViewMixin
 
 
 @Project.views('ticket_event')
-@route('/<profile>/<project>/ticket_event')
+@route('/<account>/<project>/ticket_event')
 class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('ticket_event_list.html.jinja2')
@@ -48,7 +44,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
     def ticket_events(self) -> ReturnRenderWith:
         return {
             'project': self.obj,
-            'profile': self.obj.profile,
+            'account': self.obj.account,
             'ticket_events': self.obj.ticket_events,
         }
 
@@ -126,7 +122,7 @@ ProjectTicketEventView.init_app(app)
 
 
 @TicketEvent.views('main')
-@route('/<profile>/<project>/ticket_event/<name>')
+@route('/<account>/<project>/ticket_event/<name>')
 class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
 
@@ -173,7 +169,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
                 # Unknown form
                 abort(400)
         return {
-            'profile': self.obj.project.profile,
+            'account': self.obj.project.account,
             'ticket_event': self.obj,
             'project': self.obj.project,
             'badge_form': TicketParticipantBadgeForm(model=TicketParticipant),
@@ -212,7 +208,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
     @requires_roles({'project_promoter', 'project_usher'})
     def scan_badge(self) -> ReturnRenderWith:
         return {
-            'profile': self.obj.project.profile,
+            'account': self.obj.project.account,
             'project': self.obj.project,
             'ticket_event': self.obj,
         }
@@ -222,30 +218,31 @@ TicketEventView.init_app(app)
 
 
 @TicketType.views('main')
-@route('/<profile>/<project>/ticket_type/<name>')
-class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
+@route('/<account>/<project>/ticket_type/<name>')
+class TicketTypeView(AccountCheckMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = TicketType
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'name': 'name',
     }
     obj: TicketType
 
-    def loader(self, profile, project, name) -> TicketType:
+    def loader(self, account: str, project: str, name: str) -> TicketType:
         return (
-            TicketType.query.join(Project, Profile)
+            TicketType.query.join(Project)
+            .join(Account, Project.account)
             .filter(
-                sa.func.lower(Profile.name) == sa.func.lower(profile),
+                Account.name_is(account),
                 Project.name == project,
                 TicketType.name == name,
             )
             .first_or_404()
         )
 
-    def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+    def after_loader(self) -> ReturnView | None:
+        self.account = self.obj.project.account
         return super().after_loader()
 
     @route('')
@@ -258,7 +255,7 @@ class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
             .all()
         )
         return {
-            'profile': self.obj.project.profile,
+            'account': self.obj.project.account,
             'project': self.obj.project,
             'ticket_type': self.obj,
             'ticket_participants': ticket_participants,
@@ -300,30 +297,33 @@ TicketTypeView.init_app(app)
 
 
 @TicketClient.views('main')
-@route('/<profile>/<project>/ticket_client/<client_id>')
-class TicketClientView(ProfileCheckMixin, UrlForView, ModelView):
+@route('/<account>/<project>/ticket_client/<client_id>')
+class TicketClientView(AccountCheckMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = TicketClient
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'client_id': 'id',
     }
     obj: TicketClient
 
-    def loader(self, profile, project, client_id) -> TicketClient:
+    def loader(self, account: str, project: str, client_id: str) -> TicketClient:
+        if not client_id.isdigit():
+            abort(404)
         return (
-            TicketClient.query.join(Project, Profile)
+            TicketClient.query.join(Project)
+            .join(Account, Project.account)
             .filter(
-                sa.func.lower(Profile.name) == sa.func.lower(profile),
+                Account.name_is(account),
                 Project.name == project,
-                TicketClient.id == client_id,
+                TicketClient.id == int(client_id),
             )
             .first_or_404()
         )
 
-    def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+    def after_loader(self) -> ReturnView | None:
+        self.account = self.obj.project.account
         return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])

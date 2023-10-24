@@ -12,12 +12,12 @@ down_revision = '752dee4ae101'
 
 from textwrap import dedent
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy_utils import TSVectorType
-import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column('comment', sa.Column('search_vector', TSVectorType(), nullable=True))
     op.create_index(
         'ix_comment_search_vector',
@@ -74,7 +74,7 @@ def upgrade():
 
     # Update search vectors for existing data
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         UPDATE comment SET search_vector = setweight(to_tsvector('english', COALESCE(message_text, '')), 'A');
@@ -95,7 +95,7 @@ def upgrade():
 
     # Create trigger functions and add triggers
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         CREATE FUNCTION comment_search_vector_update() RETURNS trigger AS $$
@@ -170,10 +170,10 @@ def upgrade():
     op.alter_column('session', 'search_vector', nullable=False)
 
 
-def downgrade():
+def downgrade() -> None:
     # Drop triggers and functions
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         DROP TRIGGER comment_search_vector_trigger ON comment;

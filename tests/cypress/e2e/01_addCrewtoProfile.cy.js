@@ -18,7 +18,7 @@ describe('Adding crew to profile', () => {
 
     cy.login(`/${profile.title}`, owner.username, owner.password);
     cy.get('a[data-cy="admin-dropdown"]:visible').click();
-    cy.wait(1000);
+    cy.wait(2000);
     cy.get('a[data-cy-btn="profile-crew"]:visible').click();
 
     cy.add_profile_member(admin.username, 'is_owner-1', 'owner');

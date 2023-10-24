@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from flask import current_app, request
-
 from twilio.request_validator import RequestValidator
 
 from baseframe import statsd
@@ -20,7 +19,6 @@ from ...models import (
 )
 from ...transports.sms import validate_exotel_token
 from ...typing import ReturnView
-from ...utils import abort_null
 
 
 @app.route('/api/1/sms/twilio_event', methods=['POST'])
@@ -85,6 +83,7 @@ def process_twilio_event() -> ReturnView:
     elif request.form['MessageStatus'] == 'delivered':
         if phone_number:
             phone_number.msg_sms_delivered_at = sa.func.utcnow()
+            phone_number.mark_has_sms(True)
         if sms_message:
             sms_message.status = SMS_STATUS.DELIVERED
     else:
@@ -116,7 +115,7 @@ def process_exotel_event(secret_token: str) -> ReturnView:
     # If there are too many rejects, then most likely a hack attempt.
     statsd.incr('phone_number.event', tags={'engine': 'exotel', 'stage': 'received'})
 
-    exotel_to = abort_null(request.form.get('To', ''))
+    exotel_to = request.form.get('To', '')
     if not exotel_to:
         return {'status': 'eror', 'error': 'invalid_phone'}, 422
     # Exotel sends back 0-prefixed phone numbers, not plus-prefixed intl. numbers
@@ -173,6 +172,7 @@ def process_exotel_event(secret_token: str) -> ReturnView:
     elif request.form['Status'] == 'sent':
         if phone_number:
             phone_number.msg_sms_delivered_at = sa.func.utcnow()
+            phone_number.mark_has_sms(True)
         if sms_message:
             sms_message.status = SMS_STATUS.DELIVERED
     else:

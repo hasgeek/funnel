@@ -13,9 +13,9 @@ down_revision = 'ea20c403b240'
 
 import json
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
-import sqlalchemy as sa
 
 default_part_labels = {
     "proposal": {
@@ -33,7 +33,7 @@ default_part_labels = {
 }
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column('proposal', 'objective_text', new_column_name='abstract_text')
     op.alter_column('proposal', 'objective_html', new_column_name='abstract_html')
     op.alter_column('proposal', 'description_text', new_column_name='outline_text')
@@ -43,7 +43,7 @@ def upgrade():
     op.drop_column('proposal', 'session_type')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'proposal',
         sa.Column(

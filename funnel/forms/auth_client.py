@@ -2,20 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Optional
 from urllib.parse import urlparse
 
 from baseframe import _, __, forms
 from coaster.utils import getbool
 
 from ..models import (
+    Account,
     AuthClient,
     AuthClientCredential,
-    AuthClientTeamPermissions,
-    AuthClientUserPermissions,
-    Organization,
-    Team,
-    User,
+    AuthClientPermissions,
     valid_name,
 )
 from .helpers import strip_filters
@@ -24,7 +20,6 @@ __all__ = [
     'AuthClientForm',
     'AuthClientCredentialForm',
     'AuthClientPermissionEditForm',
-    'TeamPermissionAssignForm',
     'UserPermissionAssignForm',
 ]
 
@@ -33,9 +28,8 @@ __all__ = [
 class AuthClientForm(forms.Form):
     """Register a new OAuth client application."""
 
-    __returns__ = ('user', 'organization')
-    user: Optional[User] = None
-    organization: Optional[Organization] = None
+    __returns__ = ('account',)
+    account: Account | None = None
 
     title = forms.StringField(
         __("Application title"),
@@ -52,8 +46,8 @@ class AuthClientForm(forms.Form):
         __("Owner"),
         validators=[forms.validators.DataRequired()],
         description=__(
-            "User or organization that owns this application. Changing the owner"
-            " will revoke all currently assigned permissions for this app"
+            "Account that owns this application. Changing the owner will revoke all"
+            " currently assigned permissions for this app"
         ),
     )
     confidential = forms.RadioField(
@@ -105,11 +99,10 @@ class AuthClientForm(forms.Form):
         ),
     )
 
-    def validate_client_owner(self, field) -> None:
+    def validate_client_owner(self, field: forms.Field) -> None:
         """Validate client's owner to be the current user or an org owned by them."""
         if field.data == self.edit_user.buid:
-            self.user = self.edit_user
-            self.organization = None
+            self.account = self.edit_user
         else:
             orgs = [
                 org
@@ -118,8 +111,7 @@ class AuthClientForm(forms.Form):
             ]
             if len(orgs) != 1:
                 raise forms.validators.ValidationError(_("Invalid owner"))
-            self.user = None
-            self.organization = orgs[0]
+            self.account = orgs[0]
 
     def _urls_match(self, url1: str, url2: str) -> bool:
         """Validate two URLs have the same base component (minus path)."""
@@ -132,7 +124,7 @@ class AuthClientForm(forms.Form):
             and (p1.password == p2.password)
         )
 
-    def validate_redirect_uri(self, field) -> None:
+    def validate_redirect_uri(self, field: forms.Field) -> None:
         """Validate redirect URI points to the website for confidential clients."""
         if self.confidential.data and not self._urls_match(
             self.website.data, field.data
@@ -156,7 +148,7 @@ class AuthClientCredentialForm(forms.Form):
     )
 
 
-def permission_validator(form, field) -> None:
+def permission_validator(form: forms.Form, field: forms.Field) -> None:
     """Validate permission strings to be appropriately named."""
     permlist = field.data.split()
     for perm in permlist:
@@ -169,7 +161,7 @@ def permission_validator(form, field) -> None:
 
 
 @AuthClient.forms('permissions_user')
-@AuthClientUserPermissions.forms('assign')
+@AuthClientPermissions.forms('assign')
 class UserPermissionAssignForm(forms.Form):
     """Assign permissions to a user."""
 
@@ -184,35 +176,7 @@ class UserPermissionAssignForm(forms.Form):
     )
 
 
-@AuthClient.forms('permissions_team')
-@AuthClientTeamPermissions.forms('assign')
-class TeamPermissionAssignForm(forms.Form):
-    """Assign permissions to a team."""
-
-    __returns__ = ('team',)
-    team: Optional[Team] = None
-
-    team_id = forms.RadioField(
-        __("Team"),
-        validators=[forms.validators.DataRequired()],
-        description=__("Select a team to assign permissions to"),
-    )
-    perms = forms.StringField(
-        __("Permissions"),
-        validators=[forms.validators.DataRequired(), permission_validator],
-    )
-
-    def validate_team_id(self, field) -> None:
-        """Validate selected team to belong to this organization."""
-        # FIXME: Replace with QuerySelectField using RadioWidget.
-        teams = [team for team in self.organization.teams if team.buid == field.data]
-        if len(teams) != 1:
-            raise forms.validators.ValidationError(_("Unknown team"))
-        self.team = teams[0]
-
-
-@AuthClientUserPermissions.forms('edit')
-@AuthClientTeamPermissions.forms('edit')
+@AuthClientPermissions.forms('edit')
 class AuthClientPermissionEditForm(forms.Form):
     """Edit a user or team's permissions."""
 

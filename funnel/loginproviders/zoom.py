@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from base64 import b64encode
 
+import requests
 from flask import current_app, redirect, request, session
-
 from furl import furl
 from sentry_sdk import capture_exception
-import requests
 
 from baseframe import _
 
@@ -46,7 +45,7 @@ class ZoomProvider(LoginProvider):
                     dict(request.args),
                 )
                 raise LoginCallbackError(
-                    _("This server's callback URL is misconfigured")
+                    _("This server’s callback URL is misconfigured")
                 )
             raise LoginCallbackError(_("Unknown failure"))
         code = request.args.get('code', None)

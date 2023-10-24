@@ -52,18 +52,12 @@ const Form = {
   handleAjaxError(errorResponse) {
     Form.updateFormNonce(errorResponse.responseJSON);
     const errorMsg = Form.getResponseError(errorResponse);
-    window.toastr.error(errorMsg);
     return errorMsg;
   },
   formErrorHandler(formId, errorResponse) {
     $(`#${formId}`).find('button[type="submit"]').attr('disabled', false);
     $(`#${formId}`).find('.loading').addClass('mui--hide');
     return Form.handleAjaxError(errorResponse);
-  },
-  handleFetchNetworkError() {
-    const errorMsg = window.Hasgeek.Config.errorMsg.networkError;
-    window.toastr.error(errorMsg);
-    return errorMsg;
   },
   getActionUrl(formId) {
     return $(`#${formId}`).attr('action');
@@ -73,123 +67,136 @@ const Form = {
       $('input[name="form_nonce"]').val(response.form_nonce);
     }
   },
-  handleModalForm() {
-    $('.js-modal-form').click(function addModalToWindowHash() {
-      window.location.hash = $(this).data('hash');
+  preventSubmitOnEnter(id) {
+    $(`#${id}`).on('keyup keypress', (e) => {
+      const code = e.keyCode || e.which;
+      if (code === 13) {
+        e.preventDefault();
+        return false;
+      }
+      return true;
     });
-
-    $('body').on($.modal.BEFORE_CLOSE, () => {
-      if (window.location.hash) {
-        window.history.replaceState(
-          '',
-          '',
-          window.location.pathname + window.location.search
-        );
+  },
+  preventDoubleSubmit(formId) {
+    const form = $(`#${formId}`);
+    form
+      .find('input[type="submit"]')
+      .prop('disabled', true)
+      .addClass('submit-disabled');
+    form
+      .find('button[type="submit"]')
+      .prop('disabled', true)
+      .addClass('submit-disabled');
+    form.find('.loading').removeClass('mui--hide');
+  },
+  /* Takes 'formId' and 'errors'
+     'formId' is the id attribute of the form for which errors needs to be displayed
+     'errors' is the WTForm validation errors expected in the following format
+      {
+        "title": [
+          "This field is required"
+        ]
+        "email": [
+          "Not a valid email"
+        ]
+      }
+    For each error, a 'p' tag is created if not present and
+    assigned the error value as its text content.
+    The field wrapper and field are queried in the DOM
+    using the unique form id. And the newly created 'p' tag
+    is inserted in the DOM below the field.
+  */
+  showValidationErrors(formId, errors) {
+    const form = document.getElementById(formId);
+    Object.keys(errors).forEach((fieldName) => {
+      if (Array.isArray(errors[fieldName])) {
+        const fieldWrapper = form.querySelector(`#field-${fieldName}`);
+        if (fieldWrapper) {
+          let errorElem = fieldWrapper.querySelector('.mui-form__error');
+          // If error P tag doesn't exist, create it
+          if (!errorElem) {
+            errorElem = document.createElement('p');
+            errorElem.classList.add('mui-form__error');
+          }
+          [{ fieldName: errorElem.innerText }] = errors;
+          const field = form.querySelector(`#${fieldName}`);
+          // Insert the p tag below the field
+          field.parentNode.appendChild(errorElem);
+          // Add error class to field wrapper
+          fieldWrapper.classList.add('has-error');
+        }
       }
     });
-
-    window.addEventListener(
-      'hashchange',
-      () => {
-        if (window.location.hash === '') {
-          $.modal.close();
-        }
+  },
+  showFormError(formid, error, alertBoxHtml) {
+    const form = $(`#${formid}`);
+    form
+      .find('input[type="submit"]')
+      .prop('disabled', false)
+      .removeClass('submit-disabled');
+    form
+      .find('button[type="submit"]')
+      .prop('disabled', false)
+      .removeClass('submit-disabled');
+    form.find('.loading').addClass('mui--hide');
+    $('.alert').remove();
+    form.append(alertBoxHtml);
+    if (error.readyState === 4) {
+      if (error.status === 500) {
+        $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.serverError);
+      } else if (error.status === 429) {
+        $(form)
+          .find('.alert__text')
+          .text(window.Hasgeek.Config.errorMsg.rateLimitError);
+      } else if (error.responseJSON && error.responseJSON.error_description) {
+        $(form).find('.alert__text').text(error.responseJSON.error_description);
+      } else {
+        $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.error);
+      }
+    } else {
+      $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.networkError);
+    }
+  },
+  ajaxFormSubmit(formId, url, onSuccess, onError, config) {
+    const formData = $(`#${formId}`).serialize();
+    $.ajax({
+      url,
+      type: 'POST',
+      data: config.formData ? config.formData : formData,
+      dataType: config.dataType ? config.dataType : 'json',
+      contentType: config.contentType
+        ? config.contentType
+        : 'application/x-www-form-urlencoded',
+      beforeSend() {
+        Form.preventDoubleSubmit(formId);
+        if (config.beforeSend) config.beforeSend();
       },
-      false
-    );
-
-    const hashId = window.location.hash.split('#')[1];
-    if (hashId) {
-      if ($(`a.js-modal-form[data-hash="${hashId}"]`).length) {
-        $(`a[data-hash="${hashId}"]`).click();
-      }
-    }
-  },
-  handleDelete(elementClass, onSucessFn) {
-    $('body').on('click', elementClass, async function remove(event) {
-      event.preventDefault();
-      const url = $(this).attr('data-href');
-      const confirmationText = window.gettext('Are you sure you want to remove %s?', [
-        $(this).attr('title'),
-      ]);
-
-      /* eslint-disable no-alert */
-      if (window.confirm(confirmationText)) {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams({
-            csrf_token: $('meta[name="csrf-token"]').attr('content'),
-          }).toString(),
-        }).catch(Form.handleFetchNetworkError);
-        if (response && response.ok) {
-          const responseData = await response.json();
-          if (responseData) {
-            onSucessFn(responseData);
-          }
-        } else {
-          Form.handleAjaxError(response);
-        }
-      }
+      success(responseData) {
+        if (onSuccess) onSuccess(responseData);
+      },
+      error(xhr) {
+        onError(xhr);
+      },
     });
   },
-  activateToggleSwitch(checkboxId, callbckfn = '') {
-    function postForm() {
-      let submitting = false;
-      return (checkboxElem) => {
-        if (!submitting) {
-          submitting = true;
-          const checkbox = $(checkboxElem);
-          const currentState = checkboxElem.checked;
-          const previousState = !currentState;
-          const formData = new FormData(checkbox.parent('form')[0]);
-          if (!currentState) {
-            formData.append(checkbox.attr('name'), false);
-          }
-
-          fetch(checkbox.parent('form').attr('action'), {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams(formData).toString(),
-          })
-            .then((responseData) => {
-              if (responseData && responseData.message) {
-                window.toastr.success(responseData.message);
-              }
-              if (callbckfn) {
-                callbckfn();
-              }
-              submitting = false;
-            })
-            .catch((error) => {
-              Form.handleAjaxError(error);
-              checkbox.prop('checked', previousState);
-              submitting = false;
-            });
-        }
-      };
-    }
-
-    const throttleSubmit = postForm();
-
-    $('body').on('change', checkboxId, function submitToggleSwitch() {
-      throttleSubmit(this);
-    });
-
-    $('body').on('click', '.js-dropdown-toggle', function stopPropagation(event) {
-      event.stopPropagation();
-    });
-  },
-  openSubmissionToggle(checkboxId, cfpStatusDiv) {
-    const onSuccess = () => {
-      $(cfpStatusDiv).toggleClass('mui--hide');
-    };
-    Form.activateToggleSwitch(checkboxId, onSuccess);
+  /* Takes formId, url, onSuccess, onError, config
+   'formId' - Form id selector to query the DOM for the form
+   'url' - The url to which the post request is sent
+   'onSuccess' - A callback function that is executed if the request succeeds
+   'onError' - A callback function that is executed if the request fails
+   'config' -  An object that can contain dataType, beforeSend function
+    handleFormSubmit handles form submit, serializes the form values,
+      disables the submit button to prevent double submit,
+      displays the loading indicator and submits the form via ajax.
+      On completing the ajax request, calls the onSuccess/onError callback function.
+  */
+  handleFormSubmit(formId, url, onSuccess, onError, config) {
+    $(`#${formId}`)
+      .find('button[type="submit"]')
+      .click((event) => {
+        event.preventDefault();
+        Form.ajaxFormSubmit(formId, url, onSuccess, onError, config);
+      });
   },
 };
 

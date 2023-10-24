@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from flask import render_template, url_for
 
-from baseframe import _
+from baseframe import _, __
 
 from ... import app
-from ...models import AccountPasswordNotification, User
+from ...models import Account, AccountPasswordNotification
 from ...transports.sms import OneLineTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -17,16 +17,19 @@ from ..notification import RenderNotification
 class RenderAccountPasswordNotification(RenderNotification):
     """Notify user when their password is changed."""
 
-    user: User
+    user: Account
     aliases = {'document': 'user'}
     emoji_prefix = "⚠️ "
+    hero_image = 'img/email/chars-v1/password.png'
+    email_heading = __("Password updated!")
 
     @property
     def actor(self):
         # This notification won't have an actor when dispatched from password reset.
-        # i.e., self.notification.user is None. However, password reset is presumably
-        # performed by the owner of the user account, i.e., self.document, so we use
-        # that as the actor instead, here via the `user` alias (as specified above).
+        # i.e., self.notification.created_by is None. However, password reset is
+        # presumably performed by the owner of the user account, i.e., self.document, so
+        # we use that as the actor instead, here via the `user` alias (as specified
+        # above).
         return self.user
 
     def web(self):
