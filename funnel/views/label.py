@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from flask import flash, request
 from werkzeug.datastructures import MultiDict
 
@@ -13,16 +11,15 @@ from coaster.views import ModelView, UrlForView, render_with, requires_roles, ro
 
 from .. import app
 from ..forms import LabelForm, LabelOptionForm
-from ..models import Label, Profile, Project, db
+from ..models import Account, Label, Project, db
 from ..typing import ReturnRenderWith, ReturnView
-from ..utils import abort_null
 from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
-from .mixins import ProfileCheckMixin, ProjectViewMixin
+from .mixins import AccountCheckMixin, ProjectViewMixin
 
 
 @Project.views('label')
-@route('/<profile>/<project>/labels')
+@route('/<account>/<project>/labels')
 class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @route('', methods=['GET', 'POST'])
     @render_with('labels.html.jinja2')
@@ -31,7 +28,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     def labels(self) -> ReturnRenderWith:
         form = forms.Form()
         if form.validate_on_submit():
-            namelist = [abort_null(x) for x in request.values.getlist('name')]
+            namelist = request.values.getlist('name')
             for idx, lname in enumerate(namelist, start=1):
                 lbl = Label.query.filter_by(project=self.obj, name=lname).first()
                 if lbl is not None:
@@ -53,8 +50,8 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             # and those values are also available at `form.data`.
             # But in case there are options, the option values are in the list
             # in the order they appeared on the create form.
-            titlelist = [abort_null(x) for x in request.values.getlist('title')]
-            emojilist = [abort_null(x) for x in request.values.getlist('icon_emoji')]
+            titlelist = request.values.getlist('title')
+            emojilist = request.values.getlist('icon_emoji')
             # first values of both lists belong to the parent label
             titlelist.pop(0)
             emojilist.pop(0)
@@ -103,29 +100,29 @@ ProjectLabelView.init_app(app)
 
 
 @Label.views('main')
-@route('/<profile>/<project>/labels/<label>')
-class LabelView(ProfileCheckMixin, UrlForView, ModelView):
+@route('/<account>/<project>/labels/<label>')
+class LabelView(AccountCheckMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = Label
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'label': 'name',
     }
     obj: Label
 
-    def loader(self, profile: str, project: str, label: str) -> Label:
+    def loader(self, account: str, project: str, label: str) -> Label:
         return (
-            Label.query.join(Project, Label.project_id == Project.id)
-            .join(Profile, Project.profile_id == Profile.id)
+            Label.query.join(Project, Label.project)
+            .join(Account, Project.account)
             .filter(
-                Profile.name_is(profile), Project.name == project, Label.name == label
+                Account.name_is(account), Project.name == project, Label.name == label
             )
             .first_or_404()
         )
 
-    def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+    def after_loader(self) -> ReturnView | None:
+        self.account = self.obj.project.account
         return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
@@ -145,9 +142,9 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             return render_redirect(self.obj.project.url_for('labels'))
 
         if form.validate_on_submit():
-            namelist = [abort_null(x) for x in request.values.getlist('name')]
-            titlelist = [abort_null(x) for x in request.values.getlist('title')]
-            emojilist = [abort_null(x) for x in request.values.getlist('icon_emoji')]
+            namelist = request.values.getlist('name')
+            titlelist = request.values.getlist('title')
+            emojilist = request.values.getlist('icon_emoji')
 
             namelist.pop(0)
             titlelist.pop(0)

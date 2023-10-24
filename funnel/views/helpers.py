@@ -5,12 +5,13 @@ from __future__ import annotations
 import gzip
 import zlib
 from base64 import urlsafe_b64encode
+from collections.abc import Callable
 from contextlib import nullcontext
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
-from typing import Any, Callable, Dict, Optional, Tuple, Union
-from urllib.parse import unquote, urljoin, urlsplit
+from typing import Any
+from urllib.parse import quote, unquote, urljoin, urlsplit
 
 import brotli
 from flask import (
@@ -30,7 +31,6 @@ from furl import furl
 from pytz import common_timezones, timezone as pytz_timezone, utc
 from werkzeug.exceptions import MethodNotAllowed, NotFound
 from werkzeug.routing import BuildError, RequestRedirect
-from werkzeug.urls import url_quote
 
 from baseframe import cache, statsd
 from coaster.sqlalchemy import RoleMixin
@@ -38,7 +38,7 @@ from coaster.utils import utcnow
 
 from .. import app, shortlinkapp
 from ..forms import supported_locales
-from ..models import Shortlink, User, db, profanity
+from ..models import Account, Shortlink, db, profanity
 from ..proxies import request_wants
 from ..typing import ResponseType, ReturnResponse, ReturnView
 
@@ -52,7 +52,7 @@ avatar_color_count = 6
 # --- Classes --------------------------------------------------------------------------
 
 
-class SessionTimeouts(Dict[str, timedelta]):
+class SessionTimeouts(dict[str, timedelta]):
     """
     Singleton dictionary that aids tracking timestamps in session.
 
@@ -97,7 +97,7 @@ def app_context():
     return app.app_context()
 
 
-def str_pw_set_at(user: User) -> str:
+def str_pw_set_at(user: Account) -> str:
     """Render user.pw_set_at as a string, for comparison."""
     if user.pw_set_at is not None:
         return user.pw_set_at.astimezone(utc).replace(microsecond=0).isoformat()
@@ -114,8 +114,8 @@ def app_url_for(
     endpoint: str,
     _external: bool = True,
     _method: str = 'GET',
-    _anchor: Optional[str] = None,
-    _scheme: Optional[str] = None,
+    _anchor: str | None = None,
+    _scheme: str | None = None,
     **values: str,
 ) -> str:
     """
@@ -152,11 +152,11 @@ def app_url_for(
         if old_scheme is not None:
             url_adapter.url_scheme = old_scheme
     if _anchor:
-        result += f'#{url_quote(_anchor)}'
+        result += f'#{quote(_anchor)}'
     return result
 
 
-def validate_is_app_url(url: Union[str, furl], method: str = 'GET') -> bool:
+def validate_is_app_url(url: str | furl, method: str = 'GET') -> bool:
     """Confirm if an external URL is served by the current app (runtime-only)."""
     # Parse or copy URL and remove username and password before further analysis
     parsed_url = furl(url).remove(username=True, password=True)
@@ -234,12 +234,12 @@ def localize_date(date, from_tz=utc, to_tz=utc):
     return date
 
 
-def get_scheme_netloc(uri: str) -> Tuple[str, str]:
+def get_scheme_netloc(uri: str) -> tuple[str, str]:
     parsed_uri = urlsplit(uri)
     return (parsed_uri.scheme, parsed_uri.netloc)
 
 
-def autoset_timezone_and_locale(user: User) -> None:
+def autoset_timezone_and_locale(user: Account) -> None:
     # Set the user's timezone and locale automatically if required
     if (
         user.auto_timezone
@@ -261,8 +261,8 @@ def autoset_timezone_and_locale(user: User) -> None:
 
 
 def progressive_rate_limit_validator(
-    token: str, prev_token: Optional[str]
-) -> Tuple[bool, bool]:
+    token: str, prev_token: str | None
+) -> tuple[bool, bool]:
     """
     Validate for :func:`validate_rate_limit` on autocomplete-type resources.
 
@@ -296,8 +296,8 @@ def validate_rate_limit(
     identifier: str,
     attempts: int,
     timeout: int,
-    token: Optional[str] = None,
-    validator: Optional[Callable[[str, Optional[str]], Tuple[bool, bool]]] = None,
+    token: str | None = None,
+    validator: Callable[[str, str | None], tuple[bool, bool]] | None = None,
 ):
     """
     Validate a rate limit on API-endpoint resources.
@@ -332,7 +332,7 @@ def validate_rate_limit(
     )
     cache_key = f'rate_limit/v1/{resource}/{identifier}'
     # XXX: Typing for cache.get is incorrectly specified as returning Optional[str]
-    cache_value: Optional[Tuple[int, str]] = cache.get(  # type: ignore[assignment]
+    cache_value: tuple[int, str] | None = cache.get(  # type: ignore[assignment]
         cache_key
     )
     if cache_value is None:
@@ -420,7 +420,7 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
     return token
 
 
-def retrieve_cached_token(token: str) -> Optional[dict]:
+def retrieve_cached_token(token: str) -> dict | None:
     """Retrieve cached data given a token generated using :func:`make_cached_token`."""
     # XXX: Typing for cache.get is incorrectly specified as returning Optional[str]
     return cache.get(TEXT_TOKEN_PREFIX + token)  # type: ignore[return-value]
@@ -514,7 +514,7 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
     return redirect(url, code)
 
 
-def html_in_json(template: str) -> Dict[str, Union[str, Callable[[dict], ReturnView]]]:
+def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]:
     """Render a HTML fragment in a JSON wrapper, for use with ``@render_with``."""
 
     def render_json_with_status(kwargs) -> ReturnResponse:
@@ -562,7 +562,7 @@ def cleanurl_filter(url):
 
 
 @app.template_filter('shortlink')
-def shortlink(url: str, actor: Optional[User] = None, shorter: bool = True) -> str:
+def shortlink(url: str, actor: Account | None = None, shorter: bool = True) -> str:
     """
     Return a short link suitable for sharing, in a template filter.
 
@@ -577,6 +577,16 @@ def shortlink(url: str, actor: Optional[User] = None, shorter: bool = True) -> s
 
 
 # --- Request/response handlers --------------------------------------------------------
+
+
+@app.before_request
+def no_null_in_form():
+    """Disallow NULL characters in any form submit (but don't scan file attachments)."""
+    if request.method == 'POST':
+        for values in request.form.listvalues():
+            for each in values:
+                if each is not None and '\x00' in each:
+                    abort(400)
 
 
 @app.after_request

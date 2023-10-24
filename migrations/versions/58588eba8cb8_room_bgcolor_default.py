@@ -13,14 +13,15 @@ down_revision = '31253f116e1e'
 import sqlalchemy as sa
 from alembic import op
 
-from funnel.models import VenueRoom
+venue_room = sa.table('venue_room', sa.column('bgcolor', sa.String()))
 
 
 def upgrade() -> None:
-    connection = op.get_bind()
-    room = VenueRoom.__table__
-    updt_stmt = room.update().where(room.c.bgcolor.is_(None)).values(bgcolor='229922')
-    connection.execute(updt_stmt)
+    op.execute(
+        venue_room.update()
+        .where(venue_room.c.bgcolor.is_(None))
+        .values(bgcolor='229922')
+    )
     op.alter_column(
         'venue_room', 'bgcolor', existing_type=sa.VARCHAR(length=6), nullable=False
     )

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, cast
+from typing import cast
 
 from flask import render_template, request
 
@@ -49,8 +49,8 @@ def get_form_template(form: SessionForm) -> ReturnView:
 
 def session_edit(
     project: Project,
-    proposal: Optional[Proposal] = None,
-    session: Optional[Session] = None,
+    proposal: Proposal | None = None,
+    session: Session | None = None,
 ) -> ReturnView:
     # Look for any existing unscheduled session
     if proposal is not None and session is None:
@@ -123,7 +123,7 @@ def session_edit(
 
 
 @Project.views('session_new')
-@route('/<profile>/<project>/sessions')
+@route('/<account>/<project>/sessions')
 class ProjectSessionView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @requires_login
@@ -136,7 +136,7 @@ ProjectSessionView.init_app(app)
 
 
 @Session.views('main')
-@route('/<profile>/<project>/schedule/<session>')
+@route('/<account>/<project>/schedule/<session>')
 class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
     @route('viewsession-popup')  # Legacy route, will be auto-redirected to base URL
@@ -185,13 +185,13 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ),
         )
 
-    @route('editsession', methods=['GET', 'POST'])
+    @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
     def edit(self) -> ReturnView:
         return session_edit(self.obj.project, session=self.obj)
 
-    @route('deletesession', methods=['POST'])
+    @route('delete', methods=['POST'])
     @requires_login
     @requires_roles({'project_editor'})
     def delete(self) -> ReturnView:
@@ -227,12 +227,12 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
         created = False
         if form.validate_on_submit():
             session_save = SavedSession.query.filter_by(
-                user=current_auth.user, session=self.obj
+                account=current_auth.user, session=self.obj
             ).first()
             if form.save.data:
                 if session_save is None:
                     session_save = SavedSession(
-                        user=current_auth.user, session=self.obj
+                        account=current_auth.user, session=self.obj
                     )
                     created = True
                     form.populate_obj(session_save)

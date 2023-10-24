@@ -90,11 +90,15 @@ def test_validate_is_app_url(app) -> None:
             is False
         )
         assert (
-            vhelpers.validate_is_app_url(f'http://{request.host}/profile/project')
+            vhelpers.validate_is_app_url(f'http://{request.host}/account/project')
             is True
         )
         assert (
-            vhelpers.validate_is_app_url(f'http://{request.host}/profile/project/')
+            vhelpers.validate_is_app_url(f'http://{request.host}/account/project/')
+            is True
+        )
+        assert (
+            vhelpers.validate_is_app_url(f'http://{request.host}/~account/project/')
             is True
         )
 

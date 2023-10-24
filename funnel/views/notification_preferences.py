@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Optional
 
 import itsdangerous
 from flask import abort, current_app, flash, redirect, request, session, url_for
@@ -17,10 +16,10 @@ from coaster.views import ClassView, render_with, requestargs, route
 from .. import app
 from ..forms import SetNotificationPreferenceForm, UnsubscribeForm, transport_labels
 from ..models import (
+    Account,
     EmailAddress,
     NotificationPreferences,
     PhoneNumber,
-    User,
     db,
     notification_categories,
     notification_type_registry,
@@ -84,7 +83,7 @@ class AccountNotificationView(ClassView):
             if ncls.category.priority_id in preferences:
                 if ntype not in user_preferences:
                     user_preferences[ntype] = NotificationPreferences(
-                        notification_type=ntype, user=current_auth.user
+                        notification_type=ntype, account=current_auth.user
                     )
                     commit_new_preferences = True
                 preferences[ncls.category.priority_id]['types'].append(
@@ -144,7 +143,7 @@ class AccountNotificationView(ClassView):
                 not in current_auth.user.notification_preferences
             ):
                 prefs = NotificationPreferences(
-                    user=current_auth.user,
+                    account=current_auth.user,
                     notification_type=form.notification_type.data,
                 )
                 db.session.add(prefs)
@@ -198,7 +197,7 @@ class AccountNotificationView(ClassView):
             flash(unsubscribe_link_invalid, 'error')
             return render_redirect(url_for('notification_preferences'))
 
-        user = User.get(buid=payload['buid'])
+        user = Account.get(buid=payload['buid'])
         if user is None:
             current_app.logger.error(
                 "Auto unsubscribe view cannot find user with buid %s", payload['buid']
@@ -245,9 +244,7 @@ class AccountNotificationView(ClassView):
         endpoint='notification_unsubscribe_do',
     )
     @requestargs(('cookietest', getbool))
-    def unsubscribe(
-        self, token: str, token_type: Optional[str], cookietest: bool = False
-    ):
+    def unsubscribe(self, token: str, token_type: str | None, cookietest: bool = False):
         """View for unsubscribing from a notification type or disabling a transport."""
         # This route strips the token from the URL before rendering the page, to avoid
         # leaking the token to web analytics software.
@@ -389,7 +386,7 @@ class AccountNotificationView(ClassView):
 
         # Step 6. Load the user. The contents of `payload` are defined in
         # :meth:`NotificationView.unsubscribe_token` above
-        user = User.get(buid=payload['buid'])
+        user = Account.get(buid=payload['buid'])
         if user is None:
             current_app.logger.error(
                 "Unsubscribe view cannot find user with buid %s", payload['buid']

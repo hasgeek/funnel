@@ -1,5 +1,5 @@
 .chip {
-  padding: 0 8px 2px;
+  padding: 2px 8px 2px;
   border-radius: 16px;
   display: inline-block;
   white-space: nowrap;
@@ -32,6 +32,12 @@
 .chip--bg-danger {
   background-color: $mui-danger-color;
   color: mui-color('white');
+}
+
+.chip--bg-success {
+  background-color: $mui-success-color;
+  border-color: transparentize($mui-text-success, 0.8);
+  color: $mui-text-success;
 }
 
 .chip + .chip {

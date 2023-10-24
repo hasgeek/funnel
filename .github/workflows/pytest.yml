@@ -34,7 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest] # TODO: Figure out macos-latest and Docker
-        python-version: ['3.7', '3.11']
+        python-version: ['3.11', '3.12']
 
     services:
       redis:
@@ -77,15 +77,11 @@ jobs:
           path: ${{ env.pythonLocation }}
           key: ${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements/base.txt') }}-${{ hashFiles('requirements.txt/test.txt') }}
       - name: Install Python dependencies
-        if: ${{ matrix.python-version != '3.7' }}
         run: make install-python-test
-      - name: Install Python dependencies (3.7)
-        if: ${{ matrix.python-version == '3.7' }}
-        run: make install-python-test-37
       - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version: latest
+          node-version: 20
           cache: npm
       - name: Cache node modules
         uses: actions/cache@v3

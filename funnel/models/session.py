@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Type
+from typing import Any
 
 from flask_babel import format_date, get_locale
 from isoweek import Week
@@ -18,21 +18,27 @@ from . import (
     BaseScopedIdNameMixin,
     DynamicMapped,
     Mapped,
-    MarkdownCompositeDocument,
     Model,
     Query,
     TSVectorType,
     UuidMixin,
+    backref,
     db,
     hybrid_property,
     relationship,
     sa,
 )
-from .helpers import ImgeeType, add_search_trigger, reopen, visual_field_delimiter
+from .account import Account
+from .helpers import (
+    ImgeeType,
+    MarkdownCompositeDocument,
+    add_search_trigger,
+    reopen,
+    visual_field_delimiter,
+)
 from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
-from .user import User
 from .venue import VenueRoom
 from .video_mixin import VideoMixin
 
@@ -41,14 +47,13 @@ __all__ = ['Session']
 
 class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     __tablename__ = 'session'
-    __allow_unmapped__ = True
 
     project_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
         relationship(
-            Project, backref=sa.orm.backref('sessions', cascade='all', lazy='dynamic')
+            Project, backref=backref('sessions', cascade='all', lazy='dynamic')
         ),
         grants_via={None: project_child_role_map},
     )
@@ -59,8 +64,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     proposal_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id'), nullable=True, unique=True
     )
-    proposal: Mapped[Optional[Proposal]] = relationship(
-        Proposal, backref=sa.orm.backref('session', uselist=False, cascade='all')
+    proposal: Mapped[Proposal | None] = relationship(
+        Proposal, backref=backref('session', uselist=False, cascade='all')
     )
     speaker = sa.orm.mapped_column(sa.Unicode(200), default=None, nullable=True)
     start_at = sa.orm.mapped_column(
@@ -72,12 +77,13 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     venue_room_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True
     )
-    venue_room: Mapped[Optional[VenueRoom]] = relationship(
-        VenueRoom, backref=sa.orm.backref('sessions')
-    )
+    venue_room: Mapped[VenueRoom | None] = relationship(VenueRoom, backref='sessions')
     is_break = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
     featured = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
-    banner_image_url: Mapped[Optional[str]] = sa.orm.mapped_column(
+    is_restricted_video = sa.orm.mapped_column(
+        sa.Boolean, default=False, nullable=False
+    )
+    banner_image_url: Mapped[str | None] = sa.orm.mapped_column(
         ImgeeType, nullable=True
     )
 
@@ -142,6 +148,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
                 'end_at',
                 'venue_room',
                 'is_break',
+                'is_restricted_video',
                 'banner_image_url',
                 'start_at_localized',
                 'end_at_localized',
@@ -164,6 +171,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
             'end_at',
             'venue_room',
             'is_break',
+            'is_restricted_video',
             'banner_image_url',
             'start_at_localized',
             'end_at_localized',
@@ -179,6 +187,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
             'end_at',
             'venue_room',
             'is_break',
+            'is_restricted_video',
             'banner_image_url',
             'start_at_localized',
             'end_at_localized',
@@ -194,6 +203,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
             'end_at',
             'venue_room',
             'is_break',
+            'is_restricted_video',
             'banner_image_url',
             'start_at_localized',
             'end_at_localized',
@@ -201,7 +211,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     }
 
     @hybrid_property
-    def user(self) -> Optional[User]:
+    def user(self) -> Account | None:
         if self.proposal is not None:
             return self.proposal.first_user
         return None
@@ -218,7 +228,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
         return (cls.start_at.is_not(None)) & (cls.end_at.is_not(None))
 
     @cached_property
-    def start_at_localized(self) -> Optional[datetime]:
+    def start_at_localized(self) -> datetime | None:
         return (
             localize_timezone(self.start_at, tz=self.project.timezone)
             if self.start_at
@@ -226,7 +236,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
         )
 
     @cached_property
-    def end_at_localized(self) -> Optional[datetime]:
+    def end_at_localized(self) -> datetime | None:
         return (
             localize_timezone(self.end_at, tz=self.project.timezone)
             if self.end_at
@@ -250,9 +260,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     with_roles(location, read={'all'})
 
     @classmethod
-    def for_proposal(
-        cls, proposal: Proposal, create: bool = False
-    ) -> Optional[Session]:
+    def for_proposal(cls, proposal: Proposal, create: bool = False) -> Session | None:
         session_obj = cls.query.filter_by(proposal=proposal).first()
         if session_obj is None and create:
             session_obj = cls(
@@ -280,7 +288,7 @@ add_search_trigger(Session, 'search_vector')
 
 @reopen(VenueRoom)
 class __VenueRoom:
-    scheduled_sessions: Mapped[List[Session]] = relationship(
+    scheduled_sessions: Mapped[list[Session]] = relationship(
         Session,
         primaryjoin=sa.and_(
             Session.venue_room_id == VenueRoom.id,
@@ -294,7 +302,7 @@ class __VenueRoom:
 class __Project:
     # Project schedule column expressions. Guide:
     # https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
-    schedule_start_at = with_roles(
+    schedule_start_at: Mapped[datetime | None] = with_roles(
         sa.orm.column_property(
             sa.select(sa.func.min(Session.start_at))
             .where(Session.start_at.is_not(None))
@@ -306,7 +314,7 @@ class __Project:
         datasets={'primary', 'without_parent'},
     )
 
-    next_session_at = with_roles(
+    next_session_at: Mapped[datetime | None] = with_roles(
         sa.orm.column_property(
             sa.select(sa.func.min(sa.column('start_at')))
             .select_from(
@@ -325,13 +333,14 @@ class __Project:
                     )
                     .correlate(Project)
                 )
+                .subquery()
             )
             .scalar_subquery()
         ),
         read={'all'},
     )
 
-    schedule_end_at = with_roles(
+    schedule_end_at: Mapped[datetime | None] = with_roles(
         sa.orm.column_property(
             sa.select(sa.func.max(Session.end_at))
             .where(Session.end_at.is_not(None))
@@ -345,7 +354,7 @@ class __Project:
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
-    def schedule_start_at_localized(self):
+    def schedule_start_at_localized(self) -> datetime | None:
         return (
             localize_timezone(self.schedule_start_at, tz=self.timezone)
             if self.schedule_start_at
@@ -354,7 +363,7 @@ class __Project:
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
-    def schedule_end_at_localized(self):
+    def schedule_end_at_localized(self) -> datetime | None:
         return (
             localize_timezone(self.schedule_end_at, tz=self.timezone)
             if self.schedule_end_at
@@ -363,10 +372,10 @@ class __Project:
 
     @with_roles(read={'all'})
     @cached_property
-    def session_count(self):
+    def session_count(self) -> int:
         return self.sessions.filter(Session.start_at.is_not(None)).count()
 
-    featured_sessions = with_roles(
+    featured_sessions: Mapped[list[Session]] = with_roles(
         relationship(
             Session,
             order_by=Session.start_at.asc(),
@@ -377,7 +386,7 @@ class __Project:
         ),
         read={'all'},
     )
-    scheduled_sessions = with_roles(
+    scheduled_sessions: Mapped[list[Session]] = with_roles(
         relationship(
             Session,
             order_by=Session.start_at.asc(),
@@ -389,7 +398,7 @@ class __Project:
         ),
         read={'all'},
     )
-    unscheduled_sessions = with_roles(
+    unscheduled_sessions: Mapped[list[Session]] = with_roles(
         relationship(
             Session,
             order_by=Session.start_at.asc(),
@@ -421,7 +430,7 @@ class __Project:
     def has_sessions_with_video(self) -> bool:
         return self.query.session.query(self.sessions_with_video.exists()).scalar()
 
-    def next_session_from(self, timestamp: datetime) -> Optional[Session]:
+    def next_session_from(self, timestamp: datetime) -> Session | None:
         """Find the next session in this project from given timestamp."""
         return (
             self.sessions.filter(
@@ -433,8 +442,8 @@ class __Project:
 
     @with_roles(call={'all'})
     def next_starting_at(  # type: ignore[misc]
-        self: Project, timestamp: Optional[datetime] = None
-    ) -> Optional[datetime]:
+        self: Project, timestamp: datetime | None = None
+    ) -> datetime | None:
         """
         Return timestamp of next session from given timestamp.
 
@@ -463,7 +472,7 @@ class __Project:
 
     @classmethod
     def starting_at(  # type: ignore[misc]
-        cls: Type[Project], timestamp: datetime, within: timedelta, gap: timedelta
+        cls: type[Project], timestamp: datetime, within: timedelta, gap: timedelta
     ) -> Query[Project]:
         """
         Return projects that are about to start, for sending notifications.
@@ -521,7 +530,7 @@ class __Project:
         )
 
     @with_roles(call={'all'})
-    def current_sessions(self: Project) -> Optional[dict]:  # type: ignore[misc]
+    def current_sessions(self) -> dict | None:
         if self.start_at is None or (self.start_at > utcnow() + timedelta(minutes=30)):
             return None
 
@@ -543,7 +552,8 @@ class __Project:
             ],
         }
 
-    def calendar_weeks(self: Project, leading_weeks=True):  # type: ignore[misc]
+    # TODO: Use TypedDict for return type
+    def calendar_weeks(self, leading_weeks: bool = True) -> dict[str, Any]:
         # session_dates is a list of tuples in this format -
         # (date, day_start_at, day_end_at, event_count)
         if self.schedule_start_at:
@@ -637,7 +647,7 @@ class __Project:
                     session_dates.insert(0, (now + timedelta(days=7), None, None, 0))
                 session_dates.insert(0, (now, None, None, 0))
 
-        weeks: Dict[str, Dict[str, Any]] = defaultdict(dict)
+        weeks: dict[str, dict[str, Any]] = defaultdict(dict)
         today = now.date()
         for project_date, _day_start_at, _day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)
@@ -693,10 +703,10 @@ class __Project:
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
-    def calendar_weeks_full(self):
+    def calendar_weeks_full(self) -> dict[str, Any]:  # TODO: Use TypedDict
         return self.calendar_weeks(leading_weeks=True)
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
-    def calendar_weeks_compact(self):
+    def calendar_weeks_compact(self) -> dict[str, Any]:  # TODO: Use TypedDict
         return self.calendar_weeks(leading_weeks=False)

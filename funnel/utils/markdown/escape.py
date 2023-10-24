@@ -4,20 +4,10 @@ from __future__ import annotations
 
 import re
 import string
-import sys
+from collections.abc import Callable, Iterable, Mapping
 from functools import wraps
-from typing import (
-    Any,
-    Callable,
-    Iterable,
-    List,
-    Mapping,
-    Optional,
-    Tuple,
-    TypeVar,
-    Union,
-)
-from typing_extensions import Concatenate, ParamSpec, Protocol, Self, SupportsIndex
+from typing import Any, Concatenate, SupportsIndex, TypeVar
+from typing_extensions import ParamSpec, Protocol, Self
 
 __all__ = ['HasMarkdown', 'MarkdownString', 'markdown_escape']
 
@@ -123,7 +113,7 @@ class MarkdownString(str):
     __slots__ = ()
 
     def __new__(
-        cls, base: Any = '', encoding: Optional[str] = None, errors: str = 'strict'
+        cls, base: Any = '', encoding: str | None = None, errors: str = 'strict'
     ) -> MarkdownString:
         if hasattr(base, '__markdown__'):
             base = base.__markdown__()
@@ -150,7 +140,7 @@ class MarkdownString(str):
         return markdown_unescape_re.sub(r'\1', str(self))
 
     @classmethod
-    def escape(cls, text: Union[str, HasMarkdown], silent: bool = True) -> Self:
+    def escape(cls, text: str | HasMarkdown, silent: bool = True) -> Self:
         """Escape a string, for internal use only. Use :func:`markdown_escape`."""
         if silent and text is None:
             return cls('')  # type: ignore[unreachable]
@@ -160,13 +150,13 @@ class MarkdownString(str):
 
     # These additional methods are borrowed from the implementation in markupsafe
 
-    def __add__(self, other: Union[str, HasMarkdown]) -> Self:
+    def __add__(self, other: str | HasMarkdown) -> Self:
         if isinstance(other, str) or hasattr(other, '__markdown__'):
             return self.__class__(super().__add__(self.escape(other)))
 
         return NotImplemented
 
-    def __radd__(self, other: Union[str, HasMarkdown]) -> Self:
+    def __radd__(self, other: str | HasMarkdown) -> Self:
         if isinstance(other, str) or hasattr(other, '__markdown__'):
             return self.escape(other).__add__(self)
 
@@ -197,28 +187,28 @@ class MarkdownString(str):
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({super().__repr__()})'
 
-    def join(self, iterable: Iterable[Union[str, HasMarkdown]]) -> Self:
+    def join(self, iterable: Iterable[str | HasMarkdown]) -> Self:
         return self.__class__(super().join(map(self.escape, iterable)))
 
     join.__doc__ = str.join.__doc__
 
     def split(  # type: ignore[override]
-        self, sep: Optional[str] = None, maxsplit: SupportsIndex = -1
-    ) -> List[Self]:
+        self, sep: str | None = None, maxsplit: SupportsIndex = -1
+    ) -> list[Self]:
         return [self.__class__(v) for v in super().split(sep, maxsplit)]
 
     split.__doc__ = str.split.__doc__
 
     def rsplit(  # type: ignore[override]
-        self, sep: Optional[str] = None, maxsplit: SupportsIndex = -1
-    ) -> List[Self]:
+        self, sep: str | None = None, maxsplit: SupportsIndex = -1
+    ) -> list[Self]:
         return [self.__class__(v) for v in super().rsplit(sep, maxsplit)]
 
     rsplit.__doc__ = str.rsplit.__doc__
 
     def splitlines(  # type: ignore[override]
         self, keepends: bool = False
-    ) -> List[Self]:
+    ) -> list[Self]:
         return [self.__class__(v) for v in super().splitlines(keepends)]
 
     splitlines.__doc__ = str.splitlines.__doc__
@@ -241,22 +231,21 @@ class MarkdownString(str):
     zfill = _simple_escaping_wrapper(str.zfill)  # type: ignore[assignment]
     casefold = _simple_escaping_wrapper(str.casefold)  # type: ignore[assignment]
 
-    if sys.version_info >= (3, 9):
-        removeprefix = _simple_escaping_wrapper(  # type: ignore[assignment]
-            str.removeprefix
-        )
-        removesuffix = _simple_escaping_wrapper(  # type: ignore[assignment]
-            str.removesuffix
-        )
+    removeprefix = _simple_escaping_wrapper(  # type: ignore[assignment]
+        str.removeprefix
+    )
+    removesuffix = _simple_escaping_wrapper(  # type: ignore[assignment]
+        str.removesuffix
+    )
 
-    def partition(self, sep: str) -> Tuple[Self, Self, Self]:
+    def partition(self, sep: str) -> tuple[Self, Self, Self]:
         left, sep, right = super().partition(self.escape(sep))
         cls = self.__class__
         return cls(left), cls(sep), cls(right)
 
     partition.__doc__ = str.partition.__doc__
 
-    def rpartition(self, sep: str) -> Tuple[Self, Self, Self]:
+    def rpartition(self, sep: str) -> tuple[Self, Self, Self]:
         left, sep, right = super().rpartition(self.escape(sep))
         cls = self.__class__
         return cls(left), cls(sep), cls(right)

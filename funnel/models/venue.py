@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import itertools
-from typing import List
-
 from sqlalchemy.ext.orderinglist import ordering_list
 
 from coaster.sqlalchemy import add_primary_relationship, with_roles
@@ -13,22 +10,20 @@ from . import (
     BaseScopedNameMixin,
     CoordinatesMixin,
     Mapped,
-    MarkdownCompositeBasic,
     Model,
     UuidMixin,
     relationship,
     sa,
 )
-from .helpers import reopen
+from .helpers import MarkdownCompositeBasic, reopen
 from .project import Project
-from .project_membership import project_child_role_map
+from .project_membership import project_child_role_map, project_child_role_set
 
 __all__ = ['Venue', 'VenueRoom']
 
 
 class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
     __tablename__ = 'venue'
-    __allow_unmapped__ = True
 
     project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
@@ -48,7 +43,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
     postcode = sa.orm.mapped_column(sa.Unicode(20), default='', nullable=False)
     country = sa.orm.mapped_column(sa.Unicode(2), default='', nullable=False)
 
-    rooms: Mapped[List[VenueRoom]] = relationship(
+    rooms: Mapped[list[VenueRoom]] = relationship(
         'VenueRoom',
         cascade='all',
         order_by='VenueRoom.seq',
@@ -109,7 +104,6 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
 
 class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
     __tablename__ = 'venue_room'
-    __allow_unmapped__ = True
 
     venue_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('venue.id'), nullable=False
@@ -117,7 +111,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
     venue: Mapped[Venue] = with_roles(
         relationship(Venue, back_populates='rooms'),
         # Since Venue already remaps Project roles, we just want the remapped role names
-        grants_via={None: set(itertools.chain(*project_child_role_map.values()))},
+        grants_via={None: project_child_role_set},
     )
     parent: Mapped[Venue] = sa.orm.synonym('venue')
     description, description_text, description_html = MarkdownCompositeBasic.create(

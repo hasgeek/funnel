@@ -7,7 +7,6 @@ Create Date: 2023-01-17 22:58:23.556730
 """
 
 import hashlib
-from typing import Optional, Tuple, Union
 
 import phonenumbers
 import rich.progress
@@ -18,8 +17,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision: str = '63c44675b6cd'
 down_revision: str = 'fb90ab2af4c2'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 # SMS delivery status in sms_message table

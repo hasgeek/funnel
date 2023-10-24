@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 
 from pytz import utc
 from sqlalchemy.orm import attribute_keyed_dict
@@ -13,12 +13,10 @@ from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 
 from .. import app
-from ..typing import OptionalMigratedTables
 from . import (
     BaseScopedNameMixin,
     DynamicMapped,
     Mapped,
-    MarkdownCompositeDocument,
     Model,
     Query,
     TimestampMixin,
@@ -26,22 +24,23 @@ from . import (
     TSVectorType,
     UrlType,
     UuidMixin,
+    backref,
     db,
     relationship,
     sa,
     types,
 )
+from .account import Account
 from .comment import SET_TYPE, Commentset
 from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
+    MarkdownCompositeDocument,
     add_search_trigger,
     reopen,
     valid_name,
     visual_field_delimiter,
 )
-from .profile import Profile
-from .user import User
 
 __all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
 
@@ -70,35 +69,33 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
 
 class Project(UuidMixin, BaseScopedNameMixin, Model):
     __tablename__ = 'project'
-    __allow_unmapped__ = True
     reserved_names = RESERVED_NAMES
 
-    user_id = sa.orm.mapped_column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user: Mapped[User] = relationship(
-        User,
-        foreign_keys=[user_id],
-        backref=sa.orm.backref('projects', cascade='all'),
+    created_by_id = sa.orm.mapped_column(sa.ForeignKey('account.id'), nullable=False)
+    created_by: Mapped[Account] = relationship(
+        Account,
+        foreign_keys=[created_by_id],
     )
-    profile_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('profile.id'), nullable=False
-    )
-    profile: Mapped[Profile] = with_roles(
+    account_id = sa.orm.mapped_column(sa.ForeignKey('account.id'), nullable=False)
+    account: Mapped[Account] = with_roles(
         relationship(
-            Profile, backref=sa.orm.backref('projects', cascade='all', lazy='dynamic')
+            Account,
+            foreign_keys=[account_id],
+            backref=backref('projects', cascade='all', lazy='dynamic'),
         ),
         read={'all'},
-        # If account grants an 'admin' role, make it 'profile_admin' here
+        # If account grants an 'admin' role, make it 'account_admin' here
         grants_via={
             None: {
-                'admin': 'profile_admin',
+                'admin': 'account_admin',
                 'follower': 'account_participant',
             }
         },
-        # `profile` only appears in the 'primary' dataset. It must not be included in
+        # `account` only appears in the 'primary' dataset. It must not be included in
         # 'related' or 'without_parent' as it is the parent
         datasets={'primary'},
     )
-    parent: Mapped[Profile] = sa.orm.synonym('profile')
+    parent: Mapped[Account] = sa.orm.synonym('account')
     tagline: Mapped[str] = with_roles(
         sa.orm.mapped_column(sa.Unicode(250), nullable=False),
         read={'all'},
@@ -199,7 +196,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    buy_tickets_url: Mapped[Optional[str]] = with_roles(
+    buy_tickets_url: Mapped[str | None] = with_roles(
         sa.orm.mapped_column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
@@ -240,7 +237,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     parent_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
-    parent_project: Mapped[Optional[Project]] = relationship(
+    parent_project: Mapped[Project | None] = relationship(
         'Project', remote_side='Project.id', backref='subprojects'
     )
 
@@ -250,6 +247,21 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         sa.orm.mapped_column(sa.Boolean, default=False, nullable=False),
         read={'all'},
         write={'site_editor'},
+        datasets={'primary', 'without_parent'},
+    )
+
+    livestream_urls = with_roles(
+        sa.orm.mapped_column(
+            sa.ARRAY(sa.UnicodeText, dimensions=1),
+            server_default=sa.text("'{}'::text[]"),
+        ),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
+    )
+
+    is_restricted_video: Mapped[bool] = with_roles(
+        sa.orm.mapped_column(sa.Boolean, default=False, nullable=False),
+        read={'all'},
         datasets={'primary', 'without_parent'},
     )
 
@@ -285,17 +297,11 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         deferred=True,
     )
 
-    livestream_urls = with_roles(
-        sa.orm.mapped_column(
-            sa.ARRAY(sa.UnicodeText, dimensions=1),
-            server_default=sa.text("'{}'::text[]"),
-        ),
-        read={'all'},
-        datasets={'primary', 'without_parent'},
-    )
+    # Relationships
+    primary_venue: Mapped[Venue | None] = relationship()
 
     __table_args__ = (
-        sa.UniqueConstraint('profile_id', 'name'),
+        sa.UniqueConstraint('account_id', 'name'),
         sa.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
         sa.CheckConstraint(
             sa.or_(
@@ -456,10 +462,10 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         super().__init__(**kwargs)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
         # Add the creator as editor and promoter
-        new_membership = ProjectCrewMembership(
+        new_membership = ProjectMembership(
             parent=self,
-            user=self.user,
-            granted_by=self.user,
+            member=self.created_by,
+            granted_by=self.created_by,
             is_editor=True,
             is_promoter=True,
         )
@@ -467,7 +473,15 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
 
     def __repr__(self) -> str:
         """Represent :class:`Project` as a string."""
-        return f'<Project {self.profile.name}/{self.name} "{self.title}">'
+        return f'<Project {self.account.urlname}/{self.name} "{self.title}">'
+
+    def __str__(self) -> str:
+        return self.joined_title
+
+    def __format__(self, format_spec: str) -> str:
+        if not format_spec:
+            return self.joined_title
+        return self.joined_title.__format__(format_spec)
 
     @with_roles(call={'editor'})
     @cfp_state.transition(
@@ -539,18 +553,18 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     @property
     def title_suffix(self) -> str:
         """
-        Return the profile's title if the project's title doesn't derive from it.
+        Return the account's title if the project's title doesn't derive from it.
 
         Used in HTML title tags to render <title>{{ project }} - {{ suffix }}</title>.
         """
-        if not self.title.startswith(self.parent.title):
-            return self.profile.title
+        if not self.title.startswith(self.account.title):
+            return self.account.title
         return ''
 
     with_roles(title_suffix, read={'all'})
 
     @property
-    def title_parts(self) -> List[str]:
+    def title_parts(self) -> list[str]:
         """
         Return the hierarchy of titles of this project.
 
@@ -563,7 +577,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         """
         if self.short_title == self.title:
             # Project title does not derive from account title, so use both
-            return [self.profile.title, self.title]
+            return [self.account.title, self.title]
         # Project title extends account title, so account title is not needed
         return [self.title]
 
@@ -632,12 +646,12 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     # def delete(self):
     #     pass
 
-    @sa.orm.validates('name', 'profile')
+    @sa.orm.validates('name', 'account')
     def _validate_and_create_redirect(self, key, value):
         # TODO: When labels, venues and other resources are relocated from project to
-        # account, this validator can no longer watch for `profile` change. We'll need a
+        # account, this validator can no longer watch for `account` change. We'll need a
         # more elaborate transfer mechanism that remaps resources to equivalent ones in
-        # the new `profile`.
+        # the new `account`.
         if key == 'name':
             value = value.strip() if value is not None else None
         if not value or (key == 'name' and not valid_name(value)):
@@ -687,7 +701,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         self.end_at = self.schedule_end_at
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Sequence = ()
+        self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
@@ -715,9 +729,9 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     def all_unsorted(cls) -> Query[Project]:
         """Return query of all published projects, without ordering criteria."""
         return (
-            cls.query.join(Profile)
+            cls.query.join(Account, Project.account)
             .outerjoin(Venue)
-            .filter(cls.state.PUBLISHED, Profile.is_verified.is_(True))
+            .filter(cls.state.PUBLISHED, Account.is_verified.is_(True))
         )
 
     @classmethod
@@ -729,23 +743,21 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     # convenience as this is only used in shell access.
     @classmethod
     def get(  # type: ignore[override]  # pylint: disable=arguments-differ
-        cls, profile_project: str
-    ) -> Optional[Project]:
-        """Get a project by its URL slug in the form ``<profile>/<project>``."""
-        profile_name, project_name = profile_project.split('/')
+        cls, account_project: str
+    ) -> Project | None:
+        """Get a project by its URL slug in the form ``<account>/<project>``."""
+        account_name, project_name = account_project.split('/')
         return (
-            cls.query.join(Profile)
-            .filter(Profile.name_is(profile_name), Project.name == project_name)
+            cls.query.join(Account, Project.account)
+            .filter(Account.name_is(account_name), Project.name == project_name)
             .one_or_none()
         )
 
     @classmethod
-    def migrate_profile(  # type: ignore[return]
-        cls, old_profile: Profile, new_profile: Profile
-    ) -> OptionalMigratedTables:
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """Migrate from one account to another when merging users."""
-        names = {project.name for project in new_profile.projects}
-        for project in old_profile.projects:
+        names = {project.name for project in new_account.projects}
+        for project in old_account.projects:
             if project.name in names:
                 app.logger.warning(
                     "Project %r had a conflicting name in account migration,"
@@ -753,70 +765,68 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
                     project,
                 )
                 project.name += '-' + buid()
-            project.profile = new_profile
+            project.account = new_account
 
 
 add_search_trigger(Project, 'search_vector')
 
 
-@reopen(Profile)
-class __Profile:
+@reopen(Account)
+class __Account:
     id: Mapped[int]  # noqa: A003
 
-    listed_projects: DynamicMapped[Project] = with_roles(
-        relationship(
-            Project,
-            lazy='dynamic',
-            primaryjoin=sa.and_(
-                Profile.id == Project.profile_id,
-                Project.state.PUBLISHED,
-            ),
-            viewonly=True,
+    listed_projects: DynamicMapped[Project] = relationship(
+        Project,
+        lazy='dynamic',
+        primaryjoin=sa.and_(
+            Account.id == Project.account_id,
+            Project.state.PUBLISHED,
         ),
-        # This grant of follower from Project participant is interim until Account gets
-        # it's own follower membership model
-        grants_via={None: {'participant': {'follower'}}},
+        viewonly=True,
     )
     draft_projects: DynamicMapped[Project] = relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            Profile.id == Project.profile_id,
+            Account.id == Project.account_id,
             sa.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
         ),
         viewonly=True,
     )
     projects_by_name = with_roles(
         relationship(
-            Project, collection_class=attribute_keyed_dict('name'), viewonly=True
+            Project,
+            foreign_keys=[Project.account_id],
+            collection_class=attribute_keyed_dict('name'),
+            viewonly=True,
         ),
         read={'all'},
     )
 
-    def draft_projects_for(self, user: Optional[User]) -> List[Project]:
+    def draft_projects_for(self, user: Account | None) -> list[Project]:
         if user is not None:
             return [
                 membership.project
-                for membership in user.projects_as_crew_active_memberships.join(Project)
-                .join(Profile)
-                .filter(
+                for membership in user.projects_as_crew_active_memberships.join(
+                    Project
+                ).filter(
                     # Project is attached to this account
-                    Project.profile_id == self.id,
+                    Project.account_id == self.id,
                     # Project is in draft state OR has a draft call for proposals
                     sa.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
                 )
             ]
         return []
 
-    def unscheduled_projects_for(self, user: Optional[User]) -> List[Project]:
+    def unscheduled_projects_for(self, user: Account | None) -> list[Project]:
         if user is not None:
             return [
                 membership.project
-                for membership in user.projects_as_crew_active_memberships.join(Project)
-                .join(Profile)
-                .filter(
+                for membership in user.projects_as_crew_active_memberships.join(
+                    Project
+                ).filter(
                     # Project is attached to this account
-                    Project.profile_id == self.id,
+                    Project.account_id == self.id,
                     # Project is in draft state OR has a draft call for proposals
                     sa.or_(Project.state.PUBLISHED_WITHOUT_SESSIONS),
                 )
@@ -833,16 +843,17 @@ class __Profile:
 
 class ProjectRedirect(TimestampMixin, Model):
     __tablename__ = 'project_redirect'
-    __allow_unmapped__ = True
 
-    profile_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('profile.id'), nullable=False, primary_key=True
+    account_id: Mapped[int] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
-    profile: Mapped[Profile] = relationship(
-        Profile, backref=sa.orm.backref('project_redirects', cascade='all')
+    account: Mapped[Account] = relationship(
+        Account, backref=backref('project_redirects', cascade='all')
     )
-    parent: Mapped[Profile] = sa.orm.synonym('profile')
-    name = sa.orm.mapped_column(sa.Unicode(250), nullable=False, primary_key=True)
+    parent: Mapped[Account] = sa.orm.synonym('account')
+    name: Mapped[str] = sa.orm.mapped_column(
+        sa.Unicode(250), nullable=False, primary_key=True
+    )
 
     project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
@@ -852,61 +863,60 @@ class ProjectRedirect(TimestampMixin, Model):
     def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
         if not self.project:
-            return f'<ProjectRedirect {self.profile.name}/{self.name}: (none)>'
+            return f'<ProjectRedirect {self.account.urlname}/{self.name}: (none)>'
         return (
-            f'<ProjectRedirect {self.profile.name}/{self.name}'
-            f' → {self.project.profile.name}/{self.project.name}>'
+            f'<ProjectRedirect {self.account.urlname}/{self.name}'
+            f' → {self.project.account.urlname}/{self.project.name}>'
         )
 
     def redirect_view_args(self):
         if self.project:
-            return {'profile': self.profile.name, 'project': self.project.name}
+            return {'account': self.account.urlname, 'project': self.project.name}
         return {}
 
     @classmethod
     def add(
         cls,
         project: Project,
-        profile: Optional[Profile] = None,
-        name: Optional[str] = None,
+        account: Account | None = None,
+        name: str | None = None,
     ) -> ProjectRedirect:
         """
-        Add a project redirect in a given profile.
+        Add a project redirect in a given account.
 
         :param project: The project to create a redirect for
-        :param profile: The profile to place the redirect in, defaulting to existing
+        :param account: The account to place the redirect in, defaulting to existing
         :param str name: Name to redirect, defaulting to project's existing name
 
         Typical use is when a project is renamed, to create a redirect from its previous
-        name, or when it's moved between projects, to create a redirect from previous
-        project.
+        name, or when it's moved between accounts, to create a redirect from previous
+        account.
         """
-        if profile is None:
-            profile = project.profile
+        if account is None:
+            account = project.account
         if name is None:
             name = project.name
-        redirect = cls.query.get((profile.id, name))
+        redirect = cls.query.get((account.id, name))
         if redirect is None:
-            redirect = cls(profile=profile, name=name, project=project)
+            redirect = cls(account=account, name=name, project=project)
             db.session.add(redirect)
         else:
             redirect.project = project
         return redirect
 
     @classmethod
-    def migrate_profile(  # type: ignore[return]
-        cls, old_profile: Profile, new_profile: Profile
-    ) -> OptionalMigratedTables:
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """
-        Discard redirects when migrating profiles.
+        Transfer project redirects when migrating accounts, discarding dupe names.
 
-        Since there is no profile redirect, all project redirects will also be
-        unreachable and are no longer relevant.
+        Since there is no account redirect, all project redirects will also be
+        unreachable after this transfer, unless the new account is renamed to take the
+        old account's name.
         """
-        names = {pr.name for pr in new_profile.project_redirects}
-        for pr in old_profile.project_redirects:
+        names = {pr.name for pr in new_account.project_redirects}
+        for pr in old_account.project_redirects:
             if pr.name not in names:
-                pr.profile = new_profile
+                pr.account = new_account
             else:
                 # Discard project redirect since the name is already taken by another
                 # redirect in the new account
@@ -915,13 +925,12 @@ class ProjectRedirect(TimestampMixin, Model):
 
 class ProjectLocation(TimestampMixin, Model):
     __tablename__ = 'project_location'
-    __allow_unmapped__ = True
     #: Project we are tagging
     project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False
     )
     project: Mapped[Project] = relationship(
-        Project, backref=sa.orm.backref('locations', cascade='all')
+        Project, backref=backref('locations', cascade='all')
     )
     #: Geonameid for this project
     geonameid = sa.orm.mapped_column(
@@ -947,5 +956,5 @@ class __Commentset:
 
 # Tail imports
 # pylint: disable=wrong-import-position
-from .project_membership import ProjectCrewMembership  # isort:skip
+from .project_membership import ProjectMembership  # isort:skip
 from .venue import Venue  # isort:skip  # skipcq: FLK-E402
