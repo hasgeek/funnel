@@ -208,13 +208,9 @@ class CommentNotification(RenderNotification):
         if comment is None:
             comment = self.comment
 
-        actor_markup = (
-            Markup(
-                f'<a href="{escape(self.actor.absolute_url)}">'
-                f'{escape(self.actor.pickername)}</a>'
-            )
-            if self.actor.absolute_url
-            else escape(self.actor.pickername)
+        actor_markup = Markup(
+            f'<a href="{escape(self.actor.absolute_url)}">'
+            f'{escape(self.actor.pickername)}</a>'
         )
         project = self.project
         project_markup = (
