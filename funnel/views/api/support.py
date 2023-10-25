@@ -61,8 +61,8 @@ def support_callerid(number: str) -> tuple[dict[str, Any], int]:
     if phone_number.used_in_account_phone:
         user_phone = phone_number.used_in_account_phone[0]
         info['account'] = {
-            'title': user_phone.account.fullname,
-            'name': user_phone.account.username,
+            'title': user_phone.account.title,
+            'name': user_phone.account.name,
             'url': user_phone.account.absolute_url,
         }
     return {'status': 'ok', 'result': info}, 200
