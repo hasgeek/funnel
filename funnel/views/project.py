@@ -497,7 +497,7 @@ class ProjectView(  # type: ignore[misc]
             success=_(
                 "You have deleted project ‘{title}’ and all its associated content"
             ).format(title=self.obj.title),
-            next=self.obj.account.profile_url,
+            next=self.obj.account.absolute_url,
             cancel_url=self.obj.url_for(),
         )
 

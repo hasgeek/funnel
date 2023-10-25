@@ -75,14 +75,14 @@
             <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
               <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
                 <div class="flex-wrapper flex-wrapper--center">
-                    <a href="{{ featured_project.account.profile_url }}" class="profile-avatar margin-right" data-ga="View account">
+                    <a href="{{ featured_project.account.absolute_url }}" class="profile-avatar margin-right" data-ga="View account">
                     {%- if featured_project.account.logo_url.url %}
                       <img src="{{ featured_project.account.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.account.title }}"/>
                     {% else %}
                       <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.account.title }}"/>
                     {% endif %}
                     </a>
-                    <a href="{{ featured_project.account.profile_url }}" class="profile-avatar-title mui--text-subhead text-bold mui--text-dark nounderline" data-ga="View account">{{ featured_project.account.title }}</a>
+                    <a href="{{ featured_project.account.absolute_url }}" class="profile-avatar-title mui--text-subhead text-bold mui--text-dark nounderline" data-ga="View account">{{ featured_project.account.title }}</a>
                   </a>
                 </div>
                 {%- if not current_auth.is_anonymous %}

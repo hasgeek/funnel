@@ -279,13 +279,13 @@
   {%- else %}
     {%- set imgsize = 48 %}
   {% endif %}
-  {% if user.profile_url and add_profile_link %}<a href="{{ user.profile_url }}" class="nounderline">{% endif %}
+  {% if add_profile_link %}<a href="{{ user.absolute_url }}" class="nounderline">{% endif %}
   {% if user.logo_url %}
     <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.logo_url.resize(imgsize) }}" alt="{{ user.title }}"/>
   {%- elif user.title %}
     <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}" data-avatar-colour="{{ user.views and user.views.avatar_color_code or '' }}">{{ user.title|initials }}</div>
   {% endif %}
-  {% if user.profile_url and add_profile_link %}</a>{% endif %}
+  {% if add_profile_link %}</a>{% endif %}
 {%- endmacro %}
 
 {%- macro list_sponsors(sponsors) %}
@@ -300,7 +300,7 @@
         <div class="flex-wrapper flex-wrapper--center">
           <div class="user user--smaller">
             <div class="user__box">
-              <a {% if sponsor_public %}href="{{ sponsorship.member.profile_url }}"{% endif %} class="nounderline">
+              <a {% if sponsor_public %}href="{{ sponsorship.member.absolute_url }}"{% endif %} class="nounderline">
                 {%- if sponsorship.member.logo_url.url %}
                   <img class="user__box__gravatar" src="{{ sponsorship.member.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ sponsorship.member.title }}"/>
                 {%- else %}
@@ -309,7 +309,7 @@
               </a>
             </div>
           </div>
-          <a {% if sponsor_public %}href="{{ sponsorship.member.profile_url }}"{% endif %} class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ sponsorship.member.title }}</a>
+          <a {% if sponsor_public %}href="{{ sponsorship.member.absolute_url }}"{% endif %} class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ sponsorship.member.title }}</a>
         </div>
         {%- endwith %}
       {%- endfor %}

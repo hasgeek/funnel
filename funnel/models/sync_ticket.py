@@ -297,10 +297,10 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     with_roles(has_public_profile, read={'all'})
 
     @property
-    def profile_url(self) -> str | None:
-        return self.participant.profile_url if self.participant else None
+    def absolute_url(self) -> str | None:
+        return self.participant.absolute_url if self.participant else None
 
-    with_roles(profile_url, read={'all'})
+    with_roles(absolute_url, read={'all'})
 
     @classmethod
     def get(
