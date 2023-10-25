@@ -337,7 +337,7 @@ class Account(UuidMixin, BaseMixin, Model):
                 'logo_url',
                 'banner_image_url',
                 'joined_at',
-                'profile_url',
+                'absolute_url',
                 'urls',
                 'is_user_profile',
                 'is_organization_profile',
@@ -362,7 +362,7 @@ class Account(UuidMixin, BaseMixin, Model):
             'logo_url',
             'website',
             'joined_at',
-            'profile_url',
+            'absolute_url',
             'is_verified',
         },
         'related': {
@@ -378,7 +378,7 @@ class Account(UuidMixin, BaseMixin, Model):
             'description',
             'logo_url',
             'joined_at',
-            'profile_url',
+            'absolute_url',
             'is_verified',
         },
     }
@@ -622,13 +622,6 @@ class Account(UuidMixin, BaseMixin, Model):
         return self.name is not None and bool(self.profile_state.ACTIVE_AND_PUBLIC)
 
     with_roles(has_public_profile, read={'all'}, write={'owner'})
-
-    @property
-    def profile_url(self) -> str | None:
-        """Return optional URL to account profile page."""
-        return self.url_for(_external=True)
-
-    with_roles(profile_url, read={'all'})
 
     def is_profile_complete(self) -> bool:
         """Verify if profile is complete (fullname, username and contacts present)."""
@@ -1297,7 +1290,7 @@ class DuckTypeAccount(RoleMixin):
     uuid_b58: None = None
     username: None = None
     name: None = None
-    profile_url: None = None
+    absolute_url: None = None
     email: None = None
     phone: None = None
 
@@ -1318,7 +1311,7 @@ class DuckTypeAccount(RoleMixin):
                 'username',
                 'fullname',
                 'pickername',
-                'profile_url',
+                'absolute_url',
             },
             'call': {'views', 'forms', 'features', 'url_for'},
         }
@@ -1329,7 +1322,7 @@ class DuckTypeAccount(RoleMixin):
             'username',
             'fullname',
             'pickername',
-            'profile_url',
+            'absolute_url',
         }
     }
 

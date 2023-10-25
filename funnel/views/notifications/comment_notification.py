@@ -210,10 +210,10 @@ class CommentNotification(RenderNotification):
 
         actor_markup = (
             Markup(
-                f'<a href="{escape(self.actor.profile_url)}">'
+                f'<a href="{escape(self.actor.absolute_url)}">'
                 f'{escape(self.actor.pickername)}</a>'
             )
-            if self.actor.profile_url
+            if self.actor.absolute_url
             else escape(self.actor.pickername)
         )
         project = self.project
