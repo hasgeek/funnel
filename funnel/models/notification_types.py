@@ -173,7 +173,7 @@ class NewCommentNotification(Notification[Commentset, Comment], type='comment_ne
     title = __("When there is a new comment on something I’m involved in")
     exclude_actor = True
 
-    roles = ['replied_to_commenter', 'project_crew']
+    roles = ['replied_to_commenter', 'document_subscriber']
 
 
 class CommentReplyNotification(Notification[Comment, Comment], type='comment_reply'):
