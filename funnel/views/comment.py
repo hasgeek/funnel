@@ -334,10 +334,7 @@ class CommentView(UrlForView, ModelView):
                 self.obj,
             )
             dispatch_notification(
-                CommentReplyNotification(
-                    document=comment.in_reply_to, fragment=comment
-                ),
-                NewCommentNotification(document=comment.commentset, fragment=comment),
+                CommentReplyNotification(document=comment.in_reply_to, fragment=comment)
             )
             return {
                 'status': 'ok',
