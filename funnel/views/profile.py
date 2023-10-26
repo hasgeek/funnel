@@ -62,6 +62,16 @@ def feature_profile_make_private(obj: Account):
     return obj.current_roles.admin and obj.make_profile_private.is_available
 
 
+@Account.features('is_private')
+def feature_profile_is_private(obj: Account):
+    print('obj.current_roles.admin', obj.current_roles.admin, bool(obj.profile_state.PRIVATE))
+    return (
+        obj.is_user_profile
+        and not obj.current_roles.admin
+        and not bool(obj.profile_state.ACTIVE_AND_PUBLIC)
+    )
+
+
 def template_switcher(templateargs):
     template = templateargs.pop('template')
     return render_template(template, **templateargs)
