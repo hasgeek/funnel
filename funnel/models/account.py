@@ -250,9 +250,7 @@ class Account(UuidMixin, BaseMixin, Model):
     #: Verified accounts get listed on the home page and are not considered throwaway
     #: accounts for spam control. There are no other privileges at this time
     is_verified: Mapped[bool] = with_roles(
-        immutable(
-            sa.orm.mapped_column(sa.Boolean, default=False, nullable=False, index=True)
-        ),
+        sa.orm.mapped_column(sa.Boolean, default=False, nullable=False, index=True),
         read={'all'},
     )
 
