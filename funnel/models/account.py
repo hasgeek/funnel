@@ -113,9 +113,14 @@ class PROFILE_STATE(LabeledEnum):  # noqa: N801
 class ZBase32Comparator(Comparator[str]):  # pylint: disable=abstract-method
     """Comparator to allow lookup by Account.uuid_zbase32."""
 
-    def __eq__(self, other: str) -> sa.ColumnElement[bool]:  # type: ignore[override]
+    def __eq__(self, other: object) -> sa.ColumnElement[bool]:  # type: ignore[override]
         """Return an expression for column == other."""
-        return self.__clause_element__() == UUID(bytes=zbase32_decode(other))
+        try:
+            return self.__clause_element__() == UUID(  # type: ignore[return-value]
+                bytes=zbase32_decode(str(other))
+            )
+        except ValueError:  # zbase32 call failed, so it's not a valid string
+            return sa.false()
 
 
 class Account(UuidMixin, BaseMixin, Model):
@@ -332,7 +337,7 @@ class Account(UuidMixin, BaseMixin, Model):
                 'logo_url',
                 'banner_image_url',
                 'joined_at',
-                'profile_url',
+                'absolute_url',
                 'urls',
                 'is_user_profile',
                 'is_organization_profile',
@@ -357,7 +362,7 @@ class Account(UuidMixin, BaseMixin, Model):
             'logo_url',
             'website',
             'joined_at',
-            'profile_url',
+            'absolute_url',
             'is_verified',
         },
         'related': {
@@ -373,7 +378,7 @@ class Account(UuidMixin, BaseMixin, Model):
             'description',
             'logo_url',
             'joined_at',
-            'profile_url',
+            'absolute_url',
             'is_verified',
         },
     }
@@ -617,13 +622,6 @@ class Account(UuidMixin, BaseMixin, Model):
         return self.name is not None and bool(self.profile_state.ACTIVE_AND_PUBLIC)
 
     with_roles(has_public_profile, read={'all'}, write={'owner'})
-
-    @property
-    def profile_url(self) -> str | None:
-        """Return optional URL to account profile page."""
-        return self.url_for(_external=True)
-
-    with_roles(profile_url, read={'all'})
 
     def is_profile_complete(self) -> bool:
         """Verify if profile is complete (fullname, username and contacts present)."""
@@ -1292,7 +1290,7 @@ class DuckTypeAccount(RoleMixin):
     uuid_b58: None = None
     username: None = None
     name: None = None
-    profile_url: None = None
+    absolute_url: None = None
     email: None = None
     phone: None = None
 
@@ -1313,7 +1311,7 @@ class DuckTypeAccount(RoleMixin):
                 'username',
                 'fullname',
                 'pickername',
-                'profile_url',
+                'absolute_url',
             },
             'call': {'views', 'forms', 'features', 'url_for'},
         }
@@ -1324,7 +1322,7 @@ class DuckTypeAccount(RoleMixin):
             'username',
             'fullname',
             'pickername',
-            'profile_url',
+            'absolute_url',
         }
     }
 

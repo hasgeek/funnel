@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
 from typing import Any
-from urllib.parse import unquote, urljoin, urlsplit
+from urllib.parse import quote, unquote, urljoin, urlsplit
 
 import brotli
 from flask import (
@@ -31,7 +31,6 @@ from furl import furl
 from pytz import common_timezones, timezone as pytz_timezone, utc
 from werkzeug.exceptions import MethodNotAllowed, NotFound
 from werkzeug.routing import BuildError, RequestRedirect
-from werkzeug.urls import url_quote
 
 from baseframe import cache, statsd
 from coaster.sqlalchemy import RoleMixin
@@ -153,7 +152,7 @@ def app_url_for(
         if old_scheme is not None:
             url_adapter.url_scheme = old_scheme
     if _anchor:
-        result += f'#{url_quote(_anchor)}'
+        result += f'#{quote(_anchor)}'
     return result
 
 
@@ -578,6 +577,16 @@ def shortlink(url: str, actor: Account | None = None, shorter: bool = True) -> s
 
 
 # --- Request/response handlers --------------------------------------------------------
+
+
+@app.before_request
+def no_null_in_form():
+    """Disallow NULL characters in any form submit (but don't scan file attachments)."""
+    if request.method == 'POST':
+        for values in request.form.listvalues():
+            for each in values:
+                if each is not None and '\x00' in each:
+                    abort(400)
 
 
 @app.after_request

@@ -278,16 +278,16 @@ class Comment(UuidMixin, BaseMixin, Model):
 
     __roles__ = {
         'all': {
-            'read': {'created_at', 'urls', 'uuid_b58', 'has_replies'},
+            'read': {'created_at', 'urls', 'uuid_b58', 'has_replies', 'absolute_url'},
             'call': {'state', 'commentset', 'view_for', 'url_for'},
         },
         'replied_to_commenter': {'granted_via': {'in_reply_to': '_posted_by'}},
     }
 
     __datasets__ = {
-        'primary': {'created_at', 'urls', 'uuid_b58'},
-        'related': {'created_at', 'urls', 'uuid_b58'},
-        'json': {'created_at', 'urls', 'uuid_b58'},
+        'primary': {'created_at', 'urls', 'uuid_b58', 'absolute_url'},
+        'related': {'created_at', 'urls', 'uuid_b58', 'absolute_url'},
+        'json': {'created_at', 'urls', 'uuid_b58', 'absolute_url'},
         'minimal': {'created_at', 'uuid_b58'},
     }
 
@@ -360,12 +360,6 @@ class Comment(UuidMixin, BaseMixin, Model):
     with_roles(
         message, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'}
     )
-
-    @property
-    def absolute_url(self) -> str:
-        return self.url_for()
-
-    with_roles(absolute_url, read={'all'}, datasets={'primary', 'related', 'json'})
 
     @property
     def title(self) -> str:

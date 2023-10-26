@@ -153,7 +153,7 @@ def login() -> ReturnView:
     if request.method == 'GET':
         loginmethod = request.cookies.get('login')
 
-    formid = abort_null(request.form.get('form.id'))
+    formid = request.form.get('form.id')
     if request.method == 'POST' and formid == 'passwordlogin':
         try:
             success = loginform.validate()
