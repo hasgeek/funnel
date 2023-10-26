@@ -64,7 +64,6 @@ def feature_profile_make_private(obj: Account):
 
 @Account.features('is_private')
 def feature_profile_is_private(obj: Account):
-    print('obj.current_roles.admin', obj.current_roles.admin, bool(obj.profile_state.PRIVATE))
     return (
         obj.is_user_profile
         and not obj.current_roles.admin
