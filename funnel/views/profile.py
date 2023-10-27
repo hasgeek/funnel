@@ -81,7 +81,6 @@ def template_switcher(templateargs):
 class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
-    @requires_roles({'reader', 'admin'})
     def view(self) -> ReturnRenderWith:
         template_name = None
         ctx = {}
@@ -252,7 +251,6 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
-    @requires_roles({'reader', 'admin'})
     def user_participated_projects(self) -> ReturnRenderWith:
         if self.obj.is_organization_profile:
             abort(404)
@@ -272,7 +270,6 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('in/submissions')
     @route('in/proposals')  # Legacy route, will be auto-redirected to `in/submissions`
     @render_with('user_profile_proposals.html.jinja2', json=True)
-    @requires_roles({'reader', 'admin'})
     def user_proposals(self) -> ReturnRenderWith:
         if self.obj.is_organization_profile:
             abort(404)
