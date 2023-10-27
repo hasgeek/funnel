@@ -14,7 +14,6 @@ from .helpers import (
     image_url_validator,
     nullable_json_filters,
     nullable_strip_filters,
-    strip_filters,
     validate_and_convert_json,
     video_url_list_validator,
 )
