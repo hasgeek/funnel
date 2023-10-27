@@ -28,7 +28,7 @@ from flask import (
     url_for,
 )
 from furl import furl
-from pytz import common_timezones, timezone as pytz_timezone, utc
+from pytz import all_timezones, timezone as pytz_timezone, utc
 from werkzeug.exceptions import MethodNotAllowed, NotFound
 from werkzeug.routing import BuildError, RequestRedirect
 
@@ -42,7 +42,7 @@ from ..models import Account, Shortlink, db, profanity
 from ..proxies import request_wants
 from ..typing import ResponseType, ReturnResponse, ReturnView
 
-valid_timezones = set(common_timezones)
+valid_timezones = set(all_timezones)
 
 nocache_expires = utc.localize(datetime(1990, 1, 1))
 
