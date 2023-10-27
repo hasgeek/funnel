@@ -43,6 +43,8 @@ class MockUrandom:
 
 def test_valid_timezones_remap() -> None:
     """Confirm valid_timezones has correct mappings for canary timezones."""
+    assert '' not in vhelpers.valid_timezones
+    assert None not in vhelpers.valid_timezones
     assert 'asia/kolkata' in vhelpers.valid_timezones
     assert 'asia/calcutta' in vhelpers.valid_timezones
     assert vhelpers.valid_timezones['asia/kolkata'] == 'Asia/Kolkata'
