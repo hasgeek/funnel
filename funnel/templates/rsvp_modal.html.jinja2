@@ -14,6 +14,14 @@
     <div id="register-form">
       <json-form :jsonschema="jsonSchema" :formid="'rsvp-form'" @handle-submit-response="handleAjaxPost"></json-form>
     </div>
+    <div class="mui-textfield mui-textfield--float-label">
+      <input id="rsvp-email" type="text" name="rsvp_email" value="{{ current_auth.user.email }}" />
+      <label for="rsvp-email">Email</label>
+      <p class="mui-form__helptext"></p>
+    </div>
+    {%- if form_helper_txt %}
+      <p class="mui--text-body2 top-padding zero-bottom-margin">{{ form_helper_txt }}</p>
+    {% endif %}
     <p class="mui--text-body2 top-padding zero-bottom-margin">{% trans %}This will share your name and email address or phone number with the project’s promoter so they can keep you updated. You can cancel your registration at any time{% endtrans %}</p>
     <div class="mui--text-right">
       <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
