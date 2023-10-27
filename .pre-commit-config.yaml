@@ -44,6 +44,8 @@ repos:
             'PYSEC-2023-73', # https://github.com/RedisLabs/redisraft/issues/608
             '--ignore-vuln',
             'PYSEC-2023-101', # https://github.com/pytest-dev/pytest-selenium/issues/310
+            '--ignore-vuln',
+            'PYSEC-2023-206', # pytest-selenium again
           ]
         files: ^requirements/.*\.txt$
   - repo: https://github.com/asottile/pyupgrade
