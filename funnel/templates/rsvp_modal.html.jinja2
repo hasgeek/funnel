@@ -12,12 +12,7 @@
     {{ form.hidden_tag() }}
     {{ csrf_tag() }}
     <div id="register-form">
-      <json-form :jsonschema="jsonSchema" :formid="'rsvp-form'" @handle-submit-response="handleAjaxPost"></json-form>
-    </div>
-    <div class="mui-textfield mui-textfield--float-label">
-      <input id="rsvp-email" type="text" name="rsvp_email" value="{{ current_auth.user.email }}" />
-      <label for="rsvp-email">Email</label>
-      <p class="mui-form__helptext"></p>
+      <json-form :jsonschema="jsonSchema" :formid="'rsvp-form'" :useremail="useremail" @handle-submit-response="handleAjaxPost"></json-form>
     </div>
     {%- if form_helper_txt %}
       <p class="mui--text-body2 top-padding zero-bottom-margin">{{ form_helper_txt }}</p>
@@ -33,7 +28,8 @@
 <script type="text/javascript">
   $(function() {
     var jsonSchema = {{ json_schema|tojson }};
+    var useremail = "{{ current_auth.user.email }}"
 
-    window.Hasgeek.addRsvpForm(jsonSchema, 'rsvp-form');
+    window.Hasgeek.addRsvpForm(jsonSchema, useremail);
   });
 </script>

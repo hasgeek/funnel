@@ -690,7 +690,6 @@ class ProjectView(  # type: ignore[misc]
             schema=self.obj.boxoffice_data.get('register_form_schema', {}),
         )
         if rsvp_form.validate_on_submit():
-            print(rsvp_form.form.data)
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
             new_registration = not rsvp.state.YES
             rsvp.rsvp_yes()

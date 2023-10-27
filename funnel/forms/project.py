@@ -370,18 +370,6 @@ class ProjectRegisterForm(forms.Form):
         filters=nullable_json_filters,
         validators=[validate_and_convert_json],
     )
-    rsvp_email = forms.EmailField(
-        __("Email address"),
-        validators=[
-            forms.validators.DataRequired(),
-        ],
-        filters=strip_filters,
-        render_kw={
-            'autocorrect': 'off',
-            'autocapitalize': 'off',
-            'autocomplete': 'email',
-        },
-    )
 
     def validate_form(self, field: forms.Field) -> None:
         if self.form.data and not self.schema:
