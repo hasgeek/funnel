@@ -35,6 +35,7 @@ from werkzeug.exceptions import MethodNotAllowed, NotFound
 from werkzeug.routing import BuildError, RequestRedirect
 
 from baseframe import cache, statsd
+from coaster.auth import current_auth
 from coaster.sqlalchemy import RoleMixin
 from coaster.utils import utcnow
 
@@ -250,8 +251,9 @@ def get_scheme_netloc(uri: str) -> tuple[str, str]:
     return (parsed_uri.scheme, parsed_uri.netloc)
 
 
-def autoset_timezone_and_locale(user: Account) -> None:
-    # Set the user's timezone and locale automatically if required
+def autoset_timezone_and_locale() -> None:
+    """Set the current user's timezone and locale automatically if required."""
+    user = current_auth.user
     if (
         user.auto_timezone
         or not user.timezone
