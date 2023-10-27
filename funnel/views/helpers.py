@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import gzip
 import zlib
+import zoneinfo
 from base64 import urlsafe_b64encode
 from collections.abc import Callable
 from contextlib import nullcontext
 from datetime import datetime, timedelta
 from hashlib import blake2b
+from importlib import resources
 from os import urandom
 from typing import Any
 from urllib.parse import quote, unquote, urljoin, urlsplit
@@ -28,7 +30,7 @@ from flask import (
     url_for,
 )
 from furl import furl
-from pytz import all_timezones, timezone as pytz_timezone, utc
+from pytz import timezone as pytz_timezone, utc
 from werkzeug.exceptions import MethodNotAllowed, NotFound
 from werkzeug.routing import BuildError, RequestRedirect
 
@@ -42,12 +44,21 @@ from ..models import Account, Shortlink, db, profanity
 from ..proxies import request_wants
 from ..typing import ResponseType, ReturnResponse, ReturnView
 
-valid_timezones = set(all_timezones)
-
 nocache_expires = utc.localize(datetime(1990, 1, 1))
 
 # Six avatar colours defined in _variable.scss
 avatar_color_count = 6
+
+# --- Timezone data --------------------------------------------------------------------
+
+# Get all known timezones from zoneinfo and make a lowercased lookup table
+valid_timezones = {tz.lower(): tz for tz in zoneinfo.available_timezones()}
+# Get timezone aliases from tzinfo.zi and place them in the lookup table
+with resources.open_text('tzdata.zoneinfo', 'tzdata.zi') as _tzdata:
+    for _tzline in _tzdata.readlines():
+        if _tzline.startswith('L'):
+            _tzlink, _tznew, _tzold = _tzline.strip().split()
+            valid_timezones[_tzold.lower()] = _tznew
 
 # --- Classes --------------------------------------------------------------------------
 
@@ -243,20 +254,20 @@ def autoset_timezone_and_locale(user: Account) -> None:
     # Set the user's timezone and locale automatically if required
     if (
         user.auto_timezone
-        or user.timezone is None
-        or str(user.timezone) not in valid_timezones
+        or not user.timezone
+        or str(user.timezone).lower() not in valid_timezones
     ):
         if request.cookies.get('timezone'):
-            timezone = unquote(request.cookies['timezone'])
-            if timezone in valid_timezones:
-                user.timezone = timezone
-    if (
-        user.auto_locale
-        or user.locale is None
-        or str(user.locale) not in supported_locales
-    ):
+            cookie_timezone = unquote(request.cookies['timezone']).lower()
+            remapped_timezone = valid_timezones.get(cookie_timezone)
+            if remapped_timezone is not None:
+                user.timezone = remapped_timezone  # type: ignore[assignment]
+    if user.auto_locale or not user.locale or str(user.locale) not in supported_locales:
         user.locale = (
-            request.accept_languages.best_match(supported_locales.keys()) or 'en'
+            request.accept_languages.best_match(  # type: ignore[assignment]
+                supported_locales.keys()
+            )
+            or 'en'
         )
 
 

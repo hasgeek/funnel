@@ -41,6 +41,14 @@ class MockUrandom:
         return value
 
 
+def test_valid_timezones_remap() -> None:
+    """Confirm valid_timezones has correct mappings for canary timezones."""
+    assert 'asia/kolkata' in vhelpers.valid_timezones
+    assert 'asia/calcutta' in vhelpers.valid_timezones
+    assert vhelpers.valid_timezones['asia/kolkata'] == 'Asia/Kolkata'
+    assert vhelpers.valid_timezones['asia/calcutta'] == 'Asia/Kolkata'
+
+
 def test_app_url_for(app, testapp) -> None:
     """Test that app_url_for works cross-app and in-app."""
     # App context is not necessary to use app_url_for
