@@ -587,7 +587,6 @@ class ProjectView(  # type: ignore[misc]
                 register_form_schema=boxoffice_data.get('register_form_schema'),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
                 has_membership=boxoffice_data.get('has_membership', False),
-                form_helper_txt=boxoffice_data.get('form_helper_txt'),
             ),
             model=Project,
         )
@@ -603,7 +602,6 @@ class ProjectView(  # type: ignore[misc]
                 'register_button_txt'
             ] = form.register_button_txt.data
             self.obj.boxoffice_data['has_membership'] = form.has_membership.data
-            self.obj.boxoffice_data['form_helper_txt'] = form.form_helper_txt.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())
@@ -670,7 +668,6 @@ class ProjectView(  # type: ignore[misc]
             'project': self.obj.current_access(datasets=('primary',)),
             'form': form,
             'json_schema': self.obj.boxoffice_data.get('register_form_schema'),
-            'form_helper_txt': self.obj.boxoffice_data.get('form_helper_txt'),
         }
 
     @route('register', methods=['POST'])

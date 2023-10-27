@@ -80,11 +80,6 @@ class ProjectBoxofficeForm(forms.Form):
         __("Tickets on this project represent memberships to the account"),
         default=False,
     )
-    form_helper_txt = forms.StringField(
-        __("Form helper text"),
-        filters=[forms.filters.strip()],
-        description=__(""),
-    )
     register_button_txt = forms.StringField(
         __("Register button text"),
         filters=[forms.filters.strip()],
