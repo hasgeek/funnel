@@ -48,7 +48,8 @@
               </div>
 
               <div v-else-if="field.type == 'info'">
-                <p class="mui--text-body2">{{ field.description }}</p>
+                <p v-if="'title' in field" class="mui--text-body2 mui--text-bold">{{ field.title }}</p>
+                <p v-if="'description' in field" class="mui--text-body2">{{ field.description }}</p>
               </div>
 
             </div>
