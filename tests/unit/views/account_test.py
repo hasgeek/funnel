@@ -7,6 +7,14 @@ import pytest
 from funnel.views.account import user_agent_details
 
 
+def test_account_always_has_profile_url(user_twoflower, user_rincewind) -> None:
+    """An account without a username will still have an absolute URL for a profile."""
+    assert user_twoflower.username is None
+    assert user_twoflower.absolute_url is not None
+    assert user_rincewind.username is not None
+    assert user_rincewind.absolute_url is not None
+
+
 def test_username_available(db_session, client, user_rincewind, csrf_token) -> None:
     """Test the username availability endpoint."""
     endpoint = '/api/1/account/username_available'
