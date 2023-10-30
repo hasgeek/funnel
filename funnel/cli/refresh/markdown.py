@@ -2,41 +2,43 @@
 
 from __future__ import annotations
 
-from typing import ClassVar, Dict, List, Optional, Set
+from collections.abc import Iterable
+from typing import ClassVar, Generic, TypeVar
 
 import click
-
 import rich.progress
 
 from ... import models
-from ...models import db, sa
+from ...models import MarkdownModelUnion, db, sa
 from . import refresh
 
+_M = TypeVar('_M', bound=MarkdownModelUnion)
 
-class MarkdownModel:
+
+class MarkdownModel(Generic[_M]):
     """Holding class for a model that has markdown fields with custom configuration."""
 
-    registry: ClassVar[Dict[str, MarkdownModel]] = {}
-    config_registry: ClassVar[Dict[str, Set[MarkdownModel]]] = {}
+    registry: ClassVar[dict[str, MarkdownModel]] = {}
+    config_registry: ClassVar[dict[str, set[MarkdownModel]]] = {}
 
-    def __init__(self, model, fields: Set[str]):
+    def __init__(self, model: type[_M], fields: set[str]) -> None:
         self.name = model.__tablename__
         self.model = model
         self.fields = fields
-        self.config_fields: Dict[str, Set[str]] = {}
+        self.config_fields: dict[str, set[str]] = {}
         for field in fields:
             config = getattr(model, field).original_property.composite_class.config.name
             self.config_fields.setdefault(config, set()).add(field)
 
     @classmethod
-    def register(cls, model, fields: Set[str]):
+    def register(cls, model: type[_M], fields: set[str]) -> None:
         """Create an instance and add it to the registry."""
         obj = cls(model, fields)
         for config in obj.config_fields:
             cls.config_registry.setdefault(config, set()).add(obj)
         cls.registry[obj.name] = obj
 
-    def reparse(self, config: Optional[str] = None, obj=None):
+    def reparse(self, config: str | None = None, obj: _M | None = None) -> None:
         """Reparse Markdown fields, optionally for a single config profile."""
         if config and config not in self.config_fields:
             return
@@ -44,6 +46,8 @@ class MarkdownModel:
             fields = self.config_fields[config]
         else:
             fields = self.fields
+
+        iter_list: Iterable[_M]
 
         if obj is not None:
             iter_list = [obj]
@@ -78,7 +82,7 @@ class MarkdownModel:
 
 
 MarkdownModel.register(models.Comment, {'_message'})
-MarkdownModel.register(models.Profile, {'description'})
+MarkdownModel.register(models.Account, {'description'})
 MarkdownModel.register(models.Project, {'description', 'instructions'})
 MarkdownModel.register(models.Proposal, {'body'})
 MarkdownModel.register(models.Session, {'description'})
@@ -88,7 +92,9 @@ MarkdownModel.register(models.VenueRoom, {'description'})
 
 
 @refresh.command('markdown')
-@click.argument('content', type=click.Choice(MarkdownModel.registry.keys()), nargs=-1)
+@click.argument(
+    'content', type=click.Choice(list(MarkdownModel.registry.keys())), nargs=-1
+)
 @click.option(
     '-a',
     '--all',
@@ -99,7 +105,7 @@ MarkdownModel.register(models.VenueRoom, {'description'})
 @click.option(
     '-c',
     '--config',
-    type=click.Choice(MarkdownModel.config_registry.keys()),
+    type=click.Choice(list(MarkdownModel.config_registry.keys())),
     help="Reparse Markdown content using a specific configuration.",
 )
 @click.option(
@@ -108,7 +114,7 @@ MarkdownModel.register(models.VenueRoom, {'description'})
     help="Reparse content at this URL",
 )
 def markdown(
-    content: List[str], config: Optional[str], allcontent: bool, url: Optional[str]
+    content: list[str], config: str | None, allcontent: bool, url: str | None
 ) -> None:
     """Reparse Markdown content."""
     if allcontent:

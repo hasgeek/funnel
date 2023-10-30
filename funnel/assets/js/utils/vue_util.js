@@ -5,7 +5,7 @@ import { USER_AVATAR_IMG_SIZE } from '../constants';
 
 export const userAvatarUI = Vue.component('useravatar', {
   template:
-    '<a :href="user.profile_url" v-if="user.profile_url && addprofilelink" class="nounderline"><span class="user__box__wrapper" v-if="user.avatar"><img class="user__box__gravatar" :src="imgurl"></span><div class="user__box__gravatar user__box__gravatar--initials" :data-avatar-colour="getAvatarColour(user.fullname)" v-else>{{ getInitials(user.fullname) }}</div></a v-if="user.profile_url && addprofilelink"></a><span v-else><img class="user__box__gravatar" :src="imgurl" v-if="user.avatar"/><div class="user__box__gravatar user__box__gravatar--initials" :data-avatar-colour="getAvatarColour(user.fullname)" v-else>{{ getInitials(user.fullname) }}</span v-else>',
+    '<a :href="user.absolute_url" v-if="addprofilelink" class="nounderline"><span class="user__box__wrapper" v-if="user.logo_url"><img class="user__box__gravatar" :src="imgurl"></span><div class="user__box__gravatar user__box__gravatar--initials" :data-avatar-colour="getAvatarColour(user.fullname)" v-else>{{ getInitials(user.fullname) }}</div></a v-if="user.absolute_url && addprofilelink"></a><span v-else><img class="user__box__gravatar" :src="imgurl" v-if="user.logo_url"/><div class="user__box__gravatar user__box__gravatar--initials" :data-avatar-colour="getAvatarColour(user.fullname)" v-else>{{ getInitials(user.fullname) }}</span v-else>',
   props: {
     user: Object,
     addprofilelink: {
@@ -26,7 +26,7 @@ export const userAvatarUI = Vue.component('useravatar', {
       return USER_AVATAR_IMG_SIZE[this.size];
     },
     imgurl() {
-      return `${this.user.avatar}?size=${encodeURIComponent(this.imgsize)}`;
+      return `${this.user.logo_url}?size=${encodeURIComponent(this.imgsize)}`;
     },
   },
 });

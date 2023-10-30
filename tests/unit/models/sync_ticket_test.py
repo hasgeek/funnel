@@ -1,9 +1,10 @@
 """Test for project ticket sync models."""
-# pylint: disable=attribute-defined-outside-init
+# pylint: disable=attribute-defined-outside-init,redefined-outer-name
 
 import pytest
 
 from coaster.utils import uuid_b58
+
 from funnel import models
 
 # --- Fixture data
@@ -183,13 +184,12 @@ class TestEventModels:
         )
         self.db_session.add(self.organization)
         self.db_session.commit()
-        self.profile = self.organization.profile
 
         self.project = models.Project(
             title="20000 AD",
             tagline="In a galaxy far far away...",
-            profile=self.profile,
-            user=self.user,
+            account=self.organization,
+            created_by=self.user,
         )
         self.db_session.add(self.project)
         self.project.make_name()

@@ -7,7 +7,7 @@
 {% else %}
   <link rel="stylesheet"
         type="text/css"
-        href="{{ built_asset('css/form.scss') }}"/>
+        href="{{ manifest('css/form.css') }}"/>
 {%- endif %}
 {% block content %}
   <form id="{{ ref_id }}"
@@ -20,7 +20,7 @@
   </form>
 {% endblock content %}
 {%- if request_wants.html_fragment %}
-  <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     {{ widgetscripts(form, script=false, ref_id=ref_id) }}
   </script>

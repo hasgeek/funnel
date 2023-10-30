@@ -9,11 +9,11 @@ Create Date: 2015-07-06 17:42:40.175382
 revision = '4083b7bd0cc8'
 down_revision = '22fb4e1e3139'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint(
         'contact_exchange_user_id_proposal_space_id_participant_id_key',
         'contact_exchange',
@@ -27,7 +27,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column('contact_exchange', sa.Column('id', sa.INTEGER(), nullable=False))
     op.drop_constraint(
         'contact_exchange_user_id_proposal_space_id_participant_id_pk',

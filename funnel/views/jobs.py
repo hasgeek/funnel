@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Callable
 from functools import wraps
-
-from flask import g
+from typing_extensions import Protocol
 
 import requests
+from flask import g
 
 from baseframe import statsd
 
@@ -24,16 +25,31 @@ from ..models import (
     db,
 )
 from ..signals import emailaddress_refcount_dropping, phonenumber_refcount_dropping
-from ..typing import ResponseType, ReturnDecorator, WrappedFunc
+from ..typing import P, ResponseType, T_co
 from .helpers import app_context
 
 
-def rqjob(queue: str = 'funnel', **rqargs) -> ReturnDecorator:
+class RqJobProtocol(Protocol[P, T_co]):
+    """Protocol for an RQ job function."""
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T_co:
+        ...
+
+    # TODO: Replace return type with job id type
+    def queue(self, *args: P.args, **kwargs: P.kwargs) -> None:
+        ...
+
+    # TODO: Add other methods and attrs (queue_name, schedule, cron, ...)
+
+
+def rqjob(
+    queue: str = 'funnel', **rqargs
+) -> Callable[[Callable[P, T_co]], RqJobProtocol[P, T_co]]:
     """Decorate an RQ job with app context."""
 
-    def decorator(f: WrappedFunc):
+    def decorator(f: Callable[P, T_co]) -> RqJobProtocol[P, T_co]:
         @wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T_co:
             with app_context():
                 return f(*args, **kwargs)
 
@@ -43,7 +59,7 @@ def rqjob(queue: str = 'funnel', **rqargs) -> ReturnDecorator:
 
 
 @rqjob()
-def import_tickets(ticket_client_id):
+def import_tickets(ticket_client_id: int) -> None:
     """Import tickets from Boxoffice."""
     ticket_client = TicketClient.query.get(ticket_client_id)
     if ticket_client is not None:
@@ -61,7 +77,7 @@ def import_tickets(ticket_client_id):
 
 
 @rqjob()
-def tag_locations(project_id):
+def tag_locations(project_id: int) -> None:
     """
     Tag a project with geoname locations.
 
@@ -173,7 +189,7 @@ def forget_email(email_hash: str) -> None:
 
 
 @rqjob()
-def forget_phone(phone_hash) -> None:
+def forget_phone(phone_hash: str) -> None:
     """Remove a phone number if it has no inbound references."""
     phone_number = PhoneNumber.get(phone_hash=phone_hash)
     if phone_number is not None and phone_number.refcount() == 0:

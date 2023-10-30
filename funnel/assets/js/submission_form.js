@@ -79,7 +79,6 @@ $(() => {
 
     $('body').on($.modal.OPEN, '.modal', (event) => {
       event.preventDefault();
-      $('select.select2').select2('open').trigger('select2:open');
       const modalFormId = $('.modal').find('form').attr('id');
       const url = Form.getActionUrl(modalFormId);
       const onSuccess = (responseData) => {
@@ -128,6 +127,7 @@ $(() => {
 
     const markdownId = $(`#${formId}`).find('textarea.markdown').attr('id');
     codemirrorHelper(markdownId, updatePreview);
+    initEmbed(markdownPreviewElem);
 
     $('#title')
       .keypress((event) => {

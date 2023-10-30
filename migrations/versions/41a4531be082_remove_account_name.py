@@ -6,22 +6,20 @@ Create Date: 2020-04-16 20:46:50.889210
 
 """
 
-from typing import Optional, Tuple, Union
-
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '41a4531be082'
 down_revision = 'e8665a81606d'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 account_name = table(
     'account_name',
-    column('id', postgresql.UUID()),
+    column('id', sa.Uuid()),
     column('created_at', sa.TIMESTAMP(timezone=True)),
     column('updated_at', sa.TIMESTAMP(timezone=True)),
     column('name', sa.Unicode(63)),
@@ -32,7 +30,7 @@ account_name = table(
 
 profile = table(
     'profile',
-    column('uuid', postgresql.UUID()),
+    column('uuid', sa.Uuid()),
     column('created_at', sa.TIMESTAMP(timezone=True)),
     column('updated_at', sa.TIMESTAMP(timezone=True)),
     column('name', sa.Unicode(63)),
@@ -42,15 +40,15 @@ profile = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_index('ix_account_name_reserved', table_name='account_name')
     op.drop_table('account_name')
 
 
-def downgrade():
+def downgrade() -> None:
     op.create_table(
         'account_name',
-        sa.Column('id', postgresql.UUID(), autoincrement=False, nullable=False),
+        sa.Column('id', sa.Uuid(), autoincrement=False, nullable=False),
         sa.Column(
             'created_at',
             postgresql.TIMESTAMP(timezone=True),
@@ -92,7 +90,7 @@ def downgrade():
         'ix_account_name_reserved', 'account_name', ['reserved'], unique=False
     )
 
-    op.execute(
+    op.get_bind().execute(
         account_name.insert().from_select(
             [
                 'id',

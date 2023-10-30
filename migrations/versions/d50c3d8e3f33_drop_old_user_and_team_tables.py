@@ -7,27 +7,25 @@ Create Date: 2020-04-07 05:17:03.917173
 
 """
 
-from typing import Optional, Tuple, Union
-
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'd50c3d8e3f33'
 down_revision = '62d770006955'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_table('old_users_teams')
     op.drop_table('old_user')
     op.drop_index('ix_old_team_org_uuid', table_name='old_team')
     op.drop_table('old_team')
 
 
-def downgrade():
+def downgrade() -> None:
     op.create_table(
         'old_team',
         sa.Column(
@@ -51,8 +49,8 @@ def downgrade():
         ),
         sa.Column('title', sa.VARCHAR(length=250), autoincrement=False, nullable=False),
         sa.Column('owners', sa.BOOLEAN(), autoincrement=False, nullable=False),
-        sa.Column('uuid', postgresql.UUID(), autoincrement=False, nullable=False),
-        sa.Column('org_uuid', postgresql.UUID(), autoincrement=False, nullable=False),
+        sa.Column('uuid', sa.Uuid(), autoincrement=False, nullable=False),
+        sa.Column('org_uuid', sa.Uuid(), autoincrement=False, nullable=False),
         sa.PrimaryKeyConstraint('id', name='old_team_pkey'),
         sa.UniqueConstraint('uuid', name='old_team_uuid_key'),
         postgresql_ignore_search_path=False,
@@ -108,7 +106,7 @@ def downgrade():
             nullable=True,
         ),
         sa.Column('status', sa.INTEGER(), autoincrement=False, nullable=False),
-        sa.Column('uuid', postgresql.UUID(), autoincrement=False, nullable=False),
+        sa.Column('uuid', sa.Uuid(), autoincrement=False, nullable=False),
         sa.PrimaryKeyConstraint('id', name='old_user_pkey'),
         sa.UniqueConstraint('email', name='old_user_email_key'),
         sa.UniqueConstraint('lastuser_token', name='old_user_lastuser_token_key'),

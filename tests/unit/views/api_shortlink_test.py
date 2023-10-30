@@ -1,9 +1,9 @@
 """Test shortlink API views."""
+# pylint: disable=redefined-outer-name
 
-from flask import url_for
-
-from furl import furl
 import pytest
+from flask import url_for
+from furl import furl
 
 from funnel import models
 
@@ -17,7 +17,7 @@ def create_shortlink(app_context):
 @pytest.fixture()
 def user_rincewind_site_editor(db_session, user_rincewind):
     sm = models.SiteMembership(
-        user=user_rincewind, granted_by=user_rincewind, is_site_editor=True
+        member=user_rincewind, granted_by=user_rincewind, is_site_editor=True
     )
     db_session.add(sm)
     db_session.commit()
@@ -39,7 +39,7 @@ def test_create_invalid_shortlink(
 
     # A relative URL will be rejected
     rv = client.post(
-        create_shortlink, data={'url': user_rincewind.profile.url_for(_external=False)}
+        create_shortlink, data={'url': user_rincewind.url_for(_external=False)}
     )
     assert rv.status_code == 422
     assert rv.json['error'] == 'url_invalid'
@@ -57,7 +57,7 @@ def test_create_shortlink(app, client, user_rincewind, create_shortlink) -> None
     """Creating a shortlink via API with valid data will pass."""
     # A valid URL to an app path will be accepted
     rv = client.post(
-        create_shortlink, data={'url': user_rincewind.profile.url_for(_external=True)}
+        create_shortlink, data={'url': user_rincewind.url_for(_external=True)}
     )
     assert rv.status_code == 201
     sl1 = furl(rv.json['shortlink'])
@@ -66,7 +66,7 @@ def test_create_shortlink(app, client, user_rincewind, create_shortlink) -> None
 
     # Asking for it again will return the same link
     rv = client.post(
-        create_shortlink, data={'url': user_rincewind.profile.url_for(_external=True)}
+        create_shortlink, data={'url': user_rincewind.url_for(_external=True)}
     )
     assert rv.status_code == 200
     sl2 = furl(rv.json['shortlink'])
@@ -75,18 +75,14 @@ def test_create_shortlink(app, client, user_rincewind, create_shortlink) -> None
     # A valid URL can include extra query parameters
     rv = client.post(
         create_shortlink,
-        data={
-            'url': user_rincewind.profile.url_for(
-                _external=True, utm_campaign='webshare'
-            )
-        },
+        data={'url': user_rincewind.url_for(_external=True, utm_campaign='webshare')},
     )
     assert rv.status_code == 201
     sl3 = furl(rv.json['shortlink'])
     assert sl3.netloc == app.config['SHORTLINK_DOMAIN']
     assert len(str(sl3.path)) <= 5  # API defaults to the shorter form (max 4 chars)
     assert sl3.path != sl1.path  # We got a different shortlink
-    assert rv.json['url'] == user_rincewind.profile.url_for(
+    assert rv.json['url'] == user_rincewind.url_for(
         _external=True, utm_campaign='webshare'
     )
 
@@ -94,7 +90,7 @@ def test_create_shortlink(app, client, user_rincewind, create_shortlink) -> None
 def test_create_shortlink_longer(app, client, user_rincewind, create_shortlink) -> None:
     rv = client.post(
         create_shortlink,
-        data={'url': user_rincewind.profile.url_for(_external=True), 'shorter': '0'},
+        data={'url': user_rincewind.url_for(_external=True), 'shorter': '0'},
     )
     assert rv.status_code == 201
     sl1 = furl(rv.json['shortlink'])
@@ -109,7 +105,7 @@ def test_create_shortlink_name_unauthorized(
     rv = client.post(
         create_shortlink,
         data={
-            'url': user_rincewind.profile.url_for(_external=True),
+            'url': user_rincewind.url_for(_external=True),
             'name': 'rincewind',
         },
     )
@@ -127,7 +123,7 @@ def test_create_shortlink_name_authorized(
     rv = client.post(
         create_shortlink,
         data={
-            'url': user_rincewind.profile.url_for(_external=True),
+            'url': user_rincewind.url_for(_external=True),
             'name': 'rincewind',
         },
     )
@@ -140,7 +136,7 @@ def test_create_shortlink_name_authorized(
     rv = client.post(
         create_shortlink,
         data={
-            'url': user_rincewind.profile.url_for(_external=True),
+            'url': user_rincewind.url_for(_external=True),
             'name': 'rincewind',
         },
     )
@@ -153,7 +149,7 @@ def test_create_shortlink_name_authorized(
     rv = client.post(
         create_shortlink,
         data={
-            'url': user_wolfgang.profile.url_for(_external=True),
+            'url': user_wolfgang.url_for(_external=True),
             'name': 'rincewind',
         },
     )

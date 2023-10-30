@@ -2,25 +2,25 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from collections.abc import Iterable
 
 from flask import url_for
 from markupsafe import Markup
 
 from baseframe import _, __, forms
 
-from ..models import Organization, Profile, Team, User
+from ..models import Account, Team
 
 __all__ = ['OrganizationForm', 'TeamForm']
 
 
-@Organization.forms('main')
+@Account.forms('org')
 class OrganizationForm(forms.Form):
     """Form for an organization's name and title."""
 
-    __expects__: Iterable[str] = ('user',)
-    user: User
-    edit_obj: Optional[Organization]
+    __expects__: Iterable[str] = ('edit_user',)
+    edit_user: Account
+    edit_obj: Account | None
 
     title = forms.StringField(
         __("Organization name"),
@@ -29,7 +29,7 @@ class OrganizationForm(forms.Form):
         ),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=Organization.__title_length__),
+            forms.validators.Length(max=Account.__title_length__),
         ],
         filters=[forms.filters.strip()],
         render_kw={'autocomplete': 'organization'},
@@ -43,16 +43,16 @@ class OrganizationForm(forms.Form):
         ),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=Profile.__name_length__),
+            forms.validators.Length(max=Account.__name_length__),
         ],
         filters=[forms.filters.strip()],
         prefix="https://hasgeek.com/",
         render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
     )
 
-    def validate_name(self, field) -> None:
+    def validate_name(self, field: forms.Field) -> None:
         """Validate name is valid and available for this organization."""
-        reason = Profile.validate_name_candidate(field.data)
+        reason = Account.validate_name_candidate(field.data)
         if not reason:
             return  # name is available
         if reason == 'invalid':
@@ -61,12 +61,18 @@ class OrganizationForm(forms.Form):
             )
         if reason == 'reserved':
             raise forms.validators.ValidationError(_("This name is reserved"))
-        if self.edit_obj and field.data.lower() == self.edit_obj.name.lower():
-            # Name is not reserved or invalid under current rules. It's also not changed
-            # from existing name, or has only changed case. This is a validation pass.
+        if (
+            self.edit_obj
+            and self.edit_obj.name
+            and field.data.lower() == self.edit_obj.name.lower()
+        ):
+            # Name has only changed case from previous name. This is a validation pass
             return
         if reason == 'user':
-            if self.user.username and field.data.lower() == self.user.username.lower():
+            if (
+                self.edit_user.username
+                and field.data.lower() == self.edit_user.username.lower()
+            ):
                 raise forms.validators.ValidationError(
                     Markup(
                         _(

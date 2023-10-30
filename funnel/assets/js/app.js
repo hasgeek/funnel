@@ -1,7 +1,5 @@
 import 'jquery-modal';
 import 'trunk8';
-import jstz from 'jstz';
-import 'jquery.cookie';
 import Utils from './utils/helper';
 import WebShare from './utils/webshare';
 import ScrollHelper from './utils/scrollhelper';
@@ -13,6 +11,9 @@ import Tabs from './utils/tabs';
 import updateParsleyConfig from './utils/update_parsley_config';
 import ReadStatus from './utils/read_status';
 import LazyLoadMenu from './utils/lazyloadmenu';
+import './utils/getDevicePixelRatio';
+import setTimezoneCookie from './utils/timezone';
+import 'muicss/dist/js/mui';
 
 const pace = require('pace-js');
 
@@ -61,11 +62,7 @@ $(() => {
     document.head.appendChild(polyfill);
   }
 
-  // Detect timezone for login
-  if ($.cookie('timezone') === null) {
-    $.cookie('timezone', jstz.determine().name(), { path: '/' });
-  }
-
+  setTimezoneCookie();
   updateParsleyConfig();
 });
 

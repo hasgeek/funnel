@@ -10,11 +10,11 @@ Create Date: 2018-11-23 01:52:58.790889
 revision = 'ae68621248af'
 down_revision = '2441cb4f44d4'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'project_venue_primary',
         sa.Column('project_id', sa.Integer(), nullable=False),
@@ -29,7 +29,7 @@ def upgrade():
     # in another project. It does not prevent a venue from being moved to a
     # different project, thereby leaving the primary_venue record invalid.
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
         CREATE FUNCTION project_venue_primary_validate() RETURNS TRIGGER AS $$
         DECLARE
@@ -51,7 +51,7 @@ def upgrade():
         )
     )
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
         INSERT INTO project_venue_primary (project_id, venue_id, created_at, updated_at)
         SELECT DISTINCT ON (project_id) project_id, id, created_at, updated_at
@@ -62,9 +62,9 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
         DROP TRIGGER project_venue_primary_trigger ON project_venue_primary;
         DROP FUNCTION project_venue_primary_validate();

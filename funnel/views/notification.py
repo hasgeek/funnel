@@ -3,25 +3,32 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, fields
 from datetime import datetime
 from email.utils import formataddr
 from functools import wraps
-from itertools import filterfalse, zip_longest
-from typing import Any, Callable, ClassVar, Dict, List, Optional, Union
-from uuid import uuid4
+from itertools import islice
+from typing import Any, ClassVar, Literal
+from uuid import UUID, uuid4
 
 from flask import url_for
 from flask_babel import force_locale
 from werkzeug.utils import cached_property
 
-from typing_extensions import Literal
-
 from baseframe import __, statsd
 from coaster.auth import current_auth
 
 from .. import app
-from ..models import Notification, NotificationFor, UserNotification, db
+from ..models import (
+    Account,
+    AccountEmail,
+    AccountPhone,
+    Notification,
+    NotificationFor,
+    NotificationRecipient,
+    db,
+)
 from ..serializers import token_serializer
 from ..transports import TransportError, email, platform_transports, sms
 from ..transports.sms import SmsTemplate
@@ -36,9 +43,9 @@ __all__ = [
 ]
 
 
-@UserNotification.views('render', cached_property=True)
+@NotificationRecipient.views('render', cached_property=True)
 @NotificationFor.views('render', cached_property=True)
-def render_user_notification(obj):
+def render_notification_recipient(obj: NotificationRecipient) -> RenderNotification:
     """Render web notifications for the user."""
     return Notification.renderers[obj.notification.type](obj)
 
@@ -57,11 +64,11 @@ class DecisionFactorBase:
     #: Template string to use for notifications
     template: str
     #: Optional second template string in present tense for current notifications
-    template_present: Optional[str] = None
+    template_present: str | None = None
 
     # Additional criteria must be defined in subclasses
 
-    def match(self, obj: Any, **kwargs) -> Optional[DecisionFactorBase]:
+    def match(self, obj: Any, **kwargs) -> DecisionFactorBase | None:
         """If the parameters matche the defined criteria, return self."""
         return self if self.is_match(obj, **kwargs) else None
 
@@ -79,9 +86,9 @@ class DecisionBranchBase:
     is_match: ClassVar[Callable[..., bool]]
 
     #: A list of decision factors and branches
-    factors: List[Union[DecisionFactorBase, DecisionBranchBase]]
+    factors: list[DecisionFactorBase | DecisionBranchBase]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate decision factors to have matching criteria."""
         unspecified_values = (None, ())
         check_fields = {
@@ -102,7 +109,7 @@ class DecisionBranchBase:
                         f"expected {expected_value}, got {factor_value} in {factor}"
                     )
 
-    def match(self, obj: Any, **kwargs) -> Optional[DecisionFactorBase]:
+    def match(self, obj: Any, **kwargs) -> DecisionFactorBase | None:
         """Find a matching decision factor, recursing through other branches."""
         if self.is_match(obj, **kwargs):
             for factor in self.factors:
@@ -133,18 +140,26 @@ class RenderNotification:
     """
 
     #: Aliases for document and fragment, to make render methods clearer
-    aliases: Dict[Literal['document', 'fragment'], str] = {}
+    aliases: dict[Literal['document', 'fragment'], str] = {}
 
     #: Emoji prefix, for transports that support them
-    emoji_prefix = ''
+    emoji_prefix: str = ''
+
+    #: Hero image for email
+    hero_image: str | None = None
+
+    #: Email heading (not subject)
+    email_heading: str | None = None
 
     #: Reason specified in email templates. Subclasses MAY override
-    reason = __("You are receiving this because you have an account at hasgeek.com")
+    reason: str = __(
+        "You are receiving this because you have an account at hasgeek.com"
+    )
 
     #: Copies of reason per transport that can be overriden by subclasses using either
     #: a property or an attribute
     @property
-    def reason_for(self):
+    def reason_for(self) -> str:
         return self.reason
 
     reason_email = reason_for
@@ -153,21 +168,21 @@ class RenderNotification:
     reason_telegram = reason_for
     reason_whatsapp = reason_for
 
-    def __init__(self, user_notification: UserNotification) -> None:
-        self.user_notification = user_notification
-        self.notification = user_notification.notification
+    def __init__(self, notification_recipient: NotificationRecipient) -> None:
+        self.notification_recipient = notification_recipient
+        self.notification = notification_recipient.notification
         self.document = (
-            user_notification.notification.document.access_for(
-                actor=self.user_notification.user
+            notification_recipient.notification.document.access_for(
+                actor=self.notification_recipient.recipient
             )
-            if user_notification.notification.document is not None
+            if notification_recipient.notification.document is not None
             else None
         )
         self.fragment = (
-            user_notification.notification.fragment.access_for(
-                actor=self.user_notification.user
+            notification_recipient.notification.fragment.access_for(
+                actor=self.notification_recipient.recipient
             )
-            if user_notification.notification.fragment is not None
+            if notification_recipient.notification.fragment is not None
             else None
         )
         if 'document' in self.aliases:
@@ -175,34 +190,50 @@ class RenderNotification:
         if 'fragment' in self.aliases:
             setattr(self, self.aliases['fragment'], self.fragment)
 
-    def transport_for(self, transport):
+    def transport_for(self, transport: str) -> AccountEmail | AccountPhone | None:
         """
         Return the transport address for the notification.
 
         Subclasses may override this if they need to enforce a specific transport
         address, such as verification tokens sent to a specific email address or phone
         number. Since notifications cannot have data, the notification will have to be
-        raised on the address document (eg: UserEmail, UserPhone, EmailAddress).
+        raised on the address document (eg: AccountEmail, AccountPhone, EmailAddress).
         """
-        return self.user_notification.user.transport_for(
+        return self.notification_recipient.recipient.transport_for(
             transport, self.notification.preference_context
         )
 
     def tracking_tags(
-        self, transport: str = 'email', campaign: str = 'notification'
-    ) -> Dict[str, str]:
+        self,
+        medium: str = 'email',
+        source: str = 'notification',
+        campaign: str | None = None,
+    ) -> dict[str, str]:
         """
         Provide tracking tags for URL parameters. Subclasses may override if required.
 
-        :param transport: Transport (or medium) over which this link is being delivered
+        :param medium: Medium (or transport) over which this link is being delivered
             (default 'email' as that's the most common use case for tracked links)
-        :param campaign: Reason for this link being sent (default 'notification' but
-            unsubscribe links and other specialized links will want to specify another)
+        :param source: Source of this link (default 'notification' but unsubscribe
+            links and other specialised links will want to specify another)
+        :param campaign: Reason for this link being sent (defaults to notification type
+            and timestamp)
         """
-        tags = {'utm_campaign': campaign, 'utm_medium': transport}
-        if not self.notification.for_private_recipient:
-            tags['utm_source'] = self.notification.eventid_b58
-        return tags
+        if campaign is None:
+            if self.notification.for_private_recipient:
+                # Do not include a timestamp when it's a private notification, as that
+                # can be used to identify the event
+                campaign = self.notification.type
+            else:
+                campaign = (
+                    f'{self.notification.type}'
+                    f'-{self.notification.created_at.strftime("%Y%m%d-%H%M")}'
+                )
+        return {
+            'utm_campaign': campaign,
+            'utm_medium': medium,
+            'utm_source': source,
+        }
 
     def unsubscribe_token(self, transport):
         """
@@ -222,7 +253,7 @@ class RenderNotification:
         # in `views/notification_preferences.py`
         return token_serializer().dumps(
             {
-                'buid': self.user_notification.user.buid,
+                'buid': self.notification_recipient.recipient.buid,
                 'notification_type': self.notification.type,
                 'transport': transport,
                 'hash': self.transport_for(transport).transport_hash,
@@ -235,7 +266,7 @@ class RenderNotification:
             'notification_unsubscribe',
             token=self.unsubscribe_token(transport=transport),
             _external=True,
-            **self.tracking_tags(transport=transport, campaign='unsubscribe'),
+            **self.tracking_tags(transport, source='unsubscribe'),
         )
 
     @cached_property
@@ -250,7 +281,7 @@ class RenderNotification:
         # after cleaning up the URL, so there are no more redirects left.
         token = make_cached_token(
             {
-                'buid': self.user_notification.user.buid,
+                'buid': self.notification_recipient.recipient.buid,
                 'notification_type': self.notification.type,
                 'transport': transport,
                 'hash': self.transport_for(transport).transport_hash,
@@ -285,30 +316,33 @@ class RenderNotification:
         if not self.notification.fragment_model:
             return []
 
-        query = self.user_notification.rolledup_fragments().order_by(
+        query = self.notification_recipient.rolledup_fragments().order_by(
             *self.fragments_order_by
         )
         if self.fragments_query_options:
             query = query.options(*self.fragments_query_options)
 
-        return [_f.access_for(actor=self.user_notification.user) for _f in query.all()]
+        return [
+            _f.access_for(actor=self.notification_recipient.recipient)
+            for _f in query.all()
+        ]
 
     @cached_property
-    def is_rollup(self):
+    def is_rollup(self) -> bool:
         return len(self.fragments) > 1
 
     def has_current_access(self) -> bool:
         return (
-            self.user_notification.role
+            self.notification_recipient.role
             in self.notification.role_provider_obj.current_roles
         )
 
     # --- Overrideable render methods
 
     @property
-    def actor(self):
+    def actor(self) -> Account | None:
         """Actor that prompted this notification. May be overriden."""
-        return self.notification.user
+        return self.notification.created_by
 
     def web(self) -> str:
         """
@@ -317,6 +351,11 @@ class RenderNotification:
         Subclasses MUST implement this.
         """
         raise NotImplementedError("Subclasses must implement `web`")
+
+    @property
+    def email_base_url(self) -> str:
+        """Base URL for relative links in email."""
+        return self.notification.role_provider_obj.absolute_url
 
     def email_subject(self) -> str:
         """
@@ -334,7 +373,7 @@ class RenderNotification:
         """
         raise NotImplementedError("Subclasses must implement `email_content`")
 
-    def email_attachments(self) -> Optional[List[email.EmailAttachment]]:
+    def email_attachments(self) -> list[email.EmailAttachment] | None:
         """Render optional attachments to an email notification."""
         return None
 
@@ -394,7 +433,7 @@ class RenderNotification:
 # This has four parts:
 # 1. Front function `dispatch_notification` is called from views or signal handlers. It
 #    receives Notification instances that already have document and fragment set on
-#    them, and updates them to have a common eventid and user_id, then queues
+#    them, and updates them to have a common eventid and created_by_id, then queues
 #    a background job, taking care to preserve the priority order.
 # 2. The first background worker loads these notifications in turn, extracts
 #    UserNotification instances into batches of DISPATCH_BATCH_SIZE, and then passes
@@ -404,7 +443,7 @@ class RenderNotification:
 # 4. Third set of per-transport background workers deliver one message each.
 
 
-def dispatch_notification(*notifications):
+def dispatch_notification(*notifications: Notification) -> None:
     """
     Dispatch one or more notifications arising from the same event.
 
@@ -425,7 +464,7 @@ def dispatch_notification(*notifications):
         if not notification.active:
             raise TypeError(f"{notification!r} is marked inactive")
         notification.eventid = eventid
-        notification.user = current_auth.user
+        notification.created_by = current_auth.user
     if sum(_n.for_private_recipient for _n in notifications) not in (
         0,  # None are private
         len(notifications),  # Or all are private
@@ -448,30 +487,36 @@ def dispatch_notification(*notifications):
 # --- Transports -----------------------------------------------------------------------
 
 
-def transport_worker_wrapper(func):
+def transport_worker_wrapper(
+    func: Callable[[NotificationRecipient, RenderNotification], None]
+) -> Callable[[Sequence[tuple[int, UUID]]], None]:
     """Create working context for a notification transport dispatch worker."""
 
     @wraps(func)
-    def inner(user_notification_ids):
+    def inner(notification_recipient_ids: Sequence[tuple[int, UUID]]) -> None:
         """Convert a notification id into an object for worker to process."""
         queue = [
-            UserNotification.query.get(identity) for identity in user_notification_ids
+            NotificationRecipient.query.get(identity)
+            for identity in notification_recipient_ids
         ]
-        for user_notification in queue:
-            # The notification may be revoked by the time this worker processes it.
-            # If so, skip it.
-            if not user_notification.is_revoked:
-                with force_locale(user_notification.user.locale or 'en'):
-                    view = user_notification.views.render
+        for notification_recipient in queue:
+            # The notification may be deleted or revoked by the time this worker
+            # processes it. If so, skip it.
+            if (
+                notification_recipient is not None
+                and not notification_recipient.is_revoked
+            ):
+                with force_locale(notification_recipient.recipient.locale or 'en'):
+                    view = notification_recipient.views.render
                     try:
-                        func(user_notification, view)
+                        func(notification_recipient, view)
                         db.session.commit()
                     except TransportError:
-                        if user_notification.notification.ignore_transport_errors:
+                        if notification_recipient.notification.ignore_transport_errors:
                             pass
                         else:
                             # TODO: Implement transport error handling code here
-                            raise
+                            pass
 
     return inner
 
@@ -479,32 +524,34 @@ def transport_worker_wrapper(func):
 @rqjob()
 @transport_worker_wrapper
 def dispatch_transport_email(
-    user_notification: UserNotification, view: RenderNotification
-):
+    notification_recipient: NotificationRecipient, view: RenderNotification
+) -> None:
     """Deliver a user notification over email."""
-    if not user_notification.user.main_notification_preferences.by_transport('email'):
+    if not notification_recipient.recipient.main_notification_preferences.by_transport(
+        'email'
+    ):
         # Cancel delivery if user's main switch is off. This was already checked, but
         # the worker may be delayed and the user may have changed their preference.
-        user_notification.messageid_email = 'cancelled'
+        notification_recipient.messageid_email = 'cancelled'
         return
     address = view.transport_for('email')
     subject = view.email_subject()
     content = view.email_content()
     attachments = view.email_attachments()
-    user_notification.messageid_email = email.send_email(
+    notification_recipient.messageid_email = email.send_email(
         subject=subject,
-        to=[(user_notification.user.fullname, str(address))],
+        to=[(notification_recipient.recipient.fullname, str(address))],
         content=content,
         attachments=attachments,
-        from_email=(view.email_from(), 'no-reply@' + app.config['DEFAULT_DOMAIN']),
+        from_email=(view.email_from(), app.config['MAIL_DEFAULT_SENDER_ADDR']),
         headers={
             'List-Id': formataddr(
                 (
                     # formataddr can't handle lazy_gettext strings, so cast to regular
-                    str(user_notification.notification.title),
+                    str(notification_recipient.notification.title),
                     # pylint: disable=consider-using-f-string
                     '{type}-notification.{domain}'.format(
-                        type=user_notification.notification.type,
+                        type=notification_recipient.notification.type,
                         domain=app.config['DEFAULT_DOMAIN'],
                     ),
                     # pylint: enable=consider-using-f-string
@@ -515,11 +562,12 @@ def dispatch_transport_email(
             'List-Unsubscribe-Post': 'One-Click',
             'List-Archive': f'<{url_for("notifications")}>',
         },
+        base_url=view.email_base_url,
     )
     statsd.incr(
         'notification.transport',
         tags={
-            'notification_type': user_notification.notification_type,
+            'notification_type': notification_recipient.notification_type,
             'transport': 'email',
         },
     )
@@ -527,20 +575,24 @@ def dispatch_transport_email(
 
 @rqjob()
 @transport_worker_wrapper
-def dispatch_transport_sms(user_notification, view):
+def dispatch_transport_sms(
+    notification_recipient: NotificationRecipient, view: RenderNotification
+) -> None:
     """Deliver a user notification over SMS."""
-    if not user_notification.user.main_notification_preferences.by_transport('sms'):
+    if not notification_recipient.recipient.main_notification_preferences.by_transport(
+        'sms'
+    ):
         # Cancel delivery if user's main switch is off. This was already checked, but
         # the worker may be delayed and the user may have changed their preference.
-        user_notification.messageid_sms = 'cancelled'
+        notification_recipient.messageid_sms = 'cancelled'
         return
-    user_notification.messageid_sms = sms.send(
+    notification_recipient.messageid_sms = sms.send_sms(
         str(view.transport_for('sms')), view.sms_with_unsubscribe()
     )
     statsd.incr(
         'notification.transport',
         tags={
-            'notification_type': user_notification.notification_type,
+            'notification_type': notification_recipient.notification_type,
             'transport': 'sms',
         },
     )
@@ -581,61 +633,51 @@ DISPATCH_BATCH_SIZE = 10
 
 
 @rqjob()
-def dispatch_notification_job(eventid, notification_ids):
+def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -> None:
     """Process :class:`Notification` into batches of :class:`UserNotification`."""
     notifications = [Notification.query.get((eventid, nid)) for nid in notification_ids]
 
     # Dispatch, creating batches of DISPATCH_BATCH_SIZE each
     for notification in notifications:
-        for batch in (
-            filterfalse(lambda x: x is None, unfiltered_batch)
-            for unfiltered_batch in zip_longest(
-                *[notification.dispatch()] * DISPATCH_BATCH_SIZE, fillvalue=None
-            )
-        ):
-            db.session.commit()
-            notification_ids = [
-                user_notification.identity for user_notification in batch
-            ]
-            dispatch_user_notifications_job.queue(notification_ids)
-            statsd.incr(
-                'notification.recipient',
-                count=len(notification_ids),
-                tags={'notification_type': notification.type},
-            )
-
-    # How does this batching work? There is a confusing recipe in the itertools module
-    # documentation. Here is what happens:
-    #
-    # `notification.dispatch()` returns a generator. We make a list of the desired batch
-    # size containing repeated references to the same generator. This works because
-    # Python lists can contain the same item multiple times, and ``[item] * 2 == [item,
-    # item]`` (also: ``[1, 2] * 2 = [1, 2, 1, 2]``). These copies are fed as positional
-    # parameters to `zip_longest`, which returns a batch containing one item from each
-    # of its parameters. For each batch (size 10 from the constant defined above), we
-    # commit to database and then queue a background job to deliver to them. When
-    # `zip_longest` runs out of items, it returns a batch padded with the `fillvalue`
-    # None. We use `filterfalse` to discard these None values. This difference
-    # distinguishes `zip_longest` from `zip`, which truncates the source data when it is
-    # short of a full batch.
-    #
-    # Discussion of approaches at https://stackoverflow.com/q/8290397/78903
+        if notification is not None:
+            generator = notification.dispatch()
+            # TODO: Use walrus operator := after we move off Python 3.7
+            batch = tuple(islice(generator, DISPATCH_BATCH_SIZE))
+            while batch:
+                db.session.commit()
+                notification_recipient_ids = [
+                    notification_recipient.identity for notification_recipient in batch
+                ]
+                dispatch_notification_recipients_job.queue(notification_recipient_ids)
+                statsd.incr(
+                    'notification.recipient',
+                    count=len(notification_recipient_ids),
+                    tags={'notification_type': notification.type},
+                )
+                # Continue to the next batch
+                batch = tuple(islice(generator, DISPATCH_BATCH_SIZE))
 
 
 @rqjob()
-def dispatch_user_notifications_job(user_notification_ids):
+def dispatch_notification_recipients_job(
+    notification_recipient_ids: Sequence[tuple[int, UUID]]
+) -> None:
     """Process notifications for users and enqueue transport delivery."""
-    queue = [UserNotification.query.get(identity) for identity in user_notification_ids]
-    transport_batch = defaultdict(list)
+    queue = [
+        NotificationRecipient.query.get(identity)
+        for identity in notification_recipient_ids
+    ]
+    transport_batch: dict[str, list[tuple[int, UUID]]] = defaultdict(list)
 
-    for user_notification in queue:
-        user_notification.rollup_previous()
-        for transport in transport_workers:
-            if platform_transports[transport] and user_notification.has_transport(
-                transport
-            ):
-                transport_batch[transport].append(user_notification.identity)
-        db.session.commit()
+    for notification_recipient in queue:
+        if notification_recipient is not None:
+            notification_recipient.rollup_previous()
+            for transport in transport_workers:
+                if platform_transports[
+                    transport
+                ] and notification_recipient.has_transport(transport):
+                    transport_batch[transport].append(notification_recipient.identity)
+            db.session.commit()
     for transport, batch in transport_batch.items():
         # Based on user preferences, a transport may have no recipients at all.
         # Only queue a background job when there is work to do.

@@ -10,9 +10,9 @@ Create Date: 2019-06-22 10:28:13.775099
 revision = 'b61a489d34a4'
 down_revision = '1829e53eba75'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 contact_exchange = table(
     'contact_exchange',
@@ -21,7 +21,7 @@ contact_exchange = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'contact_exchange',
         sa.Column(
@@ -49,7 +49,7 @@ def upgrade():
     op.alter_column('contact_exchange', 'description', server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('contact_exchange', 'description')
     op.drop_column('contact_exchange', 'scanned_at')
     op.drop_column('contact_exchange', 'archived')

@@ -7,21 +7,19 @@ Create Date: 2020-07-03 10:57:39.988762
 """
 
 from textwrap import dedent
-from typing import Optional, Tuple, Union
 
-from alembic import op
-from sqlalchemy.dialects import postgresql
-from sqlalchemy_utils import TSVectorType
 import sqlalchemy as sa
+from alembic import op
+from sqlalchemy_utils import TSVectorType
 
 # revision identifiers, used by Alembic.
 revision = 'a1ab7bd78649'
 down_revision = 'e4f17fe2cce8'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'post',
         sa.Column('visibility', sa.SmallInteger(), nullable=False),
@@ -40,7 +38,7 @@ def upgrade():
         sa.Column('voteset_id', sa.Integer(), nullable=False),
         sa.Column('commentset_id', sa.Integer(), nullable=False),
         sa.Column('search_vector', TSVectorType(), nullable=False),
-        sa.Column('uuid', postgresql.UUID(), nullable=False),
+        sa.Column('uuid', sa.Uuid(), nullable=False),
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
@@ -69,7 +67,7 @@ def upgrade():
     op.create_index(op.f('ix_post_user_id'), 'post', ['user_id'], unique=False)
 
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         CREATE FUNCTION post_search_vector_update() RETURNS trigger AS $$
@@ -87,9 +85,9 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         DROP TRIGGER post_search_vector_trigger ON post;

@@ -19,6 +19,7 @@ describe('Add a new submission', () => {
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy="propose-a-session"]:visible').click();
     cy.location('pathname').should('contain', 'new');
+    cy.get('a[data-cy="close-consent-modal"]').click();
     cy.get('#title').type(proposal.title);
     cy.get('#field-body')
       .find('.cm-editor .cm-line')
@@ -28,8 +29,9 @@ describe('Add a new submission', () => {
     cy.get('#field-video_url').type(proposal.preview_video);
     cy.get('a[data-cy="save"]:visible').click();
     cy.get('a[data-cy="add-label"]').click();
-    cy.wait(1000);
+    cy.wait(2000);
     cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
+    cy.wait(2000);
     cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
     cy.wait(2000);
     cy.get('a[data-cy="save"]:visible').click();
@@ -40,10 +42,12 @@ describe('Add a new submission', () => {
     cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);
     cy.get('[data-cy-admin="edit"]:visible').click();
+    cy.get('a[data-cy="close-consent-modal"]').click();
 
     cy.get('a[data-cy="add-collaborator-modal"]').click();
     cy.get('a[data-cy="add-collaborator"]').click();
     cy.wait('@get-collaborator-form');
+    cy.get('.select2-selection__arrow').click({ multiple: true });
     cy.get('.select2-search__field').type(usher.username, {
       force: true,
     });
@@ -52,10 +56,11 @@ describe('Add a new submission', () => {
     );
     cy.get('.select2-results__option').contains(usher.username).click();
     cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');
-    cy.get('#field-label').type('Editor');
+    cy.wait(1000);
+    cy.get('#field-label').click().type('Editor');
     cy.get('.modal').find('button[data-cy="form-submit-btn"]:visible').click();
     cy.wait('@add-collaborator');
-    cy.get('a.modal__close').click();
+    cy.get('a.modal__close:visible').click();
     cy.wait(6000); // Wait for toastr notice to fade out
     cy.get('button[data-cy="form-submit-btn"]').click();
     cy.get('.user__box__userid').contains(usher.username);

@@ -6,19 +6,17 @@ Create Date: 2020-04-28 02:24:31.889951
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '7ee3c83f713f'
 down_revision = '71fcac85957c'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint(
         'organization_owners_id_fkey', 'organization', type_='foreignkey'
     )
@@ -33,7 +31,7 @@ def upgrade():
     op.drop_column('project', 'checkin_team_id')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'project',
         sa.Column('checkin_team_id', sa.INTEGER(), autoincrement=False, nullable=True),

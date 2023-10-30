@@ -14,10 +14,10 @@
 
 {%- macro search_content(results, type, query) %}
   {% for item in results['items'] %}
-    <div class="tab-content__results grid__col-sm-12 {%- if type == 'project' or type == 'profile' %} grid__col-sm-6 grid__col-lg-4{% endif %}">
+    <div class="tab-content__results grid__col-sm-12 {%- if type == 'project' or type == 'account' %} grid__col-sm-6 grid__col-lg-4{% endif %}">
       {%- if type == 'project' %}
         {{ projectcard(item.obj, save_form_id_prefix='search_', add_bookmark=false, snippet_html=item.snippet_html) }}
-      {%- elif type == 'profile' %}
+      {%- elif type == 'account' %}
         {{ profilecard(item.obj, item.snippet_html) }}
       {%- elif type == 'session' %}
         <div class="user">
@@ -39,7 +39,7 @@
       {%- elif type == 'submission' %}
         <div class="user">
           <div class="user__box">
-            {{ useravatar(item.obj.user) }}
+            {{ useravatar(item.obj.first_user) }}
             <div class="user__box__header comment__header__details__user">
               <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
               <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
@@ -55,11 +55,11 @@
       {%- elif type == 'update' %}
         <div class="user">
           <div class="user__box">
-            {{ useravatar(item.obj.user) }}
+            {{ useravatar(item.obj.created_by) }}
             <div class="user__box__header comment__header__details__user">
               <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
               <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
-                {%- if item.obj.user.fullname %}<span>{{ item.obj.user.fullname }}</span> <span class="mui--text-light">{% trans %}in{% endtrans %}</span>{% endif %} <span>{{ item.obj.project.joined_title }} </span>
+                {%- if item.obj.created_by.fullname %}<span>{{ item.obj.created_by.fullname }}</span> <span class="mui--text-light">{% trans %}in{% endtrans %}</span>{% endif %} <span>{{ item.obj.project.joined_title }} </span>
               </h3>
             </div>
           </div>
@@ -68,7 +68,7 @@
       {%- elif type == 'comment' %}
         <div class="user">
           <div class="user__box">
-            {{ useravatar(item.obj.user) }}
+            {{ useravatar(item.obj.posted_by) }}
             <div class="user__box__header comment__header__details__user">
               <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.obj.title }}</a></h4>
               <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ item.obj.created_at|date }} {%- if item.obj.edited_at %} {% trans date=item.obj.edited_at|date %}edited {{ date }}{% endtrans %}{% endif %}</p>
@@ -80,7 +80,7 @@
     </div>
   {% endfor %}
   {% if results['has_next'] %}
-    <div lass="tab-content__results grid__col-sm-12 {%- if type == 'project' or type == 'profile' %} grid__col-sm-6 grid__col-lg-4{% endif %}" hx-get="{{ url_for('search', q=query, type=type, page=results['next_num']) }}"
+    <div lass="tab-content__results grid__col-sm-12 {%- if type == 'project' or type == 'account' %} grid__col-sm-6 grid__col-lg-4{% endif %}" hx-get="{{ url_for('search', q=query, type=type, page=results['next_num']) }}"
         hx-trigger="revealed"
         hx-swap="outerHTML" hx-push-url="true">
       <span class="loading"></span>
@@ -115,7 +115,7 @@
 {% endblock basecontent %}
 
 {% block footerscripts %}
-  <script src="{{ built_asset('search.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('search.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var searchConfig = {

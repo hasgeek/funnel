@@ -6,19 +6,17 @@ Create Date: 2020-05-05 01:32:02.241787
 
 """
 
-from typing import Optional, Tuple, Union
-
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 from coaster.gfm import markdown
 
 # revision identifiers, used by Alembic.
 revision = '222b78a8508d'
 down_revision = '6ebbe0cc8e19'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 organization_table = table(
     'organization',
@@ -35,7 +33,7 @@ profile_table = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     # Copy over data
     conn = op.get_bind()
     orgs = conn.execute(
@@ -46,14 +44,14 @@ def upgrade():
         ).where(organization_table.c.description != '')
     )
     for org in orgs:
-        blank_profile = conn.execute(
+        blank_profile = conn.scalar(
             sa.select(sa.func.count(profile_table.c.id)).where(
                 sa.and_(
                     profile_table.c.organization_id == org.id,
                     profile_table.c.description_text == '',
                 )
             )
-        ).first()[0]
+        )
         if blank_profile:
             print("Updating", org.title)  # noqa: T201
             op.execute(
@@ -69,7 +67,7 @@ def upgrade():
     op.drop_column('organization', 'description')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'organization',
         sa.Column(

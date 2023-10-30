@@ -10,11 +10,11 @@ Create Date: 2015-01-18 23:16:09.790396
 revision = '7cd383925de'
 down_revision = '21a7dfe8ab4d'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'proposal_space', sa.Column('parent_space_id', sa.Integer(), nullable=True)
     )
@@ -27,7 +27,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'proposal_space_proposal_space_id_fkey', 'proposal_space', type_='foreignkey'
     )

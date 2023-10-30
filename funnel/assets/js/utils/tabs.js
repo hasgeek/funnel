@@ -187,7 +187,7 @@ const Tabs = {
   async init(container) {
     const $parentElement = $(container || 'body');
     const $tablists = $parentElement.find(
-      '[role=tablist]:not(.activating):not(.activated)'
+      '[role=tablist]:not(.activating, .activated)'
     );
     $tablists.addClass('activating');
     this.process($parentElement, $tablists);

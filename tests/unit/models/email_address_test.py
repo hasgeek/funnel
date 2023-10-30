@@ -1,13 +1,13 @@
 """Tests for EmailAddress model."""
-# pylint: disable=possibly-unused-variable
+# pylint: disable=possibly-unused-variable,redefined-outer-name
 
+
+from collections.abc import Generator
 from types import SimpleNamespace
-from typing import Generator
-
-from sqlalchemy.exc import IntegrityError
-import sqlalchemy as sa
 
 import pytest
+import sqlalchemy as sa
+from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 
@@ -186,7 +186,7 @@ def test_email_address_mutability() -> None:
     ea.email = None
     assert ea.email is None
     assert ea.domain is None
-    assert ea.blake2b160 == hash_map['example@example.com']  # type: ignore[unreachable]
+    assert ea.blake2b160 == hash_map['example@example.com']
 
     # Restoring allowed (case insensitive)
     ea.email = 'exAmple@exAmple.com'
@@ -228,7 +228,7 @@ def test_email_address_is_blocked_flag() -> None:
     ea = models.EmailAddress('example@example.com')
     assert ea.is_blocked is False
     with pytest.raises(AttributeError):
-        ea.is_blocked = True  # type: ignore[misc]
+        ea.is_blocked = True
 
 
 def test_email_address_can_commit(db_session) -> None:
@@ -403,58 +403,49 @@ def test_email_address_delivery_state() -> None:
 # This fixture must be session scope as it cannot be called twice in the same process.
 # SQLAlchemy models must only be defined once. A model can theoretically be removed,
 # but there is no formal API. Removal has at least three parts:
-# 1. Remove class from mapper registry using ``db.Model.registry._dispose_cls(cls)``
-# 2. Remove table from metadata using db.metadata.remove(cls.__table__)
+# 1. Remove class from mapper registry using ``Model.registry._dispose_cls(cls)``
+# 2. Remove table from metadata using Model.metadata.remove(cls.__table__)
 # 3. Remove all relationships to other classes (unsolved)
 @pytest.fixture(scope='session')
 def email_models(database, app) -> Generator:
-    db = database
-
-    class EmailUser(models.BaseMixin, db.Model):  # type: ignore[name-defined]
+    class EmailUser(models.BaseMixin, models.Model):
         """Test model representing a user account."""
 
-        __tablename__ = 'emailuser'
+        __tablename__ = 'test_email_user'
 
-    class EmailLink(
-        models.EmailAddressMixin,
-        models.BaseMixin,
-        db.Model,  # type: ignore[name-defined]
-    ):
+    class EmailLink(models.EmailAddressMixin, models.BaseMixin, models.Model):
         """Test model connecting EmailUser to EmailAddress."""
 
+        __tablename__ = 'test_email_link'
         __email_optional__ = False
         __email_unique__ = True
         __email_for__ = 'emailuser'
         __email_is_exclusive__ = True
 
-        emailuser_id = sa.Column(
-            sa.Integer, sa.ForeignKey('emailuser.id'), nullable=False
+        emailuser_id = sa.orm.mapped_column(
+            sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=False
         )
-        emailuser = sa.orm.relationship(EmailUser)
+        emailuser = models.relationship(EmailUser)
 
-    class EmailDocument(
-        models.EmailAddressMixin,
-        models.BaseMixin,
-        db.Model,  # type: ignore[name-defined]
-    ):
+    class EmailDocument(models.EmailAddressMixin, models.BaseMixin, models.Model):
         """Test model unaffiliated to a user that has an email address attached."""
 
-    class EmailLinkedDocument(
-        models.EmailAddressMixin,
-        models.BaseMixin,
-        db.Model,  # type: ignore[name-defined]
-    ):
+        __tablename__ = 'test_email_document'
+
+    class EmailLinkedDocument(models.EmailAddressMixin, models.BaseMixin, models.Model):
         """Test model that accepts an optional user and an optional email."""
 
+        __tablename__ = 'test_email_linked_document'
         __email_for__ = 'emailuser'
 
-        emailuser_id = sa.Column(
-            sa.Integer, sa.ForeignKey('emailuser.id'), nullable=True
+        emailuser_id = sa.orm.mapped_column(
+            sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=True
         )
-        emailuser = sa.orm.relationship(EmailUser)
+        emailuser = models.relationship(EmailUser)
 
     new_models = [EmailUser, EmailLink, EmailDocument, EmailLinkedDocument]
 
+    sa.orm.configure_mappers()
     # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
         database.metadata.create_all(
@@ -656,17 +647,17 @@ def test_email_address_validate_for(email_models, db_session) -> None:
     db_session.add_all([user1, user2])
 
     # A new email address is available to all
-    assert models.EmailAddress.validate_for(user1, 'example@example.com') is True
-    assert models.EmailAddress.validate_for(user2, 'example@example.com') is True
-    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is True
+    assert models.EmailAddress.validate_for(user1, 'example@example.com') is None
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') is None
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is None
 
     # Once it's assigned to a user, availability changes
     link = email_models.EmailLink(emailuser=user1, email='example@example.com')
     db_session.add(link)
 
-    assert models.EmailAddress.validate_for(user1, 'example@example.com') is True
-    assert models.EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(user1, 'example@example.com') is None
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') == 'taken'
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') == 'taken'
 
     # An address in use is not available to claim as new
     assert (
@@ -675,11 +666,11 @@ def test_email_address_validate_for(email_models, db_session) -> None:
     )
     assert (
         models.EmailAddress.validate_for(user2, 'example@example.com', new=True)
-        is False
+        == 'taken'
     )
     assert (
         models.EmailAddress.validate_for(anon_user, 'example@example.com', new=True)
-        is False
+        == 'taken'
     )
 
     # When delivery state changes, validate_for's result changes too
@@ -688,21 +679,21 @@ def test_email_address_validate_for(email_models, db_session) -> None:
 
     ea.mark_sent()
     assert ea.delivery_state.SENT
-    assert models.EmailAddress.validate_for(user1, 'example@example.com') is True
-    assert models.EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(user1, 'example@example.com') is None
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') == 'taken'
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') == 'taken'
 
     ea.mark_soft_fail()
     assert ea.delivery_state.SOFT_FAIL
     assert models.EmailAddress.validate_for(user1, 'example@example.com') == 'soft_fail'
-    assert models.EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') == 'taken'
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') == 'taken'
 
     ea.mark_hard_fail()
     assert ea.delivery_state.HARD_FAIL
     assert models.EmailAddress.validate_for(user1, 'example@example.com') == 'hard_fail'
-    assert models.EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') == 'taken'
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') == 'taken'
 
     # A blocked address is available to no one
     db_session.add(models.EmailAddress('blocked@example.com'))
@@ -730,9 +721,9 @@ def test_email_address_existing_but_unused_validate_for(
 
     assert (
         models.EmailAddress.validate_for(user, 'unclaimed@example.com', new=True)
-        is True
+        is None
     )
-    assert models.EmailAddress.validate_for(user, 'unclaimed@example.com') is True
+    assert models.EmailAddress.validate_for(user, 'unclaimed@example.com') is None
 
 
 @pytest.mark.flaky(reruns=1)  # Re-run in case DNS times out

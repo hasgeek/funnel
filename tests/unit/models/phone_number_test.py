@@ -1,14 +1,14 @@
 """Tests for PhoneNumber model."""
+# pylint: disable=redefined-outer-name
 
+from collections.abc import Generator
 from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
-from typing import Generator
-
-from sqlalchemy.exc import IntegrityError
-import sqlalchemy as sa
 
 import phonenumbers
 import pytest
+import sqlalchemy as sa
+from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 
@@ -40,58 +40,49 @@ hash_map = {
 # This fixture must be session scope as it cannot be called twice in the same process.
 # SQLAlchemy models must only be defined once. A model can theoretically be removed,
 # but there is no formal API. Removal has at least three parts:
-# 1. Remove class from mapper registry using ``db.Model.registry._dispose_cls(cls)``
-# 2. Remove table from metadata using db.metadata.remove(cls.__table__)
+# 1. Remove class from mapper registry using ``Model.registry._dispose_cls(cls)``
+# 2. Remove table from metadata using Model.metadata.remove(cls.__table__)
 # 3. Remove all relationships to other classes (unsolved)
 @pytest.fixture(scope='session')
 def phone_models(database, app) -> Generator:
-    db = database
-
-    class PhoneUser(models.BaseMixin, db.Model):  # type: ignore[name-defined]
+    class PhoneUser(models.BaseMixin, models.Model):
         """Test model representing a user account."""
 
-        __tablename__ = 'phoneuser'
+        __tablename__ = 'test_phone_user'
 
-    class PhoneLink(
-        models.PhoneNumberMixin,
-        models.BaseMixin,
-        db.Model,  # type: ignore[name-defined]
-    ):
+    class PhoneLink(models.PhoneNumberMixin, models.BaseMixin, models.Model):
         """Test model connecting PhoneUser to PhoneNumber."""
 
+        __tablename__ = 'test_phone_link'
         __phone_optional__ = False
         __phone_unique__ = True
         __phone_for__ = 'phoneuser'
         __phone_is_exclusive__ = True
 
-        phoneuser_id = sa.Column(
-            sa.Integer, sa.ForeignKey('phoneuser.id'), nullable=False
+        phoneuser_id = sa.orm.mapped_column(
+            sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=False
         )
-        phoneuser = sa.orm.relationship(PhoneUser)
+        phoneuser = models.relationship(PhoneUser)
 
-    class PhoneDocument(
-        models.PhoneNumberMixin,
-        models.BaseMixin,
-        db.Model,  # type: ignore[name-defined]
-    ):
+    class PhoneDocument(models.PhoneNumberMixin, models.BaseMixin, models.Model):
         """Test model unaffiliated to a user that has a phone number attached."""
 
-    class PhoneLinkedDocument(
-        models.PhoneNumberMixin,
-        models.BaseMixin,
-        db.Model,  # type: ignore[name-defined]
-    ):
+        __tablename__ = 'test_phone_document'
+
+    class PhoneLinkedDocument(models.PhoneNumberMixin, models.BaseMixin, models.Model):
         """Test model that accepts an optional user and an optional phone."""
 
+        __tablename__ = 'test_phone_linked_document'
         __phone_for__ = 'phoneuser'
 
-        phoneuser_id = sa.Column(
-            sa.Integer, sa.ForeignKey('phoneuser.id'), nullable=True
+        phoneuser_id = sa.orm.mapped_column(
+            sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=True
         )
-        phoneuser = sa.orm.relationship(PhoneUser)
+        phoneuser = models.relationship(PhoneUser)
 
     new_models = [PhoneUser, PhoneLink, PhoneDocument, PhoneLinkedDocument]
 
+    sa.orm.configure_mappers()
     # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
         database.metadata.create_all(
@@ -320,9 +311,9 @@ def test_phone_number_mutability() -> None:
     with pytest.raises(ValueError, match="A phone number is required"):
         pn.number = ''
     with pytest.raises(ValueError, match="A phone number is required"):
-        pn.number = False  # type: ignore[assignment]
+        pn.number = False
     with pytest.raises(ValueError, match="Phone number cannot be changed"):
-        pn.number = [1, 2, 3]  # type: ignore[assignment]
+        pn.number = [1, 2, 3]
 
     # Changing after nulling is not allowed as hash won't match
     pn.number = None
@@ -331,9 +322,9 @@ def test_phone_number_mutability() -> None:
     with pytest.raises(ValueError, match="A phone number is required"):
         pn.number = ''
     with pytest.raises(ValueError, match="A phone number is required"):
-        pn.number = False  # type: ignore[assignment]
+        pn.number = False
     with pytest.raises(ValueError, match="Invalid value for phone number"):
-        pn.number = [1, 2, 3]  # type: ignore[assignment]
+        pn.number = [1, 2, 3]
 
 
 def test_phone_number_md5() -> None:
@@ -350,7 +341,7 @@ def test_phone_number_is_blocked_flag() -> None:
     pn = models.PhoneNumber(EXAMPLE_NUMBER_IN)
     assert pn.is_blocked is False
     with pytest.raises(AttributeError):
-        pn.is_blocked = True  # type: ignore[misc]
+        pn.is_blocked = True
 
 
 def test_phone_number_can_commit(db_session) -> None:
@@ -513,7 +504,7 @@ def test_phone_number_blocked() -> None:
     pn1.mark_blocked()
 
     assert pn1.is_blocked is True
-    assert pn1.number is None  # type: ignore[unreachable]
+    assert pn1.number is None
     assert pn1.blake2b160 is not None
     assert pn1.is_blocked is True
     assert pn2.is_blocked is False
@@ -539,6 +530,32 @@ def test_phone_number_blocked() -> None:
     assert pn1.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
     assert str(pn1) == EXAMPLE_NUMBER_IN
     assert pn1.formatted == EXAMPLE_NUMBER_IN_FORMATTED
+
+
+def test_get_numbers(db_session) -> None:
+    """Get phone numbers in bulk."""
+    for number in (
+        EXAMPLE_NUMBER_IN,
+        EXAMPLE_NUMBER_GB,
+        EXAMPLE_NUMBER_CA,
+        EXAMPLE_NUMBER_DE,
+        EXAMPLE_NUMBER_US,
+    ):
+        models.PhoneNumber.add(number)
+    assert models.PhoneNumber.get_numbers(prefix='+91') == {
+        EXAMPLE_NUMBER_IN_UNPREFIXED
+    }
+    assert models.PhoneNumber.get_numbers(prefix='+1', remove=False) == {
+        EXAMPLE_NUMBER_CA,
+        EXAMPLE_NUMBER_US,
+    }
+    assert models.PhoneNumber.get_numbers('+', False) == {
+        EXAMPLE_NUMBER_IN,
+        EXAMPLE_NUMBER_GB,
+        EXAMPLE_NUMBER_CA,
+        EXAMPLE_NUMBER_DE,
+        EXAMPLE_NUMBER_US,
+    }
 
 
 def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-statements
@@ -719,25 +736,28 @@ def test_phone_number_validate_for(phone_models, db_session) -> None:
     db_session.add_all([user1, user2])
 
     # A new phone number is available to all
-    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN) is True
-    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN) is True
-    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN) is True
+    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN) is None
+    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN) is None
+    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN) is None
 
     # Once it's assigned to a user, availability changes
     link = phone_models.PhoneLink(phoneuser=user1, phone=EXAMPLE_NUMBER_IN)
     db_session.add(link)
 
-    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN) is True
-    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN) is False
-    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN) is False
+    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN) is None
+    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN) == 'taken'
+    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN) == 'taken'
 
     # A number in use is not available to claim as new
     assert (
         models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN, new=True) == 'not_new'
     )
-    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN, new=True) is False
     assert (
-        models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN, new=True) is False
+        models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN, new=True) == 'taken'
+    )
+    assert (
+        models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN, new=True)
+        == 'taken'
     )
 
     # A blocked number is available to no one
@@ -763,5 +783,5 @@ def test_phone_number_existing_but_unused_validate_for(
     db_session.add_all([user, phone_number])
     db_session.commit()
 
-    assert models.PhoneNumber.validate_for(user, EXAMPLE_NUMBER_GB, new=True) is True
-    assert models.PhoneNumber.validate_for(user, EXAMPLE_NUMBER_GB) is True
+    assert models.PhoneNumber.validate_for(user, EXAMPLE_NUMBER_GB, new=True) is None
+    assert models.PhoneNumber.validate_for(user, EXAMPLE_NUMBER_GB) is None

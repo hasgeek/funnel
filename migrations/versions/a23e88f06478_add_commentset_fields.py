@@ -5,17 +5,15 @@ Revises: 284c10efdbce
 Create Date: 2021-03-22 02:54:30.416806
 """
 
-from typing import Optional, Tuple, Union
-
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'a23e88f06478'
 down_revision = '284c10efdbce'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 commentset = table(
     'commentset',
@@ -31,7 +29,7 @@ comment = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'commentset',
         sa.Column('last_comment_at', sa.TIMESTAMP(timezone=True), nullable=True),
@@ -56,6 +54,6 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('commentset_membership', 'is_muted')
     op.drop_column('commentset', 'last_comment_at')

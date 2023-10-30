@@ -98,6 +98,10 @@
   align-items: flex-start;
 }
 
+.flex-wrapper--end {
+  align-items: flex-end;
+}
+
 .flex-wrapper--space-between {
   justify-content: space-between;
 }
@@ -237,6 +241,17 @@
 
 .img-responsive {
   width: 100%;
+}
+
+.img-rounded-border {
+  border-radius: 16px;
+}
+
+.img-fit {
+  position: absolute;
+  object-fit: fill;
+  width: 100%;
+  height: 100%;
 }
 
 // ============================================================================

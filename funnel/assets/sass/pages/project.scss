@@ -4,6 +4,7 @@
 @import '../components/switch';
 @import '../components/footable';
 @import '../components/draggablebox';
+@import '../components/ticket-modal';
 @import 'leaflet';
 
 @media (min-width: 768px) {
@@ -70,35 +71,16 @@
       margin-bottom: $mui-grid-padding * 0.25;
     }
     .register-block__btn {
+      @extend .price-btn;
       width: 100%;
-      font-size: 10px;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0 0 2px;
-      justify-content: center;
-      height: 42px;
       .register-block__btn__txt {
-        display: block;
-        width: 100%;
-        font-size: 12px;
-        line-height: 16px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
+        @extend .price-btn__txt;
       }
       .register-block__btn__txt--hover--show {
         display: none;
       }
       .register-block__btn__txt--smaller {
-        font-size: 10px;
-        line-height: 16px;
-        text-transform: initial;
-        font-weight: 400;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: auto;
+        @extend .price-btn__txt--smaller;
       }
       &:hover .register-block__btn__txt--hover {
         display: none;
@@ -110,6 +92,9 @@
       &:hover {
         border-color: $mui-text-danger;
       }
+    }
+    .register-block__btn.mui--is-disabled:hover {
+      border-color: inherit;
     }
   }
   .register-block__content--half {
@@ -151,6 +136,9 @@
         .register-block__btn__txt--mobile {
           display: none;
         }
+      }
+      .register-block__btn.mui--is-disabled {
+        border-color: inherit;
       }
     }
     .register-block__content--half {
@@ -275,6 +263,7 @@
     display: flex;
     align-items: center;
     margin-bottom: $mui-grid-padding * 0.5;
+    flex-wrap: wrap;
 
     .project-banner__profile-details__logo-wrapper {
       display: inline-block;
@@ -289,6 +278,9 @@
         width: 100%;
         object-fit: cover;
       }
+    }
+    .project-banner__profile-details__badge {
+      margin-left: auto;
     }
   }
 
@@ -536,64 +528,6 @@
   padding-bottom: $mui-grid-padding;
 }
 
-.tickets-wrapper {
-  .tickets-wrapper__modal {
-    display: none;
-  }
-
-  .tickets-wrapper__modal__back {
-    display: none;
-  }
-
-  .tickets-wrapper__modal__body__close {
-    display: none;
-  }
-
-  .tickets-wrapper__modal--show {
-    position: fixed;
-    top: 52px;
-    background: $mui-bg-color-primary;
-    left: 0;
-    right: 0;
-    padding: $mui-grid-padding;
-    z-index: 1001;
-    bottom: 0;
-    overflow: auto;
-
-    .tickets-wrapper__modal__back {
-      display: block;
-    }
-  }
-}
-
-@media (min-width: 768px) {
-  .tickets-wrapper {
-    .tickets-wrapper__modal {
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.75);
-    }
-
-    .tickets-wrapper__modal__body {
-      max-width: 500px;
-      margin: auto;
-      width: 90%;
-      padding: 0;
-      min-height: auto;
-      border-radius: 16px;
-      background-color: $mui-bg-color-primary;
-      overflow: auto;
-      .tickets-wrapper__modal__body__close {
-        display: block;
-        float: right;
-        margin-right: $mui-grid-padding * 0.5;
-        margin-top: $mui-grid-padding * 0.5;
-      }
-    }
-  }
-}
-
 .about .rsvp-wrapper {
   padding-top: 50px;
 }
@@ -653,22 +587,6 @@
 
 .project-page .alert-wrapper {
   background: $mui-bg-color-primary;
-}
-
-.map {
-  position: relative;
-  .map__marker {
-    margin-top: $mui-grid-padding * 0.5;
-    width: 100%;
-    height: 40em;
-  }
-  .map__clear {
-    position: absolute;
-    top: 22px;
-    right: 0;
-    z-index: 2;
-    background: #fff;
-  }
 }
 
 .label {

@@ -1369,8 +1369,8 @@ $ABBR$<br />
 ]ABBR]</p>
 </blockquote>
 """
-document = """<h2 id="h:testing-abbreviations-plugin">Testing abbreviations plugin <a class="header-anchor" href="#h:testing-abbreviations-plugin">#</a></h2>
-<h3 id="h:tests-for-short-form-long-form-syntax-for-abbr">Tests for <code>*[Short Form]: Long form</code> syntax for <code>&lt;abbr&gt;</code> <a class="header-anchor" href="#h:tests-for-short-form-long-form-syntax-for-abbr">#</a></h3>
+document = """<h2 id="h:testing-abbreviations-plugin"><a href="#h:testing-abbreviations-plugin">Testing abbreviations plugin</a></h2>
+<h3 id="h:tests-for-short-form-long-form-syntax-for-abbr"><a href="#h:tests-for-short-form-long-form-syntax-for-abbr">Tests for <code>*[Short Form]: Long form</code> syntax for <code>&lt;abbr&gt;</code></a></h3>
 <p>The language <a href="https://developer.mozilla.org/en-US/docs/Web/HTML"><abbr title="HyperText Markup Language">HTML</abbr></a> is a markup language for webpages.</p>
 <p><abbr title="Cascading Style Sheets">CSS</abbr> is a language used to define the presentation of <abbr title="HyperText Markup Language">HTML</abbr> webpages.</p>
 <blockquote>
@@ -1382,7 +1382,7 @@ document = """<h2 id="h:testing-abbreviations-plugin">Testing abbreviations plug
 </code></pre>
 <pre><code class="language-js">let html ='';
 </code></pre>
-<h3 id="h:tests-for-padding-characters">Tests for padding characters <a class="header-anchor" href="#h:tests-for-padding-characters">#</a></h3>
+<h3 id="h:tests-for-padding-characters"><a href="#h:tests-for-padding-characters">Tests for padding characters</a></h3>
 <p>[<abbr title="Abbreviation">ABBR</abbr>[<br />
 <abbr title="Abbreviation">ABBR</abbr><br />
 !<abbr title="Abbreviation">ABBR</abbr>!<br />
@@ -1402,7 +1402,7 @@ document = """<h2 id="h:testing-abbreviations-plugin">Testing abbreviations plug
 ;<abbr title="Abbreviation">ABBR</abbr>;<br />
 ?<abbr title="Abbreviation">ABBR</abbr>?<br />
 @<abbr title="Abbreviation">ABBR</abbr>@<br />
-\\<abbr title="Abbreviation">ABBR</abbr><br />
+\\ABBR<br />
 [<abbr title="Abbreviation">ABBR</abbr>[<br />
 ]<abbr title="Abbreviation">ABBR</abbr>]<br />
 <em><abbr title="Abbreviation">ABBR</abbr></em><br />
@@ -2075,7 +2075,7 @@ abbr = """<h2>Testing abbreviations plugin</h2>
 ;<abbr title="Abbreviation">ABBR</abbr>;
 ?<abbr title="Abbreviation">ABBR</abbr>?
 @<abbr title="Abbreviation">ABBR</abbr>@
-\\<abbr title="Abbreviation">ABBR</abbr><br>
+\\ABBR<br>
 [<abbr title="Abbreviation">ABBR</abbr>[
 ]<abbr title="Abbreviation">ABBR</abbr>]
 <em><abbr title="Abbreviation">ABBR</abbr></em>

@@ -60,13 +60,6 @@ export const Widgets = {
     };
     this.activateToggleSwitch(checkboxId, onSuccess);
   },
-  activate_select2() {
-    /* Upgrade to jquery 3.6 select2 autofocus isn't working. This is to fix that problem.
-      select2/select2#5993  */
-    $(document).on('select2:open', () => {
-      document.querySelector('.select2-search__field').focus();
-    });
-  },
   handleDelete(elementClass, onSucessFn) {
     $('body').on('click', elementClass, async function remove(event) {
       event.preventDefault();
@@ -128,8 +121,8 @@ export async function activateFormWidgets() {
     }
   });
 
-  // Change username field input mode to tel
-  if ($('#username').length > 0) {
+  // Change username field input mode to tel in login form
+  if ($('#loginformwrapper').length && $('#username').length) {
     $('#username').attr('inputmode', 'tel');
     $('#username').attr('autocomplete', 'tel');
     $('.js-keyboard-switcher[data-inputmode="tel"]').addClass('active');
@@ -151,138 +144,37 @@ export async function activateFormWidgets() {
   );
 
   if (
-    $('textarea.markdown:not([style*="display: none"]:not(.activating):not(.activated)')
-      .length
+    $(
+      'textarea.markdown:not([style*="display: none"], .activating, .activated, .no-codemirror)'
+    ).length
   ) {
     const { default: codemirrorHelper } = await import('./codemirror');
-    $('textarea.markdown:not([style*="display: none"]').each(
-      function enableCodemirror() {
-        const markdownId = $(this).attr('id');
-        $(`#${markdownId}`).addClass('activating');
-        codemirrorHelper(markdownId);
-      }
-    );
+    $(
+      'textarea.markdown:not([style*="display: none"]:not(.activating):not(.activated)'
+    ).each(function enableCodemirror() {
+      const markdownId = $(this).attr('id');
+      $(`#${markdownId}`).addClass('activating');
+      codemirrorHelper(markdownId);
+    });
   }
 
-  Widgets.activate_select2();
+  if (
+    $(
+      'textarea.stylesheet:not([style*="display: none"]:not(.activating):not(.activated)'
+    ).length
+  ) {
+    const { default: codemirrorStylesheetHelper } = await import(
+      './codemirror_stylesheet'
+    );
+    $(
+      'textarea.stylesheet:not([style*="display: none"]:not(.activating):not(.activated)'
+    ).each(function enableCodemirrorForStylesheet() {
+      const textareaId = $(this).attr('id');
+      $(`#${textareaId}`).addClass('activating');
+      codemirrorStylesheetHelper(textareaId);
+    });
+  }
 }
-
-export const EnableAutocompleteWidgets = {
-  lastuserAutocomplete(options) {
-    const assembleUsers = function getUsers(users) {
-      return users.map((user) => {
-        return { id: user.buid, text: user.label };
-      });
-    };
-
-    $(`#${options.id}`).select2({
-      placeholder: 'Search for a user',
-      multiple: options.multiple,
-      minimumInputLength: 2,
-      ajax: {
-        url: options.autocompleteEndpoint,
-        dataType: 'jsonp',
-        data(params) {
-          if ('clientId' in options) {
-            return {
-              q: params.term,
-              client_id: options.clientId,
-              session: options.sessionId,
-            };
-          }
-          return {
-            q: params.term,
-          };
-        },
-        processResults(data) {
-          let users = [];
-          if (data.status === 'ok') {
-            users = assembleUsers(data.users);
-          }
-          return { more: false, results: users };
-        },
-      },
-    });
-  },
-  textAutocomplete(options) {
-    $(`#${options.id}`).select2({
-      placeholder: 'Type to select',
-      multiple: options.multiple,
-      minimumInputLength: 2,
-      ajax: {
-        url: options.autocompleteEndpoint,
-        dataType: 'json',
-        data(params, page) {
-          return {
-            q: params.term,
-            page,
-          };
-        },
-        processResults(data) {
-          return {
-            more: false,
-            results: data[options.key].map((item) => {
-              return { id: item, text: item };
-            }),
-          };
-        },
-      },
-    });
-  },
-  geonameAutocomplete(options) {
-    $(options.selector).select2({
-      placeholder: 'Search for a location',
-      multiple: true,
-      minimumInputLength: 2,
-      ajax: {
-        url: options.autocompleteEndpoint,
-        dataType: 'jsonp',
-        data(params) {
-          return {
-            q: params.term,
-          };
-        },
-        processResults(data) {
-          const rdata = [];
-          if (data.status === 'ok') {
-            for (let i = 0; i < data.result.length; i += 1) {
-              rdata.push({
-                id: data.result[i].geonameid,
-                text: data.result[i].picker_title,
-              });
-            }
-          }
-          return { more: false, results: rdata };
-        },
-      },
-    });
-
-    // Setting label for Geoname ids
-    let val = $(options.selector).val();
-    if (val) {
-      val = val.map((id) => {
-        return `name=${id}`;
-      });
-      const qs = val.join('&');
-      $.ajax(`${options.getnameEndpoint}?${qs}`, {
-        accepts: 'application/json',
-        dataType: 'jsonp',
-      }).done((data) => {
-        $(options.selector).empty();
-        const rdata = [];
-        if (data.status === 'ok') {
-          for (let i = 0; i < data.result.length; i += 1) {
-            $(options.selector).append(
-              `<option value="${data.result[i].geonameid}" selected>${data.result[i].picker_title}</option>`
-            );
-            rdata.push(data.result[i].geonameid);
-          }
-          $(options.selector).val(rdata).trigger('change');
-        }
-      });
-    }
-  },
-};
 
 export class MapMarker {
   constructor(field) {

@@ -11,15 +11,13 @@ down_revision = 'ae68621248af'
 
 from uuid import uuid4
 
-from alembic import op
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 
-venue = table('venue', column('id', sa.Integer()), column('uuid', postgresql.UUID()))
+venue = table('venue', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 
 def get_progressbar(label, maxval):
@@ -38,10 +36,10 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
-    op.add_column('venue', sa.Column('uuid', postgresql.UUID(), nullable=True))
+    op.add_column('venue', sa.Column('uuid', sa.Uuid(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(venue))
     progress = get_progressbar("Venues", count)
     progress.start()
@@ -54,6 +52,6 @@ def upgrade():
     op.create_unique_constraint('venue_uuid_key', 'venue', ['uuid'])
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('venue_uuid_key', 'venue', type_='unique')
     op.drop_column('venue', 'uuid')

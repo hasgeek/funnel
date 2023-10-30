@@ -3,14 +3,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from functools import reduce
-from typing import Any, ClassVar, Dict, List, Optional, Tuple
+from typing import Any, ClassVar
 
 from markdown_it.token import Token
 
 __all__ = ['render_tab']
 
 
-def render_tab(self, tokens: List[Token], idx, _options, env):
+def render_tab(self, tokens: list[Token], idx, _options, env):
     if 'manager' not in env:
         env['manager'] = TabsManager(tokens)
 
@@ -25,13 +25,13 @@ def render_tab(self, tokens: List[Token], idx, _options, env):
 @dataclass
 class TabsetNode:
     start: int
-    parent: Optional[TabNode] = None
-    children: List[TabNode] = field(default_factory=list)
+    parent: TabNode | None = None
+    children: list[TabNode] = field(default_factory=list)
     _html_tabs: ClassVar[str] = '<ul role="tablist">{items_html}</ul>'
     html_close: ClassVar[str] = '</div>'
     _tabset_id: str = ''
 
-    def flatten(self) -> List[TabNode]:
+    def flatten(self) -> list[TabNode]:
         tabs = self.children
         for tab in self.children:
             for tabset in tab.children:
@@ -63,7 +63,7 @@ class TabNode:
     key: str
     parent: TabsetNode
     _tab_id: str = ''
-    children: List[TabsetNode] = field(default_factory=list)
+    children: list[TabsetNode] = field(default_factory=list)
     _opening: ClassVar[str] = (
         '<div role="tabpanel"{class_attr} id="{tab_id}-panel"'
         + ' aria-labelledby="{tab_id}" tabindex="0">'
@@ -89,7 +89,7 @@ class TabNode:
             return ' tabindex="0" aria-selected="true"'
         return ' tabindex="-1" aria-selected="false"'
 
-    def flatten(self) -> List[TabsetNode]:
+    def flatten(self) -> list[TabsetNode]:
         tabsets = self.children
         for tabset in self.children:
             for tab in tabset.children:
@@ -147,22 +147,22 @@ class TabNode:
 
 
 class TabsManager:
-    tabsets: List[TabsetNode]
-    _index: Dict[int, TabNode]
+    tabsets: list[TabsetNode]
+    _index: dict[int, TabNode]
 
-    def __init__(self, tokens: List[Token]) -> None:
+    def __init__(self, tokens: list[Token]) -> None:
         tab_tokens = self._get_tab_tokens(tokens)
-        self.tabsets: List[TabsetNode] = self.make(tab_tokens)
+        self.tabsets: list[TabsetNode] = self.make(tab_tokens)
         self._index = {}
         self.index()
 
     def make(
-        self, tab_tokens: List[Dict[str, Any]], parent: Optional[TabNode] = None
-    ) -> List[TabsetNode]:
+        self, tab_tokens: list[dict[str, Any]], parent: TabNode | None = None
+    ) -> list[TabsetNode]:
         open_index, close_index = 0, len(tab_tokens) - 1
-        nodes: List[TabNode] = []
-        tabsets: List[TabsetNode] = []
-        previous: Optional[TabNode] = None
+        nodes: list[TabNode] = []
+        tabsets: list[TabsetNode] = []
+        previous: TabNode | None = None
         while True:
             pairs = self._tab_token_pair(
                 tab_tokens[open_index : close_index + 1], start=open_index
@@ -197,7 +197,7 @@ class TabsManager:
 
         return tabsets
 
-    def _get_tab_tokens(self, tokens: List[Token]) -> List[Dict[str, Any]]:
+    def _get_tab_tokens(self, tokens: list[Token]) -> list[dict[str, Any]]:
         return [
             {
                 'index': i,
@@ -210,8 +210,8 @@ class TabsManager:
         ]
 
     def _tab_token_pair(
-        self, tab_tokens: List[Dict[str, Any]], start=0
-    ) -> Optional[Tuple[int, int]]:
+        self, tab_tokens: list[dict[str, Any]], start=0
+    ) -> tuple[int, int] | None:
         i = 1
         while i < len(tab_tokens):
             if (
@@ -224,21 +224,21 @@ class TabsManager:
             return None
         return (start, start + i)
 
-    def index(self, start: Optional[int] = None) -> Optional[TabNode]:
+    def index(self, start: int | None = None) -> TabNode | None:
         if start is not None:
             try:
                 return self._index[start]
             except KeyError:
                 return None
 
-        tabsets: List[TabsetNode] = []
+        tabsets: list[TabsetNode] = []
         for tabset in self.tabsets:
             tabsets.append(tabset)
             for tab in tabset.children:
                 tabsets = tabsets + tab.flatten()
         for i, tabset in enumerate(tabsets):
             tabset.tabset_id = str(i + 1)
-        tabs: List[TabNode] = reduce(
+        tabs: list[TabNode] = reduce(
             lambda tablist, tabset: tablist + tabset.flatten(), self.tabsets, []
         )
         for i, tab in enumerate(tabs):

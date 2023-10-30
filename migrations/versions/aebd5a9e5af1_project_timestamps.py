@@ -6,20 +6,17 @@ Create Date: 2021-04-27 00:52:53.622787
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision = 'aebd5a9e5af1'
 down_revision = 'd0097ec29880'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 project = table(
@@ -54,7 +51,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'project',
         sa.Column('first_published_at', sa.TIMESTAMP(timezone=True), nullable=True),
@@ -98,13 +95,13 @@ def upgrade():
     for counter, row in enumerate(project_ids):
         start_at = conn.scalar(
             sa.select(sa.func.min(session.c.start_at))
-            .where(session.c.start_at.isnot(None))
+            .where(session.c.start_at.is_not(None))
             .where(session.c.project_id == row.id)
         )
         if start_at is not None:
             end_at = conn.scalar(
                 sa.select(sa.func.max(session.c.end_at))
-                .where(session.c.end_at.isnot(None))
+                .where(session.c.end_at.is_not(None))
                 .where(session.c.project_id == row.id)
             )
             conn.execute(
@@ -116,7 +113,7 @@ def upgrade():
     progress.finish()
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(op.f('ix_project_schedule_state'), table_name='project')
     op.drop_index(op.f('ix_project_cfp_state'), table_name='project')
     op.drop_index(op.f('ix_project_state'), table_name='project')

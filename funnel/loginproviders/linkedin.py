@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from secrets import token_urlsafe
 
+import requests
 from flask import current_app, redirect, request, session
-
 from furl import furl
 from sentry_sdk import capture_exception
-import requests
 
 from baseframe import _
 
@@ -18,8 +17,8 @@ __all__ = ['LinkedInProvider']
 
 
 class LinkedInProvider(LoginProvider):
-    auth_url = 'https://www.linkedin.com/uas/oauth2/authorization?response_type=code'
-    token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'  # nosec
+    auth_url = 'https://www.linkedin.com/oauth/v2/authorization?response_type=code'
+    token_url = 'https://www.linkedin.com/oauth/v2/accessToken'  # nosec
     user_info = (
         'https://api.linkedin.com/v2/me?'
         'projection=(id,localizedFirstName,localizedLastName)'

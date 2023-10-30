@@ -7,6 +7,14 @@ import pytest
 from funnel.views.account import user_agent_details
 
 
+def test_account_always_has_profile_url(user_twoflower, user_rincewind) -> None:
+    """An account without a username will still have an absolute URL for a profile."""
+    assert user_twoflower.username is None
+    assert user_twoflower.absolute_url is not None
+    assert user_rincewind.username is not None
+    assert user_rincewind.absolute_url is not None
+
+
 def test_username_available(db_session, client, user_rincewind, csrf_token) -> None:
     """Test the username availability endpoint."""
     endpoint = '/api/1/account/username_available'
@@ -59,7 +67,7 @@ def test_username_available(db_session, client, user_rincewind, csrf_token) -> N
 PWNED_PASSWORD = "thisisone1"  # nosec
 
 
-@pytest.mark.remote_data()
+@pytest.mark.enable_socket()
 def test_pwned_password(client, csrf_token, login, user_rincewind) -> None:
     """Pwned password validator will block attempt to use a compromised password."""
     login.as_(user_rincewind)
@@ -161,7 +169,10 @@ def test_pwned_password_mock_endpoint_down(
             'Mozilla/5.0 (iPhone; CPU iPhone OS 15_6_1 like Mac OS X)'
             ' AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0'
             ' EdgiOS/100.1185.50 Mobile/15E148 Safari/605.1.15',
-            {'browser': 'Mobile Safari 15.0', 'os_device': 'Apple iPhone (iOS 15.6.1)'},
+            {
+                'browser': 'Edge Mobile 100.1185.50',
+                'os_device': 'Apple iPhone (iOS 15.6.1)',
+            },
         ),
         (
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64; Xbox; Xbox One)'

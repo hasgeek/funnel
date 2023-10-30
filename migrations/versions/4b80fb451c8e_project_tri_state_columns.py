@@ -10,9 +10,9 @@ Create Date: 2019-02-07 01:55:47.123273
 revision = '4b80fb451c8e'
 down_revision = '9aa60ff2a0ea'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 
 class OLD_STATE:  # noqa: N801
@@ -69,11 +69,11 @@ upgrade_states = {
 }
 
 
-def upgrade():
+def upgrade() -> None:
     # Move `state` out of the way into `old_state`
     op.alter_column('project', 'state', new_column_name='old_state')
     op.execute(
-        sa.DDL(
+        sa.text(
             'ALTER TABLE project RENAME CONSTRAINT project_state_check TO project_old_state_check'
         )
     )
@@ -141,13 +141,13 @@ def upgrade():
     # For existing projects, assume the presence of a session to indicate a published schedule.
     # New projects will require explicit publication.
     op.execute(
-        sa.DDL(
+        sa.text(
             'UPDATE project SET schedule_state=1 WHERE id IN (SELECT DISTINCT(project_id) FROM session)'
         )
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('project', 'cfp_end_at')
     op.drop_column('project', 'cfp_start_at')
     op.drop_constraint('project_state_check', 'project', type_='check')
@@ -159,7 +159,7 @@ def downgrade():
 
     op.alter_column('project', 'old_state', new_column_name='state')
     op.execute(
-        sa.DDL(
+        sa.text(
             'ALTER TABLE project RENAME CONSTRAINT project_old_state_check TO project_state_check'
         )
     )

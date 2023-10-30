@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional, Union
-
 from flask import flash, request, url_for
 
 from baseframe import _, forms
@@ -22,6 +20,7 @@ from coaster.views import (
 from .. import app
 from ..forms import CommentForm, CommentsetSubscribeForm
 from ..models import (
+    Account,
     Comment,
     CommentModeratorReport,
     CommentReplyNotification,
@@ -31,7 +30,6 @@ from ..models import (
     NewCommentNotification,
     Project,
     Proposal,
-    User,
     db,
     sa,
 )
@@ -46,22 +44,22 @@ from .notification import dispatch_notification
 
 @project_role_change.connect
 def update_project_commentset_membership(
-    project: Project, actor: User, user: User
+    project: Project, actor: Account, user: Account
 ) -> None:
     if 'participant' in project.roles_for(user):
-        project.commentset.add_subscriber(actor=actor, user=user)
+        project.commentset.add_subscriber(actor=actor, member=user)
     else:
-        project.commentset.remove_subscriber(actor=actor, user=user)
+        project.commentset.remove_subscriber(actor=actor, member=user)
 
 
 @proposal_role_change.connect
 def update_proposal_commentset_membership(
-    proposal: Proposal, actor: User, user: User
+    proposal: Proposal, actor: Account, user: Account
 ) -> None:
     if 'submitter' in proposal.roles_for(user):
-        proposal.commentset.add_subscriber(actor=actor, user=user)
+        proposal.commentset.add_subscriber(actor=actor, member=user)
     else:
-        proposal.commentset.remove_subscriber(actor=actor, user=user)
+        proposal.commentset.remove_subscriber(actor=actor, member=user)
 
 
 @Comment.views('url')
@@ -94,7 +92,7 @@ def parent_comments_url(obj):
 
 
 @Commentset.views('last_comment', cached_property=True)
-def last_comment(obj: Commentset) -> Optional[Comment]:
+def last_comment(obj: Commentset) -> Comment | None:
     comment = obj.last_comment
     if comment:
         return comment.current_access(datasets=('primary', 'related'))
@@ -150,18 +148,18 @@ AllCommentsView.init_app(app)
 
 def do_post_comment(
     commentset: Commentset,
-    actor: User,
+    actor: Account,
     message: str,
-    in_reply_to: Optional[Comment] = None,
+    in_reply_to: Comment | None = None,
 ) -> Comment:
     """Support function for posting a comment and updating a subscription."""
     comment = commentset.post_comment(
         actor=actor, message=message, in_reply_to=in_reply_to
     )
     if commentset.current_roles.document_subscriber:
-        commentset.update_last_seen_at(user=actor)
+        commentset.update_last_seen_at(member=actor)
     else:
-        commentset.add_subscriber(actor=actor, user=actor)
+        commentset.add_subscriber(actor=actor, member=actor)
     db.session.commit()
     return comment
 
@@ -174,7 +172,7 @@ class CommentsetView(UrlForView, ModelView):
     route_model_map = {'commentset': 'uuid_b58'}
     obj: Commentset
 
-    def loader(self, commentset) -> Commentset:
+    def loader(self, commentset: str) -> Commentset:
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
 
     @route('', methods=['GET'])
@@ -228,14 +226,18 @@ class CommentsetView(UrlForView, ModelView):
         subscribe_form.form_nonce.data = subscribe_form.form_nonce.default()
         if subscribe_form.validate_on_submit():
             if subscribe_form.subscribe.data:
-                self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
+                self.obj.add_subscriber(
+                    actor=current_auth.user, member=current_auth.user
+                )
                 db.session.commit()
                 return {
                     'status': 'ok',
                     'message': _("You will be notified of new comments"),
                     'form_nonce': subscribe_form.form_nonce.data,
                 }
-            self.obj.remove_subscriber(actor=current_auth.user, user=current_auth.user)
+            self.obj.remove_subscriber(
+                actor=current_auth.user, member=current_auth.user
+            )
             db.session.commit()
             return {
                 'status': 'ok',
@@ -256,7 +258,7 @@ class CommentsetView(UrlForView, ModelView):
     def update_last_seen_at(self) -> ReturnRenderWith:
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
-            self.obj.update_last_seen_at(user=current_auth.user)
+            self.obj.update_last_seen_at(member=current_auth.user)
             db.session.commit()
             return {'status': 'ok'}
         return {
@@ -278,7 +280,7 @@ class CommentView(UrlForView, ModelView):
     route_model_map = {'commentset': 'commentset.uuid_b58', 'comment': 'uuid_b58'}
     obj: Comment
 
-    def loader(self, commentset, comment) -> Union[Comment, Commentset]:
+    def loader(self, commentset: str, comment: str) -> Comment | Commentset:
         comment = (
             Comment.query.join(Commentset)
             .filter(Commentset.uuid_b58 == commentset, Comment.uuid_b58 == comment)
@@ -292,7 +294,7 @@ class CommentView(UrlForView, ModelView):
             ).one_or_404()
         return comment
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         if isinstance(self.obj, Commentset):
             flash(
                 _("That comment could not be found. It may have been deleted"), 'error'
@@ -332,10 +334,7 @@ class CommentView(UrlForView, ModelView):
                 self.obj,
             )
             dispatch_notification(
-                CommentReplyNotification(
-                    document=comment.in_reply_to, fragment=comment
-                ),
-                NewCommentNotification(document=comment.commentset, fragment=comment),
+                CommentReplyNotification(document=comment.in_reply_to, fragment=comment)
             )
             return {
                 'status': 'ok',

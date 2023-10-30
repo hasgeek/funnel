@@ -1,8 +1,7 @@
 """Tests for base utilities."""
 
-from werkzeug.exceptions import BadRequest
-
 import pytest
+from werkzeug.exceptions import BadRequest
 
 from funnel import utils
 

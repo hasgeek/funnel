@@ -1,4 +1,5 @@
 """Test account forms."""
+# pylint: disable=redefined-outer-name
 
 from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
@@ -6,6 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 from baseframe.forms.validators import StopValidation
+
 from funnel import forms
 
 
@@ -72,7 +74,7 @@ def test_okay_password(form) -> None:
     assert form.suggestions == []
 
 
-@pytest.mark.remote_data()
+@pytest.mark.enable_socket()
 def test_pwned_password_validator() -> None:
     """Test the pwned password validator."""
     # Validation success = no return value, no exception

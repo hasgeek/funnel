@@ -6,27 +6,22 @@ Create Date: 2020-05-08 19:16:15.324555
 
 """
 
-from typing import Optional, Tuple, Union
 from uuid import uuid4
 
-from alembic import op
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision = '887db555cca9'
 down_revision = '222b78a8508d'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-commentset = table(
-    'commentset', column('id', sa.Integer()), column('uuid', postgresql.UUID())
-)
+commentset = table('commentset', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 
 def get_progressbar(label, maxval):
@@ -45,10 +40,10 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
-    op.add_column('commentset', sa.Column('uuid', postgresql.UUID(), nullable=True))
+    op.add_column('commentset', sa.Column('uuid', sa.Uuid(), nullable=True))
 
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(commentset))
     progress = get_progressbar("Commentsets", count)
@@ -65,6 +60,6 @@ def upgrade():
     op.create_unique_constraint('commentset_uuid_key', 'commentset', ['uuid'])
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('commentset_uuid_key', 'commentset', type_='unique')
     op.drop_column('commentset', 'uuid')

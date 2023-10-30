@@ -10,8 +10,8 @@ Create Date: 2018-11-13 13:40:54.744756
 revision = 'ccfad4d5e383'
 down_revision = '488077138ee4'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # (old, new)
 renamed_tables = [
@@ -183,19 +183,19 @@ renamed_constraints = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     for old, new in renamed_tables:
         op.rename_table(old, new)
 
     for old, new in renamed_sequences:
-        op.execute(sa.DDL(f'ALTER SEQUENCE {old} RENAME TO {new}'))
+        op.execute(sa.text(f'ALTER SEQUENCE {old} RENAME TO {new}'))
 
     for table, old, new in renamed_columns:
         op.alter_column(table, old, new_column_name=new)
 
     for table, old, new in renamed_constraints:
         op.execute(
-            sa.DDL(
+            sa.text(
                 'ALTER TABLE {table} RENAME CONSTRAINT {old} TO {new}'.format(
                     table=table, old=old, new=new
                 )
@@ -203,10 +203,10 @@ def upgrade():
         )
 
 
-def downgrade():
+def downgrade() -> None:
     for table, old, new in renamed_constraints:
         op.execute(
-            sa.DDL(
+            sa.text(
                 'ALTER TABLE {table} RENAME CONSTRAINT {new} TO {old}'.format(
                     table=table, old=old, new=new
                 )
@@ -217,7 +217,7 @@ def downgrade():
         op.alter_column(table, new, new_column_name=old)
 
     for old, new in renamed_sequences:
-        op.execute(sa.DDL(f'ALTER SEQUENCE {new} RENAME TO {old}'))
+        op.execute(sa.text(f'ALTER SEQUENCE {new} RENAME TO {old}'))
 
     for old, new in renamed_tables:
         op.rename_table(new, old)

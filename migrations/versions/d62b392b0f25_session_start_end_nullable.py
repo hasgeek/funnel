@@ -14,7 +14,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column(
         'session', 'end', existing_type=postgresql.TIMESTAMP(), nullable=True
     )
@@ -28,7 +28,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('session_start_end_check', 'session')
     op.alter_column(
         'session', 'start', existing_type=postgresql.TIMESTAMP(), nullable=False

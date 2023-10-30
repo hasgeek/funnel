@@ -2,18 +2,20 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple, Union, cast
+from typing import cast
 
-from flask import url_for
 import itsdangerous
-
-from twilio.base.exceptions import TwilioRestException
-from twilio.rest import Client
 import phonenumbers
 import requests
+from flask import url_for
+from pytz import timezone
+from twilio.base.exceptions import TwilioRestException
+from twilio.rest import Client
 
 from baseframe import _
+from coaster.utils import utcnow
 
 from ... import app
 from ...models import PhoneNumber, PhoneNumberBlockedError, sa
@@ -23,16 +25,18 @@ from ..exc import (
     TransportRecipientError,
     TransportTransactionError,
 )
-from .template import SmsTemplate
+from .template import SmsPriority, SmsTemplate
 
 __all__ = [
     'make_exotel_token',
     'validate_exotel_token',
     'send_via_exotel',
     'send_via_twilio',
-    'send',
+    'send_sms',
     'init',
 ]
+
+indian_timezone = timezone('Asia/Kolkata')
 
 
 @dataclass
@@ -42,11 +46,11 @@ class SmsSender:
     prefix: str
     requires_config: set
     func: Callable
-    init: Optional[Callable] = None
+    init: Callable | None = None
 
 
 def get_phone_number(
-    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber]
+    phone: str | phonenumbers.PhoneNumber | PhoneNumber,
 ) -> PhoneNumber:
     if isinstance(phone, PhoneNumber):
         if not phone.number:
@@ -98,8 +102,16 @@ def validate_exotel_token(token: str, to: str) -> bool:
     return True
 
 
+def okay_to_message_in_india_right_now() -> bool:
+    """Report if it's currently within messaging hours in India (9 AM to 7PM IST)."""
+    now = utcnow().astimezone(indian_timezone)
+    if now.hour >= 9 and now.hour < 19:
+        return True
+    return False
+
+
 def send_via_exotel(
-    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
+    phone: str | phonenumbers.PhoneNumber | PhoneNumber,
     message: SmsTemplate,
     callback: bool = True,
 ) -> str:
@@ -121,8 +133,19 @@ def send_via_exotel(
         'Body': str(message),
         'DltEntityId': message.registered_entityid,
     }
-    if message.registered_templateid:
-        payload['DltTemplateId'] = message.registered_templateid
+    if not message.registered_templateid:
+        app.logger.warning(
+            "Dropping SMS message with unknown template id: %s", str(message)
+        )
+        return ''
+    if (
+        message.message_priority in (SmsPriority.OPTIONAL, SmsPriority.NORMAL)
+        and not okay_to_message_in_india_right_now()
+    ):
+        # TODO: Implement deferred sending for `NORMAL` priority
+        app.logger.warning("Dropping SMS message in DND time: %s", str(message))
+        return ''
+    payload['DltTemplateId'] = message.registered_templateid
     if callback:
         payload['StatusCallback'] = url_for(
             'process_exotel_event',
@@ -156,7 +179,7 @@ def send_via_exotel(
 
 
 def send_via_twilio(
-    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
+    phone: str | phonenumbers.PhoneNumber | PhoneNumber,
     message: SmsTemplate,
     callback: bool = True,
 ) -> str:
@@ -227,7 +250,7 @@ def send_via_twilio(
             ) from exc
         app.logger.error("Unhandled Twilio error %d: %s", exc.code, exc.msg)
         raise TransportTransactionError(
-            _("Hasgeek was unable to send a message to this phone number")
+            _("Hasgeek cannot send an SMS message to this phone number at this time")
         ) from exc
 
 
@@ -247,7 +270,14 @@ sender_registry = [
 ]
 
 #: Available senders as per config
-senders_by_prefix: List[Tuple[str, Callable[[str, SmsTemplate, bool], str]]] = []
+senders_by_prefix: list[
+    tuple[
+        str,
+        Callable[
+            [str | phonenumbers.PhoneNumber | PhoneNumber, SmsTemplate, bool], str
+        ],
+    ]
+] = []
 
 
 def init() -> bool:
@@ -260,8 +290,8 @@ def init() -> bool:
     return bool(senders_by_prefix)
 
 
-def send(
-    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
+def send_sms(
+    phone: str | phonenumbers.PhoneNumber | PhoneNumber,
     message: SmsTemplate,
     callback: bool = True,
 ) -> str:

@@ -1,3 +1,5 @@
+"""Tests for account deletion."""
+
 from pytest_bdd import given, parsers, scenarios, then, when
 
 from funnel import models
@@ -8,27 +10,30 @@ scenarios('account/delete_confirm.feature')
 @given(parsers.parse('{user} has a protected account'), target_fixture='current_user')
 def given_protected_account(getuser, user: str) -> models.User:
     user_obj = getuser(user)
-    assert user_obj.profile.is_protected is True
+    assert user_obj.is_protected is True
     return user_obj
 
 
 @given('they are the sole owner of Unseen University')
-def given_sole_owner(current_user: models.User, org_uu: models.Organization) -> None:
+def given_sole_owner(current_user: models.Account, org_uu: models.Organization) -> None:
     assert list(org_uu.owner_users) == [current_user]
 
 
 @given('they are a co-owner of Unseen University', target_fixture='org_owner')
 def given_coowner(
-    db_session, current_user: models.User, org_uu: models.Organization
-) -> models.OrganizationMembership:
+    db_session, current_user: models.Account, org_uu: models.Organization
+) -> models.AccountMembership:
     for membership in org_uu.active_admin_memberships:
-        if membership.user == current_user:
+        if membership.member == current_user:
             if membership.is_owner:
                 return membership
             membership = membership.replace(actor=current_user, is_owner=True)
             return membership
-    membership = models.OrganizationMembership(
-        user=current_user, granted_by=current_user, organization=org_uu, is_owner=True
+    membership = models.AccountMembership(
+        member=current_user,
+        granted_by=current_user,
+        account=org_uu,
+        is_owner=True,
     )
     db_session.add(membership)
     assert len(org_uu.admin_users) > 1

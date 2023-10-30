@@ -5,14 +5,12 @@ from __future__ import annotations
 from collections import defaultdict
 from datetime import timedelta
 from types import SimpleNamespace
-from typing import Any, Dict, List, Optional, cast
-
-from sqlalchemy.orm.exc import NoResultFound
+from typing import Any, cast
 
 from flask import Response, current_app, json
-
 from icalendar import Alarm, Calendar, Event, vCalAddress, vText
 from pytz import utc
+from sqlalchemy.orm.exc import NoResultFound
 
 from baseframe import _, localize_timezone
 from coaster.utils import utcnow
@@ -37,7 +35,7 @@ from .mixins import ProjectViewMixin, VenueRoomViewMixin
 
 
 def session_data(
-    session: Session, with_modal_url: Optional[str] = None, with_delete_url=False
+    session: Session, with_modal_url: str | None = None, with_delete_url=False
 ):
     data = {
         'id': session.url_id,
@@ -78,7 +76,7 @@ def session_data(
 
 
 def session_list_data(
-    sessions: List[Session], with_modal_url=False, with_delete_url=False
+    sessions: list[Session], with_modal_url=False, with_delete_url=False
 ):
     return [
         session_data(session, with_modal_url, with_delete_url) for session in sessions
@@ -87,12 +85,12 @@ def session_list_data(
 
 def schedule_data(
     project: Project, with_slots=True, scheduled_sessions=None
-) -> List[dict]:
+) -> list[dict]:
     scheduled_sessions = scheduled_sessions or session_list_data(
         project.scheduled_sessions
     )
-    data: Dict[str, Dict[str, list]] = defaultdict(lambda: defaultdict(list))
-    start_end_datetime: Dict[str, dict] = defaultdict(dict)
+    data: dict[str, dict[str, list]] = defaultdict(lambda: defaultdict(list))
+    start_end_datetime: dict[str, dict] = defaultdict(dict)
     for session in scheduled_sessions:
         day = str(session['start_at'].date())
         # calculate the start and end time for the day
@@ -113,7 +111,7 @@ def schedule_data(
             data[day] = {}
     schedule = []
     for day in sorted(data):
-        daydata: Dict[str, Any] = {'date': day, 'slots': []}
+        daydata: dict[str, Any] = {'date': day, 'slots': []}
         daydata['start_at'] = start_end_datetime[day]['start_at'].isoformat()
         daydata['end_at'] = start_end_datetime[day]['end_at'].isoformat()
         for slot in sorted(data[day]):
@@ -123,7 +121,7 @@ def schedule_data(
 
 
 def schedule_ical(
-    project: Project, rsvp: Optional[Rsvp] = None, future_only: bool = False
+    project: Project, rsvp: Rsvp | None = None, future_only: bool = False
 ):
     cal = Calendar()
     cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
@@ -172,7 +170,7 @@ def project_as_session(project: Project) -> SimpleNamespace:
     )
 
 
-def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
+def session_ical(session: Session, rsvp: Rsvp | None = None) -> Event:
     # This function is only called with scheduled sessions.
     # If for some reason it is used somewhere else and called with an unscheduled
     # session, this function should fail.
@@ -181,13 +179,13 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
 
     event = Event()
     event.add('summary', session.title)
-    organizer = vCalAddress(f'MAILTO:no-reply@{current_app.config["DEFAULT_DOMAIN"]}')
-    organizer.params['cn'] = vText(session.project.profile.title)
+    organizer = vCalAddress(f'MAILTO:{current_app.config["MAIL_DEFAULT_SENDER_ADDR"]}')
+    organizer.params['cn'] = vText(session.project.account.title)
     event['organizer'] = organizer
     if rsvp:
-        attendee = vCalAddress('MAILTO:' + str(rsvp.user_email()))
+        attendee = vCalAddress('MAILTO:' + str(rsvp.participant_email()))
         attendee.params['RSVP'] = vText('TRUE') if rsvp.state.YES else vText('FALSE')
-        attendee.params['cn'] = vText(rsvp.user.fullname)
+        attendee.params['cn'] = vText(rsvp.participant.fullname)
         attendee.params['CUTYPE'] = vText('INDIVIDUAL')
         attendee.params['X-NUM-GUESTS'] = vText('0')
         event.add('attendee', attendee, encode=0)
@@ -231,7 +229,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
 
 
 @Project.views('schedule')
-@route('/<profile>/<project>/schedule')
+@route('/<account>/<project>/schedule')
 class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
     @render_with(html_in_json('project_schedule.html.jinja2'))
@@ -269,7 +267,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             mimetype='text/calendar',
             headers={
                 'Content-Disposition': f'attachment;filename='
-                f'"{self.obj.profile.name}-{self.obj.name}.ics"'
+                f'"{self.obj.account.urlname}-{self.obj.name}.ics"'
             },
         )
 
@@ -284,7 +282,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                     'title': proposal.title,
                     'modal_url': proposal.url_for('schedule'),
                     'speaker': proposal.first_user,
-                    'user': proposal.user,
+                    'user': proposal.first_user,
                     'labels': list(proposal.labels),
                 }
                 for proposal in self.obj.proposals_all.filter(
@@ -333,7 +331,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             except NoResultFound:
                 current_app.logger.error(
                     '%s/%s schedule update error: no existing session matching %s',
-                    self.obj.profile.name,
+                    self.obj.account.urlname,
                     self.obj.name,
                     repr(session),
                 )
@@ -346,7 +344,7 @@ ProjectScheduleView.init_app(app)
 
 
 @VenueRoom.views('schedule')
-@route('/<profile>/<project>/schedule/<venue>/<room>')
+@route('/<account>/<project>/schedule/<venue>/<room>')
 class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @route('ical')
     @requires_roles({'reader'})
@@ -381,7 +379,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             mimetype='text/calendar',
             headers={
                 'Content-Disposition': 'attachment;filename="'
-                + self.obj.venue.project.profile.name
+                + self.obj.venue.project.account.urlname
                 + '-'
                 + self.obj.venue.project.name
                 + '-'

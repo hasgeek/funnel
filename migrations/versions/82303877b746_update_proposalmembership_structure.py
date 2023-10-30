@@ -6,19 +6,17 @@ Create Date: 2021-04-29 02:47:39.590061
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '82303877b746'
 down_revision = 'ca578c1b82e8'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     # This migration assumes there is no existing data in the table
     op.add_column(
         'proposal_membership', sa.Column('is_uncredited', sa.Boolean(), nullable=False)
@@ -38,7 +36,7 @@ def upgrade():
     op.drop_column('proposal_membership', 'is_presenter')
 
 
-def downgrade():
+def downgrade() -> None:
     # This migration assumes there is no existing data in the table
     op.add_column(
         'proposal_membership',

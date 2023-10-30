@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
+import requests
 from flask import current_app, redirect, request
-
 from furl import furl
 from sentry_sdk import capture_exception
-import requests
 
 from baseframe import _
 

@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, List, Optional
 
 from flask import url_for
 from markupsafe import Markup
 
 from baseframe import __, forms
 
-from ..models import User, notification_type_registry
+from ..models import Account, notification_type_registry
 from ..transports import platform_transports
 
 __all__ = [
@@ -26,7 +26,7 @@ class TransportLabels:
 
     title: str
     requirement: str
-    requirement_action: Callable[[], Optional[str]]
+    requirement_action: Callable[[], str | None]
     unsubscribe_form: str
     unsubscribe_description: str
     switch: str
@@ -116,12 +116,12 @@ transport_labels = {
 }
 
 
-@User.forms('unsubscribe')
+@Account.forms('unsubscribe')
 class UnsubscribeForm(forms.Form):
     """Form to unsubscribe from notifications."""
 
     __expects__ = ('transport', 'notification_type')
-    edit_obj: User
+    edit_obj: Account
     transport: str
     notification_type: str
 
@@ -181,7 +181,7 @@ class UnsubscribeForm(forms.Form):
         """Get main preferences switch (global enable/disable)."""
         return obj.main_notification_preferences.by_transport(self.transport)
 
-    def get_types(self, obj) -> List[str]:
+    def get_types(self, obj) -> list[str]:
         """Get status for each notification type for the selected transport."""
         # Populate data with all notification types for which the user has the
         # current transport enabled
@@ -207,7 +207,7 @@ class UnsubscribeForm(forms.Form):
             )
 
 
-@User.forms('set_notification_preference')
+@Account.forms('set_notification_preference')
 class SetNotificationPreferenceForm(forms.Form):
     """Set one notification preference."""
 

@@ -2,24 +2,35 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
-from baseframe import __, forms
+from baseframe import _, __, forms
 
 from ..models import (
     PASSWORD_MAX_LENGTH,
+    Account,
+    AccountEmail,
+    AccountEmailClaim,
+    AccountPhone,
     EmailAddress,
     EmailAddressBlockedError,
+    LoginSession,
     PhoneNumber,
     PhoneNumberBlockedError,
     User,
-    UserEmail,
-    UserEmailClaim,
-    UserPhone,
-    UserSession,
     check_password_strength,
     getuser,
     parse_phone_number,
+)
+from .helpers import (
+    MSG_EMAIL_BLOCKED,
+    MSG_EMAIL_INVALID,
+    MSG_INCORRECT_OTP,
+    MSG_INCORRECT_PASSWORD,
+    MSG_NO_ACCOUNT,
+    MSG_NO_LOGIN_SESSION,
+    MSG_PHONE_BLOCKED,
+    MSG_PHONE_NO_SMS,
 )
 
 __all__ = [
@@ -30,20 +41,10 @@ __all__ = [
     'LogoutForm',
     'RegisterWithOtp',
     'OtpForm',
+    'EmailOtpForm',
     'RegisterOtpForm',
 ]
 
-# --- Error messages -------------------------------------------------------------------
-
-MSG_EMAIL_BLOCKED = __("This email address has been blocked from use")
-MSG_INCORRECT_PASSWORD = __("Incorrect password")
-MSG_NO_ACCOUNT = __(
-    "This account could not be identified. Try with a phone number or email address"
-)
-MSG_INCORRECT_OTP = __("OTP is incorrect")
-MSG_NO_LOGIN_SESSION = __("That does not appear to be a valid login session")
-MSG_PHONE_NO_SMS = __("This phone number cannot receive SMS messages")
-MSG_PHONE_BLOCKED = __("This phone number has been blocked from use")
 
 # --- Exceptions -----------------------------------------------------------------------
 
@@ -61,7 +62,7 @@ class LoginWithOtp(Exception):  # noqa: N818
 
 
 class RegisterWithOtp(Exception):  # noqa: N818
-    """Exception to signal for new user account registration after OTP validation."""
+    """Exception to signal for new account registration after OTP validation."""
 
 
 # --- Validators -----------------------------------------------------------------------
@@ -94,7 +95,7 @@ class PasswordlessLoginIntercept:
 # --- Forms ----------------------------------------------------------------------------
 
 
-@User.forms('login')
+@Account.forms('login')
 class LoginForm(forms.RecaptchaForm):
     """
     Form for login and registration.
@@ -121,11 +122,11 @@ class LoginForm(forms.RecaptchaForm):
     """
 
     __returns__ = ('user', 'anchor', 'weak_password', 'new_email', 'new_phone')
-    user: Optional[User] = None
-    anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone]] = None
-    weak_password: Optional[bool] = None
-    new_email: Optional[str] = None
-    new_phone: Optional[str] = None
+    user: Account | None = None
+    anchor: AccountEmail | AccountEmailClaim | AccountPhone | None = None
+    weak_password: bool | None = None
+    new_email: str | None = None
+    new_phone: str | None = None
 
     username = forms.StringField(
         __("Phone number or email address"),
@@ -155,7 +156,7 @@ class LoginForm(forms.RecaptchaForm):
     )
 
     # These two validators depend on being called in sequence
-    def validate_username(self, field) -> None:
+    def validate_username(self, field: forms.Field) -> None:
         """Process username field and load user and anchor."""
         self.user, self.anchor = getuser(field.data, True)  # skipcq: PYL-W0201
         self.new_email = self.new_phone = None
@@ -172,6 +173,8 @@ class LoginForm(forms.RecaptchaForm):
                     self.new_email = str(email_address)
                 except EmailAddressBlockedError as exc:
                     raise forms.validators.ValidationError(MSG_EMAIL_BLOCKED) from exc
+                except ValueError as exc:
+                    raise forms.validators.StopValidation(MSG_EMAIL_INVALID) from exc
                 return
             phone = parse_phone_number(field.data, sms=True)
             if phone is False:
@@ -188,7 +191,7 @@ class LoginForm(forms.RecaptchaForm):
             # Not a known user and not a valid email address or phone number -> error
             raise forms.validators.ValidationError(MSG_NO_ACCOUNT)
 
-    def validate_password(self, field) -> None:
+    def validate_password(self, field: forms.Field) -> None:
         """Validate password if provided."""
         # If there is already an error in the password field, don't bother validating.
         # This will be a `Length` validation error, but that one unfortunately does not
@@ -244,14 +247,14 @@ class LoginForm(forms.RecaptchaForm):
         self.weak_password: bool = check_password_strength(field.data).is_weak
 
 
-@User.forms('logout')
+@Account.forms('logout')
 class LogoutForm(forms.Form):
     """Process a logout request."""
 
     __expects__ = ('user',)
-    __returns__ = ('user_session',)
-    user: User
-    user_session: Optional[UserSession] = None
+    __returns__ = ('login_session',)
+    user: Account
+    login_session: LoginSession | None = None
 
     # We use `StringField`` even though the field is not visible. This does not use
     # `HiddenField`, because that gets rendered with `hidden_tag`, and not `SubmitField`
@@ -260,12 +263,12 @@ class LogoutForm(forms.Form):
         __("Session id"), validators=[forms.validators.Optional()]
     )
 
-    def validate_sessionid(self, field) -> None:
+    def validate_sessionid(self, field: forms.Field) -> None:
         """Validate login session belongs to the user who invoked this form."""
-        user_session = UserSession.get(buid=field.data)
-        if not user_session or user_session.user != self.user:
+        login_session = LoginSession.get(buid=field.data)
+        if not login_session or login_session.account != self.user:
             raise forms.validators.ValidationError(MSG_NO_LOGIN_SESSION)
-        self.user_session = user_session
+        self.login_session = login_session
 
 
 class OtpForm(forms.Form):
@@ -287,10 +290,18 @@ class OtpForm(forms.Form):
         },
     )
 
-    def validate_otp(self, field) -> None:
+    def validate_otp(self, field: forms.Field) -> None:
         """Confirm OTP is as expected."""
         if field.data != self.valid_otp:
             raise forms.validators.StopValidation(MSG_INCORRECT_OTP)
+
+
+class EmailOtpForm(OtpForm):
+    """Verify an OTP sent to email."""
+
+    def set_queries(self) -> None:
+        super().set_queries()
+        self.otp.description = _("One-time password sent to your email address")
 
 
 class RegisterOtpForm(forms.Form):
@@ -323,7 +334,7 @@ class RegisterOtpForm(forms.Form):
         },
     )
 
-    def validate_otp(self, field) -> None:
+    def validate_otp(self, field: forms.Field) -> None:
         """Confirm OTP is as expected."""
         if field.data != self.valid_otp:
             raise forms.validators.StopValidation(MSG_INCORRECT_OTP)

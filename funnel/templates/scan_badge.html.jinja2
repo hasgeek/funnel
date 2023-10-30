@@ -4,7 +4,7 @@
 {% block title %}{{ ticket_event.title }}{% endblock title %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/scan_badge.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/scan_badge.css') }}" />
 {% endblock pageheaders %}
 
 {% block bodyattrs %}class="bg-primary no-header"{% endblock bodyattrs %}
@@ -17,11 +17,11 @@
 {% endblock basecontent %}
 
 {% block footerscripts %}
-  <script src="{{ built_asset('scan_badge.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('scan_badge.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var ticketEventConfig = {
-        checkinApiUrl: {{ url_for('TicketEventParticipantCheckinView_checkin_puk', profile=project.profile.name, project=project.name, event=ticket_event.name, puk='puk')|tojson }},
+        checkinApiUrl: {{ url_for('TicketEventParticipantCheckinView_checkin_puk', account=project.account.urlname, project=project.name, event=ticket_event.name, puk='puk')|tojson }},
         wrapperId: 'scan-badge-wrapper',
         templateId: 'scan-badge-template',
         projectTitle: {{ project.title|tojson }},

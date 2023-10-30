@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from base64 import b64encode
 
+import requests
 from flask import current_app, redirect, request, session
-
 from furl import furl
 from sentry_sdk import capture_exception
-import requests
 
 from baseframe import _
 

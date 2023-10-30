@@ -10,11 +10,11 @@ Create Date: 2015-09-30 14:12:47.074389
 revision = '2d73dbe935dc'
 down_revision = '380089617763'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column(
         'ticket_client', 'client_event_id', new_column_name='client_eventid'
     )
@@ -61,7 +61,7 @@ def upgrade():
     op.alter_column('participant', 'email', type_=sa.Unicode(length=254))
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         'ticket_client', 'client_eventid', new_column_name='client_event_id'
     )

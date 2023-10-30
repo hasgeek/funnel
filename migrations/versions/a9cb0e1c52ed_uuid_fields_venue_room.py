@@ -12,20 +12,17 @@ down_revision = 'e417a13e136d'
 
 from uuid import uuid4
 
-from alembic import op
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql import column, table
 import sqlalchemy as sa
+from alembic import op
+from sqlalchemy.sql import column, table
 
-venue_room = table(
-    'venue_room', column('id', sa.Integer()), column('uuid', postgresql.UUID())
-)
+venue_room = table('venue_room', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
-    op.add_column('venue_room', sa.Column('uuid', postgresql.UUID(), nullable=True))
+    op.add_column('venue_room', sa.Column('uuid', sa.Uuid(), nullable=True))
     items = conn.execute(sa.select(venue_room.c.id))
     for item in items:
         conn.execute(
@@ -35,6 +32,6 @@ def upgrade():
     op.create_unique_constraint('venue_room_uuid_key', 'venue_room', ['uuid'])
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('venue_room_uuid_key', 'venue_room', type_='unique')
     op.drop_column('venue_room', 'uuid')

@@ -13,9 +13,9 @@ scenarios('notifications/organization_membership_notification.feature')
     target_fixture='vimes_admin',
 )
 def given_vimes_admin(db_session, user_vimes, org_ankhmorpork, user_vetinari):
-    vimes_admin = models.OrganizationMembership(
-        user=user_vimes,
-        organization=org_ankhmorpork,
+    vimes_admin = models.AccountMembership(
+        member=user_vimes,
+        account=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=False,
     )
@@ -40,9 +40,9 @@ def when_vetinari_adds_ridcully(
     role,
 ):
     is_owner = role == 'owner'
-    ridcully_admin = models.OrganizationMembership(
-        user=user_ridcully,
-        organization=org_ankhmorpork,
+    ridcully_admin = models.AccountMembership(
+        member=user_ridcully,
+        account=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=is_owner,
     )
@@ -76,18 +76,18 @@ def then_user_gets_notification(
 ) -> None:
     preview = models.PreviewNotification(
         models.OrganizationAdminMembershipNotification,
-        document=ridcully_admin.organization,
+        document=ridcully_admin.account,
         fragment=ridcully_admin,
         user=ridcully_admin.granted_by,
     )
-    user_notification = models.NotificationFor(preview, getuser(recipient))
-    view = user_notification.views.render
+    notification_recipient = models.NotificationFor(preview, getuser(recipient))
+    view = notification_recipient.views.render
     assert view.actor.uuid == getuser(actor).uuid
     assert (
         view.activity_template().format(
             actor=ridcully_admin.granted_by.fullname,
-            organization=ridcully_admin.organization.title,
-            user=ridcully_admin.user.fullname,
+            organization=ridcully_admin.account.title,
+            user=ridcully_admin.member.fullname,
         )
         == notification_string
     )
@@ -105,9 +105,9 @@ def when_vetinari_invites_ridcully(
     db_session, user_vetinari, user_ridcully, org_ankhmorpork, role
 ):
     is_owner = role == 'owner'
-    ridcully_admin = models.OrganizationMembership(
-        user=user_ridcully,
-        organization=org_ankhmorpork,
+    ridcully_admin = models.AccountMembership(
+        member=user_ridcully,
+        account=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=is_owner,
         record_type=MEMBERSHIP_RECORD_TYPE.INVITE,
@@ -125,9 +125,9 @@ def when_ridcully_accepts_invite(
     db_session,
     ridcully_admin,
     user_ridcully,
-) -> models.ProjectCrewMembership:
+) -> models.ProjectMembership:
     assert ridcully_admin.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
-    assert ridcully_admin.user == user_ridcully
+    assert ridcully_admin.member == user_ridcully
     ridcully_admin_accept = ridcully_admin.accept(actor=user_ridcully)
     db_session.commit()
     return ridcully_admin_accept
@@ -141,9 +141,9 @@ def given_riduclly_admin(
     db_session, user_ridcully, org_ankhmorpork, user_vetinari, role
 ):
     is_owner = role == 'owner'
-    ridcully_admin = models.OrganizationMembership(
-        user=user_ridcully,
-        organization=org_ankhmorpork,
+    ridcully_admin = models.AccountMembership(
+        member=user_ridcully,
+        account=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=is_owner,
     )
@@ -158,7 +158,7 @@ def given_riduclly_admin(
 )
 def when_vetinari_amends_ridcully_role(
     db_session, user_vetinari, ridcully_admin, new_role, org_ankhmorpork, user_ridcully
-) -> models.ProjectCrewMembership:
+) -> models.ProjectMembership:
     is_owner = new_role == 'owner'
     ridcully_admin_amend = ridcully_admin.replace(
         actor=user_vetinari, is_owner=is_owner
@@ -175,7 +175,7 @@ def when_vetinari_removes_ridcully(
     db_session,
     user_vetinari,
     ridcully_admin,
-) -> models.ProjectCrewMembership:
+) -> models.ProjectMembership:
     ridcully_admin.revoke(actor=user_vetinari)
     db_session.commit()
     return ridcully_admin
@@ -186,7 +186,7 @@ def when_vetinari_removes_ridcully(
         "{recipient} gets notified with photo of {actor} and message {notification_string} about the removal"
     )
 )
-def then_user_notification_removal(
+def then_notification_recipient_removal(
     getuser,
     recipient,
     notification_string,
@@ -195,18 +195,18 @@ def then_user_notification_removal(
 ) -> None:
     preview = models.PreviewNotification(
         models.OrganizationAdminMembershipRevokedNotification,
-        document=ridcully_admin.organization,
+        document=ridcully_admin.account,
         fragment=ridcully_admin,
         user=ridcully_admin.revoked_by,
     )
-    user_notification = models.NotificationFor(preview, getuser(recipient))
-    view = user_notification.views.render
+    notification_recipient = models.NotificationFor(preview, getuser(recipient))
+    view = notification_recipient.views.render
     assert view.actor.uuid == getuser(actor).uuid
     assert (
         view.activity_template().format(
             actor=ridcully_admin.granted_by.fullname,
-            organization=ridcully_admin.organization.title,
-            user=ridcully_admin.user.fullname,
+            organization=ridcully_admin.account.title,
+            user=ridcully_admin.member.fullname,
         )
         == notification_string
     )

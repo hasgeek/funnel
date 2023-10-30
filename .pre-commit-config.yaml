@@ -2,13 +2,19 @@
 # See https://pre-commit.com/hooks.html for more hooks
 default_stages: [commit]
 # Enable this to enforce a common Python version:
-# default_language_version:
-#   python: python3.9
+default_language_version:
+  python: python3.11
 ci:
-  skip: ['pip-audit', 'yesqa', 'no-commit-to-branch']
+  skip: [
+      'pip-audit',
+      'yesqa',
+      'no-commit-to-branch',
+      # 'hadolint-docker',
+      'docker-compose-check',
+    ]
 repos:
   - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
-    rev: v1.5.1
+    rev: v1.6.1
     hooks:
       - id: check-pre-commit-ci-config
   - repo: https://github.com/peterdemin/pip-compile-multi
@@ -17,10 +23,11 @@ repos:
       - id: pip-compile-multi-verify
         files: ^requirements/.*\.(in|txt)$
   - repo: https://github.com/pypa/pip-audit
-    rev: v2.5.5
+    rev: v2.6.1
     hooks:
       - id: pip-audit
         args: [
+            '--disable-pip',
             '--no-deps',
             '--skip-editable',
             '-r',
@@ -33,10 +40,21 @@ repos:
             'PYSEC-2021-13', # https://github.com/pallets-eco/flask-caching/pull/209
             '--ignore-vuln',
             'PYSEC-2022-42969', # https://github.com/pytest-dev/pytest/issues/10392
+            '--ignore-vuln',
+            'PYSEC-2023-73', # https://github.com/RedisLabs/redisraft/issues/608
+            '--ignore-vuln',
+            'PYSEC-2023-101', # https://github.com/pytest-dev/pytest-selenium/issues/310
+            '--ignore-vuln',
+            'PYSEC-2023-206', # pytest-selenium again
           ]
         files: ^requirements/.*\.txt$
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.265
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+      - id: pyupgrade
+        args: ['--keep-runtime-typing', '--py310-plus']
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.1
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
@@ -53,18 +71,13 @@ repos:
             '--remove-unused-variables',
             '--remove-duplicate-keys',
           ]
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.4.0
-    hooks:
-      - id: pyupgrade
-        args:
-          ['--keep-runtime-typing', '--py3-plus', '--py36-plus', '--py37-plus']
   - repo: https://github.com/asottile/yesqa
-    rev: v1.4.0
+    rev: v1.5.0
     hooks:
       - id: yesqa
         additional_dependencies: &flake8deps
           - bandit
+          # - flake8-annotations
           - flake8-assertive
           - flake8-blind-except
           - flake8-bugbear
@@ -87,38 +100,43 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.10.0
     hooks:
       - id: black
   # Mypy is temporarily disabled until the SQLAlchemy 2.0 migration is complete
   # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v0.991
+  #   rev: v1.3.0
   #   hooks:
   #     - id: mypy
   #       # warn-unused-ignores is unsafe with pre-commit, see
   #       # https://github.com/python/mypy/issues/2960
   #       args: ['--no-warn-unused-ignores', '--ignore-missing-imports']
   #       additional_dependencies:
+  #         - flask
   #         - lxml-stubs
   #         - sqlalchemy
   #         - toml
   #         - tomli
-  #         - types-all
+  #         - types-chevron
+  #         - types-geoip2
+  #         - types-python-dateutil
+  #         - types-pytz
+  #         - types-requests
   #         - typing-extensions
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
+    rev: 6.1.0
     hooks:
       - id: flake8
         additional_dependencies: *flake8deps
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.0.0a6
+    rev: v3.0.1
     hooks:
       - id: pylint
         args: [
             '--disable=import-error',
             '-rn', # Disable full report
             '-sn', # Disable evaluation score
-            '--ignore-paths=tests,migrations',
+            '--ignore-paths=migrations',
           ]
         additional_dependencies:
           - tomli
@@ -131,7 +149,7 @@ repos:
         additional_dependencies:
           - 'bandit[toml]'
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -164,8 +182,15 @@ repos:
         files: requirements/.*\.in
       - id: trailing-whitespace
         args: ['--markdown-linebreak-ext=md']
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.5.4
+    hooks:
+      - id: forbid-crlf
+      - id: remove-crlf
+      - id: forbid-tabs
+      - id: remove-tabs
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.9-for-vscode
+    rev: v3.0.3
     hooks:
       - id: prettier
         args:
@@ -176,3 +201,16 @@ repos:
     hooks:
       - id: reformat-gherkin
         files: \.feature$
+  # - repo: https://github.com/Lucas-C/pre-commit-hooks-nodejs
+  #   rev: v1.1.2
+  #   hooks:
+  #     - id: dockerfile_lint
+  #       files: .*Dockerfile.*
+  # - repo: https://github.com/hadolint/hadolint
+  #   rev: v2.12.1-beta
+  #   hooks:
+  #     - id: hadolint-docker
+  - repo: https://github.com/IamTheFij/docker-pre-commit
+    rev: v3.0.1
+    hooks:
+      - id: docker-compose-check

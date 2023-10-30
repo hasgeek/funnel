@@ -1,11 +1,12 @@
 """Test main login form for password and OTP flows."""
+# pylint: disable=redefined-outer-name
 
 import pytest
 
 from funnel import forms, models
 
 pytestmark = pytest.mark.filterwarnings(
-    "ignore:Object of type <UserEmail> not in session"
+    "ignore:Object of type <AccountEmail> not in session"
 )
 
 

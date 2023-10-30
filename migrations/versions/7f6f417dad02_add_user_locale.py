@@ -6,20 +6,18 @@ Create Date: 2020-08-17 07:22:09.637346
 
 """
 
-from typing import Optional, Tuple, Union
-
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy_utils import LocaleType
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '7f6f417dad02'
 down_revision = '80b09cfb38c6'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'user',
         sa.Column(
@@ -43,7 +41,7 @@ def upgrade():
     op.alter_column('user', 'auto_locale', server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('user', 'auto_locale')
     op.drop_column('user', 'locale')
     op.drop_column('user', 'auto_timezone')

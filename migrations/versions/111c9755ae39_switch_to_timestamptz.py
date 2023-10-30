@@ -10,8 +10,8 @@ Create Date: 2019-05-09 19:01:53.976390
 revision = '111c9755ae39'
 down_revision = 'e679554261b2'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 migrate_table_columns = [
     ('attendee', 'created_at'),
@@ -83,9 +83,9 @@ migrate_table_columns = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     for table, column in migrate_table_columns:
-        op.execute(
+        op.get_bind().execute(
             sa.DDL(
                 'ALTER TABLE "%(table)s" ALTER COLUMN "%(column)s" TYPE TIMESTAMP WITH TIME ZONE USING "%(column)s" AT TIME ZONE \'UTC\'',
                 context={'table': table, 'column': column},
@@ -93,9 +93,9 @@ def upgrade():
         )
 
 
-def downgrade():
+def downgrade() -> None:
     for table, column in reversed(migrate_table_columns):
-        op.execute(
+        op.get_bind().execute(
             sa.DDL(
                 'ALTER TABLE "%(table)s" ALTER COLUMN "%(column)s" TYPE TIMESTAMP WITHOUT TIME ZONE',
                 context={'table': table, 'column': column},

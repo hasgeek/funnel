@@ -10,13 +10,13 @@ Create Date: 2015-01-15 21:41:58.144843
 revision = '39af75387b10'
 down_revision = '50f58275fc1c'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 from coaster.sqlalchemy import JsonDict
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'proposal', sa.Column('data', JsonDict(), server_default='{}', nullable=False)
     )
@@ -24,7 +24,7 @@ def upgrade():
     op.add_column('proposal', sa.Column('longitude', sa.Numeric(), nullable=True))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('proposal', 'longitude')
     op.drop_column('proposal', 'latitude')
     op.drop_column('proposal', 'data')

@@ -1,11 +1,11 @@
+"""Tests for Mustache templates on Markdown documents."""
+# pylint: disable=not-callable
 # mypy: disable-error-code=index
-"""Tests for the mustache template escaper."""
 
-from typing import Dict, Tuple
 
 import pytest
 
-from funnel.utils.markdown.base import MarkdownConfig
+from funnel.utils.markdown import MarkdownConfig
 from funnel.utils.mustache import mustache_md
 
 test_data = {
@@ -27,8 +27,9 @@ test_data = {
 }
 
 #: Dict of {test_name: (template, output)}
-templates_and_output: Dict[str, Tuple[str, str]] = {}
-config_template_output: Dict[str, Tuple[str, str, str]] = {}
+templates_and_output: dict[str, tuple[str, str]] = {}
+#: Dict of {test_name: (template, config_name, output)}
+config_template_output: dict[str, tuple[str, str, str]] = {}
 
 templates_and_output['basic'] = (
     """
@@ -86,9 +87,8 @@ templates_and_output['escaped-sequence'] = (
     templates_and_output.values(),
     ids=templates_and_output.keys(),
 )
-def test_mustache_md(template, expected_output):
-    output = mustache_md(template, test_data)
-    assert expected_output == output
+def test_mustache_md(template: str, expected_output: str) -> None:
+    assert mustache_md(template, test_data) == expected_output
 
 
 config_template_output['basic-basic'] = (
@@ -119,17 +119,17 @@ config_template_output['basic-document'] = (
     """<p>Name: Unseen<br />
 <strong>Bold Name</strong>: **Unseen** University<br />
 Organization: `Unseen` University, ~~Unknown~~Ankh-Morpork</p>
-<h2 id="h:organization-details">Organization Details <a class="header-anchor" href="#h:organization-details">#</a></h2>
+<h2 id="h:organization-details"><a href="#h:organization-details">Organization Details</a></h2>
 <p>Name: `Unseen` University<br />
 City: ~~Unknown~~Ankh-Morpork</p>
-<h3 id="h:people">People <a class="header-anchor" href="#h:people">#</a></h3>
+<h3 id="h:people"><a href="#h:people">People</a></h3>
 <ul>
 <li>Alberto Malich</li>
 <li>Mustrum Ridcully (Archchancellor)</li>
 <li>The Librarian</li>
 <li>Ponder Stibbons</li>
 </ul>
-<h3 id="h:vendors">Vendors <a class="header-anchor" href="#h:vendors">#</a></h3>
+<h3 id="h:vendors"><a href="#h:vendors">Vendors</a></h3>
 <blockquote>
 <p>No vendors</p>
 </blockquote>
@@ -174,7 +174,8 @@ config_template_output['escaped-sequence-document'] = (
     config_template_output.values(),
     ids=config_template_output.keys(),
 )
-def test_mustache_md_markdown(template, config, expected_output):
-    assert expected_output == MarkdownConfig.registry[config].render(
-        mustache_md(template, test_data)
+def test_mustache_md_markdown(template: str, config: str, expected_output: str) -> None:
+    assert (
+        MarkdownConfig.registry[config].render(mustache_md(template, test_data))
+        == expected_output
     )

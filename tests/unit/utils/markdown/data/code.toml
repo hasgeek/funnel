@@ -111,20 +111,20 @@ Isn't that **fantastic**!
 [hasgeek](https://hasgeek.com)
 </code></pre>
 """
-document = """<h2 id="h:code">Code <a class="header-anchor" href="#h:code">#</a></h2>
-<h3 id="h:inline-code">Inline <code>code</code> <a class="header-anchor" href="#h:inline-code">#</a></h3>
-<h3 id="h:indented-code">Indented code <a class="header-anchor" href="#h:indented-code">#</a></h3>
+document = """<h2 id="h:code"><a href="#h:code">Code</a></h2>
+<h3 id="h:inline-code"><a href="#h:inline-code">Inline <code>code</code></a></h3>
+<h3 id="h:indented-code"><a href="#h:indented-code">Indented code</a></h3>
 <pre><code class="language-none">// Some comments
 line 1 of code
 line 2 of code
 line 3 of code
 </code></pre>
-<h3 id="h:block-code-fences">Block code “fences” <a class="header-anchor" href="#h:block-code-fences">#</a></h3>
+<h3 id="h:block-code-fences"><a href="#h:block-code-fences">Block code “fences”</a></h3>
 <pre><code class="language-none">Sample text here...
 It is a sample text that has multiple lines
 </code></pre>
-<h3 id="h:syntax-highlighting">Syntax highlighting <a class="header-anchor" href="#h:syntax-highlighting">#</a></h3>
-<h4 id="h:javascript">Javascript <a class="header-anchor" href="#h:javascript">#</a></h4>
+<h3 id="h:syntax-highlighting"><a href="#h:syntax-highlighting">Syntax highlighting</a></h3>
+<h4 id="h:javascript"><a href="#h:javascript">Javascript</a></h4>
 <pre><code class="language-js">var foo = function (bar) {
   return bar++;
 };
@@ -135,7 +135,7 @@ console.log('`This should be printed`');
 <blockquote>
 <p>Javascript can be highlighted by using either of the two keywords <code>js</code> and <code>javascript</code></p>
 </blockquote>
-<h4 id="h:python">Python <a class="header-anchor" href="#h:python">#</a></h4>
+<h4 id="h:python"><a href="#h:python">Python</a></h4>
 <pre><code class="language-python">import os
 from funnel.utils.markdown import DATAROOT, markdown
 
@@ -148,7 +148,7 @@ if os.file.path.exists(
 ):
     markdown('# I can output ``` also with a \\!')
 </code></pre>
-<h4 id="h:markdown">Markdown <a class="header-anchor" href="#h:markdown">#</a></h4>
+<h4 id="h:markdown"><a href="#h:markdown">Markdown</a></h4>
 <pre><code class="language-markdown">*I can also type markdown code blocks.*
 Isn't that **fantastic**!
 

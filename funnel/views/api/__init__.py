@@ -11,4 +11,5 @@ from . import (
     resource,
     shortlink,
     sms_events,
+    support,
 )

@@ -2,35 +2,36 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from collections.abc import Sequence
 
 from sqlalchemy.orm import Query as BaseQuery
 
 from baseframe import __
-from coaster.sqlalchemy import (
-    LazyRoleSet,
-    Query,
-    StateManager,
-    auto_init_default,
-    with_roles,
-)
+from coaster.sqlalchemy import LazyRoleSet, StateManager, auto_init_default, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
     BaseScopedIdNameMixin,
-    Commentset,
     Mapped,
-    MarkdownCompositeDocument,
-    Project,
+    Model,
+    Query,
     TimestampMixin,
     TSVectorType,
-    User,
     UuidMixin,
+    backref,
     db,
+    relationship,
     sa,
 )
-from .comment import SET_TYPE
-from .helpers import add_search_trigger, reopen, visual_field_delimiter
+from .account import Account
+from .comment import SET_TYPE, Commentset
+from .helpers import (
+    MarkdownCompositeDocument,
+    add_search_trigger,
+    reopen,
+    visual_field_delimiter,
+)
+from .project import Project
 
 __all__ = ['Update']
 
@@ -46,16 +47,10 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
     RESTRICTED = (2, 'restricted', __("Restricted"))
 
 
-class Update(
-    UuidMixin,
-    BaseScopedIdNameMixin,
-    TimestampMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     __tablename__ = 'update'
-    __allow_unmapped__ = True
 
-    _visibility_state = sa.Column(
+    _visibility_state = sa.orm.mapped_column(
         'visibility_state',
         sa.SmallInteger,
         StateManager.check_constraint('visibility_state', VISIBILITY_STATE),
@@ -67,7 +62,7 @@ class Update(
         '_visibility_state', VISIBILITY_STATE, doc="Visibility state"
     )
 
-    _state = sa.Column(
+    _state = sa.orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', UPDATE_STATE),
@@ -77,24 +72,24 @@ class Update(
     )
     state = StateManager('_state', UPDATE_STATE, doc="Update state")
 
-    user_id = sa.Column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=False, index=True
+    created_by_id: Mapped[int] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=False, index=True
     )
-    user = with_roles(
-        sa.orm.relationship(
-            User,
-            backref=sa.orm.backref('updates', lazy='dynamic'),
-            foreign_keys=[user_id],
+    created_by: Mapped[Account] = with_roles(
+        relationship(
+            Account,
+            backref=backref('updates_created', lazy='dynamic'),
+            foreign_keys=[created_by_id],
         ),
         read={'all'},
         grants={'creator'},
     )
 
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, index=True
     )
     project: Mapped[Project] = with_roles(
-        sa.orm.relationship(Project, backref=sa.orm.backref('updates', lazy='dynamic')),
+        relationship(Project, backref=backref('updates', lazy='dynamic')),
         read={'all'},
         datasets={'primary'},
         grants_via={
@@ -107,82 +102,103 @@ class Update(
     )
     parent: Mapped[Project] = sa.orm.synonym('project')
 
-    body = MarkdownCompositeDocument.create('body', nullable=False)
+    # Relationship to project that exists only when the Update is not restricted, for
+    # the purpose of inheriting the account_participant role. We do this because
+    # RoleMixin does not have a mechanism for conditional grant of roles. A relationship
+    # marked as `grants_via` will always grant the role unconditionally, so the only
+    # control at the moment is to make the relationship itself conditional. The affected
+    # mechanism is not `roles_for` but `actors_with`, which is currently not meant to be
+    # redefined in a subclass
+    _project_when_unrestricted: Mapped[Project] = with_roles(
+        relationship(
+            Project,
+            viewonly=True,
+            uselist=False,
+            primaryjoin=sa.and_(
+                project_id == Project.id, _visibility_state == VISIBILITY_STATE.PUBLIC
+            ),
+        ),
+        grants_via={None: {'account_participant': 'account_participant'}},
+    )
+
+    body, body_text, body_html = MarkdownCompositeDocument.create(
+        'body', nullable=False
+    )
 
     #: Update number, for Project updates, assigned when the update is published
     number = with_roles(
-        sa.Column(sa.Integer, nullable=True, default=None), read={'all'}
+        sa.orm.mapped_column(sa.Integer, nullable=True, default=None), read={'all'}
     )
 
     #: Like pinned tweets. You can keep posting updates,
     #: but might want to pin an update from a week ago.
     is_pinned = with_roles(
-        sa.Column(sa.Boolean, default=False, nullable=False), read={'all'}
+        sa.orm.mapped_column(sa.Boolean, default=False, nullable=False), read={'all'}
     )
 
-    published_by_id = sa.Column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
+    published_by_id: Mapped[int | None] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=True, index=True
     )
-    published_by: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
-            User,
-            backref=sa.orm.backref('published_updates', lazy='dynamic'),
+    published_by: Mapped[Account | None] = with_roles(
+        relationship(
+            Account,
+            backref=backref('published_updates', lazy='dynamic'),
             foreign_keys=[published_by_id],
         ),
         read={'all'},
     )
     published_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    deleted_by_id = sa.Column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
+    deleted_by_id: Mapped[int | None] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=True, index=True
     )
-    deleted_by: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
-            User,
-            backref=sa.orm.backref('deleted_updates', lazy='dynamic'),
+    deleted_by: Mapped[Account | None] = with_roles(
+        relationship(
+            Account,
+            backref=backref('deleted_updates', lazy='dynamic'),
             foreign_keys=[deleted_by_id],
         ),
         read={'reader'},
     )
     deleted_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'reader'}
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
+        read={'reader'},
     )
 
     edited_at = with_roles(
-        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    commentset_id = sa.Column(
+    commentset_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset = with_roles(
-        sa.orm.relationship(
+        relationship(
             Commentset,
             uselist=False,
             lazy='joined',
             cascade='all',
             single_parent=True,
-            backref=sa.orm.backref('update', uselist=False),
+            backref=backref('update', uselist=False),
         ),
         read={'all'},
     )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'name',
-                'title',
-                'body_text',
-                weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter, Update.title, Update.body_html
-                ),
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'name',
+            'title',
+            'body_text',
+            weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter, Update.title, Update.body_html
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     __roles__ = {
@@ -203,7 +219,7 @@ class Update(
             'body_html',
             'published_at',
             'edited_at',
-            'user',
+            'created_by',
             'is_pinned',
             'is_restricted',
             'is_currently_restricted',
@@ -221,7 +237,7 @@ class Update(
             'body_html',
             'published_at',
             'edited_at',
-            'user',
+            'created_by',
             'is_pinned',
             'is_restricted',
             'is_currently_restricted',
@@ -265,13 +281,13 @@ class Update(
         'WITHDRAWN',
         state.DRAFT,
         lambda update: update.published_at is not None,
-        lambda update: update.published_at.isnot(None),
+        lambda update: update.published_at.is_not(None),
         label=('withdrawn', __("Withdrawn")),
     )
 
     @with_roles(call={'editor'})
     @state.transition(state.DRAFT, state.PUBLISHED)
-    def publish(self, actor: User) -> bool:
+    def publish(self, actor: Account) -> bool:
         first_publishing = False
         self.published_by = actor
         if self.published_at is None:
@@ -292,7 +308,7 @@ class Update(
 
     @with_roles(call={'creator', 'editor'})
     @state.transition(None, state.DELETED)
-    def delete(self, actor: User) -> None:
+    def delete(self, actor: Account) -> None:
         if self.state.UNPUBLISHED:
             # If it was never published, hard delete it
             db.session.delete(self)
@@ -337,7 +353,7 @@ class Update(
     with_roles(is_currently_restricted, read={'all'})
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if not self.visibility_state.RESTRICTED:
@@ -349,13 +365,13 @@ class Update(
         return roles
 
     @classmethod
-    def all_published_public(cls) -> Query:
+    def all_published_public(cls) -> Query[Update]:
         return cls.query.join(Project).filter(
             Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
         )
 
     @with_roles(read={'all'})
-    def getnext(self) -> Optional[Update]:
+    def getnext(self) -> Update | None:
         """Get next published update."""
         if self.state.PUBLISHED:
             return (
@@ -370,7 +386,7 @@ class Update(
         return None
 
     @with_roles(read={'all'})
-    def getprev(self) -> Optional[Update]:
+    def getprev(self) -> Update | None:
         """Get previous published update."""
         if self.state.PUBLISHED:
             return (
@@ -409,7 +425,7 @@ class __Project:
     with_roles(draft_updates, read={'editor'})
 
     @property
-    def pinned_update(self) -> Optional[Update]:
+    def pinned_update(self) -> Update | None:
         return (
             self.updates.filter(Update.state.PUBLISHED, Update.is_pinned.is_(True))
             .order_by(Update.published_at.desc())

@@ -5,7 +5,7 @@
 {% block title %}{{ title }}{% endblock title %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/submission_form.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/submission_form.css') }}" />
 {% endblock pageheaders %}
 
 {% block contenthead %}
@@ -116,10 +116,25 @@
         </div>
       </div>
     </form>
-    <div class="modal-form modal-form--submission">
-      <a class="modal__close mui--text-dark js-close-form-modal" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size="title") }}</a>
+    <div class="modal" id="contact-consent" role="dialog" aria-labelledby="consent-notice" aria-modal="true" tabindex="-1">
+      <div class="modal__header">
+        <a class="modal__close mui--text-dark" data-target="close contact consent modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+      </div>
+      <div class="modal__body">
+        <p class="mui--text-body2 top-padding margin-top">{% trans %}<strong>Consent notice:</strong> After you submit, the project's editors can look up your email address and phone number for the sole purpose of discussing your submission with you:{% endtrans %}</p>
+        <ul class="mui-list--unstyled list--aligned">
+          <li class="mui--text-body2">{{ faicon(icon='envelope', css_class="icon-img--smaller") }}{% if current_auth.user.email %}{{ current_auth.user.email }}{% else %}<em>{% trans %}(None){% endtrans %}</em>{% endif %}</li>
+          <li class="mui--text-body2">{{ faicon(icon='phone-alt', css_class="icon-img--smaller") }}{% if current_auth.user.phone %}{{ current_auth.user.phone.formatted }}{% else %}<em>{% trans %}(None){% endtrans %}</em>{% endif %}</li>
+        </ul>
+        <p class="mui--text-body2 margin-top">{% trans account=url_for('account'), editors=project.url_for('crew') %}You can add or change your contacts at any time from <a href="{{ account }}" target="_blank" rel="noopener">your account</a>, and <a href="{{ editors }}" target="_blank" rel="noopener">review the list of editors</a>. Your contacts will not be available to editors before you submit.{% endtrans %}</p>
+        <div class="mui--text-right">
+          <a class="mui-btn mui-btn--raised" rel="modal:close" onclick="return false;" role="button" tabindex="0" data-cy="close-consent-modal">{% trans %}Ok{% endtrans %}</a>
+        </div>
+      </div>
     </div>
-  </div>
+    <div class="modal-form modal-form--submission">
+      <a class="modal__close mui--text-dark js-close-form-modal" data-target="close modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size="title") }}</a>
+    </div>
 {% endblock basecontent %}
 
 {% block pagescripts %}
@@ -127,7 +142,7 @@
 
 {% block innerscripts %}
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
-  <script src="{{ built_asset('submission_form.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('submission_form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var sortUrl;
@@ -138,6 +153,7 @@
       var markdownPreviewElem = '#preview';
       var markdownPreviewApi = {{ url_for('markdown_preview')|tojson }};
       window.Hasgeek.submissionFormInit(sortUrl, formId, markdownPreviewElem, markdownPreviewApi);
+      $('#contact-consent').modal();
     });
   </script>
 {% endblock innerscripts %}

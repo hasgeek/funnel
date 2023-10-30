@@ -10,9 +10,9 @@ Create Date: 2019-05-30 12:33:00.598454
 revision = '4b7fe9b25c6c'
 down_revision = '252f9a705901'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
 
 project = table(
     'project',
@@ -85,11 +85,11 @@ legacy_data = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_column('project', 'legacy_name')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     op.add_column(

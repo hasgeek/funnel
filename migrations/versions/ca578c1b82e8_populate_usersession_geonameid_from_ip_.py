@@ -7,14 +7,12 @@ Create Date: 2021-04-28 18:02:29.867574
 """
 
 from types import SimpleNamespace
-from typing import Optional, Tuple, Union
 
-from alembic import op
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 
 try:
     import geoip2.database as geoip2_database
@@ -27,8 +25,8 @@ except ImportError:
 # revision identifiers, used by Alembic.
 revision = 'ca578c1b82e8'
 down_revision = 'fb8eb6e5b70a'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 GEOIP_DB_CITY = '/usr/share/GeoIP/GeoLite2-City.mmdb'
 GEOIP_DB_ASN = '/usr/share/GeoIP/GeoLite2-ASN.mmdb'
@@ -60,7 +58,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     if geoip2_database is not None:
         try:
             geoip_city = geoip2_database.Reader(GEOIP_DB_CITY)
@@ -133,8 +131,10 @@ def upgrade():
                 "Skipping geonameid population as databases are missing"
             )
     else:
-        print("Skipping geonameid population as geoip2 is not installed")  # noqa: T201
+        print(  # type: ignore[unreachable]  # noqa: T201
+            "Skipping geonameid population as geoip2 is not installed"
+        )
 
 
-def downgrade():
+def downgrade() -> None:
     pass

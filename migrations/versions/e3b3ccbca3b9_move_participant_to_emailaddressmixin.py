@@ -7,23 +7,21 @@ Create Date: 2020-06-17 02:13:45.493791
 
 """
 
-from typing import Optional, Tuple, Union
 import hashlib
 
-from alembic import op
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
-from pyisemail import is_email
 import idna
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from pyisemail import is_email
+from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision = 'e3b3ccbca3b9'
 down_revision = 'ae075a249493'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 # --- Tables ---------------------------------------------------------------------------
@@ -126,7 +124,7 @@ def email_domain(email):
     return idna.encode(email.split('@', 1)[1], uts46=True).decode()
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     op.add_column(
@@ -239,7 +237,7 @@ def upgrade():
     op.drop_column('participant', 'email')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     op.add_column(

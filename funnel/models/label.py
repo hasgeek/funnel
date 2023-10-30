@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Union
-from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
-
-from sqlalchemy.ext.orderinglist import ordering_list
-from sqlalchemy.sql import exists
+from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 
 from coaster.sqlalchemy import with_roles
 
-from . import BaseScopedNameMixin, Mapped, TSVectorType, db, hybrid_property, sa
+from . import (
+    BaseScopedNameMixin,
+    Mapped,
+    Model,
+    TSVectorType,
+    hybrid_property,
+    relationship,
+    sa,
+)
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
@@ -18,7 +22,7 @@ from .proposal import Proposal
 
 proposal_label = sa.Table(
     'proposal_label',
-    db.Model.metadata,  # type: ignore[has-type]
+    Model.metadata,
     sa.Column(
         'proposal_id',
         sa.Integer,
@@ -38,19 +42,15 @@ proposal_label = sa.Table(
 )
 
 
-class Label(
-    BaseScopedNameMixin,
-    db.Model,  # type: ignore[name-defined]
-):
+class Label(BaseScopedNameMixin, Model):
     __tablename__ = 'label'
-    __allow_unmapped__ = True
 
-    project_id = sa.Column(
+    project_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     # Backref from project is defined in the Project model with an ordering list
     project: Mapped[Project] = with_roles(
-        sa.orm.relationship(Project), grants_via={None: project_child_role_map}
+        relationship(Project), grants_via={None: project_child_role_map}
     )
     # `parent` is required for
     # :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
@@ -59,16 +59,18 @@ class Label(
     #: Parent label's id. Do not write to this column directly, as we don't have the
     #: ability to : validate the value within the app. Always use the :attr:`main_label`
     #: relationship.
-    main_label_id = sa.Column(
+    main_label_id = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('label.id', ondelete='CASCADE'),
         index=True,
         nullable=True,
     )
+    main_label: Mapped[Label] = relationship(
+        remote_side='Label.id', back_populates='options'
+    )
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
-    options = sa.orm.relationship(
-        'Label',
-        backref=sa.orm.backref('main_label', remote_side='Label.id'),
+    options: Mapped[OrderingList[Label]] = relationship(
+        back_populates='main_label',
         order_by='Label.seq',
         passive_deletes=True,
         collection_class=ordering_list('seq', count_from=1),
@@ -79,48 +81,53 @@ class Label(
     # add_primary_relationship)
 
     #: Sequence number for this label, used in UI for ordering
-    seq = sa.Column(sa.Integer, nullable=False)
+    seq = sa.orm.mapped_column(sa.Integer, nullable=False)
 
     # A single-line description of this label, shown when picking labels (optional)
-    description = sa.Column(sa.UnicodeText, nullable=False, default='')
+    description = sa.orm.mapped_column(sa.UnicodeText, nullable=False, default='')
 
     #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
     #: Since emoji can be composed from multiple symbols, there is no length
     #: limit imposed here
-    icon_emoji = sa.Column(sa.UnicodeText, nullable=True)
+    icon_emoji = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
 
     #: Restricted mode specifies that this label may only be applied by someone with
     #: an editorial role (TODO: name the role). If this label is a parent, it applies
     #: to all its children
-    _restricted = sa.Column('restricted', sa.Boolean, nullable=False, default=False)
+    _restricted = sa.orm.mapped_column(
+        'restricted', sa.Boolean, nullable=False, default=False
+    )
 
     #: Required mode signals to UI that if this label is a parent, one of its
     #: children must be mandatorily applied to the proposal. The value of this
     #: field must be ignored if the label is not a parent
-    _required = sa.Column('required', sa.Boolean, nullable=False, default=False)
+    _required = sa.orm.mapped_column(
+        'required', sa.Boolean, nullable=False, default=False
+    )
 
     #: Archived mode specifies that the label is no longer available for use
     #: although all the previous records will stay in database.
-    _archived = sa.Column('archived', sa.Boolean, nullable=False, default=False)
+    _archived = sa.orm.mapped_column(
+        'archived', sa.Boolean, nullable=False, default=False
+    )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
-        sa.Column(
-            TSVectorType(
-                'name',
-                'title',
-                'description',
-                weights={'name': 'A', 'title': 'A', 'description': 'B'},
-                regconfig='english',
-                hltext=lambda: sa.func.concat_ws(
-                    visual_field_delimiter, Label.title, Label.description
-                ),
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+        TSVectorType(
+            'name',
+            'title',
+            'description',
+            weights={'name': 'A', 'title': 'A', 'description': 'B'},
+            regconfig='english',
+            hltext=lambda: sa.func.concat_ws(
+                visual_field_delimiter, Label.title, Label.description
             ),
-            nullable=False,
-        )
+        ),
+        nullable=False,
+        deferred=True,
     )
 
     #: Proposals that this label is attached to
-    proposals: Mapped[Proposal] = sa.orm.relationship(
+    proposals: Mapped[list[Proposal]] = relationship(
         Proposal, secondary=proposal_label, back_populates='labels'
     )
 
@@ -183,45 +190,51 @@ class Label(
         # pylint: disable=protected-access
         return self.main_label._restricted if self.main_label else self._restricted
 
-    @restricted.setter
-    def restricted(self, value: bool) -> None:
+    @restricted.inplace.setter
+    def _restricted_setter(self, value: bool) -> None:
         if self.main_label:
             raise ValueError("This flag must be set on the parent")
         self._restricted = value
 
-    @restricted.expression
-    def restricted(cls):  # pylint: disable=no-self-argument
+    @restricted.inplace.expression
+    @classmethod
+    def _restricted_expression(cls) -> sa.Case:
+        """Return SQL Expression."""
         return sa.case(
             (
-                cls.main_label_id.isnot(None),
+                cls.main_label_id.is_not(None),
                 sa.select(Label._restricted)
                 .where(Label.id == cls.main_label_id)
-                .as_scalar(),
+                .scalar_subquery(),
             ),
             else_=cls._restricted,
         )
 
     @hybrid_property
     def archived(self) -> bool:
+        """Test if this label or parent label is archived."""
         return self._archived or (
             self.main_label._archived  # pylint: disable=protected-access
             if self.main_label
             else False
         )
 
-    @archived.setter
-    def archived(self, value: bool) -> None:
+    @archived.inplace.setter
+    def _archived_setter(self, value: bool) -> None:
+        """Archive this label."""
         self._archived = value
 
-    @archived.expression
-    def archived(cls):  # pylint: disable=no-self-argument
+    @archived.inplace.expression
+    @classmethod
+    def _archived_expression(cls) -> sa.Case:
+        """Return SQL Expression."""
         return sa.case(
             (cls._archived.is_(True), cls._archived),
             (
-                cls.main_label_id.isnot(None),
+                cls.main_label_id.is_not(None),
                 sa.select(Label._archived)
                 .where(Label.id == cls.main_label_id)
-                .as_scalar(),
+                .scalar_subquery(),
             ),
             else_=cls._archived,
         )
@@ -230,9 +243,11 @@ class Label(
     def has_options(self) -> bool:
         return bool(self.options)
 
-    @has_options.expression
-    def has_options(cls):  # pylint: disable=no-self-argument
-        return exists().where(Label.main_label_id == cls.id)
+    @has_options.inplace.expression
+    @classmethod
+    def _has_options_expression(cls) -> sa.Exists:
+        """Return SQL Expression."""
+        return sa.exists().where(Label.main_label_id == cls.id)
 
     @property
     def is_main_label(self) -> bool:
@@ -243,8 +258,8 @@ class Label(
         # pylint: disable=using-constant-test
         return self._required if self.has_options else False
 
-    @required.setter
-    def required(self, value: bool) -> None:
+    @required.inplace.setter
+    def _required_setter(self, value: bool) -> None:
         if value and not self.has_options:
             raise ValueError("Labels without options cannot be mandatory")
         self._required = value
@@ -308,7 +323,7 @@ class ProposalLabelProxyWrapper:
     def __init__(self, obj: Proposal) -> None:
         object.__setattr__(self, '_obj', obj)
 
-    def __getattr__(self, name: str) -> Union[bool, str, None]:
+    def __getattr__(self, name: str) -> bool | str | None:
         """Get an attribute."""
         # What this does:
         # 1. Check if the project has this label (including archived labels). If not,
@@ -372,9 +387,7 @@ class ProposalLabelProxyWrapper:
 
 
 class ProposalLabelProxy:
-    def __get__(
-        self, obj, cls=None
-    ) -> Union[ProposalLabelProxyWrapper, ProposalLabelProxy]:
+    def __get__(self, obj, cls=None) -> ProposalLabelProxyWrapper | ProposalLabelProxy:
         """Get proposal label proxy."""
         if obj is not None:
             return ProposalLabelProxyWrapper(obj)
@@ -383,7 +396,7 @@ class ProposalLabelProxy:
 
 @reopen(Project)
 class __Project:
-    labels = sa.orm.relationship(
+    labels: Mapped[list[Label]] = relationship(
         Label,
         primaryjoin=sa.and_(
             Label.project_id == Project.id,
@@ -393,7 +406,7 @@ class __Project:
         order_by=Label.seq,
         viewonly=True,
     )
-    all_labels = sa.orm.relationship(
+    all_labels: Mapped[list[Label]] = relationship(
         Label,
         collection_class=ordering_list('seq', count_from=1),
         back_populates='project',
@@ -405,9 +418,7 @@ class __Proposal:
     #: For reading and setting labels from the edit form
     formlabels = ProposalLabelProxy()
 
-    labels = with_roles(
-        sa.orm.relationship(
-            Label, secondary=proposal_label, back_populates='proposals'
-        ),
+    labels: Mapped[list[Label]] = with_roles(
+        relationship(Label, secondary=proposal_label, back_populates='proposals'),
         read={'all'},
     )

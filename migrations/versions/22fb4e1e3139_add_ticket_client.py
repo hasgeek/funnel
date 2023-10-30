@@ -9,11 +9,11 @@ Create Date: 2015-05-13 16:51:14.399678
 revision = '22fb4e1e3139'
 down_revision = '40c4ad7c0909'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'ticket_client',
         sa.Column('id', sa.Integer(), nullable=False),
@@ -40,7 +40,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'sync_ticket_ticket_client_id', 'sync_ticket', type_='foreignkey'
     )

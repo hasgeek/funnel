@@ -2,39 +2,36 @@
 
 from __future__ import annotations
 
-from secrets import token_urlsafe
-from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Optional, Tuple
 import atexit
 import gc
 import inspect
 import multiprocessing
 import os
-import platform
 import signal
 import socket
 import time
 import weakref
-
-from sqlalchemy.engine import Engine
+from collections.abc import Callable, Iterable
+from secrets import token_urlsafe
+from typing import Any, NamedTuple
+from typing_extensions import Protocol
 
 from flask import Flask
 
-from typing_extensions import Protocol
-
-from . import app as main_app
-from . import shortlinkapp, transports
+from . import app as main_app, shortlinkapp, transports, unsubscribeapp
 from .models import db
 from .typing import ReturnView
 
 __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
 
-# Force 'fork' on macOS. The default mode of 'spawn' (from py38) causes a pickling
-# error in py39, as reported in pytest-flask:
-# https://github.com/pytest-dev/pytest-flask/pull/138
-# https://github.com/pytest-dev/pytest-flask/issues/139
-if platform.system() == 'Darwin':
-    os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
-    multiprocessing = multiprocessing.get_context('fork')  # type: ignore[assignment]
+# Devtest requires `fork`. The default `spawn` method on macOS and Windows will
+# cause pickling errors all over. `fork` is unavailable on Windows, so
+# :class:`BackgroundWorker` can't be used there either, affecting `devserver.py` and the
+# Pytest `live_server` fixture used for end-to-end tests. Fork on macOS is not
+# compatible with the Objective C framework. If you have a framework Python build and
+# experience crashes, try setting the environment variable
+# OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+mpcontext = multiprocessing.get_context('fork')
 
 # --- Development and testing app multiplexer ------------------------------------------
 
@@ -70,7 +67,7 @@ class AppByHostWsgi:
         for app in apps:
             if not app.config.get('SERVER_NAME'):
                 raise ValueError(f"App does not have SERVER_NAME set: {app!r}")
-        self.apps_by_host: Dict[str, Flask] = {
+        self.apps_by_host: dict[str, Flask] = {
             app.config['SERVER_NAME'].split(':', 1)[0]: app for app in apps
         }
 
@@ -98,12 +95,12 @@ class AppByHostWsgi:
         # If no host matched, use the info app
         return info_app
 
-    def __call__(self, environ, start_response) -> Iterable[bytes]:
+    def __call__(self, environ: Any, start_response: Any) -> Iterable[bytes]:
         use_app = self.get_app(environ['HTTP_HOST'])
         return use_app(environ, start_response)
 
 
-devtest_app = AppByHostWsgi(main_app, shortlinkapp)
+devtest_app = AppByHostWsgi(main_app, shortlinkapp, unsubscribeapp)
 
 # --- Background worker ----------------------------------------------------------------
 
@@ -118,21 +115,21 @@ class HostPort(NamedTuple):
 class CapturedSms(NamedTuple):
     phone: str
     message: str
-    vars: Dict[str, str]  # noqa: A003
+    vars: dict[str, str]  # noqa: A003
 
 
 class CapturedEmail(NamedTuple):
     subject: str
-    to: List[str]
+    to: list[str]
     content: str
-    from_email: Optional[str]
+    from_email: str | None
 
 
 class CapturedCalls(Protocol):
     """Protocol class for captured calls."""
 
-    email: List[CapturedEmail]
-    sms: List[CapturedSms]
+    email: list[CapturedEmail]
+    sms: list[CapturedSms]
 
 
 def _signature_without_annotations(func) -> inspect.Signature:
@@ -177,12 +174,11 @@ def install_mock(func: Callable, mock: Callable) -> None:
 
 
 def _prepare_subprocess(
-    engines: Iterable[Engine],
     mock_transports: bool,
     calls: CapturedCalls,
     worker: Callable,
-    args: Tuple[Any],
-    kwargs: Dict[str, Any],
+    args: tuple[Any],
+    kwargs: dict[str, Any],
 ) -> Any:
     """
     Prepare a subprocess for hosting a worker.
@@ -192,18 +188,20 @@ def _prepare_subprocess(
     3. Launch the worker
     """
     # https://docs.sqlalchemy.org/en/20/core/pooling.html#pooling-multiprocessing
-    for e in engines:
-        e.dispose(close=False)
+    with main_app.app_context():
+        for engine in db.engines.values():
+            engine.dispose(close=False)
 
     if mock_transports:
 
         def mock_email(
             subject: str,
-            to: List[Any],
+            to: list[Any],
             content: str,
             attachments=None,
-            from_email: Optional[Any] = None,
-            headers: Optional[dict] = None,
+            from_email: Any | None = None,
+            headers: dict | None = None,
+            base_url: str | None = None,
         ) -> str:
             capture = CapturedEmail(
                 subject,
@@ -228,7 +226,7 @@ def _prepare_subprocess(
         # Patch email
         install_mock(transports.email.send.send_email, mock_email)
         # Patch SMS
-        install_mock(transports.sms.send, mock_sms)
+        install_mock(transports.sms.send.send_sms, mock_sms)
 
     return worker(*args, **kwargs)
 
@@ -251,9 +249,9 @@ class BackgroundWorker:
     def __init__(
         self,
         worker: Callable,
-        args: Optional[Iterable] = None,
-        kwargs: Optional[dict] = None,
-        probe_at: Optional[Tuple[str, int]] = None,
+        args: Iterable | None = None,
+        kwargs: dict | None = None,
+        probe_at: tuple[str, int] | None = None,
         timeout: int = 10,
         clean_stop: bool = True,
         daemon: bool = True,
@@ -266,10 +264,10 @@ class BackgroundWorker:
         self.timeout = timeout
         self.clean_stop = clean_stop
         self.daemon = daemon
-        self._process: Optional[multiprocessing.Process] = None
+        self._process: multiprocessing.context.ForkProcess | None = None
         self.mock_transports = mock_transports
 
-        manager = multiprocessing.Manager()
+        manager = mpcontext.Manager()
         self.calls: CapturedCalls = manager.Namespace()
         self.calls.email = manager.list()
         self.calls.sms = manager.list()
@@ -279,12 +277,9 @@ class BackgroundWorker:
         if self._process is not None:
             return
 
-        with main_app.app_context():
-            db_engines = db.engines.values()
-        self._process = multiprocessing.Process(
+        self._process = mpcontext.Process(
             target=_prepare_subprocess,
             args=(
-                db_engines,
                 self.mock_transports,
                 self.calls,
                 self.worker,
@@ -328,7 +323,7 @@ class BackgroundWorker:
         return ret
 
     @property
-    def pid(self) -> Optional[int]:
+    def pid(self) -> int | None:
         """PID of background worker."""
         return self._process.pid if self._process else None
 
@@ -377,6 +372,6 @@ class BackgroundWorker:
         self.start()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         """Finalise a context manager."""
         self.stop()

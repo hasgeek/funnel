@@ -2,14 +2,22 @@
 
 from __future__ import annotations
 
+from string import capwords
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, Dict, List, Optional, Union
+from typing import TYPE_CHECKING
 
-from flask import abort, current_app, flash, redirect, render_template, request, url_for
-from markupsafe import Markup, escape
-
-import geoip2.errors
 import user_agents
+from flask import (
+    abort,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
+from markupsafe import Markup, escape
 
 from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -21,6 +29,7 @@ from .. import app
 from ..forms import (
     AccountDeleteForm,
     AccountForm,
+    EmailOtpForm,
     EmailPrimaryForm,
     LogoutForm,
     NewEmailAddressForm,
@@ -33,18 +42,18 @@ from ..forms import (
     supported_locales,
     timezone_identifiers,
 )
+from ..geoip import GeoIP2Error, geoip
 from ..models import (
+    Account,
+    AccountEmail,
+    AccountEmailClaim,
+    AccountExternalId,
+    AccountMembership,
     AccountPasswordNotification,
+    AccountPhone,
     AuthClient,
+    LoginSession,
     Organization,
-    OrganizationMembership,
-    Profile,
-    User,
-    UserEmail,
-    UserEmailClaim,
-    UserExternalId,
-    UserPhone,
-    UserSession,
     db,
     sa,
 )
@@ -71,52 +80,52 @@ from .notification import dispatch_notification
 from .otp import OtpSession, OtpTimeoutError
 
 
-@User.views()
-def emails_sorted(obj: User) -> List[UserEmail]:
+@Account.views()
+def emails_sorted(obj: Account) -> list[AccountEmail]:
     """Return sorted list of email addresses for account page UI."""
     primary = obj.primary_email
     items = sorted(obj.emails, key=lambda i: (i != primary, i.email or ''))
     return items
 
 
-@User.views()
-def phones_sorted(obj: User) -> List[UserPhone]:
+@Account.views()
+def phones_sorted(obj: Account) -> list[AccountPhone]:
     """Return sorted list of phone numbers for account page UI."""
     primary = obj.primary_phone
     items = sorted(obj.phones, key=lambda i: (i != primary, i.phone or ''))
     return items
 
 
-@User.views('locale')
-def user_locale(obj: User) -> str:
+@Account.views('locale')
+def user_locale(obj: Account) -> str:
     """Name of user's locale, defaulting to locale identifier."""
     locale = str(obj.locale) if obj.locale is not None else 'en'
     return supported_locales.get(locale, locale)
 
 
-@User.views('timezone')
-def user_timezone(obj: User) -> str:
+@Account.views('timezone')
+def user_timezone(obj: Account) -> str:
     """Human-friendly identifier for user's timezone, defaulting to timezone name."""
     return timezone_identifiers.get(
-        str(obj.timezone) if obj.timezone else None, obj.timezone
+        str(obj.timezone) if obj.timezone else '', obj.timezone
     )
 
 
-@User.views()
+@Account.views()
 def organizations_as_admin(
-    obj: User,
+    obj: Account,
     owner: bool = False,
-    limit: Optional[int] = None,
+    limit: int | None = None,
     order_by_grant: bool = False,
-) -> List[RoleAccessProxy]:
+) -> list[RoleAccessProxy]:
     """Return organizations that the user is an admin of."""
     if owner:
         orgmems = obj.active_organization_owner_memberships
     else:
         orgmems = obj.active_organization_admin_memberships
-    orgmems = orgmems.join(Organization)
+    orgmems = orgmems.join(Account, AccountMembership.account)
     if order_by_grant:
-        orgmems = orgmems.order_by(OrganizationMembership.granted_at.desc())
+        orgmems = orgmems.order_by(AccountMembership.granted_at.desc())
     else:
         orgmems = orgmems.order_by(sa.func.lower(Organization.title))
 
@@ -127,19 +136,19 @@ def organizations_as_admin(
     return orgs
 
 
-@User.views()
+@Account.views()
 def organizations_as_owner(
-    obj: User, limit: Optional[int] = None, order_by_grant: bool = False
-) -> List[RoleAccessProxy]:
+    obj: Account, limit: int | None = None, order_by_grant: bool = False
+) -> list[RoleAccessProxy]:
     """Return organizations that the user is an owner of."""
     return obj.views.organizations_as_admin(
         owner=True, limit=limit, order_by_grant=order_by_grant
     )
 
 
-@User.views()
+@Account.views()
 def recent_organization_memberships(
-    obj: User, recent: int = 3, overflow: int = 4
+    obj: Account, recent: int = 3, overflow: int = 4
 ) -> SimpleNamespace:
     """
     Return recent organizations for the user (by recently edited membership).
@@ -164,10 +173,8 @@ def recent_organization_memberships(
     )
 
 
-@User.views('avatar_color_code', cached_property=True)
-@Organization.views('avatar_color_code', cached_property=True)
-@Profile.views('avatar_color_code', cached_property=True)
-def avatar_color_code(obj: Union[User, Organization, Profile]) -> int:
+@Account.views('avatar_color_code', cached_property=True)
+def avatar_color_code(obj: Account) -> int:
     """Return a colour code for the user's autogenerated avatar image."""
     # Return an int from 0 to avatar_color_count from the initials of the given string
     if obj.title:
@@ -181,19 +188,19 @@ def avatar_color_code(obj: Union[User, Organization, Profile]) -> int:
     return total % avatar_color_count
 
 
-@User.features('not_likely_throwaway', property=True)
-def user_not_likely_throwaway(obj: User) -> bool:
+@Account.features('not_likely_throwaway', property=True)
+def user_not_likely_throwaway(obj: Account) -> bool:
     """
     Confirm the user is not likely to be a throwaway account.
 
-    Current criteria: user must have a verified phone number, or user's profile must
-    be marked as verified.
+    Current criteria: user must have a verified phone number, or the account must be
+    marked as verified.
     """
-    return bool(obj.phone) or (obj.profile is not None and obj.profile.is_verified)
+    return obj.is_verified or bool(obj.phone)
 
 
-@UserSession.views('user_agent_details')
-def user_agent_details(obj: UserSession) -> Dict[str, str]:
+@LoginSession.views('user_agent_details')
+def user_agent_details(obj: LoginSession) -> dict[str, str]:
     """Return a friendly identifier for the user's browser (HTTP user agent)."""
     ua = user_agents.parse(obj.user_agent)
     if ua.browser.family:
@@ -230,32 +237,39 @@ def user_agent_details(obj: UserSession) -> Dict[str, str]:
     return {'browser': browser, 'os_device': os_device}
 
 
-@UserSession.views('location')
-def user_session_location(obj: UserSession) -> str:
+@LoginSession.views('location')
+def login_session_location(obj: LoginSession) -> str:
     """Return user's location and ISP as determined from their IP address."""
-    if not app.geoip_city or not app.geoip_asn:
+    if obj.ipaddr == '127.0.0.1':
+        return _("This device")
+    if not geoip:
         return _("Unknown location")
     try:
-        city_lookup = app.geoip_city.city(obj.ipaddr)
-        asn_lookup = app.geoip_asn.asn(obj.ipaddr)
-    except geoip2.errors.GeoIP2Error:
+        city_lookup = geoip.city(obj.ipaddr)
+        asn_lookup = geoip.asn(obj.ipaddr)
+    except GeoIP2Error:
         return _("Unknown location")
 
     # ASN is not ISP, but GeoLite2 only has an ASN database. The ISP db is commercial.
-    return (
-        ((city_lookup.city.name + ", ") if city_lookup.city.name else '')
-        + (
-            (city_lookup.subdivisions.most_specific.iso_code + ", ")
-            if city_lookup.subdivisions.most_specific.iso_code
-            else ''
+    if city_lookup:
+        result = (
+            ((city_lookup.city.name + ", ") if city_lookup.city.name else '')
+            + (
+                (city_lookup.subdivisions.most_specific.iso_code + ", ")
+                if city_lookup.subdivisions.most_specific.iso_code
+                else ''
+            )
+            + ((city_lookup.country.name + "; ") if city_lookup.country.name else '')
         )
-        + ((city_lookup.country.name + "; ") if city_lookup.country.name else '')
-        + (asn_lookup.autonomous_system_organization or _("Unknown ISP"))
-    )
+    else:
+        result = ''
+    if asn_lookup:
+        result += asn_lookup.autonomous_system_organization or _("Unknown ISP")
+    return result
 
 
-@UserSession.views('login_service')
-def user_session_login_service(obj: UserSession) -> Optional[str]:
+@LoginSession.views('login_service')
+def login_session_service(obj: LoginSession) -> str | None:
     """Return the login provider that was used to create the login session."""
     if obj.login_service == 'otp':
         return _("OTP")
@@ -270,11 +284,11 @@ class AccountView(ClassView):
 
     __decorators__ = [requires_login]
 
-    obj: User
+    obj: Account
     current_section = 'account'  # needed for showing active tab
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, **kwargs) -> User:
+    def loader(self, **kwargs) -> Account:
         """Return current user."""
         return current_auth.user
 
@@ -334,7 +348,7 @@ class AccountView(ClassView):
         form = AccountForm(obj=current_auth.user)
         if form.validate_on_submit():
             form.populate_obj(current_auth.user)
-            autoset_timezone_and_locale(current_auth.user)
+            autoset_timezone_and_locale()
 
             db.session.commit()
             user_data_changed.send(current_auth.user, changes=['profile'])
@@ -353,22 +367,22 @@ class AccountView(ClassView):
         )
 
     # FIXME: Don't modify db on GET. Autosubmit via JS and process on POST
-    @route('confirm/<email_hash>/<secret>', endpoint='confirm_email')
-    def confirm_email(self, email_hash: str, secret: str) -> ReturnView:
-        """Confirm an email address using a verification link."""
+    @route('confirm/<email_hash>/<secret>', endpoint='confirm_email_legacy')
+    def confirm_email_legacy(self, email_hash: str, secret: str) -> ReturnView:
+        """Confirm an email address using a legacy verification link."""
         try:
-            emailclaim = UserEmailClaim.get_by(
+            emailclaim = AccountEmailClaim.get_by(
                 verification_code=secret, email_hash=email_hash
             )
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
         if emailclaim is not None:
             emailclaim.email_address.mark_active()
-            if emailclaim.user == current_auth.user:
-                existing = UserEmail.get(email=emailclaim.email)
+            if emailclaim.account == current_auth.user:
+                existing = AccountEmail.get(email=emailclaim.email)
                 if existing is not None:
                     claimed_email = emailclaim.email
-                    claimed_user = emailclaim.user
+                    claimed_user = emailclaim.account
                     db.session.delete(emailclaim)
                     db.session.commit()
                     if claimed_user != current_auth.user:
@@ -394,12 +408,12 @@ class AccountView(ClassView):
                         ),
                     )
 
-                useremail = emailclaim.user.add_email(
+                accountemail = emailclaim.account.add_email(
                     emailclaim.email,
-                    primary=not emailclaim.user.emails,
+                    primary=not emailclaim.account.emails,
                     private=emailclaim.private,
                 )
-                for emailclaim in UserEmailClaim.all(useremail.email):
+                for emailclaim in AccountEmailClaim.all(accountemail.email):
                     db.session.delete(emailclaim)
                 db.session.commit()
                 user_data_changed.send(current_auth.user, changes=['email'])
@@ -411,8 +425,8 @@ class AccountView(ClassView):
                             " Your email address <code>{email}</code> has now been"
                             " verified"
                         ).format(
-                            fullname=escape(useremail.user.fullname),
-                            email=escape(useremail.email),
+                            fullname=escape(accountemail.account.title),
+                            email=escape(accountemail.email),
                         )
                     ),
                 )
@@ -449,8 +463,8 @@ class AccountView(ClassView):
             # 1. Log out of the current session
             logout_internal()
             # 2. As a precaution, invalidate all of the user's active sessions
-            for user_session in user.active_user_sessions.all():
-                user_session.revoke()
+            for login_session in user.active_login_sessions.all():
+                login_session.revoke()
             # 3. Create a new session and continue without disrupting user experience
             login_internal(user, login_service='password')
             db.session.commit()
@@ -475,27 +489,69 @@ class AccountView(ClassView):
 
     @route('email/new', methods=['GET', 'POST'], endpoint='add_email')
     def add_email(self) -> ReturnView:
-        """Add a new email address using a confirmation link (legacy, pre-OTP)."""
+        """Add a new email address using an OTP."""
         form = NewEmailAddressForm(edit_user=current_auth.user)
         if form.validate_on_submit():
-            useremail = UserEmailClaim.get_for(
-                user=current_auth.user, email=form.email.data
+            otp_session = OtpSession.make(
+                'add-email', user=current_auth.user, anchor=None, email=form.email.data
             )
-            if useremail is None:
-                useremail = UserEmailClaim(
-                    user=current_auth.user, email=form.email.data
+            if otp_session.send():
+                current_auth.user.main_notification_preferences.by_email = (
+                    form.enable_notifications.data
                 )
-                db.session.add(useremail)
-            send_email_verify_link(useremail)
-            db.session.commit()
-            flash(_("We sent you an email to confirm your address"), 'success')
-            user_data_changed.send(current_auth.user, changes=['email-claim'])
-            return render_redirect(url_for('account'))
+                return render_redirect(url_for('verify_email'))
         return render_form(
             form=form,
             title=_("Add an email address"),
             formid='email_add',
-            submit=_("Add email"),
+            submit=_("Verify email"),
+            ajax=False,
+            template='account_formlayout.html.jinja2',
+        )
+
+    @route('email/verify', methods=['GET', 'POST'], endpoint='verify_email')
+    def verify_email(self) -> ReturnView:
+        """Verify an email address with an OTP."""
+        try:
+            otp_session = OtpSession.retrieve('add-email')
+        except OtpTimeoutError:
+            flash(_("This OTP has expired"), category='error')
+            return render_redirect(url_for('add_email'))
+
+        form = EmailOtpForm(valid_otp=otp_session.otp)
+        if form.is_submitted():
+            # Allow 5 guesses per 60 seconds
+            validate_rate_limit('account_email-otp', otp_session.token, 5, 60)
+        if form.validate_on_submit():
+            OtpSession.delete()
+            if TYPE_CHECKING:
+                assert otp_session.email is not None  # nosec B101
+            existing = AccountEmail.get(otp_session.email)
+            if existing is None:
+                # This email address is available to claim. If there are no other email
+                # addresses in this account, this will be a primary
+                primary = not current_auth.user.emails
+                useremail = AccountEmail(
+                    account=current_auth.user, email=otp_session.email
+                )
+                useremail.primary = primary
+                db.session.add(useremail)
+                useremail.email_address.mark_active()
+                db.session.commit()
+                flash(_("Your email address has been verified"), 'success')
+                user_data_changed.send(current_auth.user, changes=['email'])
+                return render_redirect(
+                    get_next_url(session=True, default=url_for('account'))
+                )
+            # Already linked to another account, but we have verified the ownership, so
+            # proceed to merge account flow here
+            session['merge_buid'] = existing.user.buid
+            return render_redirect(url_for('account_merge'), 303)
+        return render_form(
+            form=form,
+            title=_("Verify email address"),
+            formid='email_verify',
+            submit=_("Verify"),
             ajax=False,
             template='account_formlayout.html.jinja2',
         )
@@ -505,16 +561,16 @@ class AccountView(ClassView):
         """Mark an email address as primary."""
         form = EmailPrimaryForm()
         if form.validate_on_submit():
-            useremail = UserEmail.get_for(
-                user=current_auth.user, email_hash=form.email_hash.data
+            accountemail = AccountEmail.get_for(
+                account=current_auth.user, email_hash=form.email_hash.data
             )
-            if useremail is not None:
-                if useremail.primary:
+            if accountemail is not None:
+                if accountemail.primary:
                     flash(_("This is already your primary email address"), 'info')
-                elif useremail.email_address.is_blocked:
+                elif accountemail.email_address.is_blocked:
                     flash(_("This email address has been blocked from use"), 'error')
                 else:
-                    current_auth.user.primary_email = useremail
+                    current_auth.user.primary_email = accountemail
                     db.session.commit()
                     user_data_changed.send(
                         current_auth.user, changes=['email-update-primary']
@@ -533,16 +589,16 @@ class AccountView(ClassView):
         """Mark a phone number as primary."""
         form = PhonePrimaryForm()
         if form.validate_on_submit():
-            userphone = UserPhone.get_for(
-                user=current_auth.user, phone_hash=form.phone_hash.data
+            accountphone = AccountPhone.get_for(
+                account=current_auth.user, phone_hash=form.phone_hash.data
             )
-            if userphone is not None:
-                if userphone.primary:
+            if accountphone is not None:
+                if accountphone.primary:
                     flash(_("This is already your primary phone number"), 'info')
-                elif userphone.phone_number.is_blocked:
+                elif accountphone.phone_number.is_blocked:
                     flash(_("This phone number has been blocked from use"), 'error')
                 else:
-                    current_auth.user.primary_phone = userphone
+                    current_auth.user.primary_phone = accountphone
                     db.session.commit()
                     user_data_changed.send(
                         current_auth.user, changes=['phone-update-primary']
@@ -563,19 +619,21 @@ class AccountView(ClassView):
     )
     def remove_email(self, email_hash: str) -> ReturnView:
         """Remove an email address from the user's account."""
-        useremail: Union[None, UserEmail, UserEmailClaim]
+        accountemail: AccountEmail | AccountEmailClaim | None
         try:
-            useremail = UserEmail.get_for(user=current_auth.user, email_hash=email_hash)
-            if useremail is None:
-                useremail = UserEmailClaim.get_for(
-                    user=current_auth.user, email_hash=email_hash
+            accountemail = AccountEmail.get_for(
+                account=current_auth.user, email_hash=email_hash
+            )
+            if accountemail is None:
+                accountemail = AccountEmailClaim.get_for(
+                    account=current_auth.user, email_hash=email_hash
                 )
-            if useremail is None:
+            if accountemail is None:
                 abort(404)
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
         if (
-            isinstance(useremail, UserEmail)
+            isinstance(accountemail, AccountEmail)
             and current_auth.user.verified_contact_count == 1
         ):
             flash(
@@ -587,14 +645,14 @@ class AccountView(ClassView):
             )
             return render_redirect(url_for('account'))
         result = render_delete_sqla(
-            useremail,
+            accountemail,
             db,
             title=_("Confirm removal"),
             message=_("Remove email address {email} from your account?").format(
-                email=useremail.email
+                email=accountemail.email
             ),
             success=_("You have removed your email address {email}").format(
-                email=useremail.email
+                email=accountemail.email
             ),
             next=url_for('account'),
             delete_text=_("Remove"),
@@ -606,9 +664,9 @@ class AccountView(ClassView):
     @route(
         'email/<email_hash>/verify',
         methods=['GET', 'POST'],
-        endpoint='verify_email',
+        endpoint='verify_email_legacy',
     )
-    def verify_email(self, email_hash: str) -> ReturnView:
+    def verify_email_legacy(self, email_hash: str) -> ReturnView:
         """
         Allow user to resend an email verification link if original is lost.
 
@@ -616,10 +674,10 @@ class AccountView(ClassView):
         addresses pending verification.
         """
         try:
-            useremail = UserEmail.get(email_hash=email_hash)
+            accountemail = AccountEmail.get(email_hash=email_hash)
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
-        if useremail is not None and useremail.user == current_auth.user:
+        if accountemail is not None and accountemail.account == current_auth.user:
             # If an email address is already verified (this should not happen unless the
             # user followed a stale link), tell them it's done -- but only if the email
             # address belongs to this user, to prevent this endpoint from being used as
@@ -629,8 +687,8 @@ class AccountView(ClassView):
 
         # Get the existing email claim that we're resending a verification link for
         try:
-            emailclaim = UserEmailClaim.get_for(
-                user=current_auth.user, email_hash=email_hash
+            emailclaim = AccountEmailClaim.get_for(
+                account=current_auth.user, email_hash=email_hash
             )
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
@@ -691,25 +749,28 @@ class AccountView(ClassView):
         if form.validate_on_submit():
             OtpSession.delete()
             if TYPE_CHECKING:
-                assert otp_session.phone is not None  # nosec
-            if UserPhone.get(otp_session.phone) is None:
-                # If there are no existing phone numbers, this will be a primary
+                assert otp_session.phone is not None  # nosec B101
+            existing = AccountPhone.get(otp_session.phone)
+            if existing is None:
+                # This phone number is available to claim. If there are no other
+                # phone numbers in this account, this will be a primary
                 primary = not current_auth.user.phones
-                userphone = UserPhone(user=current_auth.user, phone=otp_session.phone)
-                userphone.primary = primary
-                db.session.add(userphone)
-                userphone.phone_number.mark_active(sms=True)
+                accountphone = AccountPhone(
+                    account=current_auth.user, phone=otp_session.phone
+                )
+                accountphone.primary = primary
+                db.session.add(accountphone)
+                accountphone.phone_number.mark_active(sms=True)
                 db.session.commit()
                 flash(_("Your phone number has been verified"), 'success')
                 user_data_changed.send(current_auth.user, changes=['phone'])
                 return render_redirect(
                     get_next_url(session=True, default=url_for('account'))
                 )
-            flash(
-                _("This phone number has already been claimed by another user"),
-                'danger',
-            )
-            return render_redirect(url_for('add_phone'))
+            # Already linked to another user, but we have verified the ownership, so
+            # proceed to merge account flow here
+            session['merge_buid'] = existing.user.buid
+            return render_redirect(url_for('account_merge'), 303)
         return render_form(
             form=form,
             title=_("Verify phone number"),
@@ -725,19 +786,21 @@ class AccountView(ClassView):
     @requires_sudo
     def remove_phone(self, phone_hash: str) -> ReturnView:
         """Remove a phone number from the user's account."""
-        userphone = UserPhone.get_for(user=current_auth.user, phone_hash=phone_hash)
-        if userphone is None:
+        accountphone = AccountPhone.get_for(
+            account=current_auth.user, phone_hash=phone_hash
+        )
+        if accountphone is None:
             abort(404)
 
         result = render_delete_sqla(
-            userphone,
+            accountphone,
             db,
             title=_("Confirm removal"),
             message=_("Remove phone number {phone} from your account?").format(
-                phone=userphone.formatted
+                phone=accountphone.formatted
             ),
             success=_("You have removed your number {phone}").format(
-                phone=userphone.formatted
+                phone=accountphone.formatted
             ),
             next=url_for('account'),
             delete_text=_("Remove"),
@@ -756,20 +819,22 @@ class AccountView(ClassView):
     @requires_sudo
     def remove_extid(self, service: str, userid: str) -> ReturnView:
         """Remove a connected external account."""
-        extid = UserExternalId.query.filter_by(
+        extid = AccountExternalId.query.filter_by(
             user=current_auth.user, service=service, userid=userid
         ).one_or_404()
+        if extid.service in login_registry:
+            service_title = login_registry[extid.service].title
+        else:
+            service_title = capwords(extid.service)
         return render_delete_sqla(
             extid,
             db,
             title=_("Confirm removal"),
             message=_(
                 "Remove {service} account ‘{username}’ from your account?"
-            ).format(
-                service=login_registry[extid.service].title, username=extid.username
-            ),
+            ).format(service=service_title, username=extid.username),
             success=_("You have removed the {service} account ‘{username}’").format(
-                service=login_registry[extid.service].title, username=extid.username
+                service=service_title, username=extid.username
             ),
             next=url_for('account'),
             delete_text=_("Remove"),

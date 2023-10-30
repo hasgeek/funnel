@@ -1,4 +1,5 @@
 @import '../base/variable';
+@import '../components/ticket-modal';
 
 .homepage {
   .logo-about {
@@ -42,10 +43,11 @@
   }
 }
 
-.spotlight-container {
-  padding: 0 40px;
-  .spotlight-container__details {
-    margin-top: 40px;
+@media (min-width: 992px) {
+  .spotlight-container {
+    .spotlight-container__details {
+      margin-top: 40px;
+    }
   }
 }
 

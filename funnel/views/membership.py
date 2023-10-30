@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from flask import abort, flash, render_template, request
 
 from baseframe import _
@@ -25,32 +23,33 @@ from ..forms import (
     ProjectCrewMembershipInviteForm,
 )
 from ..models import (
+    Account,
+    AccountMembership,
     MembershipRevokedError,
+    Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
-    OrganizationMembership,
-    Profile,
     Project,
-    ProjectCrewMembership,
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
+    ProjectMembership,
     db,
 )
 from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
-from .mixins import ProfileCheckMixin, ProfileViewMixin, ProjectViewMixin
+from .mixins import AccountCheckMixin, AccountViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
 
-@Profile.views('members')
-@route('/<profile>/members')
-class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
-    def after_loader(self) -> Optional[ReturnView]:  # type: ignore[return]
+@Account.views('members')
+@route('/<account>/members')
+class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
+    def after_loader(self) -> ReturnView | None:  # type: ignore[return]
         """Don't render member views for user accounts."""
-        if not self.obj.organization:
-            # User accounts (nee profiles) don't have memberships
+        if not isinstance(self.obj, Organization):
+            # Only organization accounts have admin members
             abort(404)
 
     @route('', methods=['GET', 'POST'])
@@ -59,10 +58,11 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     def members(self) -> ReturnRenderWith:
         """Render a list of organization admin members."""
         return {
-            'profile': self.obj,
+            'profile': self.obj,  # FIXME: Upgrade templates
+            'account': self.obj,
             'memberships': [
                 membership.current_access(datasets=('without_parent', 'related'))
-                for membership in self.obj.organization.active_admin_memberships
+                for membership in self.obj.active_admin_memberships
             ],
         }
 
@@ -92,12 +92,10 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                     )
 
                 previous_membership = (
-                    OrganizationMembership.query.filter(
-                        OrganizationMembership.is_active
-                    )
+                    AccountMembership.query.filter(AccountMembership.is_active)
                     .filter_by(
-                        organization=self.obj.organization,
-                        user_id=membership_form.user.data.id,
+                        account=self.obj,
+                        member=membership_form.user.data,
                     )
                     .one_or_none()
                 )
@@ -111,15 +109,15 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                         },
                         422,
                     )
-                new_membership = OrganizationMembership(
-                    organization=self.obj.organization, granted_by=current_auth.user
+                new_membership = AccountMembership(
+                    account=self.obj, granted_by=current_auth.user
                 )
                 membership_form.populate_obj(new_membership)
                 db.session.add(new_membership)
                 db.session.commit()
                 dispatch_notification(
                     OrganizationAdminMembershipNotification(
-                        document=new_membership.organization,
+                        document=new_membership.account,
                         fragment=new_membership,
                     )
                 )
@@ -130,7 +128,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                         membership.current_access(
                             datasets=('without_parent', 'related')
                         )
-                        for membership in self.obj.organization.active_admin_memberships
+                        for membership in self.obj.active_admin_memberships
                     ],
                 }, 201
             return (
@@ -156,34 +154,34 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
 OrganizationMembersView.init_app(app)
 
 
-@OrganizationMembership.views('main')
-@route('/<profile>/members/<membership>')
+@AccountMembership.views('main')
+@route('/<account>/members/<membership>')
 class OrganizationMembershipView(
-    ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView
+    AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView
 ):
-    model = OrganizationMembership
-    route_model_map = {'profile': 'organization.name', 'membership': 'uuid_b58'}
-    obj: OrganizationMembership
+    model = AccountMembership
+    route_model_map = {'account': 'account.urlname', 'membership': 'uuid_b58'}
+    obj: AccountMembership
 
-    def loader(self, profile, membership) -> OrganizationMembership:
-        return OrganizationMembership.query.filter(
-            OrganizationMembership.uuid_b58 == membership,
+    def loader(self, account: str, membership: str) -> AccountMembership:
+        return AccountMembership.query.filter(
+            AccountMembership.uuid_b58 == membership,
         ).first_or_404()
 
-    def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.organization.profile
+    def after_loader(self) -> ReturnView | None:
+        self.account = self.obj.account
         return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'profile_owner'})
+    @requires_roles({'account_owner'})
     def edit(self) -> ReturnView:
         previous_membership = self.obj
         membership_form = OrganizationMembershipForm(obj=previous_membership)
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
-                if previous_membership.user == current_auth.user:
+                if previous_membership.member == current_auth.user:
                     return {
                         'status': 'error',
                         'error_description': _("You can’t edit your own role"),
@@ -207,7 +205,7 @@ class OrganizationMembershipView(
                     db.session.commit()
                     dispatch_notification(
                         OrganizationAdminMembershipNotification(
-                            document=new_membership.organization,
+                            document=new_membership.account,
                             fragment=new_membership,
                         )
                     )
@@ -222,7 +220,7 @@ class OrganizationMembershipView(
                         membership.current_access(
                             datasets=('without_parent', 'related')
                         )
-                        for membership in self.obj.organization.active_admin_memberships
+                        for membership in self.obj.account.active_admin_memberships
                     ],
                 }
             return {
@@ -243,13 +241,13 @@ class OrganizationMembershipView(
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_roles({'profile_owner'})
+    @requires_roles({'account_owner'})
     def delete(self) -> ReturnView:
         form = Form()
         if form.is_submitted():
             if form.validate():
                 previous_membership = self.obj
-                if previous_membership.user == current_auth.user:
+                if previous_membership.member == current_auth.user:
                     return {
                         'status': 'error',
                         'error_description': _("You can’t revoke your own membership"),
@@ -260,7 +258,7 @@ class OrganizationMembershipView(
                     db.session.commit()
                     dispatch_notification(
                         OrganizationAdminMembershipRevokedNotification(
-                            document=previous_membership.organization,
+                            document=previous_membership.account,
                             fragment=previous_membership,
                         )
                     )
@@ -271,7 +269,7 @@ class OrganizationMembershipView(
                         membership.current_access(
                             datasets=('without_parent', 'related')
                         )
-                        for membership in self.obj.organization.active_admin_memberships
+                        for membership in self.obj.account.active_admin_memberships
                     ],
                 }
             return {
@@ -284,7 +282,7 @@ class OrganizationMembershipView(
             form=form,
             title=_("Confirm removal"),
             message=_("Remove {member} as an admin from {account}?").format(
-                member=self.obj.user.fullname, account=self.obj.organization.title
+                member=self.obj.member.fullname, account=self.obj.account.title
             ),
             submit=_("Remove"),
             ajax=False,
@@ -300,7 +298,7 @@ OrganizationMembershipView.init_app(app)
 
 
 @Project.views('crew')
-@route('/<profile>/<project>/crew')
+@route('/<account>/<project>/crew')
 class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET', 'POST'])
     @render_with(html_in_json('project_membership.html.jinja2'))
@@ -316,7 +314,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'profile_admin'})
+    @requires_roles({'account_admin'})
     def new_member(self) -> ReturnView:
         membership_form = ProjectCrewMembershipForm()
 
@@ -335,8 +333,8 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
                         'form_nonce': membership_form.form_nonce.data,
                     }, 422
                 previous_membership = (
-                    ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
-                    .filter_by(project=self.obj, user_id=membership_form.user.data.id)
+                    ProjectMembership.query.filter(ProjectMembership.is_active)
+                    .filter_by(project=self.obj, member=membership_form.user.data)
                     .one_or_none()
                 )
                 if previous_membership is not None:
@@ -346,14 +344,14 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
                         'errors': membership_form.errors,
                         'form_nonce': membership_form.form_nonce.data,
                     }, 422
-                new_membership = ProjectCrewMembership(
+                new_membership = ProjectMembership(
                     project=self.obj, granted_by=current_auth.user
                 )
                 membership_form.populate_obj(new_membership)
                 db.session.add(new_membership)
                 db.session.commit()
                 signals.project_role_change.send(
-                    self.obj, actor=current_auth.user, user=new_membership.user
+                    self.obj, actor=current_auth.user, user=new_membership.member
                 )
                 dispatch_notification(
                     ProjectCrewMembershipNotification(
@@ -390,46 +388,46 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
 ProjectMembershipView.init_app(app)
 
 
-class ProjectCrewMembershipMixin(ProfileCheckMixin):
-    model = ProjectCrewMembership
+class ProjectCrewMembershipMixin(AccountCheckMixin):
+    model = ProjectMembership
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'membership': 'uuid_b58',
     }
-    obj: ProjectCrewMembership
+    obj: ProjectMembership
 
-    def loader(self, profile, project, membership) -> ProjectCrewMembership:
+    def loader(self, account: str, project: str, membership: str) -> ProjectMembership:
         return (
-            ProjectCrewMembership.query.join(Project)
-            .join(Profile)
+            ProjectMembership.query.join(Project)
+            .join(Account, Project.account)
             .filter(
-                Profile.name_is(profile),
+                Account.name_is(account),
                 Project.name == project,
-                ProjectCrewMembership.uuid_b58 == membership,
+                ProjectMembership.uuid_b58 == membership,
             )
             .first_or_404()
         )
 
-    def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+    def after_loader(self) -> ReturnView | None:
+        self.account = self.obj.project.account
         return super().after_loader()
 
 
-@ProjectCrewMembership.views('invite')
-@route('/<profile>/<project>/crew/<membership>/invite')
+@ProjectMembership.views('invite')
+@route('/<account>/<project>/crew/<membership>/invite')
 class ProjectCrewMembershipInviteView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):
-    def loader(self, profile, project, membership) -> ProjectCrewMembership:
-        obj = super().loader(profile, project, membership)
-        if not obj.is_invite or obj.user != current_auth.user:
+    def loader(self, account: str, project: str, membership: str) -> ProjectMembership:
+        obj = super().loader(account, project, membership)
+        if not obj.is_invite or obj.member != current_auth.user:
             abort(404)
         return obj
 
     @route('', methods=['GET'])
     @requires_login
-    @requires_roles({'subject'})
+    @requires_roles({'member'})
     def invite(self) -> ReturnView:
         if request.method == 'GET':
             return render_template(
@@ -467,14 +465,14 @@ class ProjectCrewMembershipInviteView(
 ProjectCrewMembershipInviteView.init_app(app)
 
 
-@ProjectCrewMembership.views('main')
-@route('/<profile>/<project>/crew/<membership>')
+@ProjectMembership.views('main')
+@route('/<account>/<project>/crew/<membership>')
 class ProjectCrewMembershipView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'profile_admin'})
+    @requires_roles({'account_admin'})
     def edit(self) -> ReturnView:
         previous_membership = self.obj
         form = ProjectCrewMembershipForm(obj=previous_membership)
@@ -501,7 +499,7 @@ class ProjectCrewMembershipView(
                 if new_membership != previous_membership:
                     db.session.commit()
                     signals.project_role_change.send(
-                        self.obj.project, actor=current_auth.user, user=self.obj.user
+                        self.obj.project, actor=current_auth.user, user=self.obj.member
                     )
                     dispatch_notification(
                         ProjectCrewMembershipNotification(
@@ -536,7 +534,7 @@ class ProjectCrewMembershipView(
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_roles({'profile_admin'})
+    @requires_roles({'account_admin'})
     def delete(self) -> ReturnView:
         form = Form()
         if request.method == 'POST':
@@ -546,7 +544,7 @@ class ProjectCrewMembershipView(
                     previous_membership.revoke(actor=current_auth.user)
                     db.session.commit()
                     signals.project_role_change.send(
-                        self.obj.project, actor=current_auth.user, user=self.obj.user
+                        self.obj.project, actor=current_auth.user, user=self.obj.member
                     )
                     dispatch_notification(
                         ProjectCrewMembershipRevokedNotification(
@@ -570,7 +568,7 @@ class ProjectCrewMembershipView(
             form=form,
             title=_("Confirm removal"),
             message=_("Remove {member} as a crew member from this project?").format(
-                member=self.obj.user.fullname
+                member=self.obj.member.fullname
             ),
             submit=_("Remove"),
             ajax=False,

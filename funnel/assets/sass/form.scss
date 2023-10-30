@@ -4,6 +4,7 @@
   'mui/form';
 @import 'base/variable', 'base/typography', 'components/draggablebox',
   'components/switch', 'components/codemirror';
+@import 'node_modules/select2/dist/css/select2';
 
 // ============================================================================
 // Form
@@ -87,7 +88,8 @@
   }
 
   // Codemirror editor will be initialized
-  textarea.markdown {
+  textarea.markdown,
+  textarea.stylesheet {
     display: none;
   }
 
@@ -418,4 +420,70 @@
 
 .field-toggle {
   display: none;
+}
+
+// ============================================================================
+// Select2
+// ============================================================================
+
+.select2-hidden-accessible ~ .mui-select__menu {
+  display: none !important;
+}
+
+.select2-container .select2-selection {
+  border: none;
+  border-radius: 0;
+  background-image: none;
+  background-color: transparent;
+  border-bottom: 1px solid #ccc;
+  box-shadow: none;
+}
+
+.select2-container .select2-dropdown {
+  border: none;
+  border-radius: 0;
+  -webkit-box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.select2-container.select2-container--focus .select2-selection,
+.select2-container.select2-container--open .select2-selection {
+  box-shadow: none;
+  border: none;
+  border-bottom: 1px solid #ccc;
+}
+
+.select2-container .select2-results__option--highlighted[aria-selected] {
+  background-color: #eee;
+  color: #1f2d3d;
+}
+
+.select2-container .select2-selection--single .select2-selection__arrow {
+  background-color: transparent;
+  border: none;
+  background-image: none;
+}
+
+// ============================================================================
+// Google Map in the form
+// ============================================================================
+
+.map {
+  position: relative;
+  .map__marker {
+    margin-top: $mui-grid-padding * 0.5;
+    width: 100%;
+    height: 40em;
+  }
+  .map__clear {
+    position: absolute;
+    top: 22px;
+    right: 0;
+    z-index: 2;
+    background: #fff;
+  }
 }

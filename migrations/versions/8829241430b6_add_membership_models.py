@@ -6,23 +6,20 @@ Create Date: 2020-04-21 01:40:41.323838
 
 """
 
-from typing import Optional, Tuple, Union
-
-from alembic import op
-from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '8829241430b6'
 down_revision = '41b3af7e4449'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'organization_membership',
-        sa.Column('id', postgresql.UUID(), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('granted_at', sa.TIMESTAMP(timezone=True), nullable=False),
@@ -56,7 +53,7 @@ def upgrade():
     )
     op.create_table(
         'project_crew_membership',
-        sa.Column('id', postgresql.UUID(), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('granted_at', sa.TIMESTAMP(timezone=True), nullable=False),
@@ -103,7 +100,7 @@ def upgrade():
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('revoked_by_id', sa.Integer(), nullable=True),
         sa.Column('granted_by_id', sa.Integer(), nullable=True),
-        sa.Column('id', postgresql.UUID(), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.CheckConstraint(
@@ -131,7 +128,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(
         op.f('ix_proposal_membership_active'), table_name='proposal_membership'
     )

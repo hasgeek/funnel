@@ -1,45 +1,537 @@
+{%- from "notifications/macros_email.html.jinja2" import hero_image -%}
 <!DOCTYPE html>
-<html lang="{{ get_locale() }}">
-  <head>
+<html lang="{{ get_locale() }}" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="utf-8"> {# utf-8 works for most cases #}
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+
+    {# What it does: Makes background images in 72ppi Outlook render at correct size. #}
+    <!--[if gte mso 9]>
+    <xml>
+        <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+
+    {# Outlook / @font-face : BEGIN #}
+
+    {# Desktop Outlook chokes on web font references and defaults to Times New Roman, so we force a safe fallback font. #}
+    <!--[if mso]>
+        <style>
+            * {
+                font-family: sans-serif !important;
+            }
+        </style>
+    <![endif]-->
+
+    {# Outlook / @font-face : END #}
+
     {% block stylesheet -%}
-      <style type="text/css">
-        .btn, a.btn:link, a.btn:visited {
-          background-color: #428bca;
-          border-radius: 3px;
-          border: 1px solid #357ebd;
-          color: white;
-          margin-bottom: 6px;
-          padding: 6px 12px;
-          text-decoration: none;
-          white-space: nowrap;
+    {# CSS Reset : BEGIN #}
+    <style>
+
+        /* What it does: Tells the email client that only light styles are provided but the client can transform them to dark. A duplicate of meta color-scheme meta tag above. */
+        :root {
+            color-scheme: light;
+            supported-color-schemes: light;
         }
-        .btn-bar {
-          margin: 2em 0;
+
+        /* What it does: Remove spaces around the email design added by some email clients. */
+        /* Beware: It can remove the padding / margin and add a background color to the compose a reply window. */
+        html,
+        body {
+            margin: 0 auto !important;
+            padding: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
         }
-        blockquote {
-          margin-left: 0;
-          padding-left: 1em;
-          border-left: 3px solid #ccc;
+
+        /* What it does: Stops email clients resizing small text. */
+        * {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
         }
-      </style>
+
+        /* What it does: forces Samsung Android mail clients to use the entire viewport */
+        #MessageViewBody, #MessageWebViewDiv{
+            width: 100% !important;
+        }
+
+        /* What it does: Stops Outlook from adding extra spacing to tables. */
+        table,
+        td {
+            mso-table-lspace: 0pt !important;
+            mso-table-rspace: 0pt !important;
+        }
+
+        /* What it does: Fixes webkit padding issue. */
+        table {
+            border-spacing: 0 !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+            margin: 0 auto !important;
+        }
+
+        /* What it does: Uses a better rendering method when resizing images in IE. */
+        img {
+            -ms-interpolation-mode:bicubic;
+        }
+
+        /* What it does: Prevents Windows 10 Mail from underlining links despite inline CSS. Styles for underlined links should be inline. */
+        a {
+            text-decoration: none !important;
+        }
+        /* What it does: A work-around for email clients meddling in triggered links. */
+        a[x-apple-data-detectors],  /* iOS */
+        .unstyle-auto-detected-links a,
+        .aBn {
+            border-bottom: 0 !important;
+            cursor: default !important;
+            color: #4d5763 !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+            font-weight: bold;
+        }
+
+        /* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */
+        .a6S {
+            display: none !important;
+            opacity: 0.01 !important;
+        }
+
+        /* What it does: Prevents Gmail from changing the text color in conversation threads. */
+        .im {
+            color: inherit !important;
+        }
+
+        /* If the above doesn't work, add a .g-img class to any image in question. */
+        img.g-img + div {
+            display: none !important;
+        }
+
+        /* iPhone 4, 4S, 5, 5S, 5C, and 5SE */
+        @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {
+            u ~ div .email-container {
+                min-width: 320px !important;
+            }
+        }
+        /* iPhone 6, 6S, 7, 8, and X */
+        @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
+            u ~ div .email-container {
+                min-width: 375px !important;
+            }
+        }
+        /* iPhone 6+, 7+, and 8+ */
+        @media only screen and (min-device-width: 414px) {
+            u ~ div .email-container {
+                min-width: 414px !important;
+            }
+        }
+        /* Adjust typography on small screens to improve readability */
+        @media only screen and (max-width: 600px) {
+            .email-container p {
+                font-size: 17px !important;
+            }
+        }
+
+    </style>
+    {# CSS Reset : END #}
+
+    {# Progressive Enhancements : BEGIN #}
+    <style>
+
+        /* What it does: Hover styles for buttons */
+        .button-td,
+        .button-a {
+            border-radius: 4px;
+            background-color: #4d5763;
+            transition: all 100ms ease-in;
+            font-family: sans-serif;
+            font-size: 15px;
+            line-height: 15px;
+            text-decoration: none;
+        }
+        .button-a {
+            border: 1px solid #4d5763;
+            padding: 13px 17px;
+            color: #ffffff;
+            display: block;
+        }
+        .button-td-primary:hover,
+        .button-a-primary:hover {
+            background-color: #1f2d3d !important;
+            border-color: #1f2d3d !important;
+        }
+        p {
+            margin: 0 !important;
+            padding: 0;
+            font-size: 15px;
+            line-height: 20px;
+            color: #1f2d3d;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 25px;
+            line-height: 30px;
+            color: #1f2d3d;
+            font-weight: bold;
+        }
+        h2 {
+            margin-top: 8px;
+        }
+
+    </style>
+    {# Progressive Enhancements : END #}
     {%- endblock stylesheet %}
-  </head>
-  <body>
+
+    {# Element styles : BEGIN #}
+    <style>
+        body {
+            mso-line-height-rule: exactly;
+            background-color: #f0f0f0;
+        }
+        center {
+            width: 100%;
+            background-color: #f0f0f0;
+        }
+        .email-container {
+            display: block;
+            max-width: 600px;
+            padding: 0 20px;
+            margin: auto;
+            box-sizing: border-box;
+        }
+        .body-content {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .header-container {
+            padding: 16px 0;
+            text-align: left !important;
+        }
+        .header-image{
+            height: auto;
+            background: #f0f0f0;
+            font-family: sans-serif;
+            font-size: 15px;
+            line-height: 15px;
+            color: #4d5763;
+        }
+        .card-body{
+            margin: 0;
+            width: 100%;
+            padding: 0;
+            border-collapse: collapse;
+            border-spacing: 0;
+            border-radius: 16px 16px 16px 16px;
+            overflow: hidden;
+        }
+        tbody, .card-zeromargin {
+            margin: 0;
+            padding: 0;
+        }
+        .card-border {
+            position: relative;
+            font-size: 0;
+            margin: 0;
+            padding: 0;
+            width: 16px;
+            height: 16px;
+        }
+        .card-bg {
+            background-color: #ffffff;
+        }
+        .topleft-corner {
+            border-top-left-radius: 16px;
+        }
+        .topright-corner {
+            border-top-right-radius: 16px;
+        }
+        .bottomleft-corner {
+            border-bottom-left-radius: 16px;
+        }
+        .bottomright-corner {
+            border-bottom-right-radius: 16px;
+        }
+        .topbottom-border {
+            width: auto;
+        }
+        .side-border {
+            height: auto;
+        }
+        .spacer-16px {
+            border-bottom: 16px solid #ffffff;
+        }
+        .email-content {
+            font-family: Helvetica, sans-serif;
+            position: relative;
+            font-size: 16px;
+            margin: 0;
+            padding: 16px 8px 8px;
+            font-weight: normal;
+            line-height: 24px;
+            background-color: #ffffff;
+        }
+        .text-container {
+            margin:0 !important;
+            padding: 24px 0 8px;
+        }
+        .text-content {
+            margin: 0 !important;
+            padding: 0 0 16px;
+        }
+        .text-accent{
+            color: #9f9f9f;
+        }
+        .line-separator {
+            padding: 16px 0 4px;
+            border-bottom:1px solid #c0ccda;
+        }
+        .footer{
+            padding: 20px;
+            font-family: sans-serif;
+            font-size: 12px;
+            line-height: 20px;
+            text-align: center;
+            color: #4d5763;
+        }
+        .footer-text {
+            margin: 0;
+            font-family: sans-serif;
+            font-size: 12px !important;
+            line-height: 20px !important;
+            padding: 8px 0 0 !important;
+            text-align: left;
+            color: #4d5763;
+        }
+        .footer-link {
+            padding: 0 !important;
+            color: #4d5763 !important;
+        }
+        .footer-align {
+            text-align: center !important;
+        }
+        .otp {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .unsubscribe {
+            color: #4d5763;
+            text-decoration: underline;
+        }
+    </style>
+
+
+    </head>
+    {#
+    The email background color (#f0f0f0) is defined in three places:
+    1. body tag: for most email clients
+    2. center tag: for Gmail and Inbox mobile apps and web versions of Gmail, GSuite, Inbox, Yahoo, AOL, Libero, Comcast, freenet, Mail.ru, Orange.fr
+    3. mso conditional: For Windows 10 Mail
+    #}
+    <body>
     {%- block jsonld %}{%- if jsonld %}
-      <script type="application/ld+json">
+        <script type="application/ld+json">
         {{ jsonld|tojson }}
-      </script>
+        </script>
     {%- endif %}{%- endblock jsonld %}
-    <div>{% block content %}{% endblock content %}</div>
-    <div>{% block footer %}
-      {%- if view %}
-        <hr/>
-        <p>
-          {{ view.reason_email }}
-          &bull;
-          <a href="{{ view.unsubscribe_url_email }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>
-        </p>
-      {%- endif %}
-    {% endblock footer %}</div>
-  </body>
+
+    <center role="article" aria-roledescription="email" lang="en">
+    <!--[if mso | IE]>
+    <table class="header-container" align="left" role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f0f0f0; text-align: left";>
+    <tr>
+    <td>
+    <![endif]-->
+
+        {#
+            Set the email width. Defined in two places:
+            1. max-width for all clients except Desktop Windows Outlook, allowing the email to squish on narrow but never go wider than 600px.
+            2. MSO tags for Desktop Windows Outlook enforce a 600px width.
+        #}
+        <div align="left" class="email-container">
+            <!--[if mso]>
+            <table class="header-container" align="left" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="text-align: left">
+            <tr>
+            <td>
+            <![endif]-->
+
+            {# Email Header : BEGIN #}
+            <table align="left">
+                <tr>
+                    <td class="header-container">
+                        <img src="{{ url_for('static', filename='img/email/logo-puzzle.png', _external=true) }}" class="header-image" width="36px" height="36" border="0" alt="" />
+                    </td>
+                </tr>
+            </table>
+            {# Email Header : END #}
+
+            {# Email Header : BODY #}
+            <table class="card-body" cellspacing="0" cellpadding="0" border="0">
+                <tbody>
+                    <tr class="card-zeromargin">
+                        <!--[if mso]>
+                        <td style="margin:0;padding:0;font-size:0;width:16px;height:16px;">
+                            <v:shape style="width:16px;height:16px;position:relative;top:0.5px;left:0.5px;" coordorigin="0 0" coordsize="2 2" fillcolor="#ffffff" stroke="true" strokeweight="4px" strokecolor="#ffffff" fill="true" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                                <v:path v="m 0,2 c 0,1,1,0,2,0 l 2,2 x"/>
+                            </v:shape>
+
+                            <v:shape style="width:16px;height:16px;" coordorigin="0 0" coordsize="2 2" strokecolor="#ffffff" strokeweight="1px" stroke="true" fill="f" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                                <v:path v="m 0,2 c 0,1,1,0,2,0"/>
+                            </v:shape>
+                        </td>
+                        <![endif]-->
+
+                        <!--[if !mso]><!-->
+                        <td class="card-border topleft-corner card-bg">
+                        </td>
+                        <!--<![endif]-->
+
+                        <td class="card-border topbottom-border card-bg">
+                        </td>
+
+                        <!--[if mso]>
+                        <td style="margin:0;padding:0;font-size:0;width:16px;height:16px;">
+                            <v:shape style="width:16px;height:16px;position:relative;top:0.5px;left:-0.5px;" coordorigin="0 0" coordsize="2 2" fillcolor="#ffffff" stroke="true" strokeweight="4px" strokecolor="#ffffff" fill="true" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                                <v:path v="m 0,0 c 1,0,2,1,2,2 l 0,2 x"/>
+                            </v:shape>
+
+                            <v:shape style="width:16px;height:16px;" coordorigin="0 0" coordsize="2 2" strokecolor="#ffffff" strokeweight="1px" stroke="true" fill="f" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                                <v:path v="m 0,0 c 1,0,2,1,2,2"/>
+                            </v:shape>
+                        </td>
+                        <![endif]-->
+
+                        <!--[if !mso]><!-->
+                        <td class="card-border topright-corner card-bg">
+                        </td>
+                        <!--<![endif]-->
+                    </tr>
+
+                    <tr class="card-zeromargin">
+                        <td class="card-border side-border card-bg"></td>
+
+                        <td align="center" class="email-content card-bg" >
+                            {#
+                                Set the email width. Defined in two places:
+                                1. max-width for all clients except Desktop Windows Outlook, allowing the email to squish on narrow but never go wider than 600px.
+                                2. MSO tags for Desktop Windows Outlook enforce a 600px width.
+                            #}
+                            <div class="body-content card-bg" width="100%;">
+                                <!--[if mso]>
+                                <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600">
+                                <tr>
+                                <td>
+                                <![endif]-->
+
+
+                                {# Email content : BEGIN #}
+                                <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                    {% if view %}
+                                        {# Hero image centered : BEGIN #}
+                                        {%- if view.hero_image %}
+                                          {{ hero_image(view.hero_image, view.email_heading or '') }}
+                                        {%- endif %}
+                                        {# Hero image centered : END #}
+
+                                        {# Email body : BEGIN #}
+                                        {%- if view.email_heading %}
+                                          <tr align="center">
+                                            <td class="text-container">
+                                                <h1>{{ view.email_heading }}</h1>
+                                            </tr>
+                                          </td>
+                                        {%- endif %}
+                                    {% endif %}
+                                        {% block content %}{% endblock content %}
+
+                                        {# Email body : END #}
+
+                                </table>
+                                {# Email content : END #}
+
+                                <!--[if mso]>
+                                </td>
+                                </tr>
+                                </table>
+                                <![endif]-->
+                            </div>
+                        </td>
+
+                        <td class="card-border side-border card-bg"></td>
+                    </tr>
+
+                    <tr class="card-zeromargin">
+                        <!--[if mso]>
+                        <td style="margin:0;padding:0;font-size:0;width:16px;height:16px;">
+                            <v:shape style="width:16px;height:16px;position:relative;top:-0.75px;left:0.5px;" coordorigin="0 0" coordsize="2 2" fillcolor="#ffffff" stroke="true" strokeweight="4px" strokecolor="#ffffff" fill="true" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                                <v:path v="m 2,2 c 1,2,0,1,0,0 l 2,0 x"/>
+                            </v:shape>
+
+                            <v:shape style="width:16px;height:16px;" coordorigin="0 0" coordsize="2 2" strokecolor="#ffffff" strokeweight="1px" stroke="true" fill="f" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                                <v:path v="m 2,2 c 1,2,0,1,0,0"/>
+                            </v:shape>
+                        </td>
+                        <![endif]-->
+                        <!--[if !mso]><!-->
+                        <td class="card-border bottomleft-corner card-bg">
+                        </td>
+                        <!--<![endif]-->
+
+                        <td class="card-border topbottom-border card-bg">
+                        </td>
+
+                        <!--[if mso]>
+                        <td style="margin:0;padding:0;font-size:0;width:16px;height:16px;">
+                            <v:shape style="width:16px;height:16px;position:relative;top:-0.75px;left:-0.5px;" coordorigin="0 0" coordsize="2 2" fillcolor="#ffffff" stroke="true" strokeweight="4px" strokecolor="#ffffff" fill="true" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                                <v:path v="m 2,0 c 2,1,1,2,0,2 l 0,0 x"/>
+                            </v:shape>
+
+                            <v:shape style="width:16px;height:16px;" coordorigin="0 0" coordsize="2 2" strokecolor="#ffffff" strokeweight="1px" stroke="true" fill="f" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                                <v:path v="m 2,0 c 2,1,1,2,0,2"/>
+                            </v:shape>
+                        </td>
+                        <![endif]-->
+                        <!--[if !mso]><!-->
+                        <td class="card-border bottomright-corner card-bg">
+                        </td>
+                        <!--<![endif]-->
+                    </tr>
+                </tbody>
+            </table>
+
+            <!--[if mso]>
+            </td>
+            </tr>
+            </table>
+            <![endif]-->
+        </div>
+        {# Email Footer : BEGIN #}
+        <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">{% block footer %}
+            <tr>
+                <td class="footer">
+                    <b>{% trans %}Hasgeek Learning Private Limited{% endtrans %}</b><br/>
+                    {% trans %}Need help?{% endtrans %} <a href="mailto:{{ config['SITE_SUPPORT_EMAIL'] }}">{{ config['SITE_SUPPORT_EMAIL'] }}</a> &bull; <a href="tel:{{ config['SITE_SUPPORT_PHONE'] }}">{{ config['SITE_SUPPORT_PHONE_FORMATTED'] }}</a>
+                    {%- if view %}{# Notification view #}
+                    <br/><br/>
+                    {% if view.reason_email %} {{ view.reason_email }} &bull; {% endif %}<a class="unsubscribe" href="{{ view.unsubscribe_url_email }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>
+                    {%- endif %}
+                </td>
+            </tr>
+        {% endblock footer %}</table>
+        {# Email Footer : END #}
+    <!--[if mso | IE]>
+    </td>
+    </tr>
+    </table>
+    <![endif]-->
+    </center>
+</body>
 </html>

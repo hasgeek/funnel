@@ -55,7 +55,7 @@ def test_proposal_assignment_radio(new_main_label, new_proposal) -> None:
 
 def test_label_flags(new_main_label, new_label) -> None:
     restricted_labels = models.Label.query.filter(
-        models.Label.restricted.is_(True)  # type: ignore[attr-defined]
+        models.Label.restricted.is_(True)
     ).all()
     assert new_main_label in restricted_labels
     assert new_label not in restricted_labels
@@ -74,4 +74,4 @@ def test_label_archived(new_label) -> None:
     assert new_label._archived is False  # pylint: disable=protected-access
     new_label.archived = True
     assert new_label._archived is True  # pylint: disable=protected-access
-    assert new_label.archived is True  # type: ignore[unreachable]
+    assert new_label.archived is True

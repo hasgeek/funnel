@@ -1,4 +1,5 @@
 """Test siteadmin endpoints."""
+# pylint: disable=redefined-outer-name
 
 from __future__ import annotations
 
@@ -23,7 +24,7 @@ def user_vetinari_sysadmin(
         )
     else:
         site_membership = models.SiteMembership(
-            granted_by=user_vetinari, user=user_vetinari, is_sysadmin=True
+            granted_by=user_vetinari, member=user_vetinari, is_sysadmin=True
         )
         db_session.add(site_membership)
     return site_membership

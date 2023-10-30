@@ -17,11 +17,7 @@
                 <li><a href="{{ auth_client.url_for('delete') }}">{% trans %}Delete{% endtrans %}</a></li>
                 <li><a href="{{ auth_client.url_for('cred_new') }}">{% trans %}New access key{% endtrans %}</a></li>
                 <li><a href="{{ auth_client.url_for('permission_user_new') }}">
-                  {%- if auth_client.user -%}
-                    {% trans %}Assign permissions to a user{% endtrans %}
-                  {%- else -%}
-                    {% trans %}Assign permissions to a team{% endtrans %}
-                  {%- endif -%}
+                  {% trans %}Assign permissions to a user{% endtrans %}
                 </a></li>
               </ol>
             </div>
@@ -30,7 +26,7 @@
       </div>
     {% endif %}
 
-    <div class="grid__col-xs-12 grid__col--bleed {%- if auth_client.owner_is(current_auth.user) or auth_client.owner_is(current_auth.user) %} grid__col-md-7 grid__col-lg-8{% endif %}">
+    <div class="grid__col-xs-12 grid__col--bleed {%- if auth_client.owner_is(current_auth.user) %} grid__col-md-7 grid__col-lg-8{% endif %}">
       <div class="grid__col--bleed-y">
         <div class="mui-panel">
           <dl class="infobox">
@@ -39,7 +35,7 @@
             <dt class="mui--text-subhead">{% trans %}Description{% endtrans %}</dt>
             <dd class="mui--text-subhead">{{ auth_client.description }}</dd>
             <dt class="mui--text-subhead">{% trans %}Owner{% endtrans %}</dt>
-            <dd class="mui--text-subhead">{{ auth_client.owner.pickername }}</dd>
+            <dd class="mui--text-subhead">{{ auth_client.account.pickername }}</dd>
             <dt class="mui--text-subhead">{% trans %}OAuth2 Type{% endtrans %}</dt>
             <dd class="mui--text-subhead">{% if auth_client.confidential %}{% trans %}Confidential{% endtrans %}{% else %}{% trans %}Public{% endtrans %}{% endif %}</dd>
             <dt class="mui--text-subhead">{% trans %}Website{% endtrans %}</dt>
@@ -148,11 +144,7 @@
       {% if auth_client.owner_is(current_auth.user) %}
         <div class="grid__col--bleed-y">
           <h2>{% trans %}Permissions{% endtrans %}</h2>
-          {% if auth_client.user %}
-            <p>{% trans %}The following users have permissions to this app{% endtrans %}</p>
-          {% else %}
-            <p>{% trans %}The following teams have permissions to this app{% endtrans %}</p>
-          {% endif %}
+          <p>{% trans %}The following users have permissions to this app{% endtrans %}</p>
         </div>
         <div class="grid grid--align-baseline">
           {%- for pa in permassignments %}

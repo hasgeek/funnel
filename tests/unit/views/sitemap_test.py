@@ -2,13 +2,13 @@
 
 from datetime import datetime, timedelta
 
-from werkzeug.exceptions import NotFound
-
+import pytest
 from dateutil.relativedelta import relativedelta
 from pytz import utc
-import pytest
+from werkzeug.exceptions import NotFound
 
 from coaster.utils import utcnow
+
 from funnel.views import sitemap
 
 

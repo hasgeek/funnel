@@ -1,0 +1,36 @@
+{% extends "layout.html.jinja2" %}
+
+{% block title %}{% trans %}Get shortlink with additional tags{% endtrans %}{% endblock title %}
+
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/form.css') }}" />
+{% endblock pageheaders %}
+
+{% block content %}
+  <div class="mui-form">
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield">
+          <input class="field-url js-url-inputbox" {% if request.referrer %}value="{{ request.referrer }}?utm_campaign="{%- endif -%} type="text" placeholder="Enter url"/>
+          <label for="title">Enter url with utm tags</label>
+        </div>
+      </div>
+    </div>
+    <a href="#" onclick="return false;" class="js-copy-link margin-top" role="button" aria-label="{% trans %}Copy link{% endtrans %}">
+      <span class="js-copy-url mui-panel display-block" aria-hidden="true"></span>
+      <span class="js-shorturl-generate mui-btn mui-btn--primary mui-btn--small zero-bottom-margin zero-top-margin">{% trans %}Shorten link{% endtrans %}</span>
+    </a>
+  </div>
+{% endblock content %}
+
+{% block footerscripts %}
+  <script type="text/javascript">
+    $(() => {
+      $('.js-url-inputbox').on('change keyup paste', function() {
+        var url = $(this).val();
+        $("[data-shortlink]").attr('data-shortlink', '');
+        $('.js-copy-url').text(url);
+      });
+    });
+  </script>
+{% endblock footerscripts %}

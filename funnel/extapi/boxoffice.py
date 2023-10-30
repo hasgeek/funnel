@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from urllib.parse import urljoin
 
-from flask import current_app
-
 import requests
+from flask import current_app
 
 from ..utils import extract_twitter_handle
 

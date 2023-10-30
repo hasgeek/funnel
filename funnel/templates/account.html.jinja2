@@ -7,10 +7,10 @@
 {%- block pageheaders %}
   <link rel="stylesheet"
         type="text/css"
-        href="{{ built_asset('css/login_form.scss') }}"/>
+        href="{{ manifest('css/login_form.css') }}"/>
   <link rel="stylesheet"
         type="text/css"
-        href="{{ built_asset('css/account.scss') }}"/>
+        href="{{ manifest('css/account.css') }}"/>
 {%- endblock pageheaders %}
 {% block bodyattrs -%}
   class="bg-primary tabs-navbar"
@@ -36,11 +36,12 @@
                   {{ faicon(icon='info-circle', icon_size='body2', baseline=true) }} <a href="{{ url_for('account_edit') }}" data-cy="add-username">{% trans %}Add username{% endtrans %} <span class="circle-icon">{{ faicon(icon='plus', icon_size='caption', baseline=false) }}</span></a>
                 </p>
               {%- endif %}
-              {% if current_auth.user.profile %}
-                <a href="{{ current_auth.user.profile.url_for() }}"
-                   data-cy="my-profile"
-                   class="nounderline">{% trans %}Go to account{% endtrans %} <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span></a>
-              {%- endif %}
+              <a href="{{ current_auth.user.absolute_url }}"
+                  data-cy="my-profile"
+                  class="nounderline">
+                {%- trans %}Go to account{% endtrans %}
+                <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span>
+              </a>
             </div>
           </div>
         </div>
@@ -109,14 +110,17 @@
       <div class="grid__col-xs-12 grid__col-sm-6">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title text-bold">{% trans %}Connected accounts{% endtrans %}</h3>
+            <h3 class="card__header__title mui--text-title text-bold">{% trans %}Connected accounts{% endtrans %}</h3>
           </div>
           <div class="card__body card__body--lgtext mui--text-subhead">
             <ol class="list--aligned list--border zero-bottom-margin">
               {% for extid in current_auth.user.externalids %}
                 <li>
                   {{ faicon(icon=extid.service, icon_size='body2', baseline=false, css_class="mui--text-light icon-img icon-img--smaller") }}
-                  <span class="item">{{ extid.username or (extid.service in login_registry and login_registry[extid.service]['title']) or extid.service }} <small class="subitem"><em>{% trans last_used_at=extid.last_used_at|age %}Last used {{ last_used_at }}{% endtrans %}</em></small></span>
+                  <span class="item">
+                    {{ extid.username or (extid.service in login_registry and login_registry[extid.service]['title']) or extid.service }}
+                    <small class="subitem"><em>{% trans last_used_at=extid.last_used_at|age %}Last used {{ last_used_at }}{% endtrans %}</em></small>
+                  </span>
                   <a href="{{ url_for('remove_extid', service=extid.service, userid=extid.userid) }}"
                      class="mui--pull-right"
                      aria-label="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}</a>
@@ -145,7 +149,7 @@
         <div class="grid__col-xs-12 grid__col-sm-6">
           <div class="card">
             <div class="card__header">
-              <h3 class="mui--text-title text-bold">{% trans %}Email addresses{% endtrans %}</h3>
+              <h3 class="card__header__title mui--text-title text-bold">{% trans %}Email addresses{% endtrans %}</h3>
             </div>
             <form action="{{ url_for('make_email_primary') }}"
                   method="post"
@@ -177,10 +181,12 @@
                   {% for useremail in current_auth.user.emailclaims %}
                     <li>
                       <input type="radio" disabled="disabled" class="margin-right"/>
-                      <span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.transport_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
+                      <span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email_legacy', email_hash=useremail.transport_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
                       <a href="{{ url_for('remove_email', email_hash=useremail.transport_hash) }}"
                          aria-label="{% trans %}Remove{% endtrans %}"
-                         class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}</a>
+                         class="mui--pull-right">
+                        {{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}
+                      </a>
                     </li>
                   {% endfor %}
                 </ol>
@@ -196,7 +202,7 @@
                   </button>
                 {% endif %}
                 <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent"
-                   href="{{ url_for('add_email') }}">{% trans %}Add an email address{% endtrans %}</a>
+                   href="{{ url_for('add_email') }}" data-cy="add-new-email">{% trans %}Add an email address{% endtrans %}</a>
                 <span class="loading mui--hide"></span>
               </div>
             </form>
@@ -205,7 +211,7 @@
         <div class="grid__col-xs-12 grid__col-sm-6">
           <div class="card">
             <div class="card__header">
-              <h3 class="mui--text-title text-bold">{% trans %}Mobile numbers{% endtrans %}</h3>
+              <h3 class="card__header__title mui--text-title text-bold">{% trans %}Mobile numbers{% endtrans %}</h3>
             </div>
             <form action="{{ url_for('make_phone_primary') }}"
                   method="post"
@@ -228,9 +234,9 @@
                         <span aria-label="{% trans %}Primary{% endtrans %}" title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=false, css_class="mui--text-success input-align-icon") }}</span>
                       {%- endif -%}
                       {% if has_multiple_verified_contacts -%}
-                        <a href="{{ url_for('remove_phone', phone_hash=userphone.transport_hash) }}"
-                           aria-label="{% trans %}Remove{% endtrans %}"
-                           class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}</a>
+                        <a href="{{ url_for('remove_phone', phone_hash=userphone.transport_hash) }}" aria-label="{% trans %}Remove{% endtrans %}" class="mui--pull-right">
+                          {{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}
+                        </a>
                       {%- endif %}
                     </li>
                   {% endfor %}
@@ -247,7 +253,7 @@
                   </button>
                 {% endif %}
                 <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent"
-                   href="{{ url_for('add_phone') }}">{% trans %}Add a mobile number{% endtrans %}</a>
+                   href="{{ url_for('add_phone') }}" data-cy="add-new-phone">{% trans %}Add a mobile number{% endtrans %}</a>
                 <span class="loading mui--hide"></span>
               </div>
             </form>
@@ -258,7 +264,7 @@
         <div class="grid__col-xs-12">
           <div class="card">
             <div class="card__header">
-              <h3 class="mui--text-title text-bold">
+              <h3 class="card__header__title mui--text-title text-bold">
                 {% trans %}Connected apps{% endtrans %}
               </h3>
             </div>
@@ -306,7 +312,7 @@
       <div class="grid__col-xs-12">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title text-bold">
+            <h3 class="card__header__title mui--text-title text-bold">
               {% trans %}Login sessions{% endtrans %}
             </h3>
           </div>
@@ -316,14 +322,14 @@
             {{ logout_form.hidden_tag() }}
             <div class="card__body">
               <ul class="list--aligned mui-list--unstyled grid-no-left-padding list--border zero-bottom-margin">
-                {%- for user_session in current_auth.user.active_user_sessions %}
+                {%- for login_session in current_auth.user.active_login_sessions %}
                   {%- with
-                      ua=user_session.views.user_agent_details(),
-                      login_service=user_session.views.login_service(),
-                      location=user_session.views.location(),
-                      user_agent=user_session.user_agent,
-                      since=user_session.created_at|age,
-                      last_active=user_session.accessed_at|age %}
+                      ua=login_session.views.user_agent_details(),
+                      login_service=login_session.views.login_service(),
+                      location=login_session.views.location(),
+                      user_agent=login_session.user_agent,
+                      since=login_session.created_at|age,
+                      last_active=login_session.accessed_at|age %}
                     <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session">
                       <div>
                         <ul class="bullet-separated-list"
@@ -344,16 +350,16 @@
                         {%- endif -%}
                       </p>
                       <p class="login-session__body mui--text-light">
-                        {% trans ipaddr=user_session.ipaddr %}{{ location }} – estimated from {{ ipaddr }}{% endtrans %}
+                        {% trans ipaddr=login_session.ipaddr %}{{ location }} – estimated from {{ ipaddr }}{% endtrans %}
                       </p>
                     </div>
                     <div>
-                      {%- if user_session == current_auth.session %}
+                      {%- if login_session == current_auth.session %}
                         {{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=true, css_class="mui--text-success input-align-icon") }}
                       {%- else -%}
                         <button type="submit"
                                 name="sessionid"
-                                value="{{ user_session.buid }}"
+                                value="{{ login_session.buid }}"
                                 title="{% trans %}Logout{% endtrans %}"
                                 aria-label="{% trans %}Logout{% endtrans %}"
                                 class="mui-btn mui-btn--small mui-btn--flat mui-btn--nostyle">
@@ -369,24 +375,28 @@
         </form>
       </div>
     </div>
-  </div>
-  {# Disabled until feature is ready for public use
     <div class="grid__col-xs-12">
       <div class="card">
-        <div class="card__header">
-          <h3 class="mui--text-title text-bold">{% trans %}Delete{% endtrans %}</h3>
+        <div class="card__header--danger flex-wrapper flex-wrapper--baseline flex-wrapper--space-between">
+          <h3 class="card__header__title mui--text-title text-bold mui--text-danger">{% trans %}Delete account{% endtrans %}</h3>
+          {{ faicon(icon='exclamation-triangle', icon_size='subhead', baseline=true, css_class="mui--text-danger input-align-icon") }}
         </div>
         <div class="card__body">
-          <p>{%- trans %}{% endtrans %}</p>
-          <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--danger" href="{{ url_for('account_delete') }}" data-cy="change-password">{% trans %}Delete my account{% endtrans %}</a>
+            <p>{% trans -%}
+            If you no longer need this account, you can delete it. If you have a duplicate account, you can merge it by adding the same phone number or email address here. No deletion necessary.
+            {%- endtrans %}</p>
+        </div>
+        <div class="mui-divider"></div>
+        <div class="card__footer">
+          <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--danger" href="{{ url_for('account_delete') }}" data-cy="change-password">{% trans %}Delete this account{% endtrans %}</a>
         </div>
       </div>
     </div>
-#}
+  </div>
 </div>
 {%- endblock basecontent %}
 {% block footerscripts -%}
-  <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
+  <script src="{{ manifest('form.js') }}" type="text/javascript"></script>
   {{ ajaxform('email-primary-form', request) }}
   {{ ajaxform('phone-primary-form', request) }}
   <script type="text/javascript">

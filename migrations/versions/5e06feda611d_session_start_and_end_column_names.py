@@ -10,26 +10,26 @@ Create Date: 2019-06-26 14:59:43.362731
 revision = '5e06feda611d'
 down_revision = 'b61a489d34a4'
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column('session', 'start', new_column_name='start_at')
     op.alter_column('session', 'end', new_column_name='end_at')
     op.create_index(op.f('ix_session_start_at'), 'session', ['start_at'], unique=False)
     op.create_index(op.f('ix_session_end_at'), 'session', ['end_at'], unique=False)
     op.execute(
-        sa.DDL(
+        sa.text(
             'ALTER TABLE session RENAME CONSTRAINT session_start_end_check '
             'TO session_start_at_end_at_check'
         )
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             'ALTER TABLE session RENAME CONSTRAINT session_start_at_end_at_check '
             'TO session_start_end_check'
         )

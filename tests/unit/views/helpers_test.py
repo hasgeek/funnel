@@ -1,4 +1,5 @@
 """Tests for view helpers."""
+# pylint: disable=redefined-outer-name
 
 from base64 import urlsafe_b64decode
 from datetime import datetime, timezone
@@ -6,11 +7,10 @@ from typing import Any
 from unittest.mock import patch
 from urllib.parse import urlsplit
 
-from flask import Flask, request
-from werkzeug.routing import BuildError
-
-from furl import furl
 import pytest
+from flask import Flask, request
+from furl import furl
+from werkzeug.routing import BuildError
 
 import funnel.views.helpers as vhelpers
 
@@ -39,6 +39,16 @@ class MockUrandom:
         value = self.sequence[self.counter % len(self.sequence)]
         self.counter += 1
         return value
+
+
+def test_valid_timezones_remap() -> None:
+    """Confirm valid_timezones has correct mappings for canary timezones."""
+    assert '' not in vhelpers.valid_timezones
+    assert None not in vhelpers.valid_timezones
+    assert 'asia/kolkata' in vhelpers.valid_timezones
+    assert 'asia/calcutta' in vhelpers.valid_timezones
+    assert vhelpers.valid_timezones['asia/kolkata'] == 'Asia/Kolkata'
+    assert vhelpers.valid_timezones['asia/calcutta'] == 'Asia/Kolkata'
 
 
 def test_app_url_for(app, testapp) -> None:
@@ -90,11 +100,15 @@ def test_validate_is_app_url(app) -> None:
             is False
         )
         assert (
-            vhelpers.validate_is_app_url(f'http://{request.host}/profile/project')
+            vhelpers.validate_is_app_url(f'http://{request.host}/account/project')
             is True
         )
         assert (
-            vhelpers.validate_is_app_url(f'http://{request.host}/profile/project/')
+            vhelpers.validate_is_app_url(f'http://{request.host}/account/project/')
+            is True
+        )
+        assert (
+            vhelpers.validate_is_app_url(f'http://{request.host}/~account/project/')
             is True
         )
 

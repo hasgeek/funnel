@@ -10,19 +10,19 @@ Create Date: 2019-06-06 15:06:04.690314
 revision = '3afa589814a9'
 down_revision = '1b8fc63c0fb0'
 
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
-import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint('proposal_section_id_fkey', 'proposal', type_='foreignkey')
     op.drop_column('proposal', 'section_id')
     op.drop_table('section')
     op.drop_column('project', 'inherit_sections')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'project',
         sa.Column(

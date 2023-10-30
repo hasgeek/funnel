@@ -1,17 +1,17 @@
 """Test SMS templates."""
-# pylint: disable=possibly-unused-variable
+# pylint: disable=possibly-unused-variable,redefined-outer-name
 
 from types import SimpleNamespace
-
-from flask import Flask
+from unittest.mock import patch
 
 import pytest
+from flask import Flask
 
 from funnel.transports import sms
 
 
 @pytest.fixture()
-def app():
+def app() -> Flask:
     test_app = Flask(__name__)
     test_app.config['TESTING'] = True
     test_app.config['SMS_DLT_ENTITY_ID'] = 'dlt_entity_id'
@@ -20,9 +20,9 @@ def app():
 
 
 @pytest.fixture(scope='session')
-def msgt():
+def msgt() -> SimpleNamespace:
     class MyMessage(sms.SmsTemplate):
-        registered_template = "Insert {#var#} here"
+        registered_template = 'Insert {#var#} here'
         template = "Insert {var} here"
         plaintext_template = "{var} here"
 
@@ -61,19 +61,19 @@ def test_template_lengths() -> None:
     """Static and variable character lengths are calculated automatically."""
 
     class OneVarTemplate(sms.SmsTemplate):
-        registered_template = "This has one {#var#}"
+        registered_template = 'This has one {#var#}'
         template = "This has one {var}"
 
     class TwoVarTemplate(sms.SmsTemplate):
-        registered_template = "This has two {#var#}{#var#}"
+        registered_template = 'This has two {#var#}{#var#}'
         template = "This has two {var}"
 
     class ThreeVarTemplate(sms.SmsTemplate):
-        registered_template = "{#var#} this has three {#var#}{#var#}"
+        registered_template = '{#var#} this has three {#var#}{#var#}'
         template = "{var} this has three {var}"
 
     class MismatchTemplate(sms.SmsTemplate):
-        registered_template = "This has two {#var#}{#var#}"
+        registered_template = 'This has two {#var#}{#var#}'
         template = "This has two  {var}"  # Extra space here
 
     assert OneVarTemplate.registered_template_static_len == len("This has one ") == 13
@@ -156,13 +156,13 @@ def test_validate_template() -> None:
     ):
 
         class TemplateVarReserved(sms.SmsTemplate):
-            registered_template = "{#var#}"
+            registered_template = '{#var#}'
             template = "{text}"
 
     with pytest.raises(ValueError, match='Templates cannot have positional fields'):
 
         class TemplateVarPositional(sms.SmsTemplate):
-            registered_template = "{#var#}"
+            registered_template = '{#var#}'
             template = "{}"
 
 
@@ -180,7 +180,7 @@ def test_validate_no_entity_template_id() -> None:
             registered_templateid = '12345'
 
 
-def test_subclass_config(app, msgt) -> None:
+def test_subclass_config(app: Flask, msgt: SimpleNamespace) -> None:
     class MySubMessage(msgt.MyMessage):  # type: ignore[name-defined]
         pass
 
@@ -200,7 +200,8 @@ def test_subclass_config(app, msgt) -> None:
     assert MySubMessage.registered_templateid == 'qwerty'
 
 
-def test_init_app(app, msgt) -> None:
+@patch.object(sms.SmsTemplate, 'registered_entityid', None)
+def test_init_app(app: Flask, msgt: SimpleNamespace) -> None:
     assert sms.SmsTemplate.registered_entityid is None
     assert msgt.MyMessage.registered_entityid is None
     sms.SmsTemplate.init_app(app)
@@ -208,13 +209,13 @@ def test_init_app(app, msgt) -> None:
     assert msgt.MyMessage.registered_entityid == 'dlt_entity_id'
 
 
-def test_inline_use(msgt) -> None:
+def test_inline_use(msgt: SimpleNamespace) -> None:
     assert str(msgt.MyMessage(var="sample1")) == "Insert sample1 here"
     assert msgt.MyMessage(var="sample2").text == "Insert sample2 here"
     assert msgt.MyMessage(var="sample3").plaintext == "sample3 here"
 
 
-def test_object_use(msgt) -> None:
+def test_object_use(msgt: SimpleNamespace) -> None:
     # pylint: disable=attribute-defined-outside-init
     msg = msgt.MyMessage()
     msg.var = "sample1"
@@ -232,11 +233,10 @@ def test_object_use(msgt) -> None:
 
 
 def test_web_otp_template() -> None:
-    t = sms.WebOtpTemplate(otp='1234', helpline_text="call 12345", domain='example.com')
+    t = sms.WebOtpTemplate(otp='1234')
     assert str(t) == (
-        'OTP is 1234 for Hasgeek.\n\n'
-        'Not you? Block misuse: call 12345\n\n'
-        '@example.com #1234'
+        'OTP is 1234 for Hasgeek. If you did not request this, report misuse at '
+        'https://has.gy/not-my-otp\n\n@hasgeek.com #1234'
     )
 
 

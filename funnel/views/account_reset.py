@@ -5,10 +5,10 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
+import itsdangerous
 from flask import current_app, flash, redirect, request, session, url_for
 from flask_babel import ngettext
 from markupsafe import Markup, escape
-import itsdangerous
 
 from baseframe import _
 from baseframe.forms import render_form, render_message
@@ -17,7 +17,7 @@ from coaster.views import requestargs
 
 from .. import app
 from ..forms import OtpForm, PasswordCreateForm, PasswordResetRequestForm
-from ..models import AccountPasswordNotification, User, db
+from ..models import Account, AccountPasswordNotification, db
 from ..registry import login_registry
 from ..serializers import token_serializer
 from ..typing import ReturnView
@@ -55,7 +55,7 @@ def reset() -> ReturnView:
         user = form.user
         anchor = form.anchor
         if TYPE_CHECKING:
-            assert isinstance(user, User)  # nosec
+            assert isinstance(user, Account)  # nosec
         if not anchor:
             # User has no phone or email. Maybe they logged in via Twitter
             # and set a local username and password, but no email. Could happen
@@ -219,7 +219,7 @@ def reset_with_token_do() -> ReturnView:
         return render_redirect(url_for('reset'))
 
     # 3. We have a token and it's not expired. Is there a user?
-    user = User.get(buid=token['buid'])
+    user = Account.get(buid=token['buid'])
     if user is None:
         # If the user has disappeared, it's likely because this is a dev instance and
         # the local database has been dropped -- or a future scenario in which db entry
@@ -254,10 +254,10 @@ def reset_with_token_do() -> ReturnView:
         user.password = form.password.data
         session.pop('reset_token', None)
         # Invalidate all of the user's active sessions
-        user_sessions = user.active_user_sessions.all()
-        session_count = len(user_sessions)
-        for user_session in user_sessions:
-            user_session.revoke()
+        login_sessions = user.active_login_sessions.all()
+        session_count = len(login_sessions)
+        for login_session in login_sessions:
+            login_session.revoke()
         db.session.commit()
         dispatch_notification(AccountPasswordNotification(document=user))
         return render_message(

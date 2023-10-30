@@ -1,9 +1,10 @@
 """Views for projects."""
 
-from dataclasses import dataclass
-from types import SimpleNamespace
 import csv
 import io
+from dataclasses import dataclass
+from json import JSONDecodeError
+from types import SimpleNamespace
 
 from flask import Response, abort, current_app, flash, render_template, request
 from flask_babel import format_number
@@ -33,11 +34,12 @@ from ..forms import (
     ProjectForm,
     ProjectLivestreamForm,
     ProjectNameForm,
+    ProjectRegisterForm,
     ProjectTransitionForm,
 )
 from ..models import (
     RSVP_STATUS,
-    Profile,
+    Account,
     Project,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
@@ -46,7 +48,7 @@ from ..models import (
     db,
     sa,
 )
-from ..signals import project_role_change
+from ..signals import project_data_change, project_role_change
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
@@ -55,7 +57,7 @@ from .login_session import (
     requires_site_editor,
     requires_user_not_spammy,
 )
-from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
+from .mixins import AccountViewMixin, DraftViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
 
@@ -161,9 +163,9 @@ def get_registration_text(count: int, registered=False, follow_mode=False) -> st
 @Project.features('rsvp')
 def feature_project_rsvp(obj: Project) -> bool:
     return (
-        obj.state.PUBLISHED  # type: ignore[unreachable]
+        obj.state.PUBLISHED
         and obj.allow_rsvp is True
-        and (obj.start_at is None or not obj.state.PAST)  # type: ignore[unreachable]
+        and (obj.start_at is None or not obj.state.PAST)
     )
 
 
@@ -187,8 +189,15 @@ def feature_project_tickets_or_rsvp(obj: Project) -> bool:
 def feature_project_subscription(obj: Project) -> bool:
     return (
         obj.boxoffice_data is not None
+        and 'item_collection_id' in obj.boxoffice_data
+        and obj.boxoffice_data['item_collection_id']
         and obj.boxoffice_data.get('is_subscription', True) is True
     )
+
+
+@Project.features('show_tickets', cached_property=True)
+def show_tickets(obj: Project) -> bool:
+    return obj.features.tickets() or obj.features.subscription
 
 
 @Project.features('rsvp_unregistered')
@@ -237,16 +246,22 @@ def project_register_button_text(obj: Project) -> str:
     custom_text = (
         obj.boxoffice_data.get('register_button_txt') if obj.boxoffice_data else None
     )
-    if obj.features.follow_mode():
-        return _("Follow")
-    if custom_text:
+    rsvp = obj.rsvp_for(current_auth.user)
+    if custom_text and (rsvp is None or not rsvp.state.YES):
         return custom_text
+
+    if obj.features.follow_mode():
+        if rsvp is not None and rsvp.state.YES:
+            return _("Following")
+        return _("Follow")
+    if rsvp is not None and rsvp.state.YES:
+        return _("Registered")
     return _("Register")
 
 
-@Profile.views('project_new')
-@route('/<profile>')
-class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
+@Account.views('project_new')
+@route('/<account>')
+class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
     """Project views inside the account (new project view only)."""
 
     @route('new', methods=['GET', 'POST'])
@@ -255,19 +270,19 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     @requires_user_not_spammy()
     def new_project(self) -> ReturnView:
         """Create a new project."""
-        form = ProjectForm(model=Project, profile=self.obj)
+        form = ProjectForm(model=Project, account=self.obj)
 
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
         if form.validate_on_submit():
-            project = Project(user=current_auth.user, profile=self.obj)
+            project = Project(created_by=current_auth.user, account=self.obj)
             form.populate_obj(project)
             project.make_name()
             db.session.add(project)
+            project_data_change.send(project)
             db.session.commit()
 
             flash(_("Your new project has been created"), 'info')
-
             # tag locations
             tag_locations.queue(project.id)
 
@@ -280,13 +295,13 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
         )
 
 
-ProfileProjectView.init_app(app)
+AccountProjectView.init_app(app)
 
 
 # mypy has trouble with the definition of `obj` and `model` between ProjectViewMixin and
 # DraftViewMixin
 @Project.views('main')
-@route('/<profile>/<project>/')
+@route('/<account>/<project>/')
 class ProjectView(  # type: ignore[misc]
     ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
 ):
@@ -303,6 +318,7 @@ class ProjectView(  # type: ignore[misc]
                 _p.current_access(datasets=('without_parent', 'related'))
                 for _p in self.obj.proposals.filter_by(featured=True)
             ],
+            'rsvp': self.obj.rsvp_for(current_auth.user),
         }
 
     @route('sub')
@@ -319,6 +335,51 @@ class ProjectView(  # type: ignore[misc]
             ],
         }
 
+    @route('sub/csv', methods=['GET'])
+    @requires_login
+    @requires_roles({'editor'})
+    def proposals_csv(self) -> Response:
+        filename = f'submissions-{self.obj.account.name}-{self.obj.name}.csv'
+        outfile = io.StringIO(newline='')
+        out = csv.writer(outfile)
+        out.writerow(
+            [
+                'title',
+                'url',
+                'proposer',
+                'username',
+                'email',
+                'phone',
+                'state',
+                'labels',
+                'body',
+                'datetime',
+            ]
+        )
+        for proposal in self.obj.proposals:
+            user = proposal.first_user
+            out.writerow(
+                [
+                    proposal.title,
+                    proposal.url_for(_external=True),
+                    user.fullname,
+                    user.username,
+                    user.email,
+                    user.phone,
+                    proposal.state.label.title,
+                    '; '.join(label.title for label in proposal.labels),
+                    proposal.body,
+                    proposal.datetime.replace(second=0, microsecond=0).isoformat(),
+                ]
+            )
+
+        outfile.seek(0)
+        return Response(
+            outfile.getvalue(),
+            content_type='text/csv',
+            headers=[('Content-Disposition', f'attachment;filename="{filename}"')],
+        )
+
     @route('videos')
     @render_with(html_in_json('project_videos.html.jinja2'))
     def session_videos(self) -> ReturnRenderWith:
@@ -333,7 +394,7 @@ class ProjectView(  # type: ignore[misc]
     def edit_slug(self) -> ReturnView:
         """Edit project's URL slug."""
         form = ProjectNameForm(obj=self.obj)
-        form.name.prefix = self.obj.profile.url_for(_external=True)
+        form.name.prefix = self.obj.account.url_for(_external=True)
         # Add a ``/`` separator if required
         if not form.name.prefix.endswith('/'):
             form.name.prefix += '/'
@@ -371,7 +432,7 @@ class ProjectView(  # type: ignore[misc]
             # WTForms will ignore formdata if it's None.
             form = ProjectForm(
                 obj=self.obj,
-                profile=self.obj.profile,
+                account=self.obj.account,
                 model=Project,
                 formdata=initial_formdata,
             )
@@ -388,9 +449,10 @@ class ProjectView(  # type: ignore[misc]
             )
         if getbool(request.args.get('form.autosave')):
             return self.autosave_post()
-        form = ProjectForm(obj=self.obj, profile=self.obj.profile, model=Project)
+        form = ProjectForm(obj=self.obj, account=self.obj.account, model=Project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
+            project_data_change.send(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             tag_locations.queue(self.obj.id)
@@ -413,7 +475,7 @@ class ProjectView(  # type: ignore[misc]
 
     @route('delete', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'profile_admin'})
+    @requires_roles({'account_admin'})
     def delete(self) -> ReturnView:
         """Delete project if safe to do so."""
         if not self.obj.is_safe_to_delete():
@@ -435,7 +497,7 @@ class ProjectView(  # type: ignore[misc]
             success=_(
                 "You have deleted project ‘{title}’ and all its associated content"
             ).format(title=self.obj.title),
-            next=self.obj.profile.url_for(),
+            next=self.obj.account.absolute_url,
             cancel_url=self.obj.url_for(),
         )
 
@@ -444,7 +506,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_roles({'editor'})
     def update_banner(self) -> ReturnRenderWith:
         """Update project banner."""
-        form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
+        form = ProjectBannerForm(obj=self.obj, account=self.obj.account)
         edit_logo_url = self.obj.url_for('edit_banner')
         delete_logo_url = self.obj.url_for('remove_banner')
         return {
@@ -458,7 +520,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_roles({'editor'})
     def edit_banner(self) -> ReturnView:
         """Edit project banner."""
-        form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
+        form = ProjectBannerForm(obj=self.obj, account=self.obj.account)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)
@@ -522,7 +584,9 @@ class ProjectView(  # type: ignore[misc]
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
                 allow_rsvp=self.obj.allow_rsvp,
                 is_subscription=boxoffice_data.get('is_subscription', True),
+                register_form_schema=boxoffice_data.get('register_form_schema'),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
+                has_membership=boxoffice_data.get('has_membership', False),
             ),
             model=Project,
         )
@@ -532,8 +596,12 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
             self.obj.boxoffice_data[
+                'register_form_schema'
+            ] = form.register_form_schema.data
+            self.obj.boxoffice_data[
                 'register_button_txt'
             ] = form.register_button_txt.data
+            self.obj.boxoffice_data['has_membership'] = form.has_membership.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())
@@ -588,16 +656,43 @@ class ProjectView(  # type: ignore[misc]
             'error_description': _("Invalid form submission"),
         }
 
+    @route('rsvp_modal', methods=['GET'])
+    @render_with('rsvp_modal.html.jinja2')
+    @requires_login
+    def rsvp_modal(self) -> ReturnRenderWith:
+        """Edit project banner."""
+        form = ProjectRegisterForm(
+            schema=self.obj.boxoffice_data.get('register_form_schema', {})
+        )
+        return {
+            'project': self.obj.current_access(datasets=('primary',)),
+            'form': form,
+            'json_schema': self.obj.boxoffice_data.get('register_form_schema'),
+        }
+
     @route('register', methods=['POST'])
     @requires_login
     def register(self) -> ReturnView:
         """Register for project as a participant."""
-        form = forms.Form()
-        if form.validate_on_submit():
+        try:
+            formdata = (
+                request.json.get('form', {})  # type: ignore[union-attr]
+                if request.is_json
+                else app.json.loads(request.form.get('form', '{}'))
+            )
+        except JSONDecodeError:
+            abort(400)
+        rsvp_form = ProjectRegisterForm(
+            obj=SimpleNamespace(form=formdata),
+            schema=self.obj.boxoffice_data.get('register_form_schema', {}),
+        )
+        if rsvp_form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
-            if not rsvp.state.YES:
-                rsvp.rsvp_yes()
-                db.session.commit()
+            new_registration = not rsvp.state.YES
+            rsvp.rsvp_yes()
+            rsvp.form = rsvp_form.form.data
+            db.session.commit()
+            if new_registration:
                 project_role_change.send(
                     self.obj, actor=current_auth.user, user=current_auth.user
                 )
@@ -607,7 +702,7 @@ class ProjectView(  # type: ignore[misc]
                 )
         else:
             flash(_("Were you trying to register? Try again to confirm"), 'error')
-        return render_redirect(get_next_url(referrer=request.referrer))
+        return render_redirect(self.obj.url_for())
 
     @route('deregister', methods=['POST'])
     @requires_login
@@ -631,7 +726,7 @@ class ProjectView(  # type: ignore[misc]
                 _("Were you trying to cancel your registration? Try again to confirm"),
                 'error',
             )
-        return render_redirect(get_next_url(referrer=request.referrer))
+        return render_redirect(self.obj.url_for())
 
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
@@ -645,6 +740,13 @@ class ProjectView(  # type: ignore[misc]
                 _r.current_access(datasets=('without_parent', 'related', 'related'))
                 for _r in self.obj.rsvps_with(RSVP_STATUS.YES)
             ],
+            'rsvp_form_fields': [
+                field.get('name', '')
+                for field in self.obj.boxoffice_data['register_form_schema']['fields']
+            ]
+            if self.obj.boxoffice_data.get('register_form_schema', {})
+            and 'fields' in self.obj.boxoffice_data.get('register_form_schema', {})
+            else None,
         }
 
     def get_rsvp_state_csv(self, state):
@@ -655,8 +757,8 @@ class ProjectView(  # type: ignore[misc]
         for rsvp in self.obj.rsvps_with(state):
             out.writerow(
                 [
-                    rsvp.user.fullname,
-                    rsvp.user.default_email(context=rsvp.project.profile) or '',
+                    rsvp.participant.fullname,
+                    rsvp.participant.default_email(context=rsvp.project.account) or '',
                     rsvp.created_at.astimezone(self.obj.timezone)
                     .replace(second=0, microsecond=0, tzinfo=None)
                     .isoformat(),  # Strip precision from timestamp
@@ -699,12 +801,15 @@ class ProjectView(  # type: ignore[misc]
         form.form_nonce.data = form.form_nonce.default()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
-                user=current_auth.user, project=self.obj
+                account=current_auth.user, project=self.obj
             ).first()
             if form.save.data:
                 if proj_save is None:
-                    proj_save = SavedProject(user=current_auth.user, project=self.obj)
+                    proj_save = SavedProject(
+                        account=current_auth.user, project=self.obj
+                    )
                     form.populate_obj(proj_save)
+                    db.session.add(proj_save)
                     db.session.commit()
             else:
                 if proj_save is not None:
@@ -746,7 +851,7 @@ class ProjectView(  # type: ignore[misc]
                 )
             return render_redirect(self.obj.url_for('admin'))
         return {
-            'profile': self.obj.profile.current_access(datasets=('primary',)),
+            'profile': self.obj.account.current_access(datasets=('primary',)),
             'project': self.obj.current_access(datasets=('without_parent', 'related')),
             'ticket_events': [_e.current_access() for _e in self.obj.ticket_events],
             'ticket_clients': [_c.current_access() for _c in self.obj.ticket_clients],

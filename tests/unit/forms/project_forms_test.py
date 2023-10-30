@@ -1,9 +1,8 @@
 """Tests for Project forms."""
 
-from werkzeug.datastructures import MultiDict
-
 import pytest
 import requests_mock
+from werkzeug.datastructures import MultiDict
 
 from funnel import forms
 

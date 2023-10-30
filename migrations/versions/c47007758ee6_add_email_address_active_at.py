@@ -6,17 +6,15 @@ Create Date: 2020-08-20 21:47:43.356619
 
 """
 
-from typing import Optional, Tuple, Union
-
+import sqlalchemy as sa
 from alembic import op
 from sqlalchemy import column, table
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'c47007758ee6'
 down_revision = 'b7fa6df99855'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 class DELIVERY_STATE:  # noqa: N801
@@ -33,7 +31,7 @@ email_address = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'email_address',
         sa.Column('active_at', sa.TIMESTAMP(timezone=True), nullable=True),
@@ -55,13 +53,13 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(
         'email_address_delivery_state_check', 'email_address', type_='check'
     )
     op.execute(
         email_address.update()
-        .where(email_address.c.active_at.isnot(None))
+        .where(email_address.c.active_at.is_not(None))
         .values({'delivery_state': DELIVERY_STATE.ACTIVE})
     )
     op.drop_column('email_address', 'active_at')

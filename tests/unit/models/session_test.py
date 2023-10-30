@@ -1,15 +1,13 @@
 """Test sessions."""
-# pylint: disable=possibly-unused-variable
+# pylint: disable=possibly-unused-variable,redefined-outer-name
 
 from datetime import datetime, timedelta
 from types import SimpleNamespace
-from typing import Dict, List, Optional
 
-from sqlalchemy.exc import IntegrityError
-import sqlalchemy as sa
-
-from pytz import utc
 import pytest
+import sqlalchemy as sa
+from pytz import utc
+from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 
@@ -92,7 +90,7 @@ def block_of_sessions(db_session, new_project) -> SimpleNamespace:
     )
 
     refresh_attrs = [
-        attr for attr in locals().values() if isinstance(attr, models.db.Model)
+        attr for attr in locals().values() if isinstance(attr, models.Model)
     ]
     db_session.add_all(refresh_attrs)
     db_session.commit()
@@ -104,7 +102,7 @@ def block_of_sessions(db_session, new_project) -> SimpleNamespace:
     return SimpleNamespace(**locals())
 
 
-def find_projects(starting_times, within, gap) -> Dict[datetime, models.Project]:
+def find_projects(starting_times, within, gap) -> dict[datetime, list[models.Project]]:
     # Keep the timestamps at which projects were found, plus the project. Criteria:
     # starts at `timestamp` + up to `within` period, with `gap` from prior sessions
     return {
@@ -297,12 +295,12 @@ def test_next_session_at_property(
     db_session,
     project_expo2010,
     project_expo2011,
-    project_dates: Optional[tuple],
-    session_dates: List[tuple],
-    expected_session: Optional[int],
-    project2_dates: Optional[tuple],
-    session2_dates: List[tuple],
-    expected2_session: Optional[int],
+    project_dates: tuple | None,
+    session_dates: list[tuple],
+    expected_session: int | None,
+    project2_dates: tuple | None,
+    session2_dates: list[tuple],
+    expected2_session: int | None,
 ) -> None:
     """Test next_session_at to work for projects with sessions and without."""
     if project_dates:

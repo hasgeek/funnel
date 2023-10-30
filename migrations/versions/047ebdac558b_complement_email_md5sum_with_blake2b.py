@@ -6,21 +6,19 @@ Create Date: 2020-06-05 04:10:56.627503
 
 """
 
-from typing import Optional, Tuple, Union
 import hashlib
 
-from alembic import op
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
+from alembic import op
+from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision = '047ebdac558b'
 down_revision = 'f58bd7c54f9b'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 user_email = table(
@@ -56,7 +54,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     # Add blake2b column to UserEmail
@@ -113,7 +111,7 @@ def upgrade():
     op.alter_column('user', 'pw_hash', existing_type=sa.Unicode(80), type_=sa.Unicode)
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column('user', 'pw_hash', existing_type=sa.Unicode, type_=sa.Unicode(80))
     op.drop_index('ix_user_email_claim_blake2b', 'user_email_claim')
     op.drop_column('user_email_claim', 'blake2b')
