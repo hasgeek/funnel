@@ -54,7 +54,7 @@ repos:
       - id: pyupgrade
         args: ['--keep-runtime-typing', '--py310-plus']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.1
+    rev: v0.1.3
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
@@ -100,7 +100,7 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/psf/black
-    rev: 23.10.0
+    rev: 23.10.1
     hooks:
       - id: black
   # Mypy is temporarily disabled until the SQLAlchemy 2.0 migration is complete
