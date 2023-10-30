@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Optional, Union, cast
+from typing import cast
 
 import phonenumbers
 import requests
@@ -25,11 +26,11 @@ class WhatsappSender:
 
     requires_config: set
     func: Callable
-    init: Optional[Callable] = None
+    init: Callable | None = None
 
 
 def get_phone_number(
-    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber]
+    phone: str | phonenumbers.PhoneNumber | PhoneNumber,
 ) -> PhoneNumber:
     if isinstance(phone, PhoneNumber):
         if not phone.number:
@@ -144,7 +145,7 @@ def init() -> bool:
 
 
 def send(
-    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
+    phone: str | phonenumbers.PhoneNumber | PhoneNumber,
     message,
     callback: bool = True,
 ) -> str:
