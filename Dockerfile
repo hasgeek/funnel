@@ -23,7 +23,7 @@ RUN chsh -s /usr/sbin/nologin root
 # hadolint ignore=DL3008
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update -yqq \
-    && apt-get install -yqq --no-install-recommends supervisor \
+    && apt-get install -yqq --no-install-recommends supervisor curl \
     && apt-get autoclean -yqq \
     && apt-get autoremove -yqq \
     && rm -rf /var/lib/apt/lists/* \
@@ -31,10 +31,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 RUN addgroup --gid 1000 funnel && adduser --uid 1000 --gid 1000 funnel
 ENV PATH "$PATH:/home/funnel/.local/bin"
 USER funnel
+# hadolint ignore=DL4006
+RUN curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | /bin/bash -s -- -y
+ENV PATH "/home/funnel/.cargo/bin:$PATH"
 WORKDIR /home/funnel/app
 
 COPY --chown=funnel:funnel Makefile Makefile
 COPY --chown=funnel:funnel requirements/base.txt requirements/base.txt
+RUN mkdir -pv /home/funnel/.cache/pip
 RUN --mount=type=cache,target=/home/funnel/.cache/pip,uid=1000,gid=1000 make install-python
 
 COPY --chown=funnel:funnel . .
