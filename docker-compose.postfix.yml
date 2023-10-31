@@ -1,0 +1,20 @@
+services:
+  main:
+    environment:
+      - FLASK_MAIL_SERVER=postfix
+      - FLASK_MAIL_PORT=25
+  shortlink:
+    environment:
+      - FLASK_MAIL_SERVER=postfix
+      - FLASK_MAIL_PORT=25
+  postfix:
+    image: wildwildangel/postfix-relay:latest
+    env_file:
+      # https://github.com/sjinks/docker-alpine-postfix-relay
+      - .env.postfix
+    environment:
+      - SERVER_HOSTNAME=postfix
+    volumes:
+      - postfix:/var/spool/postfix
+volumes:
+  postfix:

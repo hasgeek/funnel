@@ -12,12 +12,13 @@ pytest-bdd
 pytest-cov
 pytest-dotenv
 pytest-env
+pytest-github-actions-annotate-failures
 pytest-rerunfailures
 pytest-selenium>=4.0.1
 pytest-socket
 requests-mock
 respx
-selenium<4.10  # Selenium 4.10.0 breaks pytest-selenium 4.0.1
+selenium>=4.14
 sttable
 tomlkit
 typeguard
