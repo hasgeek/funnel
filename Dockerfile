@@ -39,7 +39,8 @@ WORKDIR /home/funnel/app
 COPY --chown=funnel:funnel Makefile Makefile
 COPY --chown=funnel:funnel requirements/base.txt requirements/base.txt
 RUN mkdir -pv /home/funnel/.cache/pip
-RUN --mount=type=cache,target=/home/funnel/.cache/pip,uid=1000,gid=1000 make install-python
+# hadolint ignore=DL3013,DL3042
+RUN --mount=type=cache,target=/home/funnel/.cache/pip,uid=1000,gid=1000 make install-python && pip install --upgrade uwsgi
 
 COPY --chown=funnel:funnel . .
 COPY --from=assets --chown=funnel:funnel /home/node/app/funnel/static/built/ funnel/static/build
