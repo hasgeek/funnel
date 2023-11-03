@@ -25,7 +25,7 @@ from ...models import (
 )
 from ...registry import resource_registry
 from ...typing import ReturnView
-from ...utils import abort_null, make_redirect_url
+from ...utils import make_redirect_url
 from ..login_session import reload_for_cookies, requires_client_login, requires_login
 from .resource import get_userinfo
 
@@ -415,20 +415,20 @@ def oauth_token_success(token: AuthToken, **params) -> ReturnView:
 def oauth_token() -> ReturnView:
     """Provide token endpoint for OAuth2 server."""
     # Always required parameters
-    grant_type = cast(Optional[str], abort_null(request.form.get('grant_type')))
+    grant_type = cast(Optional[str], request.form.get('grant_type'))
     auth_client = current_auth.auth_client  # Provided by @requires_client_login
-    scope = abort_null(request.form.get('scope', '')).split(' ')
+    scope = request.form.get('scope', '').split(' ')
     # if grant_type == 'authorization_code' (POST)
-    code = cast(Optional[str], abort_null(request.form.get('code')))
-    redirect_uri = cast(Optional[str], abort_null(request.form.get('redirect_uri')))
+    code = cast(Optional[str], request.form.get('code'))
+    redirect_uri = cast(Optional[str], request.form.get('redirect_uri'))
     # if grant_type == 'password' (POST)
-    username = cast(Optional[str], abort_null(request.form.get('username')))
-    password = cast(Optional[str], abort_null(request.form.get('password')))
+    username = cast(Optional[str], request.form.get('username'))
+    password = cast(Optional[str], request.form.get('password'))
     # if grant_type == 'client_credentials'
     buid = cast(
         Optional[str],
         # XXX: Deprecated userid parameter
-        abort_null(request.form.get('buid') or request.form.get('userid')),
+        request.form.get('buid') or request.form.get('userid'),
     )
 
     # Validations 1: Required parameters

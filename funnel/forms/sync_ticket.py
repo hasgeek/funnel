@@ -175,8 +175,8 @@ class TicketParticipantForm(forms.Form):
     )
     email = forms.EmailField(
         __("Email"),
-        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
-        filters=[forms.filters.strip()],
+        validators=[forms.validators.Optional(), forms.validators.ValidEmail()],
+        filters=[forms.filters.none_if_empty()],
     )
     phone = forms.StringField(
         __("Phone number"),
@@ -219,6 +219,9 @@ class TicketParticipantForm(forms.Form):
     def validate(self, *args, **kwargs) -> bool:
         """Validate form."""
         result = super().validate(*args, **kwargs)
+        if self.email.data is None:
+            self.user = None
+            return True
         with db.session.no_autoflush:
             accountemail = AccountEmail.get(email=self.email.data)
             if accountemail is not None:

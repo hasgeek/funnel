@@ -426,7 +426,7 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 {
                     'fullname': membership.member.fullname,
                     'username': membership.member.username,
-                    'profile': membership.member.profile_url,
+                    'profile': membership.member.absolute_url,
                     'email': str(membership.member.email),
                     'phone': str(membership.member.phone),
                 }

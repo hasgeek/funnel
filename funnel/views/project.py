@@ -17,7 +17,6 @@ from flask import (
 )
 from flask_babel import format_number
 from markupsafe import Markup
-from PIL import Image
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -58,7 +57,7 @@ from ..models import (
     sa,
 )
 from ..signals import project_data_change, project_role_change
-from ..typing import IO, ReturnRenderWith, ReturnView
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import (
@@ -288,12 +287,10 @@ class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
             form.populate_obj(project)
             project.make_name()
             db.session.add(project)
+            project_data_change.send(project)
             db.session.commit()
 
             flash(_("Your new project has been created"), 'info')
-
-            project_data_change.send(self.obj)
-
             # tag locations
             tag_locations.queue(project.id)
 
@@ -463,6 +460,7 @@ class ProjectView(  # type: ignore[misc]
         form = ProjectForm(obj=self.obj, account=self.obj.account, model=Project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
+            project_data_change.send(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             tag_locations.queue(self.obj.id)
@@ -508,7 +506,7 @@ class ProjectView(  # type: ignore[misc]
             success=_(
                 "You have deleted project ‘{title}’ and all its associated content"
             ).format(title=self.obj.title),
-            next=self.obj.account.profile_url,
+            next=self.obj.account.absolute_url,
             cancel_url=self.obj.url_for(),
         )
 
@@ -820,6 +818,7 @@ class ProjectView(  # type: ignore[misc]
                         account=current_auth.user, project=self.obj
                     )
                     form.populate_obj(proj_save)
+                    db.session.add(proj_save)
                     db.session.commit()
             else:
                 if proj_save is not None:
@@ -918,17 +917,16 @@ class ProjectView(  # type: ignore[misc]
             }
         return render_redirect(get_next_url(referrer=True))
 
-    @app.route('/thumbnail_image', methods=['GET'])
-    def thumbnail_image(self) -> IO | str:
-        """Return the project thumbnail image from db."""
-        if self.obj.thumbnail_image:
-            thumbnail_io = io.BytesIO(self.obj.thumbnail_image)
-            img = Image.open(thumbnail_io)
-            img.save(thumbnail_io, format='PNG')
-            thumbnail_io.seek(0)
-            return send_file(thumbnail_io, as_attachment=False, mimetype='image/png')
-        else:
-            return self.obj.bg_image
+    @route('preview.img')
+    def preview_image(self) -> Response:  # pylint: disable=R1710
+        """Return the project preview image."""
+        if self.obj.preview_image:
+            return send_file(
+                io.BytesIO(self.obj.preview_image),
+                as_attachment=False,
+                mimetype='image/png',
+            )
+        abort(404)  # TODO: Return a placeholder image
 
 
 ProjectView.init_app(app)
