@@ -192,6 +192,12 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
+
+    #: Auto-generated preview image for Open Graph
+    preview_image: Mapped[bytes | None] = sa.orm.mapped_column(
+        sa.LargeBinary, nullable=True, deferred=True
+    )
+
     allow_rsvp: Mapped[bool] = with_roles(
         sa.orm.mapped_column(sa.Boolean, default=True, nullable=False),
         read={'all'},
