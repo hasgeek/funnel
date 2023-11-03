@@ -29,9 +29,7 @@ def downgrade(engine_name: str = '') -> None:
 def upgrade_() -> None:
     """Upgrade default database."""
     with op.batch_alter_table('project', schema=None) as batch_op:
-        batch_op.add_column(
-            sa.Column('preview_image', sa.LargeBinary(), nullable=True)
-        )
+        batch_op.add_column(sa.Column('preview_image', sa.LargeBinary(), nullable=True))
 
 
 def downgrade_() -> None:
