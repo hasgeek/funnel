@@ -175,7 +175,7 @@
       <a class="register-block__btn full-width-btn mui-btn mui-btn--primary" href="{{ project.buy_tickets_url.url }}" data-action="external register url" target="_blank" rel="noopener"><span>{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{{ project.views.register_button_text() }}</span></a>
     {% endif %}
     </div>
-    {% if project.current_roles.ticket_participant %}
+    {% if project.current_roles.account_member %}
       <div class="register-block__content {% if project.features.rsvp() or project.buy_tickets_url.url %} register-block__content--half {%- endif %}"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
     {% elif project.features.show_tickets %}
       <div class="register-block__content {% if project.features.rsvp() or project.buy_tickets_url.url %} register-block__content--half {%- endif %}">
@@ -502,7 +502,7 @@
                     </div>
                   {% endif %}
                   <div class="project-footer {% if current_page == 'project' %}project-footer--main{%- endif %}">
-                    {{ registerblock(project)}}
+                    {{ registerblock(project) }}
                   </div>
                   <div class="mui--hidden-xs mui--hidden-sm">
                     {{ project_details(project) }}

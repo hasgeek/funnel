@@ -145,7 +145,7 @@
     {{ featured_section(featured_project) }}
     {{ upcoming_section(upcoming_projects) }}
 
-    {% if has_membership_project %}
+    {% if membership_project %}
       <div class="projects-wrapper">
         <div class="mui-container">
           <div class="grid">
@@ -158,10 +158,10 @@
           <div class="mui-container membership-container">
             <div class="grid">
               <div class="grid__col-md-7 grid__col-lg-8 mui--hidden-xs mui--hidden-sm mui--hidden-md">
-                {% if has_membership_project.bg_image.url %}
-                  <img class="img-responsive img-rounded-border js-lazyload-img" data-src="{{ has_membership_project.bg_image.resize(img_size.profile_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
+                {% if membership_project.bg_image.url %}
+                  <img class="img-responsive img-rounded-border js-lazyload-img" data-src="{{ membership_project.bg_image.resize(img_size.profile_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
                   <noscript>
-                    <img class="img-responsive img-rounded-border" src="{{ has_membership_project.bg_image.resize(img_size.profile_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
+                    <img class="img-responsive img-rounded-border" src="{{ membership_project.bg_image.resize(img_size.profile_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
                   </noscript>
                 {% else %}
                   <img class="img-responsive img-rounded-border" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{% trans %}Membership{% endtrans %}"/>
@@ -170,23 +170,23 @@
               <div class="grid__col-12 grid__col-md-5 grid__col-lg-4">
                 <div class="card card--shaped  mui--hidden-lg mui--hidden-xl">
                   <div class="card__image-wrapper">
-                    {% if has_membership_project.bg_image.url %}
-                      <img class="card__image js-lazyload-img" data-src="{{ has_membership_project.bg_image.resize(img_size.spotlight_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
+                    {% if membership_project.bg_image.url %}
+                      <img class="card__image js-lazyload-img" data-src="{{ membership_project.bg_image.resize(img_size.spotlight_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
                       <noscript>
-                        <img class="card__image" src="{{ has_membership_project.bg_image.resize(img_size.spotlight_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
+                        <img class="card__image" src="{{ membership_project.bg_image.resize(img_size.spotlight_banner) }}" alt="{% trans %}Membership{% endtrans %}"/>
                       </noscript>
                     {% else %}
                       <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{% trans %}Membership{% endtrans %}"/>
                     {% endif %}
                   </div>
                   <div class="card__body">
-                    <div class="markdown">{{ has_membership_project.description }}</div>
+                    <div class="markdown">{{ membership_project.description }}</div>
                   </div>
                 </div>
-                <div class="markdown membership-container__content mui--hidden-xs mui--hidden-sm mui--hidden-md">{{ has_membership_project.description }}</div>
-                {% if has_membership_project.current_roles.ticket_participant %}
+                <div class="markdown membership-container__content mui--hidden-xs mui--hidden-sm mui--hidden-md">{{ membership_project.description }}</div>
+                {% if profile.current_roles.member %}
                   <div class="membership-container__btn-wrapper"><button class="mui-btn mui-btn--accent mui-btn--small zero-bottom-margin zero-top-margin mui--is-disabled display-block">{% trans %}You are a member{% endtrans %}</button></div>
-                {% elif has_membership_project.features.show_tickets %}
+                {% elif membership_project.features.show_tickets %}
                   <div class="membership-container__btn-wrapper">
                     <button class="js-open-ticket-widget mui-btn mui-btn--primary price-btn zero-bottom-margin zero-top-margin display-block">
                       <span class="price-btn__txt" data-cy="unregistered">{% trans %}Become a member{% endtrans %}</span>
@@ -269,13 +269,13 @@
   <script type="text/javascript">
     $(function() {
       var tickets;
-      {% if has_membership_project and has_membership_project.features.show_tickets -%}
+      {% if membership_project and membership_project.features.show_tickets -%}
         tickets = {
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
-          org: {{ has_membership_project.boxoffice_data.org|tojson }},
-          itemCollectionId: {{ has_membership_project.boxoffice_data.item_collection_id|tojson }},
-          itemCollectionTitle: {{ has_membership_project.title|tojson }}
+          org: {{ membership_project.boxoffice_data.org|tojson }},
+          itemCollectionId: {{ membership_project.boxoffice_data.item_collection_id|tojson }},
+          itemCollectionTitle: {{ membership_project.title|tojson }}
         };
       {%- endif %}
       window.Hasgeek.homeInit('.markdown', tickets);
