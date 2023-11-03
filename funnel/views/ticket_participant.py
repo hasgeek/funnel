@@ -33,13 +33,7 @@ from ..models import (
 from ..proxies import request_wants
 from ..signals import user_data_changed, user_registered
 from ..typing import ReturnRenderWith, ReturnView
-from ..utils import (
-    abort_null,
-    format_twitter_handle,
-    make_qrcode,
-    mask_email,
-    split_name,
-)
+from ..utils import format_twitter_handle, make_qrcode, mask_email, split_name
 from .helpers import render_redirect
 from .login_session import requires_login
 from .mixins import AccountCheckMixin, ProjectViewMixin, TicketEventViewMixin
@@ -96,7 +90,9 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
         'puuid_b58': puuid_b58,
         'fullname': ticket_participant.fullname,
         'company': ticket_participant.company,
-        'email': mask_email(ticket_participant.email),
+        'email': mask_email(ticket_participant.email)
+        if ticket_participant.email
+        else None,
         'badge_printed': ticket_participant.badge_printed,
         'checked_in': ticket_participant.checked_in,
         'ticket_type_titles': ticket_participant.ticket_type_titles,
@@ -269,9 +265,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
         form = forms.Form()
         if form.validate_on_submit():
             checked_in = getbool(request.form.get('checkin'))
-            ticket_participant_ids = [
-                abort_null(x) for x in request.form.getlist('puuid_b58')
-            ]
+            ticket_participant_ids = request.form.getlist('puuid_b58')
             for ticket_participant_id in ticket_participant_ids:
                 attendee = TicketEventParticipant.get(self.obj, ticket_participant_id)
                 attendee.checked_in = checked_in

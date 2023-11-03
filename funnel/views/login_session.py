@@ -646,7 +646,7 @@ def requires_sudo(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
                 return render_redirect(url_for('change_password'))
 
         elif request.method == 'POST':
-            formid = abort_null(request.form.get('form.id'))
+            formid = request.form.get('form.id')
             if formid == FORMID_SUDO_OTP:
                 try:
                     otp_session = OtpSession.retrieve('sudo')
@@ -842,7 +842,7 @@ def login_internal(
     current_auth.cookie['sessionid'] = login_session.buid
     current_auth.cookie['userid'] = user.buid
     session.permanent = True
-    autoset_timezone_and_locale(user)
+    autoset_timezone_and_locale()
     user_login.send(user)
 
 

@@ -17,7 +17,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 from .. import app
 from ..models import ContactExchange, Project, TicketParticipant, db, sa
 from ..typing import ReturnRenderWith, ReturnView
-from ..utils import abort_null, format_twitter_handle
+from ..utils import format_twitter_handle
 from .login_session import requires_login
 
 
@@ -141,7 +141,7 @@ class ContactView(ClassView):
 
     @route('scan/connect', endpoint='scan_connect', methods=['POST'])
     @requires_login
-    @requestargs(('puk', abort_null), ('key', abort_null))
+    @requestargs('puk', 'key')
     def connect(self, puk: str, key: str) -> ReturnView:
         """Verify a badge scan and create a contact."""
         ticket_participant = TicketParticipant.query.filter_by(puk=puk, key=key).first()

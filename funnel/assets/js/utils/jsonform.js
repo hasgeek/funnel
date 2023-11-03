@@ -3,7 +3,7 @@ import Form from './formhelper';
 
 const jsonForm = Vue.component('jsonform', {
   template: '#form-template',
-  props: ['jsonschema', 'title', 'formid'],
+  props: ['jsonschema', 'title', 'formid', 'useremail'],
   methods: {
     getFormData() {
       const obj = {};

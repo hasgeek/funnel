@@ -61,9 +61,12 @@ class OrganizationForm(forms.Form):
             )
         if reason == 'reserved':
             raise forms.validators.ValidationError(_("This name is reserved"))
-        if self.edit_obj and field.data.lower() == self.edit_obj.name.lower():
-            # Name is not reserved or invalid under current rules. It's also not changed
-            # from existing name, or has only changed case. This is a validation pass.
+        if (
+            self.edit_obj
+            and self.edit_obj.name
+            and field.data.lower() == self.edit_obj.name.lower()
+        ):
+            # Name has only changed case from previous name. This is a validation pass
             return
         if reason == 'user':
             if (

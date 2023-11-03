@@ -348,7 +348,7 @@ class AccountView(ClassView):
         form = AccountForm(obj=current_auth.user)
         if form.validate_on_submit():
             form.populate_obj(current_auth.user)
-            autoset_timezone_and_locale(current_auth.user)
+            autoset_timezone_and_locale()
 
             db.session.commit()
             user_data_changed.send(current_auth.user, changes=['profile'])
