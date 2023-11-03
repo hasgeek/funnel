@@ -1,4 +1,4 @@
-"""Added social_share_preview column to Project model
+"""Add preview_image column to Project model.
 
 Revision ID: 37b764bbddd8
 Revises: 017c60414c03
@@ -30,11 +30,11 @@ def upgrade_() -> None:
     """Upgrade default database."""
     with op.batch_alter_table('project', schema=None) as batch_op:
         batch_op.add_column(
-            sa.Column('social_share_preview', sa.LargeBinary(), nullable=True)
+            sa.Column('preview_image', sa.LargeBinary(), nullable=True)
         )
 
 
 def downgrade_() -> None:
     """Downgrade default database."""
     with op.batch_alter_table('project', schema=None) as batch_op:
-        batch_op.drop_column('social_share_preview')
+        batch_op.drop_column('preview_image')

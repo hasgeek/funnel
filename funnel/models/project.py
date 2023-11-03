@@ -192,7 +192,8 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    social_share_preview: Mapped[bytes | None] = sa.orm.mapped_column(
+    #: Auto-generated preview image for Open Graph
+    preview_image: Mapped[bytes | None] = sa.orm.mapped_column(
         sa.LargeBinary, nullable=True, deferred=True
     )
 
