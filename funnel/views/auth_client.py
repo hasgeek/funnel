@@ -297,19 +297,19 @@ AuthClientCredentialView.init_app(app)
 
 
 @AuthClientPermissions.views('main')
-@route('/apps/info/<client>/perms/u/<user>')
+@route('/apps/info/<client>/perms/u/<account>')
 class AuthClientPermissionsView(UrlForView, ModelView):
     model = AuthClientPermissions
     route_model_map = {'client': 'auth_client.buid', 'account': 'account.buid'}
     obj: AuthClientPermissions
 
-    def loader(self, client: str, user: str) -> AuthClientPermissions:
+    def loader(self, client: str, account: str) -> AuthClientPermissions:
         return (
             AuthClientPermissions.query.join(
                 AuthClient, AuthClientPermissions.auth_client
             )
             .join(Account, AuthClientPermissions.account)
-            .filter(AuthClient.buid == client, Account.buid == user)
+            .filter(AuthClient.buid == client, Account.buid == account)
             .one_or_404()
         )
 

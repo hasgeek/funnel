@@ -157,6 +157,9 @@ class TicketEvent(GetTitleMixin, Model):
             'read': {'name', 'title'},
             'write': {'name', 'title'},
         },
+        'project_usher': {
+            'read': {'name', 'title'},
+        },
     }
 
 
