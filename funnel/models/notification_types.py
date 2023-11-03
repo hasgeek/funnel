@@ -248,7 +248,7 @@ class RegistrationReceivedNotification(
 
 
 class OrganizationAdminMembershipNotification(
-    DocumentHasAccount,
+    DocumentIsAccount,
     Notification[Account, AccountMembership],
     type='organization_membership_granted',
 ):
@@ -263,7 +263,7 @@ class OrganizationAdminMembershipNotification(
 
 
 class OrganizationAdminMembershipRevokedNotification(
-    DocumentHasAccount,
+    DocumentIsAccount,
     Notification[Account, AccountMembership],
     type='organization_membership_revoked',
     shadows=OrganizationAdminMembershipNotification,

@@ -720,22 +720,18 @@ class RenderShared:
         actor = self.membership_actor(membership)
         return Markup(self.activity_template(membership)).format(
             user=Markup(
-                f'<a href="{escape(membership.member.profile_url)}">'
+                f'<a href="{escape(membership.member.absolute_url)}">'
                 f'{escape(membership.member.pickername)}</a>'
-            )
-            if membership.member.profile_url
-            else escape(membership.member.pickername),
+            ),
             project=Markup(
                 f'<a href="{escape(self.project.absolute_url)}">'
                 f'{escape(self.project.joined_title)}</a>'
             ),
             actor=(
                 Markup(
-                    f'<a href="{escape(actor.profile_url)}">'
+                    f'<a href="{escape(actor.absolute_url)}">'
                     f'{escape(actor.pickername)}</a>'
                 )
-                if actor.profile_url
-                else escape(actor.pickername)
             )
             if actor
             else _("(unknown)"),
