@@ -50,10 +50,10 @@
       <meta property="og:url" content="{{ request.base_url }}" />
     {%- endblock canonical_url %}
     {%- block image_src %}
-      {%- if project and project.bg_image.url %}
-        <link rel="image_src" href="{{ project.bg_image }}" />
-        <meta property="og:image" content="{{ url_for('thumbnail_image') }}" />
-        <meta name="twitter:image" content="{{ url_for('thumbnail_image') }}" />
+      {%- if project and project.preview_image %}
+        <link rel="image_src" href="{{ project.url_for('preview_image') }}" />
+        <meta property="og:image" content="{{ project.url_for('preview_image') }}" />
+        <meta name="twitter:image" content="{{ project.url_for('preview_image') }}" />
       {%- elif project and project.account.logo_url %}
         <link rel="image_src" href="{{ project.account.logo_url }}" />
         <meta property="og:image" content="{{ project.account.logo_url }}" />

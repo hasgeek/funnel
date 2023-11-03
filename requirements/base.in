@@ -28,6 +28,7 @@ furl
 geoip2
 grapheme
 gunicorn
+html2image
 html2text
 httpx[http2]
 icalendar

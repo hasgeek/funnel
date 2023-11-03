@@ -917,7 +917,7 @@ class ProjectView(  # type: ignore[misc]
             }
         return render_redirect(get_next_url(referrer=True))
 
-    @route('preview.img')
+    @route('preview.png')
     def preview_image(self) -> Response:  # pylint: disable=R1710
         """Return the project preview image."""
         if self.obj.preview_image:
