@@ -4,8 +4,7 @@ import functools
 import types
 from collections.abc import Callable
 from copy import copy
-from typing import TypeVar
-from typing_extensions import ParamSpec
+from typing import ParamSpec, TypeVar
 
 from chevron import render
 from markupsafe import Markup, escape as html_escape

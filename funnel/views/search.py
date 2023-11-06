@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import re
 from html import unescape as html_unescape
-from typing import Any, TypeVar
-from typing_extensions import TypedDict
+from typing import Any, TypedDict, TypeVar
 from urllib.parse import quote as urlquote
 
 from flask import request, url_for
