@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, TypeAlias, TypeVar, Union
-from typing_extensions import ParamSpec
+from typing import Optional, ParamSpec, TypeAlias, TypeVar, Union
 
 from flask.typing import ResponseReturnValue
 from werkzeug.wrappers import Response  # Base class for Flask Response
