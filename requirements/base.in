@@ -37,7 +37,6 @@ itsdangerous
 linkify-it-py
 markdown-it-py
 mdit-py-plugins
-oauth2
 oauth2client
 passlib
 phonenumbers
