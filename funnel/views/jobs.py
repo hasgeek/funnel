@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Callable
 from functools import wraps
-from typing_extensions import Protocol
+from typing import Protocol
 
 import requests
 from flask import g

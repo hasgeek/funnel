@@ -15,7 +15,6 @@ from . import (
     Mapped,
     Model,
     Query,
-    TimestampMixin,
     TSVectorType,
     UuidMixin,
     backref,
@@ -47,7 +46,7 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
     RESTRICTED = (2, 'restricted', __("Restricted"))
 
 
-class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
+class Update(UuidMixin, BaseScopedIdNameMixin, Model):
     __tablename__ = 'update'
 
     _visibility_state = sa.orm.mapped_column(

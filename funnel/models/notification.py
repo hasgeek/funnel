@@ -90,13 +90,14 @@ from typing import (
     ClassVar,
     Generic,
     Optional,
+    Protocol,
     TypeVar,
     Union,
     cast,
     get_args,
     get_origin,
 )
-from typing_extensions import Protocol, get_original_bases
+from typing_extensions import get_original_bases
 from uuid import UUID, uuid4
 
 from sqlalchemy import event

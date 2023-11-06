@@ -68,5 +68,6 @@ urllib3[socks]  # Not required here, but the [socks] extra shows up in test.txt
 user-agents
 werkzeug
 whitenoise
-z-base-32
+wtforms-sqlalchemy @ git+https://github.com/jace/wtforms-sqlalchemy  # See /pull/1
+z-base-32 @ git+https://github.com/matusf/z-base-32  # See /issues/13 for Py 3.12 fix
 zxcvbn
