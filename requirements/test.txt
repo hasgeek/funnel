@@ -64,9 +64,9 @@ pytest-cov==4.1.0
     # via -r requirements/test.in
 pytest-dotenv==0.5.2
     # via -r requirements/test.in
-pytest-env==1.1.0
+pytest-env==1.1.1
     # via -r requirements/test.in
-pytest-html==4.0.2
+pytest-html==4.1.0
     # via pytest-selenium
 pytest-metadata==3.0.0
     # via pytest-html
@@ -94,9 +94,9 @@ sttable==0.0.1
     # via -r requirements/test.in
 tenacity==8.2.3
     # via pytest-selenium
-tomlkit==0.12.1
+tomlkit==0.12.2
     # via -r requirements/test.in
-trio==0.22.2
+trio==0.23.1
     # via
     #   selenium
     #   trio-websocket
