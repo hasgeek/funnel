@@ -28,11 +28,9 @@ def render_project_preview_image(project_id: int) -> None:
     fd, temp_filepath = tempfile.mkstemp('.png')
     os.close(fd)
     temp_dir, temp_filename = os.path.split(temp_filepath)
-    renderer = Html2Image(size=(640, 360), output_path=temp_dir)
+    hti = Html2Image(size=(640, 360), output_path=temp_dir)
     html_src = render_template('preview/project.html.jinja2', project=project)
-    screenshot_files = renderer.screenshot(
-        html_str=html_src, save_as=temp_filename, size=(640, 360)
-    )
+    screenshot_files = hti.screenshot(html_str=html_src, save_as=temp_filename)
 
     if screenshot_files:
         with open(screenshot_files[0], mode='rb') as file:
