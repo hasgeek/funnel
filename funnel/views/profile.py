@@ -143,9 +143,6 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 .limit(1)
                 .first()
             )
-            has_membership_project = self.obj.projects.filter(
-                Project.boxoffice_data.op('@>')({'has_membership': True})
-            ).first()
             scheduled_sessions_list = (
                 session_list_data(
                     featured_project.scheduled_sessions, with_modal_url='view'
@@ -235,11 +232,11 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     _p.current_access(datasets=('primary', 'related'))
                     for _p in sponsored_submissions
                 ],
-                'has_membership_project': (
-                    has_membership_project.current_access(
+                'membership_project': (
+                    self.obj.membership_project.current_access(
                         datasets=('without_parent', 'related')
                     )
-                    if has_membership_project is not None
+                    if self.obj.membership_project is not None
                     else None
                 ),
             }

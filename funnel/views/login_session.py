@@ -842,7 +842,7 @@ def login_internal(
     current_auth.cookie['sessionid'] = login_session.buid
     current_auth.cookie['userid'] = user.buid
     session.permanent = True
-    autoset_timezone_and_locale(user)
+    autoset_timezone_and_locale()
     user_login.send(user)
 
 
