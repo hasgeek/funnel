@@ -8,18 +8,24 @@
 
 {% block contentwrapper %}
   <div class="grid projects-wrapper" id="tagged-projects">
-    <div class="grid__col-xs-12">
-      {% if not participated_projects %}
-        <p class="mui-panel bg-accent">{% trans %}No participation yet{% endtrans %}</p>
-      {% endif %}
-    </div>
-    <ul class="mui-list--unstyled grid upcoming" role="list">
-      {% for project in participated_projects %}
-        <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-          {{ projectcard(project, include_calendar=true, calendarwidget_compact=false) }}
-        </li>
-      {%- endfor -%}
-    </ul>
+    {% if profile.features.is_private() %}
+      <div class="grid__col-xs-12">
+        <p class="mui-panel bg-accent">{% trans %}This is a private account{% endtrans %}</p>
+       </div>
+    {% else %}
+      <div class="grid__col-xs-12">
+        {% if not participated_projects %}
+          <p class="mui-panel bg-accent">{% trans %}No participation yet{% endtrans %}</p>
+        {% endif %}
+      </div>
+      <ul class="mui-list--unstyled grid upcoming" role="list">
+        {% for project in participated_projects %}
+          <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(project, include_calendar=true, calendarwidget_compact=false) }}
+          </li>
+        {%- endfor -%}
+      </ul>
+    {% endif %}
   </div>
 {% endblock contentwrapper %}
 
