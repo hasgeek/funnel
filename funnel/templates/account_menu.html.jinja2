@@ -36,7 +36,7 @@
       </li>
       {%- for orgmem in orgmemlist.recent %}
         <li>
-          <a href="{{ orgmem.account.profile_url }}"
+          <a href="{{ orgmem.account.url_for() }}"
              class="header__dropdown__item header__dropdown__item--flex header__dropdown__item--morepadding mui--text-dark nounderline">
             <span class="profile-avatar margin-right">
               {%- if orgmem.account.logo_url.url %}
