@@ -8,6 +8,7 @@ import tempfile
 from flask import render_template
 from html2image import Html2Image
 
+from .. import rq
 from ..models import Project, db
 from ..signals import project_data_change
 from .jobs import rqjob
@@ -15,12 +16,18 @@ from .jobs import rqjob
 
 @project_data_change.connect
 def redo_project_preview_image(project: Project) -> None:
-    render_project_preview_image.queue(project_id=project.id)
+    render_project_preview_image.queue(project_id=project.id, job_id=project.id)
 
 
 @rqjob()
-def render_project_preview_image(project_id: int) -> None:
+def render_project_preview_image(project_id: int, job_id: str) -> None:
     """Generate a project preview image."""
+
+    task_queue = rq.get_queue()
+    for job in task_queue.jobs:
+        if job.get_id() is job_id:
+            return
+
     project = Project.query.get(project_id)
     if project is None:
         return
