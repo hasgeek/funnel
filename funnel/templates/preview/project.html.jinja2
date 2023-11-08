@@ -105,7 +105,7 @@
 
             window.addEventListener("load", () => {
                 var hueValues = [5, 23, 39, 48, 92, 172, 201, 220, 273, 335]
-                huePair = randomizeElements(hueValues, 2);
+                huePair = randomizeElements(hueValues);
                 var gradient = 'linear-gradient(to bottom right, hsl('+ huePair[0] +', 100%, 87%), hsl('+ (huePair[0]+(huePair[1]-huePair[0])*0.33) +', 100%, 87%), hsl('+ (huePair[0]+(huePair[1]-huePair[0])*0.66) +', 100%, 87%), hsl('+ huePair[1] +', 100%, 87%))';
                 console.log(gradient);
                 document.getElementById("container").style.background = gradient;
