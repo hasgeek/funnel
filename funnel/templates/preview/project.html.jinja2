@@ -87,27 +87,24 @@
             const randomizeIndex = (count) => {
                 return Math.floor(count * Math.random());
             };
-
-            const randomizeElements = (array) => {
-                const result = [];
-                const randomSelection = new Set();
-                while (result.length < 2) {
-                    const index = randomizeIndex(array.length);
-                    const element = array[index];
-                    if (randomSelection.has(element)) {
-                        continue;
-                    }
-                    randomSelection.add(element);
-                    result.push(element);
+            const randomizeElements = (hueList) => {
+                const uniqueHuePair = new Set();
+                let hueCount = hueList.length;
+                let randomIndex;
+                let hue;
+                while (uniqueHuePair.size < 2) {
+                    randomIndex = randomizeIndex(hueCount);
+                    hue = hueList[randomIndex];
+                    uniqueHuePair.add(hue);
                 }
-                return result;
+                return uniqueHuePair;
             };
 
             window.addEventListener("load", () => {
                 var hueValues = [5, 23, 39, 48, 92, 172, 201, 220, 273, 335]
-                huePair = randomizeElements(hueValues);
-                var gradient = 'linear-gradient(to bottom right, hsl('+ huePair[0] +', 100%, 87%), hsl('+ (huePair[0]+(huePair[1]-huePair[0])*0.33) +', 100%, 87%), hsl('+ (huePair[0]+(huePair[1]-huePair[0])*0.66) +', 100%, 87%), hsl('+ huePair[1] +', 100%, 87%))';
-                console.log(gradient);
+                huePair = Array.from(randomizeElements(hueValues));
+                console.log(huePair);
+                var gradient = `linear-gradient(to bottom right, hsl(${huePair[0]}, 100%, 87%), hsl(${huePair[0]+(huePair[1]-huePair[0])*0.33}, 100%, 87%), hsl(${huePair[0]+(huePair[1]-huePair[0])*0.66}, 100%, 87%), hsl(${huePair[1]}, 100%, 87%))`;
                 document.getElementById("container").style.background = gradient;
             })
         </script>
