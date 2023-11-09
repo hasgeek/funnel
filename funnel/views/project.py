@@ -728,6 +728,35 @@ class ProjectView(  # type: ignore[misc]
             )
         return render_redirect(self.obj.url_for())
 
+    @route('register_external', methods=['POST'])
+    def register_external(self) -> ReturnView:
+        """Register on an external website."""
+        if not self.obj.buy_tickets_url:
+            flash(
+                _("This project does not have an external registration link"), 'error'
+            )
+            return render_redirect(self.obj.url_for())
+        form = forms.Form()
+        if form.validate_on_submit():
+            if current_auth:
+                rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
+                rsvp.rsvp_awaiting()
+                self.obj.buy_tickets_visits_auth = (
+                    sa.func.coalesce(Project.buy_tickets_visits_auth, 0) + 1
+                )
+            else:
+                self.obj.buy_tickets_visits_anon = (
+                    sa.func.coalesce(Project.buy_tickets_visits_anon, 0) + 1
+                )
+            db.session.commit()
+            return render_redirect(str(self.obj.buy_tickets_url))
+        # CSRF failure response:
+        flash(
+            _("Were you trying to visit the registration link? Try again to confirm"),
+            'error',
+        )
+        return render_redirect(self.obj.url_for())
+
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
     @requires_login
@@ -791,6 +820,13 @@ class ProjectView(  # type: ignore[misc]
     def rsvp_list_maybe_csv(self) -> ReturnView:
         """Return a CSV of RSVP participants who answered Maybe."""
         return self.get_rsvp_state_csv(state=RSVP_STATUS.MAYBE)
+
+    @route('rsvp_list/awaiting.csv')
+    @requires_login
+    @requires_roles({'promoter'})
+    def rsvp_list_awaiting_csv(self) -> ReturnView:
+        """Return a CSV of RSVP participants with response status Awaiting."""
+        return self.get_rsvp_state_csv(state=RSVP_STATUS.AWAITING)
 
     @route('save', methods=['POST'])
     @requires_login
