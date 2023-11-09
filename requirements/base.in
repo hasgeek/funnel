@@ -6,15 +6,12 @@ Babel
 base58
 bcrypt
 better_profanity!=0.7.0  # https://github.com/snguyenthanh/better_profanity/issues/19
-blinker
-boto3  # Required in Imgee not here, but has a pin on urllib3 version
 Brotli
 chevron
 click
 cryptography
 dataclasses-json
 Flask
-Flask-Assets2
 Flask-Babel
 Flask-Executor
 Flask-FlatPages
@@ -37,7 +34,6 @@ itsdangerous
 linkify-it-py
 markdown-it-py
 mdit-py-plugins
-oauth2
 oauth2client
 passlib
 phonenumbers
@@ -59,14 +55,14 @@ rq-dashboard @ git+https://github.com/jace/rq-dashboard
 SQLAlchemy
 sqlalchemy-json
 SQLAlchemy-Utils
-toml
 tweepy
 twilio
 typing-extensions
 tzdata
-urllib3[socks]  # Not required here, but the [socks] extra shows up in test.txt
+urllib3[socks]  # Not direct dep; pip-audit complains of dupe urllib[socks] in test.txt
 user-agents
 werkzeug
 whitenoise
-z-base-32
+wtforms-sqlalchemy @ git+https://github.com/jace/wtforms-sqlalchemy  # See /pull/1
+z-base-32 @ git+https://github.com/matusf/z-base-32  # See /issues/13 for Py 3.12 fix
 zxcvbn

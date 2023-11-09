@@ -8,6 +8,7 @@ ci:
   skip: [
       'pip-audit',
       'yesqa',
+      'creosote',
       'no-commit-to-branch',
       # 'hadolint-docker',
       'docker-compose-check',
@@ -52,9 +53,9 @@ repos:
     rev: v3.15.0
     hooks:
       - id: pyupgrade
-        args: ['--keep-runtime-typing', '--py310-plus']
+        args: ['--keep-runtime-typing', '--py311-plus']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.1
+    rev: v0.1.4
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
@@ -100,7 +101,7 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/psf/black
-    rev: 23.10.0
+    rev: 23.10.1
     hooks:
       - id: black
   # Mypy is temporarily disabled until the SQLAlchemy 2.0 migration is complete
@@ -148,6 +149,26 @@ repos:
         args: ['-c', 'pyproject.toml']
         additional_dependencies:
           - 'bandit[toml]'
+  - repo: https://github.com/fredrikaverpil/creosote
+    rev: v3.0.0
+    hooks:
+      - id: creosote
+        args:
+          - --venv=.venv
+          - --path=funnel
+          - --path=tests
+          - --path=migrations/versions
+          - --deps-file=requirements/base.in
+          - --exclude-dep=argon2-cffi # Optional dep for passlib
+          - --exclude-dep=bcrypt # Optional dep for passlib
+          - --exclude-dep=gunicorn # Not imported, used as server
+          - --exclude-dep=linkify-it-py # Optional dep for markdown-it-py
+          - --exclude-dep=psycopg # Optional dep for SQLAlchemy
+          - --exclude-dep=rq-dashboard # Creosote fails to recognise the import
+          - --exclude-dep=tzdata # Data-only dep, therefore no import statement
+          - --exclude-dep=urllib3 # Required to silence a pip-audit warning
+          - --exclude-dep=wtforms-sqlalchemy # Temp dep on an unreleased git branch
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:

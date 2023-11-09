@@ -13,8 +13,7 @@ import time
 import weakref
 from collections.abc import Callable, Iterable
 from secrets import token_urlsafe
-from typing import Any, NamedTuple
-from typing_extensions import Protocol
+from typing import Any, NamedTuple, Protocol
 
 from flask import Flask
 

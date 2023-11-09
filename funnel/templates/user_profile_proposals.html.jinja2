@@ -9,10 +9,14 @@
 {% block contentwrapper %}
   <div class="grid projects-wrapper" id="tagged-submissions">
     <div class="grid__col-xs-12">
-      {% if submitted_proposals %}
-        {{ proposal_list(submitted_proposals) }}
+      {% if profile.features.is_private() %}
+        <p class="mui-panel bg-accent">{% trans %}This is a private account{% endtrans %}</p>
       {% else %}
-        <p class="mui-panel bg-accent">{% trans %}No submissions{% endtrans %}</p>
+          {% if submitted_proposals %}
+            {{ proposal_list(submitted_proposals) }}
+          {% else %}
+            <p class="mui-panel bg-accent">{% trans %}No submissions{% endtrans %}</p>
+          {% endif %}
       {% endif %}
     </div>
   </div>

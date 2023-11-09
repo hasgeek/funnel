@@ -90,18 +90,19 @@ from typing import (
     ClassVar,
     Generic,
     Optional,
+    Protocol,
     TypeVar,
     Union,
     cast,
     get_args,
     get_origin,
 )
-from typing_extensions import Protocol, get_original_bases
 from uuid import UUID, uuid4
 
 from sqlalchemy import event
 from sqlalchemy.orm import column_keyed_dict
 from sqlalchemy.orm.exc import NoResultFound
+from typing_extensions import get_original_bases
 from werkzeug.utils import cached_property
 
 from baseframe import __

@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
-from typing import Any, ClassVar, Literal, overload
-from typing_extensions import Self
+from typing import Any, ClassVar, Literal, Self, overload
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
