@@ -16,17 +16,17 @@ from .jobs import rqjob
 
 @project_data_change.connect
 def redo_project_preview_image(project: Project) -> None:
-    render_project_preview_image.queue(project_id=project.id, job_id=project.id)
+    render_project_preview_image.queue(project_id=project.id)
 
 
 @rqjob()
-def render_project_preview_image(project_id: int, job_id: str) -> None:
+def render_project_preview_image(project_id: int) -> None:
     """Generate a project preview image."""
 
-    task_queue = rq.get_queue()
-    for job in task_queue.jobs:
-        if job.get_id() is job_id:
-            return
+#     task_queue = rq.get_queue()
+#     for job in task_queue.jobs:
+#         if job.get_id() is job_id:
+#             return
 
     project = Project.query.get(project_id)
     if project is None:
