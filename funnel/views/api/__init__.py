@@ -12,4 +12,5 @@ from . import (
     shortlink,
     sms_events,
     support,
+    whatsapp_events,
 )
