@@ -22,12 +22,6 @@ def redo_project_preview_image(project: Project) -> None:
 @rqjob()
 def render_project_preview_image(project_id: int) -> None:
     """Generate a project preview image."""
-
-#     task_queue = rq.get_queue()
-#     for job in task_queue.jobs:
-#         if job.get_id() is job_id:
-#             return
-
     project = Project.query.get(project_id)
     if project is None:
         return
