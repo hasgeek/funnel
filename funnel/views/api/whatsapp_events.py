@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from flask import current_app, jsonify, request
+from flask import current_app, request
 
 from baseframe import statsd
 
@@ -42,15 +42,9 @@ def process_whatsapp_event() -> ReturnView:
     )
     if not whatsapp_to:
         return {'status': 'eror', 'error': 'invalid_phone'}, 422
-    # Exotel sends back 0-prefixed phone numbers, not plus-prefixed intl. numbers
-    if whatsapp_to.startswith('00'):
-        whatsapp_to = '+' + whatsapp_to[2:]
-    elif whatsapp_to.startswith('0'):
-        whatsapp_to = '+91' + whatsapp_to[1:]
-    elif whatsapp_to.startswith('91'):
-        whatsapp_to = '+' + whatsapp_to
+
     try:
-        whatsapp_to = canonical_phone_number(whatsapp_to)
+        whatsapp_to = canonical_phone_number('+' + whatsapp_to)
     except PhoneNumberError:
         return {'status': 'error', 'error': 'invalid_phone'}, 422
 
@@ -86,4 +80,4 @@ def process_whatsapp_event() -> ReturnView:
             'event': status,
         },
     )
-    return jsonify({"status": "ok"}), 200
+    return {"status": "ok"}, 200
