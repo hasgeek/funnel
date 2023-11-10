@@ -8,7 +8,6 @@ import tempfile
 from flask import render_template
 from html2image import Html2Image
 
-from .. import rq
 from ..models import Project, db
 from ..signals import project_data_change
 from .jobs import rqjob
