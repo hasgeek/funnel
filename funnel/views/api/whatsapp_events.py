@@ -15,7 +15,7 @@ from ...utils import abort_null
 @app.route('/api/1/whatsapp/meta_event', methods=['GET'])
 def process_whatsapp_webhook_verification():
     """Meta requires to verify the webhook URL by sending a GET request with a token."""
-    verify_token = app.config['WHATSAPP_WEBHOOK_VERIFY_CODE']
+    verify_token = app.config['WHATSAPP_WEBHOOK_SECRET']
     mode = request.args.get("hub.mode")
     token = request.args.get("hub.verify_token")
     challenge = request.args.get("hub.challenge")
