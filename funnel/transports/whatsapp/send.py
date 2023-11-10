@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import cast
@@ -42,7 +43,7 @@ def get_phone_number(
     except PhoneNumberBlockedError as exc:
         raise TransportRecipientError(_("This phone number has been blocked")) from exc
     # TODO: Confirm this phone number is available on WhatsApp (replacing `allow_wa`)
-    if not phone_number.allow_wa:
+    if not phone_number.has_wa:
         raise TransportRecipientError(_("WhatsApp is disabled for this phone number"))
     if not phone_number.number:
         # This should never happen as :meth:`PhoneNumber.add` will restore the number
@@ -62,23 +63,27 @@ def send_via_meta(phone: str, message, callback: bool = True) -> str:
     phone_number = get_phone_number(phone)
     sid = app.config['WHATSAPP_PHONE_ID']
     token = app.config['WHATSAPP_TOKEN']
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",  # Adjust the content type based on your API requirements
+    }
     payload = {
         "messaging_product": "whatsapp",
         "recipient_type": "individual",
         'to': phone_number.number,
-        "type": "template",
-        'body': str(message),
+        'type': 'template',
+        'template': json.dumps(message.template),
     }
     try:
         r = requests.post(
-            f'https://graph.facebook.com/v15.0/{sid}/messages',
+            f'https://graph.facebook.com/v18.0/{sid}/messages',
             timeout=30,
-            auth=(token),
+            headers=headers,
             data=payload,
         )
         if r.status_code == 200:
             jsonresponse = r.json()
-            transactionid = jsonresponse['messages'].get('id')
+            transactionid = jsonresponse['messages'][0].get('id')
             phone_number.msg_wa_sent_at = sa.func.utcnow()
             return transactionid
         raise TransportTransactionError(_("WhatsApp API error"), r.status_code, r.text)
@@ -88,7 +93,7 @@ def send_via_meta(phone: str, message, callback: bool = True) -> str:
 
 def send_via_hosted(phone: str, message, callback: bool = True) -> str:
     """
-    Send the Whatsapp message using Meta Cloud API.
+    Send the Whatsapp message using On-Premise API.
 
     :param phone: Phone number
     :param message: Message to deliver to phone number
@@ -107,7 +112,7 @@ def send_via_hosted(phone: str, message, callback: bool = True) -> str:
     }
     try:
         r = requests.post(
-            f'https://graph.facebook.com/v15.0/{sid}/messages',
+            f'https://graph.facebook.com/v18.0/{sid}/messages',
             timeout=30,
             auth=(token),
             data=payload,
