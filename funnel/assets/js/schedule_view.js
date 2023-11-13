@@ -276,9 +276,8 @@ const Schedule = {
         this.config.slotInterval
       );
       if (this.config.schedule[session.eventDay]) {
-        this.config.schedule[session.eventDay].sessions[
-          session.startTime
-        ].showLabel = true;
+        this.config.schedule[session.eventDay].sessions[session.startTime].showLabel =
+          true;
         this.config.schedule[session.eventDay].sessions[session.startTime].rooms[
           session.room_scoped_name
         ].talk = session;
