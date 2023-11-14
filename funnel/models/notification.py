@@ -636,7 +636,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     @property
     def role_provider_obj(self) -> _F | _D:
         """Return fragment if exists, document otherwise, indicating role provider."""
-        return cast(Union[_F, _D], self.fragment or self.document)
+        return cast(_F | _D, self.fragment or self.document)
 
     def dispatch(self) -> Generator[NotificationRecipient, None, None]:
         """

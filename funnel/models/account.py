@@ -6,7 +6,7 @@ import hashlib
 import itertools
 from collections.abc import Iterable, Iterator
 from datetime import datetime, timedelta
-from typing import ClassVar, Literal, Union, cast, overload
+from typing import ClassVar, Literal, cast, overload
 from uuid import UUID
 
 import phonenumbers
@@ -259,7 +259,7 @@ class Account(UuidMixin, BaseMixin, Model):
         sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[str] = sa.orm.mapped_column(
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
         TSVectorType(
             'title',
             'name',
@@ -1227,11 +1227,10 @@ add_search_trigger(Account, 'search_vector')
 add_search_trigger(Account, 'name_vector')
 
 
-class AccountOldId(UuidMixin, BaseMixin, Model):
+class AccountOldId(UuidMixin, BaseMixin[UUID], Model):
     """Record of an older UUID for an account, after account merger."""
 
     __tablename__ = 'account_oldid'
-    __uuid_primary_key__ = True
 
     #: Old account, if still present
     old_account: Mapped[Account] = relationship(
@@ -2178,7 +2177,7 @@ user_phone_primary_table = add_primary_relationship(
 )
 
 #: Anchor type
-Anchor = Union[AccountEmail, AccountEmailClaim, AccountPhone, EmailAddress, PhoneNumber]
+Anchor = AccountEmail | AccountEmailClaim | AccountPhone | EmailAddress | PhoneNumber
 
 # Tail imports
 # pylint: disable=wrong-import-position

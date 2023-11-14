@@ -383,7 +383,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @with_roles(read={'member', 'editor'}, grants_via={None: {'admin': 'member'}})
     @declared_attr
     @classmethod
-    def member(cls) -> Mapped[Account]:
+    def member(cls) -> Mapped[Account]:  # type: ignore[override]
         """Member in this membership record."""
         return relationship(Account, foreign_keys=[cls.member_id])
 
