@@ -10,9 +10,9 @@ from . import DynamicMapped, Mapped, Model, backref, db, relationship, sa
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
-    FrozenAttributionMixin,
+    FrozenAttributionProtoMixin,
     ImmutableUserMembershipMixin,
-    ReorderMembershipMixin,
+    ReorderMembershipProtoMixin,
 )
 from .project import Project
 from .proposal import Proposal
@@ -21,9 +21,9 @@ __all__ = ['ProjectSponsorMembership', 'ProposalSponsorMembership']
 
 
 class ProjectSponsorMembership(  # type: ignore[misc]
-    FrozenAttributionMixin,
-    ReorderMembershipMixin,
     ImmutableUserMembershipMixin,
+    FrozenAttributionProtoMixin,
+    ReorderMembershipProtoMixin,
     Model,
 ):
     """Sponsor of a project."""
@@ -151,8 +151,8 @@ class __Project:
 # FIXME: Replace this with existing proposal collaborator as they're now both related
 # to "account"
 class ProposalSponsorMembership(  # type: ignore[misc]
-    FrozenAttributionMixin,
-    ReorderMembershipMixin,
+    FrozenAttributionProtoMixin,
+    ReorderMembershipProtoMixin,
     ImmutableUserMembershipMixin,
     Model,
 ):

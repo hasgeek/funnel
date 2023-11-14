@@ -8,16 +8,17 @@ from uuid import UUID
 
 from . import Mapped, QueryProperty, db, declarative_mixin, sa
 
-__all__ = ['ReorderMixin']
+__all__ = ['ReorderProtoMixin']
 
 
-# Use of TypeVar for subclasses of ReorderMixin as defined in this mypy ticket:
+# Use of TypeVar for subclasses of ReorderMixin as defined in these mypy tickets:
 # https://github.com/python/mypy/issues/1212
-Reorderable = TypeVar('Reorderable', bound='ReorderMixin')
+# https://github.com/python/mypy/issues/7191
+Reorderable = TypeVar('Reorderable', bound='ReorderProtoMixin')
 
 
 @declarative_mixin
-class ReorderMixin:
+class ReorderProtoMixin:
     """Adds support for re-ordering sequences within a parent container."""
 
     if TYPE_CHECKING:

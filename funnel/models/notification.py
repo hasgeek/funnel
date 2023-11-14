@@ -733,7 +733,7 @@ class PreviewNotification(NotificationType):
         return getattr(self.cls, attr)
 
 
-class NotificationRecipientMixin:
+class NotificationRecipientProtoMixin:
     """Shared mixin for :class:`NotificationRecipient` and :class:`NotificationFor`."""
 
     notification: Mapped[Notification] | Notification | PreviewNotification
@@ -788,7 +788,7 @@ class NotificationRecipientMixin:
         return False
 
 
-class NotificationRecipient(NotificationRecipientMixin, NoIdMixin, Model):
+class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
     """
     The recipient of a notification.
 
@@ -1201,7 +1201,7 @@ class NotificationRecipient(NotificationRecipientMixin, NoIdMixin, Model):
         )
 
 
-class NotificationFor(NotificationRecipientMixin):
+class NotificationFor(NotificationRecipientProtoMixin):
     """View-only wrapper to mimic :class:`UserNotification`."""
 
     notification: Notification | PreviewNotification

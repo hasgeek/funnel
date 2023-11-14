@@ -28,7 +28,7 @@ from . import (
     sa,
 )
 from .account import Account
-from .reorder_mixin import ReorderMixin
+from .reorder_mixin import ReorderProtoMixin
 
 # Export only symbols needed in views.
 __all__ = [
@@ -41,7 +41,9 @@ __all__ = [
 # --- Typing ---------------------------------------------------------------------------
 
 MembershipType = TypeVar('MembershipType', bound='ImmutableMembershipMixin')
-FrozenAttributionType = TypeVar('FrozenAttributionType', bound='FrozenAttributionMixin')
+FrozenAttributionType = TypeVar(
+    'FrozenAttributionType', bound='FrozenAttributionProtoMixin'
+)
 
 # --- Enum -----------------------------------------------------------------------------
 
@@ -490,7 +492,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
 
 
 @declarative_mixin
-class ReorderMembershipMixin(ReorderMixin):
+class ReorderMembershipProtoMixin(ReorderProtoMixin):
     """Customizes ReorderMixin for membership models."""
 
     if TYPE_CHECKING:
@@ -558,7 +560,7 @@ class ReorderMembershipMixin(ReorderMixin):
 
 
 @declarative_mixin
-class FrozenAttributionMixin:
+class FrozenAttributionProtoMixin:
     """Provides a `title` data column and support method to freeze it."""
 
     if TYPE_CHECKING:
@@ -580,7 +582,7 @@ class FrozenAttributionMixin:
     def title(self) -> str:
         """Attribution title for this record."""
         if self._local_data_only:
-            return self._title  # This may be None
+            return self._title  # This may be None  # type: ignore[return-value]
         return self._title or self.member.title
 
     @title.setter
