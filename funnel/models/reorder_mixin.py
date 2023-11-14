@@ -37,7 +37,7 @@ class ReorderProtoMixin:
         query: ClassVar[QueryProperty]
 
     @property
-    def parent_scoped_reorder_query_filter(self: Reorderable):
+    def parent_scoped_reorder_query_filter(self: Reorderable) -> sa.ColumnElement[bool]:
         """
         Return a query filter that includes a scope limitation to the parent.
 
@@ -81,6 +81,7 @@ class ReorderProtoMixin:
                 cls.seq >= min(self.seq, other.seq),
                 cls.seq <= max(self.seq, other.seq),
             )
+            .with_for_update(of=cls)  # Lock these rows to prevent a parallel update
             .options(sa.orm.load_only(cls.id, cls.seq))
             .order_by(*order_columns)
             .all()
@@ -100,7 +101,9 @@ class ReorderProtoMixin:
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
         self.seq = (
-            sa.select(sa.func.coalesce(sa.func.max(cls.seq) + 1, 1))
+            sa.select(  # type: ignore[assignment]
+                sa.func.coalesce(sa.func.max(cls.seq) + 1, 1)
+            )
             .where(self.parent_scoped_reorder_query_filter)
             .scalar_subquery()
         )
@@ -110,7 +113,7 @@ class ReorderProtoMixin:
         for reorderable_item in items_to_reorder[1:]:  # Skip 0, which is self
             reorderable_item.seq, new_seq_number = new_seq_number, reorderable_item.seq
             # Flush to force execution order. This does not expunge SQLAlchemy cache as
-            # of SQLAlchemy 1.3.x. Should that behaviour change, a switch to
+            # of SQLAlchemy 2.0.x. Should that behaviour change, a switch to
             # bulk_update_mappings will be required
             db.session.flush()
             if reorderable_item.id == other.id:
