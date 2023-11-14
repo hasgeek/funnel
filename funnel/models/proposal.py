@@ -33,7 +33,7 @@ from .helpers import (
 )
 from .project import Project
 from .project_membership import project_child_role_map
-from .reorder_mixin import ReorderMixin
+from .reorder_mixin import ReorderProtoMixin
 from .video_mixin import VideoMixin
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalSuuidRedirect']
@@ -119,7 +119,7 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
 
 
 class Proposal(  # type: ignore[misc]
-    UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
+    UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderProtoMixin, Model
 ):
     __tablename__ = 'proposal'
 

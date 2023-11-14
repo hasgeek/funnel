@@ -10,9 +10,9 @@ from . import DynamicMapped, Mapped, Model, backref, relationship, sa
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
-    FrozenAttributionMixin,
+    FrozenAttributionProtoMixin,
     ImmutableUserMembershipMixin,
-    ReorderMembershipMixin,
+    ReorderMembershipProtoMixin,
 )
 from .project import Project
 from .proposal import Proposal
@@ -21,7 +21,10 @@ __all__ = ['ProposalMembership']
 
 
 class ProposalMembership(  # type: ignore[misc]
-    FrozenAttributionMixin, ReorderMembershipMixin, ImmutableUserMembershipMixin, Model
+    ImmutableUserMembershipMixin,
+    FrozenAttributionProtoMixin,
+    ReorderMembershipProtoMixin,
+    Model,
 ):
     """Users can be presenters or reviewers on proposals."""
 
