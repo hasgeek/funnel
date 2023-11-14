@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 from datetime import datetime as datetime_type
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, TypeVar
+from uuid import UUID
 
 from sqlalchemy import event
 from sqlalchemy.sql.expression import ColumnElement
@@ -82,10 +83,9 @@ class MembershipRecordTypeError(MembershipError):
 
 
 @declarative_mixin
-class ImmutableMembershipMixin(UuidMixin, BaseMixin):
+class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
     """Support class for immutable memberships."""
 
-    __uuid_primary_key__ = True
     #: Can granted_by be null? Only in memberships based on legacy data
     __null_granted_by__: ClassVar[bool] = False
     #: List of columns that will be copied into a new row when a membership is amended

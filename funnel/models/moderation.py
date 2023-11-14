@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from uuid import UUID
+
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
@@ -20,9 +22,8 @@ class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
     SPAM = (2, 'spam', __("Spam"))
 
 
-class CommentModeratorReport(UuidMixin, BaseMixin, Model):
+class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
     __tablename__ = 'comment_moderator_report'
-    __uuid_primary_key__ = True
 
     comment_id = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('comment.id'), nullable=False, index=True
