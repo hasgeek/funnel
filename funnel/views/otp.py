@@ -276,13 +276,13 @@ class OtpSession(Generic[OptionalAccountType]):
     # Send whatsapp message
     def send_whatsapp(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> str | None:
+    ) -> whatsapp.WhatsappTemplate | None:
         """Send an OTP via WhatsApp to a phone number."""
         if not self.phone:
             return None
         message = whatsapp.OTPTemplate(self.otp)
         try:
-            whatsapp.send_via_meta(self.phone, message)
+            whatsapp.send_whatsapp(self.phone, message)
         except TransportRecipientError as exc:
             if flash_failure:
                 flash(str(exc), 'error')
@@ -412,30 +412,6 @@ class OtpSessionForLogin(OtpSession[Optional[Account]], reason='login'):
                 )
             return msg
         return None
-
-    # Send whatsapp message
-    def send_whatsapp(
-        self, flash_success: bool = True, flash_failure: bool = True
-    ) -> str | None:
-        """Send an OTP via WhatsApp to a phone number."""
-        if not self.phone:
-            return None
-        message = whatsapp.OTPTemplate(self.otp)
-        try:
-            whatsapp.send_via_meta(self.phone, message)
-        except TransportRecipientError as exc:
-            if flash_failure:
-                flash(str(exc), 'error')
-            else:
-                raise
-        if flash_success:
-            flash(
-                _("An OTP has been sent to your phone number {number}").format(
-                    number=self.display_phone
-                ),
-                'success',
-            )
-        return message
 
     def send_email(
         self, flash_success: bool = True, flash_failure: bool = True

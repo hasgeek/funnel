@@ -143,7 +143,7 @@ def init() -> bool:
     return bool(senders)
 
 
-def send(
+def send_whatsapp(
     phone: str | phonenumbers.PhoneNumber | PhoneNumber,
     message: WhatsappTemplate,
 ) -> str:
