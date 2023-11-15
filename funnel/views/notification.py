@@ -648,9 +648,7 @@ def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -
     for notification in notifications:
         if notification is not None:
             generator = notification.dispatch()
-            # TODO: Use walrus operator := after we move off Python 3.7
-            batch = tuple(islice(generator, DISPATCH_BATCH_SIZE))
-            while batch:
+            while batch := tuple(islice(generator, DISPATCH_BATCH_SIZE)):
                 db.session.commit()
                 notification_recipient_ids = [
                     notification_recipient.identity for notification_recipient in batch
@@ -662,7 +660,6 @@ def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -
                     tags={'notification_type': notification.type},
                 )
                 # Continue to the next batch
-                batch = tuple(islice(generator, DISPATCH_BATCH_SIZE))
 
 
 @rqjob()
@@ -670,6 +667,7 @@ def dispatch_notification_recipients_job(
     notification_recipient_ids: Sequence[tuple[int, UUID]]
 ) -> None:
     """Process notifications for users and enqueue transport delivery."""
+    # TODO: Can this be a single query instead of a loop of queries?
     queue = [
         NotificationRecipient.query.get(identity)
         for identity in notification_recipient_ids
