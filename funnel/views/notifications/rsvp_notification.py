@@ -120,11 +120,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
         return render_template(
             'notifications/rsvp_yes_email.html.jinja2',
             view=self,
-            jsonld=email.jsonld_view_action(
-                self.rsvp.project.joined_title,
-                self.rsvp.project.url_for(_external=True),
-                _("View project"),
-            ),
+            jsonld=email.jsonld_event_reservation(self.rsvp),
         )
 
     def sms(

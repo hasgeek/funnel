@@ -24,7 +24,7 @@ from ..models import (
     VenueRoom,
     db,
 )
-from ..typing import ReturnRenderWith, ReturnView
+from ..typing import ReturnView
 from .helpers import render_redirect
 
 
@@ -250,7 +250,7 @@ class DraftViewMixin:
             return draft.revision, draft.formdata
         return None, None
 
-    def autosave_post(self, obj: UuidModelUnion | None = None) -> ReturnRenderWith:
+    def autosave_post(self, obj: UuidModelUnion | None = None) -> ReturnView:
         """Handle autosave POST requests."""
         obj = obj if obj is not None else self.obj
         if 'form.revision' not in request.form:

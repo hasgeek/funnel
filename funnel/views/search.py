@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import re
 from html import unescape as html_unescape
-from typing import Any, TypeVar
-from typing_extensions import TypedDict
+from typing import Any, TypedDict, TypeVar
 from urllib.parse import quote as urlquote
 
 from flask import request, url_for
@@ -87,7 +86,11 @@ class SearchProvider:
     @property
     def title_column(self) -> sa.ColumnElement[str]:
         """Return a column or column expression representing the object's title."""
-        return self.model.title
+        # `Comment.title` is a property not a column, as comments don't have titles.
+        # That makes this return value incorrect, but here we ignore the error as
+        # class:`CommentSearch` explicitly overrides :meth:`hltitle_column`, and that is
+        # the only place this property is accessed
+        return self.model.title  # type: ignore[return-value]
 
     @property
     def hltext(self) -> sa.ColumnElement[str]:

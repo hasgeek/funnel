@@ -89,6 +89,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
             None: {
                 'admin': 'account_admin',
                 'follower': 'account_participant',
+                'member': 'account_member',
             }
         },
         # `account` only appears in the 'primary' dataset. It must not be included in
@@ -191,6 +192,12 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
+
+    #: Auto-generated preview image for Open Graph
+    preview_image: Mapped[bytes | None] = sa.orm.mapped_column(
+        sa.LargeBinary, nullable=True, deferred=True
+    )
+
     allow_rsvp: Mapped[bool] = with_roles(
         sa.orm.mapped_column(sa.Boolean, default=True, nullable=False),
         read={'all'},
@@ -839,6 +846,14 @@ class __Account:
         return (
             self.listed_projects.filter(Project.state.PUBLISHED).order_by(None).count()
         )
+
+    @with_roles(grants_via={None: {'participant': 'member'}})
+    @cached_property
+    def membership_project(self) -> Project | None:
+        """Return a project that has memberships flag enabled (temporary)."""
+        return self.projects.filter(
+            Project.boxoffice_data.op('@>')({'has_membership': True})
+        ).first()
 
 
 class ProjectRedirect(TimestampMixin, Model):

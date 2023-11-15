@@ -90,18 +90,19 @@ from typing import (
     ClassVar,
     Generic,
     Optional,
+    Protocol,
     TypeVar,
     Union,
     cast,
     get_args,
     get_origin,
 )
-from typing_extensions import Protocol, get_original_bases
 from uuid import UUID, uuid4
 
 from sqlalchemy import event
 from sqlalchemy.orm import column_keyed_dict
 from sqlalchemy.orm.exc import NoResultFound
+from typing_extensions import get_original_bases
 from werkzeug.utils import cached_property
 
 from baseframe import __
@@ -635,7 +636,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     @property
     def role_provider_obj(self) -> _F | _D:
         """Return fragment if exists, document otherwise, indicating role provider."""
-        return cast(Union[_F, _D], self.fragment or self.document)
+        return cast(_F | _D, self.fragment or self.document)
 
     def dispatch(self) -> Generator[NotificationRecipient, None, None]:
         """
@@ -732,7 +733,7 @@ class PreviewNotification(NotificationType):
         return getattr(self.cls, attr)
 
 
-class NotificationRecipientMixin:
+class NotificationRecipientProtoMixin:
     """Shared mixin for :class:`NotificationRecipient` and :class:`NotificationFor`."""
 
     notification: Mapped[Notification] | Notification | PreviewNotification
@@ -787,7 +788,7 @@ class NotificationRecipientMixin:
         return False
 
 
-class NotificationRecipient(NotificationRecipientMixin, NoIdMixin, Model):
+class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
     """
     The recipient of a notification.
 
@@ -1200,7 +1201,7 @@ class NotificationRecipient(NotificationRecipientMixin, NoIdMixin, Model):
         )
 
 
-class NotificationFor(NotificationRecipientMixin):
+class NotificationFor(NotificationRecipientProtoMixin):
     """View-only wrapper to mimic :class:`UserNotification`."""
 
     notification: Notification | PreviewNotification

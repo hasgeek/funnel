@@ -12,7 +12,7 @@
     {{ form.hidden_tag() }}
     {{ csrf_tag() }}
     <div id="register-form">
-      <json-form :jsonschema="jsonSchema" :formid="'rsvp-form'" @handle-submit-response="handleAjaxPost"></json-form>
+      <json-form :jsonschema="jsonSchema" :formid="'rsvp-form'" :useremail="useremail" @handle-submit-response="handleAjaxPost"></json-form>
     </div>
     <p class="mui--text-body2 top-padding zero-bottom-margin">{% trans %}This will share your name and email address or phone number with the project’s promoter so they can keep you updated. You can cancel your registration at any time{% endtrans %}</p>
     <div class="mui--text-right">
@@ -25,7 +25,8 @@
 <script type="text/javascript">
   $(function() {
     var jsonSchema = {{ json_schema|tojson }};
+    var useremail = "{{ current_auth.user.email }}"
 
-    window.Hasgeek.addRsvpForm(jsonSchema, 'rsvp-form');
+    window.Hasgeek.addRsvpForm(jsonSchema, useremail);
   });
 </script>

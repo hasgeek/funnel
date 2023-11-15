@@ -6,7 +6,7 @@ import hashlib
 import itertools
 from collections.abc import Iterable, Iterator
 from datetime import datetime, timedelta
-from typing import ClassVar, Literal, Union, cast, overload
+from typing import ClassVar, Literal, cast, overload
 from uuid import UUID
 
 import phonenumbers
@@ -250,9 +250,7 @@ class Account(UuidMixin, BaseMixin, Model):
     #: Verified accounts get listed on the home page and are not considered throwaway
     #: accounts for spam control. There are no other privileges at this time
     is_verified: Mapped[bool] = with_roles(
-        immutable(
-            sa.orm.mapped_column(sa.Boolean, default=False, nullable=False, index=True)
-        ),
+        sa.orm.mapped_column(sa.Boolean, default=False, nullable=False, index=True),
         read={'all'},
     )
 
@@ -261,7 +259,7 @@ class Account(UuidMixin, BaseMixin, Model):
         sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[str] = sa.orm.mapped_column(
+    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
         TSVectorType(
             'title',
             'name',
@@ -337,7 +335,7 @@ class Account(UuidMixin, BaseMixin, Model):
                 'logo_url',
                 'banner_image_url',
                 'joined_at',
-                'profile_url',
+                'absolute_url',
                 'urls',
                 'is_user_profile',
                 'is_organization_profile',
@@ -362,7 +360,7 @@ class Account(UuidMixin, BaseMixin, Model):
             'logo_url',
             'website',
             'joined_at',
-            'profile_url',
+            'absolute_url',
             'is_verified',
         },
         'related': {
@@ -378,7 +376,7 @@ class Account(UuidMixin, BaseMixin, Model):
             'description',
             'logo_url',
             'joined_at',
-            'profile_url',
+            'absolute_url',
             'is_verified',
         },
     }
@@ -622,13 +620,6 @@ class Account(UuidMixin, BaseMixin, Model):
         return self.name is not None and bool(self.profile_state.ACTIVE_AND_PUBLIC)
 
     with_roles(has_public_profile, read={'all'}, write={'owner'})
-
-    @property
-    def profile_url(self) -> str | None:
-        """Return optional URL to account profile page."""
-        return self.url_for(_external=True)
-
-    with_roles(profile_url, read={'all'})
 
     def is_profile_complete(self) -> bool:
         """Verify if profile is complete (fullname, username and contacts present)."""
@@ -1236,11 +1227,10 @@ add_search_trigger(Account, 'search_vector')
 add_search_trigger(Account, 'name_vector')
 
 
-class AccountOldId(UuidMixin, BaseMixin, Model):
+class AccountOldId(UuidMixin, BaseMixin[UUID], Model):
     """Record of an older UUID for an account, after account merger."""
 
     __tablename__ = 'account_oldid'
-    __uuid_primary_key__ = True
 
     #: Old account, if still present
     old_account: Mapped[Account] = relationship(
@@ -1297,7 +1287,7 @@ class DuckTypeAccount(RoleMixin):
     uuid_b58: None = None
     username: None = None
     name: None = None
-    profile_url: None = None
+    absolute_url: None = None
     email: None = None
     phone: None = None
 
@@ -1318,7 +1308,7 @@ class DuckTypeAccount(RoleMixin):
                 'username',
                 'fullname',
                 'pickername',
-                'profile_url',
+                'absolute_url',
             },
             'call': {'views', 'forms', 'features', 'url_for'},
         }
@@ -1329,7 +1319,7 @@ class DuckTypeAccount(RoleMixin):
             'username',
             'fullname',
             'pickername',
-            'profile_url',
+            'absolute_url',
         }
     }
 
@@ -2187,7 +2177,7 @@ user_phone_primary_table = add_primary_relationship(
 )
 
 #: Anchor type
-Anchor = Union[AccountEmail, AccountEmailClaim, AccountPhone, EmailAddress, PhoneNumber]
+Anchor = AccountEmail | AccountEmailClaim | AccountPhone | EmailAddress | PhoneNumber
 
 # Tail imports
 # pylint: disable=wrong-import-position
