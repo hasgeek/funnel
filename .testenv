@@ -28,7 +28,7 @@ FLASK_RECAPTCHA_PRIVATE_KEY=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
 FLASK_RECAPTCHA_OPTIONS=""
 # Use hostaliases on supported platforms
 HOSTALIASES=${PWD}/HOSTALIASES
-# These settings should be customisable from a .env file (TODO)
+# These settings can be customised in .env.testing
 FLASK_SECRET_KEYS='["testkey"]'
 FLASK_LASTUSER_SECRET_KEYS='["testkey"]'
 FLASK_LASTUSER_COOKIE_DOMAIN='.funnel.test:3002'
@@ -45,6 +45,11 @@ FLASK_IMGEE_HOST='http://imgee.test:4500'
 FLASK_IMAGE_URL_DOMAINS='["images.example.com"]'
 FLASK_IMAGE_URL_SCHEMES='["https"]'
 FLASK_SES_NOTIFICATION_TOPICS=null
+# WhatsApp config (These null entries disable production entries in .env)
+FLASK_WHATSAPP_PHONE_ID_META=null
+FLASK_WHATSAPP_TOKEN_META=null
+FLASK_WHATSAPP_PHONE_ID_HOSTED=null
+FLASK_WHATSAPP_TOKEN_HOSTED=null
 # Per app config
 APP_FUNNEL_SITE_ID=hasgeek-test
 APP_FUNNEL_SERVER_NAME=funnel.test:3002
@@ -52,6 +57,3 @@ APP_FUNNEL_SHORTLINK_DOMAIN=f.test:3002
 APP_FUNNEL_DEFAULT_DOMAIN=funnel.test
 APP_FUNNEL_UNSUBSCRIBE_DOMAIN=bye.test
 APP_SHORTLINK_SITE_ID=shortlink-test
-APP_FUNNEL_WHATSAPP_TOKEN=''
-APP_FUNNEL_WHATSAPP_PHONE_ID=''
-APP_FUNNEL_WHATSAPP_WEBHOOK_SECRET=''
