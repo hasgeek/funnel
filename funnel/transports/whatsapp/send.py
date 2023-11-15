@@ -19,14 +19,15 @@ from ..exc import (
     TransportRecipientError,
     TransportTransactionError,
 )
+from .template import WhatsappTemplate
 
 
 @dataclass
 class WhatsappSender:
     """A WhatsApp sender."""
 
-    requires_config: set
-    func: Callable
+    requires_config: set[str]
+    func: Callable[[str, WhatsappTemplate], str]
     init: Callable | None = None
 
 
@@ -42,16 +43,14 @@ def get_phone_number(
         phone_number = PhoneNumber.add(phone)
     except PhoneNumberBlockedError as exc:
         raise TransportRecipientError(_("This phone number has been blocked")) from exc
-    # TODO: Confirm this phone number is available on WhatsApp (replacing `allow_wa`)
-    if not phone_number.has_wa:
-        raise TransportRecipientError(_("WhatsApp is disabled for this phone number"))
     if not phone_number.number:
         # This should never happen as :meth:`PhoneNumber.add` will restore the number
         raise TransportRecipientError(_("This phone number is not available"))
+    # TODO: Confirm this phone number is available on WhatsApp
     return phone_number
 
 
-def send_via_meta(phone: str, message, callback: bool = True) -> str:
+def send_via_meta(phone: str, message: WhatsappTemplate) -> str:
     """
     Send the WhatsApp message using Meta Cloud API.
 
@@ -63,14 +62,11 @@ def send_via_meta(phone: str, message, callback: bool = True) -> str:
     phone_number = get_phone_number(phone)
     sid = app.config['WHATSAPP_PHONE_ID']
     token = app.config['WHATSAPP_TOKEN']
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",  # Adjust the content type based on your API requirements
-    }
+    headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
     payload = {
-        "messaging_product": "whatsapp",
-        "recipient_type": "individual",
-        'to': phone_number.number,
+        'messaging_product': 'whatsapp',
+        'recipient_type': 'individual',
+        'to': phone_number.number,  # FIXME: Should the leading + be stripped? Confirm
         'type': 'template',
         'template': json.dumps(message.template),
     }
@@ -91,7 +87,7 @@ def send_via_meta(phone: str, message, callback: bool = True) -> str:
         raise TransportConnectionError(_("WhatsApp not reachable")) from exc
 
 
-def send_via_hosted(phone: str, message, callback: bool = True) -> str:
+def send_via_hosted(phone: str, message: WhatsappTemplate) -> str:
     """
     Send the Whatsapp message using On-Premise API.
 
@@ -104,17 +100,17 @@ def send_via_hosted(phone: str, message, callback: bool = True) -> str:
     sid = app.config['WHATSAPP_PHONE_ID']
     token = app.config['WHATSAPP_TOKEN']
     payload = {
-        "messaging_product": "whatsapp",
-        "recipient_type": "individual",
-        'to': phone_number.number,
-        "type": "template",
+        'messaging_product': 'whatsapp',
+        'recipient_type': 'individual',
+        'to': phone_number.number,  # FIXME: Should the leading + be stripped? Confirm
+        'type': 'template',
         'body': str(message),
     }
     try:
         r = requests.post(
             f'https://graph.facebook.com/v18.0/{sid}/messages',
             timeout=30,
-            auth=(token),
+            auth=(token),  # FIXME: This is not a valid auth parameter
             data=payload,
         )
         if r.status_code == 200:
@@ -136,7 +132,7 @@ sender_registry = [
     WhatsappSender({'WHATSAPP_PHONE_ID_META', 'WHATSAPP_TOKEN_META'}, send_via_meta),
 ]
 
-senders = []
+senders: list[Callable[[str, WhatsappTemplate], str]] = []
 
 
 def init() -> bool:
@@ -151,8 +147,7 @@ def init() -> bool:
 
 def send(
     phone: str | phonenumbers.PhoneNumber | PhoneNumber,
-    message,
-    callback: bool = True,
+    message: WhatsappTemplate,
 ) -> str:
     """
     Send a WhatsApp message to a given phone number and return a transaction id.
@@ -165,5 +160,5 @@ def send(
     phone_number = get_phone_number(phone)
     phone = cast(str, phone_number.number)
     for sender in senders:
-        return sender()
+        return sender(phone, message)
     raise TransportRecipientError(_("No service provider available for this recipient"))

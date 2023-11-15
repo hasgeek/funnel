@@ -6,10 +6,10 @@ from __future__ import annotations
 class WhatsappTemplate:
     """Whatsapp template formatter."""
 
-    registered_template_name = None
-    registered_template_language_code = None
-    registered_template = None
-    template = None
+    registered_template_name: str
+    registered_template_language_code: str
+    registered_template: str
+    template: str
 
 
 class OTPTemplate(WhatsappTemplate):

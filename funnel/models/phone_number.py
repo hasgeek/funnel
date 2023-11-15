@@ -260,7 +260,9 @@ class PhoneNumber(BaseMixin, Model):
 
     #: The phone number, centrepiece of this model. Stored normalized in E164 format.
     #: Validated by the :func:`_validate_phone` event handler
-    number = sa.orm.mapped_column(sa.Unicode, nullable=True, unique=True)
+    number: Mapped[str | None] = sa.orm.mapped_column(
+        sa.Unicode, nullable=True, unique=True
+    )
 
     #: BLAKE2b 160-bit hash of :attr:`phone`. Kept permanently even if phone is
     #: removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the name,

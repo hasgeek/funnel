@@ -17,7 +17,7 @@ platform_transports: dict[str, bool] = {
 }
 
 
-def init():
+def init() -> None:
     if app.config.get('MAIL_SERVER'):
         platform_transports['email'] = True
     if sms_init():
