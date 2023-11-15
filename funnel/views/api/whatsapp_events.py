@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
-from flask import current_app, request
+from flask import abort, current_app, request
 
 from baseframe import statsd
 
 from ... import app
-from ...models import PhoneNumber, PhoneNumberError, canonical_phone_number, db, sa
+from ...models import (
+    PhoneNumber,
+    PhoneNumberInvalidError,
+    canonical_phone_number,
+    db,
+    sa,
+)
 from ...typing import ReturnView
 from ...utils import abort_null
 
@@ -16,58 +22,60 @@ from ...utils import abort_null
 def process_whatsapp_webhook_verification():
     """Meta requires to verify the webhook URL by sending a GET request with a token."""
     verify_token = app.config['WHATSAPP_WEBHOOK_SECRET']
-    mode = request.args.get("hub.mode")
-    token = request.args.get("hub.verify_token")
-    challenge = request.args.get("hub.challenge")
+    mode = request.args.get('hub.mode')
+    token = request.args.get('hub.verify_token')
+    challenge = request.args.get('hub.challenge')
 
     if mode and token:
-        if mode == "subscribe" and token == verify_token:
+        if mode == 'subscribe' and token == verify_token:
             return challenge, 200
-        return "Forbidden", 403
-    return "Success", 200
+        return 'Forbidden', 403
+    return 'Success', 200
 
 
 @app.route('/api/1/whatsapp/meta_event', methods=['POST'])
 def process_whatsapp_event() -> ReturnView:
-    """Process WhatsApp callback event."""
+    """Process WhatsApp callback event from Meta Cloud API."""
     # Register the fact that we got a WhatsApp event.
     # If there are too many rejects, then most likely a hack attempt.
     statsd.incr('phone_number.event', tags={'engine': 'whatsapp', 'stage': 'received'})
+    if not request.json:
+        abort(400)
     whatsapp_to = abort_null(
-        request.json.get("entry", [{}])[0]
-        .get("changes", [{}])[0]
-        .get("value", {})
-        .get("statuses", [{}])[0]
-        .get("recipient_id")
+        request.json.get('entry', [{}])[0]
+        .get('changes', [{}])[0]
+        .get('value', {})
+        .get('statuses', [{}])[0]
+        .get('recipient_id')
     )
     if not whatsapp_to:
         return {'status': 'eror', 'error': 'invalid_phone'}, 422
 
     try:
-        whatsapp_to = canonical_phone_number('+' + whatsapp_to)
-    except PhoneNumberError:
+        whatsapp_to = canonical_phone_number(f'+{whatsapp_to}')
+    except PhoneNumberInvalidError:
         return {'status': 'error', 'error': 'invalid_phone'}, 422
 
-    whatsapp_message = PhoneNumber.query.filter_by(number=whatsapp_to).one_or_none()
+    phone_number = PhoneNumber.add(phone=whatsapp_to)
 
     status = (
-        request.json.get("entry", [{}])[0]
-        .get("changes", [{}])[0]
-        .get("value", {})
-        .get("statuses", [{}])[0]
-        .get("status")
+        request.json.get('entry', [{}])[0]
+        .get('changes', [{}])[0]
+        .get('value', {})
+        .get('statuses', [{}])[0]
+        .get('status')
     )
 
     if status == 'sent':
-        whatsapp_message.msg_wa_sent_at = sa.func.utcnow()
-    if status == 'delivered':
-        whatsapp_message.msg_wa_delivered_at = sa.func.utcnow()
-    if status == 'failed':
-        whatsapp_message.msg_wa_failed_at = sa.func.utcnow()
+        phone_number.msg_wa_sent_at = sa.func.utcnow()
+    elif status == 'delivered':
+        phone_number.msg_wa_delivered_at = sa.func.utcnow()
+    elif status == 'failed':
+        phone_number.msg_wa_failed_at = sa.func.utcnow()
     db.session.commit()
 
     current_app.logger.info(
-        "WhatsApp event for phone: %s %s",
+        "WhatsApp Meta Cloud API event for phone: %s %s",
         whatsapp_to,
         status,
     )
@@ -75,9 +83,9 @@ def process_whatsapp_event() -> ReturnView:
     statsd.incr(
         'phone_number.event',
         tags={
-            'engine': 'whatsapp',
+            'engine': 'whatsapp-meta',
             'stage': 'processed',
             'event': status,
         },
     )
-    return {"status": "ok"}, 200
+    return {'status': 'ok'}, 200
