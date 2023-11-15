@@ -30,8 +30,7 @@ from ..models import (
     db,
 )
 from ..serializers import token_serializer
-from ..transports import TransportError, email, platform_transports, sms
-from ..transports.sms import SmsTemplate
+from ..transports import TransportError, email, platform_transports, sms, whatsapp
 from .helpers import make_cached_token
 from .jobs import rqjob
 
@@ -385,7 +384,7 @@ class RenderNotification:
             return f"{self.notification.preference_context.title} (via Hasgeek)"
         return "Hasgeek"
 
-    def sms(self) -> SmsTemplate:
+    def sms(self) -> sms.SmsTemplate:
         """
         Render a short text message. Templates must use a single line with a link.
 
@@ -397,7 +396,7 @@ class RenderNotification:
         """Render a short plain text notification using the SMS template."""
         return self.sms().text
 
-    def sms_with_unsubscribe(self) -> SmsTemplate:
+    def sms_with_unsubscribe(self) -> sms.SmsTemplate:
         """Add an unsubscribe link to the SMS message."""
         msg = self.sms()
         msg.unsubscribe_url = self.unsubscribe_short_url('sms')
@@ -419,13 +418,9 @@ class RenderNotification:
         """
         return self.text()
 
-    def whatsapp(self) -> str:
-        """
-        Render a WhatsApp-formatted text message.
-
-        Default implementation uses :meth:`text`.
-        """
-        return self.text()
+    def whatsapp(self) -> whatsapp.WhatsappTemplate:
+        """Render a WhatsApp-formatted text message."""
+        raise NotImplementedError("Subclasses must implement `whatsapp`")
 
 
 # --- Dispatch functions ---------------------------------------------------------------
@@ -557,10 +552,10 @@ def dispatch_transport_email(
                     # pylint: enable=consider-using-f-string
                 )
             ),
-            'List-Help': f'<{url_for("notification_preferences")}>',
+            'List-Help': f'<{url_for("notification_preferences", _external=True)}>',
             'List-Unsubscribe': f'<{view.unsubscribe_url_email}>',
             'List-Unsubscribe-Post': 'One-Click',
-            'List-Archive': f'<{url_for("notifications")}>',
+            'List-Archive': f'<{url_for("notifications", _external=True)}>',
         },
         base_url=view.email_base_url,
     )
@@ -586,8 +581,13 @@ def dispatch_transport_sms(
         # the worker may be delayed and the user may have changed their preference.
         notification_recipient.messageid_sms = 'cancelled'
         return
+    try:
+        message = view.sms_with_unsubscribe()
+    except NotImplementedError:
+        notification_recipient.messageid_sms = 'not-implemented'
+        return
     notification_recipient.messageid_sms = sms.send_sms(
-        str(view.transport_for('sms')), view.sms_with_unsubscribe()
+        str(view.transport_for('sms')), message
     )
     statsd.incr(
         'notification.transport',
@@ -598,23 +598,30 @@ def dispatch_transport_sms(
     )
 
 
-@rqjob
+@rqjob()
 @transport_worker_wrapper
-def dispatch_transport_whatsapp(user_notification, view):
-    if not user_notification.user.main_notification_preferences.by_transport(
+def dispatch_transport_whatsapp(
+    notification_recipient: NotificationRecipient, view: RenderNotification
+):
+    if not notification_recipient.user.main_notification_preferences.by_transport(
         'whatsapp'
     ):
         # Cancel delivery if user's main switch is off. This was already checked, but
         # the worker may be delayed and the user may have changed their preference.
-        user_notification.messageid_whatsapp = 'cancelled'
+        notification_recipient.messageid_whatsapp = 'cancelled'
         return
-    user_notification.messageid_whatsapp = sms.send(
-        str(view.transport_for('sms')), view.sms_with_unsubscribe()
+    try:
+        message = view.whatsapp()
+    except NotImplementedError:
+        notification_recipient.messageid_whatsapp = 'not-implemented'
+        return
+    notification_recipient.messageid_whatsapp = whatsapp.send_whatsapp(
+        str(view.transport_for('whatsapp')), message
     )
     statsd.incr(
         'notification.transport',
         tags={
-            'notification_type': user_notification.notification_type,
+            'notification_type': notification_recipient.notification_type,
             'transport': 'whatsapp',
         },
     )
