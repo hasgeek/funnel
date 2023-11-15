@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 from datetime import datetime as datetime_type
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, TypeVar
+from uuid import UUID
 
 from sqlalchemy import event
 from sqlalchemy.sql.expression import ColumnElement
@@ -27,7 +28,7 @@ from . import (
     sa,
 )
 from .account import Account
-from .reorder_mixin import ReorderMixin
+from .reorder_mixin import ReorderProtoMixin
 
 # Export only symbols needed in views.
 __all__ = [
@@ -40,7 +41,9 @@ __all__ = [
 # --- Typing ---------------------------------------------------------------------------
 
 MembershipType = TypeVar('MembershipType', bound='ImmutableMembershipMixin')
-FrozenAttributionType = TypeVar('FrozenAttributionType', bound='FrozenAttributionMixin')
+FrozenAttributionType = TypeVar(
+    'FrozenAttributionType', bound='FrozenAttributionProtoMixin'
+)
 
 # --- Enum -----------------------------------------------------------------------------
 
@@ -82,10 +85,9 @@ class MembershipRecordTypeError(MembershipError):
 
 
 @declarative_mixin
-class ImmutableMembershipMixin(UuidMixin, BaseMixin):
+class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
     """Support class for immutable memberships."""
 
-    __uuid_primary_key__ = True
     #: Can granted_by be null? Only in memberships based on legacy data
     __null_granted_by__: ClassVar[bool] = False
     #: List of columns that will be copied into a new row when a membership is amended
@@ -383,7 +385,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @with_roles(read={'member', 'editor'}, grants_via={None: {'admin': 'member'}})
     @declared_attr
     @classmethod
-    def member(cls) -> Mapped[Account]:
+    def member(cls) -> Mapped[Account]:  # type: ignore[override]
         """Member in this membership record."""
         return relationship(Account, foreign_keys=[cls.member_id])
 
@@ -490,7 +492,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
 
 
 @declarative_mixin
-class ReorderMembershipMixin(ReorderMixin):
+class ReorderMembershipProtoMixin(ReorderProtoMixin):
     """Customizes ReorderMixin for membership models."""
 
     if TYPE_CHECKING:
@@ -558,7 +560,7 @@ class ReorderMembershipMixin(ReorderMixin):
 
 
 @declarative_mixin
-class FrozenAttributionMixin:
+class FrozenAttributionProtoMixin:
     """Provides a `title` data column and support method to freeze it."""
 
     if TYPE_CHECKING:
@@ -580,7 +582,7 @@ class FrozenAttributionMixin:
     def title(self) -> str:
         """Attribution title for this record."""
         if self._local_data_only:
-            return self._title  # This may be None
+            return self._title  # This may be None  # type: ignore[return-value]
         return self._title or self.member.title
 
     @title.setter

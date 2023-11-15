@@ -8,23 +8,24 @@ from uuid import UUID
 
 from . import Mapped, QueryProperty, db, declarative_mixin, sa
 
-__all__ = ['ReorderMixin']
+__all__ = ['ReorderProtoMixin']
 
 
-# Use of TypeVar for subclasses of ReorderMixin as defined in this mypy ticket:
+# Use of TypeVar for subclasses of ReorderMixin as defined in these mypy tickets:
 # https://github.com/python/mypy/issues/1212
-Reorderable = TypeVar('Reorderable', bound='ReorderMixin')
+# https://github.com/python/mypy/issues/7191
+Reorderable = TypeVar('Reorderable', bound='ReorderProtoMixin')
 
 
 @declarative_mixin
-class ReorderMixin:
+class ReorderProtoMixin:
     """Adds support for re-ordering sequences within a parent container."""
 
     if TYPE_CHECKING:
         #: Subclasses must have a created_at column
         created_at: Mapped[datetime]
         #: Subclass must have a primary key that is int or uuid
-        id: Mapped[int]  # noqa: A001
+        id: Mapped[int | UUID]  # noqa: A001
         #: Subclass must declare a parent_id synonym to the parent model fkey column
         parent_id: Mapped[int | UUID]
         #: Subclass must declare a seq column or synonym, holding a sequence id. It
@@ -36,7 +37,7 @@ class ReorderMixin:
         query: ClassVar[QueryProperty]
 
     @property
-    def parent_scoped_reorder_query_filter(self: Reorderable):
+    def parent_scoped_reorder_query_filter(self: Reorderable) -> sa.ColumnElement[bool]:
         """
         Return a query filter that includes a scope limitation to the parent.
 
@@ -80,6 +81,7 @@ class ReorderMixin:
                 cls.seq >= min(self.seq, other.seq),
                 cls.seq <= max(self.seq, other.seq),
             )
+            .with_for_update(of=cls)  # Lock these rows to prevent a parallel update
             .options(sa.orm.load_only(cls.id, cls.seq))
             .order_by(*order_columns)
             .all()
@@ -99,7 +101,9 @@ class ReorderMixin:
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
         self.seq = (
-            sa.select(sa.func.coalesce(sa.func.max(cls.seq) + 1, 1))
+            sa.select(  # type: ignore[assignment]
+                sa.func.coalesce(sa.func.max(cls.seq) + 1, 1)
+            )
             .where(self.parent_scoped_reorder_query_filter)
             .scalar_subquery()
         )
@@ -109,7 +113,7 @@ class ReorderMixin:
         for reorderable_item in items_to_reorder[1:]:  # Skip 0, which is self
             reorderable_item.seq, new_seq_number = new_seq_number, reorderable_item.seq
             # Flush to force execution order. This does not expunge SQLAlchemy cache as
-            # of SQLAlchemy 1.3.x. Should that behaviour change, a switch to
+            # of SQLAlchemy 2.0.x. Should that behaviour change, a switch to
             # bulk_update_mappings will be required
             db.session.flush()
             if reorderable_item.id == other.id:

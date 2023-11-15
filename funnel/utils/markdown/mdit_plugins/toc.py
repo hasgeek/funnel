@@ -15,7 +15,7 @@ from __future__ import annotations
 import re
 from collections.abc import MutableMapping, Sequence
 from functools import reduce
-from typing_extensions import TypedDict
+from typing import TypedDict
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import OptionsDict, RendererHTML

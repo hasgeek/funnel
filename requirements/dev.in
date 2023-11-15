@@ -28,8 +28,6 @@ pylint
 pyupgrade
 reformat-gherkin
 ruff
-toml
-tomli
 types-chevron
 types-geoip2
 types-mock

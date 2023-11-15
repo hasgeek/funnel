@@ -496,7 +496,7 @@ class UsernameAvailableForm(forms.Form):
         raise_username_error(reason)
 
 
-class EnableNotificationsDescriptionMixin:
+class EnableNotificationsDescriptionProtoMixin:
     """Mixin to add a link in the description for enabling notifications."""
 
     enable_notifications: forms.Field
@@ -513,7 +513,9 @@ class EnableNotificationsDescriptionMixin:
 
 
 @Account.forms('email_add')
-class NewEmailAddressForm(EnableNotificationsDescriptionMixin, forms.RecaptchaForm):
+class NewEmailAddressForm(
+    EnableNotificationsDescriptionProtoMixin, forms.RecaptchaForm
+):
     """Form to add a new email address to an account."""
 
     __expects__ = ('edit_user',)
@@ -560,7 +562,7 @@ class EmailPrimaryForm(forms.Form):
 
 
 @Account.forms('phone_add')
-class NewPhoneForm(EnableNotificationsDescriptionMixin, forms.RecaptchaForm):
+class NewPhoneForm(EnableNotificationsDescriptionProtoMixin, forms.RecaptchaForm):
     """Form to add a new mobile number (SMS-capable) to an account."""
 
     __expects__ = ('edit_user',)
