@@ -66,11 +66,11 @@ def process_whatsapp_event() -> ReturnView:
         .get('status')
     )
 
-    phone_number.mark_has_wa(True)
     if status == 'sent':
         phone_number.msg_wa_sent_at = sa.func.utcnow()
     elif status == 'delivered':
         phone_number.msg_wa_delivered_at = sa.func.utcnow()
+        phone_number.mark_has_wa(True)
     elif status == 'failed':
         phone_number.msg_wa_failed_at = sa.func.utcnow()
     db.session.commit()
