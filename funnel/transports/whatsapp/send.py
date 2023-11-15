@@ -56,7 +56,6 @@ def send_via_meta(phone: str, message: WhatsappTemplate) -> str:
 
     :param phone: Phone number
     :param message: Message to deliver to phone number
-    :param callback: Whether to request a status callback
     :return: Transaction id
     """
     phone_number = get_phone_number(phone)
@@ -66,7 +65,7 @@ def send_via_meta(phone: str, message: WhatsappTemplate) -> str:
     payload = {
         'messaging_product': 'whatsapp',
         'recipient_type': 'individual',
-        'to': phone_number.number,  # FIXME: Should the leading + be stripped? Confirm
+        'to': cast(str, phone_number.number).lstrip('+'),
         'type': 'template',
         'template': json.dumps(message.template),
     }
@@ -89,11 +88,10 @@ def send_via_meta(phone: str, message: WhatsappTemplate) -> str:
 
 def send_via_hosted(phone: str, message: WhatsappTemplate) -> str:
     """
-    Send the Whatsapp message using On-Premise API.
+    Send the WhatsApp message using On-Premise API.
 
     :param phone: Phone number
     :param message: Message to deliver to phone number
-    :param callback: Whether to request a status callback
     :return: Transaction id
     """
     phone_number = get_phone_number(phone)
@@ -102,7 +100,7 @@ def send_via_hosted(phone: str, message: WhatsappTemplate) -> str:
     payload = {
         'messaging_product': 'whatsapp',
         'recipient_type': 'individual',
-        'to': phone_number.number,  # FIXME: Should the leading + be stripped? Confirm
+        'to': cast(str, phone_number.number).lstrip('+'),
         'type': 'template',
         'body': str(message),
     }
@@ -154,7 +152,6 @@ def send(
 
     :param phone_number: Phone number
     :param message: Message to deliver to phone number
-    :param callback: Whether to request a status callback
     :return: Transaction id
     """
     phone_number = get_phone_number(phone)

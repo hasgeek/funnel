@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, overload
 
 import base58
@@ -267,7 +268,7 @@ class PhoneNumber(BaseMixin, Model):
     #: BLAKE2b 160-bit hash of :attr:`phone`. Kept permanently even if phone is
     #: removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the name,
     #: we're only storing 20 bytes
-    blake2b160 = immutable(
+    blake2b160: Mapped[bytes] = immutable(
         sa.orm.mapped_column(
             sa.LargeBinary,
             sa.CheckConstraint(
@@ -284,37 +285,53 @@ class PhoneNumber(BaseMixin, Model):
     # device, we record distinct timestamps for last sent, delivery and failure.
 
     #: Cached state for whether this phone number is known to have SMS support
-    has_sms = sa.orm.mapped_column(sa.Boolean, nullable=True)
+    has_sms: Mapped[bool | None] = sa.orm.mapped_column(sa.Boolean, nullable=True)
     #: Timestamp at which this number was determined to be valid/invalid for SMS
-    has_sms_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
+    has_sms_at: Mapped[datetime | None] = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
     #: Cached state for whether this phone number is known to be on WhatsApp or not
-    has_wa = sa.orm.mapped_column(sa.Boolean, nullable=True)
+    has_wa: Mapped[bool | None] = sa.orm.mapped_column(sa.Boolean, nullable=True)
     #: Timestamp at which this number was tested for availability on WhatsApp
-    has_wa_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
+    has_wa_at: Mapped[datetime | None] = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
 
     #: Timestamp of last SMS sent
-    msg_sms_sent_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_sms_sent_at: Mapped[datetime | None] = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
     #: Timestamp of last SMS delivered
-    msg_sms_delivered_at = sa.orm.mapped_column(
+    msg_sms_delivered_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: Timestamp of last SMS delivery failure
-    msg_sms_failed_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_sms_failed_at: Mapped[datetime | None] = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
 
     #: Timestamp of last WA message sent
-    msg_wa_sent_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_wa_sent_at: Mapped[datetime | None] = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
     #: Timestamp of last WA message delivered
-    msg_wa_delivered_at = sa.orm.mapped_column(
+    msg_wa_delivered_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: Timestamp of last WA message delivery failure
-    msg_wa_failed_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
+    msg_wa_failed_at: Mapped[datetime | None] = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
 
     #: Timestamp of last known recipient activity resulting from sent messages
-    active_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
+    active_at: Mapped[datetime | None] = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
 
     #: Is this phone number blocked from being used? :attr:`phone` should be null if so.
-    blocked_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
+    blocked_at: Mapped[datetime | None] = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
 
     __table_args__ = (
         # If `blocked_at` is not None, `number` and `has_*` must be None
