@@ -5,13 +5,14 @@ from __future__ import annotations
 
 import re
 import time
-import typing as t
 import warnings
+from collections.abc import Callable, Iterator
 from contextlib import ExitStack
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from difflib import unified_diff
 from types import MethodType, ModuleType, SimpleNamespace
+from typing import TYPE_CHECKING, Any, NamedTuple, get_type_hints
 from unittest.mock import patch
 
 import flask_wtf.csrf
@@ -23,7 +24,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.session import Session as FsaSession
 from sqlalchemy.orm import Session as DatabaseSessionClass
 
-if t.TYPE_CHECKING:
+if TYPE_CHECKING:
     from flask import Flask
     from flask.testing import FlaskClient, TestResponse
     from rich.console import Console
@@ -60,7 +61,7 @@ def firefox_options(firefox_options):
     return firefox_options
 
 
-def pytest_collection_modifyitems(items: t.List[pytest.Function]) -> None:
+def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:
     """Sort tests to run lower level before higher level."""
     test_order = (
         'tests/unit/models',
@@ -79,7 +80,7 @@ def pytest_collection_modifyitems(items: t.List[pytest.Function]) -> None:
         'tests/features',
     )
 
-    def sort_key(item: pytest.Function) -> t.Tuple[int, str]:
+    def sort_key(item: pytest.Function) -> tuple[int, str]:
         # pytest.Function's base class pytest.Item reports the file containing the test
         # as item.location == (file_path, line_no, function_name). However, pytest-bdd
         # reports itself for file_path, so we can't use that and must extract the path
@@ -96,10 +97,10 @@ def pytest_collection_modifyitems(items: t.List[pytest.Function]) -> None:
 # Adapted from https://github.com/untitaker/pytest-fixture-typecheck
 def pytest_runtest_call(item: pytest.Function) -> None:
     try:
-        annotations = t.get_type_hints(
+        annotations = get_type_hints(
             item.obj,
             globalns=item.obj.__globals__,
-            localns={'Any': t.Any},  # pytest-bdd appears to insert an `Any` annotation
+            localns={'Any': Any},  # pytest-bdd appears to insert an `Any` annotation
         )
     except TypeError:
         # get_type_hints may fail on Python <3.10 because pytest-bdd appears to have
@@ -154,7 +155,7 @@ def funnel_devtest() -> ModuleType:
 
 
 @pytest.fixture(scope='session')
-def response_with_forms() -> t.Any:  # Since the actual return type is defined within
+def response_with_forms() -> Any:  # Since the actual return type is defined within
     from flask.wrappers import Response
     from lxml.html import FormElement, HtmlElement, fromstring  # nosec
 
@@ -175,11 +176,11 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
         re.ASCII | re.IGNORECASE | re.VERBOSE,
     )
 
-    class MetaRefreshContent(t.NamedTuple):
+    class MetaRefreshContent(NamedTuple):
         """Timeout and optional URL in a Meta Refresh tag."""
 
         timeout: int
-        url: t.Optional[str] = None
+        url: str | None = None
 
     class ResponseWithForms(Response):
         """
@@ -196,7 +197,7 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
                 next_response = form.submit(client)
         """
 
-        _parsed_html: t.Optional[HtmlElement] = None
+        _parsed_html: HtmlElement | None = None
 
         @property
         def html(self) -> HtmlElement:
@@ -206,7 +207,7 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
 
                 # add click method to all links
                 def _click(
-                    self: HtmlElement, client: FlaskClient, **kwargs: t.Any
+                    self: HtmlElement, client: FlaskClient, **kwargs: Any
                 ) -> TestResponse:
                     # `self` is the `a` element here
                     path = self.attrib['href']
@@ -219,8 +220,8 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
                 def _submit(
                     self: FormElement,
                     client: FlaskClient,
-                    path: t.Optional[str] = None,
-                    **kwargs: t.Any,
+                    path: str | None = None,
+                    **kwargs: Any,
                 ) -> TestResponse:
                     # `self` is the `form` element here
                     data = dict(self.form_values())
@@ -238,7 +239,7 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
             return self._parsed_html
 
         @property
-        def forms(self) -> t.List[FormElement]:
+        def forms(self) -> list[FormElement]:
             """
             Return list of all forms in the document.
 
@@ -249,8 +250,8 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
             return self.html.forms
 
         def form(
-            self, id_: t.Optional[str] = None, name: t.Optional[str] = None
-        ) -> t.Optional[FormElement]:
+            self, id_: str | None = None, name: str | None = None
+        ) -> FormElement | None:
             """Return the first form matching given id or name in the document."""
             if id_:
                 forms = self.html.cssselect(f'form#{id_}')
@@ -262,11 +263,11 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
                 return forms[0]
             return None
 
-        def links(self, selector: str = 'a') -> t.List[HtmlElement]:
+        def links(self, selector: str = 'a') -> list[HtmlElement]:
             """Get all the links matching the given CSS selector."""
             return self.html.cssselect(selector)
 
-        def link(self, selector: str = 'a') -> t.Optional[HtmlElement]:
+        def link(self, selector: str = 'a') -> HtmlElement | None:
             """Get first link matching the given CSS selector."""
             links = self.links(selector)
             if links:
@@ -274,7 +275,7 @@ def response_with_forms() -> t.Any:  # Since the actual return type is defined w
             return None
 
         @property
-        def metarefresh(self) -> t.Optional[MetaRefreshContent]:
+        def metarefresh(self) -> MetaRefreshContent | None:
             """Get content of Meta Refresh tag if present."""
             meta_elements = self.html.cssselect('meta[http-equiv="refresh"]')
             if not meta_elements:
@@ -299,7 +300,7 @@ def rich_console() -> Console:
 
 
 @pytest.fixture(scope='session')
-def colorama() -> t.Iterator[SimpleNamespace]:
+def colorama() -> Iterator[SimpleNamespace]:
     """Provide the colorama print colorizer."""
     from colorama import Back, Fore, Style, deinit, init
 
@@ -309,10 +310,10 @@ def colorama() -> t.Iterator[SimpleNamespace]:
 
 
 @pytest.fixture(scope='session')
-def colorize_code(rich_console: Console) -> t.Callable[[str, t.Optional[str]], str]:
+def colorize_code(rich_console: Console) -> Callable[[str, str | None], str]:
     """Return colorized output for a string of code, for current terminal's colors."""
 
-    def no_colorize(code_string: str, lang: t.Optional[str] = 'python') -> str:
+    def no_colorize(code_string: str, lang: str | None = 'python') -> str:
         # Pygments is not available or terminal does not support colour output
         return code_string
 
@@ -337,7 +338,7 @@ def colorize_code(rich_console: Console) -> t.Callable[[str, t.Optional[str]], s
         # color_system is `None` or `'windows'` or something unrecognised. No colours.
         return no_colorize
 
-    def colorize(code_string: str, lang: t.Optional[str] = 'python') -> str:
+    def colorize(code_string: str, lang: str | None = 'python') -> str:
         if lang in (None, 'auto'):
             lexer = guess_lexer(code_string)
         else:
@@ -348,7 +349,7 @@ def colorize_code(rich_console: Console) -> t.Callable[[str, t.Optional[str]], s
 
 
 @pytest.fixture(scope='session')
-def print_stack(pytestconfig, colorama, colorize_code) -> t.Callable[[int, int], None]:
+def print_stack(pytestconfig, colorama, colorize_code) -> Callable[[int, int], None]:
     """Print a stack trace up to an outbound call from within this repository."""
     import os.path
     from inspect import stack as inspect_stack
@@ -419,20 +420,20 @@ def unsubscribeapp(funnel) -> Flask:
 
 
 @pytest.fixture()
-def app_context(app) -> t.Iterator:
+def app_context(app) -> Iterator:
     """Create an app context for the test."""
     with app.app_context() as ctx:
         yield ctx
 
 
 @pytest.fixture()
-def request_context(app) -> t.Iterator:
+def request_context(app) -> Iterator:
     """Create a request context with default values for the test."""
     with app.test_request_context() as ctx:
         yield ctx
 
 
-config_test_keys: t.Dict[str, t.Set[str]] = {
+config_test_keys: dict[str, set[str]] = {
     'recaptcha': {'RECAPTCHA_PUBLIC_KEY', 'RECAPTCHA_PRIVATE_KEY'},
     'twilio': {'SMS_TWILIO_SID', 'SMS_TWILIO_TOKEN'},
     'exotel': {'SMS_EXOTEL_SID', 'SMS_EXOTEL_TOKEN'},
@@ -459,11 +460,11 @@ _mock_config_syntax = (
 
 
 @pytest.fixture(autouse=True)
-def _mock_config(request: pytest.FixtureRequest) -> t.Iterator:
+def _mock_config(request: pytest.FixtureRequest) -> Iterator:
     """Mock app config (using ``mock_config`` mark)."""
 
     def backup_and_apply_config(
-        app_name: str, app_fixture: Flask, saved_config: dict, key: str, value: t.Any
+        app_name: str, app_fixture: Flask, saved_config: dict, key: str, value: Any
     ) -> None:
         if key in saved_config:
             pytest.fail(f"Duplicate mock for {app_name}.config[{key!r}]")
@@ -479,7 +480,7 @@ def _mock_config(request: pytest.FixtureRequest) -> t.Iterator:
             app_fixture.config[key] = value
 
     if request.node.get_closest_marker('mock_config'):
-        saved_app_config: t.Dict[str, t.Any] = {}
+        saved_app_config: dict[str, Any] = {}
         for mark in request.node.iter_markers('mock_config'):
             if len(mark.args) < 1:
                 pytest.fail(_mock_config_syntax)
@@ -534,7 +535,7 @@ def _requires_config(request: pytest.FixtureRequest) -> None:
 
 
 @pytest.fixture(scope='session')
-def _app_events(colorama, print_stack, app) -> t.Iterator:
+def _app_events(colorama, print_stack, app) -> Iterator:
     """Fixture to report Flask signals with a stack trace when debugging a test."""
     from functools import partial
 
@@ -572,7 +573,7 @@ def _app_events(colorama, print_stack, app) -> t.Iterator:
 
 
 @pytest.fixture()
-def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator:
+def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
     """
     Fixture to report database session events for debugging a test.
 
@@ -911,7 +912,7 @@ def database(funnel, models, request, app) -> SQLAlchemy:
 @pytest.fixture()
 def db_session_truncate(
     funnel, app, database, app_context
-) -> t.Iterator[DatabaseSessionClass]:
+) -> Iterator[DatabaseSessionClass]:
     """Empty the database after each use of the fixture."""
     yield database.session
     sa.orm.close_all_sessions()
@@ -927,27 +928,27 @@ def db_session_truncate(
 @dataclass
 class BindConnectionTransaction:
     engine: sa.engine.Engine
-    connection: t.Any
-    transaction: t.Any
+    connection: Any
+    transaction: Any
 
 
 class BoundSession(FsaSession):
     def __init__(
         self,
         db: SQLAlchemy,
-        bindcts: t.Dict[t.Optional[str], BindConnectionTransaction],
-        **kwargs: t.Any,
+        bindcts: dict[str | None, BindConnectionTransaction],
+        **kwargs: Any,
     ) -> None:
         super().__init__(db, **kwargs)
         self.bindcts = bindcts
 
     def get_bind(
         self,
-        mapper: t.Optional[t.Any] = None,
-        clause: t.Optional[t.Any] = None,
-        bind: t.Optional[t.Union[sa.engine.Engine, sa.engine.Connection]] = None,
-        **kwargs: t.Any,
-    ) -> t.Union[sa.engine.Engine, sa.engine.Connection]:
+        mapper: Any | None = None,
+        clause: Any | None = None,
+        bind: sa.engine.Engine | sa.engine.Connection | None = None,
+        **kwargs: Any,
+    ) -> sa.engine.Engine | sa.engine.Connection:
         if bind is not None:
             return bind
         if mapper is not None:
@@ -964,11 +965,11 @@ class BoundSession(FsaSession):
 @pytest.fixture()
 def db_session_rollback(
     funnel, app, database, app_context
-) -> t.Iterator[DatabaseSessionClass]:
+) -> Iterator[DatabaseSessionClass]:
     """Create a nested transaction for the test and rollback after."""
     original_session = database.session
 
-    bindcts: t.Dict[t.Optional[str], BindConnectionTransaction] = {}
+    bindcts: dict[str | None, BindConnectionTransaction] = {}
     for bind, engine in database.engines.items():
         connection = engine.connect()
         transaction = connection.begin()
@@ -1152,7 +1153,7 @@ def login(app, client, db_session) -> SimpleNamespace:
 
 
 @pytest.fixture()
-def getuser(request) -> t.Callable[[str], funnel_models.User]:
+def getuser(request) -> Callable[[str], funnel_models.User]:
     """Get a user fixture by their name."""
     usermap = {
         "Twoflower": 'user_twoflower',

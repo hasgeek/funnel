@@ -9,8 +9,6 @@ Create Date: ${create_date}
 
 """
 
-from typing import Optional, Tuple, Union
-
 from alembic import op
 import sqlalchemy as sa
 ${imports if imports else ""}
@@ -18,8 +16,8 @@ ${imports if imports else ""}
 # revision identifiers, used by Alembic.
 revision: str = ${repr(up_revision)}
 down_revision: str = ${repr(down_revision)}
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = ${repr(branch_labels)}
-depends_on: Optional[Union[str, Tuple[str, ...]]] = ${repr(depends_on)}
+branch_labels: str | tuple[str, ...] | None = ${repr(branch_labels)}
+depends_on: str, tuple[str, ...] | None = ${repr(depends_on)}
 
 
 def upgrade(engine_name: str = '') -> None:

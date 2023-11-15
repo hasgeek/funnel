@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from werkzeug.utils import cached_property
 
@@ -134,7 +134,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
         self.count = 0
 
     @cached_property
-    def parent(self) -> BaseMixin:
+    def parent(self) -> Project | Proposal | Update:
         # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
         if self.project is not None:
             return self.project
@@ -147,11 +147,8 @@ class Commentset(UuidMixin, BaseMixin, Model):
     with_roles(parent, read={'all'}, datasets={'primary'})
 
     @cached_property
-    def parent_type(self) -> str | None:
-        parent = self.parent
-        if parent is not None:
-            return parent.__tablename__
-        return None
+    def parent_type(self) -> str:
+        return self.parent.__tablename__
 
     with_roles(parent_type, read={'all'})
 
@@ -363,6 +360,7 @@ class Comment(UuidMixin, BaseMixin, Model):
 
     @property
     def title(self) -> str:
+        """A made-up title referring to the context for the comment."""
         obj = self.commentset.parent
         if obj is not None:
             return _("{user} commented on {obj}").format(
@@ -439,3 +437,10 @@ class __Commentset:
         ),
         viewonly=True,
     )
+
+
+# Tail imports for type checking
+if TYPE_CHECKING:
+    from .project import Project
+    from .proposal import Proposal
+    from .update import Update
