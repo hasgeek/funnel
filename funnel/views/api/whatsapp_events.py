@@ -7,13 +7,7 @@ from flask import abort, current_app, request
 from baseframe import statsd
 
 from ... import app
-from ...models import (
-    PhoneNumber,
-    PhoneNumberInvalidError,
-    canonical_phone_number,
-    db,
-    sa,
-)
+from ...models import PhoneNumber, PhoneNumberInvalidError, db, sa
 from ...typing import ReturnView
 from ...utils import abort_null
 
@@ -38,9 +32,17 @@ def process_whatsapp_event() -> ReturnView:
     """Process WhatsApp callback event from Meta Cloud API."""
     # Register the fact that we got a WhatsApp event.
     # If there are too many rejects, then most likely a hack attempt.
-    statsd.incr('phone_number.event', tags={'engine': 'whatsapp', 'stage': 'received'})
+
+    # FIXME: Where is the call verification?
+
+    statsd.incr(
+        'phone_number.event', tags={'engine': 'whatsapp-meta', 'stage': 'received'}
+    )
     if not request.json:
         abort(400)
+
+    # FIXME: Handle multiple events in a single call, as it clearly implied by `changes`
+    # and `statuses` being a list in this call
     whatsapp_to = abort_null(
         request.json.get('entry', [{}])[0]
         .get('changes', [{}])[0]
@@ -52,11 +54,9 @@ def process_whatsapp_event() -> ReturnView:
         return {'status': 'eror', 'error': 'invalid_phone'}, 422
 
     try:
-        whatsapp_to = canonical_phone_number(f'+{whatsapp_to}')
+        phone_number = PhoneNumber.add(phone=f'+{whatsapp_to}')
     except PhoneNumberInvalidError:
         return {'status': 'error', 'error': 'invalid_phone'}, 422
-
-    phone_number = PhoneNumber.add(phone=whatsapp_to)
 
     status = (
         request.json.get('entry', [{}])[0]
@@ -66,6 +66,7 @@ def process_whatsapp_event() -> ReturnView:
         .get('status')
     )
 
+    phone_number.mark_has_wa(True)
     if status == 'sent':
         phone_number.msg_wa_sent_at = sa.func.utcnow()
     elif status == 'delivered':
