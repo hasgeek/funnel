@@ -4,7 +4,7 @@ from __future__ import annotations
 
 
 class WhatsappTemplate:
-    """Whatsapp template formatter."""
+    """WhatsApp template formatter."""
 
     registered_template_name: str
     registered_template_language_code: str
