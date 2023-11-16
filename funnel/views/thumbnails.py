@@ -12,6 +12,7 @@ from ..models import Project, db
 from ..signals import project_data_change
 from .jobs import rqjob
 
+
 @project_data_change.connect
 def redo_project_preview_image(project: Project) -> None:
     render_project_preview_image.queue(project_id=project.id)
