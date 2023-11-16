@@ -12,7 +12,6 @@ from ..models import Project, db
 from ..signals import project_data_change
 from .jobs import rqjob
 
-
 @project_data_change.connect
 def redo_project_preview_image(project: Project) -> None:
     render_project_preview_image.queue(project_id=project.id)
@@ -28,7 +27,7 @@ def render_project_preview_image(project_id: int) -> None:
     fd, temp_filepath = tempfile.mkstemp('.png')
     os.close(fd)
     temp_dir, temp_filename = os.path.split(temp_filepath)
-    hti = Html2Image(size=(640, 360), output_path=temp_dir)
+    hti = Html2Image(size=(320, 180), output_path=temp_dir)
     html_src = render_template('preview/project.html.jinja2', project=project)
     screenshot_files = hti.screenshot(html_str=html_src, save_as=temp_filename)
 
