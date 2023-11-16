@@ -61,10 +61,10 @@ jobs:
         if: ${{ matrix.os == 'macos-latest' }}
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Install Firefox (for browser testing)
-        uses: browser-actions/setup-firefox@latest
-      - name: Install Geckodriver (for browser testing)
-        uses: browser-actions/setup-geckodriver@latest
+      - name: Install Chrome (for browser testing)
+        uses: browser-actions/setup-chrome@latest
+      - name: Install Chromedriver (for browser testing)
+        uses: nanasess/setup-chromedriver@latest
       - name: Install Python
         uses: actions/setup-python@v4
         with:
