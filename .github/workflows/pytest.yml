@@ -64,7 +64,7 @@ jobs:
       - name: Install Chrome (for browser testing)
         uses: browser-actions/setup-chrome@latest
       - name: Install Chromedriver (for browser testing)
-        uses: nanasess/setup-chromedriver@latest
+        uses: nanasess/setup-chromedriver@v2
       - name: Install Python
         uses: actions/setup-python@v4
         with:
