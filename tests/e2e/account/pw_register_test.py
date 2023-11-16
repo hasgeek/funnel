@@ -21,10 +21,20 @@ pytestmark = pytest.mark.filterwarnings(
 
 
 @pytest.fixture()
-def user_twoflower_with_password_and_contact(user_twoflower):
+def published_project(db_session, new_project):
+    new_project.publish()
+    db_session.add(new_project)
+    db_session.commit()
+    return new_project
+
+
+@pytest.fixture()
+def user_twoflower_with_password_and_contact(db_session, user_twoflower):
     user_twoflower.password = TWOFLOWER_PASSWORD
     user_twoflower.add_phone(TWOFLOWER_PHONE)
     user_twoflower.add_email(TWOFLOWER_EMAIL)
+    db_session.add(user_twoflower)
+    db_session.commit()
     return user_twoflower
 
 
@@ -131,12 +141,9 @@ def when_submit_phone_password(app, live_server, page: Page) -> None:
 
 @given("Anonymous visitor is on a project page")
 def given_anonymous_project_page(
-    live_server, page: Page, db_session, new_project
+    live_server, page: Page, db_session, published_project
 ) -> None:
-    new_project.publish()
-    db_session.add(new_project)
-    db_session.commit()
-    page.goto(live_server.url + new_project.account.urlname + '/' + new_project.name)
+    page.goto(published_project.absolute_url)
 
 
 @when("they click on follow")
@@ -174,14 +181,10 @@ def given_twoflower_visits_project(
     live_server,
     page: Page,
     db_session,
-    user_twoflower,
-    new_project,
+    published_project,
     user_twoflower_with_password_and_contact,
 ) -> None:
-    new_project.publish()
-    db_session.add(new_project)
-    db_session.commit()
-    page.goto(new_project.absolute_url)
+    page.goto(published_project.absolute_url)
 
 
 @given("the server uses Recaptcha")
@@ -189,12 +192,9 @@ def given_server_uses_recaptcha(
     live_server,
     db_session,
     user_twoflower_with_password_and_contact,
-    new_project,
+    published_project,
     funnel,
 ) -> None:
-    new_project.publish()
-    db_session.add(new_project)
-    db_session.commit()
     assert funnel.app.config['RECAPTCHA_PRIVATE_KEY']
 
 
