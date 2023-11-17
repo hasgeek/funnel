@@ -5,7 +5,6 @@ coverage
 coveralls
 lxml
 playwright
-py  # Not ours; missing dep in pytest-html, which is a dep for pytest-selenium
 Pygments
 pytest
 pytest-asyncio
