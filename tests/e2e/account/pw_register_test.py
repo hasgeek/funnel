@@ -7,12 +7,16 @@ import pytest
 from playwright.sync_api import Page, expect
 from pytest_bdd import given, parsers, scenarios, then, when
 
+from funnel import models
+
 scenarios('account/register.feature')
 pytestmark = pytest.mark.usefixtures('live_server')
 
 TWOFLOWER_EMAIL = 'twoflower@example.org'
 TWOFLOWER_PHONE = '+12015550123'
 TWOFLOWER_PASSWORD = 'te@pwd3289'  # nosec
+ANONYMOUS_PHONE = '8123456789'
+ANONYMOUS_EMAIL = 'anon@example.com'
 
 pytestmark = pytest.mark.filterwarnings(
     "ignore:Object of type <AccountPhone> not in session",
@@ -21,19 +25,21 @@ pytestmark = pytest.mark.filterwarnings(
 
 
 @pytest.fixture()
-def published_project(db_session, new_project):
+def published_project(db_session, new_project: models.Project) -> models.Project:
+    """Published project fixture."""
     new_project.publish()
-    db_session.add(new_project)
     db_session.commit()
     return new_project
 
 
 @pytest.fixture()
-def user_twoflower_with_password_and_contact(db_session, user_twoflower):
+def user_twoflower_with_password_and_contact(
+    db_session, user_twoflower: models.User
+) -> models.User:
+    """User fixture with a password and contact."""
     user_twoflower.password = TWOFLOWER_PASSWORD
     user_twoflower.add_phone(TWOFLOWER_PHONE)
     user_twoflower.add_email(TWOFLOWER_EMAIL)
-    db_session.add(user_twoflower)
     db_session.commit()
     return user_twoflower
 
@@ -62,9 +68,9 @@ def when_anonuser_navigates_login_and_submits(
     app, live_server, phone_or_email: str, page: Page
 ) -> dict[str, str]:
     if phone_or_email == "a phone number":
-        username = '8123456789'
+        username = ANONYMOUS_PHONE
     elif phone_or_email == "an email address":
-        username = 'anon@example.com'
+        username = ANONYMOUS_EMAIL
     else:
         pytest.fail("Unknown username type")
     page.click('.header__button')
@@ -75,14 +81,13 @@ def when_anonuser_navigates_login_and_submits(
 
 
 @then("they are prompted for their name and the OTP, which they provide")
-def then_anonuser_prompted_name_and_otp(live_server, anon_username, page: Page) -> None:
+def then_anonuser_prompted_name_and_otp(anon_username, live_server, page: Page) -> None:
     page.wait_for_selector('input[name=fullname]').fill('Twoflower')
     if anon_username['phone_or_email'] == "a phone number":
         otp = live_server.transport_calls.sms[-1].vars['otp']
     elif anon_username['phone_or_email'] == "an email address":
         subject = live_server.transport_calls.email[-1].subject
-        otp_pattern = r"\b\d{4}\b"
-        otp = re.search(otp_pattern, subject).group(0)
+        otp = re.search(r'\b\d{4}\b', subject).group(0)
     else:
         pytest.fail("Unknown username type")
     page.wait_for_selector('input[name=otp]').fill(otp)
@@ -91,7 +96,7 @@ def then_anonuser_prompted_name_and_otp(live_server, anon_username, page: Page) 
 
 @then("they get an account and are logged in")
 def then_they_are_logged_in(
-    live_server, user_twoflower_with_password_and_contact, page: Page
+    user_twoflower_with_password_and_contact, live_server, page: Page
 ) -> None:
     assert (
         page.wait_for_selector('.alert__text').inner_text()
@@ -101,10 +106,10 @@ def then_they_are_logged_in(
 
 @given("Twoflower visitor is on the home page")
 def when_twoflower_visits_homepage(
-    live_server, page: Page, db_session, user_twoflower_with_password_and_contact
+    db_session, user_twoflower_with_password_and_contact, live_server, page: Page
 ) -> None:
-    page.goto(live_server.url)
     db_session.commit()
+    page.goto(live_server.url)
 
 
 @when("they navigate to the login page")
@@ -141,7 +146,7 @@ def when_submit_phone_password(app, live_server, page: Page) -> None:
 
 @given("Anonymous visitor is on a project page")
 def given_anonymous_project_page(
-    live_server, page: Page, db_session, published_project
+    db_session, published_project, live_server, page: Page
 ) -> None:
     page.goto(published_project.absolute_url)
 
@@ -166,9 +171,9 @@ def then_register_modal_appear(page: Page) -> None:
 def when_they_enter_email(page: Page, phone_or_email: str) -> dict[str, str]:
     wait_until_recaptcha_loaded(page)
     if phone_or_email == "a phone number":
-        username = '8123456789'
+        username = ANONYMOUS_PHONE
     elif phone_or_email == "an email address":
-        username = 'anon@example.com'
+        username = ANONYMOUS_EMAIL
     else:
         pytest.fail("Unknown username type")
     page.wait_for_selector('input[name=username]').fill(username)
@@ -178,21 +183,21 @@ def when_they_enter_email(page: Page, phone_or_email: str) -> dict[str, str]:
 
 @given("Twoflower is on the project page")
 def given_twoflower_visits_project(
+    user_twoflower_with_password_and_contact,
+    published_project,
+    db_session,
     live_server,
     page: Page,
-    db_session,
-    published_project,
-    user_twoflower_with_password_and_contact,
 ) -> None:
     page.goto(published_project.absolute_url)
 
 
 @given("the server uses Recaptcha")
 def given_server_uses_recaptcha(
-    live_server,
-    db_session,
     user_twoflower_with_password_and_contact,
     published_project,
+    db_session,
+    live_server,
     funnel,
 ) -> None:
     assert funnel.app.config['RECAPTCHA_PRIVATE_KEY']
