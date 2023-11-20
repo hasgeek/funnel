@@ -9,8 +9,10 @@ import phonenumbers
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Mapped
 
 from funnel import models
+from funnel.models import relationship
 
 # These numbers were obtained from libphonenumber with region codes 'IN' and 'US':
 # >>> phonenumbers.example_number_for_type(region, phonenumbers.PhoneNumberType.MOBILE)
@@ -59,10 +61,10 @@ def phone_models(database, app) -> Generator:
         __phone_for__ = 'phoneuser'
         __phone_is_exclusive__ = True
 
-        phoneuser_id = sa.orm.mapped_column(
+        phoneuser_id: Mapped[int] = sa.orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=False
         )
-        phoneuser = models.relationship(PhoneUser)
+        phoneuser: Mapped[PhoneUser] = relationship(PhoneUser)
 
     class PhoneDocument(models.PhoneNumberMixin, models.BaseMixin, models.Model):
         """Test model unaffiliated to a user that has a phone number attached."""
@@ -75,10 +77,10 @@ def phone_models(database, app) -> Generator:
         __tablename__ = 'test_phone_linked_document'
         __phone_for__ = 'phoneuser'
 
-        phoneuser_id = sa.orm.mapped_column(
+        phoneuser_id: Mapped[int | None] = sa.orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=True
         )
-        phoneuser = models.relationship(PhoneUser)
+        phoneuser: Mapped[PhoneUser | None] = relationship(PhoneUser)
 
     new_models = [PhoneUser, PhoneLink, PhoneDocument, PhoneLinkedDocument]
 

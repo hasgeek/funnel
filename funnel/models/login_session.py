@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from coaster.utils import utcnow
 
@@ -95,23 +95,31 @@ class LoginSession(UuidMixin, BaseMixin, Model):
     )
 
     #: User's last known IP address
-    ipaddr = sa.orm.mapped_column(sa.String(45), nullable=False)
+    ipaddr: Mapped[str] = sa.orm.mapped_column(sa.String(45), nullable=False)
     #: City geonameid from IP address
-    geonameid_city = sa.orm.mapped_column(sa.Integer, nullable=True)
+    geonameid_city: Mapped[int | None] = sa.orm.mapped_column(sa.Integer, nullable=True)
     #: State/subdivision geonameid from IP address
-    geonameid_subdivision = sa.orm.mapped_column(sa.Integer, nullable=True)
+    geonameid_subdivision: Mapped[int | None] = sa.orm.mapped_column(
+        sa.Integer, nullable=True
+    )
     #: Country geonameid from IP address
-    geonameid_country = sa.orm.mapped_column(sa.Integer, nullable=True)
+    geonameid_country: Mapped[int | None] = sa.orm.mapped_column(
+        sa.Integer, nullable=True
+    )
     #: User's network, from IP address
-    geoip_asn = sa.orm.mapped_column(sa.Integer, nullable=True)
+    geoip_asn: Mapped[int | None] = sa.orm.mapped_column(sa.Integer, nullable=True)
     #: User agent
-    user_agent = sa.orm.mapped_column(sa.UnicodeText, nullable=False)
+    user_agent: Mapped[str] = sa.orm.mapped_column(sa.UnicodeText, nullable=False)
     #: The login service that was used to make this session
-    login_service = sa.orm.mapped_column(sa.Unicode, nullable=True)
+    login_service: Mapped[str | None] = sa.orm.mapped_column(sa.Unicode, nullable=True)
 
-    accessed_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=False)
-    revoked_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
-    sudo_enabled_at = sa.orm.mapped_column(
+    accessed_at: Mapped[datetime] = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=False
+    )
+    revoked_at: Mapped[datetime | None] = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
+    sudo_enabled_at: Mapped[datetime] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
 
