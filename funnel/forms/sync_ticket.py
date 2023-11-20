@@ -9,6 +9,7 @@ from markupsafe import Markup
 from baseframe import __, forms
 
 from ..models import (
+    PROJECT_RSVP_STATE,
     Account,
     AccountEmail,
     Project,
@@ -68,9 +69,10 @@ class ProjectBoxofficeForm(forms.Form):
         validators=[forms.validators.AllowedIf('org')],
         filters=[forms.filters.strip()],
     )
-    allow_rsvp = forms.BooleanField(
-        __("Allow free registrations"),
-        default=False,
+    rsvp_state = forms.RadioField(
+        __("Registrations"),
+        choices=PROJECT_RSVP_STATE.items(),
+        default=PROJECT_RSVP_STATE.NONE,
     )
     is_subscription = forms.BooleanField(
         __("Paid tickets are for a subscription"),
