@@ -1258,7 +1258,7 @@ class NotificationPreferences(BaseMixin, Model):
         index=True,
     )
     #: User account whose preferences are represented here
-    account = with_roles(
+    account: Mapped[Account] = with_roles(
         relationship(Account, back_populates='notification_preferences'),
         read={'owner'},
         grants={'owner'},

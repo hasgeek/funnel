@@ -9,8 +9,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Literal, overload
 import base58
 import phonenumbers
 from sqlalchemy import event, inspect
-from sqlalchemy.orm import Mapper
-from sqlalchemy.orm.attributes import NO_VALUE
+from sqlalchemy.orm import NO_VALUE, Mapper
 from sqlalchemy.sql.expression import ColumnElement
 from werkzeug.utils import cached_property
 

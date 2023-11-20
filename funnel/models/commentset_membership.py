@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, with_roles
@@ -58,9 +60,11 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
     parent: Mapped[Commentset] = sa.orm.synonym('commentset')
 
     #: Flag to indicate notifications are muted
-    is_muted = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
+    is_muted: Mapped[bool] = sa.orm.mapped_column(
+        sa.Boolean, nullable=False, default=False
+    )
     #: When the user visited this commentset last
-    last_seen_at = sa.orm.mapped_column(
+    last_seen_at: Mapped[datetime] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
 

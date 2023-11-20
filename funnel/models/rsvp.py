@@ -42,7 +42,7 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
 
 class Rsvp(UuidMixin, NoIdMixin, Model):
     __tablename__ = 'rsvp'
-    project_id = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project: Mapped[Project] = with_roles(
@@ -67,7 +67,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    _state = sa.orm.mapped_column(
+    _state: Mapped[str] = sa.orm.mapped_column(
         'state',
         sa.CHAR(1),
         StateManager.check_constraint('state', RSVP_STATUS),
