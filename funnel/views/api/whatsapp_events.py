@@ -32,9 +32,6 @@ def process_whatsapp_event() -> ReturnView:
     """Process WhatsApp callback event from Meta Cloud API."""
     # Register the fact that we got a WhatsApp event.
     # If there are too many rejects, then most likely a hack attempt.
-
-    # FIXME: Where is the call verification?
-
     statsd.incr(
         'phone_number.event', tags={'engine': 'whatsapp-meta', 'stage': 'received'}
     )
@@ -43,42 +40,35 @@ def process_whatsapp_event() -> ReturnView:
 
     # FIXME: Handle multiple events in a single call, as it clearly implied by `changes`
     # and `statuses` being a list in this call
-    whatsapp_to = abort_null(
-        request.json.get('entry', [{}])[0]
-        .get('changes', [{}])[0]
-        .get('value', {})
-        .get('statuses', [{}])[0]
-        .get('recipient_id')
-    )
+    statuses = request.json['entry'][0]['changes'][0]['value']['statuses'][0]
+    whatsapp_to = abort_null(statuses['recepient_id'])
     if not whatsapp_to:
         return {'status': 'eror', 'error': 'invalid_phone'}, 422
 
     try:
         phone_number = PhoneNumber.add(phone=f'+{whatsapp_to}')
     except PhoneNumberInvalidError:
+        current_app.logger.info(
+            "WhatsApp Meta Cloud API event for phone: %s invalid number for Whatsapp",
+            whatsapp_to,
+        )
         return {'status': 'error', 'error': 'invalid_phone'}, 422
 
-    status = (
-        request.json.get('entry', [{}])[0]
-        .get('changes', [{}])[0]
-        .get('value', {})
-        .get('statuses', [{}])[0]
-        .get('status')
-    )
+    msg_status = statuses['status']
 
-    if status == 'sent':
+    if msg_status == 'sent':
         phone_number.msg_wa_sent_at = sa.func.utcnow()
-    elif status == 'delivered':
+    elif msg_status == 'delivered':
         phone_number.msg_wa_delivered_at = sa.func.utcnow()
         phone_number.mark_has_wa(True)
-    elif status == 'failed':
+    elif msg_status == 'failed':
         phone_number.msg_wa_failed_at = sa.func.utcnow()
     db.session.commit()
 
     current_app.logger.info(
         "WhatsApp Meta Cloud API event for phone: %s %s",
         whatsapp_to,
-        status,
+        msg_status,
     )
 
     statsd.incr(
@@ -86,7 +76,7 @@ def process_whatsapp_event() -> ReturnView:
         tags={
             'engine': 'whatsapp-meta',
             'stage': 'processed',
-            'event': status,
+            'event': msg_status,
         },
     )
     return {'status': 'ok'}, 200
