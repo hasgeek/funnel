@@ -28,6 +28,7 @@ from . import (
     UuidMixin,
     backref,
     db,
+    hybrid_property,
     relationship,
     sa,
     types,
@@ -64,6 +65,12 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
     PUBLIC = (2, 'public', __("Public"))
     CLOSED = (3, 'closed', __("Closed"))
     ANY = {NONE, PUBLIC, CLOSED}
+
+
+class RSVP_STATE(LabeledEnum):  # noqa: N801
+    NONE = (1, __("Not accepting registrations"))
+    ALL = (2, __("Anyone can register"))
+    MEMBERS = (3, __("Only members can register"))
 
 
 # --- Models ------------------------------------------------------------------
@@ -160,6 +167,19 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         StateManager('_cfp_state', CFP_STATE, doc="CfP state"), call={'all'}
     )
 
+    #: State of RSVPs
+    rsvp_state: Mapped[int] = with_roles(
+        sa.orm.mapped_column(
+            sa.SmallInteger,
+            StateManager.check_constraint('rsvp_state', RSVP_STATE),
+            default=RSVP_STATE.NONE,
+            nullable=False,
+        ),
+        read={'all'},
+        write={'editor', 'promoter'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
+
     #: Audit timestamp to detect re-publishing to re-surface a project
     first_published_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
@@ -204,11 +224,6 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         sa.LargeBinary, nullable=True, deferred=True
     )
 
-    allow_rsvp: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, default=True, nullable=False),
-        read={'all'},
-        datasets={'primary', 'without_parent', 'related'},
-    )
     buy_tickets_url: Mapped[furl | None] = with_roles(
         sa.orm.mapped_column(UrlType, nullable=True),
         read={'all'},
@@ -628,10 +643,11 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
             > 30 Dec 2018–02 Jan 2019, Bangalore
         """
         # FIXME: Replace strftime with Babel formatting
-        daterange = ''
-        if self.start_at is not None and self.end_at is not None:
-            schedule_start_at_date = self.start_at_localized.date()
-            schedule_end_at_date = self.end_at_localized.date()
+        start_at = self.start_at_localized
+        end_at = self.end_at_localized
+        if start_at is not None and end_at is not None:
+            schedule_start_at_date = start_at.date()
+            schedule_end_at_date = end_at.date()
             daterange_format = '{start_date}–{end_date} {year}'
             if schedule_start_at_date == schedule_end_at_date:
                 # if both dates are same, in case of single day project
@@ -646,11 +662,18 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
             elif schedule_start_at_date.month == schedule_end_at_date.month:
                 # If multi-day event in same month
                 strf_date = '%d'
+            else:
+                raise ValueError(
+                    "This should not happen: unknown date range"
+                    f" {schedule_start_at_date}–{schedule_end_at_date}"
+                )
             daterange = daterange_format.format(
                 start_date=schedule_start_at_date.strftime(strf_date),
                 end_date=schedule_end_at_date.strftime('%d %b'),
                 year=schedule_end_at_date.year,
             )
+        else:
+            daterange = ''
         return ', '.join([_f for _f in [daterange, self.location] if _f])
 
     # TODO: Removing Delete feature till we figure out siteadmin feature
@@ -662,7 +685,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     #     pass
 
     @sa.orm.validates('name', 'account')
-    def _validate_and_create_redirect(self, key, value):
+    def _validate_and_create_redirect(self, key: str, value: str | None) -> str:
         # TODO: When labels, venues and other resources are relocated from project to
         # account, this validator can no longer watch for `account` change. We'll need a
         # more elaborate transfer mechanism that remaps resources to equivalent ones in
@@ -710,7 +733,13 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         """Return localized end_at timestamp."""
         return localize_timezone(self.end_at, tz=self.timezone) if self.end_at else None
 
-    def update_schedule_timestamps(self):
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
+    @hybrid_property
+    def allow_rsvp(self) -> bool:
+        """RSVP state as a boolean value (allowed for all or not)."""
+        return self.rsvp_state == RSVP_STATE.ALL
+
+    def update_schedule_timestamps(self) -> None:
         """Update cached timestamps from sessions."""
         self.start_at = self.schedule_start_at
         self.end_at = self.schedule_end_at

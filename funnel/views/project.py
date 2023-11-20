@@ -7,7 +7,7 @@ from json import JSONDecodeError
 from types import SimpleNamespace
 
 from flask import Response, abort, current_app, flash, render_template, request
-from flask_babel import format_number
+from flask_babel import LazyString, format_number
 from markupsafe import Markup
 
 from baseframe import _, __, forms
@@ -65,14 +65,19 @@ from .notification import dispatch_notification
 class CountWords:
     """Labels for a count of registrations."""
 
-    unregistered: str
-    registered: str
-    not_following: str
-    following: str
+    unregistered: str | LazyString
+    registered: str | LazyString
+    not_following: str | LazyString
+    following: str | LazyString
 
 
 registration_count_messages = [
-    CountWords(__("Be the first to register!"), '', __("Be the first follower!"), ''),
+    CountWords(
+        __("Be the first to register!"),
+        '',
+        __("Be the first follower!"),
+        '',
+    ),
     CountWords(
         __("One registration so far"),
         __("You have registered"),
@@ -142,7 +147,9 @@ numeric_count = CountWords(
 )
 
 
-def get_registration_text(count: int, registered=False, follow_mode=False) -> str:
+def get_registration_text(
+    count: int, registered=False, follow_mode=False
+) -> str | LazyString:
     if count < len(registration_count_messages):
         if registered and not follow_mode:
             return registration_count_messages[count].registered
@@ -162,7 +169,7 @@ def get_registration_text(count: int, registered=False, follow_mode=False) -> st
 
 @Project.features('rsvp')
 def feature_project_rsvp(obj: Project) -> bool:
-    return (
+    return bool(
         obj.state.PUBLISHED
         and obj.allow_rsvp is True
         and (obj.start_at is None or not obj.state.PAST)
@@ -214,7 +221,7 @@ def feature_project_deregister(obj: Project) -> bool:
 
 @Project.features('schedule_no_sessions')
 def feature_project_has_no_sessions(obj: Project) -> bool:
-    return obj.state.PUBLISHED and not obj.start_at
+    return bool(obj.state.PUBLISHED and not obj.start_at)
 
 
 @Project.features('comment_new')
@@ -233,7 +240,7 @@ def project_follow_mode(obj: Project) -> bool:
 
 
 @Project.views('registration_text')
-def project_registration_text(obj: Project) -> str:
+def project_registration_text(obj: Project) -> str | LazyString:
     return get_registration_text(
         count=obj.rsvp_count_going,
         registered=obj.features.rsvp_registered(),
