@@ -10,13 +10,13 @@ describe('Adding crew', () => {
 
   it('Add crew to project', () => {
     cy.login(`/${profile.title}`, admin.username, admin.password);
-    cy.get(`[data-cy-title="${project.title}"]`).first().click();
+    cy.get(`[data-testid="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy-navbar="crew"]').click();
-    cy.get('[data-cy="member"]')
+    cy.get('a[data-testid="crew"]').click();
+    cy.get('[data-testid="member"]')
       .contains(admin.username)
       .parents('.member')
-      .find('[data-cy="role"]')
+      .find('[data-testid="role"]')
       .contains('Editor');
 
     cy.add_member(promoter.username, 'promoter');

@@ -6,8 +6,8 @@
     {{ renderform_inner(form, formid) }}
     <div class="mui-form form-actions mui--clearfix{% if css_class %} {{ css_class }}{% endif %}">
       <div>
-        <button type="submit" name="{{ submit|e }}" class="mui-btn mui-btn--raised mui-btn--primary" data-cy="form-submit-btn">{{ submit }}</button>
-        <a href="{{ cancel_url }}" class="mui-btn mui-btn--raised" data-cy="form-cancel-btn">{% trans %}Cancel{% endtrans %}</a>
+        <button type="submit" name="{{ submit|e }}" class="mui-btn mui-btn--raised mui-btn--primary" data-testid="form-submit-btn">{{ submit }}</button>
+        <a href="{{ cancel_url }}" class="mui-btn mui-btn--raised" data-testid="form-cancel-btn">{% trans %}Cancel{% endtrans %}</a>
         <span class="loading mui--hide">&nbsp;</span>
         {% if form.csrf_token and form.csrf_token.errors -%}
           <div>

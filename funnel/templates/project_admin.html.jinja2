@@ -25,7 +25,7 @@
         <ol class="list--aligned">
           {%- for ticket_event in ticket_events %}
             <li>
-              <a href="{{ ticket_event.url_for('view') }}" class="mui--text-subhead" data-cy="{{ ticket_event.title }}" data-ga="View event">{{ ticket_event.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-ga="edit event">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
+              <a href="{{ ticket_event.url_for('view') }}" class="mui--text-subhead" data-testid="{{ ticket_event.title }}" data-ga="View event">{{ ticket_event.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-ga="edit event">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -33,9 +33,9 @@
       {%- if project.current_roles.promoter %}
       <div class="mui-divider"></div>
       <div class="card__footer">
-        <a href="{{ project.url_for('new_event') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-ticket-event">{% trans %}New ticketed event{% endtrans %}</a>
+        <a href="{{ project.url_for('new_event') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-testid="new-ticket-event">{% trans %}New ticketed event{% endtrans %}</a>
         {%- if ticket_events %}
-          <a href="{{ project.url_for('new_participant') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" data-cy="add-ticket-participant">{% trans %}Add ticketed participant{% endtrans %}</a>
+          <a href="{{ project.url_for('new_participant') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" data-testid="add-ticket-participant">{% trans %}Add ticketed participant{% endtrans %}</a>
         {%- endif %}
       </div>
       {%- endif %}
@@ -51,8 +51,8 @@
       <div class="card__body">
         <ol class="list--aligned">
           {%- for ticket_type in ticket_types -%}
-            <li data-cy-ticket="{{ ticket_type.title }}">
-              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead" data-ga="View ticket type">{{ ticket_type.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-cy="ticket-edit" data-ga="edit ticket type">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
+            <li data-testid="{{ ticket_type.title }}">
+              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead" data-ga="View ticket type">{{ ticket_type.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-testid="ticket-edit" data-ga="edit ticket type">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -81,14 +81,14 @@
       </div>
       <div class="mui-divider"></div>
       <div class="card__footer">
-        <a href="{{ project.url_for('new_ticket_client') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-ticket-client">{% trans %}New ticket client{% endtrans %}</a>
+        <a href="{{ project.url_for('new_ticket_client') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-testid="new-ticket-client">{% trans %}New ticket client{% endtrans %}</a>
         {%- if ticket_clients %}
           <form method="post" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form inline-form">
             <div class="form-group">
               {{ csrf_tag() }}
               <input type="hidden" name="form.id" value="sync-tickets" />
             </div>
-            <button id="csrf_form-submit" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" type="submit" data-cy="sync-tickets">{% trans %}Sync tickets{% endtrans %}</button>
+            <button id="csrf_form-submit" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" type="submit" data-testid="sync-tickets">{% trans %}Sync tickets{% endtrans %}</button>
           </form>
         {%- endif %}
       </div>

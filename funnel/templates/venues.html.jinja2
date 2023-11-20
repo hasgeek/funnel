@@ -20,7 +20,7 @@
             <ol class="list--aligned list--border">
               {%- for venue in primary_venue_form.venue.query %}
                 <li class="mui--text-subhead">
-                  {# djlint:off #}<input id="venue-{{ loop.index }}" name="{{ primary_venue_form.venue.name }}" value="{{ venue.uuid_b58 }}" type="radio" {%- if venue == project.primary_venue %}disabled{% endif %} class="margin-right" /><label for="venue-{{ loop.index }}" class="form-inline-label" data-cy="{{ venue.title }}">{{ venue.title }} {%- if venue == project.primary_venue %}<em> {% trans %}(primary){% endtrans %}</em>{% endif %}</label>{# djlint:on #}
+                  {# djlint:off #}<input id="venue-{{ loop.index }}" name="{{ primary_venue_form.venue.name }}" value="{{ venue.uuid_b58 }}" type="radio" {%- if venue == project.primary_venue %}disabled{% endif %} class="margin-right" /><label for="venue-{{ loop.index }}" class="form-inline-label" data-testid="{{ venue.title }}">{{ venue.title }} {%- if venue == project.primary_venue %}<em> {% trans %}(primary){% endtrans %}</em>{% endif %}</label>{# djlint:on #}
                   <span class="mui--pull-right">
                     <a href="{{ venue.url_for('edit') }}" class="mui--text-title" aria-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class="fa5--link") }}</a>
                       &nbsp;&nbsp;&nbsp;<a href="{{ venue.url_for('delete') }}" aria-label="{% trans %}Delete{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', css_class="fa5--link") }}</a>
@@ -33,8 +33,8 @@
           </div>
           <div class="mui-divider"></div>
           <div class="card__footer">
-            <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" type="submit" data-cy="set-primary-venue">{% trans %}Set as primary{% endtrans %}</button>
-            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ project.url_for('new_venue') }}" data-cy="new-venue">{% trans %}Add venue{% endtrans %}</a>
+            <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" type="submit" data-testid="set-primary-venue">{% trans %}Set as primary{% endtrans %}</button>
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ project.url_for('new_venue') }}" data-testid="new-venue">{% trans %}Add venue{% endtrans %}</a>
           </div>
         </form>
       </div>
@@ -43,7 +43,7 @@
   <div class="grid">
     {%- for venue in venues %}
       <div class="grid__col-xs-12 grid__col-sm-6">
-        <div class="card" data-cy-venue="{{ venue.title }}">
+        <div class="card" data-testid="{{ venue.title }}">
           <div class="card__header">
             <h3><b>{{ venue.title }}</b>{%- if venue == project.primary_venue %}<em> (primary) </em>{% endif %}</h3>
             <div class="mui--text-body2">{{ venue.description }}</div>
@@ -52,7 +52,7 @@
             <ol class="list--aligned list--border">
               {%- for room in venue.rooms %}
                 <li class="mui--text-subhead">
-                  <span class="mui--text-subhead text-bold" data-cy-room="{{ room.title }}">{{ room.title }}</span>
+                  <span class="mui--text-subhead text-bold" data-testid="{{ room.title }}">{{ room.title }}</span>
                   <span class="mui--pull-right">
                     <a href="{{ room.url_for('edit') }}" class="mui--text-title" aria-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class="fa5--link") }}</a>
                     &nbsp;&nbsp;&nbsp;<a href="{{ room.url_for('delete') }}" class="mui--text-title" aria-label="{% trans %}Delete{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', css_class="fa5--link") }}</a>
@@ -66,7 +66,7 @@
           </div>
           <div class="mui-divider"></div>
           <div class="card__footer">
-            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ venue.url_for('new_venueroom') }}" data-cy="add-room">{% trans %}Add room{% endtrans %}</a>
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ venue.url_for('new_venueroom') }}" data-testid="add-room">{% trans %}Add room{% endtrans %}</a>
           </div>
         </div>
       </div>

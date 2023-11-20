@@ -4,7 +4,7 @@
 <link rel="stylesheet" type="text/css" href="{{ manifest('css/form.css') }}" />
 
 <div class="modal__header">
-  <a class="modal__close mui--text-dark" href="#" onclick="return false;" data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+  <a class="modal__close mui--text-dark" href="#" onclick="return false;" data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-testid="close-modal" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
   <p class="mui--text-title text-bold mui--text-dark" id="confirm-rsvp">{{ faicon(icon='info-circle', baseline=true, icon_size='subhead') }} {% trans %}Register{% endtrans %}</p>
 </div>
 <div class="modal__body">
@@ -16,7 +16,7 @@
     </div>
     <p class="mui--text-body2 top-padding zero-bottom-margin">{% trans %}This will share your name and email address or phone number with the project’s promoter so they can keep you updated. You can cancel your registration at any time{% endtrans %}</p>
     <div class="mui--text-right">
-      <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
+      <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="yes" data-testid="confirm">{% trans %}Confirm{% endtrans %}</button>
     </div>
   </form>
   {{ json_form_template() }}

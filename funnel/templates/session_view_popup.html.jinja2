@@ -1,15 +1,15 @@
 {%- from "macros.html.jinja2" import faicon, embed_video_player, video_action_bar, share_dropdown %}
 
 <div class="modal__header bg-accent">
-  <a class="modal__close mui--text-dark" data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-  <h3 class="js-modal-title mui--text-headline session-modal__title" data-cy-session="title">{{ session.title }}</h3>
+  <a class="modal__close mui--text-dark" data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-testid="close-modal" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+  <h3 class="js-modal-title mui--text-headline session-modal__title" data-testid="title">{{ session.title }}</h3>
   <div class="mui--clearfix">
     {% if session.speaker %}
-      <p class="mui--text-subhead modal__header__text" data-cy-session="speaker">{{ faicon(icon='microphone-alt') }} {{ session.speaker }}</p>
+      <p class="mui--text-subhead modal__header__text" data-testid="speaker">{{ faicon(icon='microphone-alt') }} {{ session.speaker }}</p>
     {% endif %}
     <div class="mui--pull-left modal__header__heading">
       {% if session.scheduled %}
-        <p class="mui--text-subhead modal__header__text" data-cy-session="time">{{ faicon(icon='calendar-alt') }} {{ session.start_at_localized|date }}, {{ session.start_at_localized|time }}–{{ session.end_at_localized|time }}
+        <p class="mui--text-subhead modal__header__text" data-testid="time">{{ faicon(icon='calendar-alt') }} {{ session.start_at_localized|date }}, {{ session.start_at_localized|time }}–{{ session.end_at_localized|time }}
         </p>
       {% else %}
         <p class="mui--text-subhead modal__header__text">
@@ -17,12 +17,12 @@
         </p>
       {% endif %}
       {% if session.venue_room %}
-        <p class="mui--text-subhead modal__header__text" data-cy-session="room">{{ faicon(icon='map-marker-alt') }} {{ session.venue_room.title }}, {{ session.venue_room.venue.title }}</p>
+        <p class="mui--text-subhead modal__header__text" data-testid="room">{{ faicon(icon='map-marker-alt') }} {{ session.venue_room.title }}, {{ session.venue_room.venue.title }}</p>
       {% endif %}
     </div>
     <div class="mui-dropdown mui--pull-right">
       <a href="#" onclick="return false;" class="hg-link-btn mui--hide left-padding" data-url="{{ session.url_for(_external=true, utm_source='webshare') }}" role="button" aria-label="{% trans %}Share this session{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
-      <a href="#" onclick="return false;" class="project-links left-padding" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" aria-label="{% trans %}Share{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='share-alt', baseline=true, icon_size='subhead', css_class="mui--text-light") }}</a>
+      <a href="#" onclick="return false;" class="project-links left-padding" data-mui-toggle="dropdown" data-ga="Share dropdown" data-testid="share-project" aria-label="{% trans %}Share{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='share-alt', baseline=true, icon_size='subhead', css_class="mui--text-light") }}</a>
       {{ share_dropdown(session.url_for(_external=true), session.title) }}
     </div>
   </div>
@@ -33,7 +33,7 @@
     {%- if not session.is_restricted_video or session.current_roles.project_participant %}
       <div class="details">
         <div class="details__box details__box--left">
-          <div class="details__box__video bg-primary-dark embed-video-wrapper" data-cy="session-video">
+          <div class="details__box__video bg-primary-dark embed-video-wrapper" data-testid="session-video">
             {{ embed_video_player(session.views.video) }}
           </div>
           <div class="details__box__control">
@@ -62,7 +62,7 @@
             <p class="mui--text-light">{% trans %}The session has no attached video{% endtrans %}</p>
             {% if not session.views.video and session.project.current_roles.editor %}
               <div>
-                <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ session.url_for('edit') }}" data-cy-admin="edit-session" aria-label="{% trans %}Add session video{% endtrans %}">{% trans %}Edit session{% endtrans %}</a>
+                <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ session.url_for('edit') }}" data-testid="edit-session" aria-label="{% trans %}Add session video{% endtrans %}">{% trans %}Edit session{% endtrans %}</a>
               </div>
             {%- endif %}
           </div>
@@ -71,7 +71,7 @@
     </div>
   {%- endif %}
   {% if session.proposal %}
-    <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" rel="noopener" data-cy="view-proposal">{{ faicon(icon='presentation') }} {% trans %}View submission for this session{% endtrans %}</a></p>
+    <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" rel="noopener" data-testid="view-proposal">{{ faicon(icon='presentation') }} {% trans %}View submission for this session{% endtrans %}</a></p>
   {% endif %}
   {% if session.views.video or session.proposal %}
   <hr class="modal__body__separator" />

@@ -1,0 +1,24 @@
+[
+  {
+    "venue_title": "Hasgeek House",
+    "venue_description": "Hasgeek House second floor",
+    "venue_address1": "#2699, 19th Main, 5th Cross",
+    "venue_address2": "Indiranagar HAL 2nd Stage",
+    "venue_city": "Bangalore",
+    "venue_state": "Karnataka",
+    "venue_postcode": "560008",
+    "room": {
+      "title": "Second floor room",
+      "description": "Second floor room",
+      "bgcolor": "F7B89E"
+    }
+  },
+  {
+    "venue_title": "Online",
+    "venue_description": "Zoom meeting",
+    "room": {
+      "title": "Zoom",
+      "bgcolor": "6075B1"
+    }
+  }
+]

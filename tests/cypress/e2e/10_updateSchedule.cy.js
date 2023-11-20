@@ -16,13 +16,13 @@ describe('Add schedule and livestream', () => {
 
     cy.login('/', editor.username, editor.password);
 
-    cy.get(`a[data-cy-title="${project.title}"]`).click();
+    cy.get(`a[data-testid="${project.title}"]`).click();
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy="project-menu"]:visible').click();
+    cy.get('a[data-testid="project-menu"]:visible').click();
     cy.wait(1000);
-    cy.get('a[data-cy-navbar="settings"]:visible').click();
+    cy.get('a[data-testid="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
-    cy.get('a[data-cy="edit-schedule"').click();
+    cy.get('a[data-testid="edit-schedule"').click();
     cy.location('pathname').should('contain', 'schedule');
     const tomorrow = dayjs().add(1, 'days').format('YYYY-MM-DD');
     cy.get('#select-date').type(tomorrow).click();
@@ -52,24 +52,24 @@ describe('Add schedule and livestream', () => {
     cy.get('#session-save').click();
     cy.wait('@add-session');
 
-    cy.get('[data-cy-tab="settings"]').click();
-    cy.get('[data-cy-collapsible="open"]').eq(0).click();
+    cy.get('[data-testid="settings"]').click();
+    cy.get('[data-testid="open"]').eq(0).click();
     cy.get('.sp-dd').eq(0).click();
     cy.get('.sp-palette-container').should('exist');
 
     // Add livestream
-    cy.get('a[data-cy="project-page"]').click();
-    cy.get('a[data-cy="project-menu"]:visible').click();
+    cy.get('a[data-testid="project-page"]').click();
+    cy.get('a[data-testid="project-menu"]:visible').click();
     cy.wait(1000);
-    cy.get('a[data-cy-navbar="settings"]:visible').click();
+    cy.get('a[data-testid="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
-    cy.get('a[data-cy="add-livestream"]').click();
+    cy.get('a[data-testid="add-livestream"]').click();
     cy.location('pathname').should('contain', '/edit');
 
     cy.get('#field-livestream_urls')
       .find('textarea')
       .type(project.livestream_url, { force: true });
-    cy.get('button[data-cy="form-submit-btn"]').click();
+    cy.get('button[data-testid="form-submit-btn"]').click();
     cy.location('pathname').should('contain', project.url);
 
     cy.get('#livestream').should('exist');
@@ -82,15 +82,15 @@ describe('Add schedule and livestream', () => {
     cy.wait(1000);
     cy.login('/', siteEditor.username, siteEditor.password);
     cy.get('.upcoming').find('.card--upcoming').contains(project.title).click();
-    cy.get('a[data-cy="site-editor-menu"]').click();
+    cy.get('a[data-testid="site-editor-menu"]').click();
     cy.wait(1000);
     cy.get('input#featured-project').click({ force: true });
-    cy.get('a[data-cy="home-desktop"]').click();
-    cy.get('[data-cy="spotlight-project"]:visible').contains(project.title).click();
-    cy.get('a[data-cy="site-editor-menu"]').click();
+    cy.get('a[data-testid="home-desktop"]').click();
+    cy.get('[data-testid="spotlight-project"]:visible').contains(project.title).click();
+    cy.get('a[data-testid="site-editor-menu"]').click();
     cy.wait(1000);
     cy.get('input#featured-project').click({ force: true });
-    cy.get('a[data-cy="home-desktop"]').click();
-    cy.get('[data-cy="spotlight-project"]').should('not.exist');
+    cy.get('a[data-testid="home-desktop"]').click();
+    cy.get('[data-testid="spotlight-project"]').should('not.exist');
   });
 });

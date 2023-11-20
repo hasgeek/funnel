@@ -144,10 +144,10 @@
         {%- if name %} name="{{ name|e }}"{% else %} {% endif -%}
         class="mui-btn mui-btn--raised {% if widget_class %} {{ widget_class|e }}{% else %} mui-btn--primary{% endif -%}"
         {%- if tabindex %} tabindex="{{ tabindex }}" {% endif -%}
-        data-cy="form-submit-btn"
+        data-testid="form-submit-btn"
         >{{ value|e }}</button>
     {% endfor %}
-    {% if cancel_url %}<a href="{{ cancel_url }}" class="mui-btn mui-btn--raised mui-btn" data-cy="form-cancel-btn">{% trans %}Cancel{% endtrans %}</a>{% endif %}
+    {% if cancel_url %}<a href="{{ cancel_url }}" class="mui-btn mui-btn--raised mui-btn" data-testid="form-cancel-btn">{% trans %}Cancel{% endtrans %}</a>{% endif %}
     <span class="loading mui--hide">&nbsp;</span>
     {% if csrf_error -%}
       <div>

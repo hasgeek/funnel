@@ -30,16 +30,16 @@
         <div class="mui-container">
           <div class="grid flex-wrapper--center">
             <div class="grid__col-sm-6">
-              <h1 class="mui--text-subhead margin-top margin-bottom"><a href="{{ project.url_for() }}" class="mui--text-dark mui--text-light nounderline" data-cy="project-page">{{ project.title }}</a></h1>
+              <h1 class="mui--text-subhead margin-top margin-bottom"><a href="{{ project.url_for() }}" class="mui--text-dark mui--text-light nounderline" data-testid="project-page">{{ project.title }}</a></h1>
             </div>
             <div class="grid__col-sm-6">
               <div class="flex-wrapper submission-header__submit">
                 <div class="mui--visible-xs-block mui--visible-sm-block submission-header__submit__btnwrapper">
-                  <a class="mui-btn js-switch-panel js-toggle-panel link" data-cy="preview">{% trans %}Preview{% endtrans %}</a>
-                  <a class="mui-btn js-switch-panel js-toggle-panel mui--hide link" data-cy="edit">{% trans %}Edit{% endtrans %}</a>
-                  <button type="submit" name="submit" class="mui-btn" data-cy="submit">{%- if not proposal %}{% trans %}Submit{% endtrans %}{% else %}{% trans %}Save{% endtrans %}{%- endif %}</button>
+                  <a class="mui-btn js-switch-panel js-toggle-panel link" data-testid="preview">{% trans %}Preview{% endtrans %}</a>
+                  <a class="mui-btn js-switch-panel js-toggle-panel mui--hide link" data-testid="edit">{% trans %}Edit{% endtrans %}</a>
+                  <button type="submit" name="submit" class="mui-btn" data-testid="submit">{%- if not proposal %}{% trans %}Submit{% endtrans %}{% else %}{% trans %}Save{% endtrans %}{%- endif %}</button>
                 </div>
-                <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin mui--hidden-xs mui--hidden-sm submission-header__submit__btn" data-cy="form-submit-btn">{%- if not proposal %}{% trans %}Submit{% endtrans %}{% else %}{% trans %}Save{% endtrans %}{%- endif %}</button>
+                <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin mui--hidden-xs mui--hidden-sm submission-header__submit__btn" data-testid="form-submit-btn">{%- if not proposal %}{% trans %}Submit{% endtrans %}{% else %}{% trans %}Save{% endtrans %}{%- endif %}</button>
                 <span class="loading mui--hide"></span>
               </div>
             </div>
@@ -53,7 +53,7 @@
             <div class="submission-header__edit-icons bottom-padding">
               {%- if form.formlabels %}
                 <div class="bottom-padding submission-label">
-                    <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add labels to submission{% endtrans %}" data-ga="Add label to submission video" data-cy="add-label">
+                    <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add labels to submission{% endtrans %}" data-ga="Add label to submission video" data-testid="add-label">
                       {{ faicon(icon='tag-solid', icon_size='body2', baseline=false, css_class="mui--text-light fa-icon--right-margin") }}
                       <span class="text-bold js-label-heading">{% trans %}Labels{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--left-margin") }}</span>
                       {%- if form.formlabels.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class="mui--text-danger fa-icon--left-margin") }}{%- endif %}
@@ -61,14 +61,14 @@
                     <div class="js-modal-field mui--hide">
                       <div class="js-field top-padding">
                         {{ renderfield(form.formlabels, css_class="label-select-fields top-padding active") }}
-                        <a href="#close" class="mui-btn mui-btn--raised mui-btn--primary" rel="modal:close" data-cy="save">{% trans %}Done{% endtrans %}</a>
+                        <a href="#close" class="mui-btn mui-btn--raised mui-btn--primary" rel="modal:close" data-testid="save">{% trans %}Done{% endtrans %}</a>
                       </div>
                     </div>
                     <p class="mui-form__error mui-form__error--left label-error js-error-label {%- if not form.formlabels.errors %} mui--hide{%- endif %}">{% trans %}This value is required{% endtrans %}</p>
                 </div>
               {%- endif %}
               <div class="bottom-padding">
-                <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add video url{% endtrans %}" data-ga="Add video url" data-cy="add-video">
+                <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add video url{% endtrans %}" data-ga="Add video url" data-testid="add-video">
                   {{ faicon(icon='video-plus', icon_size='body2', baseline=true, css_class="mui--text-light link fa-icon--right-margin") }}
                   <span class="text-bold">{% trans %}Video{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--left-margin") }}</span>
                   {%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class="mui--text-danger fa-icon--left-margin") }}{%- endif %}
@@ -76,13 +76,13 @@
                 <div class="js-modal-field mui--hide">
                   <div class="js-field top-padding">
                     {{ renderfield(form.video_url, css_class="top-padding") }}
-                    <a href="#close" class="mui-btn mui-btn--raised mui-btn--primary" rel="modal:close" data-cy="save">{% trans %}Done{% endtrans %}</a>
+                    <a href="#close" class="mui-btn mui-btn--raised mui-btn--primary" rel="modal:close" data-testid="save">{% trans %}Done{% endtrans %}</a>
                   </div>
                 </div>
               </div>
               {%- if proposal %}
                 <div>
-                  <a class="js-open-modal js-add-collaborator mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Add collaborator" data-cy="add-collaborator-modal">
+                  <a class="js-open-modal js-add-collaborator mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Add collaborator" data-testid="add-collaborator-modal">
                     {{ faicon(icon='user-circle-solid', icon_size='body2', baseline=true, css_class="mui--text-light link fa-icon--right-margin") }}
                     <span class="text-bold">{% trans %}Collaborators{% endtrans %}</span>
                     {{ faicon(icon='plus', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--left-margin") }}
@@ -97,7 +97,7 @@
                             {% include "collaborator_list.html.jinja2" %}
                           {% endwith %}
                         </div>
-                        <a href="{{ proposal.url_for('add_collaborator') }}" class="mui-btn mui-btn--small mui-btn--primary nounderline" rel="modal:open" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Add collaborator" data-cy="add-collaborator" role="button" aria-haspopup="true">{% trans %}Add new collaborator{% endtrans %}</a>
+                        <a href="{{ proposal.url_for('add_collaborator') }}" class="mui-btn mui-btn--small mui-btn--primary nounderline" rel="modal:open" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Add collaborator" data-testid="add-collaborator" role="button" aria-haspopup="true">{% trans %}Add new collaborator{% endtrans %}</a>
                       </div>
                     </div>
                   </div>
@@ -128,7 +128,7 @@
         </ul>
         <p class="mui--text-body2 margin-top">{% trans account=url_for('account'), editors=project.url_for('crew') %}You can add or change your contacts at any time from <a href="{{ account }}" target="_blank" rel="noopener">your account</a>, and <a href="{{ editors }}" target="_blank" rel="noopener">review the list of editors</a>. Your contacts will not be available to editors before you submit.{% endtrans %}</p>
         <div class="mui--text-right">
-          <a class="mui-btn mui-btn--raised" rel="modal:close" onclick="return false;" role="button" tabindex="0" data-cy="close-consent-modal">{% trans %}Ok{% endtrans %}</a>
+          <a class="mui-btn mui-btn--raised" rel="modal:close" onclick="return false;" role="button" tabindex="0" data-testid="close-consent-modal">{% trans %}Ok{% endtrans %}</a>
         </div>
       </div>
     </div>

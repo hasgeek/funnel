@@ -4,7 +4,7 @@
       <div class="membership-wrapper" v-if="ready">
         <div class="mui--clearfix">
           <div class="btn-wrapper membership-wrapper--half" v-if="isUserProfileAdmin">
-            <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" :aria-label="gettext('Add new member')" data-cy-btn="add-member"><faicon :icon="'plus'"></faicon> {{ gettext('Add new member') }}</button>
+            <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" :aria-label="gettext('Add new member')" data-testid="add-member"><faicon :icon="'plus'"></faicon> {{ gettext('Add new member') }}</button>
           </div>
           <div class="membership-wrapper--half" v-if="members">
             <form class="display-inlineblock search search--small search--icon mui--z1" v-on:submit.prevent>
@@ -76,7 +76,7 @@
             <button class="mui-btn mui-btn--nostyle mui--text-light" @click="closeForm($event)">{{ gettext('Cancel') }}</button>
           </div>
           <div v-if="activeMember" class="modal--form__action-box--revoke mui--text-center">
-            <button @click="fetchForm($event, deleteURL)" class="mui-btn mui-btn--nostyle mui--text-subhead mui--text-light text-bold" data-cy-btn="revoke">{{ gettext('Remove this member') }}</button>
+            <button @click="fetchForm($event, deleteURL)" class="mui-btn mui-btn--nostyle mui--text-subhead mui--text-light text-bold" data-testid="revoke-btn">{{ gettext('Remove this member') }}</button>
           </div>
         </div>
       </div>
@@ -92,12 +92,12 @@
           <useravatar :user='membership.member' :addprofilelink=true></useravatar>
           <div class="user__box__header">
             <h3 class="mui--text-body2 user__box__fullname">{{ membership.member.fullname }}</h3>
-            <h3 v-if="membership.member.username" class="mui--text-caption user__box__userid"><span  data-cy="member">@{{ membership.member.username }}</span></h3>
+            <h3 v-if="membership.member.username" class="mui--text-caption user__box__userid"><span  data-testid="member">@{{ membership.member.username }}</span></h3>
           </div>
         </div>
         <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles mui--pull-right">
-          <li v-if="membership.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Owner') }}</li>
-          <li v-else class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Admin') }}</li>
+          <li v-if="membership.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body2" data-testid="role">{{ gettext('Owner') }}</li>
+          <li v-else class="membership-wrapper__members__list__roles__role mui--text-body2" data-testid="role">{{ gettext('Admin') }}</li>
         </ul>
       </div>
     </script>
@@ -112,13 +112,13 @@
           <useravatar :user='membership.member' :addprofilelink=true></useravatar>
           <div class="user__box__header">
             <h3 class="mui--text-body2 user__box__fullname">{{ membership.member.fullname }} <span v-if="membership.label" class="badge">{{ membership.label }}</span></h3>
-            <h3 v-if="membership.member.username" class="mui--text-caption user__box__userid"><span  data-cy="member">@{{ membership.member.username }}</span></h3>
+            <h3 v-if="membership.member.username" class="mui--text-caption user__box__userid"><span  data-testid="member">@{{ membership.member.username }}</span></h3>
           </div>
         </div>
         <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles mui--pull-right">
-          <li v-if="membership.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Editor') }}</li>
-          <li v-if="membership.is_promoter" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Promoter') }}</li>
-          <li v-if="membership.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Usher') }}</li>
+          <li v-if="membership.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body2" data-testid="role">{{ gettext('Editor') }}</li>
+          <li v-if="membership.is_promoter" class="membership-wrapper__members__list__roles__role mui--text-body2" data-testid="role">{{ gettext('Promoter') }}</li>
+          <li v-if="membership.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body2" data-testid="role">{{ gettext('Usher') }}</li>
           <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(membership) > 0 && rolesCount(membership) < 3">{{ gettext('+ %d more role', rolesCount(membership)) }}</li>
         </ul>
       </div>

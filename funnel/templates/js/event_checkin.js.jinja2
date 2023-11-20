@@ -15,7 +15,7 @@
     <script id='ticket-participant-row' type='text/ractive'>
     {{#each ticket_participants}}
       <tr id="p-{{ puuid_b58 }}">
-        <td class='js-searchable' data-th="Name" data-cy="ticket-participant">{{#if has_user }}<faicon icon='user-check' icon_size='subhead' baseline=true css_class="mui--text-success fa-icon--right-margin"></faicon>{{/if}}{{ fullname }}</td>
+        <td class='js-searchable' data-th="Name" data-testid="ticket-participant">{{#if has_user }}<faicon icon='user-check' icon_size='subhead' baseline=true css_class="mui--text-success fa-icon--right-margin"></faicon>{{/if}}{{ fullname }}</td>
         <td class='js-searchable' data-th="Tickets">{{ ticket_type_titles }}</td>
         <td class='js-searchable' data-th="Email">{{ email }}</td>
         <td class='js-searchable' data-th="Company">{{ company }}</td>
@@ -23,10 +23,10 @@
           <ul class="mui-list--unstyled">
             {{#if isUsher || IsPromoter}}
             <li>
-              <a href="{{ badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-badge">{{ gettext('Show badge') }}</a>
+              <a href="{{ badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-testid="show-badge">{{ gettext('Show badge') }}</a>
             </li>
             <li>
-              <a href="{{ label_badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-label-badge">{{ gettext('Show label badge') }}</a>
+              <a href="{{ label_badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-testid="show-label-badge">{{ gettext('Show label badge') }}</a>
             </li>
             {{/if}}
             <li>
@@ -36,15 +36,15 @@
                 </div>
                 <input type="hidden" name="puuid_b58" value="{{ puuid_b58 }}">
                 {{#if checked_in}}
-                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} aria-label="{{ gettext('Cancel check-in') }}" data-cy="cancel-checkin">{{ gettext('Cancel Check-in') }} {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
+                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} aria-label="{{ gettext('Cancel check-in') }}" data-testid="cancel-checkin">{{ gettext('Cancel Check-in') }} {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
                 {{else}}
-                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} aria-label="{{ gettext('Check-in') }}" data-cy="checkin">{{ gettext('Check-in') }} {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
+                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} aria-label="{{ gettext('Check-in') }}" data-testid="checkin">{{ gettext('Check-in') }} {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
                 {{/if}}
               </form>
             </li>
             {{#if IsPromoter}}
             <li>
-              <a href="{{ edit_url }}" class="mui--text-hyperlink" target="_blank" rel="noopener" data-cy="edit-attendee-details">{{ gettext('Edit participant details') }}</a>
+              <a href="{{ edit_url }}" class="mui--text-hyperlink" target="_blank" rel="noopener" data-testid="edit-attendee-details">{{ gettext('Edit participant details') }}</a>
             </li>
             {{/if}}
           </ul>

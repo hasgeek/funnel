@@ -1,0 +1,18 @@
+{
+  "url": "javascript-2020",
+  "title": "Javascript 2020",
+  "location": "Bangalore",
+  "tagline": "On JavaScript and Security",
+  "website": "https://hasgeek.com",
+  "description": "##About the conference:\nJSFoo is Hasgeek's annual JavaScript conference. JSFoo is in its eighth edition this year.",
+  "bg_image": "https://images.hasgeek.com/embed/file/10acd7709d8e45b598ea107ff29a985e",
+  "livestream_url": "https://www.youtube.com/watch?v=AlREWUAEMVk",
+  "youtube_video_id": "AlREWUAEMVk",
+  "comment": "Lorem ipsum dolor sit amet",
+  "reply_comment": "consectetur adipiscing elit",
+  "edit_comment": "sed do eiusmod tempor incididunt",
+  "update_title": "Lorem ipsum dolor sit amet",
+  "update_body": "# Heading level 1\nParagraphs are separated by a blank line.\n2nd paragraph. *Italic*, **bold**, and `monospace`. Itemized lists\nlook like:\n* this one\n* that one\n* the other one\nNote that --- not considering the asterisk --- the actual text\ncontent starts at 4-columns in.\n> Block quotes are\n> written like so.\n> They can span multiple paragraphs,\n> if you like.\nUse 3 dashes for an em-dash. Use 2 dashes for ranges (ex., 'it's all in chapters 12--14'). Three dots ... will be converted to an ellipsis.Unicode is supported. ☺\nInline-style:\n![alt text](https://images.hasgeek.com/embed/file/d80f546ae6844f89a37956128c788c85)",
+  "restricted_update_title": "Finibus Bonorum et Malorum",
+  "restricted_update_body": "# Heading \nquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderi"
+}

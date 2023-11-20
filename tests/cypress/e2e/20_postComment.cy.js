@@ -18,56 +18,56 @@ describe('Test comments feature', () => {
       .contains(project.title)
       .click({ force: true });
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy-navbar="comments"]').click();
+    cy.get('a[data-testid="comments"]').click();
     cy.wait(2000);
-    cy.get('a[data-cy="login-btn"]').click();
+    cy.get('a[data-testid="login-btn"]').click();
     cy.fill_login_details(user.username, user.password);
     cy.wait(2000);
-    cy.get('[data-cy="post-comment"]').click();
-    cy.get('[data-cy="new-form"]')
+    cy.get('[data-testid="post-comment"]').click();
+    cy.get('[data-testid="new-form"]')
       .find('.cm-editor .cm-line')
       .type(project.comment, { force: true });
     cy.wait(1000);
-    cy.get('[data-cy="new-form"]').find('[data-cy="submit-comment"]').click();
+    cy.get('[data-testid="new-form"]').find('[data-testid="submit-comment"]').click();
     cy.wait('@post-comment');
     let cid = window.location.hash;
     cy.get('.comment__body').contains(project.comment);
     cy.get('.comment__header').contains(user.username);
 
     cy.wait(2000);
-    cy.get('a[data-cy="comment-menu"]:visible').click();
+    cy.get('a[data-testid="comment-menu"]:visible').click();
     cy.wait(1000);
-    cy.get('a[data-cy="edit"]').click();
-    cy.get('[data-cy="edit-form"]')
+    cy.get('a[data-testid="edit"]').click();
+    cy.get('[data-testid="edit-form"]')
       .find('.cm-editor .cm-line')
       .type(project.edit_comment, { force: true });
     cy.wait(1000);
-    cy.get('[data-cy="edit-form"]').find('[data-cy="edit-comment"]').click();
+    cy.get('[data-testid="edit-form"]').find('[data-testid="edit-comment"]').click();
     cy.wait('@edit-comment');
     cy.get(`${cid} .comment__body`).contains(project.edit_comment);
 
-    cy.get('a[data-cy="reply"]').click();
-    cy.get('[data-cy="reply-form"]')
+    cy.get('a[data-testid="reply"]').click();
+    cy.get('[data-testid="reply-form"]')
       .find('.cm-editor .cm-line')
       .type(project.reply_comment, { force: true });
     cy.wait(1000);
-    cy.get('[data-cy="reply-form"]').find('[data-cy="reply-comment"]').click();
+    cy.get('[data-testid="reply-form"]').find('[data-testid="reply-comment"]').click();
     cy.wait('@reply-comment');
     cid = window.location.hash;
     cy.get(`${cid} .comment__body`).contains(project.reply_comment);
     cy.wait(2000);
-    cy.get('[data-cy="comment-sidebar"]').click();
+    cy.get('[data-testid="comment-sidebar"]').click();
     cy.wait(2000);
-    cy.get('[data-cy="unread-comment"]').should('exist');
+    cy.get('[data-testid="unread-comment"]').should('exist');
 
     /*
     The test for deleting comments has been disabled as it
     interferes with the comment notification test. To be added back later.
-    cy.get('a[data-cy="comment-menu"]:visible').eq(1).click();
+    cy.get('a[data-testid="comment-menu"]:visible').eq(1).click();
     cy.wait(1000);
-    cy.get('a[data-cy="delete"]:visible').click();
+    cy.get('a[data-testid="delete"]:visible').click();
     cy.wait(1000);
-    cy.get('button[data-cy="confirm-delete-btn"]').click();
+    cy.get('button[data-testid="confirm-delete-btn"]').click();
     cy.wait('@delete-comment');
     cy.get('.comment__body')
       .contains(project.reply_comment)
@@ -83,7 +83,7 @@ describe('Test comments feature', () => {
       .contains(project.title)
       .click({ force: true });
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy-navbar="comments"]').click();
-    cy.get('[data-cy="post-comment"]').should('exist');
+    cy.get('a[data-testid="comments"]').click();
+    cy.get('[data-testid="post-comment"]').should('exist');
   });
 });

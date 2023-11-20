@@ -47,6 +47,7 @@ tests/cypress/videos
 tests/screenshots
 tests/unit/utils/markdown/data/output.html
 coverage/
+tests/playwright/test-results
 
 # Instance files that should not be checked-in
 instance/development.py

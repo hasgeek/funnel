@@ -30,7 +30,7 @@
           <a class="mui--text-light"
             href="{{ project.url_for('new_label') }}"
             aria-label="{% trans %}Create new label{% endtrans %}"
-            data-cy="add-labels"
+            data-testid="add-labels"
             data-ga="Create new label">{{ faicon(icon='plus', icon_size='title') }} <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span>
           </a>
         </div>
@@ -95,7 +95,7 @@
                     name="submit"
                     class="mui-btn mui-btn--raised mui-btn--primary"
                     value="reject"
-                    data-cy="save-label-seq">
+                    data-testid="save-label-seq">
               {% trans %}Save label sequence{% endtrans %}
             </button>
             <span class="loading mui--hide"></span>

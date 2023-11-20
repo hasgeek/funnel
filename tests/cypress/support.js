@@ -7,19 +7,19 @@ Cypress.Commands.add('login', (route, username, password) => {
 });
 
 Cypress.Commands.add('logout', () => {
-  cy.get('#hgnav').find('a[data-cy="my-account"]').click();
+  cy.get('#hgnav').find('a[data-testid="my-account"]').click();
   cy.wait(1000);
-  cy.get('button[data-cy="Logout"]:visible').click();
+  cy.get('button[data-testid="Logout"]:visible').click();
 });
 
 Cypress.Commands.add('fill_login_details', (username, password) => {
   cy.server();
 
   cy.get('.field-username').type(username, { log: false });
-  cy.get('a[data-cy="password-login"]').click();
+  cy.get('a[data-testid="password-login"]').click();
   cy.get('.field-password').type(password, { log: false });
   cy.get('.form-actions').find('button:visible').click();
-  cy.get('a[data-cy="my-account"]:visible').should('exist');
+  cy.get('a[data-testid="my-account"]:visible').should('exist');
 });
 
 Cypress.Commands.add('add_profile_member', (username, field, role, fail = false) => {
@@ -28,7 +28,7 @@ Cypress.Commands.add('add_profile_member', (username, field, role, fail = false)
   cy.route('POST', '**/new').as('add-member');
 
   cy.wait(2000);
-  cy.get('button[data-cy-btn="add-member"]').click();
+  cy.get('button[data-testid="add-member"]').click();
   cy.wait('@member-form');
   cy.get('.select2-selection__arrow').click({ multiple: true });
   cy.get('.select2-search__field').type(username, {
@@ -45,10 +45,10 @@ Cypress.Commands.add('add_profile_member', (username, field, role, fail = false)
 
   if (!fail) {
     const roleString = role[0].toUpperCase() + role.slice(1);
-    cy.get('[data-cy="member"]')
+    cy.get('[data-testid="member"]')
       .contains(username)
       .parents('.member')
-      .find('[data-cy="role"]')
+      .find('[data-testid="role"]')
       .contains(roleString);
   } else {
     cy.get('p.mui--text-danger').should('be.visible');
@@ -62,7 +62,7 @@ Cypress.Commands.add('add_member', (username, role, fail = false) => {
   cy.route('POST', '**/new').as('add-member');
 
   cy.wait(2000);
-  cy.get('button[data-cy-btn="add-member"]').click();
+  cy.get('button[data-testid="add-member"]').click();
   cy.wait('@member-form');
   cy.get('.select2-selection__arrow').click({ multiple: true });
   cy.get('.select2-search__field').type(username, {
@@ -79,10 +79,10 @@ Cypress.Commands.add('add_member', (username, role, fail = false) => {
 
   if (!fail) {
     const roleString = role[0].toUpperCase() + role.slice(1);
-    cy.get('[data-cy="member"]')
+    cy.get('[data-testid="member"]')
       .contains(username)
       .parents('.member')
-      .find('[data-cy="role"]')
+      .find('[data-testid="role"]')
       .contains(roleString);
   } else {
     cy.get('p.mui--text-danger').should('be.visible');
@@ -95,15 +95,15 @@ Cypress.Commands.add('checkin', (ticketParticipant) => {
   cy.route('POST', '**/ticket_participants/checkin').as('checkin');
   cy.route('**/ticket_participants/json').as('ticket-participant-list');
 
-  cy.get('td[data-cy="ticket-participant"]')
+  cy.get('td[data-testid="ticket-participant"]')
     .contains(ticketParticipant)
     .parent()
-    .find('button[data-cy="checkin"]')
+    .find('button[data-testid="checkin"]')
     .click();
   cy.wait('@checkin', { timeout: 15000 });
   cy.wait('@ticket-participant-list', { timeout: 20000 });
   cy.wait('@ticket-participant-list', { timeout: 20000 });
   cy.wait('@ticket-participant-list', { timeout: 20000 }).then((xhr) => {
-    cy.get('button[data-cy="cancel-checkin"]').should('exist');
+    cy.get('button[data-testid="cancel-checkin"]').should('exist');
   });
 });

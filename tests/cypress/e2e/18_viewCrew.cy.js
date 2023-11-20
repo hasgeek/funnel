@@ -10,24 +10,24 @@ describe('View crew', () => {
       .contains(project.title)
       .click({ force: true });
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy-navbar="crew"]').click();
-    cy.get('button[data-cy-btn="add-member"]').should('not.exist');
-    cy.get('[data-cy="member"]')
+    cy.get('a[data-testid="crew"]').click();
+    cy.get('button[data-testid="add-member"]').should('not.exist');
+    cy.get('[data-testid="member"]')
       .contains(admin.username)
       .parents('.member')
-      .find('[data-cy="role"]')
+      .find('[data-testid="role"]')
       .contains('Editor');
-    cy.get('[data-cy="member"]')
+    cy.get('[data-testid="member"]')
       .contains(promoter.username)
       .parents('.member')
-      .find('[data-cy="role"]')
+      .find('[data-testid="role"]')
       .contains('Promoter');
-    cy.get('[data-cy="member"]')
+    cy.get('[data-testid="member"]')
       .contains(usher.username)
       .parents('.member')
-      .find('[data-cy="role"]')
+      .find('[data-testid="role"]')
       .contains('Usher');
-    cy.get('[data-cy="member"]').contains(admin.username).click();
+    cy.get('[data-testid="member"]').contains(admin.username).click();
     cy.get('#member-form', { timeout: 10000 }).should('not.be.visible');
   });
 });

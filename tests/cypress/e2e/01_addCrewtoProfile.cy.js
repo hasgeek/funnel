@@ -17,40 +17,40 @@ describe('Adding crew to profile', () => {
     cy.route('POST', '**/new').as('add-member');
 
     cy.login(`/${profile.title}`, owner.username, owner.password);
-    cy.get('a[data-cy="admin-dropdown"]:visible').click();
+    cy.get('a[data-testid="admin-dropdown"]:visible').click();
     cy.wait(2000);
-    cy.get('a[data-cy-btn="profile-crew"]:visible').click();
+    cy.get('a[data-testid="profile-crew"]:visible').click();
 
     cy.add_profile_member(admin.username, 'is_owner-1', 'owner');
 
-    cy.get('[data-cy="member"]').contains(admin.username).click();
+    cy.get('[data-testid="member"]').contains(admin.username).click();
     cy.wait('@edit-form');
-    cy.get('button[data-cy-btn="revoke"]').click();
+    cy.get('button[data-testid="revoke"]').click();
     cy.wait('@delete-form');
-    cy.get('button[data-cy="form-submit-btn"]').click();
+    cy.get('button[data-testid="form-submit-btn"]').click();
     cy.wait('@delete-member');
-    cy.get('[data-cy="member"]').contains(admin.username).should('not.exist');
+    cy.get('[data-testid="member"]').contains(admin.username).should('not.exist');
 
     cy.add_profile_member(admin.username, 'is_owner-1', 'owner');
 
-    cy.get('[data-cy="member"]').contains(admin.username).click();
+    cy.get('[data-testid="member"]').contains(admin.username).click();
     cy.wait('@edit-form');
     cy.get('#is_owner-0').click();
-    cy.get('button[data-cy="form-submit-btn"]').click();
+    cy.get('button[data-testid="form-submit-btn"]').click();
     cy.wait('@edit-member');
-    cy.get('[data-cy="member"]')
+    cy.get('[data-testid="member"]')
       .contains(admin.username)
       .parents('.member')
-      .find('[data-cy="role"]')
+      .find('[data-testid="role"]')
       .contains('Admin');
 
     cy.add_member(hguser.username, 'owner', true);
     cy.get('a.modal__close:visible').click();
     cy.wait(1000);
 
-    cy.get('a[data-cy="profile-public"]:visible').click();
+    cy.get('a[data-testid="profile-public"]:visible').click();
     cy.wait(1000);
-    cy.get('button[data-cy="make-public-btn"]:visible').click();
+    cy.get('button[data-testid="make-public-btn"]:visible').click();
     cy.wait(1000);
   });
 });

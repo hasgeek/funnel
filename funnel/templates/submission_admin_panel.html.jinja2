@@ -4,15 +4,15 @@
 <link rel="stylesheet" type="text/css" href="{{ manifest('css/form.css') }}" />
 
 <div class="modal__header">
-  <a class="modal__close mui--text-dark" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-  <h3 class="mui--text-title text-bold text-uppercase" data-cy="admin-panel">{% trans %}Admin panel{% endtrans %}</h3>
+  <a class="modal__close mui--text-dark" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-testid="close-admin-panel" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+  <h3 class="mui--text-title text-bold text-uppercase" data-testid="admin-panel">{% trans %}Admin panel{% endtrans %}</h3>
 </div>
 <div class="modal__body proposal__admin-panel">
   {%- if proposal.current_roles.project_editor %}
     <p class="mui--text-subhead">{% trans %}Change status of proposal{% endtrans %}</p>
     <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
       {{ transition_form.hidden_tag() }}
-      <div class="btn-group" data-cy="proposal-status">
+      <div class="btn-group" data-testid="proposal-status">
         {% for name, transition in transition_form.transition.choices %}
           <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %} mui-btn--danger {%- endif %}">{{ transition.data['title'] }}</button>
         {% endfor %}

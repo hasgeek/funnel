@@ -4,7 +4,7 @@
 <link rel="stylesheet" type="text/css" href="{{ manifest('css/form.css') }}" />
 
 <div class="modal__header">
-  <a class="modal__close mui--text-dark" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size="title") }}</a>
+  <a class="modal__close mui--text-dark" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-testid="close-admin-panel" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size="title") }}</a>
 </div>
 <div class="modal__body proposal__admin-panel">
   <div class="modal--form {% if sponsorship %}modal--form--edit{% endif %}">
@@ -18,7 +18,7 @@
         {% if form.csrf_token and form.csrf_token.errors %}
           <p class="mui-form--error">{% trans %}This form timed out because it was open for a long time. Please submit again{% endtrans %}</p>
         {% endif %}
-        <a class="mui-btn mui-btn--raised mui-btn--default" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel" href="#" onclick="return false;" role="button" tabindex="0">{% trans %}Cancel{% endtrans %}</a>
+        <a class="mui-btn mui-btn--raised mui-btn--default" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-testid="close-admin-panel" href="#" onclick="return false;" role="button" tabindex="0">{% trans %}Cancel{% endtrans %}</a>
         <input class="mui-btn mui-btn--raised mui-btn--danger" type="submit" name="delete" value="{% trans %}Remove{% endtrans %}"/>
       </form>
     {% endif %}

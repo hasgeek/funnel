@@ -15,12 +15,12 @@ describe('View schedule of p roject', () => {
       .find('.card--upcoming')
       .contains(project.title)
       .click({ force: true });
-    cy.get('[data-cy-navbar="schedule"]').click();
+    cy.get('[data-testid="schedule"]').click();
 
-    cy.get('a[data-cy="add-to-calendar"]').click();
+    cy.get('a[data-testid="add-to-calendar"]').click();
     cy.wait(1000);
-    cy.get('[data-cy="schedule-subscribe"]').should('exist');
-    cy.get('a[data-cy="close-modal"]').click();
+    cy.get('[data-testid="schedule-subscribe"]').should('exist');
+    cy.get('a[data-testid="close-modal"]').click();
 
     let tomorrow = dayjs().add(1, 'days').format('dddd, D MMMM YYYY');
     cy.get('.schedule__date').contains(tomorrow);
@@ -29,27 +29,27 @@ describe('View schedule of p roject', () => {
         cy.get('.schedule__row__column--header').contains(venue.room.title);
       });
     });
-    cy.get('[data-cy="session-time"]').contains(session.time).click();
+    cy.get('[data-testid="session-time"]').contains(session.time).click();
     cy.wait('@view-session');
     cy.get('#session-modal').should('be.visible');
     tomorrow = dayjs().add(1, 'days').format('MMM D, YYYY');
-    cy.get('[data-cy-session="title"]').contains(session.title);
-    cy.get('[data-cy-session="speaker"]').contains(session.speaker);
-    cy.get('[data-cy-session="time"]').contains(session.time);
-    cy.get('[data-cy-session="time"]').contains(tomorrow);
-    cy.get('[data-cy-session="room"]').contains(session.venue_room);
-    cy.get('[data-cy="session-video"]').find('iframe').should('be.visible');
+    cy.get('[data-testid="title"]').contains(session.title);
+    cy.get('[data-testid="speaker"]').contains(session.speaker);
+    cy.get('[data-testid="time"]').contains(session.time);
+    cy.get('[data-testid="time"]').contains(tomorrow);
+    cy.get('[data-testid="room"]').contains(session.venue_room);
+    cy.get('[data-testid="session-video"]').find('iframe').should('be.visible');
     cy.get('#session-modal').find('a.modal__close').click();
     cy.wait(1000);
 
-    cy.get('[data-cy="session-title"]').contains(proposal.title).click();
+    cy.get('[data-testid="session-title"]').contains(proposal.title).click();
     cy.wait('@view-session');
-    cy.get('[data-cy-session="title"]').contains(proposal.title);
-    cy.get('[data-cy-session="speaker"]').contains(user.fullname);
-    cy.get('[data-cy-session="time"]').contains(tomorrow);
-    cy.get('[data-cy-session="room"]').contains(proposal.venue_room);
-    cy.get('[data-cy="view-proposal"]').should('have.exist');
-    cy.get('[data-cy="view-proposal"]').invoke('removeAttr', 'target').click();
-    cy.get('a[data-cy="proposal-menu"]:visible').should('not.exist');
+    cy.get('[data-testid="title"]').contains(proposal.title);
+    cy.get('[data-testid="speaker"]').contains(user.fullname);
+    cy.get('[data-testid="time"]').contains(tomorrow);
+    cy.get('[data-testid="room"]').contains(proposal.venue_room);
+    cy.get('[data-testid="view-proposal"]').should('have.exist');
+    cy.get('[data-testid="view-proposal"]').invoke('removeAttr', 'target').click();
+    cy.get('a[data-testid="proposal-menu"]:visible').should('not.exist');
   });
 });

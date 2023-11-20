@@ -87,7 +87,7 @@
         <ul class="grid projects" role="list">
           {%- if profile.features.new_project() %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-ga="Add new project">
+              <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-testid="new-project" data-ga="Add new project">
                 <div class="card__image-wrapper">
                   <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="new"/>
                   <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class="mui--align-middle card__image-wrapper__icon-wrapper__icon") }}</p>
@@ -189,7 +189,7 @@
                 {% elif membership_project.features.show_tickets %}
                   <div class="membership-container__btn-wrapper">
                     <button class="js-open-ticket-widget mui-btn mui-btn--primary price-btn zero-bottom-margin zero-top-margin display-block">
-                      <span class="price-btn__txt" data-cy="unregistered">{% trans %}Become a member{% endtrans %}</span>
+                      <span class="price-btn__txt" data-testid="unregistered">{% trans %}Become a member{% endtrans %}</span>
                       <span class="price-btn__txt price-btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
                       <span class="price-btn__txt price-btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
                     </button>

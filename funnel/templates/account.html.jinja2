@@ -33,11 +33,11 @@
                 <p class="mui--text-subhead mui--text-light user__box__userid">@{{ current_auth.user.username }}</p>
               {% else %}
                 <p class="mui--text-subhead mui--text-light user__box__userid">
-                  {{ faicon(icon='info-circle', icon_size='body2', baseline=true) }} <a href="{{ url_for('account_edit') }}" data-cy="add-username">{% trans %}Add username{% endtrans %} <span class="circle-icon">{{ faicon(icon='plus', icon_size='caption', baseline=false) }}</span></a>
+                  {{ faicon(icon='info-circle', icon_size='body2', baseline=true) }} <a href="{{ url_for('account_edit') }}" data-testid="add-username">{% trans %}Add username{% endtrans %} <span class="circle-icon">{{ faicon(icon='plus', icon_size='caption', baseline=false) }}</span></a>
                 </p>
               {%- endif %}
               <a href="{{ current_auth.user.absolute_url }}"
-                  data-cy="my-profile"
+                  data-testid="my-profile"
                   class="nounderline">
                 {%- trans %}Go to account{% endtrans %}
                 <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span>
@@ -91,7 +91,7 @@
                  href="{{ url_for('account_edit') }}">{% trans %}Edit{% endtrans %}</a>
               <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent"
                  href="{{ url_for('change_password') }}"
-                 data-cy="change-password">
+                 data-testid="change-password">
                 {% if user_has_password %}
                   {% trans %}Change password{% endtrans %}
                 {% else %}
@@ -100,7 +100,7 @@
               </a>
               <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent"
                       type="submit"
-                      data-cy="Logout">
+                      data-testid="logout">
                 {% trans %}Logout{% endtrans %}
               </button>
             </div>
@@ -202,7 +202,7 @@
                   </button>
                 {% endif %}
                 <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent"
-                   href="{{ url_for('add_email') }}" data-cy="add-new-email">{% trans %}Add an email address{% endtrans %}</a>
+                   href="{{ url_for('add_email') }}" data-testid="add-new-email">{% trans %}Add an email address{% endtrans %}</a>
                 <span class="loading mui--hide"></span>
               </div>
             </form>
@@ -253,7 +253,7 @@
                   </button>
                 {% endif %}
                 <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent"
-                   href="{{ url_for('add_phone') }}" data-cy="add-new-phone">{% trans %}Add a mobile number{% endtrans %}</a>
+                   href="{{ url_for('add_phone') }}" data-testid="add-new-phone">{% trans %}Add a mobile number{% endtrans %}</a>
                 <span class="loading mui--hide"></span>
               </div>
             </form>
@@ -388,7 +388,7 @@
         </div>
         <div class="mui-divider"></div>
         <div class="card__footer">
-          <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--danger" href="{{ url_for('account_delete') }}" data-cy="change-password">{% trans %}Delete this account{% endtrans %}</a>
+          <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--danger" href="{{ url_for('account_delete') }}" data-testid="change-password">{% trans %}Delete this account{% endtrans %}</a>
         </div>
       </div>
     </div>
