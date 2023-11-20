@@ -45,7 +45,7 @@ from .helpers import (
     visual_field_delimiter,
 )
 
-__all__ = ['RSVP_STATE', 'Project', 'ProjectLocation', 'ProjectRedirect']
+__all__ = ['PROJECT_RSVP_STATE', 'Project', 'ProjectLocation', 'ProjectRedirect']
 
 
 # --- Constants ---------------------------------------------------------------
@@ -67,7 +67,7 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
     ANY = {NONE, PUBLIC, CLOSED}
 
 
-class RSVP_STATE(LabeledEnum):  # noqa: N801
+class PROJECT_RSVP_STATE(LabeledEnum):  # noqa: N801
     NONE = (1, __("Not accepting registrations"))
     ALL = (2, __("Anyone can register"))
     MEMBERS = (3, __("Only members can register"))
@@ -171,8 +171,8 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     rsvp_state: Mapped[int] = with_roles(
         sa.orm.mapped_column(
             sa.SmallInteger,
-            StateManager.check_constraint('rsvp_state', RSVP_STATE),
-            default=RSVP_STATE.NONE,
+            StateManager.check_constraint('rsvp_state', PROJECT_RSVP_STATE),
+            default=PROJECT_RSVP_STATE.NONE,
             nullable=False,
         ),
         read={'all'},
@@ -737,7 +737,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     @hybrid_property
     def allow_rsvp(self) -> bool:
         """RSVP state as a boolean value (allowed for all or not)."""
-        return self.rsvp_state == RSVP_STATE.ALL
+        return self.rsvp_state == PROJECT_RSVP_STATE.ALL
 
     def update_schedule_timestamps(self) -> None:
         """Update cached timestamps from sessions."""

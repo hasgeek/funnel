@@ -38,6 +38,7 @@ from ..forms import (
     ProjectTransitionForm,
 )
 from ..models import (
+    PROJECT_RSVP_STATE,
     RSVP_STATUS,
     Account,
     Project,
@@ -171,7 +172,13 @@ def get_registration_text(
 def feature_project_rsvp(obj: Project) -> bool:
     return bool(
         obj.state.PUBLISHED
-        and obj.allow_rsvp is True
+        and (
+            obj.rsvp_state == PROJECT_RSVP_STATE.ALL
+            or (
+                obj.rsvp_state == PROJECT_RSVP_STATE.MEMBERS
+                and 'member' in obj.current_roles
+            )
+        )
         and (obj.start_at is None or not obj.state.PAST)
     )
 
