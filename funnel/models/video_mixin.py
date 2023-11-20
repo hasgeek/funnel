@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from furl import furl
 
-from . import declarative_mixin, sa
+from . import Mapped, declarative_mixin, sa
 
 __all__ = ['VideoMixin', 'VideoError', 'parse_video_url']
 
@@ -14,8 +14,9 @@ class VideoError(Exception):
 
 
 def parse_video_url(video_url: str) -> tuple[str, str]:
+    video_id: str | None
+    video_id = video_url
     video_source = 'raw'
-    video_id: str | None = video_url
 
     parsed = furl(video_url)
     if not parsed.host:
@@ -74,8 +75,10 @@ def make_video_url(video_source: str, video_id: str) -> str:
 
 @declarative_mixin
 class VideoMixin:
-    video_id = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
-    video_source = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
+    video_id: Mapped[str | None] = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
+    video_source: Mapped[str | None] = sa.orm.mapped_column(
+        sa.UnicodeText, nullable=True
+    )
 
     @property
     def video_url(self) -> str | None:

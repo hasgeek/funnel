@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import unicodedata
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, cast, overload
 
 import base58
@@ -190,10 +191,12 @@ class EmailAddress(BaseMixin, Model):
 
     #: The email address, centrepiece of this model. Case preserving.
     #: Validated by the :func:`_validate_email` event handler
-    email = sa.orm.mapped_column(sa.Unicode, nullable=True)
+    email: Mapped[str | None] = sa.orm.mapped_column(sa.Unicode, nullable=True)
     #: The domain of the email, stored for quick lookup of related addresses
     #: Read-only, accessible via the :property:`domain` property
-    _domain = sa.orm.mapped_column('domain', sa.Unicode, nullable=True, index=True)
+    _domain: Mapped[str | None] = sa.orm.mapped_column(
+        'domain', sa.Unicode, nullable=True, index=True
+    )
 
     # email_normalized is defined below
 
@@ -220,7 +223,7 @@ class EmailAddress(BaseMixin, Model):
     )
 
     #: Does this email address work? Records last known delivery state
-    _delivery_state = sa.orm.mapped_column(
+    _delivery_state: Mapped[int] = sa.orm.mapped_column(
         'delivery_state',
         sa.Integer,
         StateManager.check_constraint(
@@ -237,18 +240,20 @@ class EmailAddress(BaseMixin, Model):
         doc="Last known delivery state of this email address",
     )
     #: Timestamp of last known delivery state
-    delivery_state_at = sa.orm.mapped_column(
+    delivery_state_at: Mapped[datetime] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: Timestamp of last known recipient activity resulting from sent mail
-    active_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
+    active_at: Mapped[datetime | None] = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
 
     #: Is this email address blocked from being used? If so, :attr:`email` should be
     #: null. Blocks apply to the canonical address (without the +sub-address variation),
     #: so a test for whether an address is blocked should use blake2b160_canonical to
     #: load the record. Other records with the same canonical hash _may_ exist without
     #: setting the flag due to a lack of database-side enforcement
-    _is_blocked = sa.orm.mapped_column(
+    _is_blocked: Mapped[bool] = sa.orm.mapped_column(
         'is_blocked', sa.Boolean, nullable=False, default=False
     )
 

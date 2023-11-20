@@ -391,7 +391,7 @@ def add_search_trigger(model: type[Model], column_name: str) -> dict[str, str]:
 
         class MyModel(Model):
             ...
-            search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+            search_vector: Mapped[str] = sa.orm.mapped_column(
                 TSVectorType(
                     'name', 'title', *indexed_columns,
                     weights={'name': 'A', 'title': 'B'},

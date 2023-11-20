@@ -89,7 +89,7 @@ message_removed = MessageComposite(__("[removed]"), 'del')
 class Commentset(UuidMixin, BaseMixin, Model):
     __tablename__ = 'commentset'
     #: Commentset state code
-    _state = sa.orm.mapped_column(
+    _state: Mapped[int] = sa.orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', COMMENTSET_STATE),
@@ -105,7 +105,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
         datasets={'primary'},
     )
     #: Count of comments, stored to avoid count(*) queries
-    count = with_roles(
+    count: Mapped[int] = with_roles(
         sa.orm.mapped_column(sa.Integer, default=0, nullable=False),
         read={'all'},
         datasets={'primary'},
@@ -214,7 +214,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         ),
         grants={'author'},
     )
-    commentset_id = sa.orm.mapped_column(
+    commentset_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
@@ -225,7 +225,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         grants_via={None: {'document_subscriber'}},
     )
 
-    in_reply_to_id = sa.orm.mapped_column(
+    in_reply_to_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('comment.id'), nullable=True
     )
     replies: Mapped[list[Comment]] = relationship(
@@ -236,7 +236,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         'message', nullable=False
     )
 
-    _state = sa.orm.mapped_column(
+    _state: Mapped[int] = sa.orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', COMMENT_STATE),
@@ -245,18 +245,18 @@ class Comment(UuidMixin, BaseMixin, Model):
     )
     state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment")
 
-    edited_at = with_roles(
+    edited_at: Mapped[datetime | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary', 'related', 'json'},
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
-    revisionid = with_roles(
+    revisionid: Mapped[int] = with_roles(
         sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa.orm.mapped_column(
         TSVectorType(
             'message_text',
             weights={'message_text': 'A'},

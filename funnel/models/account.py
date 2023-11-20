@@ -259,7 +259,7 @@ class Account(UuidMixin, BaseMixin, Model):
         sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa.orm.mapped_column(
         TSVectorType(
             'title',
             'name',
@@ -1424,7 +1424,7 @@ class Team(UuidMixin, BaseMixin, Model):
     account_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, index=True
     )
-    account = with_roles(
+    account: Mapped[Account] = with_roles(
         relationship(
             Account,
             foreign_keys=[account_id],
