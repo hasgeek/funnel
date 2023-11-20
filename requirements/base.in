@@ -26,6 +26,7 @@ geoip2
 grapheme
 greenlet<3.0  # Required for asyncio in SQLAlchemy, but version conflict in Playwright
 gunicorn
+html2image
 html2text
 httpx[http2]
 icalendar

@@ -6,7 +6,15 @@ from dataclasses import dataclass
 from json import JSONDecodeError
 from types import SimpleNamespace
 
-from flask import Response, abort, current_app, flash, render_template, request
+from flask import (
+    Response,
+    abort,
+    current_app,
+    flash,
+    render_template,
+    request,
+    send_file,
+)
 from flask_babel import format_number
 from markupsafe import Markup
 
@@ -456,6 +464,7 @@ class ProjectView(  # type: ignore[misc]
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             tag_locations.queue(self.obj.id)
+            project_data_change.send(self.obj)
 
             # Find and delete draft if it exists
             if self.get_draft() is not None:
@@ -907,6 +916,17 @@ class ProjectView(  # type: ignore[misc]
                 'message': _("This project is no longer featured"),
             }
         return render_redirect(get_next_url(referrer=True))
+
+    @route('preview.png')
+    def preview_image(self) -> Response:  # pylint: disable=R1710
+        """Return the project preview image."""
+        if self.obj.preview_image:
+            return send_file(
+                io.BytesIO(self.obj.preview_image),
+                as_attachment=False,
+                mimetype='image/png',
+            )
+        abort(404)  # TODO: Return a placeholder image
 
 
 ProjectView.init_app(app)

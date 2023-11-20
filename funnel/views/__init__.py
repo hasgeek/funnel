@@ -38,6 +38,7 @@ from . import (  # skipcq: PY-W2000
     shortlink,
     siteadmin,
     sitemap,
+    thumbnails,
     ticket_event,
     ticket_participant,
     update,
