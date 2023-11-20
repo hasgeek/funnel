@@ -304,7 +304,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
         return new
 
     @with_roles(call={'editor'})
-    def amend_by(self: MembershipType, actor: Account):
+    def amend_by(self, actor: Account):
         """Amend a membership in a `with` context."""
         return AmendMembership(self, actor)
 

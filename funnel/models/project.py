@@ -45,7 +45,7 @@ from .helpers import (
     visual_field_delimiter,
 )
 
-__all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
+__all__ = ['RSVP_STATE', 'Project', 'ProjectLocation', 'ProjectRedirect']
 
 
 # --- Constants ---------------------------------------------------------------

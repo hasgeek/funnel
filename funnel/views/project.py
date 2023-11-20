@@ -589,7 +589,7 @@ class ProjectView(  # type: ignore[misc]
             obj=SimpleNamespace(
                 org=boxoffice_data.get('org', ''),
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
-                allow_rsvp=self.obj.allow_rsvp,
+                rsvp_state=self.obj.rsvp_state,
                 is_subscription=boxoffice_data.get('is_subscription', True),
                 register_form_schema=boxoffice_data.get('register_form_schema'),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
@@ -598,7 +598,7 @@ class ProjectView(  # type: ignore[misc]
             model=Project,
         )
         if form.validate_on_submit():
-            form.populate_obj(self.obj)
+            self.obj.rsvp_state = form.rsvp_state.data
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
