@@ -168,22 +168,31 @@ def get_registration_text(
     return Markup(numeric_count.not_following.format(num=format_number(count)))
 
 
-@Project.features('rsvp')
+@Project.features('rsvp', cached_property=True)
 def feature_project_rsvp(obj: Project) -> bool:
     return bool(
         obj.state.PUBLISHED
+        and (obj.start_at is None or not obj.state.PAST)
         and (
             obj.rsvp_state == PROJECT_RSVP_STATE.ALL
             or (
                 obj.rsvp_state == PROJECT_RSVP_STATE.MEMBERS
-                and 'member' in obj.current_roles
+                and obj.current_roles.account_member
             )
         )
-        and (obj.start_at is None or not obj.state.PAST)
     )
 
 
-@Project.features('tickets')
+@Project.features('rsvp_for_members', cached_property=True)
+def feature_project_rsvp_for_members(obj: Project) -> bool:
+    return bool(
+        obj.state.PUBLISHED
+        and (obj.start_at is None or not obj.state.PAST)
+        and obj.rsvp_state == PROJECT_RSVP_STATE.MEMBERS
+    )
+
+
+@Project.features('tickets', cached_property=True)
 def feature_project_tickets(obj: Project) -> bool:
     return (
         obj.start_at is not None
@@ -194,9 +203,9 @@ def feature_project_tickets(obj: Project) -> bool:
     )
 
 
-@Project.features('tickets_or_rsvp')
+@Project.features('tickets_or_rsvp', cached_property=True)
 def feature_project_tickets_or_rsvp(obj: Project) -> bool:
-    return obj.features.tickets() or obj.features.rsvp()
+    return obj.features.tickets or obj.features.rsvp
 
 
 @Project.features('subscription', cached_property=True)
@@ -211,16 +220,16 @@ def feature_project_subscription(obj: Project) -> bool:
 
 @Project.features('show_tickets', cached_property=True)
 def show_tickets(obj: Project) -> bool:
-    return obj.features.tickets() or obj.features.subscription
+    return obj.features.tickets or obj.features.subscription
 
 
-@Project.features('rsvp_unregistered')
+@Project.features('rsvp_unregistered', cached_property=True)
 def feature_project_register(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
     return rsvp is None or not rsvp.state.YES
 
 
-@Project.features('rsvp_registered')
+@Project.features('rsvp_registered', cached_property=True)
 def feature_project_deregister(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
     return rsvp is not None and rsvp.state.YES
@@ -241,7 +250,7 @@ def feature_project_post_update(obj: Project) -> bool:
     return obj.current_roles.editor
 
 
-@Project.features('follow_mode')
+@Project.features('follow_mode', cached_property=True)
 def project_follow_mode(obj: Project) -> bool:
     return obj.start_at is None
 
@@ -250,8 +259,8 @@ def project_follow_mode(obj: Project) -> bool:
 def project_registration_text(obj: Project) -> str | LazyString:
     return get_registration_text(
         count=obj.rsvp_count_going,
-        registered=obj.features.rsvp_registered(),
-        follow_mode=obj.features.follow_mode(),
+        registered=obj.features.rsvp_registered,
+        follow_mode=obj.features.follow_mode,
     )
 
 
@@ -264,7 +273,7 @@ def project_register_button_text(obj: Project) -> str:
     if custom_text and (rsvp is None or not rsvp.state.YES):
         return custom_text
 
-    if obj.features.follow_mode():
+    if obj.features.follow_mode:
         if rsvp is not None and rsvp.state.YES:
             return _("Following")
         return _("Follow")
