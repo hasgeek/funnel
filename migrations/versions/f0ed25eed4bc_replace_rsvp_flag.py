@@ -27,6 +27,7 @@ project = sa.table(
 class RsvpState:
     NONE = 1
     ALL = 2
+    MEMBERS = 3
 
 
 def upgrade(engine_name: str = '') -> None:
@@ -43,7 +44,17 @@ def downgrade(engine_name: str = '') -> None:
 
 def upgrade_() -> None:
     """Upgrade default database."""
-    op.add_column('project', sa.Column('rsvp_state', sa.SmallInteger(), nullable=True))
+    op.add_column(
+        'project',
+        sa.Column(
+            'rsvp_state',
+            sa.SmallInteger(),
+            sa.CheckConstraint(
+                'rsvp_state IN (1, 2, 3)', name='project_rsvp_state_check'
+            ),
+            nullable=True,
+        ),
+    )
     op.execute(
         project.update().values(
             rsvp_state=sa.case(
@@ -65,9 +76,9 @@ def downgrade_() -> None:
     )
     op.execute(
         project.update().values(
-            rsvp_state=sa.case(
-                (project.c.rsvp_state.is_(RsvpState.NONE), False),
-                (project.c.rsvp_state.is_(RsvpState.ALL), True),
+            allow_rsvp=sa.case(
+                (project.c.rsvp_state == RsvpState.NONE, False),
+                (project.c.rsvp_state == RsvpState.ALL, True),
                 else_=False,
             )
         )
