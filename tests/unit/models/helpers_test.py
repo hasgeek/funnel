@@ -6,7 +6,9 @@ from types import SimpleNamespace
 import pytest
 import sqlalchemy as sa
 from flask_babel import lazy_gettext
+from furl import furl
 from sqlalchemy.exc import StatementError
+from sqlalchemy.orm import Mapped
 
 import funnel.models.helpers as mhelpers
 from funnel import models
@@ -168,8 +170,10 @@ def test_add_to_class() -> None:
 def image_models(database, app):
     class MyImageModel(models.Model):
         __tablename__ = 'test_my_image_model'
-        id = sa.orm.mapped_column(sa.Integer, primary_key=True)  # noqa: A003
-        image_url = sa.orm.mapped_column(models.ImgeeType)
+        id: Mapped[int] = sa.orm.mapped_column(  # noqa: A003
+            sa.Integer, primary_key=True
+        )
+        image_url: Mapped[furl] = sa.orm.mapped_column(models.ImgeeType)
 
     with app.app_context():
         database.create_all()
