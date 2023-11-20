@@ -106,7 +106,9 @@ class ProposalMembership(  # type: ignore[misc]
     #: Uncredited members are not listed in the main display, but can edit and may be
     #: listed in a details section. Uncredited memberships are for support roles such
     #: as copy editors.
-    is_uncredited = sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
+    is_uncredited: Mapped[bool] = sa.orm.mapped_column(
+        sa.Boolean, nullable=False, default=False
+    )
 
     #: Optional label, indicating the member's role on the proposal
     label = immutable(
@@ -131,7 +133,7 @@ class __Proposal:
 
     # This relationship does not use `lazy='dynamic'` because it is expected to contain
     # <2 records on average, and won't exceed 50 in the most extreme cases
-    memberships = with_roles(
+    memberships: Mapped[list[ProposalMembership]] = with_roles(
         relationship(
             ProposalMembership,
             primaryjoin=sa.and_(

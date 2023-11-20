@@ -17,7 +17,7 @@ ${imports if imports else ""}
 revision: str = ${repr(up_revision)}
 down_revision: str = ${repr(down_revision)}
 branch_labels: str | tuple[str, ...] | None = ${repr(branch_labels)}
-depends_on: str, tuple[str, ...] | None = ${repr(depends_on)}
+depends_on: str | tuple[str, ...] | None = ${repr(depends_on)}
 
 
 def upgrade(engine_name: str = '') -> None:

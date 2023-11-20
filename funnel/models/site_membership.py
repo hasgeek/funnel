@@ -66,7 +66,10 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
     @classmethod
     def __table_args__(cls) -> tuple:
         """Table arguments."""
-        args = list(super().__table_args__)
+        try:
+            args = list(super().__table_args__)  # type: ignore[misc]
+        except AttributeError:
+            args = []
         args.append(
             sa.CheckConstraint(
                 sa.or_(
