@@ -151,10 +151,12 @@ class __Account:
     )
 
     owner_users = with_roles(
-        DynamicAssociationProxy('active_owner_memberships', 'member'), read={'all'}
+        DynamicAssociationProxy[Account]('active_owner_memberships', 'member'),
+        read={'all'},
     )
     admin_users = with_roles(
-        DynamicAssociationProxy('active_admin_memberships', 'member'), read={'all'}
+        DynamicAssociationProxy[Account]('active_admin_memberships', 'member'),
+        read={'all'},
     )
 
     # pylint: disable=invalid-unary-operand-type
