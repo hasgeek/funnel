@@ -105,9 +105,8 @@ required_plugins = [
 ]
 addopts = [
   '--cov-report=term-missing',
-  '--driver=firefox',
   '--disable-socket',
-  '--allow-unix-socket',         # Required for Selenium driver
+  '--allow-unix-socket',         # Required for Playwright tests
   '--allow-hosts=127.0.0.1,::1', # Add Docker IPs here
   '--strict-markers',
   # '--typeguard-packages=funnel,tests',  # This breaks on toc.py in markdown
