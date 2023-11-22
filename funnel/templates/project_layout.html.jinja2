@@ -139,48 +139,53 @@
 
 {% macro registerblock(project) %}
   <div class="register-block">
-    <div class="register-block__content {% if project.features.show_tickets %}register-block__content--half {%- endif %}">
     {%- if project.features.rsvp_registered %}
-      <span class="register-block__content__txt mui--text-light"></span>
-      <a id="cancel-rsvp-btn" class="mui-btn mui-btn--accent mui-btn--raised register-block__btn js-register-btn" rel="modal:open" href="#register-modal" aria-haspopup="true">
-        <span class="register-block__btn__txt register-block__btn__txt--hover" data-cy="registered">{% if project.features.follow_mode %}{% trans %}Following{% endtrans %}{% else %}{% trans %}Registered{% endtrans %}{% endif %}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class="mui--text-success fa-icon--left-margin") }}</span>
-        <span class="register-block__btn__txt register-block__btn__txt--hover--show">{% if project.features.follow_mode %}{% trans %}Unfollow{% endtrans %}{% else %}{% trans %}Cancel Registration{% endtrans %}{% endif %}</span>
-        <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light register-block__btn__txt--mobile">{{ project.views.registration_text() }}</span>
-      </a>
-      <div class="modal" id="register-modal" role="dialog" aria-labelledby="cancel-rsvp" aria-modal="true" tabindex="-1">
-        <div class="modal__header">
-          <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-        </div>
-        <div class="modal__body">
-          <p class="mui--text-subhead" id="cancel-rsvp">{% if project.features.follow_mode %}{% trans %}No longer interested?{% endtrans %}{% else %}{% trans %}Can’t make it?{% endtrans %}{% endif %}</p>
-          <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
-            {{ csrf_tag() }}
-            <div class="mui--text-right">
-              <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="no" data-cy="cancel-rsvp">{% if project.features.follow_mode %}{% trans %}Stop following{% endtrans %}{% else %}{% trans %}Confirm cancellation{% endtrans %}{% endif %}</button>
-            </div>
-          </form>
-        </div>
+      <div class="register-block__content">
+        <span class="register-block__content__txt mui--text-light"></span>
+        <a id="cancel-rsvp-btn" class="mui-btn mui-btn--accent mui-btn--raised register-block__btn js-register-btn" rel="modal:open" href="#register-modal" aria-haspopup="true">
+          <span class="register-block__btn__txt register-block__btn__txt--hover" data-cy="registered">{% if project.features.follow_mode %}{% trans %}Following{% endtrans %}{% else %}{% trans %}Registered{% endtrans %}{% endif %}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class="mui--text-success fa-icon--left-margin") }}</span>
+          <span class="register-block__btn__txt register-block__btn__txt--hover--show">{% if project.features.follow_mode %}{% trans %}Unfollow{% endtrans %}{% else %}{% trans %}Cancel Registration{% endtrans %}{% endif %}</span>
+          <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light register-block__btn__txt--mobile">{{ project.views.registration_text() }}</span>
+        </a>
+        <div class="modal" id="register-modal" role="dialog" aria-labelledby="cancel-rsvp" aria-modal="true" tabindex="-1">
+          <div class="modal__header">
+            <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+          </div>
+          <div class="modal__body">
+            <p class="mui--text-subhead" id="cancel-rsvp">{% if project.features.follow_mode %}{% trans %}No longer interested?{% endtrans %}{% else %}{% trans %}Can’t make it?{% endtrans %}{% endif %}</p>
+            <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
+              {{ csrf_tag() }}
+              <div class="mui--text-right">
+                <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="no" data-cy="cancel-rsvp">{% if project.features.follow_mode %}{% trans %}Stop following{% endtrans %}{% else %}{% trans %}Confirm cancellation{% endtrans %}{% endif %}</button>
+              </div>
+            </form>
+          </div>
       </div>
     {% elif project.features.rsvp %}
-      {%- if current_auth.is_anonymous %}
-        <a class="mui-btn mui-btn--raised {% if project.features.show_tickets %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
-      {% elif project.features.rsvp_unregistered -%}
-        {% if not project.features.follow_mode %}<span class="register-block__content__txt mui--text-light">{% trans %}This is a free event{% endtrans %}</span>{% endif %}
-        <a id="rsvp-btn" class="mui-btn mui-btn--raised mui-btn--dark register-block__btn js-register-btn" href="{{ project.url_for('rsvp_modal') }}" rel="modal:open" role="button" aria-haspopup="true">
-          <span class="register-block__btn__txt" data-cy="unregistered">{{ project.views.register_button_text() }}</span>
-          <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt" data-cy="unregistered">{{ project.views.registration_text() }}</span>
-        </a>
-      {%- endif %}
+      <div class="register-block__content">
+        {%- if current_auth.is_anonymous %}
+          <a class="mui-btn mui-btn--raised {% if project.features.show_tickets %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
+        {% elif project.features.rsvp_unregistered -%}
+          {% if not project.features.follow_mode %}<span class="register-block__content__txt mui--text-light">{% trans %}This is a free event{% endtrans %}</span>{% endif %}
+          <a id="rsvp-btn" class="mui-btn mui-btn--raised mui-btn--dark register-block__btn js-register-btn" href="{{ project.url_for('rsvp_modal') }}" rel="modal:open" role="button" aria-haspopup="true">
+            <span class="register-block__btn__txt" data-cy="unregistered">{{ project.views.register_button_text() }}</span>
+            <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt" data-cy="unregistered">{{ project.views.registration_text() }}</span>
+          </a>
+        {%- endif %}
+      </div>
     {% elif project.buy_tickets_url.url -%}
-      <a class="register-block__btn full-width-btn mui-btn mui-btn--primary" href="{{ project.buy_tickets_url.url }}" data-action="external register url" target="_blank" rel="noopener"><span>{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{{ project.views.register_button_text() }}</span></a>
+      <div class="register-block__content">
+        <a class="register-block__btn full-width-btn mui-btn mui-btn--primary" href="{{ project.buy_tickets_url.url }}" data-action="external register url" target="_blank" rel="noopener"><span>{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{{ project.views.register_button_text() }}</span></a>
+      </div>
     {% elif project.features.rsvp_for_members -%}
-      <div class="register-block__content"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}Registration for members only{% endtrans %}</button></div>
+      <div class="register-block__content">
+        <button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}Registration for members only{% endtrans %}</button>
+      </div>
     {% endif %}
-    </div>
     {% if project.current_roles.account_member %}
-      <div class="register-block__content {% if project.features.rsvp or project.buy_tickets_url.url %} register-block__content--half {%- endif %}"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
+      <div class="register-block__content"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
     {% elif project.features.show_tickets %}
-      <div class="register-block__content {% if project.features.rsvp or project.buy_tickets_url.url %} register-block__content--half {%- endif %}">
+      <div class="register-block__content">
           <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
             {% if project.features.subscription %}
               <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Join{% endtrans %}</span>
