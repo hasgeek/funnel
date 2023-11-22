@@ -65,3 +65,9 @@ Feature: Account creation
     When twoflower visits the login page, Recaptcha is required
     Then they submit and Recaptcha validation passes
     And they are logged in
+
+  Scenario: Twoflower tries to login with an email address and the wrong OTP
+    Given Twoflower visitor is on the login page
+    When they enter an twoflower's email address
+    And they enter the wrong OTP
+    Then they are prompted to enter the OTP again

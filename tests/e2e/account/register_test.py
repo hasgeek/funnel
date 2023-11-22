@@ -1,6 +1,7 @@
 """Test account registration."""
 # pylint: disable=redefined-outer-name
 
+import random
 import re
 
 import pytest
@@ -219,3 +220,35 @@ def then_submit_recaptcha_validation_passes(live_server, page: Page) -> None:
     page.click('#use-password-login')
     page.wait_for_selector('input[name=password]').fill(TWOFLOWER_PASSWORD)
     page.click('#login-btn')
+
+
+@given("Twoflower visitor is on the login page")
+def given_twoflower_visits_login_page(
+    user_twoflower_with_password_and_contact,
+    published_project,
+    db_session,
+    live_server,
+    page: Page,
+) -> None:
+    page.goto(live_server.url + 'login')
+
+
+@when("they enter an twoflower's email address")
+def when_enter_twoflower_email(page: Page) -> None:
+    page.wait_for_selector('input[name=username]').fill(TWOFLOWER_EMAIL)
+    page.click('#get-otp-btn')
+
+
+@when("they enter the wrong OTP")
+def when_enter_wrong_otp(page: Page) -> None:
+    page.wait_for_selector('input[name=otp]').fill(
+        str(random.randint(1000, 9999))  # nosec
+    )
+    page.click('#form-otp button')
+
+
+@then("they are prompted to enter the OTP again")
+def then_prompted_enter_otp_again(page: Page) -> None:
+    page.wait_for_selector('input[name=otp]')
+    assert page.wait_for_selector('.alert__text').inner_text() == "Invalid OTP"
+    # TODO: Fix the assert for the right element
