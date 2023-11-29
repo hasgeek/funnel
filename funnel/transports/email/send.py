@@ -74,6 +74,7 @@ def jsonld_confirm_action(description: str, url: str, title: str) -> dict[str, o
 def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
     """Schema.org JSON-LD markup for an event reservation."""
     location: str | dict[str, object]
+    event_mode: str
     venue = rsvp.project.primary_venue
     if venue is not None:
         location = {
@@ -90,11 +91,13 @@ def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
                 'addressCountry': venue.country,
             }
             location['address'] = postal_address
+        event_mode = "https://schema.org/OfflineEventAttendanceMode"
     else:
         location = {
             "@type": "VirtualLocation",
             "url": rsvp.project.absolute_url,
         }
+        event_mode = "https://schema.org/OnlineEventAttendanceMode"
     return {
         '@context': 'https://schema.org',
         '@type': 'EventReservation',
@@ -106,6 +109,7 @@ def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
             if rsvp.state.NO
             else 'https://schema.org/ReservationPending'
         ),
+        "eventAttendanceMode": event_mode,
         'underName': {
             '@type': 'Person',
             'name': rsvp.participant.fullname,
@@ -122,6 +126,7 @@ def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
                 'image': rsvp.project.account.logo_url
             },
         },
+        'modifyReservationUrl': rsvp.project.absolute_url,
         'numSeats': '1',
     }
 
