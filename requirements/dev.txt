@@ -16,7 +16,7 @@ astroid==3.0.1
     # via pylint
 bandit==1.7.5
     # via -r requirements/dev.in
-black==23.10.1
+black==23.11.0
     # via -r requirements/dev.in
 build==1.0.3
     # via pip-tools
@@ -24,7 +24,7 @@ cattrs==22.1.0
     # via reformat-gherkin
 cfgv==3.4.0
     # via pre-commit
-cssbeautifier==1.14.9
+cssbeautifier==1.14.11
     # via djlint
 dill==0.3.7
     # via pylint
@@ -55,7 +55,7 @@ flake8-assertive==2.1.0
     # via -r requirements/dev.in
 flake8-blind-except==0.2.1
     # via -r requirements/dev.in
-flake8-bugbear==23.9.16
+flake8-bugbear==23.11.28
     # via -r requirements/dev.in
 flake8-builtins==2.2.0
     # via -r requirements/dev.in
@@ -87,14 +87,14 @@ html-tag-names==0.1.2
     # via djlint
 html-void-elements==0.1.0
     # via djlint
-identify==2.5.31
+identify==2.5.32
     # via pre-commit
 isort==5.12.0
     # via
     #   -r requirements/dev.in
     #   flake8-isort
     #   pylint
-jsbeautifier==1.14.9
+jsbeautifier==1.14.11
     # via
     #   cssbeautifier
     #   djlint
@@ -106,7 +106,7 @@ mccabe==0.7.0
     # via
     #   flake8
     #   pylint
-mypy==1.6.1
+mypy==1.7.1
     # via -r requirements/dev.in
 mypy-json-report==1.0.4
     # via -r requirements/dev.in
@@ -116,7 +116,7 @@ pathspec==0.11.2
     # via
     #   black
     #   djlint
-pbr==5.11.1
+pbr==6.0.0
     # via stevedore
 pep8-naming==0.13.3
     # via -r requirements/dev.in
@@ -124,7 +124,7 @@ pip-compile-multi==2.6.3
     # via -r requirements/dev.in
 pip-tools==7.3.0
     # via pip-compile-multi
-platformdirs==3.11.0
+platformdirs==4.0.0
     # via
     #   black
     #   pylint
@@ -149,7 +149,7 @@ pyupgrade==3.15.0
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
-ruff==0.1.4
+ruff==0.1.6
     # via -r requirements/dev.in
 smmap==5.0.1
     # via gitdb
@@ -169,21 +169,21 @@ types-ipaddress==1.0.8
     # via types-maxminddb
 types-maxminddb==1.5.0
     # via types-geoip2
-types-mock==5.1.0.2
+types-mock==5.1.0.3
     # via -r requirements/dev.in
 types-pyopenssl==23.3.0.0
     # via types-redis
 types-pytz==2023.3.1.1
     # via -r requirements/dev.in
-types-redis==4.6.0.9
+types-redis==4.6.0.11
     # via -r requirements/dev.in
 types-requests==2.31.0.10
     # via -r requirements/dev.in
-virtualenv==20.24.6
+virtualenv==20.24.7
     # via pre-commit
-wcwidth==0.2.9
+wcwidth==0.2.12
     # via reformat-gherkin
-wheel==0.41.3
+wheel==0.42.0
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
