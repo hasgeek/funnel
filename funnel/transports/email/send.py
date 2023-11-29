@@ -119,7 +119,7 @@ def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
             'performer': {
                 '@type': 'Organization',
                 'name': rsvp.project.account.title,
-                'image': rsvp.project.account.logo_url
+                'image': rsvp.project.account.logo_url,
             },
         },
         'numSeats': '1',
