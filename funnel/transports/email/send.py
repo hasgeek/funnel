@@ -91,7 +91,10 @@ def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
             }
             location['address'] = postal_address
     else:
-        location = rsvp.project.location
+        location = {
+            "@type": "VirtualLocation",
+            "url": rsvp.project.absolute_url,
+        }
     return {
         '@context': 'https://schema.org',
         '@type': 'EventReservation',
@@ -116,6 +119,7 @@ def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
             'performer': {
                 '@type': 'Organization',
                 'name': rsvp.project.account.title,
+                'image': rsvp.project.account.logo_url
             },
         },
         'numSeats': '1',
