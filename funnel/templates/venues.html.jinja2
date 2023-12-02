@@ -3,7 +3,7 @@
 {% block title %}{% trans %}Venues{% endtrans %}{% endblock title %}
 
 {% block top_title %}
-  <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
+  <h1 class="mui--text-headline"><a href="{{ project.url_for() }}" data-testid="project-page">{{ project.title }}</a></h1>
   <p class="mui--text-subhead">{% trans %}Venues{% endtrans %}</p>
 {% endblock top_title %}
 
@@ -43,7 +43,7 @@
   <div class="grid">
     {%- for venue in venues %}
       <div class="grid__col-xs-12 grid__col-sm-6">
-        <div class="card" data-testid="{{ venue.title }}">
+        <div class="card" data-testid="{{ venue.title }}-rooms">
           <div class="card__header">
             <h3><b>{{ venue.title }}</b>{%- if venue == project.primary_venue %}<em> (primary) </em>{% endif %}</h3>
             <div class="mui--text-body2">{{ venue.description }}</div>

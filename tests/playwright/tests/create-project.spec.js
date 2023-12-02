@@ -12,9 +12,6 @@ test('To create project, edit, publish', async ({ page }) => {
   let loginPage;
   loginPage = new LoginPage(page);
   await loginPage.login(`/${profile.title}`, owner.username, owner.password);
-  await page.getByTestId('make-profile-public').click();
-  await page.getByTestId('make-public-btn').waitFor();
-  await page.getByTestId('make-public-btn').click();
 
   let projectPage = new ProjectPage(page);
   await projectPage.createNewProject(projectNameCapitalize);
@@ -33,10 +30,5 @@ test('To create project, edit, publish', async ({ page }) => {
 
   //Publish project
   await projectPage.publishProject();
-
-  await page.getByTestId('profile-link').click();
-  await page.getByTestId('admin-dropdown').locator("visible=true").click();
-  await page.getByTestId('make-profile-private').locator("visible=true").click();
-  await page.getByTestId('make-private-btn').locator("visible=true").click();
 
 });

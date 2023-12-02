@@ -24,10 +24,10 @@ test('To create profile, edit, add crew and update banner', async ({ page }) => 
   // Add, edit  crew
   let crewForm = new ProfileCrewFormPage(page);
   await page.getByTestId('admins').click();
-  await crewForm.addMember(admin.username, 'admin');
-  await crewForm.addMember(promoter.username, 'owner');
+  await crewForm.addMember(admin.username, false);
+  await crewForm.addMember(promoter.username, true);
   await crewForm.deleteMember(promoter.username);
-  await crewForm.addMember(hguser.username, 'admin', false);
+  await crewForm.addMember(hguser.username,false, false);
 
   // Profile  transition from public to private
   await page.getByTestId('admin-dropdown').click();
@@ -39,7 +39,7 @@ test('To create profile, edit, add crew and update banner', async ({ page }) => 
   await loginPage.logout();
 
   // Permissions for profile owner
-  // await loginPage.login(`/${randomOrgName}`, admin.username, admin.password);
+  await loginPage.login(`/${randomOrgName}`, admin.username, admin.password);
   await page.getByTestId('admin-dropdown').locator('visible=true').click();
   await expect.soft(page.getByTestId('edit-details').locator('visible=true')).toBeVisible();
   await page.getByTestId('admins').click();

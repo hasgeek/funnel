@@ -6,7 +6,7 @@ export class ProfileCrewFormPage {
     this.page = page;
   }
 
-  async addMember(username, role, success=true) {
+  async addMember(username, owner=true, success=true) {
     await Promise.all([
       this.page.waitForResponse(response => response.url().includes("/new") && response.status() === 200, {timeout: 60000}),
       this.page.getByTestId('add-member').click()
@@ -17,7 +17,7 @@ export class ProfileCrewFormPage {
     await this.page.locator('.select2-search__field').fill(username);
     await this.page.locator('.select2-results__option').waitFor();
     await this.page.locator('.select2-results__option').click();
-    if(role == 'admin') {
+    if(owner) {
       await this.page.locator('div#field-is_owner input[value="True"]').click();
     }
     else {
@@ -32,7 +32,7 @@ export class ProfileCrewFormPage {
       await expect(this.page.locator('.toast-message')).toHaveCount(0, {timeout: 7000});
     } else {
       await this.page.locator('p.mui--text-danger').isVisible();
-      await this.page.locator('a.modal__close:visible').click();
+      await this.page.locator('a.modal__close').locator('visible=true').click();
     }
 
   }

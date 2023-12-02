@@ -18,6 +18,7 @@
     "venue_description": "Zoom meeting",
     "room": {
       "title": "Zoom",
+      "description": "Zoom link",
       "bgcolor": "6075B1"
     }
   }

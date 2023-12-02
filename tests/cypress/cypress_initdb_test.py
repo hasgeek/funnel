@@ -70,7 +70,7 @@ def init_models():
             name='testcypressproject', title='testcypressproject', owner=profile_owner
         )
         org.is_verified = True
-        org.publish()
+        org.make_profile_public()
 
         db.session.add_all(
             [

@@ -13,9 +13,6 @@ test('Add crew to project', async ({ page }) => {
   let loginPage;
   loginPage = new LoginPage(page);
   await loginPage.login(`/${profile.title}`, owner.username, owner.password);
-  // await page.getByTestId('make-profile-public').click();
-  // await page.getByTestId('make-public-btn').waitFor();
-  // await page.getByTestId('make-public-btn').click();
 
   let projectPage = new ProjectPage(page);
   await projectPage.createNewProject(projectNameCapitalize);

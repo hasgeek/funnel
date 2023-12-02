@@ -29,7 +29,7 @@ export class ProjectCrewFormPage {
       await expect(this.page.locator('.toast-message')).toHaveCount(0, {timeout: 7000});
     } else {
       await this.page.locator('p.mui--text-danger').isVisible();
-      await this.page.locator('a.modal__close:visible').click();
+      await this.page.locator('a.modal__close').locator('visible=true').click();
     }
   }
 

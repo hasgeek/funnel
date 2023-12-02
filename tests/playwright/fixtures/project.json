@@ -14,5 +14,44 @@
   "update_title": "Lorem ipsum dolor sit amet",
   "update_body": "# Heading level 1\nParagraphs are separated by a blank line.\n2nd paragraph. *Italic*, **bold**, and `monospace`. Itemized lists\nlook like:\n* this one\n* that one\n* the other one\nNote that --- not considering the asterisk --- the actual text\ncontent starts at 4-columns in.\n> Block quotes are\n> written like so.\n> They can span multiple paragraphs,\n> if you like.\nUse 3 dashes for an em-dash. Use 2 dashes for ranges (ex., 'it's all in chapters 12--14'). Three dots ... will be converted to an ellipsis.Unicode is supported. ☺\nInline-style:\n![alt text](https://images.hasgeek.com/embed/file/d80f546ae6844f89a37956128c788c85)",
   "restricted_update_title": "Finibus Bonorum et Malorum",
-  "restricted_update_body": "# Heading \nquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderi"
+  "restricted_update_body": "# Heading \nquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderi",
+  "cfp_instructions": "##Topics for proposing talks/workshops/tutorials for event",
+  "venue": {
+    "title": "Online",
+    "room": "Zoom"
+  },
+  "labels": [
+    {
+      "title": "Tracks",
+      "sublabels": [
+        "AI Engineering",
+        "Data Science",
+        "Devops"
+      ]
+    },
+    {
+      "title": "Track",
+      "sublabels": [
+        "Full talk",
+        "BOF/Panel discussion",
+        "Lighting talk",
+        "Demo"
+      ]
+    },
+    {
+      "title": "Status",
+      "sublabels": [
+        "Confirmed",
+        "Shortlisted",
+        "Requires more details",
+        "Not accepted"
+      ],
+      "adminLabel": "true"
+    }
+  ],
+  "session_title": "Check-in",
+  "session_content": "Check-in starts at 9am",
+  "session_timecolumn": "9am",
+  "proposal_title": "Consectetur adipiscing elit",
+  "proposal_content": "Lorem ipsum dolor sit amet"
 }

@@ -70,7 +70,7 @@
               <div class="ui-draggable-box ui-draggable-box--header">
                 <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input" data-venue="{{ venue.uuid_b58 }}" />
                 <div class="collapsible">
-                  <div class="collapsible__header" data-testid-collapsible="open">
+                  <div class="collapsible__header" data-testid="collapsible-open">
                     <input type="hidden" name="uuid" value="{{ venue.uuid_b58 }}" />
                     {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class="mui--text-light drag-icon drag-handle") }}
                     <span class="mui--text-subhead">{{ venue.title }}</span>

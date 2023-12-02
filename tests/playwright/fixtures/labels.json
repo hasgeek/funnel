@@ -9,7 +9,7 @@
     "label1": "Need more information",
     "label2": "Under review",
     "label3": "Waiting for review comments",
-    "adminLabel": true
+    "adminLabel": "true"
   },
   {
     "title": "Technical level",
