@@ -4,7 +4,7 @@ colorama
 coverage
 coveralls
 lxml
-py  # Not ours; missing dep in pytest-html, which is a dep for pytest-selenium
+playwright
 Pygments
 pytest
 pytest-asyncio
@@ -12,12 +12,11 @@ pytest-bdd
 pytest-cov
 pytest-dotenv
 pytest-env
+pytest-playwright
 pytest-rerunfailures
-pytest-selenium>=4.0.1
 pytest-socket
 requests-mock
 respx
-selenium<4.10  # Selenium 4.10.0 breaks pytest-selenium 4.0.1
 sttable
 tomlkit
 typeguard

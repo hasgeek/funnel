@@ -282,6 +282,8 @@ def format_json(data: dict | str | None) -> str:
 
 def validate_and_convert_json(form: forms.Form, field: forms.Field) -> None:
     """Confirm form data is valid JSON, and store it back as a parsed dict."""
+    if field.data is None:
+        return
     try:
         field.data = json.loads(field.data)
     except ValueError:

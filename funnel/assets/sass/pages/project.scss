@@ -97,12 +97,13 @@
       border-color: inherit;
     }
   }
-  .register-block__content--half {
-    width: calc(50% - 8px);
+  .register-block__content {
+    width: calc(50% - $mui-grid-padding/2);
     align-self: flex-end;
   }
-  .register-block__content--half:first-child {
-    margin-right: 16px;
+  .register-block__content:only-child {
+    width: 100%;
+    align-self: flex-end;
   }
 }
 
@@ -141,7 +142,7 @@
         border-color: inherit;
       }
     }
-    .register-block__content--half {
+    .register-block__content {
       .register-block__content__rsvp-txt {
         font-size: 9px;
       }

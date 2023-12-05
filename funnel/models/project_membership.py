@@ -155,7 +155,10 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
     @classmethod
     def __table_args__(cls) -> tuple:
         """Table arguments."""
-        args = list(super().__table_args__)
+        try:
+            args = list(super().__table_args__)  # type: ignore[misc]
+        except AttributeError:
+            args = []
         kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
         args.append(
             sa.CheckConstraint(

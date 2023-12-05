@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 from datetime import datetime as datetime_type
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, TypeVar
+from uuid import UUID
 
 from sqlalchemy import event
 from sqlalchemy.sql.expression import ColumnElement
@@ -27,7 +28,7 @@ from . import (
     sa,
 )
 from .account import Account
-from .reorder_mixin import ReorderMixin
+from .reorder_mixin import ReorderProtoMixin
 
 # Export only symbols needed in views.
 __all__ = [
@@ -40,7 +41,9 @@ __all__ = [
 # --- Typing ---------------------------------------------------------------------------
 
 MembershipType = TypeVar('MembershipType', bound='ImmutableMembershipMixin')
-FrozenAttributionType = TypeVar('FrozenAttributionType', bound='FrozenAttributionMixin')
+FrozenAttributionType = TypeVar(
+    'FrozenAttributionType', bound='FrozenAttributionProtoMixin'
+)
 
 # --- Enum -----------------------------------------------------------------------------
 
@@ -82,10 +85,9 @@ class MembershipRecordTypeError(MembershipError):
 
 
 @declarative_mixin
-class ImmutableMembershipMixin(UuidMixin, BaseMixin):
+class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
     """Support class for immutable memberships."""
 
-    __uuid_primary_key__ = True
     #: Can granted_by be null? Only in memberships based on legacy data
     __null_granted_by__: ClassVar[bool] = False
     #: List of columns that will be copied into a new row when a membership is amended
@@ -302,7 +304,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         return new
 
     @with_roles(call={'editor'})
-    def amend_by(self: MembershipType, actor: Account):
+    def amend_by(self, actor: Account):
         """Amend a membership in a `with` context."""
         return AmendMembership(self, actor)
 
@@ -383,7 +385,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @with_roles(read={'member', 'editor'}, grants_via={None: {'admin': 'member'}})
     @declared_attr
     @classmethod
-    def member(cls) -> Mapped[Account]:
+    def member(cls) -> Mapped[Account]:  # type: ignore[override]
         """Member in this membership record."""
         return relationship(Account, foreign_keys=[cls.member_id])
 
@@ -397,8 +399,13 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def __table_args__(cls) -> tuple:
         """Table arguments for SQLAlchemy."""
+        try:
+            args = list(super().__table_args__)  # type: ignore[misc]
+        except AttributeError:
+            args = []
+        kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
         if cls.parent_id_column is not None:
-            return (
+            args.append(
                 sa.Index(
                     'ix_' + cls.__tablename__ + '_active',
                     cls.parent_id_column,
@@ -407,14 +414,18 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
                     postgresql_where='revoked_at IS NULL',
                 ),
             )
-        return (
-            sa.Index(
-                'ix_' + cls.__tablename__ + '_active',
-                'member_id',
-                unique=True,
-                postgresql_where='revoked_at IS NULL',
-            ),
-        )
+        else:
+            args.append(
+                sa.Index(
+                    'ix_' + cls.__tablename__ + '_active',
+                    'member_id',
+                    unique=True,
+                    postgresql_where='revoked_at IS NULL',
+                ),
+            )
+        if kwargs:
+            args.append(kwargs)
+        return tuple(args)
 
     @hybrid_property
     def is_self_granted(self) -> bool:
@@ -490,7 +501,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
 
 
 @declarative_mixin
-class ReorderMembershipMixin(ReorderMixin):
+class ReorderMembershipProtoMixin(ReorderProtoMixin):
     """Customizes ReorderMixin for membership models."""
 
     if TYPE_CHECKING:
@@ -511,7 +522,11 @@ class ReorderMembershipMixin(ReorderMixin):
     @classmethod
     def __table_args__(cls) -> tuple:
         """Table arguments."""
-        args = list(super().__table_args__)  # type: ignore[misc]
+        try:
+            args = list(super().__table_args__)  # type: ignore[misc]
+        except AttributeError:
+            args = []
+        kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
         # Add unique constraint on :attr:`seq` for active records
         args.append(
             sa.Index(
@@ -522,6 +537,8 @@ class ReorderMembershipMixin(ReorderMixin):
                 postgresql_where='revoked_at IS NULL',
             ),
         )
+        if kwargs:
+            args.append(kwargs)
         return tuple(args)
 
     def __init__(self, **kwargs) -> None:
@@ -558,7 +575,7 @@ class ReorderMembershipMixin(ReorderMixin):
 
 
 @declarative_mixin
-class FrozenAttributionMixin:
+class FrozenAttributionProtoMixin:
     """Provides a `title` data column and support method to freeze it."""
 
     if TYPE_CHECKING:
@@ -580,7 +597,8 @@ class FrozenAttributionMixin:
     def title(self) -> str:
         """Attribution title for this record."""
         if self._local_data_only:
-            return self._title  # This may be None
+            # self._title may be None
+            return self._title  # type: ignore[return-value]
         return self._title or self.member.title
 
     @title.setter

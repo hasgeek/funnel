@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from datetime import datetime
 
-from pytz import utc
+from furl import furl
+from pytz import BaseTzInfo, utc
 from sqlalchemy.orm import attribute_keyed_dict
 from werkzeug.utils import cached_property
 
@@ -26,6 +28,7 @@ from . import (
     UuidMixin,
     backref,
     db,
+    hybrid_property,
     relationship,
     sa,
     types,
@@ -42,7 +45,7 @@ from .helpers import (
     visual_field_delimiter,
 )
 
-__all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
+__all__ = ['PROJECT_RSVP_STATE', 'Project', 'ProjectLocation', 'ProjectRedirect']
 
 
 # --- Constants ---------------------------------------------------------------
@@ -64,6 +67,12 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
     ANY = {NONE, PUBLIC, CLOSED}
 
 
+class PROJECT_RSVP_STATE(LabeledEnum):  # noqa: N801
+    NONE = (1, __("Not accepting registrations"))
+    ALL = (2, __("Anyone can register"))
+    MEMBERS = (3, __("Only members can register"))
+
+
 # --- Models ------------------------------------------------------------------
 
 
@@ -71,12 +80,16 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     __tablename__ = 'project'
     reserved_names = RESERVED_NAMES
 
-    created_by_id = sa.orm.mapped_column(sa.ForeignKey('account.id'), nullable=False)
+    created_by_id: Mapped[int] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=False
+    )
     created_by: Mapped[Account] = relationship(
         Account,
         foreign_keys=[created_by_id],
     )
-    account_id = sa.orm.mapped_column(sa.ForeignKey('account.id'), nullable=False)
+    account_id: Mapped[int] = sa.orm.mapped_column(
+        sa.ForeignKey('account.id'), nullable=False
+    )
     account: Mapped[Account] = with_roles(
         relationship(
             Account,
@@ -113,25 +126,25 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     ) = MarkdownCompositeDocument.create('instructions', default='', nullable=True)
     with_roles(instructions, read={'all'})
 
-    location = with_roles(
+    location: Mapped[str | None] = with_roles(
         sa.orm.mapped_column(sa.Unicode(50), default='', nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
     parsed_location: Mapped[types.jsonb_dict]
 
-    website = with_roles(
+    website: Mapped[furl | None] = with_roles(
         sa.orm.mapped_column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
-    timezone = with_roles(
+    timezone: Mapped[BaseTzInfo] = with_roles(
         sa.orm.mapped_column(TimezoneType(backend='pytz'), nullable=False, default=utc),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    _state = sa.orm.mapped_column(
+    _state: Mapped[int] = sa.orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', PROJECT_STATE),
@@ -142,7 +155,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     state = with_roles(
         StateManager('_state', PROJECT_STATE, doc="Project state"), call={'all'}
     )
-    _cfp_state = sa.orm.mapped_column(
+    _cfp_state: Mapped[int] = sa.orm.mapped_column(
         'cfp_state',
         sa.Integer,
         StateManager.check_constraint('cfp_state', CFP_STATE),
@@ -154,40 +167,53 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         StateManager('_cfp_state', CFP_STATE, doc="CfP state"), call={'all'}
     )
 
+    #: State of RSVPs
+    rsvp_state: Mapped[int] = with_roles(
+        sa.orm.mapped_column(
+            sa.SmallInteger,
+            StateManager.check_constraint('rsvp_state', PROJECT_RSVP_STATE),
+            default=PROJECT_RSVP_STATE.NONE,
+            nullable=False,
+        ),
+        read={'all'},
+        write={'editor', 'promoter'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
+
     #: Audit timestamp to detect re-publishing to re-surface a project
-    first_published_at = sa.orm.mapped_column(
+    first_published_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: Timestamp of when this project was most recently published
-    published_at = with_roles(
+    published_at: Mapped[datetime | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'all'},
         write={'promoter'},
         datasets={'primary', 'without_parent', 'related'},
     )
     #: Optional start time for schedule, cached from column property schedule_start_at
-    start_at = with_roles(
+    start_at: Mapped[datetime | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'all'},
         write={'editor'},
         datasets={'primary', 'without_parent', 'related'},
     )
     #: Optional end time for schedule, cached from column property schedule_end_at
-    end_at = with_roles(
+    end_at: Mapped[datetime | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'all'},
         write={'editor'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    cfp_start_at = sa.orm.mapped_column(
+    cfp_start_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
-    cfp_end_at = sa.orm.mapped_column(
+    cfp_end_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
 
-    bg_image = with_roles(
+    bg_image: Mapped[furl | None] = with_roles(
         sa.orm.mapped_column(ImgeeType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
@@ -198,18 +224,13 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         sa.LargeBinary, nullable=True, deferred=True
     )
 
-    allow_rsvp: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, default=True, nullable=False),
-        read={'all'},
-        datasets={'primary', 'without_parent', 'related'},
-    )
-    buy_tickets_url: Mapped[str | None] = with_roles(
+    buy_tickets_url: Mapped[furl | None] = with_roles(
         sa.orm.mapped_column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    banner_video_url = with_roles(
+    banner_video_url: Mapped[furl | None] = with_roles(
         sa.orm.mapped_column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent'},
@@ -223,15 +244,15 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         call={'all'},
     )
 
-    hasjob_embed_url = with_roles(
+    hasjob_embed_url: Mapped[furl | None] = with_roles(
         sa.orm.mapped_column(UrlType, nullable=True), read={'all'}
     )
-    hasjob_embed_limit = with_roles(
-        sa.orm.mapped_column(sa.Integer, default=8), read={'all'}
+    hasjob_embed_limit: Mapped[int | None] = with_roles(
+        sa.orm.mapped_column(sa.Integer, default=8, nullable=True), read={'all'}
     )
 
-    commentset_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
+    commentset_id: Mapped[int] = sa.orm.mapped_column(
+        sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = relationship(
         Commentset,
@@ -241,25 +262,27 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         back_populates='project',
     )
 
-    parent_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
+    parent_id: Mapped[int | None] = sa.orm.mapped_column(
+        sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
     parent_project: Mapped[Project | None] = relationship(
-        'Project', remote_side='Project.id', backref='subprojects'
+        remote_side='Project.id', back_populates='subprojects'
     )
+    subprojects: Mapped[list[Project]] = relationship(back_populates='parent_project')
 
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or account admins.
-    site_featured = with_roles(
+    site_featured: Mapped[bool] = with_roles(
         sa.orm.mapped_column(sa.Boolean, default=False, nullable=False),
         read={'all'},
         write={'site_editor'},
         datasets={'primary', 'without_parent'},
     )
 
-    livestream_urls = with_roles(
+    livestream_urls: Mapped[list[str] | None] = with_roles(
         sa.orm.mapped_column(
             sa.ARRAY(sa.UnicodeText, dimensions=1),
+            nullable=True,  # For legacy data
             server_default=sa.text("'{}'::text[]"),
         ),
         read={'all'},
@@ -273,11 +296,11 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     )
 
     #: Revision number maintained by SQLAlchemy, used for vCal files, starting at 1
-    revisionid = with_roles(
+    revisionid: Mapped[int] = with_roles(
         sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa.orm.mapped_column(
         TSVectorType(
             'name',
             'title',
@@ -498,7 +521,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         message=__("Submissions will be accepted until the optional closing date"),
         type='success',
     )
-    def open_cfp(self):
+    def open_cfp(self) -> None:
         """Change state to accept submissions."""
         # If closing date is in the past, remove it
         if self.cfp_end_at is not None and self.cfp_end_at <= utcnow():
@@ -515,7 +538,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         message=__("Submissions will no longer be accepted"),
         type='success',
     )
-    def close_cfp(self):
+    def close_cfp(self) -> None:
         """Change state to not accept submissions."""
 
     @with_roles(call={'editor'})
@@ -620,10 +643,11 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
             > 30 Dec 2018–02 Jan 2019, Bangalore
         """
         # FIXME: Replace strftime with Babel formatting
-        daterange = ''
-        if self.start_at is not None and self.end_at is not None:
-            schedule_start_at_date = self.start_at_localized.date()
-            schedule_end_at_date = self.end_at_localized.date()
+        start_at = self.start_at_localized
+        end_at = self.end_at_localized
+        if start_at is not None and end_at is not None:
+            schedule_start_at_date = start_at.date()
+            schedule_end_at_date = end_at.date()
             daterange_format = '{start_date}–{end_date} {year}'
             if schedule_start_at_date == schedule_end_at_date:
                 # if both dates are same, in case of single day project
@@ -638,11 +662,18 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
             elif schedule_start_at_date.month == schedule_end_at_date.month:
                 # If multi-day event in same month
                 strf_date = '%d'
+            else:
+                raise ValueError(
+                    "This should not happen: unknown date range"
+                    f" {schedule_start_at_date}–{schedule_end_at_date}"
+                )
             daterange = daterange_format.format(
                 start_date=schedule_start_at_date.strftime(strf_date),
                 end_date=schedule_end_at_date.strftime('%d %b'),
                 year=schedule_end_at_date.year,
             )
+        else:
+            daterange = ''
         return ', '.join([_f for _f in [daterange, self.location] if _f])
 
     # TODO: Removing Delete feature till we figure out siteadmin feature
@@ -654,7 +685,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     #     pass
 
     @sa.orm.validates('name', 'account')
-    def _validate_and_create_redirect(self, key, value):
+    def _validate_and_create_redirect(self, key: str, value: str | None) -> str:
         # TODO: When labels, venues and other resources are relocated from project to
         # account, this validator can no longer watch for `account` change. We'll need a
         # more elaborate transfer mechanism that remaps resources to equivalent ones in
@@ -702,7 +733,13 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         """Return localized end_at timestamp."""
         return localize_timezone(self.end_at, tz=self.timezone) if self.end_at else None
 
-    def update_schedule_timestamps(self):
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
+    @hybrid_property
+    def allow_rsvp(self) -> bool:
+        """RSVP state as a boolean value (allowed for all or not)."""
+        return self.rsvp_state == PROJECT_RSVP_STATE.ALL
+
+    def update_schedule_timestamps(self) -> None:
         """Update cached timestamps from sessions."""
         self.start_at = self.schedule_start_at
         self.end_at = self.schedule_end_at
@@ -800,7 +837,7 @@ class __Account:
         ),
         viewonly=True,
     )
-    projects_by_name = with_roles(
+    projects_by_name: Mapped[dict[str, Project]] = with_roles(
         relationship(
             Project,
             foreign_keys=[Project.account_id],
@@ -870,10 +907,10 @@ class ProjectRedirect(TimestampMixin, Model):
         sa.Unicode(250), nullable=False, primary_key=True
     )
 
-    project_id = sa.orm.mapped_column(
+    project_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
-    project: Mapped[Project] = relationship(Project, backref='redirects')
+    project: Mapped[Project | None] = relationship(Project, backref='redirects')
 
     def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
@@ -941,17 +978,19 @@ class ProjectRedirect(TimestampMixin, Model):
 class ProjectLocation(TimestampMixin, Model):
     __tablename__ = 'project_location'
     #: Project we are tagging
-    project_id = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False
     )
     project: Mapped[Project] = relationship(
         Project, backref=backref('locations', cascade='all')
     )
     #: Geonameid for this project
-    geonameid = sa.orm.mapped_column(
+    geonameid: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, primary_key=True, nullable=False, index=True
     )
-    primary = sa.orm.mapped_column(sa.Boolean, default=True, nullable=False)
+    primary: Mapped[bool] = sa.orm.mapped_column(
+        sa.Boolean, default=True, nullable=False
+    )
 
     def __repr__(self) -> str:
         """Represent :class:`ProjectLocation` as a string."""
@@ -963,7 +1002,7 @@ class ProjectLocation(TimestampMixin, Model):
 
 @reopen(Commentset)
 class __Commentset:
-    project = with_roles(
+    project: Mapped[Project | None] = with_roles(
         relationship(Project, uselist=False, back_populates='commentset'),
         grants_via={None: {'editor': 'document_subscriber'}},
     )

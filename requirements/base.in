@@ -52,9 +52,9 @@ requests
 rich
 rq
 rq-dashboard @ git+https://github.com/jace/rq-dashboard
-SQLAlchemy
 sqlalchemy-json
 SQLAlchemy-Utils
+SQLAlchemy[asyncio]
 tweepy
 twilio
 typing-extensions
@@ -64,5 +64,5 @@ user-agents
 werkzeug
 whitenoise
 wtforms-sqlalchemy @ git+https://github.com/jace/wtforms-sqlalchemy  # See /pull/1
-z-base-32 @ git+https://github.com/matusf/z-base-32  # See /issues/13 for Py 3.12 fix
+z-base-32
 zxcvbn

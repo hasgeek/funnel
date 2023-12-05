@@ -1,12 +1,13 @@
 """Test account registration."""
+# pylint: disable=redefined-outer-name
 
+import re
 
 import pytest
+from playwright.sync_api import Page, expect
 from pytest_bdd import given, parsers, scenarios, then, when
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.wait import WebDriverWait
+
+from funnel import models
 
 scenarios('account/register.feature')
 pytestmark = pytest.mark.usefixtures('live_server')
@@ -14,27 +15,47 @@ pytestmark = pytest.mark.usefixtures('live_server')
 TWOFLOWER_EMAIL = 'twoflower@example.org'
 TWOFLOWER_PHONE = '+12015550123'
 TWOFLOWER_PASSWORD = 'te@pwd3289'  # nosec
+ANONYMOUS_PHONE = '8123456789'
+ANONYMOUS_EMAIL = 'anon@example.com'
+
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:Object of type <AccountPhone> not in session",
+    "ignore:Object of type <AccountEmail> not in session",
+)
 
 
-def check_recaptcha_loaded(selenium):
-    wait = WebDriverWait(selenium, 10)
-    recaptcha_frame = wait.until(
-        ec.presence_of_element_located(
-            (
-                By.CSS_SELECTOR,
-                "#form-passwordlogin > div.g-recaptcha > div > div.grecaptcha-logo > iframe",
-            )
-        )
+@pytest.fixture()
+def published_project(db_session, new_project: models.Project) -> models.Project:
+    """Published project fixture."""
+    new_project.publish()
+    new_project.rsvp_state = models.PROJECT_RSVP_STATE.ALL
+    db_session.commit()
+    return new_project
+
+
+@pytest.fixture()
+def user_twoflower_with_password_and_contact(
+    db_session, user_twoflower: models.User
+) -> models.User:
+    """User fixture with a password and contact."""
+    user_twoflower.password = TWOFLOWER_PASSWORD
+    user_twoflower.add_phone(TWOFLOWER_PHONE)
+    user_twoflower.add_email(TWOFLOWER_EMAIL)
+    db_session.commit()
+    return user_twoflower
+
+
+def wait_until_recaptcha_loaded(page: Page) -> None:
+    page.wait_for_selector(
+        '#form-passwordlogin > div.g-recaptcha > div > div.grecaptcha-logo > iframe',
+        timeout=10000,
     )
-    selenium.switch_to.frame(recaptcha_frame)
-    wait.until(ec.presence_of_element_located((By.CLASS_NAME, "rc-anchor-pt")))
-    selenium.switch_to.default_content()
 
 
 @given("Anonymous visitor is on the home page")
-def given_anonuser_home_page(live_server, selenium, db_session):
-    selenium.implicitly_wait(10)
-    selenium.get(live_server.url)
+def given_anonuser_home_page(live_server, page: Page) -> None:
+    page.goto(live_server.url)
+    expect(page).to_have_title("Test Hasgeek")
 
 
 @when(
@@ -45,139 +66,101 @@ def given_anonuser_home_page(live_server, selenium, db_session):
     target_fixture='anon_username',
 )
 def when_anonuser_navigates_login_and_submits(
-    app, live_server, selenium, phone_or_email
-):
-    assert selenium.current_url == live_server.url
-    wait = WebDriverWait(selenium, 10)
-    wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'header__button'))).send_keys(
-        Keys.RETURN
-    )
-    check_recaptcha_loaded(selenium)
+    app, live_server, phone_or_email: str, page: Page
+) -> dict[str, str]:
     if phone_or_email == "a phone number":
-        username = '8123456789'
+        username = ANONYMOUS_PHONE
     elif phone_or_email == "an email address":
-        username = 'anon@example.com'
+        username = ANONYMOUS_EMAIL
     else:
         pytest.fail("Unknown username type")
-    wait.until(ec.element_to_be_clickable((By.NAME, 'username'))).send_keys(username)
-    wait.until(
-        ec.element_to_be_clickable((By.CSS_SELECTOR, '#form-passwordlogin button'))
-    ).send_keys(Keys.ENTER)
+    page.click('.header__button')
+    wait_until_recaptcha_loaded(page)
+    page.wait_for_selector('input[name=username]').fill(username)
+    page.click('#form-passwordlogin button')
     return {'phone_or_email': phone_or_email, 'username': username}
 
 
 @then("they are prompted for their name and the OTP, which they provide")
-def then_anonuser_prompted_name_and_otp(live_server, selenium, anon_username):
-    wait = WebDriverWait(selenium, 10)
-    wait.until(ec.element_to_be_clickable((By.NAME, 'fullname'))).send_keys('Twoflower')
+def then_anonuser_prompted_name_and_otp(anon_username, live_server, page: Page) -> None:
+    page.wait_for_selector('input[name=fullname]').fill('Twoflower')
     if anon_username['phone_or_email'] == "a phone number":
         otp = live_server.transport_calls.sms[-1].vars['otp']
     elif anon_username['phone_or_email'] == "an email address":
-        otp = live_server.transport_calls.email[-1].subject.split(' ')[-1]
+        subject = live_server.transport_calls.email[-1].subject
+        otp = re.search(r'\b\d{4}\b', subject).group(0)
     else:
         pytest.fail("Unknown username type")
-    selenium.find_element(By.NAME, 'otp').send_keys(otp)
-    selenium.find_element(By.CSS_SELECTOR, '#form-otp button').send_keys(Keys.ENTER)
+    page.wait_for_selector('input[name=otp]').fill(otp)
+    page.click('#form-otp button')
 
 
 @then("they get an account and are logged in")
-def then_they_are_logged_in(selenium):
-    wait = WebDriverWait(selenium, 10)
-    wait.until(
-        ec.text_to_be_present_in_element(
-            (By.CLASS_NAME, "alert__text"), "You are now one of us. Welcome aboard!"
-        )
-    )
+def then_they_are_logged_in(
+    user_twoflower_with_password_and_contact, live_server, page: Page
+) -> None:
     assert (
-        wait.until(
-            ec.text_to_be_present_in_element(
-                (By.CLASS_NAME, "alert__text"), "You are now one of us. Welcome aboard!"
-            )
-        )
-        is True
+        page.wait_for_selector('.alert__text').inner_text()
+        == "You are now one of us. Welcome aboard!"
     )
-    selenium.close()
 
 
 @given("Twoflower visitor is on the home page")
-def when_twoflower_visits_homepage(live_server, selenium, db_session, user_twoflower):
-    selenium.get(live_server.url)
-    user_twoflower.password = TWOFLOWER_PASSWORD
-    user_twoflower.add_phone(TWOFLOWER_PHONE)
-    user_twoflower.add_email(TWOFLOWER_EMAIL)
+def when_twoflower_visits_homepage(
+    db_session, user_twoflower_with_password_and_contact, live_server, page: Page
+) -> None:
     db_session.commit()
+    page.goto(live_server.url)
 
 
 @when("they navigate to the login page")
-def when_navigate_to_login_page(app, live_server, selenium):
-    wait = WebDriverWait(selenium, 10)
-    wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'header__button'))).send_keys(
-        Keys.RETURN
-    )
+def when_navigate_to_login_page(app, live_server, page: Page):
+    page.click('.header__button')
 
 
 @when("they submit the email address with password")
 @when("submit an email address with password")
-def when_submit_email_password(selenium):
-    wait = WebDriverWait(selenium, 10)
-    check_recaptcha_loaded(selenium)
-    wait.until(ec.element_to_be_clickable((By.NAME, 'username')))
-    selenium.find_element(By.NAME, 'username').send_keys('twoflower@example.org')
-    selenium.find_element(By.ID, 'use-password-login').click()
-    wait.until(ec.element_to_be_clickable((By.ID, 'login-btn')))
-    selenium.find_element(By.NAME, 'password').send_keys('te@pwd3289')
-    selenium.find_element(By.ID, 'login-btn').send_keys(Keys.ENTER)
+def when_submit_email_password(page: Page) -> None:
+    wait_until_recaptcha_loaded(page)
+    page.wait_for_selector('input[name=username]').fill(TWOFLOWER_EMAIL)
+    page.click('#use-password-login')
+    page.wait_for_selector('input[name=password]').fill(TWOFLOWER_PASSWORD)
+    page.click('#login-btn')
 
 
 @then("they are logged in")
-def then_logged_in(selenium):
-    wait = WebDriverWait(selenium, 10)
+def then_logged_in(live_server, page: Page) -> None:
     assert (
-        wait.until(
-            ec.text_to_be_present_in_element(
-                (By.CLASS_NAME, "alert__text"), "You are now logged in"
-            )
-        )
-        is True
+        page.wait_for_selector('.alert__text').inner_text() == "You are now logged in"
     )
-    selenium.close()
 
 
 @when("they submit the phone number with password")
 @when("submit a phone number with password")
-def when_submit_phone_password(app, live_server, selenium):
-    wait = WebDriverWait(selenium, 10)
-    check_recaptcha_loaded(selenium)
-    wait.until(ec.element_to_be_clickable((By.NAME, 'username')))
-    selenium.find_element(By.NAME, 'username').send_keys(TWOFLOWER_PHONE)
-    selenium.find_element(By.ID, 'use-password-login').click()
-    wait.until(ec.element_to_be_clickable((By.ID, 'login-btn')))
-    selenium.find_element(By.NAME, 'password').send_keys(TWOFLOWER_PASSWORD)
-    selenium.find_element(By.ID, 'login-btn').send_keys(Keys.ENTER)
+def when_submit_phone_password(app, live_server, page: Page) -> None:
+    wait_until_recaptcha_loaded(page)
+    page.wait_for_selector('input[name=username]').fill(TWOFLOWER_PHONE)
+    page.click('#use-password-login')
+    page.wait_for_selector('input[name=password]').fill(TWOFLOWER_PASSWORD)
+    page.click('#login-btn')
 
 
 @given("Anonymous visitor is on a project page")
-def given_anonymous_project_page(live_server, selenium, db_session, new_project):
-    new_project.publish()
-    db_session.add(new_project)
-    db_session.commit()
-    selenium.get(live_server.url + new_project.account.urlname + '/' + new_project.name)
+def given_anonymous_project_page(
+    db_session, published_project, live_server, page: Page
+) -> None:
+    page.goto(published_project.absolute_url)
 
 
 @when("they click on follow")
-def when_they_click_follow(selenium):
-    wait = WebDriverWait(selenium, 10)
-    wait.until(ec.element_to_be_clickable((By.ID, 'register-nav')))
-    selenium.find_element(By.ID, 'register-nav').send_keys(Keys.ENTER)
+def when_they_click_follow(page: Page) -> None:
+    page.wait_for_selector("#register-nav").click()
 
 
 @then("a register modal appears")
-def then_register_modal_appear(selenium):
-    wait = WebDriverWait(selenium, 10)
-    wait.until(ec.element_to_be_clickable((By.ID, 'get-otp-btn')))
+def then_register_modal_appear(page: Page) -> None:
     assert (
-        # FIXME: Don't use xpath
-        selenium.find_element(By.XPATH, '//*[@id="passwordform"]/p[2]').text
+        page.wait_for_selector('xpath=//*[@id="passwordform"]/p[2]').inner_text()
         == "Tell us where you’d like to get updates. We’ll send an OTP to confirm."
     )
 
@@ -186,56 +169,53 @@ def then_register_modal_appear(selenium):
     parsers.re("they enter (?P<phone_or_email>a phone number|an email address)"),
     target_fixture='anon_username',
 )
-def when_they_enter_email(selenium, phone_or_email):
-    wait = WebDriverWait(selenium, 10)
-    check_recaptcha_loaded(selenium)
+def when_they_enter_email(page: Page, phone_or_email: str) -> dict[str, str]:
+    wait_until_recaptcha_loaded(page)
     if phone_or_email == "a phone number":
-        username = '8123456789'
+        username = ANONYMOUS_PHONE
     elif phone_or_email == "an email address":
-        username = 'anon@example.com'
+        username = ANONYMOUS_EMAIL
     else:
         pytest.fail("Unknown username type")
-    wait.until(ec.element_to_be_clickable((By.NAME, 'username'))).send_keys(username)
-    wait.until(ec.element_to_be_clickable((By.ID, 'get-otp-btn'))).click()
+    page.wait_for_selector('input[name=username]').fill(username)
+    page.click('#form-passwordlogin button')
     return {'phone_or_email': phone_or_email, 'username': username}
 
 
 @given("Twoflower is on the project page")
 def given_twoflower_visits_project(
-    live_server, selenium, db_session, user_twoflower, new_project
-):
-    user_twoflower.password = TWOFLOWER_PASSWORD
-    user_twoflower.add_phone(TWOFLOWER_PHONE)
-    user_twoflower.add_email(TWOFLOWER_EMAIL)
-    new_project.publish()
-    db_session.add(new_project)
-    db_session.commit()
-    selenium.get(live_server.url + new_project.account.urlname + '/' + new_project.name)
+    user_twoflower_with_password_and_contact,
+    published_project,
+    db_session,
+    live_server,
+    page: Page,
+) -> None:
+    page.goto(published_project.absolute_url)
 
 
 @given("the server uses Recaptcha")
 def given_server_uses_recaptcha(
-    live_server, selenium, db_session, user_twoflower, new_project, funnel
-):
-    user_twoflower.password = TWOFLOWER_PASSWORD
-    user_twoflower.add_phone(TWOFLOWER_PHONE)
-    user_twoflower.add_email(TWOFLOWER_EMAIL)
-    new_project.publish()
-    db_session.add(new_project)
-    db_session.commit()
+    user_twoflower_with_password_and_contact,
+    published_project,
+    db_session,
+    live_server,
+    funnel,
+) -> None:
     assert funnel.app.config['RECAPTCHA_PRIVATE_KEY']
 
 
 @when("twoflower visits the login page, Recaptcha is required")
-def when_twoflower_visits_login_page_recaptcha(app, live_server, selenium):
-    selenium.get(live_server.url + 'login')
-    assert selenium.find_element(By.CLASS_NAME, 'g-recaptcha')
+def when_twoflower_visits_login_page_recaptcha(app, live_server, page: Page) -> None:
+    page.goto(live_server.url + 'login')
+    assert page.wait_for_selector(
+        '#form-passwordlogin > div.g-recaptcha > div > div.grecaptcha-logo > iframe',
+        timeout=10000,
+    )
 
 
 @then("they submit and Recaptcha validation passes")
-def then_submit_recaptcha_validation_passes(live_server, selenium):
-    WebDriverWait(selenium, 10)
-    selenium.find_element(By.NAME, 'username').send_keys(TWOFLOWER_PHONE)
-    selenium.find_element(By.ID, 'use-password-login').click()
-    selenium.find_element(By.NAME, 'password').send_keys(TWOFLOWER_PASSWORD)
-    selenium.find_element(By.ID, 'login-btn').send_keys(Keys.ENTER)
+def then_submit_recaptcha_validation_passes(live_server, page: Page) -> None:
+    page.wait_for_selector("input[name=username]").fill(TWOFLOWER_EMAIL)
+    page.click('#use-password-login')
+    page.wait_for_selector('input[name=password]').fill(TWOFLOWER_PASSWORD)
+    page.click('#login-btn')
