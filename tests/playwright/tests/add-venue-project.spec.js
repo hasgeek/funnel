@@ -5,16 +5,13 @@ const { ProjectCrewFormPage } = require('../page/project-crew-form');
 const { ProjectPage } = require('../page/create-project');
 const profile = require('../fixtures/profile.json');
 const venues = require('../fixtures/venues.json');
-const { owner } = require('../fixtures/user.json');
+const { owner, editor } = require('../fixtures/user.json');
 
 test('Add venue to project', async ({ page }) => {
-  let randomProjectName = Math.random().toString(36).substring(2, 7);
-  let projectNameCapitalize = randomProjectName.charAt(0).toUpperCase() + randomProjectName.slice(1);
-  let loginPage;
-  loginPage = new LoginPage(page);
-  await loginPage.login(`/${profile.title}`, owner.username, owner.password);
   let projectPage = new ProjectPage(page);
-  await projectPage.createNewProject(projectNameCapitalize);
+  let randomProjectName = await projectPage.addProject([{'username': editor.username, 'role': 'editor'}]);
+  let loginPage = new LoginPage(page);
+  await loginPage.login(`/${profile.title}/${randomProjectName}`, editor.username, editor.password);
 
   await page.getByTestId('project-menu').locator("visible=true").click();
   await page.getByTestId('settings').locator("visible=true").waitFor();

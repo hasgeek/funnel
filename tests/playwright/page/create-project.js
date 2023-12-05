@@ -53,15 +53,20 @@ export class ProjectPage {
     await this.page.getByTestId('settings').locator("visible=true").waitFor();
     await this.page.getByTestId('settings').locator("visible=true").click();
     await this.page.getByTestId('manage-venues').click();
-    await this.page.getByTestId('new-venue').click();
-    await this.page.locator('input#title').fill('Online');
-    await this.page.locator('#field-description .cm-editor .cm-line').fill('Zoom Link');
-    await this.page.getByTestId('form-submit-btn').click();
-    await this.page.locator(`.card[data-testid="Online-rooms"] a[data-testid="add-room"]`).click();
-    await this.page.locator('input#title').fill('Zoom');
-    await this.page.locator('#field-description .cm-editor .cm-line').fill('Zoom link');
-    await this.page.getByTestId('form-submit-btn').click();
-    await this.page.getByTestId("Zoom").isVisible();
+    for (let venue of project.venues) {
+      await this.page.getByTestId('new-venue').click();
+      await this.page.locator('input#title').fill(venue.title);
+      await this.page.locator('#field-description .cm-editor .cm-line').waitFor(2000);
+      await this.page.locator('#field-description .cm-editor .cm-line').fill(venue.title);
+      await this.page.getByTestId('form-submit-btn').click();
+      await this.page.locator(`.card[data-testid="${venue.title}-rooms"] a[data-testid="add-room"]`)
+      .click();
+      await this.page.locator('input#title').fill(venue.room);
+      await this.page.locator('#field-description .cm-editor .cm-line').waitFor(2000);
+      await this.page.locator('#field-description .cm-editor .cm-line').fill(venue.room);
+      await this.page.getByTestId('form-submit-btn').click();
+      await this.page.getByTestId(venue.room).isVisible();
+    }
     await this.page.getByTestId("project-page").click();
   }
 
@@ -73,7 +78,7 @@ export class ProjectPage {
     await this.page.locator('label.switch-label').locator("visible=true").click();
   }
 
-  async addProject(loginUser, crew) {
+  async addProject(crew=[]) {
     let randomProjectName = Math.random().toString(36).substring(2, 7);
     let projectNameCapitalize = randomProjectName.charAt(0).toUpperCase() + randomProjectName.slice(1);
     let loginPage;
@@ -82,12 +87,9 @@ export class ProjectPage {
     await this.createNewProject(projectNameCapitalize);
     let crewForm = new ProjectCrewFormPage(this.page);
     await this.page.getByTestId('crew').click();
-    for(let member in crew) {
+    for(let member of crew) {
       await crewForm.addMember(member.username, member.role);
     }
-    await this.addLabels();
-    await this.addVenue();
-    await this.openCFP();
     await this.publishProject();
 
     await loginPage.logout();

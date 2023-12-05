@@ -17,7 +17,10 @@ export class LoginPage {
     await this.usernameInputBox.fill(username);
     await this.passwordBtn.click();
     await this.passwordInputBox.fill(password);
-    await this.submitBtn.click();
+    await Promise.all([
+      this.page.waitForResponse(response => response.url().includes("/login") && response.status() === 200, {timeout: 60000}),
+      this.submitBtn.click()
+    ]);
   }
 
   async logout() {

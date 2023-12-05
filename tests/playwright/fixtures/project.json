@@ -16,10 +16,16 @@
   "restricted_update_title": "Finibus Bonorum et Malorum",
   "restricted_update_body": "# Heading \nquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderi",
   "cfp_instructions": "##Topics for proposing talks/workshops/tutorials for event",
-  "venue": {
-    "title": "Online",
-    "room": "Zoom"
-  },
+  "venues": [
+    {
+      "title": "Online",
+      "room": "Zoom"
+    },
+    {
+    "title": "BIC",
+    "room": "Hall"
+    }
+  ],
   "labels": [
     {
       "title": "Tracks",
@@ -30,7 +36,7 @@
       ]
     },
     {
-      "title": "Track",
+      "title": "Type",
       "sublabels": [
         "Full talk",
         "BOF/Panel discussion",
@@ -53,5 +59,6 @@
   "session_content": "Check-in starts at 9am",
   "session_timecolumn": "9am",
   "proposal_title": "Consectetur adipiscing elit",
-  "proposal_content": "Lorem ipsum dolor sit amet"
+  "proposal_content": "Lorem ipsum dolor sit amet",
+  "session_video": "https://www.youtube.com/watch?v=YqUZokjvSTc"
 }

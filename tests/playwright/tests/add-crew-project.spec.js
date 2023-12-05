@@ -13,7 +13,6 @@ test('Add crew to project', async ({ page }) => {
   let loginPage;
   loginPage = new LoginPage(page);
   await loginPage.login(`/${profile.title}`, owner.username, owner.password);
-
   let projectPage = new ProjectPage(page);
   await projectPage.createNewProject(projectNameCapitalize);
 

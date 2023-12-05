@@ -39,7 +39,7 @@
 
 {% macro livestream_edit_btn(project) %}
   {% if project.view_for('edit_livestream').is_available() %}
-    <a href="{{ project.url_for('edit_livestream') }}" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn" aria-label="{% trans %}Update livestream URLs{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a>
+    <a href="{{ project.url_for('edit_livestream') }}" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn" data-testid="add-livestream" aria-label="{% trans %}Update livestream URLs{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a>
   {% endif %}
 {% endmacro %}
 

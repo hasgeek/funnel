@@ -1,88 +1,38 @@
 import { test, expect } from '@playwright/test';
 
 const { LoginPage } = require('../page/login');
-const { ProjectCrewFormPage } = require('../page/project-crew-form');
 const { ProjectPage } = require('../page/create-project');
 const profile = require('../fixtures/profile.json');
 const project = require('../fixtures/project.json');
-const { owner, editor } = require('../fixtures/user.json');
+const { owner, editor, user } = require('../fixtures/user.json');
 const cfp = require('../fixtures/cfp.json');
 const labels = require('../fixtures/labels.json');
 const dayjs = require('dayjs');
 
 test('Open call for proposal of the project and add schedule', async ({ page }) => {
-  let randomProjectName = Math.random().toString(36).substring(2, 7);
-  let projectNameCapitalize = randomProjectName.charAt(0).toUpperCase() + randomProjectName.slice(1);
-  let loginPage;
-  loginPage = new LoginPage(page);
-  await loginPage.login(`/${profile.title}`, owner.username, owner.password);
   let projectPage = new ProjectPage(page);
-  await projectPage.createNewProject(projectNameCapitalize);
-  let crewForm = new ProjectCrewFormPage(page);
-  await page.getByTestId('crew').click();
-  await crewForm.addMember(editor.username, 'editor');
-  projectPage.publish();
-  await loginPage.logout();
-
+  let randomProjectName = await projectPage.addProject([{'username': editor.username, 'role': 'editor'}]);
+  let loginPage = new LoginPage(page);
   await loginPage.login(`/${profile.title}/${randomProjectName}`, editor.username, editor.password);
-
+  await projectPage.addVenue();
   await page.getByTestId('submissions').click();
   await page.getByTestId('add-cfp').click();
   await page.locator('#field-instructions .cm-editor .cm-line').fill(cfp.instructions);
   await page.getByTestId('add-cfp').click();
   await page.locator('label.switch-label').click();
   await page.getByTestId('cfp-state', { hasText: 'Accepting submissions' }).isVisible();
-  await page.getByTestId('propose-a-session').isVisible();
-
+  await page.getByTestId('propose-a-session').locator('nth=0').isVisible();
+  await projectPage.addLabels();
   await page.getByTestId('project-menu').locator('visible=true').click();
   await page.getByTestId('settings').locator('visible=true').click();
   await page.getByTestId('manage-labels').click();
-
-  await page.getByTestId('project-menu').locator('visible=true').click();
-  await page.getByTestId('settings').locator('visible=true').click();
-  await page.getByTestId('manage-labels').click();
-
-  for (let label of labels) {
-    await page.getByTestId('add-labels').click();
-    await page.locator('input#title').fill(label.title);
-    await page.locator('.emojionearea-button').click();
-    await page.locator('.emojionearea-picker').waitFor();
-    await page.locator('.emojionearea-category[name="smileys_people"] i[title="Innocent"]').click();
-    await expect(page.locator('.emojionearea-picker')).toBeHidden();
-
-    if (label.label1) {
-      await page.locator('#add-sublabel-form').click();
-      await page.locator('#child-form > .ui-draggable-box #title').type(label.label1);
-      await page.locator('#child-form > .ui-draggable-box .emojionearea-button').click();
-      await page.locator('#child-form > .ui-draggable-box .emojionearea-picker').waitFor();
-
-      // Emoji Relaxed is throwing not a valid emoji error
-      await page.locator('#child-form > .ui-draggable-box .emojionearea-category[name="smileys_people"] i[title="Joy"]').click();
-      await expect(page.locator('#child-form > .ui-draggable-box .emojionearea-picker')).toBeHidden();
-    }
-
-    if (label.label2) {
-      await page.locator('#add-sublabel-form').click();
-      await page.locator('#child-form > .ui-draggable-box').locator('nth=1').locator('input#title').type(label.label2);
-      await page.locator('#child-form > .ui-draggable-box').locator('nth=1').locator('.emojionearea-button').click();
-      await page.locator('#child-form > .ui-draggable-box').locator('nth=1').locator('.emojionearea-picker').waitFor();
-      await page.locator('#child-form > .ui-draggable-box').locator('nth=1').locator('.emojionearea-category[name="smileys_people"] i[title="Smile"]').click();
-      await expect(page.locator('#child-form > .ui-draggable-box').locator('nth=1').locator('.emojionearea-picker')).toBeHidden();
-    }
-
-    if (label.adminLabel) {
-      await page.locator('#field-restricted label').click();
-    }
-    await page.getByTestId('save-label').click();
-  };
-
   await page.locator('.ui-draggable-box').locator('nth=0').locator('.drag-handle').hover();
   await page.mouse.down();
   await page.locator('.ui-draggable-box').locator('nth=1').locator('.drag-box__action').hover();
   await page.mouse.up();
   await page.getByTestId('save-label-seq').click();
-  await expect(page.locator('.ui-draggable-box').locator('nth=0').locator('.label-box__inner__heading')).toContainText(labels[1].title);
-  await this.page.getByTestId("project-page").click();
+  await expect(page.locator('.ui-draggable-box').locator('nth=0').locator('.label-box__inner__heading')).toContainText(project.labels[1].title);
+  await page.getByTestId("project-page").click();
 
   await page.getByTestId('propose-a-session').locator('visible=true').click();
   await page.getByTestId('close-consent-modal').click();
@@ -122,7 +72,7 @@ test('Open call for proposal of the project and add schedule', async ({ page }) 
   await page.getByTestId('schedule').click();
   await page.getByTestId('edit-schedule').click();
 
-  const tomorrow = dayjs().add(1, 'days').format('YYYY-MM-DD');
+  let tomorrow = dayjs().add(1, 'days').format('YYYY-MM-DD');
   await page.locator('#select-date').fill(tomorrow);
   await Promise.all([
     page.waitForResponse(response => response.url().includes("/new") && response.status() === 200, {timeout: 60000}),
@@ -130,7 +80,7 @@ test('Open call for proposal of the project and add schedule', async ({ page }) 
   ]);
   await page.locator('#title').fill(project.session_title);
   await page.locator('select#venue_room_id').click();
-  await page.getByText(`${project.venue.title} – ${project.venue.room}`).locator('visible=true').click();
+  await page.getByText(`${project.venues[0].title} – ${project.venues[0].room}`).locator('visible=true').click();
   await page.locator('#speaker').fill(editor.username);
   await page.locator('#is_break').click();
   await Promise.all([
@@ -149,7 +99,50 @@ test('Open call for proposal of the project and add schedule', async ({ page }) 
   await Promise.all([
     page.waitForResponse(response => response.url().includes("/schedule") && response.status() === 200, {timeout: 60000})
   ]);
+  await page.locator('select#venue_room_id').click();
+  await page.getByText(`${project.venues[1].title} – ${project.venues[1].room}`).locator('visible=true').click();
   await page.locator('#session-save').click();
 
+  await page.getByTestId('settings').click();
+  await page.getByTestId('collapsible-open').locator('nth=0').click();
+  await page.locator('#rooms_sortable .sp-dd').locator('nth=0').click();
+  await page.locator('.sp-palette-container').locator('nth=0').isVisible();
+
+  await page.getByTestId('project-page').click();
+  await page.getByTestId('schedule').click();
+  await Promise.all([
+    page.waitForResponse(response => response.url().includes("/schedule") && response.status() === 200, {timeout: 60000}),
+    page.getByTestId('session-title').locator('nth=1').click()
+  ]);
+  await page.getByTestId('edit-session').click();
+  await page.locator('input#video_url').fill(project.session_video);
+  await page.getByTestId('form-submit-btn').click();
+  await page.getByTestId('close-modal').click();
+  await loginPage.logout();
+
+  await loginPage.login('/', user.username, user.password);
+  await page.locator('.upcoming .card--upcoming').locator('nth=0').click();
+  await page.getByTestId('schedule').click();
+  await page.getByTestId('add-to-calendar').click();
+  await page.getByTestId('schedule-subscribe').isVisible();
+  await page.getByTestId('close-modal').click();
+
+  let tomorrowDate = dayjs().add(2, 'days').format('dddd, D MMMM YYYY');
+  await expect(page.locator('.schedule__date')).toContainText(tomorrowDate);
+  for (let venue of project.venues) {
+    await page.locator('.schedule__row__column--header', { hasText: `${venue.title} – ${venue.room}` }).isVisible();
+  };
+  await Promise.all([
+    page.waitForResponse(response => response.url().includes("/schedule") && response.status() === 200, {timeout: 60000}),
+    page.getByTestId('session-title').locator('nth=1').click()
+  ]);
+  await page.locator('#session-modal').isVisible();
+  await expect(page.getByTestId('title')).toContainText(project.proposal_title);
+  await expect(page.getByTestId('speaker')).toContainText(editor.fullname);
+  await page.getByTestId('time').isVisible();
+  await expect(page.getByTestId('room')).toContainText(`${project.venues[1].room}, ${project.venues[1].title}`);
+  await page.getByTestId('session-video').locator('iframe').isVisible();
+  await page.getByTestId('view-proposal"]').isVisible();
+  await page.locator('#session-modal a.modal__close').click();
 
 });

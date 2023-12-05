@@ -5,17 +5,20 @@ const { ProjectCrewFormPage } = require('../page/project-crew-form');
 const { ProjectPage } = require('../page/create-project');
 const profile = require('../fixtures/profile.json');
 const project = require('../fixtures/project.json');
-const { user, editor, usher } = require('../fixtures/user.json');
+const { owner, user, usher } = require('../fixtures/user.json');
 const proposal = require('../fixtures/proposal.json');
 let randomProjectName;
 
 test('Submitting a proposal to a project', async ({ page }) => {
   let projectPage = new ProjectPage(page);
-  randomProjectName = await projectPage.addProject(editor, {});
-  let loginPage;
-  loginPage = new LoginPage(page);
-  await loginPage.login(`/${profile.title}/${randomProjectName}`, user.username, user.password);
+  randomProjectName = await projectPage.addProject();
+  let loginPage = new LoginPage(page);
+  await loginPage.login(`/${profile.title}/${randomProjectName}`, owner.username, owner.password);
+  await projectPage.addLabels();
+  await projectPage.openCFP();
+  await loginPage.logout();
 
+  await loginPage.login(`/${profile.title}/${randomProjectName}`, user.username, user.password);
   await page.getByTestId('propose-a-session').locator('visible=true').click();
   await page.getByTestId('close-consent-modal').click();
   await page.locator('#title').fill(proposal.title);
@@ -56,6 +59,7 @@ test('Submitting a proposal to a project', async ({ page }) => {
   ]);
   await expect(page.locator('.toast-message')).toHaveCount(0, {timeout: 7000});
   await page.locator('a.modal__close').locator('visible=true').click();
+  await page.getByTestId('form-submit-btn').waitFor(60000);
   await page.getByTestId('form-submit-btn').click();
   await page.locator('.user__box__userid user__box__fullname', { hasText: usher.username }).isVisible();
   await page.locator('.user__box__userid user__box__userid badge', { hasText: 'Editor' }).isVisible();

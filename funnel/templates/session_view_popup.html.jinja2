@@ -5,11 +5,11 @@
   <h3 class="js-modal-title mui--text-headline session-modal__title" data-testid="title">{{ session.title }}</h3>
   <div class="mui--clearfix">
     {% if session.speaker %}
-      <p class="mui--text-subhead modal__header__text" data-testid="speaker">{{ faicon(icon='microphone-alt') }} {{ session.speaker }}</p>
+      <p class="mui--text-subhead modal__header__text" data-testid="speaker">{{ faicon(icon='microphone-alt', css_class="margin-right") }}{{ session.speaker }}</p>
     {% endif %}
     <div class="mui--pull-left modal__header__heading">
       {% if session.scheduled %}
-        <p class="mui--text-subhead modal__header__text" data-testid="time">{{ faicon(icon='calendar-alt') }} {{ session.start_at_localized|date }}, {{ session.start_at_localized|time }}–{{ session.end_at_localized|time }}
+        <p class="mui--text-subhead modal__header__text" data-testid="time">{{ faicon(icon='calendar-alt', css_class="margin-right") }}{{ session.start_at_localized|date }}, {{ session.start_at_localized|time }}–{{ session.end_at_localized|time }}
         </p>
       {% else %}
         <p class="mui--text-subhead modal__header__text">
@@ -17,7 +17,7 @@
         </p>
       {% endif %}
       {% if session.venue_room %}
-        <p class="mui--text-subhead modal__header__text" data-testid="room">{{ faicon(icon='map-marker-alt') }} {{ session.venue_room.title }}, {{ session.venue_room.venue.title }}</p>
+        <p class="mui--text-subhead modal__header__text" data-testid="room">{{ faicon(icon='map-marker-alt', css_class="margin-right") }}{{ session.venue_room.title }}, {{ session.venue_room.venue.title }}</p>
       {% endif %}
     </div>
     <div class="mui-dropdown mui--pull-right">
