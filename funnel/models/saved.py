@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from datetime import datetime
 
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
@@ -27,7 +28,7 @@ class SavedProject(NoIdMixin, Model):
         backref=backref('saved_projects', lazy='dynamic', passive_deletes=True),
     )
     #: Project that was saved
-    project_id = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('project.id', ondelete='CASCADE'),
         nullable=False,
@@ -39,11 +40,13 @@ class SavedProject(NoIdMixin, Model):
         backref=backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
     #: Timestamp when the save happened
-    saved_at = sa.orm.mapped_column(
+    saved_at: Mapped[datetime] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: User's plaintext note to self on why they saved this (optional)
-    description = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
+    description: Mapped[str | None] = sa.orm.mapped_column(
+        sa.UnicodeText, nullable=True
+    )
 
     def roles_for(
         self, actor: Account | None = None, anchors: Sequence = ()
@@ -78,7 +81,7 @@ class SavedSession(NoIdMixin, Model):
         backref=backref('saved_sessions', lazy='dynamic', passive_deletes=True),
     )
     #: Session that was saved
-    session_id = sa.orm.mapped_column(
+    session_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('session.id', ondelete='CASCADE'),
         nullable=False,
@@ -90,11 +93,13 @@ class SavedSession(NoIdMixin, Model):
         backref=backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
     #: Timestamp when the save happened
-    saved_at = sa.orm.mapped_column(
+    saved_at: Mapped[datetime] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: User's plaintext note to self on why they saved this (optional)
-    description = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
+    description: Mapped[str | None] = sa.orm.mapped_column(
+        sa.UnicodeText, nullable=True
+    )
 
     def roles_for(
         self, actor: Account | None = None, anchors: Sequence = ()

@@ -8,8 +8,10 @@ from types import SimpleNamespace
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Mapped
 
 from funnel import models
+from funnel.models import relationship
 
 # This hash map should not be edited -- hashes are permanent
 hash_map = {
@@ -422,10 +424,10 @@ def email_models(database, app) -> Generator:
         __email_for__ = 'emailuser'
         __email_is_exclusive__ = True
 
-        emailuser_id = sa.orm.mapped_column(
+        emailuser_id: Mapped[int] = sa.orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=False
         )
-        emailuser = models.relationship(EmailUser)
+        emailuser = relationship(EmailUser)
 
     class EmailDocument(models.EmailAddressMixin, models.BaseMixin, models.Model):
         """Test model unaffiliated to a user that has an email address attached."""
@@ -438,10 +440,10 @@ def email_models(database, app) -> Generator:
         __tablename__ = 'test_email_linked_document'
         __email_for__ = 'emailuser'
 
-        emailuser_id = sa.orm.mapped_column(
+        emailuser_id: Mapped[int | None] = sa.orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=True
         )
-        emailuser = models.relationship(EmailUser)
+        emailuser: Mapped[EmailUser | None] = relationship(EmailUser)
 
     new_models = [EmailUser, EmailLink, EmailDocument, EmailLinkedDocument]
 

@@ -6,8 +6,7 @@ import re
 import string
 from collections.abc import Callable, Iterable, Mapping
 from functools import wraps
-from typing import Any, Concatenate, SupportsIndex, TypeVar
-from typing_extensions import ParamSpec, Protocol, Self
+from typing import Any, Concatenate, ParamSpec, Protocol, Self, SupportsIndex, TypeVar
 
 __all__ = ['HasMarkdown', 'MarkdownString', 'markdown_escape']
 

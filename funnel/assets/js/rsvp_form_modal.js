@@ -4,13 +4,14 @@ import jsonForm from './utils/jsonform';
 Vue.config.devtools = true;
 
 const FormUI = {
-  init(jsonSchema) {
+  init(jsonSchema, useremail) {
     /* eslint-disable no-new */
     new Vue({
       el: '#register-form',
       data() {
         return {
           jsonSchema,
+          useremail,
         };
       },
       components: {
@@ -27,7 +28,7 @@ const FormUI = {
 };
 
 $(() => {
-  window.Hasgeek.addRsvpForm = (jsonSchema) => {
-    FormUI.init(jsonSchema);
+  window.Hasgeek.addRsvpForm = (jsonSchema, useremail) => {
+    FormUI.init(jsonSchema, useremail);
   };
 });

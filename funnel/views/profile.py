@@ -62,6 +62,11 @@ def feature_profile_make_private(obj: Account):
     return obj.current_roles.admin and obj.make_profile_private.is_available
 
 
+@Account.features('is_private')
+def feature_profile_is_private(obj: Account):
+    return not obj.current_roles.admin and not bool(obj.profile_state.ACTIVE_AND_PUBLIC)
+
+
 def template_switcher(templateargs):
     template = templateargs.pop('template')
     return render_template(template, **templateargs)
@@ -72,7 +77,6 @@ def template_switcher(templateargs):
 class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
-    @requires_roles({'reader', 'admin'})
     def view(self) -> ReturnRenderWith:
         template_name = None
         ctx = {}
@@ -136,9 +140,6 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 .limit(1)
                 .first()
             )
-            has_membership_project = self.obj.projects.filter(
-                Project.boxoffice_data.op('@>')({'has_membership': True})
-            ).first()
             scheduled_sessions_list = (
                 session_list_data(
                     featured_project.scheduled_sessions, with_modal_url='view'
@@ -228,11 +229,11 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     _p.current_access(datasets=('primary', 'related'))
                     for _p in sponsored_submissions
                 ],
-                'has_membership_project': (
-                    has_membership_project.current_access(
+                'membership_project': (
+                    self.obj.membership_project.current_access(
                         datasets=('without_parent', 'related')
                     )
-                    if has_membership_project is not None
+                    if self.obj.membership_project is not None
                     else None
                 ),
             }
@@ -243,7 +244,6 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
-    @requires_roles({'reader', 'admin'})
     def user_participated_projects(self) -> ReturnRenderWith:
         if self.obj.is_organization_profile:
             abort(404)
@@ -263,7 +263,6 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('in/submissions')
     @route('in/proposals')  # Legacy route, will be auto-redirected to `in/submissions`
     @render_with('user_profile_proposals.html.jinja2', json=True)
-    @requires_roles({'reader', 'admin'})
     def user_proposals(self) -> ReturnRenderWith:
         if self.obj.is_organization_profile:
             abort(404)

@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import cast
-from typing_extensions import TypedDict
+from typing import TypedDict, cast
 
 import requests
 import vimeo

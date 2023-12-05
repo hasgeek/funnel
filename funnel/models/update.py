@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from datetime import datetime
 
 from sqlalchemy.orm import Query as BaseQuery
 
@@ -15,7 +16,6 @@ from . import (
     Mapped,
     Model,
     Query,
-    TimestampMixin,
     TSVectorType,
     UuidMixin,
     backref,
@@ -47,10 +47,10 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
     RESTRICTED = (2, 'restricted', __("Restricted"))
 
 
-class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
+class Update(UuidMixin, BaseScopedIdNameMixin, Model):
     __tablename__ = 'update'
 
-    _visibility_state = sa.orm.mapped_column(
+    _visibility_state: Mapped[int] = sa.orm.mapped_column(
         'visibility_state',
         sa.SmallInteger,
         StateManager.check_constraint('visibility_state', VISIBILITY_STATE),
@@ -62,7 +62,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         '_visibility_state', VISIBILITY_STATE, doc="Visibility state"
     )
 
-    _state = sa.orm.mapped_column(
+    _state: Mapped[int] = sa.orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', UPDATE_STATE),
@@ -85,7 +85,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         grants={'creator'},
     )
 
-    project_id = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, index=True
     )
     project: Mapped[Project] = with_roles(
@@ -126,13 +126,13 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
     )
 
     #: Update number, for Project updates, assigned when the update is published
-    number = with_roles(
+    number: Mapped[int | None] = with_roles(
         sa.orm.mapped_column(sa.Integer, nullable=True, default=None), read={'all'}
     )
 
     #: Like pinned tweets. You can keep posting updates,
     #: but might want to pin an update from a week ago.
-    is_pinned = with_roles(
+    is_pinned: Mapped[bool] = with_roles(
         sa.orm.mapped_column(sa.Boolean, default=False, nullable=False), read={'all'}
     )
 
@@ -147,7 +147,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         ),
         read={'all'},
     )
-    published_at = with_roles(
+    published_at: Mapped[datetime | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
@@ -162,19 +162,19 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         ),
         read={'reader'},
     )
-    deleted_at = with_roles(
+    deleted_at: Mapped[datetime | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'reader'},
     )
 
-    edited_at = with_roles(
+    edited_at: Mapped[datetime | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    commentset_id = sa.orm.mapped_column(
+    commentset_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
-    commentset = with_roles(
+    commentset: Mapped[Commentset] = with_roles(
         relationship(
             Commentset,
             uselist=False,
@@ -186,7 +186,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, Model):
         read={'all'},
     )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa.orm.mapped_column(
         TSVectorType(
             'name',
             'title',

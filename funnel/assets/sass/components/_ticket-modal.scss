@@ -68,7 +68,7 @@
 }
 
 .price-btn {
-  min-width: 200px;
+  min-width: 150px;
   font-size: inherit;
   padding: 0;
   display: flex;
@@ -78,9 +78,7 @@
   justify-content: center;
   height: 42px;
   line-height: 16px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  white-space: break-spaces;
 }
 
 .price-btn__txt {

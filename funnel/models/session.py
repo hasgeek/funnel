@@ -67,20 +67,26 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     proposal: Mapped[Proposal | None] = relationship(
         Proposal, backref=backref('session', uselist=False, cascade='all')
     )
-    speaker = sa.orm.mapped_column(sa.Unicode(200), default=None, nullable=True)
-    start_at = sa.orm.mapped_column(
+    speaker: Mapped[str | None] = sa.orm.mapped_column(
+        sa.Unicode(200), default=None, nullable=True
+    )
+    start_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
-    end_at = sa.orm.mapped_column(
+    end_at: Mapped[datetime | None] = sa.orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
-    venue_room_id = sa.orm.mapped_column(
+    venue_room_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True
     )
     venue_room: Mapped[VenueRoom | None] = relationship(VenueRoom, backref='sessions')
-    is_break = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
-    featured = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
-    is_restricted_video = sa.orm.mapped_column(
+    is_break: Mapped[bool] = sa.orm.mapped_column(
+        sa.Boolean, default=False, nullable=False
+    )
+    featured: Mapped[bool] = sa.orm.mapped_column(
+        sa.Boolean, default=False, nullable=False
+    )
+    is_restricted_video: Mapped[bool] = sa.orm.mapped_column(
         sa.Boolean, default=False, nullable=False
     )
     banner_image_url: Mapped[str | None] = sa.orm.mapped_column(
@@ -88,11 +94,11 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     )
 
     #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
-    revisionid = with_roles(
+    revisionid: Mapped[int] = with_roles(
         sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa.orm.mapped_column(
         TSVectorType(
             'title',
             'description_text',

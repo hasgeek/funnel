@@ -79,7 +79,6 @@ order_by_type = true
 use_parentheses = true
 combine_as_imports = true
 split_on_trailing_comma = false
-extra_standard_library = ['typing_extensions']
 known_repo = ['funnel']
 known_first_party = ['baseframe', 'coaster', 'flask_lastuser']
 default_section = 'THIRDPARTY'
@@ -106,9 +105,8 @@ required_plugins = [
 ]
 addopts = [
   '--cov-report=term-missing',
-  '--driver=firefox',
   '--disable-socket',
-  '--allow-unix-socket',         # Required for Selenium driver
+  '--allow-unix-socket',         # Required for Playwright tests
   '--allow-hosts=127.0.0.1,::1', # Add Docker IPs here
   '--strict-markers',
   # '--typeguard-packages=funnel,tests',  # This breaks on toc.py in markdown
@@ -300,7 +298,6 @@ max-complexity = 10
 [tool.ruff.isort]
 # These config options should match isort config above under [tool.isort]
 combine-as-imports = true
-extra-standard-library = ['typing_extensions']
 split-on-trailing-comma = false
 relative-imports-order = 'furthest-to-closest'
 known-first-party = ['baseframe', 'coaster', 'flask_lastuser']

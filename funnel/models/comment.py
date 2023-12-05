@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from werkzeug.utils import cached_property
 
@@ -89,7 +89,7 @@ message_removed = MessageComposite(__("[removed]"), 'del')
 class Commentset(UuidMixin, BaseMixin, Model):
     __tablename__ = 'commentset'
     #: Commentset state code
-    _state = sa.orm.mapped_column(
+    _state: Mapped[int] = sa.orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', COMMENTSET_STATE),
@@ -105,7 +105,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
         datasets={'primary'},
     )
     #: Count of comments, stored to avoid count(*) queries
-    count = with_roles(
+    count: Mapped[int] = with_roles(
         sa.orm.mapped_column(sa.Integer, default=0, nullable=False),
         read={'all'},
         datasets={'primary'},
@@ -134,7 +134,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
         self.count = 0
 
     @cached_property
-    def parent(self) -> BaseMixin:
+    def parent(self) -> Project | Proposal | Update:
         # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
         if self.project is not None:
             return self.project
@@ -147,11 +147,8 @@ class Commentset(UuidMixin, BaseMixin, Model):
     with_roles(parent, read={'all'}, datasets={'primary'})
 
     @cached_property
-    def parent_type(self) -> str | None:
-        parent = self.parent
-        if parent is not None:
-            return parent.__tablename__
-        return None
+    def parent_type(self) -> str:
+        return self.parent.__tablename__
 
     with_roles(parent_type, read={'all'})
 
@@ -217,7 +214,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         ),
         grants={'author'},
     )
-    commentset_id = sa.orm.mapped_column(
+    commentset_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
@@ -228,7 +225,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         grants_via={None: {'document_subscriber'}},
     )
 
-    in_reply_to_id = sa.orm.mapped_column(
+    in_reply_to_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('comment.id'), nullable=True
     )
     replies: Mapped[list[Comment]] = relationship(
@@ -239,7 +236,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         'message', nullable=False
     )
 
-    _state = sa.orm.mapped_column(
+    _state: Mapped[int] = sa.orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', COMMENT_STATE),
@@ -248,18 +245,18 @@ class Comment(UuidMixin, BaseMixin, Model):
     )
     state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment")
 
-    edited_at = with_roles(
+    edited_at: Mapped[datetime | None] = with_roles(
         sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary', 'related', 'json'},
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
-    revisionid = with_roles(
+    revisionid: Mapped[int] = with_roles(
         sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa.orm.mapped_column(
         TSVectorType(
             'message_text',
             weights={'message_text': 'A'},
@@ -278,16 +275,16 @@ class Comment(UuidMixin, BaseMixin, Model):
 
     __roles__ = {
         'all': {
-            'read': {'created_at', 'urls', 'uuid_b58', 'has_replies'},
+            'read': {'created_at', 'urls', 'uuid_b58', 'has_replies', 'absolute_url'},
             'call': {'state', 'commentset', 'view_for', 'url_for'},
         },
         'replied_to_commenter': {'granted_via': {'in_reply_to': '_posted_by'}},
     }
 
     __datasets__ = {
-        'primary': {'created_at', 'urls', 'uuid_b58'},
-        'related': {'created_at', 'urls', 'uuid_b58'},
-        'json': {'created_at', 'urls', 'uuid_b58'},
+        'primary': {'created_at', 'urls', 'uuid_b58', 'absolute_url'},
+        'related': {'created_at', 'urls', 'uuid_b58', 'absolute_url'},
+        'json': {'created_at', 'urls', 'uuid_b58', 'absolute_url'},
         'minimal': {'created_at', 'uuid_b58'},
     }
 
@@ -362,13 +359,8 @@ class Comment(UuidMixin, BaseMixin, Model):
     )
 
     @property
-    def absolute_url(self) -> str:
-        return self.url_for()
-
-    with_roles(absolute_url, read={'all'}, datasets={'primary', 'related', 'json'})
-
-    @property
     def title(self) -> str:
+        """A made-up title referring to the context for the comment."""
         obj = self.commentset.parent
         if obj is not None:
             return _("{user} commented on {obj}").format(
@@ -445,3 +437,10 @@ class __Commentset:
         ),
         viewonly=True,
     )
+
+
+# Tail imports for type checking
+if TYPE_CHECKING:
+    from .project import Project
+    from .proposal import Proposal
+    from .update import Update

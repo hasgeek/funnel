@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from typing import cast
 
 from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import AvailableName
@@ -372,12 +373,14 @@ class ProjectRegisterForm(forms.Form):
     )
 
     def validate_form(self, field: forms.Field) -> None:
+        if not self.form.data:
+            return
         if self.form.data and not self.schema:
             raise forms.validators.StopValidation(
                 _("This registration is not expecting any form fields")
             )
         if self.schema:
-            form_keys = set(self.form.data.keys())
+            form_keys = set(cast(dict, self.form.data).keys())
             schema_keys = {i['name'] for i in self.schema['fields']}
             if not form_keys.issubset(schema_keys):
                 invalid_keys = form_keys.difference(schema_keys)
