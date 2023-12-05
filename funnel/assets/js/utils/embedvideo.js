@@ -19,11 +19,6 @@ const Video = {
         type = 'youtube';
       } else if (regexMatch.groups.service.indexOf('vimeo') > -1) {
         type = 'vimeo';
-        return {
-          type,
-          videoId: regexMatch.groups.videoId,
-          paramId: regexMatch.groups.paramId,
-        };
       }
       return {
         type,
