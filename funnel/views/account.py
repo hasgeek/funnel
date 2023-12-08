@@ -56,6 +56,7 @@ from ..models import (
     Organization,
     db,
     sa,
+    Project,
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
@@ -171,6 +172,25 @@ def recent_organization_memberships(
         overflow=orgs[recent : recent + overflow],
         extra_count=max(0, obj.active_organization_admin_memberships.count() - recent),
     )
+
+
+@Account.views()
+def organizations_as_member(
+    obj: Account, limit: int | None = None, order_by_grant: bool = False
+) -> list[RoleAccessProxy]:
+    """Return organizations that the user has a membership in"""
+    featured_accounts = Account.query.filter(
+            Account.name_in(app.config['FEATURED_ACCOUNTS'])
+        ).all()
+    org_as_members = []
+    for org in featured_accounts:
+        membership_project = org.projects.filter(
+            Project.boxoffice_data.op('@>')({'has_membership': True})
+        ).first()
+        print('membership_project', membership_project)
+        if membership_project and membership_project.current_roles.account_member:
+            org_as_members.append(org)
+    return org_as_members
 
 
 @Account.views('avatar_color_code', cached_property=True)
