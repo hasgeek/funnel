@@ -54,9 +54,9 @@ from ..models import (
     AuthClient,
     LoginSession,
     Organization,
+    Project,
     db,
     sa,
-    Project,
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
@@ -180,8 +180,8 @@ def organizations_as_member(
 ) -> list[RoleAccessProxy]:
     """Return organizations that the user has a membership in"""
     featured_accounts = Account.query.filter(
-            Account.name_in(app.config['FEATURED_ACCOUNTS'])
-        ).all()
+        Account.name_in(app.config['FEATURED_ACCOUNTS'])
+    ).all()
     org_as_members = []
     for org in featured_accounts:
         membership_project = org.projects.filter(
