@@ -184,11 +184,7 @@ def organizations_as_member(
         ).all()
     org_as_members = []
     for org in featured_accounts:
-        membership_project = org.projects.filter(
-            Project.boxoffice_data.op('@>')({'has_membership': True})
-        ).first()
-        print('membership_project', membership_project)
-        if membership_project and membership_project.current_roles.account_member:
+        if org.current_roles.member:
             org_as_members.append(org)
     return org_as_members
 
