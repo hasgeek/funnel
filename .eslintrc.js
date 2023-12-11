@@ -8,7 +8,11 @@ module.exports = {
     es6: true,
     jquery: true,
   },
-  extends: ['airbnb-base', 'plugin:prettier/recommended', 'plugin:cypress/recommended'],
+  extends: [
+    'airbnb-base',
+    'plugin:prettier/recommended',
+    'plugin:cypress/recommended',
+  ],
   rules: {
     'no-console': WARN,
     'prefer-arrow-callback': [ERROR, { allowNamedFunctions: true }],

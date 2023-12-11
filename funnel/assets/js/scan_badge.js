@@ -4,7 +4,13 @@ import { RactiveApp } from './utils/ractive_util';
 import { CLOSE_MODAL_TIMEOUT } from './constants';
 
 const badgeScan = {
-  init({ checkinApiUrl, wrapperId, templateId, projectTitle, ticketEventTitle }) {
+  init({
+    checkinApiUrl,
+    wrapperId,
+    templateId,
+    projectTitle,
+    ticketEventTitle,
+  }) {
     const badgeScanComponent = new RactiveApp({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
@@ -108,14 +114,24 @@ const badgeScan = {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
           canvasElement.height = video.videoHeight;
           canvasElement.width = video.videoWidth;
-          canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+          canvas.drawImage(
+            video,
+            0,
+            0,
+            canvasElement.width,
+            canvasElement.height
+          );
           const imageData = canvas.getImageData(
             0,
             0,
             canvasElement.width,
             canvasElement.height
           );
-          const qrcode = jsQR(imageData.data, imageData.width, imageData.height);
+          const qrcode = jsQR(
+            imageData.data,
+            imageData.width,
+            imageData.height
+          );
           this.verifyQRDecode(qrcode);
         } else {
           this.startRenderFrameLoop();

@@ -1,7 +1,8 @@
 async function addVegaSupport(container) {
   const parentElement = $(container || 'body');
   if (
-    parentElement.find('.md-embed-vega-lite:not(.activating, .activated)').length > 0
+    parentElement.find('.md-embed-vega-lite:not(.activating, .activated)')
+      .length > 0
   ) {
     const { default: embed } = await import('vega-embed');
     const options = {

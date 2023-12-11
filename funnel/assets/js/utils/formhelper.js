@@ -143,7 +143,9 @@ const Form = {
     form.append(alertBoxHtml);
     if (error.readyState === 4) {
       if (error.status === 500) {
-        $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.serverError);
+        $(form)
+          .find('.alert__text')
+          .text(window.Hasgeek.Config.errorMsg.serverError);
       } else if (error.status === 429) {
         $(form)
           .find('.alert__text')
@@ -154,7 +156,9 @@ const Form = {
         $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.error);
       }
     } else {
-      $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.networkError);
+      $(form)
+        .find('.alert__text')
+        .text(window.Hasgeek.Config.errorMsg.networkError);
     }
   },
   ajaxFormSubmit(formId, url, onSuccess, onError, config) {

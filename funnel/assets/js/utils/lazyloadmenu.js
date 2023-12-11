@@ -28,7 +28,9 @@ const LazyLoadMenu = {
       }
       menuBtn.removeClass('header__nav-links--active');
       $('body').removeClass('body-scroll-lock');
-      $('.header__nav-links--active').removeClass('header__nav-links--menuOpen');
+      $('.header__nav-links--active').removeClass(
+        'header__nav-links--menuOpen'
+      );
     };
 
     const updatePageNumber = () => {

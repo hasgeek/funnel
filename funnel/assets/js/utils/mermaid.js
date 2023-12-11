@@ -1,8 +1,13 @@
 async function addMermaidEmbed(container) {
   const parentElement = $(container || 'body');
-  if (parentElement.find('.md-embed-mermaid:not(.activating, .activated)').length > 0) {
+  if (
+    parentElement.find('.md-embed-mermaid:not(.activating, .activated)')
+      .length > 0
+  ) {
     const { default: mermaid } = await import('mermaid');
-    let idCount = $('.md-embed-mermaid.activating, .md-embed-mermaid.activated').length;
+    let idCount = $(
+      '.md-embed-mermaid.activating, .md-embed-mermaid.activated'
+    ).length;
     const idMarker = 'mermaid_elem_';
     const instances = parentElement.find(
       '.md-embed-mermaid:not(.activating):not(.activated)'

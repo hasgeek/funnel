@@ -38,7 +38,9 @@ describe('Add sponsor to project', () => {
     cy.get('#is_promoted').click();
     cy.get('button[data-cy="form-submit-btn"]').click();
     cy.wait(2000);
-    cy.get('[data-cy="sponsor-card"]').find('[data-cy="promoted"]').should('exist');
+    cy.get('[data-cy="sponsor-card"]')
+      .find('[data-cy="promoted"]')
+      .should('exist');
 
     cy.get('a[data-cy="remove-sponsor"]:visible').click();
     cy.wait('@remove-sponsor-form');

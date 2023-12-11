@@ -37,7 +37,9 @@ describe('Add a new submission', () => {
     cy.get('a[data-cy="save"]:visible').click();
     cy.get('button[data-cy="form-submit-btn"]').click();
 
-    cy.get('[data-cy="proposal-title"]').should('exist').contains(proposal.title);
+    cy.get('[data-cy="proposal-title"]')
+      .should('exist')
+      .contains(proposal.title);
     cy.get('[data-cy="proposal-video"]').find('iframe').should('be.visible');
     cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);

@@ -4,7 +4,9 @@ import Utils from './helper';
 const ReadStatus = {
   setNotifyIcon(unread) {
     if (unread) {
-      $('.header__nav-links--updates').addClass('header__nav-links--updates--unread');
+      $('.header__nav-links--updates').addClass(
+        'header__nav-links--updates--unread'
+      );
     } else {
       $('.header__nav-links--updates').removeClass(
         'header__nav-links--updates--unread'
@@ -77,7 +79,9 @@ const ReadStatus = {
       }
       menuBtn.removeClass('header__nav-links--active');
       $('body').removeClass('body-scroll-lock');
-      $('.header__nav-links--active').removeClass('header__nav-links--menuOpen');
+      $('.header__nav-links--active').removeClass(
+        'header__nav-links--menuOpen'
+      );
     };
 
     const updatePageNumber = () => {

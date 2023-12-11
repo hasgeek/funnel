@@ -21,7 +21,9 @@ const SaveProject = ({
           $(this).addClass('animate-btn--show');
           if ($(this).hasClass('animate-btn--saved')) {
             $(this).addClass('animate-btn--animate');
-            toastr.success(window.gettext('Project added to Account > Saved projects'));
+            toastr.success(
+              window.gettext('Project added to Account > Saved projects')
+            );
           }
         }
       });

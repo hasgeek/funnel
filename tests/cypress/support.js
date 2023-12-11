@@ -22,39 +22,42 @@ Cypress.Commands.add('fill_login_details', (username, password) => {
   cy.get('a[data-cy="my-account"]:visible').should('exist');
 });
 
-Cypress.Commands.add('add_profile_member', (username, field, role, fail = false) => {
-  cy.server();
-  cy.route('**/new').as('member-form');
-  cy.route('POST', '**/new').as('add-member');
+Cypress.Commands.add(
+  'add_profile_member',
+  (username, field, role, fail = false) => {
+    cy.server();
+    cy.route('**/new').as('member-form');
+    cy.route('POST', '**/new').as('add-member');
 
-  cy.wait(2000);
-  cy.get('button[data-cy-btn="add-member"]').click();
-  cy.wait('@member-form');
-  cy.get('.select2-selection__arrow').click({ multiple: true });
-  cy.get('.select2-search__field').type(username, {
-    force: true,
-  });
-  cy.get('.select2-results__option--highlighted', { timeout: 20000 }).should(
-    'be.visible'
-  );
-  cy.get('.select2-results__option').contains(username).click();
-  cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');
-  cy.get(`#${field}`).click();
-  cy.get('button').contains('Add member').click();
-  cy.wait('@add-member');
+    cy.wait(2000);
+    cy.get('button[data-cy-btn="add-member"]').click();
+    cy.wait('@member-form');
+    cy.get('.select2-selection__arrow').click({ multiple: true });
+    cy.get('.select2-search__field').type(username, {
+      force: true,
+    });
+    cy.get('.select2-results__option--highlighted', { timeout: 20000 }).should(
+      'be.visible'
+    );
+    cy.get('.select2-results__option').contains(username).click();
+    cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');
+    cy.get(`#${field}`).click();
+    cy.get('button').contains('Add member').click();
+    cy.wait('@add-member');
 
-  if (!fail) {
-    const roleString = role[0].toUpperCase() + role.slice(1);
-    cy.get('[data-cy="member"]')
-      .contains(username)
-      .parents('.member')
-      .find('[data-cy="role"]')
-      .contains(roleString);
-  } else {
-    cy.get('p.mui--text-danger').should('be.visible');
+    if (!fail) {
+      const roleString = role[0].toUpperCase() + role.slice(1);
+      cy.get('[data-cy="member"]')
+        .contains(username)
+        .parents('.member')
+        .find('[data-cy="role"]')
+        .contains(roleString);
+    } else {
+      cy.get('p.mui--text-danger').should('be.visible');
+    }
+    cy.wait(6000); // Wait for toastr notice to fade out
   }
-  cy.wait(6000); // Wait for toastr notice to fade out
-});
+);
 
 Cypress.Commands.add('add_member', (username, role, fail = false) => {
   cy.server();

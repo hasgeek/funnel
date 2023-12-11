@@ -4,7 +4,8 @@
 
 @mixin mui-make-grid-columns(
   $i: 1,
-  $list: '.mui-col-xs-#{$i}, .mui-col-sm-#{$i}, .mui-col-md-#{$i}, .mui-col-lg-#{$i}'
+  $list:
+    '.mui-col-xs-#{$i}, .mui-col-sm-#{$i}, .mui-col-md-#{$i}, .mui-col-lg-#{$i}'
 ) {
   @for $i from (1 + 1) through $mui-grid-columns {
     $list: '#{$list}, .mui-col-xs-#{$i}, .mui-col-sm-#{$i}, .mui-col-md-#{$i}, .mui-col-lg-#{$i}';
@@ -23,7 +24,11 @@
   }
 }
 
-@mixin mui-float-grid-columns($class, $i: 1, $list: '.mui-col-#{$class}-#{$i}') {
+@mixin mui-float-grid-columns(
+  $class,
+  $i: 1,
+  $list: '.mui-col-#{$class}-#{$i}'
+) {
   @for $i from (1 + 1) through $mui-grid-columns {
     $list: '#{$list}, .mui-col-#{$class}-#{$i}';
   }

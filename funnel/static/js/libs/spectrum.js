@@ -378,13 +378,16 @@
           } else if (!shiftMovementDirection) {
             var oldDragX = currentSaturation * dragWidth;
             var oldDragY = dragHeight - currentValue * dragHeight;
-            var furtherFromX = Math.abs(dragX - oldDragX) > Math.abs(dragY - oldDragY);
+            var furtherFromX =
+              Math.abs(dragX - oldDragX) > Math.abs(dragY - oldDragY);
 
             shiftMovementDirection = furtherFromX ? 'x' : 'y';
           }
 
-          var setSaturation = !shiftMovementDirection || shiftMovementDirection === 'x';
-          var setValue = !shiftMovementDirection || shiftMovementDirection === 'y';
+          var setSaturation =
+            !shiftMovementDirection || shiftMovementDirection === 'x';
+          var setValue =
+            !shiftMovementDirection || shiftMovementDirection === 'y';
 
           if (setSaturation) {
             currentSaturation = parseFloat(dragX / dragWidth);
@@ -407,7 +410,8 @@
         // In case color was black - update the preview UI and set the format
         // since the set function will not run (default color is black).
         updateUI();
-        currentPreferredFormat = preferredFormat || tinycolor(initialColor).format;
+        currentPreferredFormat =
+          preferredFormat || tinycolor(initialColor).format;
 
         addColorToSelectionPalette(initialColor);
       } else {
@@ -435,7 +439,11 @@
       var paletteEvent = IE
         ? 'mousedown.spectrum'
         : 'click.spectrum touchstart.spectrum';
-      paletteContainer.delegate('.sp-thumb-el', paletteEvent, palletElementClick);
+      paletteContainer.delegate(
+        '.sp-thumb-el',
+        paletteEvent,
+        palletElementClick
+      );
       initialColorContainer.delegate(
         '.sp-thumb-el:nth-child(1)',
         paletteEvent,
@@ -731,7 +739,8 @@
           var rgb = realColor.toRgb();
           rgb.a = 0;
           var realAlpha = tinycolor(rgb).toRgbString();
-          var gradient = 'linear-gradient(left, ' + realAlpha + ', ' + realHex + ')';
+          var gradient =
+            'linear-gradient(left, ' + realAlpha + ', ' + realHex + ')';
 
           if (IE) {
             alphaSliderInner.css(
@@ -1228,7 +1237,13 @@
         },
         toRgbString: function () {
           return a == 1
-            ? 'rgb(' + mathRound(r) + ', ' + mathRound(g) + ', ' + mathRound(b) + ')'
+            ? 'rgb(' +
+                mathRound(r) +
+                ', ' +
+                mathRound(g) +
+                ', ' +
+                mathRound(b) +
+                ')'
             : 'rgba(' +
                 mathRound(r) +
                 ', ' +
@@ -1278,7 +1293,8 @@
           var secondHex = hex;
           var alphaHex = Math.round(parseFloat(a) * 255).toString(16);
           var secondAlphaHex = alphaHex;
-          var gradientType = opts && opts.gradientType ? 'GradientType = 1, ' : '';
+          var gradientType =
+            opts && opts.gradientType ? 'GradientType = 1, ' : '';
 
           if (secondColor) {
             var s = tinycolor(secondColor);
@@ -1781,7 +1797,8 @@
 
         var readability = tinycolor.readability(baseColor, colorList[i]);
         var readable = readability.brightness > 125 && readability.color > 500;
-        var score = 3 * (readability.brightness / 125) + readability.color / 500;
+        var score =
+          3 * (readability.brightness / 125) + readability.color / 500;
 
         if (
           (readable && !bestIsReadable) ||
@@ -2014,7 +2031,9 @@
     // Need to handle 1.0 as 100%, since once it is a number, there is no difference between it and 1
     // <http://stackoverflow.com/questions/7422072/javascript-how-to-detect-number-as-a-decimal-including-1-0>
     function isOnePointZero(n) {
-      return typeof n == 'string' && n.indexOf('.') != -1 && parseFloat(n) === 1;
+      return (
+        typeof n == 'string' && n.indexOf('.') != -1 && parseFloat(n) === 1
+      );
     }
 
     // Check to see if string passed in is a percentage

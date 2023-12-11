@@ -71,8 +71,9 @@ const Utils = {
     const singleDay = 24 * 60 * 60 * 1000;
 
     $('body .card__calendar').each(function setupCardCalendar() {
-      const firstActiveWeek = $(this).find('.calendar__weekdays__dates--upcoming')
-        .length
+      const firstActiveWeek = $(this).find(
+        '.calendar__weekdays__dates--upcoming'
+      ).length
         ? $(this).find('.calendar__weekdays__dates--upcoming--first')
         : $(this).find('.calendar__weekdays__dates--latest');
 
@@ -101,7 +102,9 @@ const Utils = {
             .addClass('calendar__weekdays__dates__date--display');
         });
 
-      const todayDate = $(this).find('.calendar__month__counting').data('today');
+      const todayDate = $(this)
+        .find('.calendar__month__counting')
+        .data('today');
       const nextEventElem = $(this)
         .find('.calendar__weekdays__dates--upcoming--first')
         .first()
@@ -151,7 +154,9 @@ const Utils = {
       const json = await response.json();
       return json.shortlink;
     }
-    return Promise.reject(window.gettext('This URL is not valid for a shortlink'));
+    return Promise.reject(
+      window.gettext('This URL is not valid for a shortlink')
+    );
   },
   getQueryString(paramName) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -166,7 +171,8 @@ const Utils = {
       const len = parts.length;
       if (len > 1) {
         return (
-          (parts[0] ? parts[0][0] : '') + (parts[len - 1] ? parts[len - 1][0] : '')
+          (parts[0] ? parts[0][0] : '') +
+          (parts[len - 1] ? parts[len - 1][0] : '')
         );
       }
       if (parts) {
@@ -188,8 +194,14 @@ const Utils = {
     return stringTotal % avatarColorCount;
   },
   getFaiconHTML(icon, iconSize = 'body', baseline = true, cssClassArray = []) {
-    const svgElem = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    const useElem = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    const svgElem = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'svg'
+    );
+    const useElem = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'use'
+    );
 
     svgElem.setAttribute('aria-hidden', true);
     svgElem.setAttribute('role', 'img');

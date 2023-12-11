@@ -51,7 +51,9 @@ const Ticketing = {
         } else if (response.readyState === 0) {
           if (ajaxLoad.retries < 0) {
             if (!navigator.onLine) {
-              errorMsg = window.gettext('This device has no internet connection');
+              errorMsg = window.gettext(
+                'This device has no internet connection'
+              );
             } else {
               errorMsg = window.gettext(
                 'Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com'
@@ -78,9 +80,12 @@ const Ticketing = {
       },
       false
     );
-    $(document).on('boxofficeTicketingEvents', (event, userAction, label, value) => {
-      Analytics.sendToGA('ticketing', userAction, label, value);
-    });
+    $(document).on(
+      'boxofficeTicketingEvents',
+      (event, userAction, label, value) => {
+        Analytics.sendToGA('ticketing', userAction, label, value);
+      }
+    );
     $(document).on(
       'boxofficeShowPriceEvent',
       (event, prices, currency, quantityAvailable) => {

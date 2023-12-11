@@ -19,7 +19,10 @@ $(() => {
     }
     ScrollHelper.animateScrollTo($(`#${tab}`).offset().top - headerHeight);
     $(`.js-pills-tab-${tab}`).addClass('mui--is-active');
-    $(`.js-pills-tab-${tab}`).find('a').attr('tabindex', 1).attr('aria-selected', true);
+    $(`.js-pills-tab-${tab}`)
+      .find('a')
+      .attr('tabindex', 1)
+      .attr('aria-selected', true);
     $(`.js-tabs-pane-${tab}`).addClass('mui--is-active');
 
     $('.js-tab-anchor').on('click', function scrollToTabpane() {
@@ -51,7 +54,10 @@ $(() => {
               'switch-label--disabled'
             );
           } else if (transport) {
-            $(`input[data-transport="preference-${transport}"]`).attr('disabled', true);
+            $(`input[data-transport="preference-${transport}"]`).attr(
+              'disabled',
+              true
+            );
             $(`label[data-transport="preference-${transport}"]`).addClass(
               'switch-label--disabled'
             );

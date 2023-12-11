@@ -19,12 +19,16 @@ $(() => {
       SaveProject(saveProjectConfig);
     }
 
-    $('body').on('click', '.js-htmltruncate-expand', function expandTruncation(event) {
-      event.preventDefault();
-      $(this).addClass('mui--hide');
-      $(this).next('.js-htmltruncate-full').removeClass('mui--hide');
-      initEmbed($(this).next('.js-htmltruncate-full'));
-    });
+    $('body').on(
+      'click',
+      '.js-htmltruncate-expand',
+      function expandTruncation(event) {
+        event.preventDefault();
+        $(this).addClass('mui--hide');
+        $(this).next('.js-htmltruncate-full').removeClass('mui--hide');
+        initEmbed($(this).next('.js-htmltruncate-full'));
+      }
+    );
 
     // Adding the embed video player
     if ($('.js-embed-video').length > 0) {
@@ -73,7 +77,9 @@ $(() => {
           $('body').removeClass('mobile-hide-livestream');
         }
       } else {
-        $('body').removeClass('subproject-page').removeClass('mobile-hide-livestream');
+        $('body')
+          .removeClass('subproject-page')
+          .removeClass('mobile-hide-livestream');
       }
     };
 

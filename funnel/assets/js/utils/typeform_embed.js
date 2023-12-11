@@ -39,7 +39,9 @@ const TypeformEmbed = {
           loadScript = self.loadTypeFormEmbed();
           urlSplit = txt.split('/');
           typeformId = urlSplit.pop();
-          typeformId = typeformId.includes('?') ? typeformId.split('?')[0] : typeformId;
+          typeformId = typeformId.includes('?')
+            ? typeformId.split('?')[0]
+            : typeformId;
           parentDiv = $(anchorTag).parents(containerDiv);
           if (typeformId) {
             self.addTypeformEmbed(typeformId, anchorTag, parentDiv, loadScript);

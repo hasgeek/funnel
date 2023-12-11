@@ -23,7 +23,9 @@ describe('View badges to be printed', () => {
     cy.get(`a[data-cy="${ticketEvents[0].title}"]`).click();
     const firstname1 = ticketParticipants[0].fullname.split(' ')[0];
     const firstname2 = ticketParticipants[1].fullname.split(' ')[0];
-    cy.get('a[data-cy="badges-to-printed"]').invoke('removeAttr', 'target').click();
+    cy.get('a[data-cy="badges-to-printed"]')
+      .invoke('removeAttr', 'target')
+      .click();
     cy.url().should('contain', 'badges');
     cy.get('.first-name').should('contain', firstname1);
     cy.get('.first-name').should('contain', firstname2);

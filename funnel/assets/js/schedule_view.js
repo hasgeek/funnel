@@ -55,7 +55,10 @@ const Schedule = {
             minute: '2-digit',
             timeZone: this.timeZone,
           };
-          return new Date(parseInt(time, 10)).toLocaleTimeString('en-GB', options);
+          return new Date(parseInt(time, 10)).toLocaleTimeString(
+            'en-GB',
+            options
+          );
         },
         getColumnWidth(columnType) {
           if (columnType === 'header' || this.width >= MOBILE_BREAKPOINT) {
@@ -163,11 +166,14 @@ const Schedule = {
         },
         disableScroll(event, id) {
           event.preventDefault();
-          ScrollHelper.animateScrollTo($(`#${id}`).offset().top - this.headerHeight);
+          ScrollHelper.animateScrollTo(
+            $(`#${id}`).offset().top - this.headerHeight
+          );
         },
         getHeight() {
           this.headerHeight =
-            ScrollHelper.getPageHeaderHeight() + $('.schedule__row--sticky').height();
+            ScrollHelper.getPageHeaderHeight() +
+            $('.schedule__row--sticky').height();
         },
         handleBrowserResize() {
           $(window).resize(() => {
@@ -183,7 +189,9 @@ const Schedule = {
         animateWindowScrollWithHeader() {
           this.getHeight();
           this.pathName = window.location.pathname;
-          const scrollPos = JSON.parse(window.sessionStorage.getItem('scrollPos'));
+          const scrollPos = JSON.parse(
+            window.sessionStorage.getItem('scrollPos')
+          );
           const activeSession = schedule.config.active_session;
           if (activeSession) {
             // Open session modal
@@ -193,7 +201,8 @@ const Schedule = {
             this.showSessionModal(activeSession);
             // Scroll page to session
             ScrollHelper.animateScrollTo(
-              $(`#${activeSession.url_name_uuid_b58}`).offset().top - this.headerHeight
+              $(`#${activeSession.url_name_uuid_b58}`).offset().top -
+                this.headerHeight
             );
           } else if (
             window.location.pathname === this.pathName &&
@@ -201,9 +210,14 @@ const Schedule = {
           ) {
             const hash =
               window.location.hash.indexOf('/') !== -1
-                ? window.location.hash.substring(0, window.location.hash.indexOf('/'))
+                ? window.location.hash.substring(
+                    0,
+                    window.location.hash.indexOf('/')
+                  )
                 : window.location.hash;
-            ScrollHelper.animateScrollTo($(hash).offset().top - this.headerHeight);
+            ScrollHelper.animateScrollTo(
+              $(hash).offset().top - this.headerHeight
+            );
           } else if (
             scrollPos &&
             scrollPos.pageTitle === this.pageDetails.projectTitle
@@ -213,7 +227,8 @@ const Schedule = {
           } else if ($('.schedule__date--upcoming').length) {
             // Scroll to the upcoming schedule
             ScrollHelper.animateScrollTo(
-              $('.schedule__date--upcoming').first().offset().top - this.headerHeight
+              $('.schedule__date--upcoming').first().offset().top -
+                this.headerHeight
             );
           } else {
             // Scroll to the last schedule
@@ -238,7 +253,10 @@ const Schedule = {
               pageTitle: this.pageDetails.projectTitle,
               scrollPosY: window.scrollY,
             };
-            window.sessionStorage.setItem('scrollPos', JSON.stringify(scrollDetails));
+            window.sessionStorage.setItem(
+              'scrollPos',
+              JSON.stringify(scrollDetails)
+            );
           });
         },
       },
@@ -276,11 +294,12 @@ const Schedule = {
         this.config.slotInterval
       );
       if (this.config.schedule[session.eventDay]) {
-        this.config.schedule[session.eventDay].sessions[session.startTime].showLabel =
-          true;
-        this.config.schedule[session.eventDay].sessions[session.startTime].rooms[
-          session.room_scoped_name
-        ].talk = session;
+        this.config.schedule[session.eventDay].sessions[
+          session.startTime
+        ].showLabel = true;
+        this.config.schedule[session.eventDay].sessions[
+          session.startTime
+        ].rooms[session.room_scoped_name].talk = session;
       }
     });
   },

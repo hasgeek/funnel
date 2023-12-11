@@ -69,7 +69,9 @@ window.Hasgeek.autoSave = ({ autosave, formId, msgElemId }) => {
 
   if (autosave) {
     if ($('input[name="form.revision"]').val()) {
-      $(msgElemId).text(window.gettext('These changes have not been published yet'));
+      $(msgElemId).text(
+        window.gettext('These changes have not been published yet')
+      );
     }
 
     $(formId).on('change', () => {

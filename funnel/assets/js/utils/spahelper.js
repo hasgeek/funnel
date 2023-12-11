@@ -28,7 +28,11 @@ const Spa = {
         window.history.state.subPage &&
         window.history.state.refresh
       ) {
-        Spa.fetchPage(window.history.state.prevUrl, window.history.state.navId, false);
+        Spa.fetchPage(
+          window.history.state.prevUrl,
+          window.history.state.navId,
+          false
+        );
       }
     });
   },
@@ -59,7 +63,10 @@ const Spa = {
     $('meta[property="twitter:title"]').attr('content', pageDetails.pageTitle);
     if (pageDetails.description) {
       $('meta[name=description]').attr('content', pageDetails.description);
-      $('meta[property="og:description"]').attr('content', pageDetails.description);
+      $('meta[property="og:description"]').attr(
+        'content',
+        pageDetails.description
+      );
     }
     $('link[rel=canonical]').attr('href', pageDetails.url);
     $('meta[property="og:url"]').attr('content', pageDetails.url);

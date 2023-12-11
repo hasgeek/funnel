@@ -172,7 +172,11 @@ License: MIT
     from(#000000),
     to(rgba(204, 154, 129, 0))
   );
-  background-image: -webkit-linear-gradient(bottom, #000000, rgba(204, 154, 129, 0));
+  background-image: -webkit-linear-gradient(
+    bottom,
+    #000000,
+    rgba(204, 154, 129, 0)
+  );
   background-image: -moz-linear-gradient(bottom, #000, rgba(204, 154, 129, 0));
   background-image: -o-linear-gradient(bottom, #000, rgba(204, 154, 129, 0));
   background-image: -ms-linear-gradient(bottom, #000, rgba(204, 154, 129, 0));

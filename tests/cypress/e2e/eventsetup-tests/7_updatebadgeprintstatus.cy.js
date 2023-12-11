@@ -23,7 +23,9 @@ describe('View and update print status of badge', () => {
     cy.get(`a[data-cy="${ticketEvents[0].title}"]`).click();
     cy.get('select#badge_printed').select('Printed', { force: true });
     cy.get('#badge-form-submit').click();
-    cy.get('a[data-cy="badges-to-printed"]').invoke('removeAttr', 'target').click();
+    cy.get('a[data-cy="badges-to-printed"]')
+      .invoke('removeAttr', 'target')
+      .click();
     cy.url().should('contain', 'badges');
     cy.get('.first-name').should('not.exist');
   });

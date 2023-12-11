@@ -231,7 +231,8 @@
   }
 
   .tabs__item--badge {
-    padding: $mui-grid-padding * 0.25 0 $mui-grid-padding * 0.25 $mui-grid-padding;
+    padding: $mui-grid-padding * 0.25 0 $mui-grid-padding * 0.25
+      $mui-grid-padding;
   }
 
   .tabs__item:hover,

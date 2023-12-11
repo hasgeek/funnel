@@ -80,7 +80,8 @@ const Tabs = {
   getRightScrollIndex($tabs) {
     // Calculate tab to switch to.
     let switchTo = $tabs.length - 1;
-    while (switchTo > 0 && !$($tabs[switchTo]).data('isIntersecting')) switchTo -= 1;
+    while (switchTo > 0 && !$($tabs[switchTo]).data('isIntersecting'))
+      switchTo -= 1;
     return switchTo;
   },
   addScrollListeners(tablist, $tabs) {
@@ -141,7 +142,9 @@ const Tabs = {
         $(ev.srcElement).attr({ tabindex: 0, 'aria-selected': 'true' }).focus();
       });
       tab.addEventListener('mui.tabs.hideend', function tabDeactivated(ev) {
-        $(ev.srcElement).attr({ tabindex: -1, 'aria-selected': 'false' }).focus();
+        $(ev.srcElement)
+          .attr({ tabindex: -1, 'aria-selected': 'false' })
+          .focus();
       });
     });
   },
@@ -172,7 +175,10 @@ const Tabs = {
           $tablistContainer.addClass.bind($tablistContainer, 'has-panel-hover')
         );
         $panel.mouseleave(
-          $tablistContainer.removeClass.bind($tablistContainer, 'has-panel-hover')
+          $tablistContainer.removeClass.bind(
+            $tablistContainer,
+            'has-panel-hover'
+          )
         );
       }
     });
@@ -180,7 +186,9 @@ const Tabs = {
     $tablist.addClass('activated').removeClass('activating');
   },
   process($parentElement, $tablists) {
-    $parentElement.find('.md-tabset [role=tabpanel]').addClass('mui-tabs__pane');
+    $parentElement
+      .find('.md-tabset [role=tabpanel]')
+      .addClass('mui-tabs__pane');
     $parentElement.find('.md-tabset .md-tab-active').addClass('mui--is-active');
     $tablists.each(this.processTablist);
   },

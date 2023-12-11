@@ -12,7 +12,10 @@ const Video = {
     );
     let type = '';
     if (regexMatch && regexMatch.length > 5) {
-      if (regexMatch[3].indexOf('youtu') > -1 || regexMatch[3].indexOf('y2u') > -1) {
+      if (
+        regexMatch[3].indexOf('youtu') > -1 ||
+        regexMatch[3].indexOf('y2u') > -1
+      ) {
         type = 'youtube';
       } else if (regexMatch[3].indexOf('vimeo') > -1) {
         type = 'vimeo';

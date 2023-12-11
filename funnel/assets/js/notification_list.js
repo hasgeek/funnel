@@ -53,7 +53,11 @@ const Notification = {
         },
         addNotifications(notifications, refresh) {
           notifications.forEach((notice) => {
-            if (!notificationApp.eventids.includes(notice.notification.eventid_b58)) {
+            if (
+              !notificationApp.eventids.includes(
+                notice.notification.eventid_b58
+              )
+            ) {
               if (refresh) {
                 notificationApp.notifications.unshift(notice);
               } else {
@@ -143,7 +147,8 @@ const Notification = {
             }
           );
           notificationObserver.observe(elem);
-          const notificationItem = app.notifications[$(elem).attr('data-index')];
+          const notificationItem =
+            app.notifications[$(elem).attr('data-index')];
           notificationItem.observer = notificationObserver;
         });
       },

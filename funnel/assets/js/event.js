@@ -61,7 +61,9 @@ class Queue {
     ) {
       const queue = this;
       const ticketParticipantIds = queue.readAll();
-      const ticketParticipants = ticketParticipantList.get('ticket_participants');
+      const ticketParticipants = ticketParticipantList.get(
+        'ticket_participants'
+      );
       if (ticketParticipantIds) {
         ticketParticipantIds.forEach((ticketParticipantId) => {
           if (queue.queueName.indexOf('cancelcheckin-queue') > -1) {
@@ -89,7 +91,10 @@ class Queue {
               'puuid_b58',
               ticketParticipantId
             );
-            ticketParticipantList.set(`ticket_participants.${index}.submitting`, true);
+            ticketParticipantList.set(
+              `ticket_participants.${index}.submitting`,
+              true
+            );
           }
         });
       }
@@ -98,7 +103,13 @@ class Queue {
 }
 
 const ParticipantTable = {
-  init({ IsPromoter, isUsher, checkinUrl, participantlistUrl, ticketEventName }) {
+  init({
+    IsPromoter,
+    isUsher,
+    checkinUrl,
+    participantlistUrl,
+    ticketEventName,
+  }) {
     const count = new RactiveApp({
       el: '#ticket-participants-count',
       template: '#ticket-participants-count-template',

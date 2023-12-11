@@ -184,7 +184,10 @@ $mui-dropdown-border-color: $mui-divider-color !default;
 $mui-dropdown-border-radius: $mui-border-radius-default !default;
 
 $mui-dropdown-link-font-color: $mui-base-font-color !default;
-$mui-dropdown-link-font-color-hover: darken($mui-dropdown-link-font-color, 5%) !default;
+$mui-dropdown-link-font-color-hover: darken(
+  $mui-dropdown-link-font-color,
+  5%
+) !default;
 $mui-dropdown-link-font-color-active: $mui-accent-color !default;
 $mui-dropdown-link-font-color-disabled: mui-color('grey', '200') !default;
 
@@ -235,7 +238,9 @@ $mui-overlay-bg-color: rgba(mui-color('black'), 0.2) !default;
 // INTERNAL VARIABLES
 // ============================================================================
 
-$mui-base-line-height-computed: floor(($mui-base-font-size * $mui-base-line-height));
+$mui-base-line-height-computed: floor(
+  ($mui-base-font-size * $mui-base-line-height)
+);
 $mui-screen-xs-max: ($mui-screen-sm-min - 1);
 $mui-screen-sm-max: ($mui-screen-md-min - 1);
 $mui-screen-md-max: ($mui-screen-lg-min - 1);
