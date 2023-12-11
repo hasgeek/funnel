@@ -54,7 +54,6 @@ from ..models import (
     AuthClient,
     LoginSession,
     Organization,
-    Project,
     db,
     sa,
 )
