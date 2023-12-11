@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from functools import wraps
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from flask import has_request_context, request
+from flask.globals import request_ctx
 from werkzeug.local import LocalProxy
 from werkzeug.utils import cached_property
 
@@ -121,25 +122,23 @@ class RequestWants:
 
         def _get_current_object(self) -> RequestWants:
             """Type hint for the LocalProxy wrapper method."""
+            return self
 
 
 def _get_request_wants() -> RequestWants:
     """Get request_wants from the request."""
-    # Flask 2.0 deprecated use of _request_ctx_stack.top and recommends using `g`.
-    # However, `g` is not suitable for us as we must cache results for a request only.
-    # Therefore we stick it in the request object itself.
     if has_request_context():
         # pylint: disable=protected-access
-        wants = getattr(request, '_request_wants', None)
+        wants = getattr(request_ctx, 'request_wants', None)
         if wants is None:
             wants = RequestWants()
-            request._request_wants = wants  # type: ignore[attr-defined]
+            request_ctx.request_wants = wants  # type: ignore[attr-defined]
         return wants
     # Return an empty handler
     return RequestWants()
 
 
-request_wants: RequestWants = LocalProxy(_get_request_wants)  # type: ignore[assignment]
+request_wants: RequestWants = cast(RequestWants, LocalProxy(_get_request_wants))
 
 
 def response_varies(response: ResponseType) -> ResponseType:
