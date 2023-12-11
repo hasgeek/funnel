@@ -222,7 +222,11 @@ def add_to_class(cls: type, name: str | None = None) -> Callable[[T], T]:
             # None or '' not allowed
             raise ValueError(f"Could not determine name for {attr!r}")
         if use_name in cls.__dict__:
-            raise AttributeError(f"{cls.__name__} already has attribute {use_name}")
+            raise AttributeError(
+                f"{cls.__name__} already has attribute {use_name}",
+                name=use_name,
+                obj=cls,
+            )
         setattr(cls, use_name, attr)
         return attr
 
@@ -291,7 +295,11 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
             ):
                 # Refuse to overwrite existing attributes
                 if hasattr(cls, attr):
-                    raise AttributeError(f"{cls.__name__} already has attribute {attr}")
+                    raise AttributeError(
+                        f"{cls.__name__} already has attribute {attr}",
+                        name=attr,
+                        obj=cls,
+                    )
                 # All good? Copy the attribute over...
                 setattr(cls, attr, value)
                 # ...And remove it from the temporary class
