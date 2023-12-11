@@ -31,12 +31,12 @@ from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .jobs import import_tickets
 from .login_session import requires_login, requires_sudo
-from .mixins import AccountCheckMixin, ProjectViewMixin, TicketEventViewMixin
+from .mixins import AccountCheckMixin, ProjectViewBase, TicketEventViewBase
 
 
 @Project.views('ticket_event')
 @route('/<account>/<project>/ticket_event')
-class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
+class ProjectTicketEventView(UrlForView, ProjectViewBase):
     @route('')
     @render_with('ticket_event_list.html.jinja2')
     @requires_login
@@ -122,10 +122,7 @@ ProjectTicketEventView.init_app(app)
 
 
 @TicketEvent.views('main')
-@route('/<account>/<project>/ticket_event/<name>')
-class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
-    __decorators__ = [requires_login]
-
+class TicketEventView(TicketEventViewBase):
     @route('', methods=['GET', 'POST'])
     @render_with('ticket_event.html.jinja2')
     @requires_roles({'project_promoter', 'project_usher'})
@@ -219,18 +216,16 @@ TicketEventView.init_app(app)
 
 @TicketType.views('main')
 @route('/<account>/<project>/ticket_type/<name>')
-class TicketTypeView(AccountCheckMixin, UrlForView, ModelView):
+class TicketTypeView(AccountCheckMixin, UrlForView, ModelView[TicketType]):
     __decorators__ = [requires_login]
-    model = TicketType
     route_model_map = {
         'account': 'project.account.urlname',
         'project': 'project.name',
         'name': 'name',
     }
-    obj: TicketType
 
-    def loader(self, account: str, project: str, name: str) -> TicketType:
-        return (
+    def load(self, account: str, project: str, name: str) -> ReturnView | None:
+        self.obj = (
             TicketType.query.join(Project)
             .join(Account, Project.account)
             .filter(
@@ -240,10 +235,11 @@ class TicketTypeView(AccountCheckMixin, UrlForView, ModelView):
             )
             .first_or_404()
         )
-
-    def after_loader(self) -> ReturnView | None:
-        self.account = self.obj.project.account
+        self.post_init()
         return super().after_loader()
+
+    def post_init(self) -> None:
+        self.account = self.obj.project.account
 
     @route('')
     @render_with('ticket_type.html.jinja2')
@@ -298,20 +294,18 @@ TicketTypeView.init_app(app)
 
 @TicketClient.views('main')
 @route('/<account>/<project>/ticket_client/<client_id>')
-class TicketClientView(AccountCheckMixin, UrlForView, ModelView):
+class TicketClientView(AccountCheckMixin, UrlForView, ModelView[TicketClient]):
     __decorators__ = [requires_login]
-    model = TicketClient
     route_model_map = {
         'account': 'project.account.urlname',
         'project': 'project.name',
         'client_id': 'id',
     }
-    obj: TicketClient
 
-    def loader(self, account: str, project: str, client_id: str) -> TicketClient:
+    def load(self, account: str, project: str, client_id: str) -> ReturnView | None:
         if not client_id.isdigit():
             abort(404)
-        return (
+        self.obj = (
             TicketClient.query.join(Project)
             .join(Account, Project.account)
             .filter(
@@ -321,10 +315,11 @@ class TicketClientView(AccountCheckMixin, UrlForView, ModelView):
             )
             .first_or_404()
         )
-
-    def after_loader(self) -> ReturnView | None:
-        self.account = self.obj.project.account
+        self.post_init()
         return super().after_loader()
+
+    def post_init(self) -> None:
+        self.account = self.obj.project.account
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'project_promoter'})

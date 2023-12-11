@@ -3,13 +3,15 @@
 
 from __future__ import annotations
 
-from uuid import uuid4
+from typing import Any
+from uuid import UUID, uuid4
 
 from flask import abort, g, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
 from coaster.auth import current_auth
+from coaster.views import ModelView, UrlForView, route
 
 from ..forms import SavedProjectForm
 from ..models import (
@@ -17,27 +19,23 @@ from ..models import (
     Draft,
     Project,
     ProjectRedirect,
-    Session,
     TicketEvent,
     UuidModelUnion,
-    Venue,
-    VenueRoom,
     db,
 )
 from ..typing import ReturnView
 from .helpers import render_redirect
+from .login_session import requires_login
 
 
 class AccountCheckMixin:
     """Base class checks for suspended accounts."""
 
-    account: Account | None = None
+    account: Account
 
     def after_loader(self) -> ReturnView | None:
         """Post-process loader."""
         account = self.account
-        if account is None:
-            raise ValueError("Subclass must set self.account")
         g.account = account
         if not account.state.ACTIVE:
             abort(410)
@@ -49,16 +47,13 @@ class AccountCheckMixin:
         return super().after_loader()  # type: ignore[misc]
 
 
-class ProjectViewMixin(AccountCheckMixin):
-    model: type[Project] = Project
+class ProjectViewBase(AccountCheckMixin, ModelView[Project]):
     route_model_map = {'account': 'account.urlname', 'project': 'name'}
-    obj: Project
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
+    project: Project
 
-    def loader(
-        self, account: str, project: str, session: str | None = None
-    ) -> Project | ProjectRedirect:
+    def load(self, account: str, project: str, **_kwargs) -> ReturnView | None:
         obj = (
             Project.query.join(Account, Project.account)
             .filter(Account.name_is(account), Project.name == project)
@@ -70,32 +65,30 @@ class ProjectViewMixin(AccountCheckMixin):
                 .filter(Account.name_is(account), ProjectRedirect.name == project)
                 .first_or_404()
             )
-            return obj_redirect
-        if obj.state.DELETED:
-            abort(410)
-        return obj
-
-    def after_loader(self) -> ReturnView | None:
-        if isinstance(self.obj, ProjectRedirect):
-            if self.obj.project:
-                self.account = self.obj.project.account
+            if obj_redirect.project:
+                self.account = obj_redirect.project.account
                 return render_redirect(
-                    self.obj.project.url_for(),
+                    obj_redirect.project.url_for(),
                     302 if request.method == 'GET' else 303,
                 )
             abort(410)  # Project has been deleted
-        self.account = self.obj.account
-        return super().after_loader()
+        elif obj.state.DELETED:
+            abort(410)
+        self.obj = obj
+        self.post_init()
+        return self.after_loader()
+
+    def post_init(self) -> None:
+        self.project = project = self.obj
+        self.account = project.account
 
     @property
     def project_currently_saved(self):
         return self.obj.is_saved_by(current_auth.user)
 
 
-class AccountViewMixin(AccountCheckMixin):
-    model = Account
+class AccountViewBase(AccountCheckMixin, UrlForView, ModelView[Account]):
     route_model_map = {'account': 'urlname'}
-    obj: Account
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
@@ -105,99 +98,18 @@ class AccountViewMixin(AccountCheckMixin):
             abort(404)
         return obj
 
-    def after_loader(self) -> ReturnView | None:
+    def post_init(self) -> None:
         self.account = self.obj
-        return super().after_loader()
 
 
-class SessionViewMixin(AccountCheckMixin):
-    model = Session
-    route_model_map = {
-        'account': 'project.account.urlname',
-        'project': 'project.name',
-        'session': 'url_name_uuid_b58',
-    }
-    obj: Session
-    SavedProjectForm = SavedProjectForm
-
-    def loader(self, account: str, project: str, session: str) -> Session:
-        return (
-            Session.query.join(Project, Session.project_id == Project.id)
-            .join(Account, Project.account)
-            .filter(Session.url_name_uuid_b58 == session)
-            .first_or_404()
-        )
-
-    def after_loader(self) -> ReturnView | None:
-        self.account = self.obj.project.account
-        return super().after_loader()
-
-    @property
-    def project_currently_saved(self):
-        return self.obj.project.is_saved_by(current_auth.user)
-
-
-class VenueViewMixin(AccountCheckMixin):
-    model = Venue
-    route_model_map = {
-        'account': 'project.account.urlname',
-        'project': 'project.name',
-        'venue': 'name',
-    }
-    obj: Venue
-
-    def loader(self, account: str, project: str, venue: str) -> Venue:
-        return (
-            Venue.query.join(Project)
-            .join(Account, Project.account)
-            .filter(
-                Account.name_is(account), Project.name == project, Venue.name == venue
-            )
-            .first_or_404()
-        )
-
-    def after_loader(self) -> ReturnView | None:
-        self.account = self.obj.project.account
-        return super().after_loader()
-
-
-class VenueRoomViewMixin(AccountCheckMixin):
-    model = VenueRoom
-    route_model_map = {
-        'account': 'venue.project.account.urlname',
-        'project': 'venue.project.name',
-        'venue': 'venue.name',
-        'room': 'name',
-    }
-    obj: VenueRoom
-
-    def loader(self, account: str, project: str, venue: str, room: str) -> VenueRoom:
-        return (
-            VenueRoom.query.join(Venue)
-            .join(Project)
-            .join(Account, Project.account)
-            .filter(
-                Account.name_is(account),
-                Project.name == project,
-                Venue.name == venue,
-                VenueRoom.name == room,
-            )
-            .first_or_404()
-        )
-
-    def after_loader(self) -> ReturnView | None:
-        self.account = self.obj.venue.project.account
-        return super().after_loader()
-
-
-class TicketEventViewMixin(AccountCheckMixin):
-    model = TicketEvent
+@route('/<account>/<project>/ticket_event/<name>')
+class TicketEventViewBase(AccountCheckMixin, UrlForView, ModelView[TicketEvent]):
+    __decorators__ = [requires_login]
     route_model_map = {
         'account': 'project.account.urlname',
         'project': 'project.name',
         'name': 'name',
     }
-    obj: TicketEvent
 
     def loader(self, account: str, project: str, name: str) -> TicketEvent:
         return (
@@ -211,14 +123,13 @@ class TicketEventViewMixin(AccountCheckMixin):
             .one_or_404()
         )
 
-    def after_loader(self) -> ReturnView | None:
+    def post_init(self) -> None:
         self.account = self.obj.project.account
-        return super().after_loader()
 
 
-class DraftViewMixin:
-    obj: UuidModelUnion
-    model: type[UuidModelUnion]
+class DraftViewProtoMixin:
+    model: Any
+    obj: Any
 
     def get_draft(self, obj: UuidModelUnion | None = None) -> Draft | None:
         """
@@ -239,7 +150,7 @@ class DraftViewMixin:
 
     def get_draft_data(
         self, obj: UuidModelUnion | None = None
-    ) -> tuple[None, None] | tuple[int, dict]:
+    ) -> tuple[None, None] | tuple[UUID | None, dict]:
         """
         Return a tuple of draft data.
 

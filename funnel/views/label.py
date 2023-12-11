@@ -15,12 +15,12 @@ from ..models import Account, Label, Project, db
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
-from .mixins import AccountCheckMixin, ProjectViewMixin
+from .mixins import AccountCheckMixin, ProjectViewBase
 
 
 @Project.views('label')
 @route('/<account>/<project>/labels')
-class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
+class ProjectLabelView(UrlForView, ProjectViewBase):
     @route('', methods=['GET', 'POST'])
     @render_with('labels.html.jinja2')
     @requires_login
@@ -101,15 +101,13 @@ ProjectLabelView.init_app(app)
 
 @Label.views('main')
 @route('/<account>/<project>/labels/<label>')
-class LabelView(AccountCheckMixin, UrlForView, ModelView):
+class LabelView(AccountCheckMixin, UrlForView, ModelView[Label]):
     __decorators__ = [requires_login]
-    model = Label
     route_model_map = {
         'account': 'project.account.urlname',
         'project': 'project.name',
         'label': 'name',
     }
-    obj: Label
 
     def loader(self, account: str, project: str, label: str) -> Label:
         return (
@@ -121,9 +119,8 @@ class LabelView(AccountCheckMixin, UrlForView, ModelView):
             .first_or_404()
         )
 
-    def after_loader(self) -> ReturnView | None:
+    def post_init(self) -> None:
         self.account = self.obj.project.account
-        return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login

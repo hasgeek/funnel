@@ -15,7 +15,6 @@ from sqlalchemy.orm.exc import NoResultFound
 from baseframe import _, localize_timezone
 from coaster.utils import utcnow
 from coaster.views import (
-    ModelView,
     UrlChangeCheck,
     UrlForView,
     render_with,
@@ -29,7 +28,8 @@ from ..models import Project, Proposal, Rsvp, Session, VenueRoom, db, sa
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, localize_date
 from .login_session import requires_login
-from .mixins import ProjectViewMixin, VenueRoomViewMixin
+from .mixins import ProjectViewBase
+from .venue import VenueRoomViewBase
 
 # TODO: Replace the arbitrary dicts in the `_data` functions with dataclasses
 
@@ -230,7 +230,7 @@ def session_ical(session: Session, rsvp: Rsvp | None = None) -> Event:
 
 @Project.views('schedule')
 @route('/<account>/<project>/schedule')
-class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
+class ProjectScheduleView(UrlChangeCheck, UrlForView, ProjectViewBase):
     @route('')
     @render_with(html_in_json('project_schedule.html.jinja2'))
     @requires_roles({'reader'})
@@ -344,8 +344,7 @@ ProjectScheduleView.init_app(app)
 
 
 @VenueRoom.views('schedule')
-@route('/<account>/<project>/schedule/<venue>/<room>')
-class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
+class ScheduleVenueRoomView(VenueRoomViewBase):
     @route('ical')
     @requires_roles({'reader'})
     def schedule_room_ical(self) -> Response:

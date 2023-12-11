@@ -36,7 +36,7 @@ from ..typing import ReturnRenderWith, ReturnView
 from ..utils import format_twitter_handle, make_qrcode, mask_email, split_name
 from .helpers import render_redirect
 from .login_session import requires_login
-from .mixins import AccountCheckMixin, ProjectViewMixin, TicketEventViewMixin
+from .mixins import AccountCheckMixin, ProjectViewBase, TicketEventViewBase
 
 
 def ticket_participant_badge_data(ticket_participants, project):
@@ -126,7 +126,7 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
 
 @Project.views('ticket_participant')
 @route('/<account>/<project>/ticket_participants')
-class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
+class ProjectTicketParticipantView(UrlForView, ProjectViewBase):
     @route('json')
     @requires_login
     @requires_roles({'promoter', 'usher'})
@@ -166,21 +166,21 @@ ProjectTicketParticipantView.init_app(app)
 
 @TicketParticipant.views('main')
 @route('/<account>/<project>/ticket_participant/<ticket_participant>')
-class TicketParticipantView(AccountCheckMixin, UrlForView, ModelView):
+class TicketParticipantView(
+    AccountCheckMixin, UrlForView, ModelView[TicketParticipant]
+):
     __decorators__ = [requires_login]
 
-    model = TicketParticipant
     route_model_map = {
         'account': 'project.account.urlname',
         'project': 'project.name',
         'ticket_participant': 'uuid_b58',
     }
-    obj: TicketParticipant
 
-    def loader(
+    def load(
         self, account: str, project: str, ticket_participant: str
-    ) -> TicketParticipant:
-        return (
+    ) -> ReturnView | None:
+        self.obj = (
             TicketParticipant.query.join(Project)
             .join(Account, Project.account)
             .filter(
@@ -190,10 +190,11 @@ class TicketParticipantView(AccountCheckMixin, UrlForView, ModelView):
             )
             .first_or_404()
         )
-
-    def after_loader(self) -> ReturnView | None:
-        self.account = self.obj.project.account
+        self.post_init()
         return super().after_loader()
+
+    def post_init(self) -> None:
+        self.account = self.obj.project.account
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'project_promoter'})
@@ -255,10 +256,7 @@ TicketParticipantView.init_app(app)
 
 
 @TicketEvent.views('ticket_participant')
-@route('/<account>/<project>/ticket_event/<name>')
-class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
-    __decorators__ = [requires_login]
-
+class TicketEventParticipantView(TicketEventViewBase):
     @route('ticket_participants/checkin', methods=['GET', 'POST'])
     @requires_roles({'project_promoter', 'project_usher'})
     def checkin(self) -> ReturnView:

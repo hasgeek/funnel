@@ -14,7 +14,6 @@ from sqlalchemy.sql import expression
 from baseframe import __
 from coaster.views import (
     ClassView,
-    ModelView,
     UrlForView,
     render_with,
     requestargs,
@@ -41,7 +40,7 @@ from ..models import (
 from ..typing import ReturnRenderWith
 from ..utils import abort_null
 from .helpers import render_redirect
-from .mixins import AccountViewMixin, ProjectViewMixin
+from .mixins import AccountViewBase, ProjectViewBase
 
 # --- Definitions ----------------------------------------------------------------------
 
@@ -872,7 +871,7 @@ SearchView.init_app(app)
 
 @Account.views('search')
 @route('/<account>')
-class AccountSearchView(AccountViewMixin, UrlForView, ModelView):
+class AccountSearchView(AccountViewBase):
     @route('search', endpoint='search_account')
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
@@ -912,7 +911,7 @@ AccountSearchView.init_app(app)
 
 @Project.views('search')
 @route('/<account>/<project>/')
-class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
+class ProjectSearchView(UrlForView, ProjectViewBase):
     @route('search', endpoint='search_project')
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'crew', 'participant'})

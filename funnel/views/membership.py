@@ -39,18 +39,19 @@ from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
-from .mixins import AccountCheckMixin, AccountViewMixin, ProjectViewMixin
+from .mixins import AccountCheckMixin, AccountViewBase, ProjectViewBase
 from .notification import dispatch_notification
 
 
 @Account.views('members')
 @route('/<account>/members')
-class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
-    def after_loader(self) -> ReturnView | None:  # type: ignore[return]
+class OrganizationMembersView(AccountViewBase):
+    def after_loader(self) -> ReturnView | None:
         """Don't render member views for user accounts."""
         if not isinstance(self.obj, Organization):
             # Only organization accounts have admin members
             abort(404)
+        return super().after_loader()
 
     @route('', methods=['GET', 'POST'])
     @render_with('organization_membership.html.jinja2')
@@ -157,20 +158,19 @@ OrganizationMembersView.init_app(app)
 @AccountMembership.views('main')
 @route('/<account>/members/<membership>')
 class OrganizationMembershipView(
-    AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView
+    AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[AccountMembership]
 ):
-    model = AccountMembership
     route_model_map = {'account': 'account.urlname', 'membership': 'uuid_b58'}
-    obj: AccountMembership
 
-    def loader(self, account: str, membership: str) -> AccountMembership:
-        return AccountMembership.query.filter(
+    def load(self, account: str, membership: str) -> ReturnView | None:
+        self.obj = AccountMembership.query.filter(
             AccountMembership.uuid_b58 == membership,
         ).first_or_404()
+        self.post_init()
+        return self.after_loader()
 
-    def after_loader(self) -> ReturnView | None:
+    def post_init(self) -> None:
         self.account = self.obj.account
-        return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
@@ -299,7 +299,7 @@ OrganizationMembershipView.init_app(app)
 
 @Project.views('crew')
 @route('/<account>/<project>/crew')
-class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
+class ProjectMembershipView(UrlChangeCheck, UrlForView, ProjectViewBase):
     @route('', methods=['GET', 'POST'])
     @render_with(html_in_json('project_membership.html.jinja2'))
     def crew(self) -> ReturnRenderWith:
@@ -388,17 +388,17 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
 ProjectMembershipView.init_app(app)
 
 
-class ProjectCrewMembershipMixin(AccountCheckMixin):
-    model = ProjectMembership
+class ProjectCrewMembershipBase(
+    AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[ProjectMembership]
+):
     route_model_map = {
         'account': 'project.account.urlname',
         'project': 'project.name',
         'membership': 'uuid_b58',
     }
-    obj: ProjectMembership
 
-    def loader(self, account: str, project: str, membership: str) -> ProjectMembership:
-        return (
+    def load(self, account: str, project: str, membership: str) -> ReturnView | None:
+        self.obj = (
             ProjectMembership.query.join(Project)
             .join(Account, Project.account)
             .filter(
@@ -408,27 +408,27 @@ class ProjectCrewMembershipMixin(AccountCheckMixin):
             )
             .first_or_404()
         )
+        self.post_init()
+        return self.after_loader()
 
-    def after_loader(self) -> ReturnView | None:
+    def post_init(self) -> None:
         self.account = self.obj.project.account
-        return super().after_loader()
 
 
 @ProjectMembership.views('invite')
 @route('/<account>/<project>/crew/<membership>/invite')
-class ProjectCrewMembershipInviteView(
-    ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
-):
-    def loader(self, account: str, project: str, membership: str) -> ProjectMembership:
-        obj = super().loader(account, project, membership)
-        if not obj.is_invite or obj.member != current_auth.user:
+class ProjectCrewMembershipInviteView(ProjectCrewMembershipBase):
+    def load(self, account: str, project: str, membership: str) -> ReturnView | None:
+        resp = super().load(account, project, membership)
+        if not self.obj.is_invite or self.obj.member != current_auth.user:
             abort(404)
-        return obj
+        return resp
 
     @route('', methods=['GET'])
     @requires_login
     @requires_roles({'member'})
     def invite(self) -> ReturnView:
+        status_code = 200
         if request.method == 'GET':
             return render_template(
                 'membership_invite_actions.html.jinja2',
@@ -442,7 +442,6 @@ class ProjectCrewMembershipInviteView(
                 status_code = 201
             elif membership_invite_form.action.data == 'decline':
                 self.obj.revoke(actor=current_auth.user)
-                status_code = 200
             else:
                 error_description = _("This is not a valid response")
                 if request_wants.json:
@@ -467,9 +466,7 @@ ProjectCrewMembershipInviteView.init_app(app)
 
 @ProjectMembership.views('main')
 @route('/<account>/<project>/crew/<membership>')
-class ProjectCrewMembershipView(
-    ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
-):
+class ProjectCrewMembershipView(ProjectCrewMembershipBase):
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'account_admin'})

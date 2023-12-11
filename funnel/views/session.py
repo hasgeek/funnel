@@ -12,13 +12,13 @@ from coaster.sqlalchemy import failsafe_add
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles, route
 
 from .. import app
-from ..forms import SavedSessionForm, SessionForm
-from ..models import Project, Proposal, SavedSession, Session, db
+from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
+from ..models import Account, Project, Proposal, SavedSession, Session, db
 from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import localize_date, render_redirect
 from .login_session import requires_login
-from .mixins import ProjectViewMixin, SessionViewMixin
+from .mixins import AccountCheckMixin, ProjectViewBase
 from .schedule import schedule_data, session_data, session_list_data
 
 
@@ -124,7 +124,7 @@ def session_edit(
 
 @Project.views('session_new')
 @route('/<account>/<project>/sessions')
-class ProjectSessionView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
+class ProjectSessionView(UrlChangeCheck, UrlForView, ProjectViewBase):
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
@@ -137,7 +137,29 @@ ProjectSessionView.init_app(app)
 
 @Session.views('main')
 @route('/<account>/<project>/schedule/<session>')
-class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
+class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Session]):
+    route_model_map = {
+        'account': 'project.account.urlname',
+        'project': 'project.name',
+        'session': 'url_name_uuid_b58',
+    }
+    SavedProjectForm = SavedProjectForm
+
+    def loader(self, account: str, project: str, session: str) -> Session:
+        return (
+            Session.query.join(Project, Session.project_id == Project.id)
+            .join(Account, Project.account)
+            .filter(Session.url_name_uuid_b58 == session)
+            .first_or_404()
+        )
+
+    def post_init(self) -> None:
+        self.account = self.obj.project.account
+
+    @property
+    def project_currently_saved(self):
+        return self.obj.project.is_saved_by(current_auth.user)
+
     @route('')
     @route('viewsession-popup')  # Legacy route, will be auto-redirected to base URL
     # @requires_roles({'reader'})

@@ -19,7 +19,7 @@ from ..models import Account, Project, ProjectSponsorMembership, db, sa
 from ..typing import ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_site_editor
-from .mixins import ProjectViewMixin
+from .mixins import ProjectViewBase
 
 
 def edit_sponsor_form(obj):
@@ -31,9 +31,7 @@ def edit_sponsor_form(obj):
 
 @Project.views('sponsors')
 @route('/<account>/<project>/sponsors/')
-class ProjectSponsorLandingView(
-    ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
-):
+class ProjectSponsorLandingView(UrlChangeCheck, UrlForView, ProjectViewBase):
     __decorators__ = [requires_login, requires_site_editor]
 
     @route('add', methods=['POST', 'GET'])
@@ -122,9 +120,10 @@ ProjectSponsorLandingView.init_app(app)
 
 @ProjectSponsorMembership.views('main')
 @route('/<account>/<project>/sponsors/<sponsorship>')
-class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
+class ProjectSponsorView(
+    UrlChangeCheck, UrlForView, ModelView[ProjectSponsorMembership]
+):
     __decorators__ = [requires_login, requires_site_editor]
-    model = ProjectSponsorMembership
     route_model_map = {
         'account': 'project.account.urlname',
         'project': 'project.name',
@@ -132,13 +131,10 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
     }
 
     def loader(
-        self,
-        account: str,  # skipcq: PYL-W0613
-        project: str,  # skipcq: PYL-W0613
-        sponsorship: str | None = None,
+        self, sponsorship: str | None = None, **_kwargs: str
     ) -> ProjectSponsorMembership:
         obj = (
-            self.model.query.join(Project)
+            ProjectSponsorMembership.query.join(Project)
             .join(Account, Project.account)
             .filter(self.model.uuid_b58 == sponsorship)
             .one_or_404()

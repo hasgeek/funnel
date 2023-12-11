@@ -284,13 +284,8 @@ class AccountView(ClassView):
 
     __decorators__ = [requires_login]
 
-    obj: Account
     current_section = 'account'  # needed for showing active tab
     SavedProjectForm = SavedProjectForm
-
-    def loader(self, **kwargs) -> Account:
-        """Return current user."""
-        return current_auth.user
 
     @route('', endpoint='account')
     @render_with('account.html.jinja2')

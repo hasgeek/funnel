@@ -25,12 +25,12 @@ from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import AccountCheckMixin
 from .notification import dispatch_notification
-from .project import ProjectViewMixin
+from .project import ProjectViewBase
 
 
 @Project.views('updates')
 @route('/<account>/<project>/updates')
-class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
+class ProjectUpdatesView(UrlChangeCheck, UrlForView, ProjectViewBase):
     @route('', methods=['GET'])
     @render_with(html_in_json('project_updates.html.jinja2'))
     @requires_roles({'reader'})
@@ -88,27 +88,26 @@ def update_publishable(obj):
 
 @Update.views('project')
 @route('/<account>/<project>/updates/<update>')
-class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
-    model = Update
+class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update]):
     route_model_map = {
         'account': 'project.account.urlname',
         'project': 'project.name',
         'update': 'url_name_uuid_b58',
     }
-    obj: Update
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, account: str, project: str, update: str) -> Update:
-        return (
+    def load(self, account: str, project: str, update: str) -> ReturnView | None:
+        self.obj = (
             Update.query.join(Project)
             .join(Account, Project.account)
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
-
-    def after_loader(self) -> ReturnView | None:
-        self.account = self.obj.project.account
+        self.post_init()
         return super().after_loader()
+
+    def post_init(self) -> None:
+        self.account = self.obj.project.account
 
     @route('', methods=['GET'])
     @render_with('update_details.html.jinja2')
