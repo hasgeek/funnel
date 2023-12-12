@@ -114,18 +114,12 @@ const Comments = {
       computed: {
         created_at_age() {
           return this.now && this.comment.created_at
-            ? this.timeago.format(
-                this.comment.created_at,
-                window.Hasgeek.Config.locale
-              )
+            ? this.timeago.format(this.comment.created_at, window.Hasgeek.Config.locale)
             : '';
         },
         edited_at_age() {
           return this.now && this.comment.edited_at
-            ? this.timeago.format(
-                this.comment.edited_at,
-                window.Hasgeek.Config.locale
-              )
+            ? this.timeago.format(this.comment.edited_at, window.Hasgeek.Config.locale)
             : '';
         },
       },
@@ -185,9 +179,7 @@ const Comments = {
         },
         activateForm(action, textareaId, parentApp = app) {
           if (textareaId) {
-            const copyTextAreaContent = function copyContentFromCodemirror(
-              view
-            ) {
+            const copyTextAreaContent = function copyContentFromCodemirror(view) {
               if (action === parentApp.COMMENTACTIONS.REPLY) {
                 parentApp.reply = view.state.doc.toString();
               } else {
@@ -215,9 +207,7 @@ const Comments = {
           }
         },
         async submitCommentForm(formId, postUrl, action, parentApp = app) {
-          const commentContent = $(`#${formId}`)
-            .find('textarea[name="message"]')
-            .val();
+          const commentContent = $(`#${formId}`).find('textarea[name="message"]').val();
           const csrfToken = $('meta[name="csrf-token"]').attr('content');
           const response = await fetch(postUrl, {
             method: 'POST',
@@ -314,9 +304,7 @@ const Comments = {
             (entries) => {
               entries.forEach((entry) => {
                 if (entry.isIntersecting) {
-                  const csrfToken = $('meta[name="csrf-token"]').attr(
-                    'content'
-                  );
+                  const csrfToken = $('meta[name="csrf-token"]').attr('content');
                   fetch(lastSeenUrl, {
                     method: 'POST',
                     headers: {

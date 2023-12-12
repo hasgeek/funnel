@@ -27,20 +27,12 @@
       "Value not in LabeledEnum": [""],
       "Invalid Choice: could not coerce": [""],
       "Not a valid choice": ["यह मान्य विकल्प नहीं हैं"],
-      "Field value must be a dictionary": [
-        "फील्ड वैल्यू एक डिक्शनरी होनी चाहिए"
-      ],
+      "Field value must be a dictionary": ["फील्ड वैल्यू एक डिक्शनरी होनी चाहिए"],
       "Invalid JSON: {0!r}": ["अमान्य JSON: {0!r}"],
-      "The JSON root must be a hash object": [
-        "JSON का रूट हैश ऑब्जेक्ट होना चाहिए"
-      ],
-      "This form has already been submitted": [
-        "ये फॉर्म पहले ही जमा किया जा चुका है"
-      ],
+      "The JSON root must be a hash object": ["JSON का रूट हैश ऑब्जेक्ट होना चाहिए"],
+      "This form has already been submitted": ["ये फॉर्म पहले ही जमा किया जा चुका है"],
       "This {attr} is already in use": ["यह {attr} पहले से इस्तेमाल में हैं"],
-      "This URL name is already in use": [
-        "यह URL नाम पहले से इस्तेमाल में हैं"
-      ],
+      "This URL name is already in use": ["यह URL नाम पहले से इस्तेमाल में हैं"],
       "The secret parameter is missing": ["सीक्रेट पैरामीटर मौजूद नहीं हैं"],
       "The secret parameter is invalid or malformed": [
         "सीक्रेट पैरामीटर गलत या असामान्य है"
@@ -60,9 +52,7 @@
       "This domain is not a public email domain": [
         "यह डोमेन सार्वजनिक ईमेल डोमेन नहीं है"
       ],
-      "This domain is a public email domain": [
-        "यह डोमेन सार्वजनिक ईमेल डोमेन है"
-      ],
+      "This domain is a public email domain": ["यह डोमेन सार्वजनिक ईमेल डोमेन है"],
       "This email address does not appear to be valid": [
         "लगता है की यह ईमेल पता मान्य नहीं है"
       ],
@@ -79,9 +69,7 @@
       "This name contains unsupported characters. It should have letters, numbers and non-terminal hyphens only": [
         "इस नाम में असमर्थित पात्र हैं। इसमें केवल पत्र, संख्या और हाइफेन होने चाहिए"
       ],
-      "Valid latitude and longitude expected": [
-        "मान्य अक्षांश और देशांतर की जरूरत है"
-      ],
+      "Valid latitude and longitude expected": ["मान्य अक्षांश और देशांतर की जरूरत है"],
       "Latitude must be within ± 90 degrees": [
         "अक्षांश ± 90 डिग्री के अंदर होना चाहिए"
       ],

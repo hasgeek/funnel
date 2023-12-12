@@ -4,8 +4,7 @@ import 'prismjs/plugins/match-braces/prism-match-braces';
 import 'prismjs/plugins/toolbar/prism-toolbar';
 import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard';
 
-Prism.plugins.autoloader.languages_path =
-  '/static/build/js/prismjs/components/';
+Prism.plugins.autoloader.languages_path = '/static/build/js/prismjs/components/';
 
 const PrismEmbed = {
   activatePrism() {
@@ -25,8 +24,7 @@ const PrismEmbed = {
         if (env.element) $(env.element).addClass('activating');
       });
       Prism.hooks.add('complete', (env) => {
-        if (env.element)
-          $(env.element).addClass('activated').removeClass('activating');
+        if (env.element) $(env.element).addClass('activated').removeClass('activating');
         $(env.element)
           .parent()
           .parent()

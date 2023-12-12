@@ -1,9 +1,5 @@
 import { EditorView, keymap } from '@codemirror/view';
-import {
-  markdown,
-  markdownLanguage,
-  markdownKeymap,
-} from '@codemirror/lang-markdown';
+import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
 import { html } from '@codemirror/lang-html';
 import { closeBrackets } from '@codemirror/autocomplete';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
@@ -15,11 +11,7 @@ import {
 } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
 
-function codemirrorHelper(
-  markdownId,
-  updateFnCallback = '',
-  callbackInterval = 1000
-) {
+function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 1000) {
   let textareaWaitTimer;
 
   const markdownHighlighting = HighlightStyle.define([

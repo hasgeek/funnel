@@ -14,8 +14,7 @@ const MarkmapEmbed = {
     const parentElement = $(container || 'body');
     const markmapEmbed = this;
     if (
-      parentElement.find('.md-embed-markmap:not(.activating, .activated)')
-        .length > 0
+      parentElement.find('.md-embed-markmap:not(.activating, .activated)').length > 0
     ) {
       const { Transformer } = await import('markmap-lib');
       const { Markmap } = await import('markmap-view');
@@ -59,10 +58,7 @@ const MarkmapEmbed = {
           $(markdownDiv).addClass('activated').removeClass('activating');
         });
 
-      window.addEventListener(
-        'resize',
-        this.resizeMarkmapContainers.bind(this)
-      );
+      window.addEventListener('resize', this.resizeMarkmapContainers.bind(this));
     }
   },
 };

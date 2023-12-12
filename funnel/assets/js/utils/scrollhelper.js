@@ -34,9 +34,7 @@ const ScrollHelper = {
       );
       $('#jquery-scroll-tabs .js-scroll-prev').on('click', (event) => {
         event.preventDefault();
-        const prevTab = $('.tabs__item--active')
-          .prev('.tabs__item')
-          .attr('href');
+        const prevTab = $('.tabs__item--active').prev('.tabs__item').attr('href');
 
         if (prevTab) {
           window.location.href = prevTab;
@@ -44,9 +42,7 @@ const ScrollHelper = {
       });
       $('#jquery-scroll-tabs .js-scroll-next').on('click', (event) => {
         event.preventDefault();
-        const nextTab = $('.tabs__item--active')
-          .next('.tabs__item')
-          .attr('href');
+        const nextTab = $('.tabs__item--active').next('.tabs__item').attr('href');
 
         if (nextTab) {
           window.location.href = nextTab;

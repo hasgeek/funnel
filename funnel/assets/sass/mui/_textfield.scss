@@ -198,9 +198,7 @@ $xFormLabelLineHeight: floor($mui-label-font-size * 1.25);
     > textarea:invalid:not(:focus) {
       &:not(:required),
       &:required.mui--is-not-empty,
-      &:required[value]:not([value='']):not(.mui--is-empty):not(
-          .mui--is-not-empty
-        ),
+      &:required[value]:not([value='']):not(.mui--is-empty):not(.mui--is-not-empty),
       &:required:not(:empty):not(.mui--is-empty):not(.mui--is-not-empty) {
         ~ label {
           color: $mui-danger-color;

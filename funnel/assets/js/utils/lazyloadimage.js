@@ -1,9 +1,8 @@
 const LazyloadImg = {
   init(imgClassName) {
-    const intersectionObserverComponents =
-      function intersectionObserverComponents() {
-        LazyloadImg.addObserver(imgClassName);
-      };
+    const intersectionObserverComponents = function intersectionObserverComponents() {
+      LazyloadImg.addObserver(imgClassName);
+    };
 
     if (document.querySelector(`.${imgClassName}`)) {
       if (

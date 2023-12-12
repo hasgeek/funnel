@@ -27,10 +27,7 @@ module.exports = {
   entry: {
     app: path.resolve(__dirname, 'funnel/assets/js/app.js'),
     index: path.resolve(__dirname, 'funnel/assets/js/index.js'),
-    project_header: path.resolve(
-      __dirname,
-      'funnel/assets/js/project_header.js'
-    ),
+    project_header: path.resolve(__dirname, 'funnel/assets/js/project_header.js'),
     project: path.resolve(__dirname, 'funnel/assets/js/project.js'),
     submissions: path.resolve(__dirname, 'funnel/assets/js/submissions.js'),
     submission: path.resolve(__dirname, 'funnel/assets/js/submission.js'),
@@ -45,10 +42,7 @@ module.exports = {
     comments: path.resolve(__dirname, 'funnel/assets/js/comments.js'),
     update: path.resolve(__dirname, 'funnel/assets/js/update.js'),
     rsvp_list: path.resolve(__dirname, 'funnel/assets/js/rsvp_list.js'),
-    notification_list: path.resolve(
-      __dirname,
-      'funnel/assets/js/notification_list.js'
-    ),
+    notification_list: path.resolve(__dirname, 'funnel/assets/js/notification_list.js'),
     notification_settings: path.resolve(
       __dirname,
       'funnel/assets/js/notification_settings.js'
@@ -57,82 +51,40 @@ module.exports = {
     autosave_form: path.resolve(__dirname, 'funnel/assets/js/autosave_form.js'),
     form: path.resolve(__dirname, 'funnel/assets/js/form.js'),
     account_form: path.resolve(__dirname, 'funnel/assets/js/account_form.js'),
-    submission_form: path.resolve(
-      __dirname,
-      'funnel/assets/js/submission_form.js'
-    ),
+    submission_form: path.resolve(__dirname, 'funnel/assets/js/submission_form.js'),
     labels_form: path.resolve(__dirname, 'funnel/assets/js/labels_form.js'),
     cfp_form: path.resolve(__dirname, 'funnel/assets/js/cfp_form.js'),
-    rsvp_form_modal: path.resolve(
-      __dirname,
-      'funnel/assets/js/rsvp_form_modal.js'
-    ),
+    rsvp_form_modal: path.resolve(__dirname, 'funnel/assets/js/rsvp_form_modal.js'),
     app_css: path.resolve(__dirname, 'funnel/assets/sass/app.scss'),
     form_css: path.resolve(__dirname, 'funnel/assets/sass/form.scss'),
     index_css: path.resolve(__dirname, 'funnel/assets/sass/pages/index.scss'),
-    profile_css: path.resolve(
-      __dirname,
-      'funnel/assets/sass/pages/profile.scss'
-    ),
-    project_css: path.resolve(
-      __dirname,
-      'funnel/assets/sass/pages/project.scss'
-    ),
-    submission_css: path.resolve(
-      __dirname,
-      'funnel/assets/sass/pages/submission.scss'
-    ),
+    profile_css: path.resolve(__dirname, 'funnel/assets/sass/pages/profile.scss'),
+    project_css: path.resolve(__dirname, 'funnel/assets/sass/pages/project.scss'),
+    submission_css: path.resolve(__dirname, 'funnel/assets/sass/pages/submission.scss'),
     labels_css: path.resolve(__dirname, 'funnel/assets/sass/pages/labels.scss'),
-    schedule_css: path.resolve(
-      __dirname,
-      'funnel/assets/sass/pages/schedule.scss'
-    ),
+    schedule_css: path.resolve(__dirname, 'funnel/assets/sass/pages/schedule.scss'),
     about_css: path.resolve(__dirname, 'funnel/assets/sass/pages/about.scss'),
-    login_form_css: path.resolve(
-      __dirname,
-      'funnel/assets/sass/pages/login_form.scss'
-    ),
-    comments_css: path.resolve(
-      __dirname,
-      'funnel/assets/sass/pages/comments.scss'
-    ),
-    scan_badge_css: path.resolve(
-      __dirname,
-      'funnel/assets/sass/pages/scan_badge.scss'
-    ),
-    contacts_css: path.resolve(
-      __dirname,
-      'funnel/assets/sass/pages/contacts.scss'
-    ),
+    login_form_css: path.resolve(__dirname, 'funnel/assets/sass/pages/login_form.scss'),
+    comments_css: path.resolve(__dirname, 'funnel/assets/sass/pages/comments.scss'),
+    scan_badge_css: path.resolve(__dirname, 'funnel/assets/sass/pages/scan_badge.scss'),
+    contacts_css: path.resolve(__dirname, 'funnel/assets/sass/pages/contacts.scss'),
     submissions_css: path.resolve(
       __dirname,
       'funnel/assets/sass/pages/submissions.scss'
     ),
-    membership_css: path.resolve(
-      __dirname,
-      'funnel/assets/sass/pages/membership.scss'
-    ),
-    account_css: path.resolve(
-      __dirname,
-      'funnel/assets/sass/pages/account.scss'
-    ),
+    membership_css: path.resolve(__dirname, 'funnel/assets/sass/pages/membership.scss'),
+    account_css: path.resolve(__dirname, 'funnel/assets/sass/pages/account.scss'),
     update_css: path.resolve(__dirname, 'funnel/assets/sass/pages/update.scss'),
     imgee_modal_css: path.resolve(
       __dirname,
       'funnel/assets/sass/pages/imgee_modal.scss'
     ),
-    label_form_css: path.resolve(
-      __dirname,
-      'funnel/assets/sass/pages/label_form.scss'
-    ),
+    label_form_css: path.resolve(__dirname, 'funnel/assets/sass/pages/label_form.scss'),
     submission_form_css: path.resolve(
       __dirname,
       'funnel/assets/sass/pages/submission_form.scss'
     ),
-    screens_css: path.resolve(
-      __dirname,
-      'funnel/assets/sass/pages/screens.scss'
-    ),
+    screens_css: path.resolve(__dirname, 'funnel/assets/sass/pages/screens.scss'),
     event_css: path.resolve(__dirname, 'funnel/assets/sass/pages/event.scss'),
   },
   output: {
@@ -194,14 +146,8 @@ module.exports = {
       fileName: path.join(__dirname, 'funnel/static/build/manifest.json'),
     }),
     new InjectManifest({
-      swSrc: path.resolve(
-        __dirname,
-        'funnel/assets/service-worker-template.js'
-      ),
-      swDest: path.resolve(
-        __dirname,
-        'funnel/static/build/js/service-worker.js'
-      ),
+      swSrc: path.resolve(__dirname, 'funnel/assets/service-worker-template.js'),
+      swDest: path.resolve(__dirname, 'funnel/static/build/js/service-worker.js'),
     }),
   ],
 };

@@ -38,14 +38,10 @@ $(() => {
       $('.js-required-field input').prop('checked', true);
       $('#child-form').each(applySortable);
     });
-    $('#child-form').on(
-      'click',
-      '.js-remove-sublabel-form',
-      function removeSubForm(e) {
-        e.preventDefault();
-        $(this).parent().remove();
-      }
-    );
+    $('#child-form').on('click', '.js-remove-sublabel-form', function removeSubForm(e) {
+      e.preventDefault();
+      $(this).parent().remove();
+    });
     initEmojiPicker();
     $('#child-form').each(applySortable);
 

@@ -34,10 +34,7 @@ $(() => {
       if (response && response.ok) {
         const responseData = await response.json();
         if (responseData) {
-          const escapeScript = responseData.html.replace(
-            '<script>',
-            '</script>'
-          );
+          const escapeScript = responseData.html.replace('<script>', '</script>');
           $('.js-proposal-preview').html(escapeScript);
           initEmbed(markdownPreviewElem);
         }
@@ -110,9 +107,7 @@ $(() => {
           .parents('.mui-form__fields')
           .hasClass('label-select-fields')
       ) {
-        fieldInstance.$element
-          .parents('.mui-form__fields')
-          .addClass('has-error');
+        fieldInstance.$element.parents('.mui-form__fields').addClass('has-error');
         $('.js-error-label').removeClass('mui--hide');
         $('.js-label-heading').addClass('mui--text-danger');
       }
@@ -123,9 +118,7 @@ $(() => {
         fieldInstance.$element
           .parents('.mui-form__fields')
           .hasClass('label-select-fields') &&
-        fieldInstance.$element
-          .parents('.mui-form__fields')
-          .hasClass('has-error')
+        fieldInstance.$element.parents('.mui-form__fields').hasClass('has-error')
       ) {
         $('.js-error-label').addClass('mui--hide');
         $('.js-label-heading').removeClass('mui--text-danger');

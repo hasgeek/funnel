@@ -26,9 +26,8 @@ const Search = {
       $(activeTab).addClass(this.config.activetabClassName);
       $(this.config.tabWrapperElem).animate(
         {
-          scrollLeft: document.querySelector(
-            `.${this.config.activetabClassName}`
-          ).offsetLeft,
+          scrollLeft: document.querySelector(`.${this.config.activetabClassName}`)
+            .offsetLeft,
         },
         'slow'
       );

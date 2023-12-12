@@ -6,14 +6,7 @@ import getTimeago from './utils/get_timeago';
 import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
 const Updates = {
-  init({
-    draft = '',
-    updates = '',
-    divElem,
-    updateTemplate,
-    isEditor,
-    addReadMore,
-  }) {
+  init({ draft = '', updates = '', divElem, updateTemplate, isEditor, addReadMore }) {
     Vue.use(VS2);
 
     const updateUI = Vue.component('update', {
@@ -85,9 +78,8 @@ const Updates = {
         this.headerHeight = ScrollHelper.getPageHeaderHeight();
         if (window.location.hash) {
           ScrollHelper.animateScrollTo(
-            document
-              .getElementById(window.location.hash)
-              .getBoundingClientRect().top - this.headerHeight
+            document.getElementById(window.location.hash).getBoundingClientRect().top -
+              this.headerHeight
           );
         }
         Utils.truncate();

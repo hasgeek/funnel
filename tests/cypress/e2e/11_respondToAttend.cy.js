@@ -9,10 +9,7 @@ describe('Responding yes to attend a project', () => {
 
     cy.login('/testcypressproject', user.username, user.password);
 
-    cy.get('.upcoming')
-      .find('.card')
-      .contains(project.title)
-      .click({ force: true });
+    cy.get('.upcoming').find('.card').contains(project.title).click({ force: true });
     cy.location('pathname').should('contain', project.url);
     cy.get('a#rsvp-btn:visible').click();
     cy.wait(2000);

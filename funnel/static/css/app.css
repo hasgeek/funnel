@@ -1690,8 +1690,8 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif, 'Noto Sans Math',
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Helvetica Neue', Arial, sans-serif, 'Noto Sans Math',
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   font-size: 14px;
   font-weight: 400;
@@ -2766,9 +2766,7 @@ h6 {
 }
 .mui-textfield--float-label > input:not(:focus).mui--is-not-empty ~ label,
 .mui-textfield--float-label
-  > input:not(:focus)[value]:not([value='']):not(.mui--is-empty):not(
-    .mui--is-not-empty
-  )
+  > input:not(:focus)[value]:not([value='']):not(.mui--is-empty):not(.mui--is-not-empty)
   ~ label,
 .mui-textfield--float-label
   > input:not(:focus):not(:empty):not(.mui--is-empty):not(.mui--is-not-empty)
@@ -2865,20 +2863,18 @@ h6 {
 
 .mui-textfield > input:invalid:not(:focus):not(:required),
 .mui-textfield > input:invalid:not(:focus):required.mui--is-not-empty,
+.mui-textfield > input:invalid:not(:focus):required.mui--is-empty.mui--is-touched,
 .mui-textfield
-  > input:invalid:not(:focus):required.mui--is-empty.mui--is-touched,
-.mui-textfield
-  > input:invalid:not(:focus):required[value]:not([value='']):not(
-    .mui--is-empty
-  ):not(.mui--is-not-empty),
+  > input:invalid:not(:focus):required[value]:not([value='']):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ),
 .mui-textfield
   > input:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(
     .mui--is-not-empty
   ),
 .mui-textfield > textarea:invalid:not(:focus):not(:required),
 .mui-textfield > textarea:invalid:not(:focus):required.mui--is-not-empty,
-.mui-textfield
-  > textarea:invalid:not(:focus):required.mui--is-empty.mui--is-touched,
+.mui-textfield > textarea:invalid:not(:focus):required.mui--is-empty.mui--is-touched,
 .mui-textfield
   > textarea:invalid:not(:focus):required[value]:not([value='']):not(
     .mui--is-empty
@@ -2896,12 +2892,11 @@ h6 {
     .mui--is-empty
   ):not(.mui--is-not-empty),
 .mui-textfield
-  > input:not(:focus).mui--is-invalid:required:not(:empty):not(
-    .mui--is-empty
-  ):not(.mui--is-not-empty),
+  > input:not(:focus).mui--is-invalid:required:not(:empty):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ),
 .mui-textfield > textarea:not(:focus).mui--is-invalid:not(:required),
-.mui-textfield
-  > textarea:not(:focus).mui--is-invalid:required.mui--is-not-empty,
+.mui-textfield > textarea:not(:focus).mui--is-invalid:required.mui--is-not-empty,
 .mui-textfield
   > textarea:not(:focus).mui--is-invalid:required.mui--is-empty.mui--is-touched,
 .mui-textfield
@@ -2909,21 +2904,20 @@ h6 {
     .mui--is-empty
   ):not(.mui--is-not-empty),
 .mui-textfield
-  > textarea:not(:focus).mui--is-invalid:required:not(:empty):not(
-    .mui--is-empty
-  ):not(.mui--is-not-empty) {
+  > textarea:not(:focus).mui--is-invalid:required:not(:empty):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ) {
   border-color: #fcdcda;
   border-width: 2px;
 }
 
 .mui-textfield > input:invalid:not(:focus):not(:required),
 .mui-textfield > input:invalid:not(:focus):required.mui--is-not-empty,
+.mui-textfield > input:invalid:not(:focus):required.mui--is-empty.mui--is-touched,
 .mui-textfield
-  > input:invalid:not(:focus):required.mui--is-empty.mui--is-touched,
-.mui-textfield
-  > input:invalid:not(:focus):required[value]:not([value='']):not(
-    .mui--is-empty
-  ):not(.mui--is-not-empty),
+  > input:invalid:not(:focus):required[value]:not([value='']):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ),
 .mui-textfield
   > input:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(
     .mui--is-not-empty
@@ -2937,9 +2931,9 @@ h6 {
     .mui--is-empty
   ):not(.mui--is-not-empty),
 .mui-textfield
-  > input:not(:focus).mui--is-invalid:required:not(:empty):not(
-    .mui--is-empty
-  ):not(.mui--is-not-empty) {
+  > input:not(:focus).mui--is-invalid:required:not(:empty):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ) {
   height: 33px;
   margin-bottom: -1px;
 }
@@ -2951,9 +2945,9 @@ h6 {
   > input:invalid:not(:focus):required.mui--is-not-empty
   ~ label,
 .mui-textfield.mui-textfield--float-label
-  > input:invalid:not(:focus):required[value]:not([value='']):not(
-    .mui--is-empty
-  ):not(.mui--is-not-empty)
+  > input:invalid:not(:focus):required[value]:not([value='']):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  )
   ~ label,
 .mui-textfield.mui-textfield--float-label
   > input:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(
@@ -3004,9 +2998,7 @@ h6 {
   ~ label {
   color: #fcdcda;
 }
-.mui-textfield:not(.mui-textfield--float-label)
-  > .mui--is-invalid:not(:focus)
-  ~ label {
+.mui-textfield:not(.mui-textfield--float-label) > .mui--is-invalid:not(:focus) ~ label {
   color: #fcdcda;
 }
 
@@ -4482,10 +4474,7 @@ blockquote {
 }
 
 .mui-form .mui-form__fields.mui-form__fields--noborder .mui-textfield > input,
-.mui-form
-  .mui-form__fields.mui-form__fields--noborder
-  .mui-textfield
-  > textarea {
+.mui-form .mui-form__fields.mui-form__fields--noborder .mui-textfield > textarea {
   border: none !important;
 }
 .mui-form .mui-form__fields.mui-form__fields--noborder .mui-textfield > label {
@@ -4497,10 +4486,7 @@ blockquote {
   transform: none;
   top: -4px;
 }
-.mui-form
-  .mui-form__fields.mui-form__fields--noborder
-  .mui-textfield
-  > .CodeMirror {
+.mui-form .mui-form__fields.mui-form__fields--noborder .mui-textfield > .CodeMirror {
   border-bottom: none;
 }
 
@@ -5858,10 +5844,7 @@ html.touch .collapsible__body--disable {
   margin: 5px 0 16px;
   position: relative;
 }
-.login-page
-  .login-page__box
-  .login-page__box__title
-  .login-page__box__title__txt {
+.login-page .login-page__box .login-page__box__title .login-page__box__title__txt {
   position: relative;
   z-index: 2;
   display: inline-block;
@@ -6728,9 +6711,7 @@ a.loginbutton.hidden,
   color: #4d5763;
   box-sizing: border-box;
 }
-.header--fixed
-  .header__dropdown
-  .header__dropdown__item.header__dropdown__item:hover {
+.header--fixed .header__dropdown .header__dropdown__item.header__dropdown__item:hover {
   background-color: #f9f9f9;
 }
 .header--fixed .header__dropdown li:last-child .header__dropdown__item {
@@ -6745,9 +6726,7 @@ a.loginbutton.hidden,
 .header--fixed .header__dropdown .header__dropdown__item__more-icon--ellipsis {
   position: relative;
 }
-.header--fixed
-  .header__dropdown
-  .header__dropdown__item__more-icon--ellipsis:before {
+.header--fixed .header__dropdown .header__dropdown__item__more-icon--ellipsis:before {
   content: '';
   display: block;
   position: absolute;
@@ -7620,11 +7599,7 @@ a.loginbutton.hidden,
   height: 120px;
   border-radius: 50%;
 }
-.profile
-  .profile__banner
-  .profile__logo
-  .profile__logo__nologo
-  .profile__logo__icon {
+.profile .profile__banner .profile__logo .profile__logo__nologo .profile__logo__icon {
   width: 90px;
   height: 90px;
   color: #ffffff;
@@ -7854,17 +7829,11 @@ a.loginbutton.hidden,
 .label-form .emojipicker .emojionearea-button .emojionearea-button-close {
   right: 3px;
 }
-.label-form
-  .emojipicker
-  .emojionearea
-  .emojionearea-editor
-  [class*='emojione-'],
+.label-form .emojipicker .emojionearea .emojionearea-editor [class*='emojione-'],
 .label-form .emojipicker .emojionearea .emojionearea-editor .emojioneemoji {
   margin: -0.2ex 1ex 0.2ex -0.5ex;
 }
-.label-form
-  .emojionearea
-  .emojionearea-picker.emojionearea-picker-position-bottom {
+.label-form .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
   right: -251px;
 }
 .label-form
@@ -8778,17 +8747,11 @@ form.mui--bg-accent .CodeMirror {
   .calendar__weekdays__dates__icon {
   display: none;
 }
-.card__calendar
-  .calendar
-  .calendar__weekdays
-  .calendar__weekdays__dates--latest {
+.card__calendar .calendar .calendar__weekdays .calendar__weekdays__dates--latest {
   display: flex;
 }
 
-.card__calendar--compact
-  .calendar
-  .calendar__weekdays
-  .calendar__weekdays__dates,
+.card__calendar--compact .calendar .calendar__weekdays .calendar__weekdays__dates,
 .card__calendar--compact .calendar .calendar__weekdays .calendar__month {
   display: none;
   padding-top: 0;
@@ -9298,14 +9261,10 @@ form.mui--bg-accent .CodeMirror {
 .project-banner .project-details__box .project-details__box__content {
   padding: 16px 0;
 }
-.project-banner
-  .project-details__box
-  .project-details__box__content--lesspadding {
+.project-banner .project-details__box .project-details__box__content--lesspadding {
   padding: 0;
 }
-.project-banner
-  .project-details__box
-  .project-details__box__content--nopadding {
+.project-banner .project-details__box .project-details__box__content--nopadding {
   padding: 0 !important;
 }
 .project-banner .project-details__box .card__calendar {
@@ -9390,9 +9349,7 @@ form.mui--bg-accent .CodeMirror {
   .project-banner .project-details__box .project-details__box__content {
     padding: 16px;
   }
-  .project-banner
-    .project-details__box
-    .project-details__box__content--lesspadding {
+  .project-banner .project-details__box .project-details__box__content--lesspadding {
     padding: 0 16px;
   }
   .project-banner .project-details__box .propose .propose__txt {
@@ -9541,9 +9498,7 @@ form.mui--bg-accent .CodeMirror {
     background-color: #ffffff;
     overflow: auto;
   }
-  .tickets-wrapper
-    .tickets-wrapper__modal__body
-    .tickets-wrapper__modal__body__close {
+  .tickets-wrapper .tickets-wrapper__modal__body .tickets-wrapper__modal__body__close {
     display: block;
     float: right;
     margin-right: 8px;
@@ -10035,11 +9990,7 @@ form.mui--bg-accent .CodeMirror {
 .proposal-page .jquery-modal.blocker.current .modal {
   overflow: auto;
 }
-.proposal-page
-  .jquery-modal.blocker.current
-  .modal
-  .mui-select
-  .mui-select__menu {
+.proposal-page .jquery-modal.blocker.current .modal .mui-select .mui-select__menu {
   max-width: 100%;
   top: 24px !important;
 }
@@ -10049,11 +10000,7 @@ form.mui--bg-accent .CodeMirror {
     width: 100%;
     border-radius: 0;
   }
-  .proposal-page
-    .jquery-modal.blocker.current
-    .modal
-    .mui-select
-    .mui-select__menu {
+  .proposal-page .jquery-modal.blocker.current .modal .mui-select .mui-select__menu {
     max-width: 100%;
   }
   .proposal-page .jquery-modal.blocker.current .modal.markdown-modal {
@@ -10140,10 +10087,7 @@ form.mui--bg-accent .CodeMirror {
 .comment .comment__header .comment__header__details .commenter {
   margin-right: 4px;
 }
-.comment
-  .comment__header
-  .comment__header__details
-  .comment__header__details__user {
+.comment .comment__header .comment__header__details .comment__header__details__user {
   min-height: 40px;
 }
 .comment .comment__header .comment__header__details .user__box {
@@ -10173,10 +10117,7 @@ form.mui--bg-accent .CodeMirror {
 .comment .comment__body .js-comment-form .ajax-form {
   margin-top: 8px;
 }
-.comment
-  .comment__body
-  .js-comment-form
-  > .comment__body__links.link-icon:first-child {
+.comment .comment__body .js-comment-form > .comment__body__links.link-icon:first-child {
   padding-left: 0;
 }
 .comment
@@ -10443,10 +10384,7 @@ form.mui--bg-accent .CodeMirror {
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--time {
   display: none;
 }
-.schedule-grid
-  .schedule
-  .schedule__row--sticky
-  .schedule__row__column--time--pointer {
+.schedule-grid .schedule .schedule__row--sticky .schedule__row__column--time--pointer {
   cursor: pointer;
 }
 
@@ -10458,10 +10396,7 @@ form.mui--bg-accent .CodeMirror {
   .schedule .schedule__row .schedule__row__column {
     display: none;
   }
-  .schedule
-    .schedule__row
-    .schedule__row__column
-    .schedule__row__column__content {
+  .schedule .schedule__row .schedule__row__column .schedule__row__column__content {
     min-height: 50px;
   }
   .schedule .schedule__row--sticky {
@@ -10487,11 +10422,7 @@ form.mui--bg-accent .CodeMirror {
   .schedule-grid .schedule .schedule__table .schedule__row {
     overflow: auto;
   }
-  .schedule-grid
-    .schedule
-    .schedule__table
-    .schedule__row
-    .schedule__row__column {
+  .schedule-grid .schedule .schedule__table .schedule__row .schedule__row__column {
     position: relative;
     background-image: url('../img/schedule-box-background.png?1598540764');
     background-size: 20px 10px;
@@ -10626,9 +10557,7 @@ form.mui--bg-accent .CodeMirror {
   padding: 0;
   width: 100%;
 }
-.jquery-modal.blocker.current
-  .session-modal.session-modal--nopadding
-  .modal__header {
+.jquery-modal.blocker.current .session-modal.session-modal--nopadding .modal__header {
   padding: 0 16px 4px;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
@@ -10653,9 +10582,7 @@ form.mui--bg-accent .CodeMirror {
   .modal__header__text {
   margin: 0 0 4px;
 }
-.jquery-modal.blocker.current
-  .session-modal.session-modal--nopadding
-  .modal__body {
+.jquery-modal.blocker.current .session-modal.session-modal--nopadding .modal__body {
   padding: 0 16px 16px;
   word-break: break-word;
 }

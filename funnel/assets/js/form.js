@@ -27,16 +27,12 @@ window.Hasgeek.initWidgets = async function init(fieldName, config) {
       });
       break;
     case 'UserSelectField': {
-      const { default: lastUserWidget } = await import(
-        './utils/autocomplete_widget'
-      );
+      const { default: lastUserWidget } = await import('./utils/autocomplete_widget');
       lastUserWidget.lastuserAutocomplete(config);
       break;
     }
     case 'GeonameSelectField': {
-      const { default: geonameWidget } = await import(
-        './utils/autocomplete_widget'
-      );
+      const { default: geonameWidget } = await import('./utils/autocomplete_widget');
       geonameWidget.geonameAutocomplete(config);
       break;
     }
@@ -68,8 +64,7 @@ window.Hasgeek.preventDoubleSubmit = function stopDoubleSubmit(
       $(`#${formId}`).submit(function onSubmit() {
         if (
           !$(this).data('parsley-validate') ||
-          ($(this).data('parsley-validate') &&
-            $(this).hasClass('parsley-valid'))
+          ($(this).data('parsley-validate') && $(this).hasClass('parsley-valid'))
         ) {
           $(this).find('button[type="submit"]').prop('disabled', true);
           $(this).find('input[type="submit"]').prop('disabled', true);
@@ -107,14 +102,9 @@ window.Hasgeek.recaptcha = function handleRecaptcha(
     window.onInvisibleRecaptchaSubmit = function recaptchaSubmit() {
       document.getElementById(formId).submit();
     };
-    document.getElementById(formId).onsubmit = function handleFormSubmit(
-      event
-    ) {
+    document.getElementById(formId).onsubmit = function handleFormSubmit(event) {
       event.preventDefault();
-      if (
-        typeof grecaptcha !== 'undefined' &&
-        grecaptcha.getResponse() === ''
-      ) {
+      if (typeof grecaptcha !== 'undefined' && grecaptcha.getResponse() === '') {
         grecaptcha.execute();
       } else {
         document.getElementById(formId).submit();

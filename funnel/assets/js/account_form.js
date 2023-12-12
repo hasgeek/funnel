@@ -55,9 +55,7 @@ window.Hasgeek.Accountform = ({
               const errorTxt = $('<p class="mui-form__error"></p>').text(
                 remoteData.error_description
               );
-              $(errorTxt).insertBefore(
-                $(fieldWrapper).find('.mui-form__helptext')
-              );
+              $(errorTxt).insertBefore($(fieldWrapper).find('.mui-form__helptext'));
             }
           } else {
             $(field).closest('.mui-form__fields').removeClass('has-error');
@@ -93,10 +91,7 @@ window.Hasgeek.Accountform = ({
         if (remoteData.status === 'ok') {
           $(field).parent().find('.progress').addClass('progress--show');
           const widthPercentage = `${remoteData.result.strength * 100}%`;
-          $(field)
-            .parent()
-            .find('.progress__bar')
-            .css('width', widthPercentage);
+          $(field).parent().find('.progress__bar').css('width', widthPercentage);
           $(field)
             .parent()
             .find('.progress__txt')
