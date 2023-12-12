@@ -293,7 +293,7 @@ class OrganizationMembershipView(
 
 @Project.views('crew')
 @route('/<account>/<project>/crew', init_app=app)
-class ProjectMembershipView(UrlChangeCheck, UrlForView, ProjectViewBase):
+class ProjectMembershipView(ProjectViewBase):
     @route('', methods=['GET', 'POST'])
     @render_with(html_in_json('project_membership.html.jinja2'))
     def crew(self) -> ReturnRenderWith:

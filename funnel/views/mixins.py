@@ -11,7 +11,7 @@ from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
 from coaster.auth import current_auth
-from coaster.views import ModelView, UrlForView, route
+from coaster.views import ModelView, UrlChangeCheck, UrlForView, route
 
 from ..forms import SavedProjectForm
 from ..models import (
@@ -47,7 +47,9 @@ class AccountCheckMixin:
         return super().after_loader()  # type: ignore[misc]
 
 
-class ProjectViewBase(AccountCheckMixin, ModelView[Project]):
+class ProjectViewBase(
+    AccountCheckMixin, UrlForView, UrlChangeCheck, ModelView[Project]
+):
     route_model_map = {'account': 'account.urlname', 'project': 'name'}
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form

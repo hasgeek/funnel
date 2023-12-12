@@ -12,14 +12,7 @@ from markupsafe import Markup
 from sqlalchemy.sql import expression
 
 from baseframe import __
-from coaster.views import (
-    ClassView,
-    UrlForView,
-    render_with,
-    requestargs,
-    requires_roles,
-    route,
-)
+from coaster.views import ClassView, render_with, requestargs, requires_roles, route
 
 from .. import app, executor
 from ..models import (
@@ -879,7 +872,7 @@ class AccountSearchView(AccountViewBase):
 
 @Project.views('search')
 @route('/<account>/<project>/', init_app=app)
-class ProjectSearchView(UrlForView, ProjectViewBase):
+class ProjectSearchView(ProjectViewBase):
     @route('search', endpoint='search_project')
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'crew', 'participant'})

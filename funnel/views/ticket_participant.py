@@ -126,7 +126,7 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
 
 @Project.views('ticket_participant')
 @route('/<account>/<project>/ticket_participants', init_app=app)
-class ProjectTicketParticipantView(UrlForView, ProjectViewBase):
+class ProjectTicketParticipantView(ProjectViewBase):
     @route('json')
     @requires_login
     @requires_roles({'promoter', 'usher'})

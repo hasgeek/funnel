@@ -20,7 +20,7 @@ from .mixins import AccountCheckMixin, ProjectViewBase
 
 @Project.views('label')
 @route('/<account>/<project>/labels', init_app=app)
-class ProjectLabelView(UrlForView, ProjectViewBase):
+class ProjectLabelView(ProjectViewBase):
     @route('', methods=['GET', 'POST'])
     @render_with('labels.html.jinja2')
     @requires_login

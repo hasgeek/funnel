@@ -31,7 +31,7 @@ def edit_sponsor_form(obj):
 
 @Project.views('sponsors')
 @route('/<account>/<project>/sponsors/', init_app=app)
-class ProjectSponsorLandingView(UrlChangeCheck, UrlForView, ProjectViewBase):
+class ProjectSponsorLandingView(ProjectViewBase):
     __decorators__ = [requires_login, requires_site_editor]
 
     @route('add', methods=['POST', 'GET'])

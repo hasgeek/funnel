@@ -36,7 +36,7 @@ from .mixins import AccountCheckMixin, ProjectViewBase, TicketEventViewBase
 
 @Project.views('ticket_event')
 @route('/<account>/<project>/ticket_event', init_app=app)
-class ProjectTicketEventView(UrlForView, ProjectViewBase):
+class ProjectTicketEventView(ProjectViewBase):
     @route('')
     @render_with('ticket_event_list.html.jinja2')
     @requires_login

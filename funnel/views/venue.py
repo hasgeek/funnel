@@ -22,7 +22,7 @@ RESERVED_VENUEROOM = ['new', 'edit', 'delete']
 
 @Project.views('venue')
 @route('/<account>/<project>/venues', init_app=app)
-class ProjectVenueView(UrlForView, ProjectViewBase):
+class ProjectVenueView(ProjectViewBase):
     @route('')
     @render_with('venues.html.jinja2')
     @requires_login

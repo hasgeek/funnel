@@ -30,7 +30,7 @@ from .project import ProjectViewBase
 
 @Project.views('updates')
 @route('/<account>/<project>/updates', init_app=app)
-class ProjectUpdatesView(UrlChangeCheck, UrlForView, ProjectViewBase):
+class ProjectUpdatesView(ProjectViewBase):
     @route('', methods=['GET'])
     @render_with(html_in_json('project_updates.html.jinja2'))
     @requires_roles({'reader'})

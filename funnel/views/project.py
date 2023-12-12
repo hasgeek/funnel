@@ -14,14 +14,7 @@ from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
-from coaster.views import (
-    UrlChangeCheck,
-    UrlForView,
-    get_next_url,
-    render_with,
-    requires_roles,
-    route,
-)
+from coaster.views import get_next_url, render_with, requires_roles, route
 
 from .. import app
 from ..forms import (
@@ -319,7 +312,7 @@ class AccountProjectView(AccountViewBase):
 
 @Project.views('main')
 @route('/<account>/<project>/', init_app=app)
-class ProjectView(UrlChangeCheck, UrlForView, ProjectViewBase, DraftViewProtoMixin):
+class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     """All main project views."""
 
     @route('')

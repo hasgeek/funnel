@@ -124,7 +124,7 @@ def session_edit(
 
 @Project.views('session_new')
 @route('/<account>/<project>/sessions', init_app=app)
-class ProjectSessionView(UrlChangeCheck, UrlForView, ProjectViewBase):
+class ProjectSessionView(ProjectViewBase):
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})

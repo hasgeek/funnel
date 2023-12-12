@@ -14,14 +14,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from baseframe import _, localize_timezone
 from coaster.utils import utcnow
-from coaster.views import (
-    UrlChangeCheck,
-    UrlForView,
-    render_with,
-    requestargs,
-    requires_roles,
-    route,
-)
+from coaster.views import render_with, requestargs, requires_roles, route
 
 from .. import app
 from ..models import Project, Proposal, Rsvp, Session, VenueRoom, db, sa
@@ -230,7 +223,7 @@ def session_ical(session: Session, rsvp: Rsvp | None = None) -> Event:
 
 @Project.views('schedule')
 @route('/<account>/<project>/schedule', init_app=app)
-class ProjectScheduleView(UrlChangeCheck, UrlForView, ProjectViewBase):
+class ProjectScheduleView(ProjectViewBase):
     @route('')
     @render_with(html_in_json('project_schedule.html.jinja2'))
     @requires_roles({'reader'})
