@@ -107,7 +107,7 @@ def pytest_generate_tests(metafunc) -> None:
             if cls.test_map is not None:
                 for md_testname, data in cls.test_files.items():
                     data['expected_output'] = {
-                        md_configname: tomlkit.api.string(case.output, multiline=True)
+                        md_configname: tomlkit.string(case.output, multiline=True)
                         for md_configname, case in cls.test_map[md_testname].items()
                     }
                     (md_tests_data_root / md_testname).write_text(tomlkit.dumps(data))

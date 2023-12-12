@@ -34,6 +34,10 @@ __all__ = [
 class LoginSessionError(Exception):
     """Base exception for user session errors."""
 
+    def __init__(self, login_session: LoginSession, *args) -> None:
+        self.login_session = login_session
+        super().__init__(login_session, *args)
+
 
 class LoginSessionExpiredError(LoginSessionError):
     """This user session has expired and cannot be marked as currently active."""
