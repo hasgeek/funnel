@@ -177,7 +177,7 @@ def recent_organization_memberships(
 def organizations_as_member(obj: Account) -> list[RoleAccessProxy[Account]]:
     """Return organizations that the user has a membership in."""
     return [
-        acc.access_for(actor=obj)
+        acc.access_for(actor=obj, datasets=('primary', 'related'))
         for acc in Account.query.filter(
             Account.name_in(app.config['FEATURED_ACCOUNTS'])
         ).all()
