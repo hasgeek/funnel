@@ -52,7 +52,7 @@ unsubscribe_link_invalid = __(
 )
 
 
-@route('/account/notifications')
+@route('/account/notifications', init_app=app)
 class AccountNotificationView(ClassView):
     """Views for notification settings (under account settings)."""
 
@@ -448,6 +448,3 @@ class AccountNotificationView(ClassView):
             ajax=False,
             template='account_formlayout.html.jinja2',
         )
-
-
-AccountNotificationView.init_app(app)

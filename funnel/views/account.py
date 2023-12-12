@@ -290,19 +290,14 @@ def login_session_service(obj: LoginSession) -> str | None:
     return None
 
 
-@route('/account')
+@route('/account', init_app=app)
 class AccountView(ClassView):
     """Account management views."""
 
     __decorators__ = [requires_login]
 
-    obj: Account
     current_section = 'account'  # needed for showing active tab
     SavedProjectForm = SavedProjectForm
-
-    def loader(self, **kwargs) -> Account:
-        """Return current user."""
-        return current_auth.user
 
     @route('', endpoint='account')
     @render_with('account.html.jinja2')
@@ -880,9 +875,6 @@ class AccountView(ClassView):
             ajax=False,
             cancel_url=url_for('account'),
         )
-
-
-AccountView.init_app(app)
 
 
 # --- Compatibility routes -------------------------------------------------------------

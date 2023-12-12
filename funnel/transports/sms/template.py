@@ -6,6 +6,7 @@ import re
 from enum import Enum
 from re import Pattern
 from string import Formatter
+from types import SimpleNamespace
 from typing import Any, ClassVar, cast
 
 from flask import Flask
@@ -249,7 +250,9 @@ class SmsTemplate:
         try:
             return self._format_kwargs[attr]
         except KeyError as exc:
-            raise AttributeError(attr) from exc
+            raise AttributeError(
+                attr, name=attr, obj=SimpleNamespace(**self._format_kwargs)
+            ) from exc
 
     def __getitem__(self, key: str) -> Any:
         """Get a format variable via dictionary access, defaulting to ''."""

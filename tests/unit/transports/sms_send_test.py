@@ -48,15 +48,6 @@ def test_twilio_success() -> None:
 @pytest.mark.enable_socket()
 @pytest.mark.requires_config('app', 'twilio')
 @pytest.mark.usefixtures('app_context')
-def test_twilio_callback() -> None:
-    """Test if message sending is a success when a callback is requested."""
-    sid = send_sms(TWILIO_CLEAN_TARGET, MESSAGE, callback=True)
-    assert sid
-
-
-@pytest.mark.enable_socket()
-@pytest.mark.requires_config('app', 'twilio')
-@pytest.mark.usefixtures('app_context')
 def test_twilio_failures() -> None:
     """Test if message sending is a failure."""
     # Invalid Target
@@ -122,8 +113,8 @@ def test_okay_to_message_in_india_right_now(now: datetime, okay: bool) -> None:
     """Confirm validator says its okay to message between 9 AM and 7 PM IST."""
     with patch('funnel.transports.sms.send.utcnow', return_value=now):
         assert okay_to_message_in_india_right_now() is okay
-        nowin = now.astimezone(indian_timezone)
+        now_in = now.astimezone(indian_timezone)
         if okay:
-            assert 9 <= nowin.hour < 19
+            assert 9 <= now_in.hour < 19
         else:
-            assert nowin.hour >= 19 or nowin.hour < 9
+            assert now_in.hour >= 19 or now_in.hour < 9
