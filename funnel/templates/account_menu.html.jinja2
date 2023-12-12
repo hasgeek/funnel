@@ -32,8 +32,8 @@
        class="header__dropdown__item header__dropdown__item--flex mui--text-dark nounderline mui--text-subhead mui--text-light"
        data-cy="org"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='sitemap', icon_size='title', baseline=false, css_class="mui--text-light") }}</span>{% trans %}Organizations{% endtrans %}</a>
   </li>
-  {%- with accountmemlist = current_auth.user.views.organizations_as_member() %}
-    {%- for org in accountmemlist %}
+  {%- with orglist = current_auth.user.views.organizations_as_member %}
+    {%- for org in orglist %}
       <li>
         <a href="{{ org.url_for() }}"
            class="header__dropdown__item header__dropdown__item--flex header__dropdown__item--morepadding mui--text-dark nounderline">
