@@ -151,7 +151,7 @@ class IndexView(ClassView):
             'featured_project_sessions': scheduled_sessions_list,
             'featured_project_schedule': featured_project_schedule,
             'featured_accounts': [
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                p.current_access(datasets=('primary', 'related'))
                 for p in featured_accounts
             ],
         }
