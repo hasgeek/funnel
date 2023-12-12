@@ -21,7 +21,7 @@ RESERVED_VENUEROOM = ['new', 'edit', 'delete']
 
 
 @Project.views('venue')
-@route('/<account>/<project>/venues')
+@route('/<account>/<project>/venues', init_app=app)
 class ProjectVenueView(UrlForView, ProjectViewBase):
     @route('')
     @render_with('venues.html.jinja2')
@@ -98,11 +98,8 @@ class ProjectVenueView(UrlForView, ProjectViewBase):
         return render_redirect(self.obj.url_for('venues'))
 
 
-ProjectVenueView.init_app(app)
-
-
 @Venue.views('main')
-@route('/<account>/<project>/venues/<venue>')
+@route('/<account>/<project>/venues/<venue>', init_app=app)
 class VenueView(AccountCheckMixin, UrlForView, ModelView[Venue]):
     route_model_map = {
         'account': 'project.account.urlname',
@@ -178,9 +175,6 @@ class VenueView(AccountCheckMixin, UrlForView, ModelView[Venue]):
             cancel_url=self.obj.project.url_for('venues'),
             ajax=False,
         )
-
-
-VenueView.init_app(app)
 
 
 @route('/<account>/<project>/schedule/<venue>/<room>')

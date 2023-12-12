@@ -30,7 +30,7 @@ def edit_sponsor_form(obj):
 
 
 @Project.views('sponsors')
-@route('/<account>/<project>/sponsors/')
+@route('/<account>/<project>/sponsors/', init_app=app)
 class ProjectSponsorLandingView(UrlChangeCheck, UrlForView, ProjectViewBase):
     __decorators__ = [requires_login, requires_site_editor]
 
@@ -115,11 +115,8 @@ class ProjectSponsorLandingView(UrlChangeCheck, UrlForView, ProjectViewBase):
         return {'status': 'error', 'error': 'csrf'}, 422
 
 
-ProjectSponsorLandingView.init_app(app)
-
-
 @ProjectSponsorMembership.views('main')
-@route('/<account>/<project>/sponsors/<sponsorship>')
+@route('/<account>/<project>/sponsors/<sponsorship>', init_app=app)
 class ProjectSponsorView(
     UrlChangeCheck, UrlForView, ModelView[ProjectSponsorMembership]
 ):
@@ -205,6 +202,3 @@ class ProjectSponsorView(
             ref_id='remove_sponsor',
             remove=True,
         )
-
-
-ProjectSponsorView.init_app(app)

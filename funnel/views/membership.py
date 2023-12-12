@@ -44,7 +44,7 @@ from .notification import dispatch_notification
 
 
 @Account.views('members')
-@route('/<account>/members')
+@route('/<account>/members', init_app=app)
 class OrganizationMembersView(AccountViewBase):
     def after_loader(self) -> ReturnView | None:
         """Don't render member views for user accounts."""
@@ -152,11 +152,8 @@ class OrganizationMembersView(AccountViewBase):
         return {'status': 'ok', 'form': membership_form_html}
 
 
-OrganizationMembersView.init_app(app)
-
-
 @AccountMembership.views('main')
-@route('/<account>/members/<membership>')
+@route('/<account>/members/<membership>', init_app=app)
 class OrganizationMembershipView(
     AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[AccountMembership]
 ):
@@ -291,14 +288,11 @@ class OrganizationMembershipView(
         return {'status': 'ok', 'form': form_html}
 
 
-OrganizationMembershipView.init_app(app)
-
-
 #: Project Membership views
 
 
 @Project.views('crew')
-@route('/<account>/<project>/crew')
+@route('/<account>/<project>/crew', init_app=app)
 class ProjectMembershipView(UrlChangeCheck, UrlForView, ProjectViewBase):
     @route('', methods=['GET', 'POST'])
     @render_with(html_in_json('project_membership.html.jinja2'))
@@ -385,9 +379,6 @@ class ProjectMembershipView(UrlChangeCheck, UrlForView, ProjectViewBase):
         return {'status': 'ok', 'form': membership_form_html}
 
 
-ProjectMembershipView.init_app(app)
-
-
 class ProjectCrewMembershipBase(
     AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[ProjectMembership]
 ):
@@ -416,7 +407,7 @@ class ProjectCrewMembershipBase(
 
 
 @ProjectMembership.views('invite')
-@route('/<account>/<project>/crew/<membership>/invite')
+@route('/<account>/<project>/crew/<membership>/invite', init_app=app)
 class ProjectCrewMembershipInviteView(ProjectCrewMembershipBase):
     def load(self, account: str, project: str, membership: str) -> ReturnView | None:
         resp = super().load(account, project, membership)
@@ -461,11 +452,8 @@ class ProjectCrewMembershipInviteView(ProjectCrewMembershipBase):
         return render_redirect(self.obj.project.url_for())
 
 
-ProjectCrewMembershipInviteView.init_app(app)
-
-
 @ProjectMembership.views('main')
-@route('/<account>/<project>/crew/<membership>')
+@route('/<account>/<project>/crew/<membership>', init_app=app)
 class ProjectCrewMembershipView(ProjectCrewMembershipBase):
     @route('edit', methods=['GET', 'POST'])
     @requires_login
@@ -572,6 +560,3 @@ class ProjectCrewMembershipView(ProjectCrewMembershipBase):
             with_chrome=False,
         ).get_data(as_text=True)
         return {'status': 'ok', 'form': form_html}
-
-
-ProjectCrewMembershipView.init_app(app)

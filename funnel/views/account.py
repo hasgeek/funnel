@@ -278,7 +278,7 @@ def login_session_service(obj: LoginSession) -> str | None:
     return None
 
 
-@route('/account')
+@route('/account', init_app=app)
 class AccountView(ClassView):
     """Account management views."""
 
@@ -863,9 +863,6 @@ class AccountView(ClassView):
             ajax=False,
             cancel_url=url_for('account'),
         )
-
-
-AccountView.init_app(app)
 
 
 # --- Compatibility routes -------------------------------------------------------------

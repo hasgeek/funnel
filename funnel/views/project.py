@@ -282,7 +282,7 @@ def project_register_button_text(obj: Project) -> str:
 
 
 @Account.views('project_new')
-@route('/<account>')
+@route('/<account>', init_app=app)
 class AccountProjectView(AccountViewBase):
     """Project views inside the account (new project view only)."""
 
@@ -317,11 +317,8 @@ class AccountProjectView(AccountViewBase):
         )
 
 
-AccountProjectView.init_app(app)
-
-
 @Project.views('main')
-@route('/<account>/<project>/')
+@route('/<account>/<project>/', init_app=app)
 class ProjectView(UrlChangeCheck, UrlForView, ProjectViewBase, DraftViewProtoMixin):
     """All main project views."""
 
@@ -925,6 +922,3 @@ class ProjectView(UrlChangeCheck, UrlForView, ProjectViewBase, DraftViewProtoMix
                 'message': _("This project is no longer featured"),
             }
         return render_redirect(get_next_url(referrer=True))
-
-
-ProjectView.init_app(app)

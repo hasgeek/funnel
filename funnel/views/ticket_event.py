@@ -35,7 +35,7 @@ from .mixins import AccountCheckMixin, ProjectViewBase, TicketEventViewBase
 
 
 @Project.views('ticket_event')
-@route('/<account>/<project>/ticket_event')
+@route('/<account>/<project>/ticket_event', init_app=app)
 class ProjectTicketEventView(UrlForView, ProjectViewBase):
     @route('')
     @render_with('ticket_event_list.html.jinja2')
@@ -116,9 +116,6 @@ class ProjectTicketEventView(UrlForView, ProjectViewBase):
         return render_form(
             form=form, title=_("New Ticket Client"), submit=_("Add ticket client")
         )
-
-
-ProjectTicketEventView.init_app(app)
 
 
 @TicketEvent.views('main')
@@ -215,7 +212,7 @@ TicketEventView.init_app(app)
 
 
 @TicketType.views('main')
-@route('/<account>/<project>/ticket_type/<name>')
+@route('/<account>/<project>/ticket_type/<name>', init_app=app)
 class TicketTypeView(AccountCheckMixin, UrlForView, ModelView[TicketType]):
     __decorators__ = [requires_login]
     route_model_map = {
@@ -289,11 +286,8 @@ class TicketTypeView(AccountCheckMixin, UrlForView, ModelView[TicketType]):
         )
 
 
-TicketTypeView.init_app(app)
-
-
 @TicketClient.views('main')
-@route('/<account>/<project>/ticket_client/<client_id>')
+@route('/<account>/<project>/ticket_client/<client_id>', init_app=app)
 class TicketClientView(AccountCheckMixin, UrlForView, ModelView[TicketClient]):
     __decorators__ = [requires_login]
     route_model_map = {
@@ -350,6 +344,3 @@ class TicketClientView(AccountCheckMixin, UrlForView, ModelView[TicketClient]):
             next=self.obj.project.url_for('admin'),
             cancel_url=self.obj.project.url_for(),
         )
-
-
-TicketClientView.init_app(app)

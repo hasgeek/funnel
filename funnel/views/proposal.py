@@ -64,7 +64,7 @@ def proposals_can_be_reordered(obj):
 
 # --- Routes ------------------------------------------------------------------
 @Project.views('proposal_new')
-@route('/<account>/<project>')
+@route('/<account>/<project>', init_app=app)
 class ProjectProposalView(UrlChangeCheck, UrlForView, ProjectViewBase):
     """Views for proposal management (new/reorder)."""
 
@@ -128,11 +128,8 @@ class ProjectProposalView(UrlChangeCheck, UrlForView, ProjectViewBase):
         return {'status': 'error', 'error': 'csrf'}, 422
 
 
-ProjectProposalView.init_app(app)
-
-
 @Proposal.views('main')
-@route('/<account>/<project>/proposals/<proposal>')
+@route('/<account>/<project>/proposals/<proposal>', init_app=app)
 @route('/<account>/<project>/sub/<proposal>')
 class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Proposal]):
     route_model_map = {
@@ -427,11 +424,8 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
         }
 
 
-ProposalView.init_app(app)
-
-
 @ProposalMembership.views('main')
-@route('/<account>/<project>/sub/<proposal>/collaborator/<membership>')
+@route('/<account>/<project>/sub/<proposal>/collaborator/<membership>', init_app=app)
 class ProposalMembershipView(
     AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[ProposalMembership]
 ):
@@ -526,6 +520,3 @@ class ProposalMembershipView(
                 ),
             }
         return {'status': 'error', 'error': 'csrf'}, 422
-
-
-ProposalMembershipView.init_app(app)

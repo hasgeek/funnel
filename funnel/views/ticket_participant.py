@@ -125,7 +125,7 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
 
 
 @Project.views('ticket_participant')
-@route('/<account>/<project>/ticket_participants')
+@route('/<account>/<project>/ticket_participants', init_app=app)
 class ProjectTicketParticipantView(UrlForView, ProjectViewBase):
     @route('json')
     @requires_login
@@ -161,11 +161,8 @@ class ProjectTicketParticipantView(UrlForView, ProjectViewBase):
         )
 
 
-ProjectTicketParticipantView.init_app(app)
-
-
 @TicketParticipant.views('main')
-@route('/<account>/<project>/ticket_participant/<ticket_participant>')
+@route('/<account>/<project>/ticket_participant/<ticket_participant>', init_app=app)
 class TicketParticipantView(
     AccountCheckMixin, UrlForView, ModelView[TicketParticipant]
 ):
@@ -252,9 +249,6 @@ def user_ticket_assignment(user: Account, changes: list[str]) -> None:
             db.session.commit()
 
 
-TicketParticipantView.init_app(app)
-
-
 @TicketEvent.views('ticket_participant')
 class TicketEventParticipantView(TicketEventViewBase):
     @route('ticket_participants/checkin', methods=['GET', 'POST'])
@@ -266,7 +260,7 @@ class TicketEventParticipantView(TicketEventViewBase):
             ticket_participant_ids = request.form.getlist('puuid_b58')
             for ticket_participant_id in ticket_participant_ids:
                 attendee = TicketEventParticipant.get(self.obj, ticket_participant_id)
-                attendee.checked_in = checked_in
+                attendee.checked_in = bool(checked_in)
             db.session.commit()
             if request_wants.json:
                 return {
@@ -339,7 +333,7 @@ TicketEventParticipantView.init_app(app)
 
 
 # TODO: make this endpoint use uuid_b58 instead of puk, along with badge generation
-@route('/<account>/<project>/event/<event>/ticket_participant/<puk>')
+@route('/<account>/<project>/event/<event>/ticket_participant/<puk>', init_app=app)
 class TicketEventParticipantCheckinView(ClassView):
     __decorators__ = [requires_login]
 
@@ -347,9 +341,7 @@ class TicketEventParticipantCheckinView(ClassView):
     def checkin_puk(
         self, account: str, project: str, event: str, puk: str
     ) -> ReturnView:
-        checked_in = getbool(  # type: ignore[unreachable]
-            request.form.get('checkin', 't')
-        )
+        checked_in = getbool(request.form.get('checkin', 't'))
         ticket_event = (
             TicketEvent.query.join(Project)
             .join(Account, Project.account)
@@ -376,9 +368,6 @@ class TicketEventParticipantCheckinView(ClassView):
                 {'error': 'not_found', 'error_description': _("Attendee not found")},
                 404,
             )
-        attendee.checked_in = checked_in
+        attendee.checked_in = bool(checked_in)
         db.session.commit()
         return {'attendee': {'fullname': ticket_participant.fullname}}
-
-
-TicketEventParticipantCheckinView.init_app(app)

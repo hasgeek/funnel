@@ -123,7 +123,7 @@ def session_edit(
 
 
 @Project.views('session_new')
-@route('/<account>/<project>/sessions')
+@route('/<account>/<project>/sessions', init_app=app)
 class ProjectSessionView(UrlChangeCheck, UrlForView, ProjectViewBase):
     @route('new', methods=['GET', 'POST'])
     @requires_login
@@ -132,11 +132,8 @@ class ProjectSessionView(UrlChangeCheck, UrlForView, ProjectViewBase):
         return session_edit(self.obj)
 
 
-ProjectSessionView.init_app(app)
-
-
 @Session.views('main')
-@route('/<account>/<project>/schedule/<session>')
+@route('/<account>/<project>/schedule/<session>', init_app=app)
 class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Session]):
     route_model_map = {
         'account': 'project.account.urlname',
@@ -274,6 +271,3 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
             },
             400,
         )
-
-
-SessionView.init_app(app)

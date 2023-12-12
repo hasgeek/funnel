@@ -29,7 +29,7 @@ from .project import ProjectViewBase
 
 
 @Project.views('updates')
-@route('/<account>/<project>/updates')
+@route('/<account>/<project>/updates', init_app=app)
 class ProjectUpdatesView(UrlChangeCheck, UrlForView, ProjectViewBase):
     @route('', methods=['GET'])
     @render_with(html_in_json('project_updates.html.jinja2'))
@@ -78,16 +78,13 @@ class ProjectUpdatesView(UrlChangeCheck, UrlForView, ProjectViewBase):
         )
 
 
-ProjectUpdatesView.init_app(app)
-
-
 @Update.features('publish')
 def update_publishable(obj):
     return obj.state.DRAFT and 'editor' in obj.roles_for(current_auth.user)
 
 
 @Update.views('project')
-@route('/<account>/<project>/updates/<update>')
+@route('/<account>/<project>/updates/<update>', init_app=app)
 class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update]):
     route_model_map = {
         'account': 'project.account.urlname',
@@ -183,6 +180,3 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
             submit=_("Delete"),
             cancel_url=self.obj.url_for(),
         )
-
-
-UpdateView.init_app(app)

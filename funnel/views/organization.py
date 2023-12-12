@@ -43,7 +43,7 @@ def people_and_teams(obj: Organization) -> list[tuple[Account, list[Team]]]:
 
 
 @Account.views('org')
-@route('/<account>')
+@route('/<account>', init_app=app)
 class OrgView(UrlChangeCheck, UrlForView, ModelView[Account]):
     """Views for organizations."""
 
@@ -146,11 +146,8 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView[Account]):
         )
 
 
-OrgView.init_app(app)
-
-
 @Team.views('main')
-@route('/<account>/teams/<team>')
+@route('/<account>/teams/<team>', init_app=app)
 class TeamView(UrlChangeCheck, UrlForView, ModelView[Team]):
     """Views for teams in organizations."""
 
@@ -204,6 +201,3 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView[Team]):
             ).format(team=self.obj.title, org=self.obj.account.title),
             next=self.obj.account.url_for('teams'),
         )
-
-
-TeamView.init_app(app)

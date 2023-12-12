@@ -229,7 +229,7 @@ def session_ical(session: Session, rsvp: Rsvp | None = None) -> Event:
 
 
 @Project.views('schedule')
-@route('/<account>/<project>/schedule')
+@route('/<account>/<project>/schedule', init_app=app)
 class ProjectScheduleView(UrlChangeCheck, UrlForView, ProjectViewBase):
     @route('')
     @render_with(html_in_json('project_schedule.html.jinja2'))
@@ -338,9 +338,6 @@ class ProjectScheduleView(UrlChangeCheck, UrlForView, ProjectViewBase):
         self.obj.update_schedule_timestamps()
         db.session.commit()
         return {'status': 'ok'}
-
-
-ProjectScheduleView.init_app(app)
 
 
 @VenueRoom.views('schedule')

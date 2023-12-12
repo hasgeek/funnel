@@ -19,7 +19,7 @@ from .mixins import AccountCheckMixin, ProjectViewBase
 
 
 @Project.views('label')
-@route('/<account>/<project>/labels')
+@route('/<account>/<project>/labels', init_app=app)
 class ProjectLabelView(UrlForView, ProjectViewBase):
     @route('', methods=['GET', 'POST'])
     @render_with('labels.html.jinja2')
@@ -96,11 +96,8 @@ class ProjectLabelView(UrlForView, ProjectViewBase):
         }
 
 
-ProjectLabelView.init_app(app)
-
-
 @Label.views('main')
-@route('/<account>/<project>/labels/<label>')
+@route('/<account>/<project>/labels/<label>', init_app=app)
 class LabelView(AccountCheckMixin, UrlForView, ModelView[Label]):
     __decorators__ = [requires_login]
     route_model_map = {
@@ -253,6 +250,3 @@ class LabelView(AccountCheckMixin, UrlForView, ModelView[Label]):
             submit=_("Delete"),
             cancel_url=self.obj.project.url_for('labels'),
         )
-
-
-LabelView.init_app(app)

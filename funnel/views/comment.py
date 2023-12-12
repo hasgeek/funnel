@@ -99,7 +99,7 @@ def last_comment(obj: Commentset) -> Comment | None:
     return None
 
 
-@route('/comments')
+@route('/comments', init_app=app)
 class AllCommentsView(ClassView):
     """View for index of commentsets."""
 
@@ -143,9 +143,6 @@ class AllCommentsView(ClassView):
         return result
 
 
-AllCommentsView.init_app(app)
-
-
 def do_post_comment(
     commentset: Commentset,
     actor: Account,
@@ -164,7 +161,7 @@ def do_post_comment(
     return comment
 
 
-@route('/comments/<commentset>')
+@route('/comments/<commentset>', init_app=app)
 class CommentsetView(UrlForView, ModelView[Commentset]):
     """Views for commentset display within a host document."""
 
@@ -267,10 +264,7 @@ class CommentsetView(UrlForView, ModelView[Commentset]):
         }, 422
 
 
-CommentsetView.init_app(app)
-
-
-@route('/comments/<commentset>/<comment>')
+@route('/comments/<commentset>/<comment>', init_app=app)
 class CommentView(UrlForView, ModelView[Comment]):
     """Views for a single comment."""
 
@@ -435,6 +429,3 @@ class CommentView(UrlForView, ModelView[Comment]):
             with_chrome=False,
         ).get_data(as_text=True)
         return {'status': 'ok', 'form': reportspamform_html}
-
-
-CommentView.init_app(app)

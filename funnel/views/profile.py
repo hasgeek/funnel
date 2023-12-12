@@ -71,7 +71,7 @@ def template_switcher(templateargs):
 
 
 @Account.views('main')
-@route('/<account>')
+@route('/<account>', init_app=app)
 class ProfileView(UrlChangeCheck, AccountViewBase):
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
@@ -464,6 +464,3 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                 _("There was a problem saving your changes. Please try again"), 'error'
             )
         return render_redirect(get_next_url(referrer=True))
-
-
-ProfileView.init_app(app)

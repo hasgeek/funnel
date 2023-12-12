@@ -14,7 +14,7 @@ from ..typing import ReturnRenderWith
 from .login_session import requires_login
 
 
-@route('/updates')
+@route('/updates', init_app=app)
 class AllNotificationsView(ClassView):
     current_section = 'notifications'  # needed for showing active tab
 
@@ -109,6 +109,3 @@ class AllNotificationsView(ClassView):
             db.session.commit()
             return {'status': 'ok', 'unread': self.unread_count()}
         return {'status': 'error', 'error': 'csrf'}, 400
-
-
-AllNotificationsView.init_app(app)
