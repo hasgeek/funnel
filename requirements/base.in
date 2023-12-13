@@ -24,7 +24,6 @@ Flask-WTF
 furl
 geoip2
 grapheme
-greenlet<3.0  # Required for asyncio in SQLAlchemy, but version conflict in Playwright
 gunicorn
 html2text
 httpx[http2]
@@ -65,5 +64,5 @@ user-agents
 werkzeug
 whitenoise
 wtforms-sqlalchemy @ git+https://github.com/jace/wtforms-sqlalchemy  # See /pull/1
-z-base-32 @ git+https://github.com/matusf/z-base-32  # See /issues/13 for Py 3.12 fix
+z-base-32
 zxcvbn

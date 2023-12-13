@@ -90,7 +90,7 @@ def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:
         # as item.location == (file_path, line_no, function_name). However, pytest-bdd
         # reports itself for file_path, so we can't use that and must extract the path
         # from the test module instead
-        module_file = item.module.__file__
+        module_file = item.module.__file__ if item.module is not None else ''
         for counter, path in enumerate(test_order):
             if path in module_file:
                 return (counter, module_file)

@@ -12,8 +12,7 @@ import idna
 from pyisemail import is_email
 from pyisemail.diagnosis import BaseDiagnosis
 from sqlalchemy import event, inspect
-from sqlalchemy.orm import Mapper
-from sqlalchemy.orm.attributes import NO_VALUE
+from sqlalchemy.orm import NO_VALUE, Mapper
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import StateManager, auto_init_default, immutable, with_roles

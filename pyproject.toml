@@ -163,22 +163,23 @@ astroid.bases.POSSIBLE_PROPERTIES.add('cached_property')
 [tool.pylint.message_control]
 max-line-length = 88
 disable = [
-  'comparison-with-callable',     # Pylint is confused by SQLAlchemy attributes
-  'cyclic-import',                # We have tail imports all over
-  'duplicate-code',               # Too many false positives
-  'fixme',                        # Our workflow is to tag for future fixes
-  'invalid-name',                 # Flake8 covers our naming convention requirements
-  'line-too-long',                # Long lines are okay if Black doesn't wrap them
-  'no-member',                    # Pylint gets confused over how some members become part of an instance
-  'too-few-public-methods',       # Data classes and validator classes have few methods
-  'too-many-ancestors',           # Our models have a large number of mixin classes
-  'too-many-arguments',           # Callables can have many optional arguments
-  'too-many-instance-attributes', # Some instances are just bags of attributes
-  'too-many-lines',               # We have large files that include all related functionality
-  'too-many-public-methods',      # Models and views have many public methods
-  'unused-argument',              # Arguments required for spec compatibility aren't always used
-  'wrong-import-order',           # Let isort and ruff handle this
-  'wrong-import-position',        # Let black, isort and ruff handle this
+  'attribute-defined-outside-init', # Defer to static type checkers
+  'comparison-with-callable',       # Pylint is confused by SQLAlchemy attributes
+  'cyclic-import',                  # We have tail imports all over
+  'duplicate-code',                 # Too many false positives
+  'fixme',                          # Our workflow is to tag for future fixes
+  'invalid-name',                   # Flake8 covers our naming convention requirements
+  'line-too-long',                  # Long lines are okay if Black doesn't wrap them
+  'no-member',                      # Pylint gets confused over how some members become part of an instance
+  'too-few-public-methods',         # Data classes and validator classes have few methods
+  'too-many-ancestors',             # Our models have a large number of mixin classes
+  'too-many-arguments',             # Callables can have many optional arguments
+  'too-many-instance-attributes',   # Some instances are just bags of attributes
+  'too-many-lines',                 # We have large files that include all related functionality
+  'too-many-public-methods',        # Models and views have many public methods
+  'unused-argument',                # Arguments required for spec compatibility aren't always used
+  'wrong-import-order',             # Let isort and ruff handle this
+  'wrong-import-position',          # Let black, isort and ruff handle this
 
   # Temporarily disabled pending audit and fixes
   'missing-class-docstring',

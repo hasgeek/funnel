@@ -7,22 +7,14 @@ from json import JSONDecodeError
 from types import SimpleNamespace
 
 from flask import Response, abort, current_app, flash, render_template, request
-from flask_babel import format_number
+from flask_babel import LazyString, format_number
 from markupsafe import Markup
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
-from coaster.views import (
-    ModelView,
-    UrlChangeCheck,
-    UrlForView,
-    get_next_url,
-    render_with,
-    requires_roles,
-    route,
-)
+from coaster.views import get_next_url, render_with, requires_roles, route
 
 from .. import app
 from ..forms import (
@@ -38,6 +30,7 @@ from ..forms import (
     ProjectTransitionForm,
 )
 from ..models import (
+    PROJECT_RSVP_STATE,
     RSVP_STATUS,
     Account,
     Project,
@@ -57,7 +50,7 @@ from .login_session import (
     requires_site_editor,
     requires_user_not_spammy,
 )
-from .mixins import AccountViewMixin, DraftViewMixin, ProjectViewMixin
+from .mixins import AccountViewBase, DraftViewProtoMixin, ProjectViewBase
 from .notification import dispatch_notification
 
 
@@ -65,14 +58,19 @@ from .notification import dispatch_notification
 class CountWords:
     """Labels for a count of registrations."""
 
-    unregistered: str
-    registered: str
-    not_following: str
-    following: str
+    unregistered: str | LazyString
+    registered: str | LazyString
+    not_following: str | LazyString
+    following: str | LazyString
 
 
 registration_count_messages = [
-    CountWords(__("Be the first to register!"), '', __("Be the first follower!"), ''),
+    CountWords(
+        __("Be the first to register!"),
+        '',
+        __("Be the first follower!"),
+        '',
+    ),
     CountWords(
         __("One registration so far"),
         __("You have registered"),
@@ -142,7 +140,9 @@ numeric_count = CountWords(
 )
 
 
-def get_registration_text(count: int, registered=False, follow_mode=False) -> str:
+def get_registration_text(
+    count: int, registered=False, follow_mode=False
+) -> str | LazyString:
     if count < len(registration_count_messages):
         if registered and not follow_mode:
             return registration_count_messages[count].registered
@@ -160,16 +160,31 @@ def get_registration_text(count: int, registered=False, follow_mode=False) -> st
     return Markup(numeric_count.not_following.format(num=format_number(count)))
 
 
-@Project.features('rsvp')
+@Project.features('rsvp', cached_property=True)
 def feature_project_rsvp(obj: Project) -> bool:
-    return (
+    return bool(
         obj.state.PUBLISHED
-        and obj.allow_rsvp is True
         and (obj.start_at is None or not obj.state.PAST)
+        and (
+            obj.rsvp_state == PROJECT_RSVP_STATE.ALL
+            or (
+                obj.rsvp_state == PROJECT_RSVP_STATE.MEMBERS
+                and obj.current_roles.account_member
+            )
+        )
     )
 
 
-@Project.features('tickets')
+@Project.features('rsvp_for_members', cached_property=True)
+def feature_project_rsvp_for_members(obj: Project) -> bool:
+    return bool(
+        obj.state.PUBLISHED
+        and (obj.start_at is None or not obj.state.PAST)
+        and obj.rsvp_state == PROJECT_RSVP_STATE.MEMBERS
+    )
+
+
+@Project.features('tickets', cached_property=True)
 def feature_project_tickets(obj: Project) -> bool:
     return (
         obj.start_at is not None
@@ -180,9 +195,9 @@ def feature_project_tickets(obj: Project) -> bool:
     )
 
 
-@Project.features('tickets_or_rsvp')
+@Project.features('tickets_or_rsvp', cached_property=True)
 def feature_project_tickets_or_rsvp(obj: Project) -> bool:
-    return obj.features.tickets() or obj.features.rsvp()
+    return obj.features.tickets or obj.features.rsvp
 
 
 @Project.features('subscription', cached_property=True)
@@ -197,16 +212,16 @@ def feature_project_subscription(obj: Project) -> bool:
 
 @Project.features('show_tickets', cached_property=True)
 def show_tickets(obj: Project) -> bool:
-    return obj.features.tickets() or obj.features.subscription
+    return obj.features.tickets or obj.features.subscription
 
 
-@Project.features('rsvp_unregistered')
+@Project.features('rsvp_unregistered', cached_property=True)
 def feature_project_register(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
     return rsvp is None or not rsvp.state.YES
 
 
-@Project.features('rsvp_registered')
+@Project.features('rsvp_registered', cached_property=True)
 def feature_project_deregister(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
     return rsvp is not None and rsvp.state.YES
@@ -214,7 +229,7 @@ def feature_project_deregister(obj: Project) -> bool:
 
 @Project.features('schedule_no_sessions')
 def feature_project_has_no_sessions(obj: Project) -> bool:
-    return obj.state.PUBLISHED and not obj.start_at
+    return bool(obj.state.PUBLISHED and not obj.start_at)
 
 
 @Project.features('comment_new')
@@ -227,17 +242,17 @@ def feature_project_post_update(obj: Project) -> bool:
     return obj.current_roles.editor
 
 
-@Project.features('follow_mode')
+@Project.features('follow_mode', cached_property=True)
 def project_follow_mode(obj: Project) -> bool:
     return obj.start_at is None
 
 
 @Project.views('registration_text')
-def project_registration_text(obj: Project) -> str:
+def project_registration_text(obj: Project) -> str | LazyString:
     return get_registration_text(
         count=obj.rsvp_count_going,
-        registered=obj.features.rsvp_registered(),
-        follow_mode=obj.features.follow_mode(),
+        registered=obj.features.rsvp_registered,
+        follow_mode=obj.features.follow_mode,
     )
 
 
@@ -250,7 +265,7 @@ def project_register_button_text(obj: Project) -> str:
     if custom_text and (rsvp is None or not rsvp.state.YES):
         return custom_text
 
-    if obj.features.follow_mode():
+    if obj.features.follow_mode:
         if rsvp is not None and rsvp.state.YES:
             return _("Following")
         return _("Follow")
@@ -260,8 +275,8 @@ def project_register_button_text(obj: Project) -> str:
 
 
 @Account.views('project_new')
-@route('/<account>')
-class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
+@route('/<account>', init_app=app)
+class AccountProjectView(AccountViewBase):
     """Project views inside the account (new project view only)."""
 
     @route('new', methods=['GET', 'POST'])
@@ -295,23 +310,16 @@ class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
         )
 
 
-AccountProjectView.init_app(app)
-
-
-# mypy has trouble with the definition of `obj` and `model` between ProjectViewMixin and
-# DraftViewMixin
 @Project.views('main')
-@route('/<account>/<project>/')
-class ProjectView(  # type: ignore[misc]
-    ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
-):
+@route('/<account>/<project>/', init_app=app)
+class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     """All main project views."""
 
     @route('')
     @render_with(html_in_json('project.html.jinja2'))
     @requires_roles({'reader'})
     def view(self) -> ReturnRenderWith:
-        """Render project landing lage."""
+        """Render project landing page."""
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'featured_proposals': [
@@ -582,7 +590,7 @@ class ProjectView(  # type: ignore[misc]
             obj=SimpleNamespace(
                 org=boxoffice_data.get('org', ''),
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
-                allow_rsvp=self.obj.allow_rsvp,
+                rsvp_state=self.obj.rsvp_state,
                 is_subscription=boxoffice_data.get('is_subscription', True),
                 register_form_schema=boxoffice_data.get('register_form_schema'),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
@@ -591,7 +599,7 @@ class ProjectView(  # type: ignore[misc]
             model=Project,
         )
         if form.validate_on_submit():
-            form.populate_obj(self.obj)
+            self.obj.rsvp_state = form.rsvp_state.data
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
@@ -907,6 +915,3 @@ class ProjectView(  # type: ignore[misc]
                 'message': _("This project is no longer featured"),
             }
         return render_redirect(get_next_url(referrer=True))
-
-
-ProjectView.init_app(app)
