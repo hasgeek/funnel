@@ -23,7 +23,6 @@ from . import (
     Model,
     Query,
     UuidMixin,
-    backref,
     db,
     declarative_mixin,
     declared_attr,
@@ -96,11 +95,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         sa.ForeignKey('account.id'), nullable=False
     )
     account: Mapped[Account] = with_roles(
-        relationship(
-            Account,
-            foreign_keys=[account_id],
-            backref=backref('clients'),
-        ),
+        relationship(back_populates='clients'),
         read={'all'},
         write={'owner'},
         grants_via={None: {'owner': 'owner', 'admin': 'admin'}},
@@ -155,11 +150,27 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         sa_orm.mapped_column(sa.Boolean, nullable=False, default=False), read={'all'}
     )
 
+    # --- Backrefs
+
     login_sessions: DynamicMapped[LoginSession] = relationship(
-        LoginSession,
         lazy='dynamic',
         secondary=auth_client_login_session,
-        backref=backref('auth_clients', lazy='dynamic'),
+        back_populates='auth_clients',
+    )
+    credentials: Mapped[dict[str, AuthClientCredential]] = relationship(
+        collection_class=attribute_keyed_dict('name'), back_populates='auth_client'
+    )
+    authcodes: DynamicMapped[AuthCode] = relationship(
+        lazy='dynamic', back_populates='auth_client'
+    )
+    authtokens: DynamicMapped[AuthToken] = relationship(
+        lazy='dynamic', back_populates='auth_client'
+    )
+    account_permissions: Mapped[list[AuthClientPermissions]] = relationship(
+        back_populates='auth_client'
+    )
+    team_permissions: Mapped[list[AuthClientTeamPermissions]] = relationship(
+        back_populates='auth_client'
     )
 
     __roles__ = {
@@ -179,12 +190,12 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         return credential.secret_is(candidate)
 
     @property
-    def redirect_uris(self) -> Iterable[str]:
+    def redirect_uris(self) -> tuple[str, ...]:
         """Return redirect URIs as a sequence."""
         return tuple(self._redirect_uris.split()) if self._redirect_uris else ()
 
     @redirect_uris.setter
-    def redirect_uris(self, value: Iterable) -> None:
+    def redirect_uris(self, value: Iterable[str]) -> None:
         """Set redirect URIs from a sequence, storing internally as lines of text."""
         self._redirect_uris = '\r\n'.join(value)
 
@@ -217,7 +228,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         self, account: Account | None, login_session: LoginSession | None = None
     ) -> AuthToken | None:
         """
-        Return the authtoken for this account and client.
+        Return the auth token for this account and client.
 
         Only works for confidential clients.
         """
@@ -289,13 +300,7 @@ class AuthClientCredential(BaseMixin, Model):
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
     auth_client: Mapped[AuthClient] = with_roles(
-        relationship(
-            AuthClient,
-            backref=backref(
-                'credentials',
-                collection_class=attribute_keyed_dict('name'),
-            ),
-        ),
+        relationship(back_populates='credentials'),
         grants_via={None: {'owner'}},
     )
 
@@ -378,11 +383,7 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
     auth_client_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
-    auth_client: Mapped[AuthClient] = relationship(
-        AuthClient,
-        foreign_keys=[auth_client_id],
-        backref=backref('authcodes'),
-    )
+    auth_client: Mapped[AuthClient] = relationship(back_populates='authcodes')
     login_session_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('login_session.id'), nullable=True
     )
@@ -421,27 +422,21 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     account_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True
     )
-    account: Mapped[Account | None] = relationship(
-        Account,
-        backref=backref('authtokens', lazy='dynamic'),
-    )
+    account: Mapped[Account | None] = relationship(back_populates='authtokens')
     #: The session in which this token was issued, null for confidential clients
     login_session_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('login_session.id'), nullable=True
     )
     login_session: Mapped[LoginSession | None] = with_roles(
-        relationship(LoginSession, backref=backref('authtokens', lazy='dynamic')),
+        relationship(LoginSession, back_populates='authtokens'),
         read={'owner'},
     )
-    #: The client this authtoken is for
+    #: The client this auth token is for
     auth_client_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
     auth_client: Mapped[AuthClient] = with_roles(
-        relationship(
-            AuthClient,
-            backref=backref('authtokens', lazy='dynamic'),
-        ),
+        relationship(back_populates='authtokens'),
         read={'owner'},
     )
     #: The token
@@ -463,7 +458,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         sa.String(22), nullable=True, unique=True
     )
 
-    # Only one authtoken per user and client. Add to scope as needed
+    # Only one auth token per user and client. Add to scope as needed
     __table_args__ = (
         sa.UniqueConstraint('account_id', 'auth_client_id'),
         sa.UniqueConstraint('login_session_id', 'auth_client_id'),
@@ -643,21 +638,13 @@ class AuthClientPermissions(BaseMixin, Model):
     account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
-    account: Mapped[Account] = relationship(
-        Account,
-        foreign_keys=[account_id],
-        backref=backref('client_permissions'),
-    )
+    account: Mapped[Account] = relationship(back_populates='client_permissions')
     #: AuthClient app they are assigned on
     auth_client_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
     auth_client: Mapped[AuthClient] = with_roles(
-        relationship(
-            AuthClient,
-            foreign_keys=[auth_client_id],
-            backref=backref('account_permissions'),
-        ),
+        relationship(back_populates='account_permissions'),
         grants_via={None: {'owner'}},
     )
     #: The permissions as a string of tokens
@@ -722,20 +709,14 @@ class AuthClientTeamPermissions(BaseMixin, Model):
     team_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('team.id'), nullable=False
     )
-    team: Mapped[Team] = relationship(
-        Team,
-        foreign_keys=[team_id],
-        backref=backref('client_permissions'),
-    )
+    team: Mapped[Team] = relationship(back_populates='client_permissions')
     #: AuthClient app they are assigned on
     auth_client_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
     auth_client: Mapped[AuthClient] = with_roles(
         relationship(
-            AuthClient,
-            foreign_keys=[auth_client_id],
-            backref=backref('team_permissions'),
+            back_populates='team_permissions',
         ),
         grants_via={None: {'owner'}},
     )

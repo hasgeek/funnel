@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 
 from coaster.utils import utcnow
 
@@ -128,6 +129,16 @@ class LoginSession(UuidMixin, BaseMixin, Model):
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
 
+    # --- Backrefs
+    auth_clients: DynamicMapped[AuthClient] = relationship(
+        lazy='dynamic',
+        secondary=auth_client_login_session,
+        back_populates='login_sessions',
+    )
+    authtokens: DynamicMapped[AuthToken] = relationship(
+        lazy='dynamic', back_populates='login_session'
+    )
+
     def __repr__(self) -> str:
         """Represent :class:`UserSession` as a string."""
         return f'<UserSession {self.buid}>'
@@ -201,3 +212,8 @@ class __Account:
         order_by=LoginSession.accessed_at.desc(),
         viewonly=True,
     )
+
+
+# Tail imports
+if TYPE_CHECKING:
+    from .auth_client import AuthClient, AuthToken

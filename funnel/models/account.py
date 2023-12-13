@@ -6,7 +6,7 @@ import hashlib
 import itertools
 from collections.abc import Iterable, Iterator, Sequence
 from datetime import datetime, timedelta
-from typing import ClassVar, Literal, cast, overload
+from typing import TYPE_CHECKING, ClassVar, Literal, cast, overload
 from uuid import UUID
 
 import phonenumbers
@@ -351,6 +351,15 @@ class Account(UuidMixin, BaseMixin, Model):
     )
     phones: Mapped[list[AccountPhone]] = relationship(back_populates='account')
     externalids: Mapped[list[AccountExternalId]] = relationship(
+        back_populates='account'
+    )
+
+    # auth_client.py
+    clients: Mapped[AuthClient] = relationship(back_populates='account')
+    authtokens: DynamicMapped[AuthToken] = relationship(
+        lazy='dynamic', back_populates='account'
+    )
+    client_permissions: Mapped[list[AuthClientPermissions]] = relationship(
         back_populates='account'
     )
 
@@ -1462,6 +1471,11 @@ class Team(UuidMixin, BaseMixin, Model):
         sa.Boolean, nullable=False, default=False
     )
 
+    # --- Backrefs
+    client_permissions: Mapped[list[AuthClientTeamPermissions]] = relationship(
+        back_populates='team'
+    )
+
     def __repr__(self) -> str:
         """Represent :class:`Team` as a string."""
         return f'<Team {self.title} of {self.account!r}>'
@@ -2191,3 +2205,11 @@ Anchor = AccountEmail | AccountEmailClaim | AccountPhone | EmailAddress | PhoneN
 # Tail imports
 from .membership_mixin import ImmutableMembershipMixin  # isort: skip
 from .account_membership import AccountMembership  # isort:skip
+
+if TYPE_CHECKING:
+    from .auth_client import (
+        AuthClient,
+        AuthClientPermissions,
+        AuthClientTeamPermissions,
+        AuthToken,
+    )
