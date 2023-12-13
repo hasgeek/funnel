@@ -18,7 +18,10 @@ from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.ext.hybrid import Comparator
 from sqlalchemy.sql.expression import ColumnElement
 from werkzeug.utils import cached_property
-from zbase32 import decode as zbase32_decode, encode as zbase32_encode
+from zbase32 import (  # pyright: ignore[reportGeneralTypeIssues]
+    decode as zbase32_decode,
+    encode as zbase32_encode,
+)
 
 from baseframe import __
 from coaster.sqlalchemy import (

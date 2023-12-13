@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from html import unescape as html_unescape
-from typing import Any, TypedDict, TypeVar, cast
+from typing import Any, TypedDict, TypeVar
 from urllib.parse import quote as urlquote
 
 from flask import request, url_for
@@ -763,13 +763,10 @@ def search_results(
         query = sp.all_query(tsquery)
 
     # Add the three additional columns to the query and paginate results
-    query = cast(
-        Query,
-        query.add_columns(
-            sp.hltitle_column(tsquery),
-            sp.hlsnippet_column(tsquery),
-            sp.matched_text_column(tsquery),
-        ),
+    query = query.add_columns(
+        sp.hltitle_column(tsquery),
+        sp.hlsnippet_column(tsquery),
+        sp.matched_text_column(tsquery),
     )
     pagination = query.paginate(page=page, per_page=per_page, max_per_page=100)
 

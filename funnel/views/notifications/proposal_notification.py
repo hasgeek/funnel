@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from flask import render_template
+from werkzeug.utils import cached_property
 
 from baseframe import _, __
 
@@ -69,12 +70,17 @@ class RenderProposalReceivedNotification(RenderNotification):
     hero_image = 'img/email/chars-v1/new-submission.png'
     email_heading = __("New submission!")
 
-    fragments_order_by = [Proposal.datetime.desc()]
-    fragments_query_options = [
-        sa.orm.load_only(
-            Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid
-        )
-    ]
+    @cached_property
+    def fragments_order_by(self):
+        return [Proposal.datetime.desc()]
+
+    @property
+    def fragments_query_options(self):
+        return [
+            sa.orm.load_only(
+                Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid
+            )
+        ]
 
     def web(self) -> str:
         return render_template(

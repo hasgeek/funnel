@@ -6,7 +6,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, backref, relationship, sa
+from . import DynamicMapped, Mapped, Model, relationship, sa
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -84,13 +84,7 @@ class AccountMembership(ImmutableUserMembershipMixin, Model):
         nullable=False,
     )
     account: Mapped[Account] = with_roles(
-        relationship(
-            Account,
-            foreign_keys=[account_id],
-            backref=backref(
-                'memberships', lazy='dynamic', cascade='all', passive_deletes=True
-            ),
-        ),
+        relationship(Account, foreign_keys=[account_id], back_populates='memberships'),
         grants_via={None: {'admin': 'account_admin', 'owner': 'account_owner'}},
     )
     parent_id: Mapped[int] = sa.orm.synonym('account_id')
@@ -114,6 +108,13 @@ class AccountMembership(ImmutableUserMembershipMixin, Model):
 # Add active membership relationships to Account
 @reopen(Account)
 class __Account:
+    memberships: DynamicMapped[AccountMembership] = relationship(
+        AccountMembership,
+        foreign_keys=[AccountMembership.account_id],
+        lazy='dynamic',
+        passive_deletes=True,
+        back_populates='account',
+    )
     active_admin_memberships: DynamicMapped[AccountMembership] = with_roles(
         relationship(
             AccountMembership,
@@ -151,7 +152,7 @@ class __Account:
     )
 
     owner_users = with_roles(
-        DynamicAssociationProxy[Account]('active_owner_memberships', 'member'),
+        DynamicAssociationProxy('active_owner_memberships', 'member'),
         read={'all'},
     )
     admin_users = with_roles(

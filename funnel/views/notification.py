@@ -18,6 +18,7 @@ from werkzeug.utils import cached_property
 
 from baseframe import __, statsd
 from coaster.auth import current_auth
+from coaster.sqlalchemy import RoleAccessProxy
 
 from .. import app
 from ..models import (
@@ -27,6 +28,7 @@ from ..models import (
     Notification,
     NotificationFor,
     NotificationRecipient,
+    UuidModelUnion,
     db,
 )
 from ..serializers import token_serializer
@@ -235,7 +237,7 @@ class RenderNotification:
             'utm_source': source,
         }
 
-    def unsubscribe_token(self, transport):
+    def unsubscribe_token(self, transport: str) -> str:
         """
         Return a token suitable for use in an unsubscribe link.
 
@@ -260,7 +262,7 @@ class RenderNotification:
             }
         )
 
-    def unsubscribe_url(self, transport):
+    def unsubscribe_url(self, transport: str) -> str:
         """Return an unsubscribe URL."""
         return url_for(
             'notification_unsubscribe',
@@ -270,10 +272,10 @@ class RenderNotification:
         )
 
     @cached_property
-    def unsubscribe_url_email(self):
+    def unsubscribe_url_email(self) -> str:
         return self.unsubscribe_url('email')
 
-    def unsubscribe_short_url(self, transport='sms'):
+    def unsubscribe_short_url(self, transport: str = 'sms') -> str:
         """Return a short but temporary unsubscribe URL (for SMS)."""
         # Eventid is included here because SMS links can't have utm_* tags.
         # However, the current implementation of the unsubscribe handler doesn't
@@ -298,7 +300,7 @@ class RenderNotification:
         return url_for('notification_unsubscribe_short', token=token, _external=True)
 
     @cached_property
-    def fragments_order_by(self):
+    def fragments_order_by(self) -> list:  # TODO: Full spec
         """Provide a list of order_by columns for loading fragments."""
         return [
             self.notification.fragment_model.updated_at.desc()
@@ -307,12 +309,12 @@ class RenderNotification:
         ]
 
     @property
-    def fragments_query_options(self):
+    def fragments_query_options(self) -> list:  # TODO: full spec
         """Provide a list of SQLAlchemy options for loading fragments."""
         return []
 
     @cached_property
-    def fragments(self):
+    def fragments(self) -> list[RoleAccessProxy[UuidModelUnion]]:
         if not self.notification.fragment_model:
             return []
 
@@ -341,7 +343,7 @@ class RenderNotification:
 
     @property
     def actor(self) -> Account | None:
-        """Actor that prompted this notification. May be overriden."""
+        """Actor that prompted this notification. May be overridden."""
         return self.notification.created_by
 
     def web(self) -> str:
