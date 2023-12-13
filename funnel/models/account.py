@@ -18,10 +18,7 @@ from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.ext.hybrid import Comparator
 from sqlalchemy.sql.expression import ColumnElement
 from werkzeug.utils import cached_property
-from zbase32 import (  # pyright: ignore[reportGeneralTypeIssues]
-    decode as zbase32_decode,
-    encode as zbase32_encode,
-)
+from zbase32 import decode as zbase32_decode, encode as zbase32_encode  # type: ignore
 
 from baseframe import __
 from coaster.sqlalchemy import (
@@ -1535,7 +1532,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         'related': {'email', 'private', 'type'},
     }
 
-    def __init__(self, account: Account, **kwargs) -> None:
+    def __init__(self, *, account: Account, **kwargs) -> None:
         email = kwargs.pop('email', None)
         if email:
             kwargs['email_address'] = EmailAddress.add_for(account, email)
@@ -1719,13 +1716,11 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         'related': {'email', 'private', 'type'},
     }
 
-    def __init__(self, account: Account, **kwargs) -> None:
-        email = kwargs.pop('email', None)
-        if email:
-            kwargs['email_address'] = EmailAddress.add_for(account, email)
+    def __init__(self, *, account: Account, email: str, **kwargs) -> None:
+        kwargs['email_address'] = EmailAddress.add_for(account, email)
         super().__init__(account=account, **kwargs)
-        self.blake2b = hashlib.blake2b(
-            self.email.lower().encode(), digest_size=16
+        self.blake2b = hashlib.blake2b(  # self.email is not optional, so this ignore:
+            self.email.lower().encode(), digest_size=16  # type: ignore[union-attr]
         ).digest()
 
     def __repr__(self) -> str:
@@ -1903,7 +1898,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         'related': {'phone', 'private', 'type'},
     }
 
-    def __init__(self, account, **kwargs) -> None:
+    def __init__(self, *, account: Account, **kwargs) -> None:
         phone = kwargs.pop('phone', None)
         if phone:
             kwargs['phone_number'] = PhoneNumber.add_for(account, phone)
@@ -1918,7 +1913,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         return self.phone or ''
 
     @cached_property
-    def parsed(self) -> phonenumbers.PhoneNumber:
+    def parsed(self) -> phonenumbers.PhoneNumber | None:
         """Return parsed phone number using libphonenumber."""
         return self.phone_number.parsed
 

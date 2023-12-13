@@ -267,7 +267,7 @@ class PhoneNumber(BaseMixin, Model):
     #: BLAKE2b 160-bit hash of :attr:`phone`. Kept permanently even if phone is
     #: removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the name,
     #: we're only storing 20 bytes
-    blake2b160 = immutable(
+    blake2b160: Mapped[bytes] = immutable(
         sa.orm.mapped_column(
             sa.LargeBinary,
             sa.CheckConstraint(
@@ -422,7 +422,7 @@ class PhoneNumber(BaseMixin, Model):
 
     @cached_property
     def parsed(self) -> phonenumbers.PhoneNumber | None:
-        """Return parsed phone number using libphonenumbers."""
+        """Return parsed phone number using libphonenumber."""
         if self.number:
             return phonenumbers.parse(self.number)
         return None
@@ -548,7 +548,7 @@ class PhoneNumber(BaseMixin, Model):
         phone_hash: str | None = None,
     ) -> ColumnElement[bool]:
         """
-        Get an filter condition for retriving a :class:`PhoneNumber`.
+        Get an filter condition for retrieving a :class:`PhoneNumber`.
 
         Accepts a normalized phone number or a blake2b160 hash in either bytes or base58
         form. Internally converts all lookups to a bytes-based hash lookup. Returns an
@@ -706,7 +706,7 @@ class PhoneNumber(BaseMixin, Model):
         # There's an existing? Is it blocked?
         if existing.is_blocked:
             return 'blocked'
-        # Is the existing phone mumber available for this owner?
+        # Is the existing phone number available for this owner?
         if not existing.is_available_for(owner):
             # Not available, so return False
             return 'taken'
