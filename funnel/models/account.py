@@ -655,13 +655,13 @@ class Account(UuidMixin, BaseMixin, Model):
     @with_roles(call={'owner'})
     def has_transport_email(self) -> bool:
         """User has an email transport address."""
-        return self.state.ACTIVE and bool(self.email)
+        return bool(self.state.ACTIVE) and bool(self.email)
 
     @with_roles(call={'owner'})
     def has_transport_sms(self) -> bool:
         """User has an SMS transport address."""
         return (
-            self.state.ACTIVE
+            bool(self.state.ACTIVE)
             and self.phone != ''
             and self.phone.phone_number.has_sms is not False
         )
@@ -680,7 +680,7 @@ class Account(UuidMixin, BaseMixin, Model):
     def has_transport_whatsapp(self) -> bool:
         """User has a WhatsApp transport address."""
         return (
-            self.state.ACTIVE
+            bool(self.state.ACTIVE)
             and self.phone != ''
             and self.phone.phone_number.has_wa is not False
         )
@@ -723,15 +723,7 @@ class Account(UuidMixin, BaseMixin, Model):
     def transport_for_whatsapp(self, context: Model | None = None):
         """Return user's preferred WhatsApp transport address within a context."""
         # TODO: Per-account/project customization is a future option
-        if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_wa:
-            return self.phone
-        return None
-
-    @with_roles(call={'owner'})
-    def transport_for_signal(self, context: Model | None = None):
-        """Return user's preferred Signal transport address within a context."""
-        # TODO: Per-account/project customization is a future option
-        if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sm:
+        if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.has_wa:
             return self.phone
         return None
 
