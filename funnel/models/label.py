@@ -339,7 +339,7 @@ class ProposalLabelProxyWrapper:
             Label.name == name, Label.project == self._obj.project
         ).one_or_none()
         if label is None:
-            raise AttributeError
+            raise AttributeError(f"No label {name} in {self._obj.project}")
 
         if not label.has_options:
             return label in self._obj.labels
@@ -357,7 +357,7 @@ class ProposalLabelProxyWrapper:
             Label._archived.is_(False),
         ).one_or_none()
         if label is None:
-            raise AttributeError
+            raise AttributeError(f"No label {name} in {self._obj.project}")
 
         if not label.has_options:
             if value is True:

@@ -12,6 +12,7 @@ from ..models import (
     AuthClient,
     AuthClientCredential,
     AuthClientPermissions,
+    User,
     valid_name,
 )
 from .helpers import strip_filters
@@ -29,7 +30,8 @@ class AuthClientForm(forms.Form):
     """Register a new OAuth client application."""
 
     __returns__ = ('account',)
-    account: Account | None = None
+    edit_user: User
+    account: Account
 
     title = forms.StringField(
         __("Application title"),
@@ -127,7 +129,7 @@ class AuthClientForm(forms.Form):
     def validate_redirect_uri(self, field: forms.Field) -> None:
         """Validate redirect URI points to the website for confidential clients."""
         if self.confidential.data and not self._urls_match(
-            self.website.data, field.data
+            self.website.data or '', field.data
         ):
             raise forms.validators.ValidationError(
                 _("The scheme, domain and port must match that of the website URL")

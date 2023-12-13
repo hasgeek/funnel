@@ -133,7 +133,7 @@ def requires_sysadmin(f: Callable[P, T]) -> Callable[P, T]:
     return wrapper
 
 
-@route('/siteadmin')
+@route('/siteadmin', init_app=app)
 class SiteadminView(ClassView):
     """Site administrator views."""
 
@@ -444,9 +444,6 @@ class SiteadminView(ClassView):
             'report': comment_report,
             'report_form': report_form,
         }
-
-
-SiteadminView.init_app(app)
 
 
 def init_rq_dashboard():
