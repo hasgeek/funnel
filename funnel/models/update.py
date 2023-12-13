@@ -22,6 +22,7 @@ from . import (
     db,
     relationship,
     sa,
+    sa_orm,
 )
 from .account import Account
 from .comment import SET_TYPE, Commentset
@@ -50,7 +51,7 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
 class Update(UuidMixin, BaseScopedIdNameMixin, Model):
     __tablename__ = 'update'
 
-    _visibility_state: Mapped[int] = sa.orm.mapped_column(
+    _visibility_state: Mapped[int] = sa_orm.mapped_column(
         'visibility_state',
         sa.SmallInteger,
         StateManager.check_constraint('visibility_state', VISIBILITY_STATE),
@@ -62,7 +63,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         '_visibility_state', VISIBILITY_STATE, doc="Visibility state"
     )
 
-    _state: Mapped[int] = sa.orm.mapped_column(
+    _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', UPDATE_STATE),
@@ -72,7 +73,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
     )
     state = StateManager('_state', UPDATE_STATE, doc="Update state")
 
-    created_by_id: Mapped[int] = sa.orm.mapped_column(
+    created_by_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, index=True
     )
     created_by: Mapped[Account] = with_roles(
@@ -85,7 +86,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         grants={'creator'},
     )
 
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, index=True
     )
     project: Mapped[Project] = with_roles(
@@ -100,7 +101,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
             }
         },
     )
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
 
     # Relationship to project that exists only when the Update is not restricted, for
     # the purpose of inheriting the account_participant role. We do this because
@@ -127,16 +128,16 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
 
     #: Update number, for Project updates, assigned when the update is published
     number: Mapped[int | None] = with_roles(
-        sa.orm.mapped_column(sa.Integer, nullable=True, default=None), read={'all'}
+        sa_orm.mapped_column(sa.Integer, nullable=True, default=None), read={'all'}
     )
 
     #: Like pinned tweets. You can keep posting updates,
     #: but might want to pin an update from a week ago.
     is_pinned: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, default=False, nullable=False), read={'all'}
+        sa_orm.mapped_column(sa.Boolean, default=False, nullable=False), read={'all'}
     )
 
-    published_by_id: Mapped[int | None] = sa.orm.mapped_column(
+    published_by_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True, index=True
     )
     published_by: Mapped[Account | None] = with_roles(
@@ -148,10 +149,10 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         read={'all'},
     )
     published_at: Mapped[datetime | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    deleted_by_id: Mapped[int | None] = sa.orm.mapped_column(
+    deleted_by_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True, index=True
     )
     deleted_by: Mapped[Account | None] = with_roles(
@@ -163,15 +164,15 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         read={'reader'},
     )
     deleted_at: Mapped[datetime | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'reader'},
     )
 
     edited_at: Mapped[datetime | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    commentset_id: Mapped[int] = sa.orm.mapped_column(
+    commentset_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
@@ -185,7 +186,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         read={'all'},
     )
 
-    search_vector: Mapped[str] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
             'name',
             'title',

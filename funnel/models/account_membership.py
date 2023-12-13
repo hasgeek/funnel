@@ -6,7 +6,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, relationship, sa
+from . import DynamicMapped, Mapped, Model, relationship, sa, sa_orm
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -78,7 +78,7 @@ class AccountMembership(ImmutableUserMembershipMixin, Model):
     }
 
     #: Organization that this membership is being granted on
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
@@ -87,13 +87,13 @@ class AccountMembership(ImmutableUserMembershipMixin, Model):
         relationship(Account, foreign_keys=[account_id], back_populates='memberships'),
         grants_via={None: {'admin': 'account_admin', 'owner': 'account_owner'}},
     )
-    parent_id: Mapped[int] = sa.orm.synonym('account_id')
+    parent_id: Mapped[int] = sa_orm.synonym('account_id')
     parent_id_column = 'account_id'
-    parent: Mapped[Account] = sa.orm.synonym('account')
+    parent: Mapped[Account] = sa_orm.synonym('account')
 
     # Organization roles:
     is_owner: Mapped[bool] = immutable(
-        sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
+        sa_orm.mapped_column(sa.Boolean, nullable=False, default=False)
     )
 
     @cached_property
@@ -120,7 +120,7 @@ class __Account:
             AccountMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
-                sa.orm.remote(AccountMembership.account_id) == Account.id,
+                sa_orm.remote(AccountMembership.account_id) == Account.id,
                 AccountMembership.is_active,
             ),
             order_by=AccountMembership.granted_at.asc(),
@@ -133,7 +133,7 @@ class __Account:
         AccountMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            sa.orm.remote(AccountMembership.account_id) == Account.id,
+            sa_orm.remote(AccountMembership.account_id) == Account.id,
             AccountMembership.is_active,
             AccountMembership.is_owner.is_(True),
         ),
@@ -144,7 +144,7 @@ class __Account:
         AccountMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            sa.orm.remote(AccountMembership.account_id) == Account.id,
+            sa_orm.remote(AccountMembership.account_id) == Account.id,
             AccountMembership.is_invite,
             AccountMembership.revoked_at.is_(None),
         ),
@@ -175,7 +175,7 @@ class __Account:
         lazy='dynamic',
         foreign_keys=[AccountMembership.member_id],
         primaryjoin=sa.and_(
-            sa.orm.remote(AccountMembership.member_id)  # type: ignore[has-type]
+            sa_orm.remote(AccountMembership.member_id)  # type: ignore[has-type]
             == Account.id,
             ~AccountMembership.is_invite,
         ),
@@ -189,7 +189,7 @@ class __Account:
         lazy='dynamic',
         foreign_keys=[AccountMembership.member_id],
         primaryjoin=sa.and_(
-            sa.orm.remote(AccountMembership.member_id)  # type: ignore[has-type]
+            sa_orm.remote(AccountMembership.member_id)  # type: ignore[has-type]
             == Account.id,
             AccountMembership.is_active,
         ),
@@ -203,7 +203,7 @@ class __Account:
         lazy='dynamic',
         foreign_keys=[AccountMembership.member_id],
         primaryjoin=sa.and_(
-            sa.orm.remote(AccountMembership.member_id)  # type: ignore[has-type]
+            sa_orm.remote(AccountMembership.member_id)  # type: ignore[has-type]
             == Account.id,
             AccountMembership.is_active,
             AccountMembership.is_owner.is_(True),
@@ -216,7 +216,7 @@ class __Account:
         lazy='dynamic',
         foreign_keys=[AccountMembership.member_id],
         primaryjoin=sa.and_(
-            sa.orm.remote(AccountMembership.member_id)  # type: ignore[has-type]
+            sa_orm.remote(AccountMembership.member_id)  # type: ignore[has-type]
             == Account.id,
             AccountMembership.is_invite,
             AccountMembership.revoked_at.is_(None),

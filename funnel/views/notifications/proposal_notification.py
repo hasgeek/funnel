@@ -12,7 +12,7 @@ from ...models import (
     Proposal,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
-    sa,
+    sa_orm,
 )
 from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
@@ -77,7 +77,7 @@ class RenderProposalReceivedNotification(RenderNotification):
     @property
     def fragments_query_options(self):
         return [
-            sa.orm.load_only(
+            sa_orm.load_only(
                 Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid
             )
         ]

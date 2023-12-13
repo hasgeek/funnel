@@ -79,7 +79,7 @@ from . import (  # isort:skip  # noqa: F401  # pylint: disable=wrong-import-posi
     views,
     cli,
 )
-from .models import db, sa  # isort:skip  # pylint: disable=wrong-import-position
+from .models import db, sa_orm  # isort:skip
 
 # --- Configuration---------------------------------------------------------------------
 
@@ -208,4 +208,4 @@ app.wsgi_app.add_files(  # type: ignore[attr-defined]
 
 # Database model loading (from Funnel or extensions) is complete.
 # Configure database mappers now, before the process is forked for workers.
-sa.orm.configure_mappers()
+sa_orm.configure_mappers()

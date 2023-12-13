@@ -2189,6 +2189,5 @@ user_phone_primary_table = add_primary_relationship(
 Anchor = AccountEmail | AccountEmailClaim | AccountPhone | EmailAddress | PhoneNumber
 
 # Tail imports
-# pylint: disable=wrong-import-position
 from .membership_mixin import ImmutableMembershipMixin  # isort: skip
 from .account_membership import AccountMembership  # isort:skip

@@ -6,7 +6,16 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, backref, declared_attr, relationship, sa
+from . import (
+    DynamicMapped,
+    Mapped,
+    Model,
+    backref,
+    declared_attr,
+    relationship,
+    sa,
+    sa_orm,
+)
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -103,7 +112,7 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
         },
     }
 
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     project: Mapped[Project] = with_roles(
@@ -117,31 +126,31 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
         ),
         grants_via={None: project_membership_role_map},
     )
-    parent_id: Mapped[int] = sa.orm.synonym('project_id')
+    parent_id: Mapped[int] = sa_orm.synonym('project_id')
     parent_id_column = 'project_id'
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
 
     # Project crew roles (at least one must be True):
 
     #: Editors can edit all common and editorial details of an event
-    is_editor: Mapped[bool] = sa.orm.mapped_column(
+    is_editor: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: Promoters are responsible for promotion and have write access
     #: to common details plus read access to everything else. Unlike
     #: editors, they cannot edit the schedule
-    is_promoter: Mapped[bool] = sa.orm.mapped_column(
+    is_promoter: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: Ushers help participants find their way around an event and have
     #: the ability to scan badges at the door
-    is_usher: Mapped[bool] = sa.orm.mapped_column(
+    is_usher: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
 
     #: Optional label, indicating the member's role in the project
     label = immutable(
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='project_crew_membership_label_check'

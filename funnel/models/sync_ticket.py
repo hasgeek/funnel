@@ -7,7 +7,7 @@ import os
 from collections.abc import Iterable, Sequence
 from typing import Any
 
-from coaster.sqlalchemy import LazyRoleSet
+from coaster.sqlalchemy import LazyRoleSet, with_roles
 
 from . import (
     BaseMixin,
@@ -21,7 +21,7 @@ from . import (
     db,
     relationship,
     sa,
-    with_roles,
+    sa_orm,
 )
 from .account import Account, AccountEmail
 from .email_address import EmailAddress, EmailAddressMixin
@@ -114,7 +114,7 @@ class TicketEvent(GetTitleMixin, Model):
 
     __tablename__ = 'ticket_event'
 
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
@@ -122,7 +122,7 @@ class TicketEvent(GetTitleMixin, Model):
         rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
     ticket_types: Mapped[list[TicketType]] = with_roles(
         relationship(
             'TicketType',
@@ -141,7 +141,7 @@ class TicketEvent(GetTitleMixin, Model):
         rw={'project_promoter'},
     )
     badge_template: Mapped[str | None] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(250), nullable=True), rw={'project_promoter'}
+        sa_orm.mapped_column(sa.Unicode(250), nullable=True), rw={'project_promoter'}
     )
 
     __table_args__ = (
@@ -172,7 +172,7 @@ class TicketType(GetTitleMixin, Model):
 
     __tablename__ = 'ticket_type'
 
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
@@ -180,7 +180,7 @@ class TicketType(GetTitleMixin, Model):
         rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
     ticket_events: Mapped[list[TicketEvent]] = with_roles(
         relationship(
             TicketEvent,
@@ -214,51 +214,51 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
     __email_for__ = 'participant'
 
     fullname: Mapped[str] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(80), nullable=False),
+        sa_orm.mapped_column(sa.Unicode(80), nullable=False),
         read={'promoter', 'member', 'scanner'},
     )
     #: Unvalidated phone number
     phone: Mapped[str | None] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(80), nullable=True),
+        sa_orm.mapped_column(sa.Unicode(80), nullable=True),
         read={'promoter', 'member', 'scanner'},
     )
     #: Unvalidated Twitter id
     twitter: Mapped[str | None] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(80), nullable=True),
+        sa_orm.mapped_column(sa.Unicode(80), nullable=True),
         read={'promoter', 'member', 'scanner'},
     )
     #: Job title
     job_title: Mapped[str | None] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(80), nullable=True),
+        sa_orm.mapped_column(sa.Unicode(80), nullable=True),
         read={'promoter', 'member', 'scanner'},
     )
     #: Company
     company: Mapped[str | None] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(80), nullable=True),
+        sa_orm.mapped_column(sa.Unicode(80), nullable=True),
         read={'promoter', 'member', 'scanner'},
     )
     #: Participant's city
     city: Mapped[str | None] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(80), nullable=True),
+        sa_orm.mapped_column(sa.Unicode(80), nullable=True),
         read={'promoter', 'member', 'scanner'},
     )
     # public key
-    puk: Mapped[str] = sa.orm.mapped_column(
+    puk: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(44), nullable=False, default=make_public_key, unique=True
     )
-    key: Mapped[str] = sa.orm.mapped_column(
+    key: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(44), nullable=False, default=make_private_key, unique=True
     )
-    badge_printed: Mapped[bool] = sa.orm.mapped_column(
+    badge_printed: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, default=False, nullable=False
     )
-    participant_id: Mapped[int | None] = sa.orm.mapped_column(
+    participant_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True
     )
     participant: Mapped[Account | None] = relationship(
         Account, backref=backref('ticket_participants')
     )
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
@@ -398,7 +398,7 @@ class TicketEventParticipant(BaseMixin, Model):
 
     __tablename__ = 'ticket_event_participant'
 
-    ticket_participant_id: Mapped[int] = sa.orm.mapped_column(
+    ticket_participant_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_participant.id'), nullable=False
     )
     ticket_participant: Mapped[TicketParticipant] = relationship(
@@ -409,7 +409,7 @@ class TicketEventParticipant(BaseMixin, Model):
         ),
         overlaps='ticket_events,ticket_participants',
     )
-    ticket_event_id: Mapped[int] = sa.orm.mapped_column(
+    ticket_event_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_event.id'), nullable=False
     )
     ticket_event: Mapped[TicketEvent] = relationship(
@@ -420,7 +420,7 @@ class TicketEventParticipant(BaseMixin, Model):
         ),
         overlaps='ticket_events,ticket_participants',
     )
-    checked_in: Mapped[bool] = sa.orm.mapped_column(
+    checked_in: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, default=False, nullable=False
     )
 
@@ -451,21 +451,21 @@ class TicketEventParticipant(BaseMixin, Model):
 class TicketClient(BaseMixin, Model):
     __tablename__ = 'ticket_client'
     name: Mapped[str] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
+        sa_orm.mapped_column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
     )
     client_eventid: Mapped[str] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
+        sa_orm.mapped_column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
     )
     clientid: Mapped[str] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
+        sa_orm.mapped_column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
     )
     client_secret: Mapped[str] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
+        sa_orm.mapped_column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
     )
     client_access_token: Mapped[str] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
+        sa_orm.mapped_column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
     )
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
@@ -522,22 +522,22 @@ class SyncTicket(BaseMixin, Model):
 
     __tablename__ = 'sync_ticket'
 
-    ticket_no: Mapped[str] = sa.orm.mapped_column(sa.Unicode(80), nullable=False)
-    order_no: Mapped[str] = sa.orm.mapped_column(sa.Unicode(80), nullable=False)
-    ticket_type_id: Mapped[int] = sa.orm.mapped_column(
+    ticket_no: Mapped[str] = sa_orm.mapped_column(sa.Unicode(80), nullable=False)
+    order_no: Mapped[str] = sa_orm.mapped_column(sa.Unicode(80), nullable=False)
+    ticket_type_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_type.id'), nullable=False
     )
     ticket_type: Mapped[TicketType] = relationship(
         TicketType, backref=backref('sync_tickets')
     )
-    ticket_participant_id: Mapped[int] = sa.orm.mapped_column(
+    ticket_participant_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_participant.id'), nullable=False
     )
     ticket_participant: Mapped[TicketParticipant] = relationship(
         TicketParticipant,
         backref=backref('sync_tickets'),
     )
-    ticket_client_id: Mapped[int] = sa.orm.mapped_column(
+    ticket_client_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_client.id'), nullable=False
     )
     ticket_client: Mapped[TicketClient] = relationship(

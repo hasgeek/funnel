@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, with_roles
 
-from . import DynamicMapped, Mapped, Model, Query, backref, db, relationship, sa
+from . import DynamicMapped, Mapped, Model, Query, backref, db, relationship, sa, sa_orm
 from .account import Account
 from .comment import Comment, Commentset
 from .helpers import reopen
@@ -40,7 +40,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
         }
     }
 
-    commentset_id: Mapped[int] = sa.orm.mapped_column(
+    commentset_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('commentset.id', ondelete='CASCADE'),
         nullable=False,
@@ -54,20 +54,20 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
         ),
     )
 
-    parent_id: Mapped[int] = sa.orm.synonym('commentset_id')
+    parent_id: Mapped[int] = sa_orm.synonym('commentset_id')
     parent_id_column = 'commentset_id'
-    parent: Mapped[Commentset] = sa.orm.synonym('commentset')
+    parent: Mapped[Commentset] = sa_orm.synonym('commentset')
 
     #: Flag to indicate notifications are muted
-    is_muted: Mapped[bool] = sa.orm.mapped_column(
+    is_muted: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: When the user visited this commentset last
-    last_seen_at: Mapped[datetime] = sa.orm.mapped_column(
+    last_seen_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
 
-    new_comment_count: Mapped[int] = sa.orm.column_property(
+    new_comment_count: Mapped[int] = sa_orm.column_property(
         sa.select(sa.func.count(Comment.id))
         .where(Comment.commentset_id == commentset_id)  # type: ignore[has-type]
         .where(Comment.state.PUBLIC)  # type: ignore[has-type]

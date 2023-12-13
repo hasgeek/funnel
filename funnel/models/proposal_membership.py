@@ -6,7 +6,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, backref, relationship, sa
+from . import DynamicMapped, Mapped, Model, backref, relationship, sa, sa_orm
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
@@ -78,7 +78,7 @@ class ProposalMembership(  # type: ignore[misc]
     revoke_on_member_delete = False
 
     proposal_id: Mapped[int] = with_roles(
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('proposal.id', ondelete='CASCADE'),
             nullable=False,
@@ -98,20 +98,20 @@ class ProposalMembership(  # type: ignore[misc]
         read={'member', 'editor'},
         grants_via={None: {'editor'}},
     )
-    parent_id: Mapped[int] = sa.orm.synonym('proposal_id')
+    parent_id: Mapped[int] = sa_orm.synonym('proposal_id')
     parent_id_column = 'proposal_id'
-    parent: Mapped[Proposal] = sa.orm.synonym('proposal')
+    parent: Mapped[Proposal] = sa_orm.synonym('proposal')
 
     #: Uncredited members are not listed in the main display, but can edit and may be
     #: listed in a details section. Uncredited memberships are for support roles such
     #: as copy editors.
-    is_uncredited: Mapped[bool] = sa.orm.mapped_column(
+    is_uncredited: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
 
     #: Optional label, indicating the member's role on the proposal
     label = immutable(
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint("label <> ''", name='proposal_membership_label_check'),
             nullable=True,

@@ -24,6 +24,7 @@ from . import (
     hybrid_property,
     relationship,
     sa,
+    sa_orm,
 )
 from .account import (
     Account,
@@ -89,7 +90,7 @@ message_removed = MessageComposite(__("[removed]"), 'del')
 class Commentset(UuidMixin, BaseMixin, Model):
     __tablename__ = 'commentset'
     #: Commentset state code
-    _state: Mapped[int] = sa.orm.mapped_column(
+    _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', COMMENTSET_STATE),
@@ -100,19 +101,19 @@ class Commentset(UuidMixin, BaseMixin, Model):
     state = StateManager('_state', COMMENTSET_STATE, doc="Commentset state")
     #: Type of parent object
     settype: Mapped[int | None] = with_roles(
-        sa.orm.mapped_column('type', sa.Integer, nullable=True),
+        sa_orm.mapped_column('type', sa.Integer, nullable=True),
         read={'all'},
         datasets={'primary'},
     )
     #: Count of comments, stored to avoid count(*) queries
     count: Mapped[int] = with_roles(
-        sa.orm.mapped_column(sa.Integer, default=0, nullable=False),
+        sa_orm.mapped_column(sa.Integer, default=0, nullable=False),
         read={'all'},
         datasets={'primary'},
     )
     #: Timestamp of last comment, for ordering.
     last_comment_at: Mapped[datetime | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary'},
     )
@@ -205,14 +206,14 @@ class Commentset(UuidMixin, BaseMixin, Model):
 class Comment(UuidMixin, BaseMixin, Model):
     __tablename__ = 'comment'
 
-    posted_by_id: Mapped[int | None] = sa.orm.mapped_column(
+    posted_by_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True
     )
     _posted_by: Mapped[Account | None] = with_roles(
         relationship(Account, backref=backref('comments', lazy='dynamic')),
         grants={'author'},
     )
-    commentset_id: Mapped[int] = sa.orm.mapped_column(
+    commentset_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
@@ -223,7 +224,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         grants_via={None: {'document_subscriber'}},
     )
 
-    in_reply_to_id: Mapped[int | None] = sa.orm.mapped_column(
+    in_reply_to_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('comment.id'), nullable=True
     )
     replies: Mapped[list[Comment]] = relationship(
@@ -234,7 +235,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         'message', nullable=False
     )
 
-    _state: Mapped[int] = sa.orm.mapped_column(
+    _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', COMMENT_STATE),
@@ -244,17 +245,17 @@ class Comment(UuidMixin, BaseMixin, Model):
     state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment")
 
     edited_at: Mapped[datetime | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary', 'related', 'json'},
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
     revisionid: Mapped[int] = with_roles(
-        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+        sa_orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[str] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
             'message_text',
             weights={'message_text': 'A'},
@@ -322,7 +323,7 @@ class Comment(UuidMixin, BaseMixin, Model):
 
     @posted_by.inplace.expression
     @classmethod
-    def _posted_by_expression(cls) -> sa.orm.InstrumentedAttribute[Account | None]:
+    def _posted_by_expression(cls) -> sa_orm.InstrumentedAttribute[Account | None]:
         """Return SQL Expression."""
         return cls._posted_by
 

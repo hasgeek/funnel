@@ -6,7 +6,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, backref, db, relationship, sa
+from . import DynamicMapped, Mapped, Model, backref, db, relationship, sa, sa_orm
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
@@ -82,7 +82,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
     revoke_on_member_delete = False
 
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     project: Mapped[Project] = relationship(
@@ -93,17 +93,17 @@ class ProjectSponsorMembership(  # type: ignore[misc]
             passive_deletes=True,
         ),
     )
-    parent_id: Mapped[int] = sa.orm.synonym('project_id')
+    parent_id: Mapped[int] = sa_orm.synonym('project_id')
     parent_id_column = 'project_id'
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
 
     #: Is this sponsor being promoted for commercial reasons? Projects may have a legal
     #: obligation to reveal this. This column records a declaration from the project.
-    is_promoted = immutable(sa.orm.mapped_column(sa.Boolean, nullable=False))
+    is_promoted = immutable(sa_orm.mapped_column(sa.Boolean, nullable=False))
 
     #: Optional label, indicating the type of sponsor
     label = immutable(
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='project_sponsor_membership_label_check'
@@ -211,7 +211,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
     revoke_on_member_delete = False
 
-    proposal_id: Mapped[int] = sa.orm.mapped_column(
+    proposal_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
     proposal: Mapped[Proposal] = relationship(
@@ -222,17 +222,17 @@ class ProposalSponsorMembership(  # type: ignore[misc]
             passive_deletes=True,
         ),
     )
-    parent_id: Mapped[int] = sa.orm.synonym('proposal_id')
+    parent_id: Mapped[int] = sa_orm.synonym('proposal_id')
     parent_id_column = 'proposal_id'
-    parent: Mapped[Proposal] = sa.orm.synonym('proposal')
+    parent: Mapped[Proposal] = sa_orm.synonym('proposal')
 
     #: Is this sponsor being promoted for commercial reasons? Proposals may have a legal
     #: obligation to reveal this. This column records a declaration from the proposal.
-    is_promoted = immutable(sa.orm.mapped_column(sa.Boolean, nullable=False))
+    is_promoted = immutable(sa_orm.mapped_column(sa.Boolean, nullable=False))
 
     #: Optional label, indicating the type of sponsor
     label = immutable(
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='proposal_sponsor_membership_label_check'

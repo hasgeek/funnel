@@ -14,6 +14,7 @@ from . import (
     hybrid_property,
     relationship,
     sa,
+    sa_orm,
 )
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
@@ -45,7 +46,7 @@ proposal_label = sa.Table(
 class Label(BaseScopedNameMixin, Model):
     __tablename__ = 'label'
 
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     # Backref from project is defined in the Project model with an ordering list
@@ -54,12 +55,12 @@ class Label(BaseScopedNameMixin, Model):
     )
     # `parent` is required for
     # :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
 
     #: Parent label's id. Do not write to this column directly, as we don't have the
     #: ability to : validate the value within the app. Always use the :attr:`main_label`
     #: relationship.
-    main_label_id: Mapped[int | None] = sa.orm.mapped_column(
+    main_label_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('label.id', ondelete='CASCADE'),
         index=True,
@@ -81,39 +82,39 @@ class Label(BaseScopedNameMixin, Model):
     # add_primary_relationship)
 
     #: Sequence number for this label, used in UI for ordering
-    seq: Mapped[int] = sa.orm.mapped_column(sa.Integer, nullable=False)
+    seq: Mapped[int] = sa_orm.mapped_column(sa.Integer, nullable=False)
 
     # A single-line description of this label, shown when picking labels (optional)
-    description: Mapped[str] = sa.orm.mapped_column(
+    description: Mapped[str] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=False, default=''
     )
 
     #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
     #: Since emoji can be composed from multiple symbols, there is no length
     #: limit imposed here
-    icon_emoji: Mapped[str | None] = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
+    icon_emoji: Mapped[str | None] = sa_orm.mapped_column(sa.UnicodeText, nullable=True)
 
     #: Restricted mode specifies that this label may only be applied by someone with
     #: an editorial role (TODO: name the role). If this label is a parent, it applies
     #: to all its children
-    _restricted: Mapped[bool] = sa.orm.mapped_column(
+    _restricted: Mapped[bool] = sa_orm.mapped_column(
         'restricted', sa.Boolean, nullable=False, default=False
     )
 
     #: Required mode signals to UI that if this label is a parent, one of its
     #: children must be mandatorily applied to the proposal. The value of this
     #: field must be ignored if the label is not a parent
-    _required: Mapped[bool] = sa.orm.mapped_column(
+    _required: Mapped[bool] = sa_orm.mapped_column(
         'required', sa.Boolean, nullable=False, default=False
     )
 
     #: Archived mode specifies that the label is no longer available for use
     #: although all the previous records will stay in database.
-    _archived: Mapped[bool] = sa.orm.mapped_column(
+    _archived: Mapped[bool] = sa_orm.mapped_column(
         'archived', sa.Boolean, nullable=False, default=False
     )
 
-    search_vector: Mapped[str] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
             'name',
             'title',

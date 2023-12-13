@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from werkzeug.utils import cached_property
 
-from . import Mapped, Model, declared_attr, relationship, sa
+from . import Mapped, Model, declared_attr, relationship, sa, sa_orm
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -46,19 +46,19 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
     # Site admin roles (at least one must be True):
 
     #: Comment moderators can delete comments
-    is_comment_moderator: Mapped[bool] = sa.orm.mapped_column(
+    is_comment_moderator: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: User moderators can suspend users
-    is_user_moderator: Mapped[bool] = sa.orm.mapped_column(
+    is_user_moderator: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: Site editors can feature or reject projects
-    is_site_editor: Mapped[bool] = sa.orm.mapped_column(
+    is_site_editor: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: Sysadmins can manage technical settings
-    is_sysadmin: Mapped[bool] = sa.orm.mapped_column(
+    is_sysadmin: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
 

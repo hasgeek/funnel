@@ -29,6 +29,7 @@ from . import (
     declared_attr,
     relationship,
     sa,
+    sa_orm,
 )
 from .account import Account, Team
 from .helpers import reopen
@@ -54,7 +55,7 @@ class ScopeMixin:
     @classmethod
     def _scope(cls) -> Mapped[str]:
         """Database column for storing scopes as a space-separated string."""
-        return sa.orm.mapped_column(
+        return sa_orm.mapped_column(
             'scope', sa.UnicodeText, nullable=cls.__scope_null_allowed__
         )
 
@@ -91,7 +92,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
     __tablename__ = 'auth_client'
     __scope_null_allowed__ = True
     #: Account that owns this client
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
     account: Mapped[Account] = with_roles(
@@ -106,41 +107,41 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
     )
     #: Human-readable title
     title: Mapped[str] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(250), nullable=False),
+        sa_orm.mapped_column(sa.Unicode(250), nullable=False),
         read={'all'},
         write={'owner'},
     )
     #: Long description
     description: Mapped[str] = with_roles(
-        sa.orm.mapped_column(sa.UnicodeText, nullable=False, default=''),
+        sa_orm.mapped_column(sa.UnicodeText, nullable=False, default=''),
         read={'all'},
         write={'owner'},
     )
     #: Confidential or public client? Public has no secret key
     confidential: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, nullable=False), read={'all'}, write={'owner'}
+        sa_orm.mapped_column(sa.Boolean, nullable=False), read={'all'}, write={'owner'}
     )
     #: Website
     website: Mapped[str] = with_roles(
-        sa.orm.mapped_column(sa.UnicodeText, nullable=False),  # FIXME: Use UrlType
+        sa_orm.mapped_column(sa.UnicodeText, nullable=False),  # FIXME: Use UrlType
         read={'all'},
         write={'owner'},
     )
     #: Redirect URIs (one or more)
-    _redirect_uris: Mapped[str | None] = sa.orm.mapped_column(
+    _redirect_uris: Mapped[str | None] = sa_orm.mapped_column(
         'redirect_uri', sa.UnicodeText, nullable=True, default=''
     )
     #: Back-end notification URI (TODO: deprecated, needs better architecture)
     notification_uri: Mapped[str | None] = with_roles(  # FIXME: Use UrlType
-        sa.orm.mapped_column(sa.UnicodeText, nullable=True, default=''), rw={'owner'}
+        sa_orm.mapped_column(sa.UnicodeText, nullable=True, default=''), rw={'owner'}
     )
     #: Active flag
-    active: Mapped[bool] = sa.orm.mapped_column(
+    active: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=True
     )
     #: Allow anyone to login to this app?
     allow_any_login: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, nullable=False, default=True),
+        sa_orm.mapped_column(sa.Boolean, nullable=False, default=True),
         read={'all'},
         write={'owner'},
     )
@@ -151,7 +152,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
     #: However, resources in the scope column (via ScopeMixin) are granted for
     #: any arbitrary user without explicit user authorization.
     trusted: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, nullable=False, default=False), read={'all'}
+        sa_orm.mapped_column(sa.Boolean, nullable=False, default=False), read={'all'}
     )
 
     login_sessions: DynamicMapped[LoginSession] = relationship(
@@ -284,7 +285,7 @@ class AuthClientCredential(BaseMixin, Model):
     """
 
     __tablename__ = 'auth_client_credential'
-    auth_client_id: Mapped[int] = sa.orm.mapped_column(
+    auth_client_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
     auth_client: Mapped[AuthClient] = with_roles(
@@ -299,17 +300,17 @@ class AuthClientCredential(BaseMixin, Model):
     )
 
     #: OAuth client key
-    name: Mapped[str] = sa.orm.mapped_column(
+    name: Mapped[str] = sa_orm.mapped_column(
         sa.String(22), nullable=False, unique=True, default=make_buid
     )
     #: User description for this credential
-    title: Mapped[str] = sa.orm.mapped_column(
+    title: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(250), nullable=False, default=''
     )
     #: OAuth client secret, hashed
-    secret_hash: Mapped[str] = sa.orm.mapped_column(sa.Unicode, nullable=False)
+    secret_hash: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
     #: When was this credential last used for an API call?
-    accessed_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    accessed_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
@@ -370,11 +371,11 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
     """Short-lived authorization tokens."""
 
     __tablename__ = 'auth_code'
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
     account: Mapped[Account] = relationship(Account, foreign_keys=[account_id])
-    auth_client_id: Mapped[int] = sa.orm.mapped_column(
+    auth_client_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
     auth_client: Mapped[AuthClient] = relationship(
@@ -382,15 +383,15 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
         foreign_keys=[auth_client_id],
         backref=backref('authcodes'),
     )
-    login_session_id: Mapped[int | None] = sa.orm.mapped_column(
+    login_session_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('login_session.id'), nullable=True
     )
     login_session: Mapped[LoginSession | None] = relationship(LoginSession)
-    code: Mapped[str] = sa.orm.mapped_column(
+    code: Mapped[str] = sa_orm.mapped_column(
         sa.String(44), default=newsecret, nullable=False
     )
-    redirect_uri: Mapped[str] = sa.orm.mapped_column(sa.UnicodeText, nullable=False)
-    used: Mapped[bool] = sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)
+    redirect_uri: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
+    used: Mapped[bool] = sa_orm.mapped_column(sa.Boolean, default=False, nullable=False)
 
     def is_valid(self) -> bool:
         """Test if this auth code is still valid."""
@@ -417,7 +418,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     __tablename__ = 'auth_token'
     # Account id is null for client-only tokens and public clients as the account is
     # identified via login_session.account there
-    account_id: Mapped[int | None] = sa.orm.mapped_column(
+    account_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True
     )
     account: Mapped[Account | None] = relationship(
@@ -425,7 +426,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         backref=backref('authtokens', lazy='dynamic'),
     )
     #: The session in which this token was issued, null for confidential clients
-    login_session_id: Mapped[int | None] = sa.orm.mapped_column(
+    login_session_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('login_session.id'), nullable=True
     )
     login_session: Mapped[LoginSession | None] = with_roles(
@@ -433,7 +434,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         read={'owner'},
     )
     #: The client this authtoken is for
-    auth_client_id: Mapped[int] = sa.orm.mapped_column(
+    auth_client_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
     auth_client: Mapped[AuthClient] = with_roles(
@@ -444,21 +445,21 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         read={'owner'},
     )
     #: The token
-    token: Mapped[str] = sa.orm.mapped_column(
+    token: Mapped[str] = sa_orm.mapped_column(
         sa.String(22), default=make_buid, nullable=False, unique=True
     )
     #: The token's type, 'bearer', 'mac' or a URL
-    token_type: Mapped[str] = sa.orm.mapped_column(
+    token_type: Mapped[str] = sa_orm.mapped_column(
         sa.String(250), default='bearer', nullable=False
     )
     #: Token secret for 'mac' type
-    secret: Mapped[str | None] = sa.orm.mapped_column(sa.String(44), nullable=True)
+    secret: Mapped[str | None] = sa_orm.mapped_column(sa.String(44), nullable=True)
     #: Secret's algorithm (for 'mac' type)
-    algorithm: Mapped[str | None] = sa.orm.mapped_column(sa.String(20), nullable=True)
+    algorithm: Mapped[str | None] = sa_orm.mapped_column(sa.String(20), nullable=True)
     #: Token's validity period in seconds, 0 = unlimited
-    validity: Mapped[int] = sa.orm.mapped_column(sa.Integer, nullable=False, default=0)
+    validity: Mapped[int] = sa_orm.mapped_column(sa.Integer, nullable=False, default=0)
     #: Refresh token, to obtain a new token
-    refresh_token: Mapped[str | None] = sa.orm.mapped_column(
+    refresh_token: Mapped[str | None] = sa_orm.mapped_column(
         sa.String(22), nullable=True, unique=True
     )
 
@@ -519,7 +520,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
             self.token = make_buid()
             self.secret = newsecret()
 
-    @sa.orm.validates('algorithm')
+    @sa_orm.validates('algorithm')
     def _validate_algorithm(self, _key: str, value: str | None) -> str | None:
         """Set mac token algorithm to one of supported values."""
         if value is None:
@@ -639,7 +640,7 @@ class AuthClientPermissions(BaseMixin, Model):
     __tablename__ = 'auth_client_permissions'
     __tablename__ = 'auth_client_permissions'
     #: User account that has these permissions
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
     account: Mapped[Account] = relationship(
@@ -648,7 +649,7 @@ class AuthClientPermissions(BaseMixin, Model):
         backref=backref('client_permissions'),
     )
     #: AuthClient app they are assigned on
-    auth_client_id: Mapped[int] = sa.orm.mapped_column(
+    auth_client_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
     auth_client: Mapped[AuthClient] = with_roles(
@@ -660,7 +661,7 @@ class AuthClientPermissions(BaseMixin, Model):
         grants_via={None: {'owner'}},
     )
     #: The permissions as a string of tokens
-    access_permissions: Mapped[str] = sa.orm.mapped_column(
+    access_permissions: Mapped[str] = sa_orm.mapped_column(
         'permissions', sa.UnicodeText, default='', nullable=False
     )
 
@@ -718,7 +719,7 @@ class AuthClientTeamPermissions(BaseMixin, Model):
 
     __tablename__ = 'auth_client_team_permissions'
     #: Team which has these permissions
-    team_id: Mapped[int] = sa.orm.mapped_column(
+    team_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('team.id'), nullable=False
     )
     team: Mapped[Team] = relationship(
@@ -727,7 +728,7 @@ class AuthClientTeamPermissions(BaseMixin, Model):
         backref=backref('client_permissions'),
     )
     #: AuthClient app they are assigned on
-    auth_client_id: Mapped[int] = sa.orm.mapped_column(
+    auth_client_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
     auth_client: Mapped[AuthClient] = with_roles(
@@ -739,7 +740,7 @@ class AuthClientTeamPermissions(BaseMixin, Model):
         grants_via={None: {'owner'}},
     )
     #: The permissions as a string of tokens
-    access_permissions: Mapped[str] = sa.orm.mapped_column(
+    access_permissions: Mapped[str] = sa_orm.mapped_column(
         'permissions', sa.UnicodeText, default='', nullable=False
     )
 

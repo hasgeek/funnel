@@ -15,7 +15,17 @@ from sqlalchemy.ext.hybrid import Comparator
 
 from coaster.sqlalchemy import immutable, with_roles
 
-from . import Mapped, Model, NoIdMixin, UrlType, db, hybrid_property, relationship, sa
+from . import (
+    Mapped,
+    Model,
+    NoIdMixin,
+    UrlType,
+    db,
+    hybrid_property,
+    relationship,
+    sa,
+    sa_orm,
+)
 from .account import Account
 from .helpers import profanity
 
@@ -200,25 +210,25 @@ class Shortlink(NoIdMixin, Model):
     id: Mapped[int] = with_roles(  # noqa: A003
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
         # handling collisions. This needs an "immutable after commit" handler
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             sa.BigInteger, autoincrement=False, nullable=False, primary_key=True
         ),
         read={'all'},
     )
     #: URL target of this shortlink
     url: Mapped[furl] = with_roles(
-        immutable(sa.orm.mapped_column(UrlType, nullable=False, index=True)),
+        immutable(sa_orm.mapped_column(UrlType, nullable=False, index=True)),
         read={'all'},
     )
     #: Id of account that created this shortlink (optional)
-    created_by_id: Mapped[int | None] = sa.orm.mapped_column(
+    created_by_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
     )
     #: Account that created this shortlink (optional)
     created_by: Mapped[Account | None] = relationship(Account)
 
     #: Is this link enabled? If not, render 410 Gone
-    enabled: Mapped[bool] = sa.orm.mapped_column(
+    enabled: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=True
     )
 
@@ -242,13 +252,13 @@ class Shortlink(NoIdMixin, Model):
 
     # --- Validators
 
-    @sa.orm.validates('id')
+    @sa_orm.validates('id')
     def _validate_id_not_zero(self, _key: str, value: int) -> int:
         if value == 0:
             raise ValueError("Id cannot be zero")
         return value
 
-    @sa.orm.validates('url')
+    @sa_orm.validates('url')
     def _validate_url(self, _key: str, value: str) -> str:
         value = str(normalize_url(value))
         # If URL hashes are added to the model, the value must be set here using
@@ -369,7 +379,7 @@ class Shortlink(NoIdMixin, Model):
         try:
             existing = db.session.query(
                 cls.query.filter(cls.name == name)
-                .options(sa.orm.load_only(cls.id))
+                .options(sa_orm.load_only(cls.id))
                 .exists()
             ).scalar()
             return not existing
@@ -389,7 +399,7 @@ class Shortlink(NoIdMixin, Model):
         except (ValueError, TypeError):
             return None
         obj = db.session.get(
-            cls, idv, options=[sa.orm.load_only(cls.id, cls.url, cls.enabled)]
+            cls, idv, options=[sa_orm.load_only(cls.id, cls.url, cls.enabled)]
         )
         if obj is not None and (ignore_enabled or obj.enabled):
             return obj

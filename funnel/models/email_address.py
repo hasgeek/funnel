@@ -30,6 +30,7 @@ from . import (
     hybrid_property,
     relationship,
     sa,
+    sa_orm,
 )
 
 __all__ = [
@@ -190,10 +191,10 @@ class EmailAddress(BaseMixin, Model):
 
     #: The email address, centrepiece of this model. Case preserving.
     #: Validated by the :func:`_validate_email` event handler
-    email: Mapped[str | None] = sa.orm.mapped_column(sa.Unicode, nullable=True)
+    email: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
     #: The domain of the email, stored for quick lookup of related addresses
     #: Read-only, accessible via the :property:`domain` property
-    _domain: Mapped[str | None] = sa.orm.mapped_column(
+    _domain: Mapped[str | None] = sa_orm.mapped_column(
         'domain', sa.Unicode, nullable=True, index=True
     )
 
@@ -203,7 +204,7 @@ class EmailAddress(BaseMixin, Model):
     #: email is removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite
     #: the name, we're only storing 20 bytes
     blake2b160 = immutable(
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             sa.LargeBinary,
             sa.CheckConstraint(
                 'LENGTH(blake2b160) = 20',
@@ -218,11 +219,11 @@ class EmailAddress(BaseMixin, Model):
     #: email detection. Indexed but does not use a unique constraint because a+b@tld and
     #: a+c@tld are both a@tld canonically but can exist in records separately.
     blake2b160_canonical = immutable(
-        sa.orm.mapped_column(sa.LargeBinary, nullable=False, index=True)
+        sa_orm.mapped_column(sa.LargeBinary, nullable=False, index=True)
     )
 
     #: Does this email address work? Records last known delivery state
-    _delivery_state: Mapped[int] = sa.orm.mapped_column(
+    _delivery_state: Mapped[int] = sa_orm.mapped_column(
         'delivery_state',
         sa.Integer,
         StateManager.check_constraint(
@@ -239,11 +240,11 @@ class EmailAddress(BaseMixin, Model):
         doc="Last known delivery state of this email address",
     )
     #: Timestamp of last known delivery state
-    delivery_state_at: Mapped[datetime] = sa.orm.mapped_column(
+    delivery_state_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: Timestamp of last known recipient activity resulting from sent mail
-    active_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    active_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
@@ -252,7 +253,7 @@ class EmailAddress(BaseMixin, Model):
     #: so a test for whether an address is blocked should use blake2b160_canonical to
     #: load the record. Other records with the same canonical hash _may_ exist without
     #: setting the flag due to a lack of database-side enforcement
-    _is_blocked: Mapped[bool] = sa.orm.mapped_column(
+    _is_blocked: Mapped[bool] = sa_orm.mapped_column(
         'is_blocked', sa.Boolean, nullable=False, default=False
     )
 
@@ -725,7 +726,7 @@ class EmailAddressMixin:
     @classmethod
     def email_address_id(cls) -> Mapped[int | None]:
         """Foreign key to email_address table."""
-        return sa.orm.mapped_column(
+        return sa_orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('email_address.id', ondelete='SET NULL'),
             nullable=cls.__email_optional__,

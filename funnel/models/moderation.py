@@ -9,7 +9,7 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, Mapped, Model, UuidMixin, backref, db, relationship, sa
+from . import BaseMixin, Mapped, Model, UuidMixin, backref, db, relationship, sa, sa_orm
 from .account import Account
 from .comment import Comment
 from .helpers import reopen
@@ -26,7 +26,7 @@ class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
 class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
     __tablename__ = 'comment_moderator_report'
 
-    comment_id: Mapped[int] = sa.orm.mapped_column(
+    comment_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('comment.id'), nullable=False, index=True
     )
     comment: Mapped[Comment] = relationship(
@@ -34,7 +34,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
         foreign_keys=[comment_id],
         backref=backref('moderator_reports', lazy='dynamic'),
     )
-    reported_by_id: Mapped[int] = sa.orm.mapped_column(
+    reported_by_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, index=True
     )
     reported_by: Mapped[Account] = relationship(
@@ -42,16 +42,16 @@ class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
         foreign_keys=[reported_by_id],
         backref=backref('moderator_reports', lazy='dynamic'),
     )
-    report_type: Mapped[int] = sa.orm.mapped_column(
+    report_type: Mapped[int] = sa_orm.mapped_column(
         sa.SmallInteger,
         StateManager.check_constraint('report_type', MODERATOR_REPORT_TYPE),
         nullable=False,
         default=MODERATOR_REPORT_TYPE.SPAM,
     )
-    reported_at: Mapped[datetime] = sa.orm.mapped_column(
+    reported_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), default=sa.func.utcnow(), nullable=False
     )
-    resolved_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    resolved_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
 

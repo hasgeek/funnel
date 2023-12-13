@@ -15,7 +15,7 @@ from coaster.utils import getbool, make_name, midnight_to_utc, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
-from ..models import ContactExchange, Project, TicketParticipant, db, sa
+from ..models import ContactExchange, Project, TicketParticipant, db, sa_orm
 from ..typing import ReturnRenderWith, ReturnView
 from ..utils import format_twitter_handle
 from .login_session import requires_login
@@ -38,7 +38,7 @@ class ContactView(ClassView):
     def get_project(self, uuid_b58):
         return (
             Project.query.filter_by(uuid_b58=uuid_b58)
-            .options(sa.orm.load_only(Project.id, Project.uuid, Project.title))
+            .options(sa_orm.load_only(Project.id, Project.uuid, Project.title))
             .one_or_404()
         )
 

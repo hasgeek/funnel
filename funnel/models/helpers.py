@@ -24,7 +24,7 @@ from zxcvbn import zxcvbn
 from .. import app
 from ..typing import T
 from ..utils import MarkdownConfig, MarkdownString, markdown_escape
-from . import Model, UrlType, sa
+from . import Model, UrlType, sa, sa_orm
 
 __all__ = [
     'RESERVED_NAMES',
@@ -421,7 +421,7 @@ def add_search_trigger(model: type[Model], column_name: str) -> dict[str, str]:
 
         class MyModel(Model):
             ...
-            search_vector: Mapped[str] = sa.orm.mapped_column(
+            search_vector: Mapped[str] = sa_orm.mapped_column(
                 TSVectorType(
                     'name', 'title', *indexed_columns,
                     weights={'name': 'A', 'title': 'B'},
@@ -723,16 +723,16 @@ class MarkdownCompositeBase(MutableComposite):
         deferred: bool = False,
         deferred_group: str | None = None,
         **kwargs,
-    ) -> tuple[sa.orm.Composite[_MC], Mapped[str], Mapped[str]]:
+    ) -> tuple[sa_orm.Composite[_MC], Mapped[str], Mapped[str]]:
         """Create a composite column and backing individual columns."""
-        col_text = sa.orm.mapped_column(
+        col_text = sa_orm.mapped_column(
             name + '_text',
             sa.UnicodeText,
             deferred=deferred,
             deferred_group=deferred_group,
             **kwargs,
         )
-        col_html = sa.orm.mapped_column(
+        col_html = sa_orm.mapped_column(
             name + '_html',
             sa.UnicodeText,
             deferred=deferred,

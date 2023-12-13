@@ -27,6 +27,7 @@ from . import (
     hybrid_property,
     relationship,
     sa,
+    sa_orm,
 )
 from .account import Account
 from .helpers import (
@@ -48,55 +49,55 @@ __all__ = ['Session']
 class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
     __tablename__ = 'session'
 
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
         relationship(Project, backref=backref('sessions', lazy='dynamic')),
         grants_via={None: project_child_role_map},
     )
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
     description, description_text, description_html = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
-    proposal_id: Mapped[int] = sa.orm.mapped_column(
+    proposal_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id'), nullable=True, unique=True
     )
     proposal: Mapped[Proposal | None] = relationship(
         Proposal, backref=backref('session', uselist=False)
     )
-    speaker: Mapped[str | None] = sa.orm.mapped_column(
+    speaker: Mapped[str | None] = sa_orm.mapped_column(
         sa.Unicode(200), default=None, nullable=True
     )
-    start_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    start_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
-    end_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    end_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
-    venue_room_id: Mapped[int | None] = sa.orm.mapped_column(
+    venue_room_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True
     )
     venue_room: Mapped[VenueRoom | None] = relationship(VenueRoom, backref='sessions')
-    is_break: Mapped[bool] = sa.orm.mapped_column(
+    is_break: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, default=False, nullable=False
     )
-    featured: Mapped[bool] = sa.orm.mapped_column(
+    featured: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, default=False, nullable=False
     )
-    is_restricted_video: Mapped[bool] = sa.orm.mapped_column(
+    is_restricted_video: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, default=False, nullable=False
     )
-    banner_image_url: Mapped[str | None] = sa.orm.mapped_column(
+    banner_image_url: Mapped[str | None] = sa_orm.mapped_column(
         ImgeeType, nullable=True
     )
 
     #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
     revisionid: Mapped[int] = with_roles(
-        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+        sa_orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[str] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
             'title',
             'description_text',
@@ -307,7 +308,7 @@ class __Project:
     # Project schedule column expressions. Guide:
     # https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at: Mapped[datetime | None] = with_roles(
-        sa.orm.column_property(
+        sa_orm.column_property(
             sa.select(sa.func.min(Session.start_at))
             .where(Session.start_at.is_not(None))
             .where(Session.project_id == Project.id)
@@ -319,7 +320,7 @@ class __Project:
     )
 
     next_session_at: Mapped[datetime | None] = with_roles(
-        sa.orm.column_property(
+        sa_orm.column_property(
             sa.select(sa.func.min(sa.column('start_at')))
             .select_from(
                 sa.select(sa.func.min(Session.start_at).label('start_at'))
@@ -345,7 +346,7 @@ class __Project:
     )
 
     schedule_end_at: Mapped[datetime | None] = with_roles(
-        sa.orm.column_property(
+        sa_orm.column_property(
             sa.select(sa.func.max(Session.end_at))
             .where(Session.end_at.is_not(None))
             .where(Session.project_id == Project.id)

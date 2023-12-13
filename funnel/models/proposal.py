@@ -22,6 +22,7 @@ from . import (
     db,
     relationship,
     sa,
+    sa_orm,
 )
 from .account import Account
 from .comment import SET_TYPE, Commentset
@@ -123,7 +124,7 @@ class Proposal(  # type: ignore[misc]
 ):
     __tablename__ = 'proposal'
 
-    created_by_id: Mapped[int] = sa.orm.mapped_column(
+    created_by_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
     created_by: Mapped[Account] = with_roles(
@@ -134,7 +135,7 @@ class Proposal(  # type: ignore[misc]
         ),
         grants={'creator', 'participant'},
     )
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
@@ -145,9 +146,9 @@ class Proposal(  # type: ignore[misc]
         ),
         grants_via={None: project_child_role_map},
     )
-    parent_id: Mapped[int] = sa.orm.synonym('project_id')
+    parent_id: Mapped[int] = sa_orm.synonym('project_id')
     parent_id_column = 'project_id'
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
 
     #: Reuse the `url_id` column from BaseScopedIdNameMixin as a sorting order column.
     #: `url_id` was a public number on talkfunnel.com, but is private on hasgeek.com.
@@ -157,12 +158,12 @@ class Proposal(  # type: ignore[misc]
     #: to all proposals, including drafts. A user-facing sequence will have gaps.
     #: Should numbering be required in the product, see `Update.number` for a better
     #: implementation.
-    seq: Mapped[int] = sa.orm.synonym('url_id')
+    seq: Mapped[int] = sa_orm.synonym('url_id')
 
     # TODO: Stand-in for `submitted_at` until proposals have a workflow-driven datetime
-    datetime: Mapped[datetime_type] = sa.orm.synonym('created_at')
+    datetime: Mapped[datetime_type] = sa_orm.synonym('created_at')
 
-    _state: Mapped[int] = sa.orm.mapped_column(
+    _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', PROPOSAL_STATE),
@@ -171,7 +172,7 @@ class Proposal(  # type: ignore[misc]
     )
     state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
-    commentset_id: Mapped[int] = sa.orm.mapped_column(
+    commentset_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = relationship(
@@ -185,29 +186,29 @@ class Proposal(  # type: ignore[misc]
     body, body_text, body_html = MarkdownCompositeDocument.create(
         'body', nullable=False, default=''
     )
-    description: Mapped[str] = sa.orm.mapped_column(
+    description: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode, nullable=False, default=''
     )
-    custom_description: Mapped[bool] = sa.orm.mapped_column(
+    custom_description: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
-    template: Mapped[bool] = sa.orm.mapped_column(
+    template: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
-    featured: Mapped[bool] = sa.orm.mapped_column(
+    featured: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
 
-    edited_at: Mapped[datetime_type | None] = sa.orm.mapped_column(
+    edited_at: Mapped[datetime_type | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
     revisionid: Mapped[int] = with_roles(
-        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+        sa_orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[str] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
             'title',
             'description',
@@ -522,10 +523,10 @@ class ProposalSuuidRedirect(BaseMixin, Model):
 
     __tablename__ = 'proposal_suuid_redirect'
 
-    suuid: Mapped[str] = sa.orm.mapped_column(
+    suuid: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(22), nullable=False, index=True
     )
-    proposal_id: Mapped[int] = sa.orm.mapped_column(
+    proposal_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
     proposal: Mapped[Proposal] = relationship(Proposal)
@@ -585,7 +586,7 @@ class __Project:
 
     # Whether the project has any featured proposals. Returns `None` instead of
     # a boolean if the project does not have any proposal.
-    _has_featured_proposals: Mapped[bool | None] = sa.orm.column_property(
+    _has_featured_proposals: Mapped[bool | None] = sa_orm.column_property(
         sa.exists()
         .where(Proposal.project_id == Project.id)
         .where(Proposal.featured.is_(True))

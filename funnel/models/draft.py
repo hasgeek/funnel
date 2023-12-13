@@ -6,7 +6,7 @@ from uuid import UUID
 
 from werkzeug.datastructures import MultiDict
 
-from . import Mapped, Model, NoIdMixin, sa, types
+from . import Mapped, Model, NoIdMixin, sa_orm, types
 
 __all__ = ['Draft']
 
@@ -16,8 +16,8 @@ class Draft(NoIdMixin, Model):
 
     __tablename__ = 'draft'
 
-    table: Mapped[types.text] = sa.orm.mapped_column(primary_key=True)
-    table_row_id: Mapped[UUID] = sa.orm.mapped_column(primary_key=True)
+    table: Mapped[types.text] = sa_orm.mapped_column(primary_key=True)
+    table_row_id: Mapped[UUID] = sa_orm.mapped_column(primary_key=True)
     body: Mapped[types.jsonb_dict | None]  # Optional only when instance is new
     revision: Mapped[UUID | None]
 

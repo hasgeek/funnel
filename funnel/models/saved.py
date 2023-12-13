@@ -7,7 +7,7 @@ from datetime import datetime
 
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
-from . import Mapped, Model, NoIdMixin, backref, db, relationship, sa
+from . import Mapped, Model, NoIdMixin, backref, db, relationship, sa, sa_orm
 from .account import Account
 from .helpers import reopen
 from .project import Project
@@ -18,7 +18,7 @@ class SavedProject(NoIdMixin, Model):
     __tablename__ = 'saved_project'
 
     #: User account that saved this project
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
@@ -28,7 +28,7 @@ class SavedProject(NoIdMixin, Model):
         backref=backref('saved_projects', lazy='dynamic', passive_deletes=True),
     )
     #: Project that was saved
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('project.id', ondelete='CASCADE'),
         nullable=False,
@@ -40,11 +40,11 @@ class SavedProject(NoIdMixin, Model):
         backref=backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
     #: Timestamp when the save happened
-    saved_at: Mapped[datetime] = sa.orm.mapped_column(
+    saved_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: User's plaintext note to self on why they saved this (optional)
-    description: Mapped[str | None] = sa.orm.mapped_column(
+    description: Mapped[str | None] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=True
     )
 
@@ -71,7 +71,7 @@ class SavedSession(NoIdMixin, Model):
     __tablename__ = 'saved_session'
 
     #: User account that saved this session
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
@@ -81,7 +81,7 @@ class SavedSession(NoIdMixin, Model):
         backref=backref('saved_sessions', lazy='dynamic', passive_deletes=True),
     )
     #: Session that was saved
-    session_id: Mapped[int] = sa.orm.mapped_column(
+    session_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('session.id', ondelete='CASCADE'),
         nullable=False,
@@ -93,11 +93,11 @@ class SavedSession(NoIdMixin, Model):
         backref=backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
     #: Timestamp when the save happened
-    saved_at: Mapped[datetime] = sa.orm.mapped_column(
+    saved_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: User's plaintext note to self on why they saved this (optional)
-    description: Mapped[str | None] = sa.orm.mapped_column(
+    description: Mapped[str | None] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=True
     )
 

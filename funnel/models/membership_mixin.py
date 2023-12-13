@@ -27,6 +27,7 @@ from . import (
     hybrid_property,
     relationship,
     sa,
+    sa_orm,
 )
 from .account import Account
 from .reorder_mixin import ReorderProtoMixin
@@ -118,7 +119,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
     #: for records created when the member table was added to the database
     granted_at: Mapped[datetime_type] = with_roles(
         immutable(
-            sa.orm.mapped_column(
+            sa_orm.mapped_column(
                 sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
             )
         ),
@@ -126,13 +127,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
     )
     #: End time of membership, ordinarily a mirror of updated_at
     revoked_at: Mapped[datetime_type | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'member', 'editor'},
     )
     #: Record type
     record_type: Mapped[int] = with_roles(
         immutable(
-            sa.orm.mapped_column(
+            sa_orm.mapped_column(
                 sa.Integer,
                 StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
                 default=MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
@@ -152,7 +153,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
     @classmethod
     def revoked_by_id(cls) -> Mapped[int | None]:
         """Id of user who revoked the membership."""
-        return sa.orm.mapped_column(
+        return sa_orm.mapped_column(
             sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
         )
 
@@ -172,7 +173,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
         This is nullable only for historical data. New records always require a value
         for granted_by.
         """
-        return sa.orm.mapped_column(
+        return sa_orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('account.id', ondelete='SET NULL'),
             nullable=cls.__null_granted_by__,
@@ -376,7 +377,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def member_id(cls) -> Mapped[int]:
         """Foreign key column to account table."""
-        return sa.orm.mapped_column(
+        return sa_orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('account.id', ondelete='CASCADE'),
             nullable=False,
@@ -394,7 +395,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def user(cls) -> Mapped[Account]:
         """Legacy alias for member in this membership record."""
-        return sa.orm.synonym('member')
+        return sa_orm.synonym('member')
 
     @declared_attr.directive
     @classmethod
@@ -517,7 +518,7 @@ class ReorderMembershipProtoMixin(ReorderProtoMixin):
     @classmethod
     def seq(cls) -> Mapped[int]:
         """Ordering sequence number."""
-        return sa.orm.mapped_column(sa.Integer, nullable=False)
+        return sa_orm.mapped_column(sa.Integer, nullable=False)
 
     @declared_attr.directive
     @classmethod
@@ -589,7 +590,7 @@ class FrozenAttributionProtoMixin:
     def _title(cls) -> Mapped[str | None]:
         """Create optional attribution title for this membership record."""
         return immutable(
-            sa.orm.mapped_column(
+            sa_orm.mapped_column(
                 'title', sa.Unicode, sa.CheckConstraint("title <> ''"), nullable=True
             )
         )

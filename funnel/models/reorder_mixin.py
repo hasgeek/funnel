@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, ClassVar, TypeVar
 from uuid import UUID
 
-from . import Mapped, QueryProperty, db, declarative_mixin, sa
+from . import Mapped, QueryProperty, db, declarative_mixin, sa, sa_orm
 
 __all__ = ['ReorderProtoMixin']
 
@@ -82,7 +82,7 @@ class ReorderProtoMixin:
                 cls.seq <= max(self.seq, other.seq),
             )
             .with_for_update(of=cls)  # Lock these rows to prevent a parallel update
-            .options(sa.orm.load_only(cls.id, cls.seq))
+            .options(sa_orm.load_only(cls.id, cls.seq))
             .order_by(*order_columns)
             .all()
         )

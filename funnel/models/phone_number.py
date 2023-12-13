@@ -28,6 +28,7 @@ from . import (
     hybrid_property,
     relationship,
     sa,
+    sa_orm,
 )
 
 __all__ = [
@@ -260,7 +261,7 @@ class PhoneNumber(BaseMixin, Model):
 
     #: The phone number, centrepiece of this model. Stored normalized in E164 format.
     #: Validated by the :func:`_validate_phone` event handler
-    number: Mapped[str | None] = sa.orm.mapped_column(
+    number: Mapped[str | None] = sa_orm.mapped_column(
         sa.Unicode, nullable=True, unique=True
     )
 
@@ -268,7 +269,7 @@ class PhoneNumber(BaseMixin, Model):
     #: removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the name,
     #: we're only storing 20 bytes
     blake2b160: Mapped[bytes] = immutable(
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             sa.LargeBinary,
             sa.CheckConstraint(
                 'LENGTH(blake2b160) = 20',
@@ -284,51 +285,51 @@ class PhoneNumber(BaseMixin, Model):
     # device, we record distinct timestamps for last sent, delivery and failure.
 
     #: Cached state for whether this phone number is known to have SMS support
-    has_sms: Mapped[bool | None] = sa.orm.mapped_column(sa.Boolean, nullable=True)
+    has_sms: Mapped[bool | None] = sa_orm.mapped_column(sa.Boolean, nullable=True)
     #: Timestamp at which this number was determined to be valid/invalid for SMS
-    has_sms_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    has_sms_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: Cached state for whether this phone number is known to be on WhatsApp or not
-    has_wa: Mapped[bool | None] = sa.orm.mapped_column(sa.Boolean, nullable=True)
+    has_wa: Mapped[bool | None] = sa_orm.mapped_column(sa.Boolean, nullable=True)
     #: Timestamp at which this number was tested for availability on WhatsApp
-    has_wa_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    has_wa_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
     #: Timestamp of last SMS sent
-    msg_sms_sent_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    msg_sms_sent_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: Timestamp of last SMS delivered
-    msg_sms_delivered_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    msg_sms_delivered_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: Timestamp of last SMS delivery failure
-    msg_sms_failed_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    msg_sms_failed_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
     #: Timestamp of last WA message sent
-    msg_wa_sent_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    msg_wa_sent_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: Timestamp of last WA message delivered
-    msg_wa_delivered_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    msg_wa_delivered_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: Timestamp of last WA message delivery failure
-    msg_wa_failed_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    msg_wa_failed_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
     #: Timestamp of last known recipient activity resulting from sent messages
-    active_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    active_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
     #: Is this phone number blocked from being used? :attr:`phone` should be null if so.
-    blocked_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    blocked_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
@@ -722,7 +723,7 @@ class PhoneNumber(BaseMixin, Model):
         """Get all numbers with the given prefix as a Python set."""
         query = (
             cls.query.filter(cls.number.startswith(prefix))
-            .options(sa.orm.load_only(cls.number))
+            .options(sa_orm.load_only(cls.number))
             .yield_per(1000)
         )
         if remove:
@@ -758,7 +759,7 @@ class PhoneNumberMixin:
     @classmethod
     def phone_number_id(cls) -> Mapped[int]:
         """Foreign key to phone_number table."""
-        return sa.orm.mapped_column(
+        return sa_orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('phone_number.id', ondelete='SET NULL'),
             nullable=cls.__phone_optional__,

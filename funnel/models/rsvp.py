@@ -21,6 +21,7 @@ from . import (
     db,
     relationship,
     sa,
+    sa_orm,
     types,
 )
 from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
@@ -42,7 +43,7 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
 
 class Rsvp(UuidMixin, NoIdMixin, Model):
     __tablename__ = 'rsvp'
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project: Mapped[Project] = with_roles(
@@ -51,7 +52,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         grants_via={None: project_child_role_map},
         datasets={'primary'},
     )
-    participant_id: Mapped[int] = sa.orm.mapped_column(
+    participant_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
     participant: Mapped[Account] = with_roles(
@@ -61,13 +62,13 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         datasets={'primary', 'without_parent'},
     )
     form: Mapped[types.jsonb | None] = with_roles(
-        sa.orm.mapped_column(),
+        sa_orm.mapped_column(),
         rw={'owner'},
         read={'project_promoter'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    _state: Mapped[str] = sa.orm.mapped_column(
+    _state: Mapped[str] = sa_orm.mapped_column(
         'state',
         sa.CHAR(1),
         StateManager.check_constraint('state', RSVP_STATUS),

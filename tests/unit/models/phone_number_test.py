@@ -8,6 +8,7 @@ from types import SimpleNamespace
 import phonenumbers
 import pytest
 import sqlalchemy as sa
+import sqlalchemy.orm as sa_orm
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped
 
@@ -61,7 +62,7 @@ def phone_models(database, app) -> Generator:
         __phone_for__ = 'phoneuser'
         __phone_is_exclusive__ = True
 
-        phoneuser_id: Mapped[int] = sa.orm.mapped_column(
+        phoneuser_id: Mapped[int] = sa_orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=False
         )
         phoneuser: Mapped[PhoneUser] = relationship(PhoneUser)
@@ -77,14 +78,14 @@ def phone_models(database, app) -> Generator:
         __tablename__ = 'test_phone_linked_document'
         __phone_for__ = 'phoneuser'
 
-        phoneuser_id: Mapped[int | None] = sa.orm.mapped_column(
+        phoneuser_id: Mapped[int | None] = sa_orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=True
         )
         phoneuser: Mapped[PhoneUser | None] = relationship(PhoneUser)
 
     new_models = [PhoneUser, PhoneLink, PhoneDocument, PhoneLinkedDocument]
 
-    sa.orm.configure_mappers()
+    sa_orm.configure_mappers()
     # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
         database.metadata.create_all(
