@@ -120,7 +120,7 @@ def test_reopen() -> None:
 
     # The decorator will refuse to process classes that affect the original's attributes
     # (__slots__, __getattribute__, __get/set/delattr__)
-    with pytest.raises(TypeError, match='contains unsupported __attributes__'):
+    with pytest.raises(TypeError, match='contains unsupported __dunder__'):
 
         @mhelpers.reopen(OriginalClass)
         class HasSlots:  # pylint: disable=unused-variable

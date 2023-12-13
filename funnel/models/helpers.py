@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import os.path
 import re
+import warnings
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Any, ClassVar, TypeVar, cast
+from typing import Any, ClassVar, TypeVar, cast, get_type_hints
 
 from better_profanity import profanity
 from furl import furl
@@ -237,7 +238,7 @@ ReopenedType = TypeVar('ReopenedType', bound=type)
 TempType = TypeVar('TempType', bound=type)
 
 
-def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
+def reopen(cls: ReopenedType) -> Callable[[type], ReopenedType]:
     """
     Move the contents of the decorated class into an existing class and return it.
 
@@ -271,7 +272,7 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     properties that do more processing.
     """
 
-    def decorator(temp_cls: TempType) -> ReopenedType:
+    def decorator(temp_cls: type) -> ReopenedType:
         if temp_cls.__bases__ != (object,):
             raise TypeError("Reopened class cannot add base classes")
         if temp_cls.__class__ is not type:
@@ -283,7 +284,25 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
             '__setattr__',
             '__delattr__',
         }.intersection(set(temp_cls.__dict__.keys())):
-            raise TypeError("Reopened class contains unsupported __attributes__")
+            raise TypeError("Reopened class contains unsupported __dunder__ attributes")
+        if '__annotations__' in temp_cls.__dict__:
+            # Temp class annotations must be un-stringified as they may refer to names
+            # not available in the reopened class's namespace
+            try:
+                annotations = get_type_hints(temp_cls, include_extras=True)
+            except NameError as exc:
+                warnings.warn(
+                    f"{temp_cls.__qualname__} has a forward annotation that cannot be"
+                    f" resolved. Annotations in {cls.__qualname__} may not be usable at"
+                    f" runtime: {exc}",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
+                annotations = temp_cls.__annotations__
+            if '__annotations__' not in cls.__dict__:
+                cls.__annotations__ = annotations
+            else:
+                cls.__annotations__ = annotations | cls.__annotations__
         for attr, value in list(temp_cls.__dict__.items()):
             # Skip the standard Python attributes, process the rest
             if attr not in (
@@ -295,18 +314,21 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
             ):
                 # Refuse to overwrite existing attributes
                 if hasattr(cls, attr):
+                    # At this time we've already merged __annotations__, so there's no
+                    # good way to recover from this error -- it's effectively fatal and
+                    # requires code rewrite. This is however an implicit assumption when
+                    # using @reopen -- it should not be within a try block.
                     raise AttributeError(
-                        f"{cls.__name__} already has attribute {attr}",
+                        f"{cls.__qualname__} already has attribute {attr}",
                         name=attr,
                         obj=cls,
                     )
                 # All good? Copy the attribute over...
                 setattr(cls, attr, value)
+                if hasattr(value, '__set_name__'):
+                    value.__set_name__(cls, attr)
                 # ...And remove it from the temporary class
                 delattr(temp_cls, attr)
-            # Merge typing annotations
-            elif attr == '__annotations__':
-                cls.__annotations__.update(value)
         # Return the original class. Leave the temporary class to the garbage collector
         return cls
 
