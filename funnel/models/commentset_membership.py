@@ -130,7 +130,7 @@ class __Account:
         viewonly=True,
     )
 
-    subscribed_commentsets = DynamicAssociationProxy(
+    subscribed_commentsets = DynamicAssociationProxy[Commentset](
         'active_commentset_memberships', 'commentset'
     )
 

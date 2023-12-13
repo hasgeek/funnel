@@ -236,10 +236,12 @@ class __Project:
         viewonly=True,
     )
 
-    crew = DynamicAssociationProxy('active_crew_memberships', 'member')
-    editors = DynamicAssociationProxy('active_editor_memberships', 'member')
-    promoters = DynamicAssociationProxy('active_promoter_memberships', 'member')
-    ushers = DynamicAssociationProxy('active_usher_memberships', 'member')
+    crew = DynamicAssociationProxy[Account]('active_crew_memberships', 'member')
+    editors = DynamicAssociationProxy[Account]('active_editor_memberships', 'member')
+    promoters = DynamicAssociationProxy[Account](
+        'active_promoter_memberships', 'member'
+    )
+    ushers = DynamicAssociationProxy[Account]('active_usher_memberships', 'member')
 
 
 # Similarly for users (add as needs come up)
@@ -280,7 +282,7 @@ class __Account:
         viewonly=True,
     )
 
-    projects_as_crew = DynamicAssociationProxy(
+    projects_as_crew = DynamicAssociationProxy[Project](
         'projects_as_crew_active_memberships', 'project'
     )
 
@@ -297,7 +299,7 @@ class __Account:
         viewonly=True,
     )
 
-    projects_as_editor = DynamicAssociationProxy(
+    projects_as_editor = DynamicAssociationProxy[Project](
         'projects_as_editor_active_memberships', 'project'
     )
 

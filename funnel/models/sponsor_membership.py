@@ -145,7 +145,7 @@ class __Project:
     def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy('sponsor_memberships', 'member')
+    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
 
 
 # FIXME: Replace this with existing proposal collaborator as they're now both related
@@ -270,7 +270,7 @@ class __Proposal:
     def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy('sponsor_memberships', 'member')
+    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
 
 
 @reopen(Account)
@@ -360,11 +360,11 @@ class __Account:
         read={'admin'},
     )
 
-    sponsored_projects = DynamicAssociationProxy(
+    sponsored_projects = DynamicAssociationProxy[Project](
         'project_sponsor_memberships', 'project'
     )
 
-    sponsored_proposals = DynamicAssociationProxy(
+    sponsored_proposals = DynamicAssociationProxy[Project](
         'proposal_sponsor_memberships', 'proposal'
     )
 

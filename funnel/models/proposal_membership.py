@@ -188,7 +188,7 @@ class __Account:
         viewonly=True,
     )
 
-    proposals = DynamicAssociationProxy('proposal_memberships', 'proposal')
+    proposals = DynamicAssociationProxy[Proposal]('proposal_memberships', 'proposal')
 
     @property
     def public_proposal_memberships(self):
@@ -202,7 +202,7 @@ class __Account:
             )
         )
 
-    public_proposals = DynamicAssociationProxy(
+    public_proposals = DynamicAssociationProxy[Proposal](
         'public_proposal_memberships', 'proposal'
     )
 

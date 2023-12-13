@@ -223,11 +223,11 @@ class __Account:
         viewonly=True,
     )
 
-    organizations_as_owner = DynamicAssociationProxy(
+    organizations_as_owner = DynamicAssociationProxy[Account](
         'active_organization_owner_memberships', 'account'
     )
 
-    organizations_as_admin = DynamicAssociationProxy(
+    organizations_as_admin = DynamicAssociationProxy[Account](
         'active_organization_admin_memberships', 'account'
     )
 
