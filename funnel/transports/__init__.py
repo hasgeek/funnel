@@ -1,7 +1,5 @@
 """Transport layer for communication with users (email, SMS, others)."""
 
-from __future__ import annotations
-
 from . import email, sms, telegram, webpush, whatsapp
 from .base import init, platform_transports
 from .exc import (

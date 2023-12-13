@@ -1,4 +1,4 @@
-"""SMS transport support."""
+"""WhatsApp transport support."""
 # flake8: noqa
 
 from .send import *

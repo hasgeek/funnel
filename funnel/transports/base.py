@@ -17,10 +17,12 @@ platform_transports: dict[str, bool] = {
 }
 
 
-def init():
+def init() -> None:
     if app.config.get('MAIL_SERVER'):
         platform_transports['email'] = True
     if sms_init():
         platform_transports['sms'] = True
+    if app.config.get('WHATSAPP_TOKEN') and app.config.get('WHATSAPP_PHONE_ID'):
+        platform_transports['whatsapp'] = True
 
     # Other transports are not supported yet

@@ -1,9 +1,6 @@
 """Transport exceptions."""
 
 
-from __future__ import annotations
-
-
 class TransportError(Exception):
     """Base class for transport exceptions."""
 

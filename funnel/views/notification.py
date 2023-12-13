@@ -30,8 +30,7 @@ from ..models import (
     db,
 )
 from ..serializers import token_serializer
-from ..transports import TransportError, email, platform_transports, sms
-from ..transports.sms import SmsTemplate
+from ..transports import TransportError, email, platform_transports, sms, whatsapp
 from .helpers import make_cached_token
 from .jobs import rqjob
 
@@ -385,7 +384,7 @@ class RenderNotification:
             return f"{self.notification.preference_context.title} (via Hasgeek)"
         return "Hasgeek"
 
-    def sms(self) -> SmsTemplate:
+    def sms(self) -> sms.SmsTemplate:
         """
         Render a short text message. Templates must use a single line with a link.
 
@@ -397,7 +396,7 @@ class RenderNotification:
         """Render a short plain text notification using the SMS template."""
         return self.sms().text
 
-    def sms_with_unsubscribe(self) -> SmsTemplate:
+    def sms_with_unsubscribe(self) -> sms.SmsTemplate:
         """Add an unsubscribe link to the SMS message."""
         msg = self.sms()
         msg.unsubscribe_url = self.unsubscribe_short_url('sms')
@@ -419,13 +418,9 @@ class RenderNotification:
         """
         return self.text()
 
-    def whatsapp(self) -> str:
-        """
-        Render a WhatsApp-formatted text message.
-
-        Default implementation uses :meth:`text`.
-        """
-        return self.text()
+    def whatsapp(self) -> whatsapp.WhatsappTemplate:
+        """Render a WhatsApp-formatted text message."""
+        raise NotImplementedError("Subclasses must implement `whatsapp`")
 
 
 # --- Dispatch functions ---------------------------------------------------------------
@@ -557,10 +552,10 @@ def dispatch_transport_email(
                     # pylint: enable=consider-using-f-string
                 )
             ),
-            'List-Help': f'<{url_for("notification_preferences")}>',
+            'List-Help': f'<{url_for("notification_preferences", _external=True)}>',
             'List-Unsubscribe': f'<{view.unsubscribe_url_email}>',
             'List-Unsubscribe-Post': 'One-Click',
-            'List-Archive': f'<{url_for("notifications")}>',
+            'List-Archive': f'<{url_for("notifications", _external=True)}>',
         },
         base_url=view.email_base_url,
     )
@@ -586,8 +581,13 @@ def dispatch_transport_sms(
         # the worker may be delayed and the user may have changed their preference.
         notification_recipient.messageid_sms = 'cancelled'
         return
+    try:
+        message = view.sms_with_unsubscribe()
+    except NotImplementedError:
+        notification_recipient.messageid_sms = 'not-implemented'
+        return
     notification_recipient.messageid_sms = sms.send_sms(
-        str(view.transport_for('sms')), view.sms_with_unsubscribe()
+        str(view.transport_for('sms')), message
     )
     statsd.incr(
         'notification.transport',
@@ -598,8 +598,41 @@ def dispatch_transport_sms(
     )
 
 
+@rqjob()
+@transport_worker_wrapper
+def dispatch_transport_whatsapp(
+    notification_recipient: NotificationRecipient, view: RenderNotification
+):
+    if not notification_recipient.user.main_notification_preferences.by_transport(
+        'whatsapp'
+    ):
+        # Cancel delivery if user's main switch is off. This was already checked, but
+        # the worker may be delayed and the user may have changed their preference.
+        notification_recipient.messageid_whatsapp = 'cancelled'
+        return
+    try:
+        message = view.whatsapp()
+    except NotImplementedError:
+        notification_recipient.messageid_whatsapp = 'not-implemented'
+        return
+    notification_recipient.messageid_whatsapp = whatsapp.send_whatsapp(
+        str(view.transport_for('whatsapp')), message
+    )
+    statsd.incr(
+        'notification.transport',
+        tags={
+            'notification_type': notification_recipient.notification_type,
+            'transport': 'whatsapp',
+        },
+    )
+
+
 # Add transport workers here as their worker methods are written
-transport_workers = {'email': dispatch_transport_email, 'sms': dispatch_transport_sms}
+transport_workers = {
+    'email': dispatch_transport_email,
+    'sms': dispatch_transport_sms,
+    'whatsapp': dispatch_transport_whatsapp,
+}
 
 # --- Notification background workers --------------------------------------------------
 
@@ -615,9 +648,7 @@ def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -
     for notification in notifications:
         if notification is not None:
             generator = notification.dispatch()
-            # TODO: Use walrus operator := after we move off Python 3.7
-            batch = tuple(islice(generator, DISPATCH_BATCH_SIZE))
-            while batch:
+            while batch := tuple(islice(generator, DISPATCH_BATCH_SIZE)):
                 db.session.commit()
                 notification_recipient_ids = [
                     notification_recipient.identity for notification_recipient in batch
@@ -629,7 +660,6 @@ def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -
                     tags={'notification_type': notification.type},
                 )
                 # Continue to the next batch
-                batch = tuple(islice(generator, DISPATCH_BATCH_SIZE))
 
 
 @rqjob()
@@ -637,6 +667,7 @@ def dispatch_notification_recipients_job(
     notification_recipient_ids: Sequence[tuple[int, UUID]]
 ) -> None:
     """Process notifications for users and enqueue transport delivery."""
+    # TODO: Can this be a single query instead of a loop of queries?
     queue = [
         NotificationRecipient.query.get(identity)
         for identity in notification_recipient_ids
