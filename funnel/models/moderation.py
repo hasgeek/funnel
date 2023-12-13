@@ -32,7 +32,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
     comment: Mapped[Comment] = relationship(
         Comment,
         foreign_keys=[comment_id],
-        backref=backref('moderator_reports', cascade='all', lazy='dynamic'),
+        backref=backref('moderator_reports', lazy='dynamic'),
     )
     reported_by_id: Mapped[int] = sa.orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, index=True
@@ -40,7 +40,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
     reported_by: Mapped[Account] = relationship(
         Account,
         foreign_keys=[reported_by_id],
-        backref=backref('moderator_reports', cascade='all', lazy='dynamic'),
+        backref=backref('moderator_reports', lazy='dynamic'),
     )
     report_type: Mapped[int] = sa.orm.mapped_column(
         sa.SmallInteger,

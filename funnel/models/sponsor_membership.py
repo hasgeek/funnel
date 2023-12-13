@@ -90,7 +90,6 @@ class ProjectSponsorMembership(  # type: ignore[misc]
         backref=backref(
             'all_sponsor_memberships',
             lazy='dynamic',
-            cascade='all',
             passive_deletes=True,
         ),
     )
@@ -220,7 +219,6 @@ class ProposalSponsorMembership(  # type: ignore[misc]
         backref=backref(
             'all_sponsor_memberships',
             lazy='dynamic',
-            cascade='all',
             passive_deletes=True,
         ),
     )

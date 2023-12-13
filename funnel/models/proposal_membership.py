@@ -92,7 +92,6 @@ class ProposalMembership(  # type: ignore[misc]
             backref=backref(
                 'all_memberships',
                 lazy='dynamic',
-                cascade='all',
                 passive_deletes=True,
             ),
         ),

@@ -209,9 +209,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         sa.ForeignKey('account.id'), nullable=True
     )
     _posted_by: Mapped[Account | None] = with_roles(
-        relationship(
-            Account, backref=backref('comments', lazy='dynamic', cascade='all')
-        ),
+        relationship(Account, backref=backref('comments', lazy='dynamic')),
         grants={'author'},
     )
     commentset_id: Mapped[int] = sa.orm.mapped_column(
@@ -220,7 +218,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     commentset: Mapped[Commentset] = with_roles(
         relationship(
             Commentset,
-            backref=backref('comments', lazy='dynamic', cascade='all'),
+            backref=backref('comments', lazy='dynamic'),
         ),
         grants_via={None: {'document_subscriber'}},
     )

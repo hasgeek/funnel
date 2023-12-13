@@ -92,13 +92,11 @@ class Mailer(BaseNameMixin, Model):
     recipients: DynamicMapped[MailerRecipient] = relationship(
         lazy='dynamic',
         back_populates='mailer',
-        cascade='all, delete-orphan',
         order_by='(MailerRecipient.draft_id, MailerRecipient._fullname,'
         ' MailerRecipient._firstname, MailerRecipient._lastname)',
     )
     drafts: Mapped[list[MailerDraft]] = relationship(
         back_populates='mailer',
-        cascade='all, delete-orphan',
         order_by='MailerDraft.url_id',
     )
 

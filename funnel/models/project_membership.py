@@ -112,7 +112,6 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
             backref=backref(
                 'crew_memberships',
                 lazy='dynamic',
-                cascade='all',
                 passive_deletes=True,
             ),
         ),

@@ -94,7 +94,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         relationship(
             Account,
             foreign_keys=[account_id],
-            backref=backref('projects', cascade='all', lazy='dynamic'),
+            backref=backref('projects', lazy='dynamic'),
         ),
         read={'all'},
         # If account grants an 'admin' role, make it 'account_admin' here
@@ -257,7 +257,6 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     commentset: Mapped[Commentset] = relationship(
         Commentset,
         uselist=False,
-        cascade='all',
         single_parent=True,
         back_populates='project',
     )
@@ -900,7 +899,7 @@ class ProjectRedirect(TimestampMixin, Model):
         sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
     account: Mapped[Account] = relationship(
-        Account, backref=backref('project_redirects', cascade='all')
+        Account, backref=backref('project_redirects')
     )
     parent: Mapped[Account] = sa.orm.synonym('account')
     name: Mapped[str] = sa.orm.mapped_column(
@@ -981,9 +980,7 @@ class ProjectLocation(TimestampMixin, Model):
     project_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False
     )
-    project: Mapped[Project] = relationship(
-        Project, backref=backref('locations', cascade='all')
-    )
+    project: Mapped[Project] = relationship(Project, backref=backref('locations'))
     #: Geonameid for this project
     geonameid: Mapped[int] = sa.orm.mapped_column(
         sa.Integer, primary_key=True, nullable=False, index=True

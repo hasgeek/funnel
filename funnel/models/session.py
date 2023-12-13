@@ -52,9 +52,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        relationship(
-            Project, backref=backref('sessions', cascade='all', lazy='dynamic')
-        ),
+        relationship(Project, backref=backref('sessions', lazy='dynamic')),
         grants_via={None: project_child_role_map},
     )
     parent: Mapped[Project] = sa.orm.synonym('project')
@@ -65,7 +63,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
         sa.Integer, sa.ForeignKey('proposal.id'), nullable=True, unique=True
     )
     proposal: Mapped[Proposal | None] = relationship(
-        Proposal, backref=backref('session', uselist=False, cascade='all')
+        Proposal, backref=backref('session', uselist=False)
     )
     speaker: Mapped[str | None] = sa.orm.mapped_column(
         sa.Unicode(200), default=None, nullable=True

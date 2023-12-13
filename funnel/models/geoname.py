@@ -601,7 +601,7 @@ class GeoAltName(BaseMixin, GeonameModel):
     )
     geoname: Mapped[GeoName] = relationship(
         GeoName,
-        backref=backref('alternate_titles', cascade='all, delete-orphan'),
+        backref=backref('alternate_titles'),
     )
     lang: Mapped[str | None] = sa.orm.mapped_column(
         sa.Unicode, nullable=True, index=True

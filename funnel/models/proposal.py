@@ -130,7 +130,7 @@ class Proposal(  # type: ignore[misc]
         relationship(
             Account,
             foreign_keys=[created_by_id],
-            backref=backref('created_proposals', cascade='all', lazy='dynamic'),
+            backref=backref('created_proposals', lazy='dynamic'),
         ),
         grants={'creator', 'participant'},
     )
@@ -141,9 +141,7 @@ class Proposal(  # type: ignore[misc]
         relationship(
             Project,
             foreign_keys=[project_id],
-            backref=backref(
-                'proposals', cascade='all', lazy='dynamic', order_by='Proposal.url_id'
-            ),
+            backref=backref('proposals', lazy='dynamic', order_by='Proposal.url_id'),
         ),
         grants_via={None: project_child_role_map},
     )
@@ -180,7 +178,6 @@ class Proposal(  # type: ignore[misc]
         Commentset,
         uselist=False,
         lazy='joined',
-        cascade='all',
         single_parent=True,
         back_populates='proposal',
     )

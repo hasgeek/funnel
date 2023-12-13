@@ -98,7 +98,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         relationship(
             Account,
             foreign_keys=[account_id],
-            backref=backref('clients', cascade='all'),
+            backref=backref('clients'),
         ),
         read={'all'},
         write={'owner'},
@@ -292,7 +292,6 @@ class AuthClientCredential(BaseMixin, Model):
             AuthClient,
             backref=backref(
                 'credentials',
-                cascade='all, delete-orphan',
                 collection_class=attribute_keyed_dict('name'),
             ),
         ),
@@ -381,7 +380,7 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
     auth_client: Mapped[AuthClient] = relationship(
         AuthClient,
         foreign_keys=[auth_client_id],
-        backref=backref('authcodes', cascade='all'),
+        backref=backref('authcodes'),
     )
     login_session_id: Mapped[int | None] = sa.orm.mapped_column(
         sa.Integer, sa.ForeignKey('login_session.id'), nullable=True
@@ -423,7 +422,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     )
     account: Mapped[Account | None] = relationship(
         Account,
-        backref=backref('authtokens', lazy='dynamic', cascade='all'),
+        backref=backref('authtokens', lazy='dynamic'),
     )
     #: The session in which this token was issued, null for confidential clients
     login_session_id: Mapped[int | None] = sa.orm.mapped_column(
@@ -440,7 +439,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
     auth_client: Mapped[AuthClient] = with_roles(
         relationship(
             AuthClient,
-            backref=backref('authtokens', lazy='dynamic', cascade='all'),
+            backref=backref('authtokens', lazy='dynamic'),
         ),
         read={'owner'},
     )
@@ -646,7 +645,7 @@ class AuthClientPermissions(BaseMixin, Model):
     account: Mapped[Account] = relationship(
         Account,
         foreign_keys=[account_id],
-        backref=backref('client_permissions', cascade='all'),
+        backref=backref('client_permissions'),
     )
     #: AuthClient app they are assigned on
     auth_client_id: Mapped[int] = sa.orm.mapped_column(
@@ -656,7 +655,7 @@ class AuthClientPermissions(BaseMixin, Model):
         relationship(
             AuthClient,
             foreign_keys=[auth_client_id],
-            backref=backref('account_permissions', cascade='all'),
+            backref=backref('account_permissions'),
         ),
         grants_via={None: {'owner'}},
     )
@@ -725,7 +724,7 @@ class AuthClientTeamPermissions(BaseMixin, Model):
     team: Mapped[Team] = relationship(
         Team,
         foreign_keys=[team_id],
-        backref=backref('client_permissions', cascade='all'),
+        backref=backref('client_permissions'),
     )
     #: AuthClient app they are assigned on
     auth_client_id: Mapped[int] = sa.orm.mapped_column(
@@ -735,7 +734,7 @@ class AuthClientTeamPermissions(BaseMixin, Model):
         relationship(
             AuthClient,
             foreign_keys=[auth_client_id],
-            backref=backref('team_permissions', cascade='all'),
+            backref=backref('team_permissions'),
         ),
         grants_via={None: {'owner'}},
     )

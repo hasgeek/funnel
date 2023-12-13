@@ -46,7 +46,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=backref('rsvps', cascade='all', lazy='dynamic')),
+        relationship(Project, backref=backref('rsvps', lazy='dynamic')),
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
         datasets={'primary'},
@@ -55,7 +55,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
     participant: Mapped[Account] = with_roles(
-        relationship(Account, backref=backref('rsvps', cascade='all', lazy='dynamic')),
+        relationship(Account, backref=backref('rsvps', lazy='dynamic')),
         read={'owner', 'project_promoter'},
         grants={'owner'},
         datasets={'primary', 'without_parent'},

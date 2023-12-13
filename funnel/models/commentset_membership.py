@@ -50,7 +50,6 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
         backref=backref(
             'subscriber_memberships',
             lazy='dynamic',
-            cascade='all',
             passive_deletes=True,
         ),
     )

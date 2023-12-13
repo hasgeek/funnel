@@ -55,7 +55,6 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
 
     rooms: Mapped[list[VenueRoom]] = relationship(
         'VenueRoom',
-        cascade='all',
         order_by='VenueRoom.seq',
         collection_class=ordering_list('seq', count_from=1),
         back_populates='venue',
@@ -189,7 +188,6 @@ class __Project:
     venues: Mapped[list[Venue]] = with_roles(
         relationship(
             Venue,
-            cascade='all',
             order_by='Venue.seq',
             collection_class=ordering_list('seq', count_from=1),
             back_populates='project',

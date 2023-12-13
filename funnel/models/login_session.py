@@ -95,7 +95,7 @@ class LoginSession(UuidMixin, BaseMixin, Model):
     )
     account: Mapped[Account] = relationship(
         Account,
-        backref=backref('all_login_sessions', cascade='all', lazy='dynamic'),
+        backref=backref('all_login_sessions', lazy='dynamic'),
     )
 
     #: User's last known IP address

@@ -179,7 +179,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
             Commentset,
             uselist=False,
             lazy='joined',
-            cascade='all',
             single_parent=True,
             backref=backref('update', uselist=False),
         ),
