@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import itertools
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Sequence
 from datetime import datetime, timedelta
 from typing import ClassVar, Literal, cast, overload
 from uuid import UUID
@@ -48,11 +48,12 @@ from . import (
     TSVectorType,
     UrlType,
     UuidMixin,
-    backref,
     db,
     hybrid_property,
     relationship,
     sa,
+    sa_exc,
+    sa_orm,
 )
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import (
@@ -126,6 +127,37 @@ class ZBase32Comparator(Comparator[str]):  # pylint: disable=abstract-method
             return sa.false()
 
 
+# --- Tables ---------------------------------------------------------------------------
+
+team_membership = sa.Table(
+    'team_membership',
+    Model.metadata,
+    sa.Column(
+        'account_id',
+        sa.Integer,
+        sa.ForeignKey('account.id'),
+        nullable=False,
+        primary_key=True,
+    ),
+    sa.Column(
+        'team_id',
+        sa.Integer,
+        sa.ForeignKey('team.id'),
+        nullable=False,
+        primary_key=True,
+    ),
+    sa.Column(
+        'created_at',
+        sa.TIMESTAMP(timezone=True),
+        nullable=False,
+        default=sa.func.utcnow(),
+    ),
+)
+
+
+# --- Models ---------------------------------------------------------------------------
+
+
 class Account(UuidMixin, BaseMixin, Model):
     """Account model."""
 
@@ -145,17 +177,17 @@ class Account(UuidMixin, BaseMixin, Model):
 
     reserved_names: ClassVar[set[str]] = RESERVED_NAMES
 
-    type_: Mapped[str] = sa.orm.mapped_column('type', sa.CHAR(1), nullable=False)
+    type_: Mapped[str] = sa_orm.mapped_column('type', sa.CHAR(1), nullable=False)
 
     #: Join date for users and organizations (skipped for placeholders)
-    joined_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    joined_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
     #: The optional "username", used in the URL stub, with a unique constraint on the
     #: lowercase value (defined in __table_args__ below)
     name: Mapped[str | None] = with_roles(
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             sa.Unicode(__name_length__),
             sa.CheckConstraint("name <> ''"),
             nullable=True,
@@ -165,43 +197,43 @@ class Account(UuidMixin, BaseMixin, Model):
 
     #: The account's title (user's fullname)
     title: Mapped[str] = with_roles(
-        sa.orm.mapped_column(sa.Unicode(__title_length__), default='', nullable=False),
+        sa_orm.mapped_column(sa.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
     )
     #: Alias title as user's fullname
-    fullname: Mapped[str] = sa.orm.synonym('title')
+    fullname: Mapped[str] = sa_orm.synonym('title')
     #: Alias name as user's username
-    username: Mapped[str] = sa.orm.synonym('name')
+    username: Mapped[str] = sa_orm.synonym('name')
 
     #: Argon2 or Bcrypt hash of the user's password
-    pw_hash: Mapped[str | None] = sa.orm.mapped_column(sa.Unicode, nullable=True)
+    pw_hash: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
     #: Timestamp for when the user's password last changed
-    pw_set_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    pw_set_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: Expiry date for the password (to prompt user to reset it)
-    pw_expires_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    pw_expires_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: User's preferred/last known timezone
     timezone: Mapped[BaseTzInfo | None] = with_roles(
-        sa.orm.mapped_column(TimezoneType(backend='pytz'), nullable=True),
+        sa_orm.mapped_column(TimezoneType(backend='pytz'), nullable=True),
         read={'owner'},
     )
     #: Update timezone automatically from browser activity
-    auto_timezone: Mapped[bool] = sa.orm.mapped_column(
+    auto_timezone: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, default=True, nullable=False
     )
     #: User's preferred/last known locale
     locale: Mapped[Locale | None] = with_roles(
-        sa.orm.mapped_column(LocaleType, nullable=True), read={'owner'}
+        sa_orm.mapped_column(LocaleType, nullable=True), read={'owner'}
     )
     #: Update locale automatically from browser activity
-    auto_locale: Mapped[bool] = sa.orm.mapped_column(
+    auto_locale: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, default=True, nullable=False
     )
     #: User's state code (active, suspended, merged, deleted)
-    _state: Mapped[int] = sa.orm.mapped_column(
+    _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', ACCOUNT_STATE),
@@ -215,7 +247,7 @@ class Account(UuidMixin, BaseMixin, Model):
         'oldids', 'old_account'
     )
 
-    _profile_state: Mapped[int] = sa.orm.mapped_column(
+    _profile_state: Mapped[int] = sa_orm.mapped_column(
         'profile_state',
         sa.SmallInteger,
         StateManager.check_constraint('profile_state', PROFILE_STATE),
@@ -226,19 +258,19 @@ class Account(UuidMixin, BaseMixin, Model):
         '_profile_state', PROFILE_STATE, doc="Current state of the account profile"
     )
 
-    tagline: Mapped[str | None] = sa.orm.mapped_column(
+    tagline: Mapped[str | None] = sa_orm.mapped_column(
         sa.Unicode, sa.CheckConstraint("tagline <> ''"), nullable=True
     )
     description, description_text, description_html = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
-    website: Mapped[furl | None] = sa.orm.mapped_column(
+    website: Mapped[furl | None] = sa_orm.mapped_column(
         UrlType, sa.CheckConstraint("website <> ''"), nullable=True
     )
-    logo_url: Mapped[furl | None] = sa.orm.mapped_column(
+    logo_url: Mapped[furl | None] = sa_orm.mapped_column(
         ImgeeType, sa.CheckConstraint("logo_url <> ''"), nullable=True
     )
-    banner_image_url: Mapped[furl | None] = sa.orm.mapped_column(
+    banner_image_url: Mapped[furl | None] = sa_orm.mapped_column(
         ImgeeType, sa.CheckConstraint("banner_image_url <> ''"), nullable=True
     )
 
@@ -247,22 +279,22 @@ class Account(UuidMixin, BaseMixin, Model):
 
     #: Protected accounts cannot be deleted
     is_protected: Mapped[bool] = with_roles(
-        immutable(sa.orm.mapped_column(sa.Boolean, default=False, nullable=False)),
+        immutable(sa_orm.mapped_column(sa.Boolean, default=False, nullable=False)),
         read={'owner', 'admin'},
     )
     #: Verified accounts get listed on the home page and are not considered throwaway
     #: accounts for spam control. There are no other privileges at this time
     is_verified: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, default=False, nullable=False, index=True),
+        sa_orm.mapped_column(sa.Boolean, default=False, nullable=False, index=True),
         read={'all'},
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
     revisionid: Mapped[int] = with_roles(
-        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+        sa_orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[str] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
             'title',
             'name',
@@ -287,7 +319,7 @@ class Account(UuidMixin, BaseMixin, Model):
         deferred=True,
     )
 
-    name_vector: Mapped[str] = sa.orm.mapped_column(
+    name_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
             'title',
             'name',
@@ -296,6 +328,33 @@ class Account(UuidMixin, BaseMixin, Model):
         ),
         nullable=False,
         deferred=True,
+    )
+
+    # --- Backrefs
+
+    # account.py:
+    oldid: Mapped[AccountOldId] = relationship(
+        primaryjoin='foreign(AccountOldId.id) == Account.uuid',
+        back_populates='old_account',
+    )
+    oldids: Mapped[list[AccountOldId]] = relationship(
+        foreign_keys='AccountOldId.account_id', back_populates='account'
+    )
+    teams: Mapped[list[Team]] = relationship(
+        foreign_keys='Team.account_id',
+        order_by='func.lower(Team.title)',
+        back_populates='account',
+    )
+    member_teams: Mapped[list[Team]] = relationship(
+        secondary='team_membership', back_populates='users'
+    )
+    emails: Mapped[list[AccountEmail]] = relationship(back_populates='account')
+    emailclaims: Mapped[list[AccountEmailClaim]] = relationship(
+        back_populates='account'
+    )
+    phones: Mapped[list[AccountPhone]] = relationship(back_populates='account')
+    externalids: Mapped[list[AccountExternalId]] = relationship(
+        back_populates='account'
     )
 
     __table_args__ = (
@@ -391,9 +450,9 @@ class Account(UuidMixin, BaseMixin, Model):
     )
 
     @classmethod
-    def _defercols(cls) -> list[sa.orm.interfaces.LoaderOption]:
+    def _defercols(cls) -> list[sa_orm.interfaces.LoaderOption]:
         """Return columns that are typically deferred when loading a user."""
-        defer = sa.orm.defer
+        defer = sa_orm.defer
         return [
             defer(cls.created_at),
             defer(cls.updated_at),
@@ -435,7 +494,7 @@ class Account(UuidMixin, BaseMixin, Model):
     with_roles(pickername, read={'all'})
 
     def roles_for(
-        self, actor: Account | None = None, anchors: Iterable = ()
+        self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         """Identify roles for the given actor."""
         roles = super().roles_for(actor, anchors)
@@ -912,7 +971,7 @@ class Account(UuidMixin, BaseMixin, Model):
 
     @classmethod
     def name_in(cls, names: Iterable[str]) -> ColumnElement:
-        """Generate query flter to check if name is among candidates."""
+        """Generate query filter to check if name is among candidates."""
         return sa.func.lower(cls.name).in_(
             [name.lower().replace('-', '_') for name in names]
         )
@@ -1120,7 +1179,7 @@ class Account(UuidMixin, BaseMixin, Model):
             # No '@' in the query, so do a regular autocomplete
             try:
                 users = base_users.all()
-            except sa.exc.ProgrammingError:
+            except sa_exc.ProgrammingError:
                 # This can happen because the tsquery from prefix turned out to be ':*'
                 users = []
         return users
@@ -1151,7 +1210,7 @@ class Account(UuidMixin, BaseMixin, Model):
         # will add a filter condition on subclasses to restrict the query to that type.
         existing = (
             Account.query.filter(sa.func.lower(Account.name) == sa.func.lower(name))
-            .options(sa.orm.load_only(cls.id, cls.uuid, cls.type_))
+            .options(sa_orm.load_only(cls.id, cls.uuid, cls.type_))
             .one_or_none()
         )
         if existing is not None:
@@ -1174,7 +1233,7 @@ class Account(UuidMixin, BaseMixin, Model):
         """Test if the candidate name is available for use as an Account name."""
         return cls.validate_name_candidate(name) is None
 
-    @sa.orm.validates('name')
+    @sa_orm.validates('name')
     def _validate_name(self, key: str, value: str | None) -> str | None:
         """Validate the value of Account.name."""
         if value is None:
@@ -1195,7 +1254,7 @@ class Account(UuidMixin, BaseMixin, Model):
         # to the db and catch IntegrityError.
         return value
 
-    @sa.orm.validates('logo_url', 'banner_image_url')
+    @sa_orm.validates('logo_url', 'banner_image_url')
     def _validate_nullable(self, key: str, value: str | None):
         """Convert blank values into None."""
         return value if value else None
@@ -1213,7 +1272,7 @@ class Account(UuidMixin, BaseMixin, Model):
     # Make :attr:`type_` available under the name `type`, but declare this at the very
     # end of the class to avoid conflicts with the Python `type` global that is
     # used for type-hinting
-    type: Mapped[str] = sa.orm.synonym('type_')  # noqa: A003
+    type: Mapped[str] = sa_orm.synonym('type_')  # noqa: A003
 
 
 auto_init_default(Account._state)  # pylint: disable=protected-access
@@ -1229,19 +1288,16 @@ class AccountOldId(UuidMixin, BaseMixin[UUID], Model):
 
     #: Old account, if still present
     old_account: Mapped[Account] = relationship(
-        Account,
-        primaryjoin='foreign(AccountOldId.id) == remote(Account.uuid)',
-        backref=backref('oldid', uselist=False),
+        primaryjoin='foreign(AccountOldId.id) == Account.uuid',
+        back_populates='oldid',
     )
     #: User id of new user
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
     #: New account
     account: Mapped[Account] = relationship(
-        Account,
-        foreign_keys=[account_id],
-        backref=backref('oldids', cascade='all'),
+        foreign_keys=[account_id], back_populates='oldids'
     )
 
     def __repr__(self) -> str:
@@ -1346,31 +1402,6 @@ unknown_account = DuckTypeAccount(__("[unknown]"))
 
 # --- Organizations and teams -------------------------------------------------
 
-team_membership = sa.Table(
-    'team_membership',
-    Model.metadata,
-    sa.Column(
-        'account_id',
-        sa.Integer,
-        sa.ForeignKey('account.id'),
-        nullable=False,
-        primary_key=True,
-    ),
-    sa.Column(
-        'team_id',
-        sa.Integer,
-        sa.ForeignKey('team.id'),
-        nullable=False,
-        primary_key=True,
-    ),
-    sa.Column(
-        'created_at',
-        sa.TIMESTAMP(timezone=True),
-        nullable=False,
-        default=sa.func.utcnow(),
-    ),
-)
-
 
 class Organization(Account):
     """An organization of one or more users with distinct roles."""
@@ -1394,7 +1425,7 @@ class Organization(Account):
             Account.query.join(team_membership)
             .join(Team)
             .filter(Team.account == self, Team.is_public.is_(True))
-            .options(sa.orm.joinedload(Account.member_teams))
+            .options(sa_orm.joinedload(Account.member_teams))
             .order_by(sa.func.lower(Account.title))
         )
 
@@ -1412,29 +1443,25 @@ class Team(UuidMixin, BaseMixin, Model):
     __tablename__ = 'team'
     __title_length__ = 250
     #: Displayed name
-    title: Mapped[str] = sa.orm.mapped_column(
+    title: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(__title_length__), nullable=False
     )
     #: Organization
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, index=True
     )
     account: Mapped[Account] = with_roles(
-        relationship(
-            Account,
-            foreign_keys=[account_id],
-            backref=backref('teams', order_by=sa.func.lower(title), cascade='all'),
-        ),
+        relationship(foreign_keys=[account_id], back_populates='teams'),
         grants_via={None: {'owner': 'owner', 'admin': 'admin'}},
     )
     users: DynamicMapped[Account] = with_roles(
         relationship(
-            Account, secondary=team_membership, lazy='dynamic', backref='member_teams'
+            secondary=team_membership, lazy='dynamic', back_populates='member_teams'
         ),
         grants={'member'},
     )
 
-    is_public: Mapped[bool] = sa.orm.mapped_column(
+    is_public: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
 
@@ -1461,7 +1488,7 @@ class Team(UuidMixin, BaseMixin, Model):
                 # `migrate_account` methods as team_membership is an unmapped table.
                 new_account.member_teams.append(team)
             old_account.member_teams.remove(team)
-        return [cls.__table__.name, team_membership.name]
+        return [cast(sa.Table, cls.__table__).name, team_membership.name]
 
     @classmethod
     def get(cls, buid: str, with_parent: bool = False) -> Team | None:
@@ -1471,7 +1498,7 @@ class Team(UuidMixin, BaseMixin, Model):
         :param str buid: Buid of the team
         """
         if with_parent:
-            query = cls.query.options(sa.orm.joinedload(cls.account))
+            query = cls.query.options(sa_orm.joinedload(cls.account))
         else:
             query = cls.query
         return query.filter_by(buid=buid).one_or_none()
@@ -1492,15 +1519,13 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
     # Tell mypy that these are not optional
     email_address: Mapped[EmailAddress]  # type: ignore[assignment]
 
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
-    account: Mapped[Account] = relationship(
-        Account, backref=backref('emails', cascade='all')
-    )
-    user: Mapped[Account] = sa.orm.synonym('account')
+    account: Mapped[Account] = relationship(back_populates='emails')
+    user: Mapped[Account] = sa_orm.synonym('account')
 
-    private: Mapped[bool] = sa.orm.mapped_column(
+    private: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
 
@@ -1658,7 +1683,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         if new_account.primary_email is None:
             new_account.primary_email = primary_email
         old_account.primary_email = None
-        return [cls.__table__.name, user_email_primary_table.name]
+        return [cast(sa.Table, cls.__table__).name, user_email_primary_table.name]
 
 
 class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
@@ -1673,18 +1698,16 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
     # Tell mypy that these are not optional
     email_address: Mapped[EmailAddress]  # type: ignore[assignment]
 
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
-    account: Mapped[Account] = relationship(
-        Account, backref=backref('emailclaims', cascade='all')
-    )
-    user: Mapped[Account] = sa.orm.synonym('account')
-    verification_code: Mapped[str] = sa.orm.mapped_column(
+    account: Mapped[Account] = relationship(back_populates='emailclaims')
+    user: Mapped[Account] = sa_orm.synonym('account')
+    verification_code: Mapped[str] = sa_orm.mapped_column(
         sa.String(44), nullable=False, default=newsecret
     )
 
-    private: Mapped[bool] = sa.orm.mapped_column(
+    private: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
 
@@ -1864,15 +1887,13 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
     __phone_is_exclusive__ = True
     __phone_for__ = 'account'
 
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
-    account: Mapped[Account] = relationship(
-        Account, backref=backref('phones', cascade='all')
-    )
-    user: Mapped[Account] = sa.orm.synonym('account')
+    account: Mapped[Account] = relationship(back_populates='phones')
+    user: Mapped[Account] = sa_orm.synonym('account')
 
-    private: Mapped[bool] = sa.orm.mapped_column(
+    private: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
 
@@ -1898,7 +1919,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
 
     @cached_property
     def parsed(self) -> phonenumbers.PhoneNumber:
-        """Return parsed phone number using libphonenumbers."""
+        """Return parsed phone number using libphonenumber."""
         return self.phone_number.parsed
 
     @cached_property
@@ -2043,7 +2064,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         if new_account.primary_phone is None:
             new_account.primary_phone = primary_phone
         old_account.primary_phone = None
-        return [cls.__table__.name, user_phone_primary_table.name]
+        return [cast(sa.Table, cls.__table__).name, user_phone_primary_table.name]
 
 
 class AccountExternalId(BaseMixin, Model):
@@ -2052,58 +2073,56 @@ class AccountExternalId(BaseMixin, Model):
     __tablename__ = 'account_externalid'
     __at_username_services__: ClassVar[list[str]] = []
     #: Foreign key to user table
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
     #: User that this connected account belongs to
-    account: Mapped[Account] = relationship(
-        Account, backref=backref('externalids', cascade='all')
-    )
-    user: Mapped[Account] = sa.orm.synonym('account')
+    account: Mapped[Account] = relationship(back_populates='externalids')
+    user: Mapped[Account] = sa_orm.synonym('account')
     #: Identity of the external service (in app's login provider registry)
     # FIXME: change to sa.Unicode
-    service: Mapped[str] = sa.orm.mapped_column(sa.UnicodeText, nullable=False)
+    service: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
     #: Unique user id as per external service, used for identifying related accounts
     # FIXME: change to sa.Unicode
-    userid: Mapped[str] = sa.orm.mapped_column(
+    userid: Mapped[str] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=False
     )  # Unique id (or obsolete OpenID)
     #: Optional public-facing username on the external service
     # FIXME: change to sa.Unicode
-    username: Mapped[str | None] = sa.orm.mapped_column(
+    username: Mapped[str | None] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=True
     )  # LinkedIn once used full URLs
     #: OAuth or OAuth2 access token
     # FIXME: change to sa.Unicode
-    oauth_token: Mapped[str | None] = sa.orm.mapped_column(
+    oauth_token: Mapped[str | None] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=True
     )
     #: Optional token secret (not used in OAuth2, used by Twitter with OAuth1a)
     # FIXME: change to sa.Unicode
-    oauth_token_secret: Mapped[str | None] = sa.orm.mapped_column(
+    oauth_token_secret: Mapped[str | None] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=True
     )
     #: OAuth token type (typically 'bearer')
     # FIXME: change to sa.Unicode
-    oauth_token_type: Mapped[str | None] = sa.orm.mapped_column(
+    oauth_token_type: Mapped[str | None] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=True
     )
     #: OAuth2 refresh token
     # FIXME: change to sa.Unicode
-    oauth_refresh_token: Mapped[str | None] = sa.orm.mapped_column(
+    oauth_refresh_token: Mapped[str | None] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=True
     )
     #: OAuth2 token expiry in seconds, as sent by service provider
-    oauth_expires_in: Mapped[int | None] = sa.orm.mapped_column(
+    oauth_expires_in: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer, nullable=True
     )
     #: OAuth2 token expiry timestamp, estimate from created_at + oauth_expires_in
-    oauth_expires_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    oauth_expires_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
 
     #: Timestamp of when this connected account was last (re-)authorised by the user
-    last_used_at: Mapped[datetime] = sa.orm.mapped_column(
+    last_used_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), default=sa.func.utcnow(), nullable=False
     )
 
