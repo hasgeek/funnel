@@ -13,12 +13,13 @@ from ...utils import abort_null
 
 
 @app.route('/api/1/whatsapp/meta_event', methods=['GET'])
-def process_whatsapp_webhook_verification():
-    """Meta requires to verify the webhook URL by sending a GET request with a token."""
+def process_whatsapp_webhook_verification() -> ReturnView:
+    """Meta verifies the webhook URL by sending a GET request with a token."""
+    # FIXME: This looks half baked. What is the "challenge" being returned?
     verify_token = app.config['WHATSAPP_WEBHOOK_SECRET']
-    mode = request.args.get('hub.mode')
-    token = request.args.get('hub.verify_token')
-    challenge = request.args.get('hub.challenge')
+    mode = request.args['hub.mode']
+    token = request.args['hub.verify_token']
+    challenge = request.args['hub.challenge']
 
     if mode and token:
         if mode == 'subscribe' and token == verify_token:
@@ -32,6 +33,8 @@ def process_whatsapp_event() -> ReturnView:
     """Process WhatsApp callback event from Meta Cloud API."""
     # Register the fact that we got a WhatsApp event.
     # If there are too many rejects, then most likely a hack attempt.
+
+    # FIXME: Where is the call verification?
     statsd.incr(
         'phone_number.event', tags={'engine': 'whatsapp-meta', 'stage': 'received'}
     )
