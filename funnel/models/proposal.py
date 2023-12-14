@@ -130,7 +130,6 @@ class Proposal(  # type: ignore[misc]
     )
     created_by: Mapped[Account] = with_roles(
         relationship(
-            Account,
             foreign_keys=[created_by_id],
             backref=backref('created_proposals', lazy='dynamic'),
         ),
@@ -141,7 +140,6 @@ class Proposal(  # type: ignore[misc]
     )
     project: Mapped[Project] = with_roles(
         relationship(
-            Project,
             foreign_keys=[project_id],
             backref=backref('proposals', lazy='dynamic', order_by='Proposal.url_id'),
         ),
@@ -177,11 +175,7 @@ class Proposal(  # type: ignore[misc]
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = relationship(
-        Commentset,
-        uselist=False,
-        lazy='joined',
-        single_parent=True,
-        back_populates='proposal',
+        uselist=False, lazy='joined', single_parent=True, back_populates='proposal'
     )
 
     body, body_text, body_html = MarkdownCompositeDocument.create(
@@ -531,13 +525,6 @@ class ProposalSuuidRedirect(BaseMixin, Model):
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
     proposal: Mapped[Proposal] = relationship(Proposal)
-
-
-@reopen(Commentset)
-class __Commentset:
-    proposal: Mapped[Proposal] = relationship(
-        Proposal, uselist=False, back_populates='commentset'
-    )
 
 
 @reopen(Project)

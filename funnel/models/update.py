@@ -182,7 +182,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
             uselist=False,
             lazy='joined',
             single_parent=True,
-            backref=backref('update', uselist=False),
+            back_populates='update',
         ),
         read={'all'},
     )

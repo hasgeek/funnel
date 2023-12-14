@@ -257,10 +257,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = relationship(
-        Commentset,
-        uselist=False,
-        single_parent=True,
-        back_populates='project',
+        uselist=False, single_parent=True, back_populates='project'
     )
 
     parent_id: Mapped[int | None] = sa_orm.mapped_column(
@@ -997,14 +994,6 @@ class ProjectLocation(TimestampMixin, Model):
         return (
             f'<ProjectLocation {self.geonameid} {pri_sec} for project {self.project!r}>'
         )
-
-
-@reopen(Commentset)
-class __Commentset:
-    project: Mapped[Project | None] = with_roles(
-        relationship(Project, uselist=False, back_populates='commentset'),
-        grants_via={None: {'editor': 'document_subscriber'}},
-    )
 
 
 # Tail imports

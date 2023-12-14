@@ -19,7 +19,6 @@ from . import (
     Model,
     TSVectorType,
     UuidMixin,
-    backref,
     db,
     hybrid_property,
     relationship,
@@ -33,12 +32,7 @@ from .account import (
     removed_account,
     unknown_account,
 )
-from .helpers import (
-    MarkdownCompositeBasic,
-    MessageComposite,
-    add_search_trigger,
-    reopen,
-)
+from .helpers import MarkdownCompositeBasic, MessageComposite, add_search_trigger
 
 __all__ = ['Comment', 'Commentset']
 
@@ -118,6 +112,49 @@ class Commentset(UuidMixin, BaseMixin, Model):
         datasets={'primary'},
     )
 
+    comments: DynamicMapped[Comment] = relationship(
+        lazy='dynamic', back_populates='commentset'
+    )
+    toplevel_comments: DynamicMapped[Comment] = relationship(
+        lazy='dynamic',
+        primaryjoin='''and_(
+            Comment.commentset_id == Commentset.id, Comment.in_reply_to_id.is_(None)
+        )''',
+        viewonly=True,
+    )
+    active_memberships: DynamicMapped[CommentsetMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin='''and_(
+            CommentsetMembership.commentset_id == Commentset.id,
+            CommentsetMembership.is_active,
+        )''',
+        viewonly=True,
+    )
+    # Send notifications only to subscribers who haven't muted
+    active_memberships_unmuted: DynamicMapped[CommentsetMembership] = with_roles(
+        relationship(
+            lazy='dynamic',
+            primaryjoin='''and_(
+                CommentsetMembership.commentset_id == Commentset.id,
+                CommentsetMembership.is_active,
+                CommentsetMembership.is_muted.is_(False),
+            )''',
+            viewonly=True,
+        ),
+        grants_via={'member': {'document_subscriber'}},
+    )
+
+    project: Mapped[Project | None] = with_roles(
+        relationship(uselist=False, back_populates='commentset'),
+        grants_via={None: {'editor': 'document_subscriber'}},
+    )
+    proposal: Mapped[Proposal | None] = relationship(
+        uselist=False, back_populates='commentset'
+    )
+    update: Mapped[Update | None] = relationship(
+        uselist=False, back_populates='commentset'
+    )
+
     __roles__ = {
         'all': {
             'read': {'project', 'proposal', 'update', 'urls'},
@@ -136,7 +173,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
 
     @cached_property
     def parent(self) -> Project | Proposal | Update:
-        # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
+        # TODO: Move this to a CommentMixin that uses a registry, like EmailAddress
         if self.project is not None:
             return self.project
         if self.proposal is not None:
@@ -183,10 +220,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
         # 2. Make a CommentMixin (like EmailAddressMixin) and insert logic into the
         #    parent, which can override methods and add custom restrictions
         comment = Comment(
-            posted_by=actor,
-            commentset=self,
-            message=message,
-            in_reply_to=in_reply_to,
+            posted_by=actor, commentset=self, message=message, in_reply_to=in_reply_to
         )
         self.count = Commentset.count + 1
         db.session.add(comment)
@@ -202,6 +236,63 @@ class Commentset(UuidMixin, BaseMixin, Model):
 
     # Transitions for the other two states are pending on the TODO notes in post_comment
 
+    def update_last_seen_at(self, member: Account) -> None:
+        subscription = CommentsetMembership.query.filter_by(
+            commentset=self, member=member, is_active=True
+        ).one_or_none()
+        if subscription is not None:
+            subscription.update_last_seen_at()
+
+    def add_subscriber(self, actor: Account, member: Account) -> bool:
+        """Return True is subscriber is added or unmuted, False if already exists."""
+        changed = False
+        subscription = CommentsetMembership.query.filter_by(
+            commentset=self, member=member, is_active=True
+        ).one_or_none()
+        if subscription is None:
+            subscription = CommentsetMembership(
+                commentset=self,
+                member=member,
+                granted_by=actor,
+            )
+            db.session.add(subscription)
+            changed = True
+        elif subscription.is_muted:
+            subscription = subscription.replace(actor=actor, is_muted=False)
+            changed = True
+        subscription.update_last_seen_at()
+        return changed
+
+    def mute_subscriber(self, actor: Account, member: Account) -> bool:
+        """Return True if subscriber was muted, False if already muted or missing."""
+        subscription = CommentsetMembership.query.filter_by(
+            commentset=self, member=member, is_active=True
+        ).one_or_none()
+        if subscription is not None and not subscription.is_muted:
+            subscription.replace(actor=actor, is_muted=True)
+            return True
+        return False
+
+    def unmute_subscriber(self, actor: Account, member: Account) -> bool:
+        """Return True if subscriber was unmuted, False if not muted or missing."""
+        subscription = CommentsetMembership.query.filter_by(
+            commentset=self, member=member, is_active=True
+        ).one_or_none()
+        if subscription is not None and subscription.is_muted:
+            subscription.replace(actor=actor, is_muted=False)
+            return True
+        return False
+
+    def remove_subscriber(self, actor: Account, member: Account) -> bool:
+        """Return True is subscriber is removed, False if already removed."""
+        subscription = CommentsetMembership.query.filter_by(
+            commentset=self, member=member, is_active=True
+        ).one_or_none()
+        if subscription is not None:
+            subscription.revoke(actor=actor)
+            return True
+        return False
+
 
 class Comment(UuidMixin, BaseMixin, Model):
     __tablename__ = 'comment'
@@ -210,26 +301,24 @@ class Comment(UuidMixin, BaseMixin, Model):
         sa.ForeignKey('account.id'), nullable=True
     )
     _posted_by: Mapped[Account | None] = with_roles(
-        relationship(Account, backref=backref('comments', lazy='dynamic')),
+        relationship(back_populates='comments'),
         grants={'author'},
     )
     commentset_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
-        relationship(
-            Commentset,
-            backref=backref('comments', lazy='dynamic'),
-        ),
+        relationship(back_populates='comments'),
         grants_via={None: {'document_subscriber'}},
     )
 
     in_reply_to_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('comment.id'), nullable=True
     )
-    replies: Mapped[list[Comment]] = relationship(
-        'Comment', backref=backref('in_reply_to', remote_side='Comment.id')
+    in_reply_to: Mapped[Comment] = relationship(
+        back_populates='replies', remote_side='Comment.id'
     )
+    replies: Mapped[list[Comment]] = relationship(back_populates='in_reply_to')
 
     _message, message_text, message_html = MarkdownCompositeBasic.create(
         'message', nullable=False
@@ -365,14 +454,16 @@ class Comment(UuidMixin, BaseMixin, Model):
             return _("{user} commented on {obj}").format(
                 user=self.posted_by.pickername, obj=obj.title
             )
-        return _("{account} commented").format(account=self.posted_by.pickername)
+        return _("{account} commented").format(  # type: ignore[unreachable]
+            account=self.posted_by.pickername
+        )
 
     with_roles(title, read={'all'}, datasets={'primary', 'related', 'json'})
 
     @property
     def badges(self) -> set[str]:
         badges = set()
-        roles = set()
+        roles: set[str] | LazyRoleSet = set()
         if self.commentset.project is not None:
             roles = self.commentset.project.roles_for(self._posted_by)
         elif self.commentset.proposal is not None:
@@ -426,19 +517,9 @@ class Comment(UuidMixin, BaseMixin, Model):
 add_search_trigger(Comment, 'search_vector')
 
 
-@reopen(Commentset)
-class __Commentset:
-    toplevel_comments: DynamicMapped[Comment] = relationship(
-        Comment,
-        lazy='dynamic',
-        primaryjoin=sa.and_(
-            Comment.commentset_id == Commentset.id, Comment.in_reply_to_id.is_(None)
-        ),
-        viewonly=True,
-    )
-
-
 # Tail imports for type checking
+from .commentset_membership import CommentsetMembership
+
 if TYPE_CHECKING:
     from .project import Project
     from .proposal import Proposal

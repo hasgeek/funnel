@@ -22,6 +22,7 @@ from zbase32 import decode as zbase32_decode, encode as zbase32_encode  # type: 
 
 from baseframe import __
 from coaster.sqlalchemy import (
+    DynamicAssociationProxy,
     LazyRoleSet,
     RoleMixin,
     StateManager,
@@ -361,6 +362,23 @@ class Account(UuidMixin, BaseMixin, Model):
     )
     client_permissions: Mapped[list[AuthClientPermissions]] = relationship(
         back_populates='account'
+    )
+
+    # comment.py
+    comments: DynamicMapped[Comment] = relationship(
+        lazy='dynamic', back_populates='_posted_by'
+    )
+    # commentset_membership.py
+    active_commentset_memberships: DynamicMapped[CommentsetMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin='''and_(
+            CommentsetMembership.member_id == Account.id,
+            CommentsetMembership.is_active,
+        )''',
+        viewonly=True,
+    )
+    subscribed_commentsets = DynamicAssociationProxy['Commentset'](
+        'active_commentset_memberships', 'commentset'
     )
 
     __table_args__ = (
@@ -2204,8 +2222,8 @@ user_phone_primary_table = add_primary_relationship(
 Anchor = AccountEmail | AccountEmailClaim | AccountPhone | EmailAddress | PhoneNumber
 
 # Tail imports
-from .membership_mixin import ImmutableMembershipMixin  # isort: skip
-from .account_membership import AccountMembership  # isort:skip
+from .account_membership import AccountMembership
+from .membership_mixin import ImmutableMembershipMixin
 
 if TYPE_CHECKING:
     from .auth_client import (
@@ -2214,3 +2232,5 @@ if TYPE_CHECKING:
         AuthClientTeamPermissions,
         AuthToken,
     )
+    from .comment import Comment, Commentset  # noqa: F401
+    from .commentset_membership import CommentsetMembership
