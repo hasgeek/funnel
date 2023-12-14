@@ -10,18 +10,19 @@ from pytest_bdd import given, parsers, scenarios, then, when
 from funnel import models
 
 scenarios('account/register.feature')
-pytestmark = pytest.mark.usefixtures('live_server')
+pytestmark = [
+    pytest.mark.usefixtures('live_server'),
+    pytest.mark.filterwarnings(
+        "ignore:Object of type <AccountPhone> not in session",
+        "ignore:Object of type <AccountEmail> not in session",
+    ),
+]
 
 TWOFLOWER_EMAIL = 'twoflower@example.org'
 TWOFLOWER_PHONE = '+12015550123'
 TWOFLOWER_PASSWORD = 'te@pwd3289'  # nosec
 ANONYMOUS_PHONE = '8123456789'
 ANONYMOUS_EMAIL = 'anon@example.com'
-
-pytestmark = pytest.mark.filterwarnings(
-    "ignore:Object of type <AccountPhone> not in session",
-    "ignore:Object of type <AccountEmail> not in session",
-)
 
 
 @pytest.fixture()
