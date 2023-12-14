@@ -488,7 +488,7 @@ class Account(UuidMixin, BaseMixin, Model):
     def __format__(self, format_spec: str) -> str:
         if not format_spec:
             return self.pickername
-        return self.pickername.__format__(format_spec)
+        return format(self.pickername, format_spec)
 
     @property
     def pickername(self) -> str:
@@ -1394,7 +1394,7 @@ class DuckTypeAccount(RoleMixin):
     def __format__(self, format_spec: str) -> str:
         if not format_spec:
             return self.pickername
-        return self.pickername.__format__(format_spec)
+        return format(self.pickername, format_spec)
 
     def url_for(self, *args, **kwargs) -> Literal['']:
         """Return blank URL for anything to do with this user."""

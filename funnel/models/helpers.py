@@ -643,7 +643,7 @@ class MarkdownCompositeBase(MutableComposite):
         """Implement format_spec support as required by MarkdownString."""
         # This call's MarkdownString's __format__ instead of __markdown_format__ as the
         # content has not been manipulated from the source string
-        return self.__markdown__().__format__(format_spec)
+        return format(self.__markdown__(), format_spec)
 
     def __html__(self) -> str:
         """Return HTML representation."""
@@ -653,7 +653,7 @@ class MarkdownCompositeBase(MutableComposite):
         """Implement format_spec support as required by Markup."""
         # This call's Markup's __format__ instead of __html_format__ as the
         # content has not been manipulated from the source string
-        return self.__html__().__format__(format_spec)
+        return format(self.__html__(), format_spec)
 
     # Return a Markup string of the HTML
     @property

@@ -511,7 +511,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     def __format__(self, format_spec: str) -> str:
         if not format_spec:
             return self.joined_title
-        return self.joined_title.__format__(format_spec)
+        return format(self.joined_title, format_spec)
 
     @with_roles(call={'editor'})
     @cfp_state.transition(

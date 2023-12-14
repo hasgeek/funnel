@@ -357,7 +357,7 @@ class EmailAddress(BaseMixin, Model):
         """Format the email address."""
         if not format_spec:
             return self.__str__()
-        return self.__str__().__format__(format_spec)
+        return format(self.__str__(), format_spec)
 
     def __repr__(self) -> str:
         """Debugging representation of the email address."""

@@ -312,7 +312,7 @@ class Proposal(  # type: ignore[misc]
     def __format__(self, format_spec: str) -> str:
         if not format_spec:
             return self.title
-        return self.title.__format__(format_spec)
+        return format(self.title, format_spec)
 
     # State transitions
     state.add_conditional_state(
