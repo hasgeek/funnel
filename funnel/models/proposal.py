@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import datetime as datetime_type
+from typing import Self
 
 from baseframe import __
 from baseframe.filters import preview
@@ -504,7 +505,7 @@ class Proposal(  # type: ignore[misc]
         return roles
 
     @classmethod
-    def all_public(cls) -> Query[Proposal]:
+    def all_public(cls) -> Query[Self]:
         return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.state.PUBLIC)
 
     @classmethod

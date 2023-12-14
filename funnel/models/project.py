@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import datetime
+from typing import Self
 
 from furl import furl
 from pytz import BaseTzInfo, utc
@@ -770,7 +771,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         return clause
 
     @classmethod
-    def all_unsorted(cls) -> Query[Project]:
+    def all_unsorted(cls) -> Query[Self]:
         """Return query of all published projects, without ordering criteria."""
         return (
             cls.query.join(Account, Project.account)
@@ -779,7 +780,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         )
 
     @classmethod
-    def all(cls) -> Query[Project]:  # noqa: A003
+    def all(cls) -> Query[Self]:  # noqa: A003
         """Return all published projects, ordered by date."""
         return cls.all_unsorted().order_by(cls.order_by_date())
 

@@ -6,6 +6,7 @@ from collections.abc import Collection, Sequence
 from dataclasses import dataclass
 from datetime import date as date_type, datetime
 from itertools import groupby
+from typing import Self
 from uuid import UUID
 
 from pytz import timezone
@@ -258,7 +259,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     @classmethod
     def contacts_for_project_and_date(
         cls, account: Account, project: Project, date: date_type, archived: bool = False
-    ) -> Query[ContactExchange]:
+    ) -> Query[Self]:
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(
             cls.account == account,
@@ -285,7 +286,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     @classmethod
     def contacts_for_project(
         cls, account: Account, project: Project, archived: bool = False
-    ) -> Query[ContactExchange]:
+    ) -> Query[Self]:
         """Return contacts for a given user and project."""
         query = cls.query.join(TicketParticipant).filter(
             cls.account == account,

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Self
 
 from werkzeug.utils import cached_property
 
@@ -90,7 +91,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
         self.last_seen_at = sa.func.utcnow()
 
     @classmethod
-    def for_user(cls, account: Account) -> Query[CommentsetMembership]:
+    def for_user(cls, account: Account) -> Query[Self]:
         """
         Return a query representing all active commentset memberships for a user.
 

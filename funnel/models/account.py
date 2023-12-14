@@ -6,7 +6,7 @@ import hashlib
 import itertools
 from collections.abc import Iterable, Iterator, Sequence
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, ClassVar, Literal, cast, overload
+from typing import TYPE_CHECKING, ClassVar, Literal, Self, cast, overload
 from uuid import UUID
 
 import phonenumbers
@@ -1099,7 +1099,7 @@ class Account(UuidMixin, BaseMixin, Model):
         return query
 
     @classmethod
-    def autocomplete(cls, prefix: str) -> list[Account]:
+    def autocomplete(cls, prefix: str) -> list[Self]:
         """
         Return accounts whose names begin with the prefix, for autocomplete UI.
 
@@ -1332,8 +1332,9 @@ class User(Account):
 Account.userid = Account.uuid_b64
 
 
+# TODO: Make an Actor Protocol as the base for both -- maybe placing that in Coaster
 class DuckTypeAccount(RoleMixin):
-    """User singleton constructor. Ducktypes a regular user object."""
+    """User singleton constructor. Duck types a regular user object."""
 
     id: None = None  # noqa: A003
     created_at: None = None
@@ -1872,7 +1873,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
         )
 
     @classmethod
-    def all(cls, email: str) -> Query[AccountEmailClaim]:  # noqa: A003
+    def all(cls, email: str) -> Query[Self]:  # noqa: A003
         """
         Return all instances with the matching email address.
 

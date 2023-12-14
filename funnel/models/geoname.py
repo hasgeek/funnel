@@ -6,7 +6,7 @@ import re
 from collections.abc import Collection
 from datetime import date
 from decimal import Decimal
-from typing import cast
+from typing import Self, cast
 
 from sqlalchemy.dialects.postgresql import ARRAY
 
@@ -569,7 +569,7 @@ class GeoName(BaseNameMixin, GeonameModel):
         return results
 
     @classmethod
-    def autocomplete(cls, prefix: str, lang: str | None = None) -> Query[GeoName]:
+    def autocomplete(cls, prefix: str, lang: str | None = None) -> Query[Self]:
         """
         Autocomplete a geoname record.
 

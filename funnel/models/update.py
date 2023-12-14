@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import datetime
+from typing import Self
 
 from sqlalchemy.orm import Query as BaseQuery
 
@@ -365,7 +366,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         return roles
 
     @classmethod
-    def all_published_public(cls) -> Query[Update]:
+    def all_published_public(cls) -> Query[Self]:
         return cls.query.join(Project).filter(
             Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
         )

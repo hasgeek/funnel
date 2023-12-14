@@ -6,7 +6,7 @@ import urllib.parse
 from collections.abc import Iterable, Sequence
 from datetime import datetime, timedelta
 from hashlib import blake2b, sha256
-from typing import cast, overload
+from typing import Self, cast, overload
 
 from sqlalchemy.orm import attribute_keyed_dict, load_only
 from sqlalchemy.orm.query import Query as QueryBaseClass
@@ -264,7 +264,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         return cls.query.filter(cls.buid == buid, cls.active.is_(True)).one_or_none()
 
     @classmethod
-    def all_for(cls, account: Account | None) -> Query[AuthClient]:
+    def all_for(cls, account: Account | None) -> Query[Self]:
         """Return all clients, optionally all clients owned by the specified account."""
         if account is None:
             return cls.query.order_by(cls.title)
@@ -401,7 +401,7 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
         return not self.used and self.created_at >= utcnow() - timedelta(minutes=3)
 
     @classmethod
-    def all_for(cls, account: Account) -> Query[AuthCode]:
+    def all_for(cls, account: Account) -> Query[Self]:
         """Return all auth codes for the specified account."""
         return cls.query.filter(cls.account == account)
 
@@ -596,7 +596,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         ).one_or_none()
 
     @classmethod
-    def all(cls, accounts: Query | Sequence[Account]) -> list[AuthToken]:  # noqa: A003
+    def all(cls, accounts: Query | Sequence[Account]) -> list[Self]:  # noqa: A003
         """Return all AuthToken for the specified accounts."""
         query = cls.query.join(AuthClient)
         if isinstance(accounts, QueryBaseClass):
@@ -622,7 +622,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         return []
 
     @classmethod
-    def all_for(cls, account: Account) -> Query[AuthToken]:
+    def all_for(cls, account: Account) -> Query[Self]:
         """Get all AuthTokens for a specified account (direct only)."""
         return cls.query.filter(cls.account == account)
 
@@ -689,12 +689,12 @@ class AuthClientPermissions(BaseMixin, Model):
         ).one_or_none()
 
     @classmethod
-    def all_for(cls, account: Account) -> Query[AuthClientPermissions]:
+    def all_for(cls, account: Account) -> Query[Self]:
         """Get all permissions assigned to account for various clients."""
         return cls.query.filter(cls.account == account)
 
     @classmethod
-    def all_forclient(cls, auth_client: AuthClient) -> Query[AuthClientPermissions]:
+    def all_forclient(cls, auth_client: AuthClient) -> Query[Self]:
         """Get all permissions assigned on the specified auth client."""
         return cls.query.filter(cls.auth_client == auth_client)
 
@@ -744,9 +744,7 @@ class AuthClientTeamPermissions(BaseMixin, Model):
         ).one_or_none()
 
     @classmethod
-    def all_for(
-        cls, auth_client: AuthClient, account: Account
-    ) -> Query[AuthClientTeamPermissions]:
+    def all_for(cls, auth_client: AuthClient, account: Account) -> Query[Self]:
         """Get all permissions for the specified account via their teams."""
         return cls.query.filter(
             cls.auth_client == auth_client,
@@ -754,7 +752,7 @@ class AuthClientTeamPermissions(BaseMixin, Model):
         )
 
     @classmethod
-    def all_forclient(cls, auth_client: AuthClient) -> Query[AuthClientTeamPermissions]:
+    def all_forclient(cls, auth_client: AuthClient) -> Query[Self]:
         """Get all permissions assigned on the specified auth client."""
         return cls.query.filter(cls.auth_client == auth_client)
 

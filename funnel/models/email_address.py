@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import unicodedata
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, cast, overload
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, cast, overload
 
 import base58
 import idna
@@ -473,7 +473,7 @@ class EmailAddress(BaseMixin, Model):
         email_hash: str | None = None,
     ) -> sa.ColumnElement[bool] | None:
         """
-        Get an filter condition for retriving an :class:`EmailAddress`.
+        Get an filter condition for retrieving an :class:`EmailAddress`.
 
         Accepts an email address or a blake2b160 hash in either bytes or base58 form.
         Internally converts all lookups to a bytes-based hash lookup. Returns an
@@ -528,14 +528,15 @@ class EmailAddress(BaseMixin, Model):
 
         Internally converts an email-based lookup into a hash-based lookup.
         """
-        return cls.query.filter(
-            cls.get_filter(email=email, blake2b160=blake2b160, email_hash=email_hash)
-        ).one_or_none()
+        email_filter = cls.get_filter(
+            email=email, blake2b160=blake2b160, email_hash=email_hash
+        )
+        if email_filter is None:
+            return None
+        return cls.query.filter(email_filter).one_or_none()
 
     @classmethod
-    def get_canonical(
-        cls, email: str, is_blocked: bool | None = None
-    ) -> Query[EmailAddress]:
+    def get_canonical(cls, email: str, is_blocked: bool | None = None) -> Query[Self]:
         """
         Get :class:`EmailAddress` instances matching the canonical representation.
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Self
 
 from flask_babel import format_date, get_locale
 from isoweek import Week
@@ -284,7 +284,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
         self.end_at = None
 
     @classmethod
-    def all_public(cls) -> Query[Session]:
+    def all_public(cls) -> Query[Self]:
         return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.scheduled)
 
 

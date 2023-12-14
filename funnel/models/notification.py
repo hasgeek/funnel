@@ -91,6 +91,7 @@ from typing import (
     Generic,
     Optional,
     Protocol,
+    Self,
     TypeVar,
     Union,
     cast,
@@ -1160,12 +1161,12 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
     @classmethod
     def web_notifications_for(
         cls, user: Account, unread_only: bool = False
-    ) -> Query[NotificationRecipient]:
+    ) -> Query[Self]:
         """Return web notifications for a user, optionally returning unread-only."""
-        query = NotificationRecipient.query.join(Notification).filter(
+        query = cls.query.join(Notification).filter(
             Notification.type.in_(notification_web_types),
-            NotificationRecipient.recipient == user,
-            NotificationRecipient.revoked_at.is_(None),
+            cls.recipient == user,
+            cls.revoked_at.is_(None),
         )
         if unread_only:
             query = query.filter(NotificationRecipient.read_at.is_(None))
