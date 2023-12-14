@@ -41,6 +41,7 @@ __all__ = [
     'canonical_phone_number',
     'phone_blake2b160_hash',
     'PhoneNumber',
+    'OptionalPhoneNumberMixin',
     'PhoneNumberMixin',
 ]
 
@@ -256,7 +257,7 @@ class PhoneNumber(BaseMixin, Model):
     #: Contains the name of the relationship in the :class:`PhoneNumber` model
     __backrefs__: ClassVar[set[str]] = set()
     #: These backrefs claim exclusive use of the phone number for their linked owner.
-    #: See :class:`PhoneNumberMixin` for implementation detail
+    #: See :class:`OptionalPhoneNumberMixin` for implementation detail
     __exclusive_backrefs__: ClassVar[set[str]] = set()
 
     #: The phone number, centrepiece of this model. Stored normalized in E164 format.
@@ -733,7 +734,7 @@ class PhoneNumber(BaseMixin, Model):
 
 
 @declarative_mixin
-class PhoneNumberMixin:
+class OptionalPhoneNumberMixin:
     """
     Mixin class for models that refer to :class:`PhoneNumber`.
 
@@ -757,7 +758,7 @@ class PhoneNumberMixin:
 
     @declared_attr
     @classmethod
-    def phone_number_id(cls) -> Mapped[int]:
+    def phone_number_id(cls) -> Mapped[int | None]:
         """Foreign key to phone_number table."""
         return sa_orm.mapped_column(
             sa.Integer,
@@ -769,7 +770,7 @@ class PhoneNumberMixin:
 
     @declared_attr
     @classmethod
-    def phone_number(cls) -> Mapped[PhoneNumber]:
+    def phone_number(cls) -> Mapped[PhoneNumber | None]:
         """Instance of :class:`PhoneNumber` as a relationship."""
         backref_name = 'used_in_' + cls.__tablename__
         PhoneNumber.__backrefs__.add(backref_name)
@@ -795,17 +796,17 @@ class PhoneNumberMixin:
         return None
 
     @phone.setter
-    def phone(self, value: str | None) -> None:
+    def phone(self, __value: str | None) -> None:
         if self.__phone_for__:
-            if value is not None:
+            if __value is not None:
                 self.phone_number = PhoneNumber.add_for(
-                    getattr(self, self.__phone_for__), value
+                    getattr(self, self.__phone_for__), __value
                 )
             else:
                 self.phone_number = None
         else:
-            if value is not None:
-                self.phone_number = PhoneNumber.add(value)
+            if __value is not None:
+                self.phone_number = PhoneNumber.add(__value)
             else:
                 self.phone_number = None
 
@@ -827,6 +828,37 @@ class PhoneNumberMixin:
             if self.phone_number  # pylint: disable=using-constant-test
             else None
         )
+
+
+@declarative_mixin
+class PhoneNumberMixin(OptionalPhoneNumberMixin):
+    """Non-optional version of :class:`OptionalPhoneNumberMixin`."""
+
+    __phone_optional__: ClassVar[bool] = False
+
+    if TYPE_CHECKING:
+
+        @declared_attr
+        @classmethod
+        def phone_number_id(cls) -> Mapped[int]:  # type: ignore[override]
+            ...
+
+        @declared_attr
+        @classmethod
+        def phone_number(cls) -> Mapped[PhoneNumber]:  # type: ignore[override]
+            ...
+
+        @property  # type: ignore[override]
+        def phone(self) -> str:
+            ...
+
+        @phone.setter
+        def phone(self, __value: str) -> None:
+            ...
+
+        @property
+        def transport_hash(self) -> str:
+            ...
 
 
 def _clear_cached_properties(target: PhoneNumber) -> None:
@@ -885,7 +917,7 @@ def _send_refcount_event_remove(
 
 
 def _send_refcount_event_before_delete(
-    _mapper: Any, _connection: Any, target: PhoneNumberMixin
+    _mapper: Any, _connection: Any, target: OptionalPhoneNumberMixin
 ) -> None:
     if target.phone_number:
         phonenumber_refcount_dropping.send(target.phone_number)
@@ -899,7 +931,7 @@ def _setup_refcount_events() -> None:
 
 
 def _phone_number_mixin_set_validator(
-    target: PhoneNumberMixin,
+    target: OptionalPhoneNumberMixin,
     value: PhoneNumber | None,
     old_value: PhoneNumber | None,
     _initiator: Any,
@@ -911,9 +943,9 @@ def _phone_number_mixin_set_validator(
             raise PhoneNumberInUseError("This phone number it not available")
 
 
-@event.listens_for(PhoneNumberMixin, 'mapper_configured', propagate=True)
+@event.listens_for(OptionalPhoneNumberMixin, 'mapper_configured', propagate=True)
 def _phone_number_mixin_configure_events(
-    _mapper: Any, cls: type[PhoneNumberMixin]
+    _mapper: Any, cls: type[OptionalPhoneNumberMixin]
 ) -> None:
     event.listen(cls.phone_number, 'set', _phone_number_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)

@@ -1916,7 +1916,6 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
     """A phone number linked to an account."""
 
     __tablename__ = 'account_phone'
-    __phone_optional__ = False
     __phone_unique__ = True
     __phone_is_exclusive__ = True
     __phone_for__ = 'account'

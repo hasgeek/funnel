@@ -241,7 +241,6 @@ class SmsMessage(PhoneNumberMixin, BaseMixin, Model):
     """An outbound SMS message."""
 
     __tablename__ = 'sms_message'
-    __phone_optional__ = False
     __phone_unique__ = False
     __phone_is_exclusive__ = False
     phone_number_reference_is_active: bool = False

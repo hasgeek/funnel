@@ -57,7 +57,6 @@ def phone_models(database, app) -> Generator:
         """Test model connecting PhoneUser to PhoneNumber."""
 
         __tablename__ = 'test_phone_link'
-        __phone_optional__ = False
         __phone_unique__ = True
         __phone_for__ = 'phoneuser'
         __phone_is_exclusive__ = True
@@ -67,12 +66,16 @@ def phone_models(database, app) -> Generator:
         )
         phoneuser: Mapped[PhoneUser] = relationship(PhoneUser)
 
-    class PhoneDocument(models.PhoneNumberMixin, models.BaseMixin, models.Model):
+    class PhoneDocument(
+        models.OptionalPhoneNumberMixin, models.BaseMixin, models.Model
+    ):
         """Test model unaffiliated to a user that has a phone number attached."""
 
         __tablename__ = 'test_phone_document'
 
-    class PhoneLinkedDocument(models.PhoneNumberMixin, models.BaseMixin, models.Model):
+    class PhoneLinkedDocument(
+        models.OptionalPhoneNumberMixin, models.BaseMixin, models.Model
+    ):
         """Test model that accepts an optional user and an optional phone."""
 
         __tablename__ = 'test_phone_linked_document'

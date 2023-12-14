@@ -187,7 +187,7 @@ class EmailAddress(BaseMixin, Model):
     #: Contains the name of the relationship in the :class:`EmailAddress` model
     __backrefs__: ClassVar[set[str]] = set()
     #: These backrefs claim exclusive use of the email address for their linked owner.
-    #: See :class:`EmailAddressMixin` for implementation detail
+    #: See :class:`OptionalEmailAddressMixin` for implementation detail
     __exclusive_backrefs__: ClassVar[set[str]] = set()
 
     #: The email address, centrepiece of this model. Case preserving.
@@ -894,7 +894,7 @@ def _send_refcount_event_remove(
 
 
 def _send_refcount_event_before_delete(
-    _mapper: Any, _connection: Any, target: EmailAddressMixin
+    _mapper: Any, _connection: Any, target: OptionalEmailAddressMixin
 ) -> None:
     if target.email_address:
         emailaddress_refcount_dropping.send(target.email_address)
@@ -908,7 +908,7 @@ def _setup_refcount_events() -> None:
 
 
 def _email_address_mixin_set_validator(
-    target: EmailAddressMixin,
+    target: OptionalEmailAddressMixin,
     value: EmailAddress | None,
     old_value: EmailAddress | None,
     _initiator: Any,
@@ -921,9 +921,9 @@ def _email_address_mixin_set_validator(
                 raise EmailAddressInUseError("This email address it not available")
 
 
-@event.listens_for(EmailAddressMixin, 'mapper_configured', propagate=True)
+@event.listens_for(OptionalEmailAddressMixin, 'mapper_configured', propagate=True)
 def _email_address_mixin_configure_events(
-    _mapper: Any, cls: type[EmailAddressMixin]
+    _mapper: Any, cls: type[OptionalEmailAddressMixin]
 ) -> None:
     event.listen(cls.email_address, 'set', _email_address_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)
