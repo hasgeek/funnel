@@ -2,7 +2,6 @@
 # pylint: disable=redefined-outer-name
 
 import pytest
-from pytest_socket import enable_socket
 
 
 @pytest.fixture()
@@ -11,5 +10,7 @@ def db_session(db_session_truncate):
     return db_session_truncate
 
 
-def pytest_runtest_setup() -> None:
-    enable_socket()
+def pytest_collection_modifyitems(items):
+    for item in items:
+        if 'live_server' in getattr(item, 'fixturenames', ()):
+            item.add_marker(pytest.mark.enable_socket())

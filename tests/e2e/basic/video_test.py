@@ -1,6 +1,5 @@
 """Test livestream urls."""
 
-import pytest
 from playwright.sync_api import Page, expect
 
 VETINARI_EMAIL = 'vetinari@example.org'
@@ -14,7 +13,6 @@ def wait_until_recaptcha_loaded(page: Page) -> None:
     )
 
 
-@pytest.mark.enable_socket()
 def test_login_add_livestream(
     db_session, live_server, user_vetinari, project_expo2010, page: Page
 ):
