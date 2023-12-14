@@ -420,7 +420,6 @@ def email_models(database, app) -> Generator:
         """Test model connecting EmailUser to EmailAddress."""
 
         __tablename__ = 'test_email_link'
-        __email_optional__ = False
         __email_unique__ = True
         __email_for__ = 'emailuser'
         __email_is_exclusive__ = True
@@ -430,12 +429,16 @@ def email_models(database, app) -> Generator:
         )
         emailuser = relationship(EmailUser)
 
-    class EmailDocument(models.EmailAddressMixin, models.BaseMixin, models.Model):
+    class EmailDocument(
+        models.OptionalEmailAddressMixin, models.BaseMixin, models.Model
+    ):
         """Test model unaffiliated to a user that has an email address attached."""
 
         __tablename__ = 'test_email_document'
 
-    class EmailLinkedDocument(models.EmailAddressMixin, models.BaseMixin, models.Model):
+    class EmailLinkedDocument(
+        models.OptionalEmailAddressMixin, models.BaseMixin, models.Model
+    ):
         """Test model that accepts an optional user and an optional email."""
 
         __tablename__ = 'test_email_linked_document'

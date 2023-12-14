@@ -39,6 +39,7 @@ __all__ = [
     'EmailAddressBlockedError',
     'EmailAddressInUseError',
     'EmailAddress',
+    'OptionalEmailAddressMixin',
     'EmailAddressMixin',
 ]
 
@@ -701,7 +702,7 @@ class EmailAddress(BaseMixin, Model):
 
 
 @declarative_mixin
-class EmailAddressMixin:
+class OptionalEmailAddressMixin:
     """
     Mixin class for models that refer to :class:`EmailAddress`.
 
@@ -737,7 +738,7 @@ class EmailAddressMixin:
 
     @declared_attr
     @classmethod
-    def email_address(cls) -> Mapped[EmailAddress]:
+    def email_address(cls) -> Mapped[EmailAddress | None]:
         """Instance of :class:`EmailAddress` as a relationship."""
         backref_name = 'used_in_' + cls.__tablename__
         EmailAddress.__backrefs__.add(backref_name)
@@ -763,19 +764,19 @@ class EmailAddressMixin:
         return None
 
     @email.setter
-    def email(self, value: str | None) -> None:
+    def email(self, __value: str | None) -> None:
         """Set an email address."""
         if self.__email_for__:
-            if value is not None:
+            if __value is not None:
                 self.email_address = EmailAddress.add_for(
-                    getattr(self, self.__email_for__), value
+                    getattr(self, self.__email_for__), __value
                 )
             else:
                 self.email_address = None
 
         else:
-            if value is not None:
-                self.email_address = EmailAddress.add(value)
+            if __value is not None:
+                self.email_address = EmailAddress.add(__value)
             else:
                 self.email_address = None
 
@@ -797,6 +798,37 @@ class EmailAddressMixin:
             if self.email_address  # pylint: disable=using-constant-test
             else None
         )
+
+
+@declarative_mixin
+class EmailAddressMixin(OptionalEmailAddressMixin):
+    """Non-optional version of :class:`OptionalEmailAddressMixin`."""
+
+    __email_optional__: ClassVar[bool] = False
+
+    if TYPE_CHECKING:
+
+        @declared_attr
+        @classmethod
+        def email_address_id(cls) -> Mapped[int]:  # type: ignore[override]
+            ...
+
+        @declared_attr
+        @classmethod
+        def email_address(cls) -> Mapped[EmailAddress]:  # type: ignore[override]
+            ...
+
+        @property  # type: ignore[override]
+        def email(self) -> str:
+            ...
+
+        @email.setter
+        def email(self, __value: str) -> None:
+            ...
+
+        @property
+        def transport_hash(self) -> str:
+            ...
 
 
 auto_init_default(EmailAddress._delivery_state)  # pylint: disable=protected-access

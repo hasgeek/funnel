@@ -24,7 +24,7 @@ from . import (
     sa_orm,
 )
 from .account import Account, AccountEmail
-from .email_address import EmailAddress, EmailAddressMixin
+from .email_address import EmailAddress, OptionalEmailAddressMixin
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
@@ -206,11 +206,10 @@ class TicketType(GetTitleMixin, Model):
     }
 
 
-class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
+class TicketParticipant(OptionalEmailAddressMixin, UuidMixin, BaseMixin, Model):
     """A participant in one or more events, synced from an external ticket source."""
 
     __tablename__ = 'ticket_participant'
-    __email_optional__ = True
     __email_for__ = 'participant'
 
     fullname: Mapped[str] = with_roles(
@@ -265,6 +264,10 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, Model):
         relationship(Project, back_populates='ticket_participants'),
         read={'promoter', 'member', 'scanner'},
         grants_via={None: project_child_role_map},
+    )
+
+    scanned_contacts: Mapped[ContactExchange] = relationship(
+        passive_deletes=True, back_populates='ticket_participant'
     )
 
     __table_args__ = (sa.UniqueConstraint('project_id', 'email_address_id'),)
@@ -617,5 +620,4 @@ class __Account:
 
 
 # Tail imports to avoid cyclic dependency errors, for symbols used only in methods
-# pylint: disable=wrong-import-position
-from .contact_exchange import ContactExchange  # isort:skip
+from .contact_exchange import ContactExchange

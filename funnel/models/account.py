@@ -381,6 +381,14 @@ class Account(UuidMixin, BaseMixin, Model):
         'active_commentset_memberships', 'commentset'
     )
 
+    # contact_exchange.py
+    scanned_contacts: DynamicMapped[ContactExchange] = relationship(
+        lazy='dynamic',
+        order_by='ContactExchange.scanned_at.desc()',
+        passive_deletes=True,
+        back_populates='account',
+    )
+
     __table_args__ = (
         sa.Index(
             'ix_account_name_lower',
@@ -1541,7 +1549,6 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
     """An email address linked to an account."""
 
     __tablename__ = 'account_email'
-    __email_optional__ = False
     __email_unique__ = True
     __email_is_exclusive__ = True
     __email_for__ = 'account'
@@ -1720,7 +1727,6 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
     """Claimed but unverified email address for a user."""
 
     __tablename__ = 'account_email_claim'
-    __email_optional__ = False
     __email_unique__ = False
     __email_for__ = 'account'
     __email_is_exclusive__ = False
@@ -2234,3 +2240,4 @@ if TYPE_CHECKING:
     )
     from .comment import Comment, Commentset  # noqa: F401
     from .commentset_membership import CommentsetMembership
+    from .contact_exchange import ContactExchange

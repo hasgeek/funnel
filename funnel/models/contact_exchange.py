@@ -21,7 +21,6 @@ from . import (
     Query,
     RoleMixin,
     TimestampMixin,
-    backref,
     db,
     relationship,
     sa,
@@ -63,15 +62,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'), primary_key=True
     )
-    account: Mapped[Account] = relationship(
-        Account,
-        backref=backref(
-            'scanned_contacts',
-            lazy='dynamic',
-            order_by='ContactExchange.scanned_at.desc()',
-            passive_deletes=True,
-        ),
-    )
+    account: Mapped[Account] = relationship(back_populates='scanned_contacts')
     #: Participant whose contact was scanned
     ticket_participant_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer,
@@ -80,8 +71,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         index=True,
     )
     ticket_participant: Mapped[TicketParticipant] = relationship(
-        TicketParticipant,
-        backref=backref('scanned_contacts', passive_deletes=True),
+        back_populates='scanned_contacts'
     )
     #: Datetime at which the scan happened
     scanned_at: Mapped[datetime] = sa_orm.mapped_column(
@@ -158,10 +148,10 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
 
         query = (
             db.session.query(
-                sa.column('project_id'),
-                sa.column('project_uuid'),
-                sa.column('project_title'),
-                sa.column('project_timezone'),
+                sa.column('project_id', sa.Integer()),
+                sa.column('project_uuid', sa.Uuid()),
+                sa.column('project_title', sa.String()),
+                sa.column('project_timezone', sa.String()),
                 sa.cast(
                     sa.func.date_trunc(
                         'day',
