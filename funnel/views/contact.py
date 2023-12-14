@@ -31,7 +31,7 @@ def contact_details(ticket_participant: TicketParticipant) -> dict[str, str | No
     }
 
 
-@route('/account/contacts')
+@route('/account/contacts', init_app=app)
 class ContactView(ClassView):
     current_section = 'account'
 
@@ -182,6 +182,3 @@ class ContactView(ClassView):
             'error': '403',
             'message': _("Unauthorized contact exchange"),
         }, 403
-
-
-ContactView.init_app(app)

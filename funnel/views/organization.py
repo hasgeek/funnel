@@ -43,17 +43,15 @@ def people_and_teams(obj: Organization) -> list[tuple[Account, list[Team]]]:
 
 
 @Account.views('org')
-@route('/<account>')
-class OrgView(UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>', init_app=app)
+class OrgView(UrlChangeCheck, UrlForView, ModelView[Account]):
     """Views for organizations."""
 
     __decorators__ = [requires_login]
-    model = Account
     # Map <account> in URL to attribute `urlname`, for `url_for` automation
     route_model_map = {'account': 'urlname'}
-    obj: Account
 
-    def loader(self, account: str | None = None) -> Account | None:
+    def load(self, account: str | None = None) -> None:
         """Load an organization if the view requires it."""
         if account:
             obj = Account.get(name=account)
@@ -61,8 +59,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
                 abort(404)
             if not obj.state.ACTIVE:
                 abort(410)
-            return obj
-        return None
+            self.obj = obj
 
     # The /new root URL is intentional
     @route('/new', methods=['GET', 'POST'], endpoint='new_organization')
@@ -149,22 +146,17 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
         )
 
 
-OrgView.init_app(app)
-
-
 @Team.views('main')
-@route('/<account>/teams/<team>')
-class TeamView(UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>/teams/<team>', init_app=app)
+class TeamView(UrlChangeCheck, UrlForView, ModelView[Team]):
     """Views for teams in organizations."""
 
     __decorators__ = [requires_login]
-    model = Team
     # Map <name> and <buid> in URLs to model attributes, for `url_for` automation
     route_model_map = {
         'account': 'account.urlname',
         'team': 'buid',
     }
-    obj: Team
 
     def loader(self, account: str, team: str) -> Team:
         """Load a team."""
@@ -209,6 +201,3 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
             ).format(team=self.obj.title, org=self.obj.account.title),
             next=self.obj.account.url_for('teams'),
         )
-
-
-TeamView.init_app(app)

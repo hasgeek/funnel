@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from datetime import datetime as datetime_type
+from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, TypeVar
 from uuid import UUID
 
@@ -643,6 +644,10 @@ class AmendMembership(Generic[MembershipType]):
     to any attribute listed as a data column.
     """
 
+    membership: MembershipType
+    _actor: Account
+    _new: dict[str, Any]
+
     def __init__(self, membership: MembershipType, actor: Account) -> None:
         """Create an amendment placeholder."""
         if membership.revoked_at is not None:
@@ -650,8 +655,8 @@ class AmendMembership(Generic[MembershipType]):
                 "This membership record has already been revoked"
             )
         object.__setattr__(self, 'membership', membership)
-        object.__setattr__(self, '_new', {})
         object.__setattr__(self, '_actor', actor)
+        object.__setattr__(self, '_new', {})
 
     def __getattr__(self, attr: str) -> Any:
         """Get an attribute from the underlying record."""
@@ -662,7 +667,13 @@ class AmendMembership(Generic[MembershipType]):
     def __setattr__(self, attr: str, value: Any) -> None:
         """Set an amended value."""
         if attr not in self.membership.__data_columns__:
-            raise AttributeError(f"{attr} cannot be set")
+            raise AttributeError(
+                f"{attr} cannot be set",
+                name=attr,
+                obj=SimpleNamespace(
+                    **{_: None for _ in self.membership.__data_columns__}
+                ),
+            )
         self._new[attr] = value
 
     def __enter__(self) -> AmendMembership:
@@ -697,10 +708,14 @@ def _confirm_enumerated_mixins(_mapper: Any, cls: type[Account]) -> None:
             if attr_relationship is None:
                 raise AttributeError(
                     f'{cls.__name__} does not have a relationship named'
-                    f' {attr_name!r} targeting a subclass of {expected_class.__name__}'
+                    f' {attr_name!r} targeting a subclass of {expected_class.__name__}',
+                    name=attr_name,
+                    obj=cls,
                 )
             if not issubclass(attr_relationship.property.mapper.class_, expected_class):
                 raise AttributeError(
                     f'{cls.__name__}.{attr_name} should be a relationship to a'
-                    f' subclass of {expected_class.__name__}'
+                    f' subclass of {expected_class.__name__}',
+                    name=attr_name,
+                    obj=cls,
                 )

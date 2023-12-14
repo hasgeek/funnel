@@ -92,9 +92,9 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
     __scope_null_allowed__ = True
     #: Account that owns this client
     account_id: Mapped[int] = sa.orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=True
+        sa.ForeignKey('account.id'), nullable=False
     )
-    account: Mapped[Account | None] = with_roles(
+    account: Mapped[Account] = with_roles(
         relationship(
             Account,
             foreign_keys=[account_id],

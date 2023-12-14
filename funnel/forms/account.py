@@ -19,6 +19,7 @@ from ..models import (
     PASSWORD_MIN_LENGTH,
     Account,
     Anchor,
+    User,
     check_password_strength,
     getuser,
 )
@@ -158,7 +159,7 @@ class PasswordForm(forms.Form):
     """Form to validate a user's password, for password-gated sudo actions."""
 
     __expects__ = ('edit_user',)
-    edit_user: Account
+    edit_user: User
 
     password = forms.PasswordField(
         __("Password"),
@@ -181,7 +182,7 @@ class PasswordPolicyForm(forms.Form):
 
     __expects__ = ('edit_user',)
     __returns__ = ('password_strength', 'is_weak', 'warning', 'suggestions')
-    edit_user: Account
+    edit_user: User
     password_strength: int | None = None
     is_weak: bool | None = None
     warning: str | None = None
@@ -252,7 +253,7 @@ class PasswordCreateForm(forms.Form):
 
     __returns__ = ('password_strength',)
     __expects__ = ('edit_user',)
-    edit_user: Account
+    edit_user: User
     password_strength: int | None = None
 
     password = forms.PasswordField(
@@ -334,7 +335,7 @@ class PasswordChangeForm(forms.Form):
 
     __returns__ = ('password_strength',)
     __expects__ = ('edit_user',)
-    edit_user: Account
+    edit_user: User
     password_strength: int | None = None
 
     old_password = forms.PasswordField(
@@ -473,7 +474,7 @@ class UsernameAvailableForm(forms.Form):
     """Form to check for whether a username is available to use."""
 
     __expects__ = ('edit_user',)
-    edit_user: Account
+    edit_user: User
 
     username = forms.StringField(
         __("Username"),
@@ -519,7 +520,7 @@ class NewEmailAddressForm(
     """Form to add a new email address to an account."""
 
     __expects__ = ('edit_user',)
-    edit_user: Account
+    edit_user: User
 
     email = forms.EmailField(
         __("Email address"),
@@ -566,7 +567,7 @@ class NewPhoneForm(EnableNotificationsDescriptionProtoMixin, forms.RecaptchaForm
     """Form to add a new mobile number (SMS-capable) to an account."""
 
     __expects__ = ('edit_user',)
-    edit_user: Account
+    edit_user: User
 
     phone = forms.TelField(
         __("Phone number"),

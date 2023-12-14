@@ -174,7 +174,7 @@ class LoginManager:
                 # TODO: Force render of logout page to clear client-side data
                 logout_internal()
             except LoginSessionInactiveUserError as exc:
-                inactive_user = exc.args[0].user
+                inactive_user = exc.login_session.account
                 if inactive_user.state.SUSPENDED:
                     flash(_("Your account has been suspended"))
                 elif inactive_user.state.DELETED:
