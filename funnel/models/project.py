@@ -4,15 +4,19 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import datetime
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 from furl import furl
 from pytz import BaseTzInfo, utc
-from sqlalchemy.orm import attribute_keyed_dict
 from werkzeug.utils import cached_property
 
 from baseframe import __, localize_timezone
-from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
+from coaster.sqlalchemy import (
+    DynamicAssociationProxy,
+    LazyRoleSet,
+    StateManager,
+    with_roles,
+)
 from coaster.utils import LabeledEnum, buid, utcnow
 
 from .. import app
@@ -27,7 +31,6 @@ from . import (
     TSVectorType,
     UrlType,
     UuidMixin,
-    backref,
     db,
     hybrid_property,
     relationship,
@@ -42,7 +45,6 @@ from .helpers import (
     ImgeeType,
     MarkdownCompositeDocument,
     add_search_trigger,
-    reopen,
     valid_name,
     visual_field_delimiter,
 )
@@ -93,11 +95,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         sa.ForeignKey('account.id'), nullable=False
     )
     account: Mapped[Account] = with_roles(
-        relationship(
-            Account,
-            foreign_keys=[account_id],
-            backref=backref('projects', lazy='dynamic'),
-        ),
+        relationship(foreign_keys=[account_id], back_populates='projects'),
         read={'all'},
         # If account grants an 'admin' role, make it 'account_admin' here
         grants_via={
@@ -325,8 +323,67 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         deferred=True,
     )
 
-    # Relationships
-    primary_venue: Mapped[Venue | None] = relationship()
+    # --- Backrefs and relationships
+
+    redirects: Mapped[list[ProjectRedirect]] = relationship(back_populates='project')
+    locations: Mapped[list[ProjectLocation]] = relationship(back_populates='project')
+
+    # venue.py
+    if TYPE_CHECKING:
+        primary_venue: Mapped[Venue | None] = relationship()
+
+    # project_membership.py
+    crew_memberships: DynamicMapped[ProjectMembership] = relationship(
+        lazy='dynamic', passive_deletes=True, back_populates='project'
+    )
+    active_crew_memberships: DynamicMapped[ProjectMembership] = with_roles(
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                ProjectMembership.project_id == Project.id,
+                ProjectMembership.is_active,
+            ),
+            viewonly=True,
+        ),
+        grants_via={'member': {'editor', 'promoter', 'usher', 'participant', 'crew'}},
+    )
+
+    active_editor_memberships: DynamicMapped[ProjectMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            ProjectMembership.project_id == Project.id,
+            ProjectMembership.is_active,
+            ProjectMembership.is_editor.is_(True),
+        ),
+        viewonly=True,
+    )
+
+    active_promoter_memberships: DynamicMapped[ProjectMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            ProjectMembership.project_id == Project.id,
+            ProjectMembership.is_active,
+            ProjectMembership.is_promoter.is_(True),
+        ),
+        viewonly=True,
+    )
+
+    active_usher_memberships: DynamicMapped[ProjectMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            ProjectMembership.project_id == Project.id,
+            ProjectMembership.is_active,
+            ProjectMembership.is_usher.is_(True),
+        ),
+        viewonly=True,
+    )
+
+    crew = DynamicAssociationProxy[Account]('active_crew_memberships', 'member')
+    editors = DynamicAssociationProxy[Account]('active_editor_memberships', 'member')
+    promoters = DynamicAssociationProxy[Account](
+        'active_promoter_memberships', 'member'
+    )
+    ushers = DynamicAssociationProxy[Account]('active_usher_memberships', 'member')
 
     __table_args__ = (
         sa.UniqueConstraint('account_id', 'name'),
@@ -813,93 +870,13 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
 add_search_trigger(Project, 'search_vector')
 
 
-@reopen(Account)
-class __Account:
-    id: Mapped[int]  # noqa: A003
-
-    listed_projects: DynamicMapped[Project] = relationship(
-        Project,
-        lazy='dynamic',
-        primaryjoin=sa.and_(
-            Account.id == Project.account_id,
-            Project.state.PUBLISHED,
-        ),
-        viewonly=True,
-    )
-    draft_projects: DynamicMapped[Project] = relationship(
-        Project,
-        lazy='dynamic',
-        primaryjoin=sa.and_(
-            Account.id == Project.account_id,
-            sa.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
-        ),
-        viewonly=True,
-    )
-    projects_by_name: Mapped[dict[str, Project]] = with_roles(
-        relationship(
-            Project,
-            foreign_keys=[Project.account_id],
-            collection_class=attribute_keyed_dict('name'),
-            viewonly=True,
-        ),
-        read={'all'},
-    )
-
-    def draft_projects_for(self, user: Account | None) -> list[Project]:
-        if user is not None:
-            return [
-                membership.project
-                for membership in user.projects_as_crew_active_memberships.join(
-                    Project
-                ).filter(
-                    # Project is attached to this account
-                    Project.account_id == self.id,
-                    # Project is in draft state OR has a draft call for proposals
-                    sa.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
-                )
-            ]
-        return []
-
-    def unscheduled_projects_for(self, user: Account | None) -> list[Project]:
-        if user is not None:
-            return [
-                membership.project
-                for membership in user.projects_as_crew_active_memberships.join(
-                    Project
-                ).filter(
-                    # Project is attached to this account
-                    Project.account_id == self.id,
-                    # Project is in draft state OR has a draft call for proposals
-                    sa.or_(Project.state.PUBLISHED_WITHOUT_SESSIONS),
-                )
-            ]
-        return []
-
-    @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
-    @cached_property
-    def published_project_count(self) -> int:
-        return (
-            self.listed_projects.filter(Project.state.PUBLISHED).order_by(None).count()
-        )
-
-    @with_roles(grants_via={None: {'participant': 'member'}})
-    @cached_property
-    def membership_project(self) -> Project | None:
-        """Return a project that has memberships flag enabled (temporary)."""
-        return self.projects.filter(
-            Project.boxoffice_data.op('@>')({'has_membership': True})
-        ).first()
-
-
 class ProjectRedirect(TimestampMixin, Model):
     __tablename__ = 'project_redirect'
 
     account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
-    account: Mapped[Account] = relationship(
-        Account, backref=backref('project_redirects')
-    )
+    account: Mapped[Account] = relationship(back_populates='project_redirects')
     parent: Mapped[Account] = sa_orm.synonym('account')
     name: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(250), nullable=False, primary_key=True
@@ -908,7 +885,7 @@ class ProjectRedirect(TimestampMixin, Model):
     project_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
-    project: Mapped[Project | None] = relationship(Project, backref='redirects')
+    project: Mapped[Project | None] = relationship(back_populates='redirects')
 
     def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
@@ -979,7 +956,7 @@ class ProjectLocation(TimestampMixin, Model):
     project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False
     )
-    project: Mapped[Project] = relationship(Project, backref=backref('locations'))
+    project: Mapped[Project] = relationship(back_populates='locations')
     #: Geonameid for this project
     geonameid: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, primary_key=True, nullable=False, index=True
@@ -997,6 +974,5 @@ class ProjectLocation(TimestampMixin, Model):
 
 
 # Tail imports
-# pylint: disable=wrong-import-position
-from .project_membership import ProjectMembership  # isort:skip
-from .venue import Venue  # isort:skip  # skipcq: FLK-E402
+from .project_membership import ProjectMembership
+from .venue import Venue

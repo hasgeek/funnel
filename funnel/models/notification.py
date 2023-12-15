@@ -102,7 +102,6 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import event
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import column_keyed_dict
 from typing_extensions import get_original_bases
 from werkzeug.utils import cached_property
 
@@ -124,7 +123,6 @@ from . import (
     Model,
     NoIdMixin,
     Query,
-    backref,
     db,
     hybrid_property,
     postgresql,
@@ -133,7 +131,6 @@ from . import (
     sa_orm,
 )
 from .account import Account, AccountEmail, AccountPhone
-from .helpers import reopen
 from .phone_number import PhoneNumber, PhoneNumberMixin
 from .typing import UuidModelUnion
 
@@ -383,6 +380,10 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     #: multiple fragments are collapsed into a single notification
     fragment_uuid: Mapped[UUID | None] = immutable(
         sa_orm.mapped_column(postgresql.UUID, nullable=True)
+    )
+
+    recipients: DynamicMapped[NotificationRecipient] = relationship(
+        lazy='dynamic', back_populates='notification'
     )
 
     __table_args__ = (
@@ -830,7 +831,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
 
     #: Notification that this user received
     notification: Mapped[Notification] = with_roles(
-        relationship(Notification, backref=backref('recipients', lazy='dynamic')),
+        relationship(back_populates='recipients'),
         read={'owner'},
     )
 
@@ -1386,53 +1387,6 @@ class NotificationPreferences(BaseMixin, Model):
         if value is None or value not in notification_type_registry:
             raise ValueError(f"Invalid notification_type: {value}")
         return value
-
-
-@reopen(Account)
-class __Account:
-    all_notifications: DynamicMapped[NotificationRecipient] = with_roles(
-        relationship(
-            NotificationRecipient,
-            lazy='dynamic',
-            order_by=NotificationRecipient.created_at.desc(),
-            viewonly=True,
-        ),
-        read={'owner'},
-    )
-
-    notification_preferences: Mapped[dict[str, NotificationPreferences]] = relationship(
-        NotificationPreferences,
-        collection_class=column_keyed_dict(NotificationPreferences.notification_type),
-        back_populates='account',
-    )
-
-    # This relationship is wrapped in a property that creates it on first access
-    _main_notification_preferences: Mapped[NotificationPreferences] = relationship(
-        NotificationPreferences,
-        primaryjoin=sa.and_(
-            NotificationPreferences.account_id == Account.id,
-            NotificationPreferences.notification_type == '',
-        ),
-        uselist=False,
-        viewonly=True,
-    )
-
-    @cached_property
-    def main_notification_preferences(self) -> NotificationPreferences:
-        """Return user's main notification preferences, toggling transports on/off."""
-        if not self._main_notification_preferences:
-            main = NotificationPreferences(
-                notification_type='',
-                account=self,
-                by_email=True,
-                by_sms=True,
-                by_webpush=False,
-                by_telegram=False,
-                by_whatsapp=False,
-            )
-            db.session.add(main)
-            return main
-        return self._main_notification_preferences
 
 
 # --- Signal handlers ------------------------------------------------------------------

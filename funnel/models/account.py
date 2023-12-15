@@ -336,10 +336,10 @@ class Account(UuidMixin, BaseMixin, Model):
         back_populates='old_account',
     )
     oldids: Mapped[list[AccountOldId]] = relationship(
-        foreign_keys='AccountOldId.account_id', back_populates='account'
+        foreign_keys=lambda: AccountOldId.account_id, back_populates='account'
     )
     teams: Mapped[list[Team]] = relationship(
-        foreign_keys='Team.account_id',
+        foreign_keys=lambda: Team.account_id,
         order_by='func.lower(Team.title)',
         back_populates='account',
     )
@@ -387,6 +387,152 @@ class Account(UuidMixin, BaseMixin, Model):
         order_by='ContactExchange.scanned_at.desc()',
         passive_deletes=True,
         back_populates='account',
+    )
+
+    # login_session.py
+    all_login_sessions: DynamicMapped[LoginSession] = relationship(
+        lazy='dynamic', back_populates='account'
+    )
+    active_login_sessions: DynamicMapped[LoginSession] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            LoginSession.account_id == Account.id,
+            LoginSession.accessed_at > sa.func.utcnow() - LOGIN_SESSION_VALIDITY_PERIOD,
+            LoginSession.revoked_at.is_(None),
+        ),
+        order_by=lambda: LoginSession.accessed_at.desc(),  # pylint: disable=unnecessary-lambda
+        viewonly=True,
+    )
+
+    # moderation.py
+    moderator_reports: DynamicMapped[CommentModeratorReport] = relationship(
+        lazy='dynamic', back_populates='reported_by'
+    )
+
+    # notification.py
+    all_notifications: DynamicMapped[NotificationRecipient] = with_roles(
+        relationship(
+            lazy='dynamic',
+            order_by=lambda: NotificationRecipient.created_at.desc(),  # pylint: disable=unnecessary-lambda
+            viewonly=True,
+        ),
+        read={'owner'},
+    )
+
+    notification_preferences: Mapped[dict[str, NotificationPreferences]] = relationship(
+        collection_class=sa_orm.attribute_keyed_dict('notification_type'),
+        back_populates='account',
+    )
+
+    # This relationship is wrapped in a property that creates it on first access
+    _main_notification_preferences: Mapped[NotificationPreferences] = relationship(
+        primaryjoin=lambda: sa.and_(
+            NotificationPreferences.account_id == Account.id,
+            NotificationPreferences.notification_type == '',
+        ),
+        uselist=False,
+        viewonly=True,
+    )
+
+    @cached_property
+    def main_notification_preferences(self) -> NotificationPreferences:
+        """Return user's main notification preferences, toggling transports on/off."""
+        if not self._main_notification_preferences:
+            main = NotificationPreferences(
+                notification_type='',
+                account=self,
+                by_email=True,
+                by_sms=True,
+                by_webpush=False,
+                by_telegram=False,
+                by_whatsapp=False,
+            )
+            db.session.add(main)
+            return main
+        return self._main_notification_preferences
+
+    # project_membership.py
+    projects_as_crew_memberships: DynamicMapped[ProjectMembership] = relationship(
+        lazy='dynamic',
+        foreign_keys=lambda: ProjectMembership.member_id,
+        viewonly=True,
+    )
+
+    # This is used to determine if it is safe to purge the subject's database record
+    projects_as_crew_noninvite_memberships: DynamicMapped[
+        ProjectMembership
+    ] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            ProjectMembership.member_id == Account.id,
+            ~ProjectMembership.is_invite,  # pylint: disable=invalid-unary-operand-type
+        ),
+        viewonly=True,
+    )
+    projects_as_crew_active_memberships: DynamicMapped[
+        ProjectMembership
+    ] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            ProjectMembership.member_id == Account.id,
+            ProjectMembership.is_active,
+        ),
+        viewonly=True,
+    )
+
+    projects_as_crew = DynamicAssociationProxy['Project'](
+        'projects_as_crew_active_memberships', 'project'
+    )
+
+    projects_as_editor_active_memberships: DynamicMapped[
+        ProjectMembership
+    ] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            ProjectMembership.member_id == Account.id,
+            ProjectMembership.is_active,
+            ProjectMembership.is_editor.is_(True),
+        ),
+        viewonly=True,
+    )
+
+    projects_as_editor = DynamicAssociationProxy['Project'](
+        'projects_as_editor_active_memberships', 'project'
+    )
+
+    # project.py
+    projects: DynamicMapped[Project] = relationship(
+        lazy='dynamic',
+        foreign_keys=lambda: Project.account_id,
+        back_populates='account',
+    )
+    project_redirects: DynamicMapped[ProjectRedirect] = relationship(
+        lazy='dynamic', back_populates='account'
+    )
+
+    listed_projects: DynamicMapped[Project] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            Account.id == Project.account_id,
+            Project.state.PUBLISHED,
+        ),
+        viewonly=True,
+    )
+    draft_projects: DynamicMapped[Project] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            Account.id == Project.account_id,
+            sa.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
+        ),
+        viewonly=True,
+    )
+    projects_by_name: Mapped[dict[str, Project]] = with_roles(
+        relationship(
+            foreign_keys=lambda: Project.account_id,
+            collection_class=sa_orm.attribute_keyed_dict('name'),
+            viewonly=True,
+        ),
+        read={'all'},
     )
 
     __table_args__ = (
@@ -936,8 +1082,8 @@ class Account(UuidMixin, BaseMixin, Model):
         self.member_teams.clear()
 
         # 4. Revoke auth tokens
-        self.revoke_all_auth_tokens()  # Defined in auth_client.py
-        self.revoke_all_auth_client_permissions()  # Same place
+        AuthToken.revoke_all_for(self)
+        AuthClientPermissions.revoke_all_for(self)
 
         # 5. Revoke all active login sessions
         for login_session in self.active_login_sessions:
@@ -1301,11 +1447,61 @@ class Account(UuidMixin, BaseMixin, Model):
         """Return list of organizations affiliated with this user (deprecated)."""
         return []
 
+    # Project methods
+
+    def draft_projects_for(self, user: Account | None) -> list[Project]:
+        if user is not None:
+            return [
+                membership.project
+                for membership in user.projects_as_crew_active_memberships.join(
+                    Project
+                ).filter(
+                    # Project is attached to this account
+                    Project.account_id == self.id,
+                    # Project is in draft state OR has a draft call for proposals
+                    sa.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
+                )
+            ]
+        return []
+
+    def unscheduled_projects_for(self, user: Account | None) -> list[Project]:
+        if user is not None:
+            return [
+                membership.project
+                for membership in user.projects_as_crew_active_memberships.join(
+                    Project
+                ).filter(
+                    # Project is attached to this account
+                    Project.account_id == self.id,
+                    # Project is in draft state OR has a draft call for proposals
+                    sa.or_(Project.state.PUBLISHED_WITHOUT_SESSIONS),
+                )
+            ]
+        return []
+
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
+    @cached_property
+    def published_project_count(self) -> int:
+        return (
+            self.listed_projects.filter(Project.state.PUBLISHED).order_by(None).count()
+        )
+
+    @with_roles(grants_via={None: {'participant': 'member'}})
+    @cached_property
+    def membership_project(self) -> Project | None:
+        """Return a project that has memberships flag enabled (temporary)."""
+        return self.projects.filter(
+            Project.boxoffice_data.op('@>')({'has_membership': True})
+        ).first()
+
     # Make :attr:`type_` available under the name `type`, but declare this at the very
     # end of the class to avoid conflicts with the Python `type` global that is
     # used for type-hinting
     type: Mapped[str] = sa_orm.synonym('type_')  # noqa: A003
 
+
+Account.__active_membership_attrs__.add('projects_as_crew_active_memberships')
+Account.__noninvite_membership_attrs__.add('projects_as_crew_noninvite_memberships')
 
 auto_init_default(Account._state)  # pylint: disable=protected-access
 auto_init_default(Account._profile_state)  # pylint: disable=protected-access
@@ -2228,15 +2424,16 @@ Anchor = AccountEmail | AccountEmailClaim | AccountPhone | EmailAddress | PhoneN
 
 # Tail imports
 from .account_membership import AccountMembership
+from .auth_client import AuthClient, AuthClientPermissions, AuthToken
+from .login_session import LOGIN_SESSION_VALIDITY_PERIOD, LoginSession
 from .membership_mixin import ImmutableMembershipMixin
+from .notification import NotificationPreferences, NotificationRecipient
+from .project import Project, ProjectRedirect
+from .project_membership import ProjectMembership
 
 if TYPE_CHECKING:
-    from .auth_client import (
-        AuthClient,
-        AuthClientPermissions,
-        AuthClientTeamPermissions,
-        AuthToken,
-    )
+    from .auth_client import AuthClientTeamPermissions
     from .comment import Comment, Commentset  # noqa: F401
     from .commentset_membership import CommentsetMembership
     from .contact_exchange import ContactExchange
+    from .moderation import CommentModeratorReport

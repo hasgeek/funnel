@@ -31,7 +31,6 @@ from . import (
     sa_orm,
 )
 from .account import Account, Team
-from .helpers import reopen
 from .login_session import LoginSession, auth_client_login_session
 
 __all__ = [
@@ -535,6 +534,11 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         return True
 
     @classmethod
+    def revoke_all_for(cls, account: Account) -> None:
+        """Revoke all auth tokens directly linked to the account."""
+        cls.all_for(account).delete(synchronize_session=False)
+
+    @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """Migrate one account's data to another when merging accounts."""
         oldtokens = cls.query.filter(cls.account == old_account).all()
@@ -662,6 +666,11 @@ class AuthClientPermissions(BaseMixin, Model):
         return self.account.pickername
 
     @classmethod
+    def revoke_all_for(cls, account: Account) -> None:
+        """Revoke all permissions on client apps assigned to account."""
+        cls.all_for(account).delete(synchronize_session=False)
+
+    @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """Migrate one account's data to another when merging accounts."""
         for operm in old_account.client_permissions:
@@ -755,16 +764,3 @@ class AuthClientTeamPermissions(BaseMixin, Model):
     def all_forclient(cls, auth_client: AuthClient) -> Query[Self]:
         """Get all permissions assigned on the specified auth client."""
         return cls.query.filter(cls.auth_client == auth_client)
-
-
-@reopen(Account)
-class __Account:
-    def revoke_all_auth_tokens(self) -> None:
-        """Revoke all auth tokens directly linked to the account."""
-        AuthToken.all_for(cast(Account, self)).delete(synchronize_session=False)
-
-    def revoke_all_auth_client_permissions(self) -> None:
-        """Revoke all permissions on client apps assigned to account."""
-        AuthClientPermissions.all_for(cast(Account, self)).delete(
-            synchronize_session=False
-        )

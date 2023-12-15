@@ -355,6 +355,10 @@ class Comment(UuidMixin, BaseMixin, Model):
         deferred=True,
     )
 
+    moderator_reports: DynamicMapped[CommentModeratorReport] = relationship(
+        lazy='dynamic', back_populates='comment'
+    )
+
     __table_args__ = (
         sa.Index('ix_comment_search_vector', 'search_vector', postgresql_using='gin'),
     )
@@ -521,6 +525,7 @@ add_search_trigger(Comment, 'search_vector')
 from .commentset_membership import CommentsetMembership
 
 if TYPE_CHECKING:
+    from .moderation import CommentModeratorReport
     from .project import Project
     from .proposal import Proposal
     from .update import Update

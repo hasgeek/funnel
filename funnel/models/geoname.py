@@ -18,7 +18,6 @@ from . import (
     GeonameModel,
     Mapped,
     Query,
-    backref,
     db,
     relationship,
     sa,
@@ -38,7 +37,7 @@ continent_codes = {
     'AS': 6255147,  # Asia
     'EU': 6255148,  # Europe
     'NA': 6255149,  # North America
-    'OC': 6255151,  # Ocenia
+    'OC': 6255151,  # Oceania
     'SA': 6255150,  # South America
     'AN': 6255152,  # Antarctica
 }
@@ -51,10 +50,10 @@ class GeoCountryInfo(BaseNameMixin, GeonameModel):
 
     geonameid: Mapped[int] = sa_orm.synonym('id')
     geoname: Mapped[GeoName | None] = relationship(
-        'GeoName',
         uselist=False,
+        viewonly=True,
         primaryjoin='GeoCountryInfo.id == foreign(GeoName.id)',
-        backref='has_country',
+        back_populates='has_country',
     )
     iso_alpha2: Mapped[types.char2 | None] = sa_orm.mapped_column(
         sa.CHAR(2), unique=True
@@ -99,12 +98,11 @@ class GeoAdmin1Code(BaseMixin, GeonameModel):
     __tablename__ = 'geo_admin1_code'
 
     geonameid: Mapped[int] = sa_orm.synonym('id')
-    geoname: Mapped[GeoName] = relationship(
-        'GeoName',
+    geoname: Mapped[GeoName | None] = relationship(
         uselist=False,
         primaryjoin='GeoAdmin1Code.id == foreign(GeoName.id)',
-        backref='has_admin1code',
         viewonly=True,
+        back_populates='has_admin1code',
     )
     title: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
     ascii_title: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
@@ -128,9 +126,9 @@ class GeoAdmin2Code(BaseMixin, GeonameModel):
     geoname: Mapped[GeoName] = relationship(
         'GeoName',
         uselist=False,
-        primaryjoin='GeoAdmin2Code.id == foreign(GeoName.id)',
-        backref='has_admin2code',
         viewonly=True,
+        primaryjoin='GeoAdmin2Code.id == foreign(GeoName.id)',
+        back_populates='has_admin2code',
     )
     title: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
     ascii_title: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
@@ -201,6 +199,26 @@ class GeoName(BaseNameMixin, GeonameModel):
     dem: Mapped[int | None] = sa_orm.mapped_column(sa.Integer)
     timezone: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
     moddate: Mapped[date | None] = sa_orm.mapped_column(sa.Date)
+
+    has_country: Mapped[GeoCountryInfo | None] = relationship(
+        uselist=False,
+        viewonly=True,
+        primaryjoin='GeoCountryInfo.id == foreign(GeoName.id)',
+        back_populates='geoname',
+    )
+    has_admin1code: Mapped[GeoAdmin1Code | None] = relationship(
+        uselist=False,
+        viewonly=True,
+        primaryjoin='GeoAdmin1Code.id == foreign(GeoName.id)',
+        back_populates='geoname',
+    )
+    has_admin2code: Mapped[GeoAdmin2Code | None] = relationship(
+        uselist=False,
+        viewonly=True,
+        primaryjoin='GeoAdmin2Code.id == foreign(GeoName.id)',
+        back_populates='geoname',
+    )
+    alternate_titles: Mapped[list[GeoAltName]] = relationship()
 
     __table_args__ = (
         sa.Index(
@@ -600,10 +618,7 @@ class GeoAltName(BaseMixin, GeonameModel):
     geonameid: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('geo_name.id'), nullable=False
     )
-    geoname: Mapped[GeoName] = relationship(
-        GeoName,
-        backref=backref('alternate_titles'),
-    )
+    geoname: Mapped[GeoName] = relationship(back_populates='alternate_titles')
     lang: Mapped[str | None] = sa_orm.mapped_column(
         sa.Unicode, nullable=True, index=True
     )

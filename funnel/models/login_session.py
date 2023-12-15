@@ -14,13 +14,11 @@ from . import (
     Mapped,
     Model,
     UuidMixin,
-    backref,
     relationship,
     sa,
     sa_orm,
 )
 from .account import Account
-from .helpers import reopen
 
 __all__ = [
     'LoginSession',
@@ -95,10 +93,7 @@ class LoginSession(UuidMixin, BaseMixin, Model):
     account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
-    account: Mapped[Account] = relationship(
-        Account,
-        backref=backref('all_login_sessions', lazy='dynamic'),
-    )
+    account: Mapped[Account] = relationship(back_populates='all_login_sessions')
 
     #: User's last known IP address
     ipaddr: Mapped[str] = sa_orm.mapped_column(sa.String(45), nullable=False)
@@ -197,21 +192,6 @@ class LoginSession(UuidMixin, BaseMixin, Model):
             if not login_session.account.state.ACTIVE:
                 raise LoginSessionInactiveUserError(login_session)
         return login_session
-
-
-@reopen(Account)
-class __Account:
-    active_login_sessions: DynamicMapped[LoginSession] = relationship(
-        LoginSession,
-        lazy='dynamic',
-        primaryjoin=sa.and_(
-            LoginSession.account_id == Account.id,
-            LoginSession.accessed_at > sa.func.utcnow() - LOGIN_SESSION_VALIDITY_PERIOD,
-            LoginSession.revoked_at.is_(None),
-        ),
-        order_by=LoginSession.accessed_at.desc(),
-        viewonly=True,
-    )
 
 
 # Tail imports
