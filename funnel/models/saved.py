@@ -23,10 +23,7 @@ class SavedProject(NoIdMixin, Model):
         nullable=False,
         primary_key=True,
     )
-    account: Mapped[Account] = relationship(
-        Account,
-        backref=backref('saved_projects', lazy='dynamic', passive_deletes=True),
-    )
+    account: Mapped[Account] = relationship(back_populates='saved_projects')
     #: Project that was saved
     project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer,
@@ -76,10 +73,7 @@ class SavedSession(NoIdMixin, Model):
         nullable=False,
         primary_key=True,
     )
-    account: Mapped[Account] = relationship(
-        Account,
-        backref=backref('saved_sessions', lazy='dynamic', passive_deletes=True),
-    )
+    account: Mapped[Account] = relationship(back_populates='saved_sessions')
     #: Session that was saved
     session_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer,
@@ -112,20 +106,14 @@ class SavedSession(NoIdMixin, Model):
     @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """Migrate one account's data to another when merging accounts."""
-        project_ids = {ss.project_id for ss in new_account.saved_sessions}
+        session_ids = {ss.session_id for ss in new_account.saved_sessions}
         for ss in old_account.saved_sessions:
-            if ss.project_id not in project_ids:
+            if ss.session_id not in session_ids:
                 ss.account = new_account
             else:
                 # TODO: `if ss.description`, don't discard, but add it to existing's
                 # description
                 db.session.delete(ss)
-
-
-@reopen(Account)
-class __Account:
-    def saved_sessions_in(self, project):
-        return self.saved_sessions.join(Session).filter(Session.project == project)
 
 
 @reopen(Project)

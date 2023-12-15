@@ -1,11 +1,12 @@
 """Account model with subtypes, and account-linked personal data models."""
+# pylint: disable=unnecessary-lambda,invalid-unary-operand-type
 
 from __future__ import annotations
 
 import hashlib
 import itertools
 from collections.abc import Iterable, Iterator, Sequence
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import TYPE_CHECKING, ClassVar, Literal, Self, cast, overload
 from uuid import UUID
 
@@ -356,6 +357,117 @@ class Account(UuidMixin, BaseMixin, Model):
         back_populates='account'
     )
 
+    # account_membership.py
+    memberships: DynamicMapped[AccountMembership] = relationship(
+        foreign_keys=lambda: AccountMembership.account_id,
+        lazy='dynamic',
+        passive_deletes=True,
+        back_populates='account',
+    )
+    active_admin_memberships: DynamicMapped[AccountMembership] = with_roles(
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                sa_orm.remote(AccountMembership.account_id) == Account.id,
+                AccountMembership.is_active,
+            ),
+            order_by=lambda: AccountMembership.granted_at.asc(),
+            viewonly=True,
+        ),
+        grants_via={'member': {'admin', 'owner'}},
+    )
+
+    active_owner_memberships: DynamicMapped[AccountMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            sa_orm.remote(AccountMembership.account_id) == Account.id,
+            AccountMembership.is_active,
+            AccountMembership.is_owner.is_(True),
+        ),
+        viewonly=True,
+    )
+
+    active_invitations: DynamicMapped[AccountMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            sa_orm.remote(AccountMembership.account_id) == Account.id,
+            AccountMembership.is_invite,
+            AccountMembership.revoked_at.is_(None),
+        ),
+        viewonly=True,
+    )
+
+    owner_users = with_roles(
+        DynamicAssociationProxy['Account']('active_owner_memberships', 'member'),
+        read={'all'},
+    )
+    admin_users = with_roles(
+        DynamicAssociationProxy['Account']('active_admin_memberships', 'member'),
+        read={'all'},
+    )
+
+    organization_admin_memberships: DynamicMapped[AccountMembership] = relationship(
+        lazy='dynamic',
+        foreign_keys=lambda: AccountMembership.member_id,
+        viewonly=True,
+    )
+
+    noninvite_organization_admin_memberships: DynamicMapped[
+        AccountMembership
+    ] = relationship(
+        lazy='dynamic',
+        foreign_keys=lambda: AccountMembership.member_id,
+        primaryjoin=lambda: sa.and_(
+            sa_orm.remote(AccountMembership.member_id) == Account.id,
+            ~AccountMembership.is_invite,
+        ),
+        viewonly=True,
+    )
+
+    active_organization_admin_memberships: DynamicMapped[
+        AccountMembership
+    ] = relationship(
+        lazy='dynamic',
+        foreign_keys=lambda: AccountMembership.member_id,
+        primaryjoin=lambda: sa.and_(
+            sa_orm.remote(AccountMembership.member_id) == Account.id,
+            AccountMembership.is_active,
+        ),
+        viewonly=True,
+    )
+
+    active_organization_owner_memberships: DynamicMapped[
+        AccountMembership
+    ] = relationship(
+        lazy='dynamic',
+        foreign_keys=lambda: AccountMembership.member_id,
+        primaryjoin=lambda: sa.and_(
+            sa_orm.remote(AccountMembership.member_id) == Account.id,
+            AccountMembership.is_active,
+            AccountMembership.is_owner.is_(True),
+        ),
+        viewonly=True,
+    )
+
+    active_organization_invitations: DynamicMapped[AccountMembership] = relationship(
+        lazy='dynamic',
+        foreign_keys=lambda: AccountMembership.member_id,
+        primaryjoin=lambda: sa.and_(
+            sa_orm.remote(AccountMembership.member_id) == Account.id,
+            AccountMembership.is_invite,
+            AccountMembership.revoked_at.is_(None),
+        ),
+        viewonly=True,
+    )
+
+    organizations_as_owner = DynamicAssociationProxy['Account'](
+        'active_organization_owner_memberships', 'account'
+    )
+
+    organizations_as_admin = DynamicAssociationProxy['Account'](
+        'active_organization_admin_memberships', 'account'
+    )
+
     # auth_client.py
     clients: Mapped[AuthClient] = relationship(back_populates='account')
     authtokens: DynamicMapped[AuthToken] = relationship(
@@ -401,8 +513,13 @@ class Account(UuidMixin, BaseMixin, Model):
             LoginSession.accessed_at > sa.func.utcnow() - LOGIN_SESSION_VALIDITY_PERIOD,
             LoginSession.revoked_at.is_(None),
         ),
-        order_by=lambda: LoginSession.accessed_at.desc(),  # pylint: disable=unnecessary-lambda
+        order_by=lambda: LoginSession.accessed_at.desc(),
         viewonly=True,
+    )
+
+    # mailer.py
+    mailers: Mapped[list[Mailer]] = relationship(
+        back_populates='user', order_by=lambda: Mailer.updated_at.desc()
     )
 
     # moderation.py
@@ -414,7 +531,7 @@ class Account(UuidMixin, BaseMixin, Model):
     all_notifications: DynamicMapped[NotificationRecipient] = with_roles(
         relationship(
             lazy='dynamic',
-            order_by=lambda: NotificationRecipient.created_at.desc(),  # pylint: disable=unnecessary-lambda
+            order_by=lambda: NotificationRecipient.created_at.desc(),
             viewonly=True,
         ),
         read={'owner'},
@@ -466,7 +583,7 @@ class Account(UuidMixin, BaseMixin, Model):
         lazy='dynamic',
         primaryjoin=lambda: sa.and_(
             ProjectMembership.member_id == Account.id,
-            ~ProjectMembership.is_invite,  # pylint: disable=invalid-unary-operand-type
+            ~ProjectMembership.is_invite,
         ),
         viewonly=True,
     )
@@ -535,6 +652,222 @@ class Account(UuidMixin, BaseMixin, Model):
         ),
         read={'all'},
     )
+
+    # proposal_membership.py
+    all_proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
+        lazy='dynamic',
+        foreign_keys=lambda: ProposalMembership.member_id,
+        viewonly=True,
+    )
+
+    noninvite_proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            ProposalMembership.member_id == Account.id,
+            ~ProposalMembership.is_invite,
+        ),
+        viewonly=True,
+    )
+
+    proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            ProposalMembership.member_id == Account.id,
+            ProposalMembership.is_active,
+        ),
+        viewonly=True,
+    )
+
+    proposals = DynamicAssociationProxy['Proposal']('proposal_memberships', 'proposal')
+
+    @property
+    def public_proposal_memberships(self) -> Query[ProposalMembership]:
+        """Query for all proposal memberships to proposals that are public."""
+        return (
+            self.proposal_memberships.join(Proposal, ProposalMembership.proposal)
+            .join(Project, Proposal.project)
+            .filter(
+                ProposalMembership.is_uncredited.is_(False),
+                # TODO: Include proposal state filter (pending proposal workflow fix)
+            )
+        )
+
+    public_proposals = DynamicAssociationProxy['Proposal'](
+        'public_proposal_memberships', 'proposal'
+    )
+
+    # rsvp.py
+    @property
+    def rsvp_followers(self) -> Query[Account]:
+        """All users with an active RSVP in a project."""
+        return (
+            Account.query.filter(Account.state.ACTIVE)
+            .join(Rsvp, Rsvp.participant_id == Account.id)
+            .join(Project, Rsvp.project_id == Project.id)
+            .filter(Rsvp.state.YES, Project.state.PUBLISHED, Project.account == self)
+        )
+
+    with_roles(rsvp_followers, grants={'follower'})
+
+    # saved.py
+    saved_projects: DynamicMapped[SavedProject] = relationship(
+        lazy='dynamic', passive_deletes=True, back_populates='account'
+    )
+    saved_sessions: DynamicMapped[SavedSession] = relationship(
+        lazy='dynamic', passive_deletes=True, back_populates='account'
+    )
+
+    def saved_sessions_in(self, project: Project) -> Query[SavedSession]:
+        return self.saved_sessions.join(Session).filter(Session.project == project)
+
+    # site_membership.py
+    # Singular, as only one can be active
+    active_site_membership: Mapped[SiteMembership] = relationship(
+        lazy='select',
+        primaryjoin=lambda: sa.and_(
+            SiteMembership.member_id == Account.id, SiteMembership.is_active
+        ),
+        viewonly=True,
+        uselist=False,
+    )
+
+    @cached_property
+    def is_comment_moderator(self) -> bool:
+        """Test if this user is a comment moderator."""
+        return (
+            self.active_site_membership is not None
+            and self.active_site_membership.is_comment_moderator
+        )
+
+    @cached_property
+    def is_user_moderator(self) -> bool:
+        """Test if this user is an account moderator."""
+        return (
+            self.active_site_membership is not None
+            and self.active_site_membership.is_user_moderator
+        )
+
+    @cached_property
+    def is_site_editor(self) -> bool:
+        """Test if this user is a site editor."""
+        return (
+            self.active_site_membership is not None
+            and self.active_site_membership.is_site_editor
+        )
+
+    @cached_property
+    def is_sysadmin(self) -> bool:
+        """Test if this user is a sysadmin."""
+        return (
+            self.active_site_membership is not None
+            and self.active_site_membership.is_sysadmin
+        )
+
+    # site_admin means user has one or more of above roles
+    @cached_property
+    def is_site_admin(self) -> bool:
+        """Test if this user has any site-level admin rights."""
+        return self.active_site_membership is not None
+
+    # sponsor_membership.py
+    noninvite_project_sponsor_memberships: DynamicMapped[
+        ProjectSponsorMembership
+    ] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            ProjectSponsorMembership.member_id == Account.id,
+            ~ProjectSponsorMembership.is_invite,
+        ),
+        order_by=lambda: ProjectSponsorMembership.granted_at.desc(),
+        viewonly=True,
+    )
+
+    project_sponsor_memberships: DynamicMapped[ProjectSponsorMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            ProjectSponsorMembership.member_id == Account.id,
+            ProjectSponsorMembership.is_active,
+        ),
+        order_by=lambda: ProjectSponsorMembership.granted_at.desc(),
+        viewonly=True,
+    )
+
+    project_sponsor_membership_invites: DynamicMapped[
+        ProjectSponsorMembership
+    ] = with_roles(
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                ProjectSponsorMembership.member_id == Account.id,
+                ProjectSponsorMembership.is_invite,
+                ProjectSponsorMembership.revoked_at.is_(None),
+            ),
+            order_by=lambda: ProjectSponsorMembership.granted_at.desc(),
+            viewonly=True,
+        ),
+        read={'admin'},
+    )
+
+    noninvite_proposal_sponsor_memberships: DynamicMapped[
+        ProposalSponsorMembership
+    ] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            ProposalSponsorMembership.member_id == Account.id,
+            ~ProposalSponsorMembership.is_invite,
+        ),
+        order_by=lambda: ProposalSponsorMembership.granted_at.desc(),
+        viewonly=True,
+    )
+
+    proposal_sponsor_memberships: DynamicMapped[
+        ProposalSponsorMembership
+    ] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            ProposalSponsorMembership.member_id == Account.id,
+            ProposalSponsorMembership.is_active,
+        ),
+        order_by=lambda: ProposalSponsorMembership.granted_at.desc(),
+        viewonly=True,
+    )
+
+    proposal_sponsor_membership_invites: DynamicMapped[
+        ProposalSponsorMembership
+    ] = with_roles(
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                ProposalSponsorMembership.member_id == Account.id,
+                ProposalSponsorMembership.is_invite,
+                ProposalSponsorMembership.revoked_at.is_(None),
+            ),
+            order_by=lambda: ProposalSponsorMembership.granted_at.desc(),
+            viewonly=True,
+        ),
+        read={'admin'},
+    )
+
+    sponsored_projects = DynamicAssociationProxy['Project'](
+        'project_sponsor_memberships', 'project'
+    )
+
+    sponsored_proposals = DynamicAssociationProxy['Project'](
+        'proposal_sponsor_memberships', 'proposal'
+    )
+
+    # sync_ticket.py:
+    @property
+    def ticket_followers(self) -> Query[Account]:
+        """All users with a ticket in a project."""
+        return (
+            Account.query.filter(Account.state.ACTIVE)
+            .join(TicketParticipant, TicketParticipant.participant_id == Account.id)
+            .join(Project, TicketParticipant.project_id == Project.id)
+            .filter(Project.state.PUBLISHED, Project.account == self)
+        )
+
+    with_roles(ticket_followers, grants={'follower'})
 
     __table_args__ = (
         sa.Index(
@@ -713,7 +1046,9 @@ class Account(UuidMixin, BaseMixin, Model):
             # Also see :meth:`password_is` for transparent upgrade
         self.pw_set_at = sa.func.utcnow()
         # Expire passwords after one year. TODO: make this configurable
-        self.pw_expires_at = self.pw_set_at + timedelta(days=365)
+        self.pw_expires_at = self.pw_set_at + sa.cast(  # type: ignore[assignment]
+            '1 year', sa.Interval
+        )
 
     #: Write-only property (passwords cannot be read back in plain text)
     password = property(fset=_set_password, doc=_set_password.__doc__)
@@ -1501,8 +1836,18 @@ class Account(UuidMixin, BaseMixin, Model):
     type: Mapped[str] = sa_orm.synonym('type_')  # noqa: A003
 
 
+Account.__active_membership_attrs__.add('active_organization_admin_memberships')
+Account.__noninvite_membership_attrs__.add('noninvite_organization_admin_memberships')
 Account.__active_membership_attrs__.add('projects_as_crew_active_memberships')
 Account.__noninvite_membership_attrs__.add('projects_as_crew_noninvite_memberships')
+Account.__active_membership_attrs__.add('proposal_memberships')
+Account.__noninvite_membership_attrs__.add('noninvite_proposal_memberships')
+Account.__active_membership_attrs__.update(
+    {'project_sponsor_memberships', 'proposal_sponsor_memberships'}
+)
+Account.__noninvite_membership_attrs__.update(
+    {'noninvite_project_sponsor_memberships', 'noninvite_proposal_sponsor_memberships'}
+)
 
 auto_init_default(Account._state)  # pylint: disable=protected-access
 auto_init_default(Account._profile_state)  # pylint: disable=protected-access
@@ -2428,10 +2773,19 @@ Anchor = AccountEmail | AccountEmailClaim | AccountPhone | EmailAddress | PhoneN
 from .account_membership import AccountMembership
 from .auth_client import AuthClient, AuthClientPermissions, AuthToken
 from .login_session import LOGIN_SESSION_VALIDITY_PERIOD, LoginSession
+from .mailer import Mailer
 from .membership_mixin import ImmutableMembershipMixin
 from .notification import NotificationPreferences, NotificationRecipient
 from .project import Project, ProjectRedirect
 from .project_membership import ProjectMembership
+from .proposal import Proposal
+from .proposal_membership import ProposalMembership
+from .rsvp import Rsvp
+from .saved import SavedProject, SavedSession
+from .session import Session
+from .site_membership import SiteMembership
+from .sponsor_membership import ProjectSponsorMembership, ProposalSponsorMembership
+from .sync_ticket import TicketParticipant
 
 if TYPE_CHECKING:
     from .auth_client import AuthClientTeamPermissions

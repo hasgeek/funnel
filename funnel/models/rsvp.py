@@ -15,7 +15,6 @@ from . import (
     Mapped,
     Model,
     NoIdMixin,
-    Query,
     UuidMixin,
     backref,
     db,
@@ -253,18 +252,3 @@ class __Project:
             .filter(Account.state.ACTIVE, Rsvp.state.YES)
             .count()
         )
-
-
-@reopen(Account)
-class __Account:
-    @property
-    def rsvp_followers(self) -> Query[Account]:
-        """All users with an active RSVP in a project."""
-        return (
-            Account.query.filter(Account.state.ACTIVE)
-            .join(Rsvp, Rsvp.participant_id == Account.id)
-            .join(Project, Rsvp.project_id == Project.id)
-            .filter(Rsvp.state.YES, Project.state.PUBLISHED, Project.account == self)
-        )
-
-    with_roles(rsvp_followers, grants={'follower'})

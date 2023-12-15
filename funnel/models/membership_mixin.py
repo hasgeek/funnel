@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 from datetime import datetime as datetime_type
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, Any, ClassVar, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeVar
 from uuid import UUID
 
 from sqlalchemy import event
@@ -101,7 +101,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
         __tablename__: str
         #: Parent column (declare as synonym of 'profile_id' or 'project_id' in
         #: subclasses)
-        parent_id: Mapped[int]
+        parent_id: Mapped[int] | None
         #: Parent object
         parent: Mapped[Model | None]
         #: Subject of this membership (subclasses must define)
@@ -453,7 +453,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """
-        Migrate memberhip records from one account to another.
+        Migrate membership records from one account to another.
 
         If both accounts have active records, they are merged into a new record in the
         new account's favour. All revoked records for the old account are transferred to
@@ -582,7 +582,7 @@ class FrozenAttributionProtoMixin:
 
     if TYPE_CHECKING:
         member: Mapped[Account]
-        replace: Callable[..., FrozenAttributionType]
+        replace: Callable[..., Self]
         _local_data_only: bool
 
     @declared_attr
@@ -599,7 +599,7 @@ class FrozenAttributionProtoMixin:
     def title(self) -> str:
         """Attribution title for this record."""
         if self._local_data_only:
-            # self._title may be None
+            # self._title may be None when returning local data
             return self._title  # type: ignore[return-value]
         return self._title or self.member.title
 
@@ -616,14 +616,10 @@ class FrozenAttributionProtoMixin:
         return self._title if self._title else self.member.pickername
 
     @with_roles(call={'owner', 'member'})
-    def freeze_member_attribution(
-        self: FrozenAttributionType, actor: Account
-    ) -> FrozenAttributionType:
+    def freeze_member_attribution(self, actor: Account) -> Self:
         """Freeze member attribution and return a replacement record."""
         if self._title is None:
-            membership: FrozenAttributionType = self.replace(
-                actor=actor, title=self.member.title
-            )
+            membership = self.replace(actor=actor, title=self.member.title)
         else:
             membership = self
         return membership

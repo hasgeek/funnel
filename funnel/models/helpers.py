@@ -319,7 +319,7 @@ def reopen(cls: ReopenedType) -> Callable[[type], ReopenedType]:
                     # requires code rewrite. This is however an implicit assumption when
                     # using @reopen -- it should not be within a try block.
                     raise AttributeError(
-                        f"{cls.__qualname__} already has attribute {attr}",
+                        f"{cls.__qualname__} already has attribute {attr!r}",
                         name=attr,
                         obj=cls,
                     )

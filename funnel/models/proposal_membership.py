@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
+from coaster.sqlalchemy import immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, backref, relationship, sa, sa_orm
+from . import Mapped, Model, backref, relationship, sa, sa_orm
 from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
@@ -14,7 +14,6 @@ from .membership_mixin import (
     ImmutableUserMembershipMixin,
     ReorderMembershipProtoMixin,
 )
-from .project import Project
 from .proposal import Proposal
 
 __all__ = ['ProposalMembership']
@@ -154,57 +153,3 @@ class __Proposal:
             if not membership.is_uncredited:
                 return membership.member
         return self.created_by
-
-
-@reopen(Account)
-class __Account:
-    # pylint: disable=invalid-unary-operand-type
-
-    all_proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
-        ProposalMembership,
-        lazy='dynamic',
-        foreign_keys=[ProposalMembership.member_id],
-        viewonly=True,
-    )
-
-    noninvite_proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
-        ProposalMembership,
-        lazy='dynamic',
-        primaryjoin=sa.and_(
-            ProposalMembership.member_id == Account.id,
-            ~ProposalMembership.is_invite,
-        ),
-        viewonly=True,
-    )
-
-    proposal_memberships: DynamicMapped[ProposalMembership] = relationship(
-        ProposalMembership,
-        lazy='dynamic',
-        primaryjoin=sa.and_(
-            ProposalMembership.member_id == Account.id,
-            ProposalMembership.is_active,
-        ),
-        viewonly=True,
-    )
-
-    proposals = DynamicAssociationProxy[Proposal]('proposal_memberships', 'proposal')
-
-    @property
-    def public_proposal_memberships(self):
-        """Query for all proposal memberships to proposals that are public."""
-        return (
-            self.proposal_memberships.join(Proposal, ProposalMembership.proposal)
-            .join(Project, Proposal.project)
-            .filter(
-                ProposalMembership.is_uncredited.is_(False),
-                # TODO: Include proposal state filter (pending proposal workflow fix)
-            )
-        )
-
-    public_proposals = DynamicAssociationProxy[Proposal](
-        'public_proposal_memberships', 'proposal'
-    )
-
-
-Account.__active_membership_attrs__.add('proposal_memberships')
-Account.__noninvite_membership_attrs__.add('noninvite_proposal_memberships')

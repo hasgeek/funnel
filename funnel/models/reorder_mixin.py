@@ -107,7 +107,7 @@ class ReorderProtoMixin:
             .where(self.parent_scoped_reorder_query_filter)
             .scalar_subquery()
         )
-        # Flush it so the db doesn't complain when there's a unique constraint
+        # Flush it so the db does not complain when there's a unique constraint
         db.session.flush()
         # Reassign all remaining sequence numbers
         for reorderable_item in items_to_reorder[1:]:  # Skip 0, which is self

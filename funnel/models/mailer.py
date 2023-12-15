@@ -31,7 +31,6 @@ from . import (
     sa_orm,
 )
 from .account import Account
-from .helpers import reopen
 from .types import jsonb
 
 __all__ = [
@@ -449,10 +448,3 @@ class MailerRecipient(BaseScopedIdMixin, Model):
             )
             .all()
         )
-
-
-@reopen(Account)
-class __Account:
-    mailers: Mapped[list[Mailer]] = relationship(
-        Mailer, back_populates='user', order_by=Mailer.updated_at.desc()
-    )

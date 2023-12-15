@@ -15,7 +15,6 @@ from . import (
     DynamicMapped,
     Mapped,
     Model,
-    Query,
     UuidMixin,
     backref,
     db,
@@ -604,20 +603,5 @@ class __Project:
     )
 
 
-@reopen(Account)
-class __Account:
-    @property
-    def ticket_followers(self) -> Query[Account]:
-        """All users with a ticket in a project."""
-        return (
-            Account.query.filter(Account.state.ACTIVE)
-            .join(TicketParticipant, TicketParticipant.participant_id == Account.id)
-            .join(Project, TicketParticipant.project_id == Project.id)
-            .filter(Project.state.PUBLISHED, Project.account == self)
-        )
-
-    with_roles(ticket_followers, grants={'follower'})
-
-
-# Tail imports to avoid cyclic dependency errors, for symbols used only in methods
+# Tail imports
 from .contact_exchange import ContactExchange
