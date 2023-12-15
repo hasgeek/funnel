@@ -117,28 +117,28 @@ class Commentset(UuidMixin, BaseMixin, Model):
     )
     toplevel_comments: DynamicMapped[Comment] = relationship(
         lazy='dynamic',
-        primaryjoin='''and_(
+        primaryjoin=lambda: sa.and_(
             Comment.commentset_id == Commentset.id, Comment.in_reply_to_id.is_(None)
-        )''',
+        ),
         viewonly=True,
     )
     active_memberships: DynamicMapped[CommentsetMembership] = relationship(
         lazy='dynamic',
-        primaryjoin='''and_(
+        primaryjoin=lambda: sa.and_(
             CommentsetMembership.commentset_id == Commentset.id,
             CommentsetMembership.is_active,
-        )''',
+        ),
         viewonly=True,
     )
     # Send notifications only to subscribers who haven't muted
     active_memberships_unmuted: DynamicMapped[CommentsetMembership] = with_roles(
         relationship(
             lazy='dynamic',
-            primaryjoin='''and_(
+            primaryjoin=lambda: sa.and_(
                 CommentsetMembership.commentset_id == Commentset.id,
                 CommentsetMembership.is_active,
                 CommentsetMembership.is_muted.is_(False),
-            )''',
+            ),
             viewonly=True,
         ),
         grants_via={'member': {'document_subscriber'}},

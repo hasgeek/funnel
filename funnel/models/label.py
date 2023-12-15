@@ -72,7 +72,7 @@ class Label(BaseScopedNameMixin, Model):
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
     options: Mapped[OrderingList[Label]] = relationship(
         back_populates='main_label',
-        order_by='Label.seq',
+        order_by=lambda: Label.seq,
         passive_deletes=True,
         collection_class=ordering_list('seq', count_from=1),
     )

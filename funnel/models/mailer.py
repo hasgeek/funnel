@@ -6,7 +6,7 @@ import re
 from collections.abc import Collection, Iterator
 from datetime import datetime
 from enum import IntEnum
-from typing import Any
+from typing import Any, Self
 from uuid import UUID
 
 from flask import request
@@ -93,12 +93,17 @@ class Mailer(BaseNameMixin, Model):
     recipients: DynamicMapped[MailerRecipient] = relationship(
         lazy='dynamic',
         back_populates='mailer',
-        order_by='(MailerRecipient.draft_id, MailerRecipient._fullname,'
-        ' MailerRecipient._firstname, MailerRecipient._lastname)',
+        order_by=lambda: (
+            # pylint: disable=protected-access
+            MailerRecipient.draft_id,
+            MailerRecipient._fullname,
+            MailerRecipient._firstname,
+            MailerRecipient._lastname,
+        ),
     )
     drafts: Mapped[list[MailerDraft]] = relationship(
         back_populates='mailer',
-        order_by='MailerDraft.url_id',
+        order_by=lambda: MailerDraft.url_id,
     )
 
     def __init__(self, **kwargs: Any) -> None:
@@ -421,7 +426,7 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         return self.draft is not None
 
     @classmethod
-    def custom_draft_in(cls, mailer: Mailer) -> list[MailerRecipient]:
+    def custom_draft_in(cls, mailer: Mailer) -> list[Self]:
         return (
             cls.query.filter(
                 cls.mailer == mailer,
@@ -449,5 +454,5 @@ class MailerRecipient(BaseScopedIdMixin, Model):
 @reopen(Account)
 class __Account:
     mailers: Mapped[list[Mailer]] = relationship(
-        Mailer, back_populates='user', order_by='Mailer.updated_at.desc()'
+        Mailer, back_populates='user', order_by=Mailer.updated_at.desc()
     )

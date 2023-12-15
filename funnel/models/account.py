@@ -332,7 +332,8 @@ class Account(UuidMixin, BaseMixin, Model):
 
     # account.py:
     oldid: Mapped[AccountOldId] = relationship(
-        primaryjoin='foreign(AccountOldId.id) == Account.uuid',
+        primaryjoin=lambda: sa_orm.foreign(AccountOldId.id) == Account.uuid,
+        uselist=False,
         back_populates='old_account',
     )
     oldids: Mapped[list[AccountOldId]] = relationship(
@@ -340,7 +341,7 @@ class Account(UuidMixin, BaseMixin, Model):
     )
     teams: Mapped[list[Team]] = relationship(
         foreign_keys=lambda: Team.account_id,
-        order_by='func.lower(Team.title)',
+        order_by=lambda: sa.func.lower(Team.title),
         back_populates='account',
     )
     member_teams: Mapped[list[Team]] = relationship(
@@ -1516,7 +1517,8 @@ class AccountOldId(UuidMixin, BaseMixin[UUID], Model):
 
     #: Old account, if still present
     old_account: Mapped[Account] = relationship(
-        primaryjoin='foreign(AccountOldId.id) == Account.uuid',
+        foreign_keys=lambda: AccountOldId.id,
+        primaryjoin=lambda: AccountOldId.id == Account.uuid,
         back_populates='oldid',
     )
     #: User id of new user

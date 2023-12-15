@@ -52,7 +52,7 @@ class GeoCountryInfo(BaseNameMixin, GeonameModel):
     geoname: Mapped[GeoName | None] = relationship(
         uselist=False,
         viewonly=True,
-        primaryjoin='GeoCountryInfo.id == foreign(GeoName.id)',
+        primaryjoin=lambda: GeoCountryInfo.id == sa_orm.foreign(GeoName.id),
         back_populates='has_country',
     )
     iso_alpha2: Mapped[types.char2 | None] = sa_orm.mapped_column(
@@ -100,7 +100,7 @@ class GeoAdmin1Code(BaseMixin, GeonameModel):
     geonameid: Mapped[int] = sa_orm.synonym('id')
     geoname: Mapped[GeoName | None] = relationship(
         uselist=False,
-        primaryjoin='GeoAdmin1Code.id == foreign(GeoName.id)',
+        primaryjoin=lambda: GeoAdmin1Code.id == sa_orm.foreign(GeoName.id),
         viewonly=True,
         back_populates='has_admin1code',
     )
@@ -127,7 +127,7 @@ class GeoAdmin2Code(BaseMixin, GeonameModel):
         'GeoName',
         uselist=False,
         viewonly=True,
-        primaryjoin='GeoAdmin2Code.id == foreign(GeoName.id)',
+        primaryjoin=lambda: GeoAdmin2Code.id == sa_orm.foreign(GeoName.id),
         back_populates='has_admin2code',
     )
     title: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
@@ -164,8 +164,10 @@ class GeoName(BaseNameMixin, GeonameModel):
     admin1_ref: Mapped[GeoAdmin1Code | None] = relationship(
         'GeoAdmin1Code',
         uselist=False,
-        primaryjoin='and_(GeoName.country_id == foreign(GeoAdmin1Code.country_id), '
-        'GeoName.admin1 == foreign(GeoAdmin1Code.admin1_code))',
+        primaryjoin=lambda: sa.and_(
+            GeoName.country_id == sa_orm.foreign(GeoAdmin1Code.country_id),
+            GeoName.admin1 == sa_orm.foreign(GeoAdmin1Code.admin1_code),
+        ),
         viewonly=True,
     )
     admin1_id: Mapped[int | None] = sa_orm.mapped_column(
@@ -179,9 +181,11 @@ class GeoName(BaseNameMixin, GeonameModel):
     admin2_ref: Mapped[GeoAdmin2Code | None] = relationship(
         'GeoAdmin2Code',
         uselist=False,
-        primaryjoin='and_(GeoName.country_id == foreign(GeoAdmin2Code.country_id), '
-        'GeoName.admin1 == foreign(GeoAdmin2Code.admin1_code), '
-        'GeoName.admin2 == foreign(GeoAdmin2Code.admin2_code))',
+        primaryjoin=lambda: sa.and_(
+            GeoName.country_id == sa_orm.foreign(GeoAdmin2Code.country_id),
+            GeoName.admin1 == sa_orm.foreign(GeoAdmin2Code.admin1_code),
+            GeoName.admin2 == sa_orm.foreign(GeoAdmin2Code.admin2_code),
+        ),
         viewonly=True,
     )
     admin2_id: Mapped[int | None] = sa_orm.mapped_column(
@@ -203,19 +207,19 @@ class GeoName(BaseNameMixin, GeonameModel):
     has_country: Mapped[GeoCountryInfo | None] = relationship(
         uselist=False,
         viewonly=True,
-        primaryjoin='GeoCountryInfo.id == foreign(GeoName.id)',
+        primaryjoin=lambda: GeoCountryInfo.id == sa_orm.foreign(GeoName.id),
         back_populates='geoname',
     )
     has_admin1code: Mapped[GeoAdmin1Code | None] = relationship(
         uselist=False,
         viewonly=True,
-        primaryjoin='GeoAdmin1Code.id == foreign(GeoName.id)',
+        primaryjoin=lambda: GeoAdmin1Code.id == sa_orm.foreign(GeoName.id),
         back_populates='geoname',
     )
     has_admin2code: Mapped[GeoAdmin2Code | None] = relationship(
         uselist=False,
         viewonly=True,
-        primaryjoin='GeoAdmin2Code.id == foreign(GeoName.id)',
+        primaryjoin=lambda: GeoAdmin2Code.id == sa_orm.foreign(GeoName.id),
         back_populates='geoname',
     )
     alternate_titles: Mapped[list[GeoAltName]] = relationship()

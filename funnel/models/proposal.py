@@ -141,7 +141,9 @@ class Proposal(  # type: ignore[misc]
     project: Mapped[Project] = with_roles(
         relationship(
             foreign_keys=[project_id],
-            backref=backref('proposals', lazy='dynamic', order_by='Proposal.url_id'),
+            backref=backref(
+                'proposals', lazy='dynamic', order_by=lambda: Proposal.url_id
+            ),
         ),
         grants_via={None: project_child_role_map},
     )
