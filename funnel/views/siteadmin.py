@@ -363,7 +363,7 @@ class SiteadminView(ClassView):
             uuid_b58=report
         ).one_or_404()
 
-        if comment_report.comment.is_reviewed_by(current_auth.user):
+        if comment_report.comment.was_reviewed_by(current_auth.user):
             flash(_("You cannot review same comment twice"), 'error')
             return render_redirect(url_for('siteadmin_review_comments_random'))
 

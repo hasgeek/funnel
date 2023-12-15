@@ -133,6 +133,14 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
 
     seq: Mapped[int] = sa_orm.mapped_column(sa.Integer, nullable=False)
 
+    scheduled_sessions: Mapped[list[Session]] = relationship(
+        primaryjoin=lambda: sa.and_(
+            Session.venue_room_id == VenueRoom.id,
+            Session.scheduled,
+        ),
+        viewonly=True,
+    )
+
     __table_args__ = (sa.UniqueConstraint('venue_id', 'name'),)
 
     __roles__ = {
@@ -199,3 +207,7 @@ class __Project:
     @property
     def rooms(self):
         return [room for venue in self.venues for room in venue.rooms]
+
+
+# Tail imports
+from .session import Session

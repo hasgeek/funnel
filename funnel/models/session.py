@@ -291,18 +291,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
 add_search_trigger(Session, 'search_vector')
 
 
-@reopen(VenueRoom)
-class __VenueRoom:
-    scheduled_sessions: Mapped[list[Session]] = relationship(
-        Session,
-        primaryjoin=sa.and_(
-            Session.venue_room_id == VenueRoom.id,
-            Session.scheduled,
-        ),
-        viewonly=True,
-    )
-
-
 @reopen(Project)
 class __Project:
     # Project schedule column expressions. Guide:

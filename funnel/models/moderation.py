@@ -12,7 +12,6 @@ from coaster.utils import LabeledEnum
 from . import BaseMixin, Mapped, Model, UuidMixin, db, relationship, sa, sa_orm
 from .account import Account
 from .comment import Comment
-from .helpers import reopen
 from .site_membership import SiteMembership
 
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
@@ -105,17 +104,3 @@ class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
         )
 
     with_roles(users_who_are_comment_moderators, grants={'comment_moderator'})
-
-
-@reopen(Comment)
-class __Comment:
-    def is_reviewed_by(self, account: Account) -> bool:
-        return db.session.query(
-            db.session.query(CommentModeratorReport)
-            .filter(
-                CommentModeratorReport.comment == self,
-                CommentModeratorReport.resolved_at.is_(None),
-                CommentModeratorReport.reported_by == account,
-            )
-            .exists()
-        ).scalar()

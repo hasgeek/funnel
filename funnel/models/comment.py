@@ -510,6 +510,13 @@ class Comment(UuidMixin, BaseMixin, Model):
     def mark_not_spam(self) -> None:
         """Mark this comment as not spam."""
 
+    def was_reviewed_by(self, account: Account) -> bool:
+        return CommentModeratorReport.query.filter(
+            CommentModeratorReport.comment == self,
+            CommentModeratorReport.resolved_at.is_(None),
+            CommentModeratorReport.reported_by == account,
+        ).notempty()
+
     def roles_for(
         self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
@@ -523,9 +530,9 @@ add_search_trigger(Comment, 'search_vector')
 
 # Tail imports for type checking
 from .commentset_membership import CommentsetMembership
+from .moderation import CommentModeratorReport
 
 if TYPE_CHECKING:
-    from .moderation import CommentModeratorReport
     from .project import Project
     from .proposal import Proposal
     from .update import Update
