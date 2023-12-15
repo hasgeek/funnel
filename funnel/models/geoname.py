@@ -6,7 +6,7 @@ import re
 from collections.abc import Collection
 from datetime import date
 from decimal import Decimal
-from typing import Self, cast
+from typing import Required, Self, TypedDict
 
 from sqlalchemy.dialects.postgresql import ARRAY
 
@@ -41,6 +41,12 @@ continent_codes = {
     'SA': 6255150,  # South America
     'AN': 6255152,  # Antarctica
 }
+
+
+class ParseLocationsDict(TypedDict, total=False):
+    token: Required[str]
+    special: bool
+    geoname: GeoName
 
 
 class GeoCountryInfo(BaseNameMixin, GeonameModel):
@@ -109,7 +115,7 @@ class GeoAdmin1Code(BaseMixin, GeonameModel):
     country_id: Mapped[str | None] = sa_orm.mapped_column(
         'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
     )
-    country: Mapped[GeoCountryInfo | None] = relationship('GeoCountryInfo')
+    country: Mapped[GeoCountryInfo | None] = relationship()
     admin1_code: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
 
     def __repr__(self) -> str:
@@ -124,7 +130,6 @@ class GeoAdmin2Code(BaseMixin, GeonameModel):
 
     geonameid: Mapped[int] = sa_orm.synonym('id')
     geoname: Mapped[GeoName] = relationship(
-        'GeoName',
         uselist=False,
         viewonly=True,
         primaryjoin=lambda: GeoAdmin2Code.id == sa_orm.foreign(GeoName.id),
@@ -135,7 +140,7 @@ class GeoAdmin2Code(BaseMixin, GeonameModel):
     country_id: Mapped[str | None] = sa_orm.mapped_column(
         'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
     )
-    country: Mapped[GeoCountryInfo | None] = relationship('GeoCountryInfo')
+    country: Mapped[GeoCountryInfo | None] = relationship()
     admin1_code: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
     admin2_code: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
 
@@ -158,11 +163,10 @@ class GeoName(BaseNameMixin, GeonameModel):
     country_id: Mapped[str | None] = sa_orm.mapped_column(
         'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
     )
-    country: Mapped[GeoCountryInfo | None] = relationship('GeoCountryInfo')
+    country: Mapped[GeoCountryInfo | None] = relationship()
     cc2: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
     admin1: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
     admin1_ref: Mapped[GeoAdmin1Code | None] = relationship(
-        'GeoAdmin1Code',
         uselist=False,
         primaryjoin=lambda: sa.and_(
             GeoName.country_id == sa_orm.foreign(GeoAdmin1Code.country_id),
@@ -174,12 +178,11 @@ class GeoName(BaseNameMixin, GeonameModel):
         sa.Integer, sa.ForeignKey('geo_admin1_code.id'), nullable=True
     )
     admin1code: Mapped[GeoAdmin1Code | None] = relationship(
-        'GeoAdmin1Code', uselist=False, foreign_keys=[admin1_id]
+        uselist=False, foreign_keys=[admin1_id]
     )
 
     admin2: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
     admin2_ref: Mapped[GeoAdmin2Code | None] = relationship(
-        'GeoAdmin2Code',
         uselist=False,
         primaryjoin=lambda: sa.and_(
             GeoName.country_id == sa_orm.foreign(GeoAdmin2Code.country_id),
@@ -192,7 +195,7 @@ class GeoName(BaseNameMixin, GeonameModel):
         sa.Integer, sa.ForeignKey('geo_admin2_code.id'), nullable=True
     )
     admin2code: Mapped[GeoAdmin2Code | None] = relationship(
-        'GeoAdmin2Code', uselist=False, foreign_keys=[admin2_id]
+        uselist=False, foreign_keys=[admin2_id]
     )
 
     admin4: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
@@ -362,7 +365,11 @@ class GeoName(BaseNameMixin, GeonameModel):
         related: dict[str, GeoName] = {}
         if self.admin2code and self.admin2code.geonameid != self.geonameid:
             related['admin2'] = self.admin2code.geoname
-        if self.admin1code and self.admin1code.geonameid != self.geonameid:
+        if (
+            self.admin1code
+            and self.admin1code.geonameid != self.geonameid
+            and self.admin1code.geoname is not None
+        ):
             related['admin1'] = self.admin1code.geoname
         if (
             self.country
@@ -473,7 +480,7 @@ class GeoName(BaseNameMixin, GeonameModel):
         special: list[str] | None = None,
         lang: str | None = None,
         bias: list[str] | None = None,
-    ):
+    ) -> list[ParseLocationsDict]:
         """
         Parse a string and return annotations marking all identified locations.
 
@@ -485,12 +492,15 @@ class GeoName(BaseNameMixin, GeonameModel):
         special = [s.lower() for s in special] if special else []
         if bias is None:
             bias = []
-        tokens = NOWORDS_RE.split(q)
+        while '' in bias:
+            bias.remove('')
+        bias = [each.upper() for each in bias]
+        tokens: list[str] = NOWORDS_RE.split(q)
         while '' in tokens:
             tokens.remove('')  # Remove blank tokens from beginning and end
         ltokens = [t.lower() for t in tokens]
-        results: list[dict[str, object]] = []
-        counter = 0
+        results: list[ParseLocationsDict] = []
+        counter: int = 0
         limit = len(tokens)
         while counter < limit:
             token = tokens[counter]
@@ -549,7 +559,7 @@ class GeoName(BaseNameMixin, GeonameModel):
                     candidates = [
                         (NOWORDS_RE.split(m.title.lower()), m) for m in matches
                     ]
-                    fullmatch = []
+                    fullmatch: list[tuple[int, GeoAltName]] = []
                     for mtokens, match in candidates:
                         if mtokens == ltokens[counter : counter + len(mtokens)]:
                             fullmatch.append((len(mtokens), match))
@@ -561,14 +571,11 @@ class GeoName(BaseNameMixin, GeonameModel):
                         # (d) population
                         accepted.sort(
                             key=lambda a: (
-                                {
-                                    v: k
-                                    for k, v in enumerate(
-                                        reversed(cast(list[str], bias))
-                                    )
-                                }.get(a.geoname.country_id, -1),
+                                {v: k for k, v in enumerate(reversed(bias))}.get(
+                                    a.geoname.country_id or '', -1
+                                ),
                                 {lang: 0}.get(a.lang, 1),
-                                {'A': 1, 'P': 2}.get(a.geoname.fclass, 0),
+                                {'A': 1, 'P': 2}.get(a.geoname.fclass or '', 0),
                                 a.geoname.population,
                             ),
                             reverse=True,
