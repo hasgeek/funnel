@@ -225,7 +225,7 @@ class Shortlink(NoIdMixin, Model):
         sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
     )
     #: Account that created this shortlink (optional)
-    created_by: Mapped[Account | None] = relationship(Account)
+    created_by: Mapped[Account | None] = relationship()
 
     #: Is this link enabled? If not, render 410 Gone
     enabled: Mapped[bool] = sa_orm.mapped_column(
@@ -236,7 +236,7 @@ class Shortlink(NoIdMixin, Model):
     def name(self) -> str:
         """Return string representation of id, for use in short URLs."""
         if self.id is None:
-            return ''
+            return ''  # type: ignore[unreachable]
         return bigint_to_name(self.id)
 
     @name.inplace.setter

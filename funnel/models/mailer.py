@@ -73,7 +73,7 @@ class Mailer(BaseNameMixin, Model):
     __tablename__ = 'mailer'
 
     user_uuid: Mapped[UUID] = sa_orm.mapped_column(sa.ForeignKey('account.uuid'))
-    user: Mapped[Account] = relationship(Account, back_populates='mailers')
+    user: Mapped[Account] = relationship(back_populates='mailers')
     status: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, nullable=False, default=MailerState.DRAFT
     )
@@ -202,7 +202,7 @@ class MailerDraft(BaseScopedIdMixin, Model):
     mailer_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('mailer.id'), nullable=False
     )
-    mailer: Mapped[Mailer] = relationship(Mailer, back_populates='drafts')
+    mailer: Mapped[Mailer] = relationship(back_populates='drafts')
     parent: Mapped[Mailer] = sa_orm.synonym('mailer')
     revision_id: Mapped[int] = sa_orm.synonym('url_id')
 
@@ -230,7 +230,7 @@ class MailerRecipient(BaseScopedIdMixin, Model):
 
     # Mailer this recipient is a part of
     mailer_id: Mapped[int] = sa_orm.mapped_column(sa.ForeignKey('mailer.id'))
-    mailer: Mapped[Mailer] = relationship(Mailer, back_populates='recipients')
+    mailer: Mapped[Mailer] = relationship(back_populates='recipients')
     parent: Mapped[Mailer] = sa_orm.synonym('mailer')
 
     _fullname: Mapped[str | None] = sa_orm.mapped_column(
@@ -303,7 +303,7 @@ class MailerRecipient(BaseScopedIdMixin, Model):
     draft_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('mailer_draft.id')
     )
-    draft: Mapped[MailerDraft | None] = relationship(MailerDraft)
+    draft: Mapped[MailerDraft | None] = relationship()
 
     __table_args__ = (sa.UniqueConstraint('mailer_id', 'url_id'),)
 

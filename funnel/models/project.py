@@ -1,13 +1,18 @@
 """Project model."""
+# pylint: disable=unnecessary-lambda
 
 from __future__ import annotations
 
+from collections import OrderedDict, defaultdict
 from collections.abc import Sequence
-from datetime import datetime
-from typing import TYPE_CHECKING, Self
+from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Any, Literal, Self, cast, overload
 
+from flask_babel import format_date, get_locale
 from furl import furl
+from isoweek import Week
 from pytz import BaseTzInfo, utc
+from sqlalchemy.ext.orderinglist import ordering_list
 from werkzeug.utils import cached_property
 
 from baseframe import __, localize_timezone
@@ -87,10 +92,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     created_by_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
-    created_by: Mapped[Account] = relationship(
-        Account,
-        foreign_keys=[created_by_id],
-    )
+    created_by: Mapped[Account] = relationship(foreign_keys=[created_by_id])
     account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
@@ -258,8 +260,10 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         uselist=False, single_parent=True, back_populates='project'
     )
 
-    parent_id: Mapped[int | None] = sa_orm.mapped_column(
-        sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
+    parent_project_id: Mapped[int | None] = sa_orm.mapped_column(
+        'parent_id',  # TODO: Migration required
+        sa.ForeignKey('project.id', ondelete='SET NULL'),
+        nullable=True,
     )
     parent_project: Mapped[Project | None] = relationship(
         remote_side='Project.id', back_populates='subprojects'
@@ -328,9 +332,20 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     redirects: Mapped[list[ProjectRedirect]] = relationship(back_populates='project')
     locations: Mapped[list[ProjectLocation]] = relationship(back_populates='project')
 
-    # venue.py
-    if TYPE_CHECKING:
-        primary_venue: Mapped[Venue | None] = relationship()
+    # label.py
+    labels: Mapped[list[Label]] = relationship(
+        primaryjoin=lambda: sa.and_(
+            Label.project_id == Project.id,
+            Label.main_label_id.is_(None),
+            Label._archived.is_(False),  # pylint: disable=protected-access
+        ),
+        order_by=lambda: Label.seq,
+        viewonly=True,
+    )
+    all_labels: Mapped[list[Label]] = relationship(
+        collection_class=ordering_list('seq', count_from=1),
+        back_populates='project',
+    )
 
     # project_membership.py
     crew_memberships: DynamicMapped[ProjectMembership] = relationship(
@@ -385,6 +400,96 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     )
     ushers = DynamicAssociationProxy[Account]('active_usher_memberships', 'member')
 
+    # proposal.py
+    proposals: DynamicMapped[Proposal] = relationship(
+        lazy='dynamic', order_by=lambda: Proposal.seq, back_populates='project'
+    )
+
+    # rsvp.py
+    rsvps: DynamicMapped[Rsvp] = relationship(lazy='dynamic', back_populates='project')
+
+    # saved.py
+    saves: DynamicMapped[SavedProject] = relationship(
+        lazy='dynamic', passive_deletes=True, back_populates='project'
+    )
+
+    # session.py
+    sessions: DynamicMapped[Session] = relationship(
+        lazy='dynamic', back_populates='project'
+    )
+
+    if TYPE_CHECKING:
+        # These are column properties, defined at the end of the file
+        schedule_start_at: Mapped[datetime | None]
+        next_session_at: Mapped[datetime | None]
+        schedule_end_at: Mapped[datetime | None]
+        # This relationship is added by add_primary_relationship in models/venue.py
+        primary_venue: Mapped[Venue | None] = relationship()
+
+    # sponsor_membership.py
+    all_sponsor_memberships: DynamicMapped[ProjectSponsorMembership] = relationship(
+        lazy='dynamic', passive_deletes=True, back_populates='project'
+    )
+
+    sponsor_memberships: DynamicMapped[ProjectSponsorMembership] = with_roles(
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                ProjectSponsorMembership.project_id == Project.id,
+                ProjectSponsorMembership.is_active,
+            ),
+            order_by=lambda: ProjectSponsorMembership.seq,
+            viewonly=True,
+        ),
+        read={'all'},
+    )
+
+    @with_roles(read={'all'})
+    @cached_property
+    def has_sponsors(self) -> bool:
+        return db.session.query(self.sponsor_memberships.exists()).scalar()
+
+    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
+
+    # sync_ticket.py
+    ticket_clients: Mapped[list[TicketClient]] = relationship(back_populates='project')
+    ticket_events: Mapped[list[TicketEvent]] = relationship(back_populates='project')
+    ticket_types: Mapped[list[TicketType]] = relationship(back_populates='project')
+    # XXX: This relationship exposes an edge case in RoleMixin. It previously expected
+    # TicketParticipant.participant to be unique per project, meaning one user could
+    # have one participant ticket only. This is not guaranteed by the model as tickets
+    # are unique per email address per ticket type, and one user can have (a) two email
+    # addresses with tickets, or (b) tickets of different types. RoleMixin has since
+    # been patched to look for the first matching record (.first() instead of .one()).
+    # This may expose a new edge case in future in case the TicketParticipant model adds
+    # an `offered_roles` method, as only the first matching record's method will be
+    # called
+    ticket_participants: DynamicMapped[TicketParticipant] = with_roles(
+        relationship(lazy='dynamic', back_populates='project'),
+        grants_via={
+            'participant': {'participant', 'project_participant', 'ticket_participant'}
+        },
+    )
+
+    # update.py
+    updates: DynamicMapped[Update] = relationship(
+        lazy='dynamic', back_populates='project'
+    )
+
+    # venue.py
+    venues: Mapped[list[Venue]] = with_roles(
+        relationship(
+            order_by=lambda: Venue.seq,
+            collection_class=ordering_list('seq', count_from=1),
+            back_populates='project',
+        ),
+        read={'all'},
+    )
+
+    @property
+    def rooms(self):
+        return [room for venue in self.venues for room in venue.rooms]
+
     __table_args__ = (
         sa.UniqueConstraint('account_id', 'name'),
         sa.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
@@ -419,8 +524,8 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
                 'short_title',  # From BaseScopedNameMixin
                 'title',  # From BaseScopedNameMixin
                 'urls',  # From UrlForMixin
-                'created_at',  # From TimestampMixin, used for ical render timestamp
-                'updated_at',  # From TimestampMixin, used for ical render timestamp
+                'created_at',  # From TimestampMixin, used for vCal render timestamp
+                'updated_at',  # From TimestampMixin, used for vCal render timestamp
             },
             'call': {
                 'features',  # From RegistryMixin
@@ -463,6 +568,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         state.PUBLISHED,
         lambda project: (
             project.start_at is not None
+            and project.end_at is not None
             and project.start_at <= utcnow() < project.end_at
         ),
         lambda project: sa.and_(
@@ -497,9 +603,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     cfp_state.add_conditional_state(
         'HAS_SESSIONS',
         cfp_state.ANY,
-        lambda project: db.session.query(  # type: ignore[has-type]
-            project.sessions.exists()
-        ).scalar(),
+        lambda project: db.session.query(project.sessions.exists()).scalar(),
         label=('has_sessions', __("Has sessions")),
     )
     cfp_state.add_conditional_state(
@@ -794,6 +898,53 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         """RSVP state as a boolean value (allowed for all or not)."""
         return self.rsvp_state == PROJECT_RSVP_STATE.ALL
 
+    @property
+    def active_rsvps(self) -> Query[Rsvp]:
+        return self.rsvps.join(Account).filter(Rsvp.state.YES, Account.state.ACTIVE)
+
+    @overload
+    def rsvp_for(self, account: Account, create: Literal[True]) -> Rsvp:
+        ...
+
+    @overload
+    def rsvp_for(self, account: Account | None, create: Literal[False]) -> Rsvp | None:
+        ...
+
+    def rsvp_for(self, account: Account | None, create=False) -> Rsvp | None:
+        return Rsvp.get_for(cast(Project, self), account, create)
+
+    def rsvps_with(self, status: str):
+        return (
+            cast(Project, self)
+            .rsvps.join(Account)
+            .filter(
+                Account.state.ACTIVE,
+                Rsvp._state == status,  # pylint: disable=protected-access
+            )
+        )
+
+    def rsvp_counts(self) -> dict[str, int]:
+        return {
+            row[0]: row[1]
+            for row in db.session.query(
+                Rsvp._state,  # pylint: disable=protected-access
+                sa.func.count(Rsvp._state),  # pylint: disable=protected-access
+            )
+            .join(Account)
+            .filter(Account.state.ACTIVE, Rsvp.project == self)
+            .group_by(Rsvp._state)  # pylint: disable=protected-access
+            .all()
+        }
+
+    @cached_property
+    def rsvp_count_going(self) -> int:
+        return (
+            cast(Project, self)
+            .rsvps.join(Account)
+            .filter(Account.state.ACTIVE, Rsvp.state.YES)
+            .count()
+        )
+
     def update_schedule_timestamps(self) -> None:
         """Update cached timestamps from sessions."""
         self.start_at = self.schedule_start_at
@@ -810,6 +961,439 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     def is_safe_to_delete(self) -> bool:
         """Return True if project has no proposals."""
         return self.proposals.count() == 0
+
+    @property
+    def proposals_all(self):
+        if self.subprojects:
+            return Proposal.query.filter(
+                Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
+            )
+        return self.proposals
+
+    @property
+    def proposals_by_state(self):
+        if self.subprojects:
+            basequery = Proposal.query.filter(
+                Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
+            )
+        else:
+            basequery = Proposal.query.filter_by(project=self)
+        return Proposal.state.group(
+            basequery.filter(
+                ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
+            ).order_by(sa.desc('created_at'))
+        )
+
+    @property
+    def proposals_by_confirmation(self):
+        if self.subprojects:
+            basequery = Proposal.query.filter(
+                Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
+            )
+        else:
+            basequery = Proposal.query.filter_by(project=self)
+        return {
+            'confirmed': basequery.filter(Proposal.state.CONFIRMED)
+            .order_by(sa.desc('created_at'))
+            .all(),
+            'unconfirmed': basequery.filter(
+                ~(Proposal.state.CONFIRMED),
+                ~(Proposal.state.DRAFT),
+                ~(Proposal.state.DELETED),
+            )
+            .order_by(sa.desc('created_at'))
+            .all(),
+        }
+
+    if TYPE_CHECKING:
+        _has_featured_proposals: Mapped[bool | None]
+
+    @property
+    def has_featured_proposals(self) -> bool:
+        return bool(self._has_featured_proposals)
+
+    with_roles(has_featured_proposals, read={'all'})
+
+    @with_roles(call={'all'})
+    def is_saved_by(self, account: Account) -> bool:
+        return account is not None and self.saves.filter_by(account=account).notempty()
+
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
+    @cached_property
+    def schedule_start_at_localized(self) -> datetime | None:
+        return (
+            localize_timezone(self.schedule_start_at, tz=self.timezone)
+            if self.schedule_start_at
+            else None
+        )
+
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
+    @cached_property
+    def schedule_end_at_localized(self) -> datetime | None:
+        return (
+            localize_timezone(self.schedule_end_at, tz=self.timezone)
+            if self.schedule_end_at
+            else None
+        )
+
+    @with_roles(read={'all'})
+    @cached_property
+    def session_count(self) -> int:
+        return self.sessions.filter(Session.start_at.is_not(None)).count()
+
+    featured_sessions: Mapped[list[Session]] = with_roles(
+        relationship(
+            order_by=lambda: Session.start_at.asc(),
+            primaryjoin=lambda: sa.and_(
+                Session.project_id == Project.id, Session.featured.is_(True)
+            ),
+            viewonly=True,
+        ),
+        read={'all'},
+    )
+    scheduled_sessions: Mapped[list[Session]] = with_roles(
+        relationship(
+            order_by=lambda: Session.start_at.asc(),
+            primaryjoin=lambda: sa.and_(
+                Session.project_id == Project.id,
+                Session.scheduled,
+            ),
+            viewonly=True,
+        ),
+        read={'all'},
+    )
+    unscheduled_sessions: Mapped[list[Session]] = with_roles(
+        relationship(
+            order_by=lambda: Session.start_at.asc(),
+            primaryjoin=lambda: sa.and_(
+                Session.project_id == Project.id,
+                Session.scheduled.is_not(True),
+            ),
+            viewonly=True,
+        ),
+        read={'all'},
+    )
+
+    sessions_with_video: DynamicMapped[Session] = with_roles(
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                Project.id == Session.project_id,
+                Session.video_id.is_not(None),
+                Session.video_source.is_not(None),
+            ),
+            viewonly=True,
+        ),
+        read={'all'},
+    )
+
+    @with_roles(read={'all'})
+    @cached_property
+    def has_sessions_with_video(self) -> bool:
+        return self.query.session.query(self.sessions_with_video.exists()).scalar()
+
+    def next_session_from(self, timestamp: datetime) -> Session | None:
+        """Find the next session in this project from given timestamp."""
+        return (
+            self.sessions.filter(
+                Session.start_at.is_not(None), Session.start_at >= timestamp
+            )
+            .order_by(Session.start_at.asc())
+            .first()
+        )
+
+    @with_roles(call={'all'})
+    def next_starting_at(self, timestamp: datetime | None = None) -> datetime | None:
+        """
+        Return timestamp of next session from given timestamp.
+
+        Supplements :attr:`next_session_at` to also consider projects without sessions.
+        """
+        # If there's no `self.start_at`, there is no session either
+        if self.start_at is not None:
+            if timestamp is None:
+                timestamp = utcnow()
+            # If `self.start_at` is in the future, it is guaranteed to be the closest
+            # timestamp, so return it directly
+            if self.start_at >= timestamp:
+                return self.start_at
+            # In the past? Then look for a session and return that timestamp, if any
+            return (
+                db.session.query(sa.func.min(Session.start_at))
+                .filter(
+                    Session.start_at.is_not(None),
+                    Session.start_at >= timestamp,
+                    Session.project == self,
+                )
+                .scalar()
+            )
+
+        return None
+
+    @classmethod
+    def starting_at(
+        cls, timestamp: datetime, within: timedelta, gap: timedelta
+    ) -> Query[Self]:
+        """
+        Return projects that are about to start, for sending notifications.
+
+        :param datetime timestamp: The timestamp to look for new sessions at
+        :param timedelta within: Find anything at timestamp + within delta. Lookup will
+            be for sessions where timestamp >= start_at < timestamp+within
+        :param timedelta gap: A project will be considered to be starting if it has no
+            sessions ending within the gap period before the timestamp
+
+        Typical use of this method is from a background worker that calls it at
+        intervals of five minutes with parameters (timestamp, within 5m, 60m gap).
+        """
+        # As a rule, start_at is queried with >= and <, end_at with > and <= because
+        # they represent inclusive lower and upper bounds.
+
+        # Check project starting time before looking for individual sessions, as some
+        # projects will have no sessions
+        return (
+            cls.query.filter(
+                cls.id.in_(
+                    db.session.query(sa.func.distinct(Session.project_id)).filter(
+                        Session.start_at.is_not(None),
+                        Session.start_at >= timestamp,
+                        Session.start_at < timestamp + within,
+                        Session.project_id.notin_(
+                            db.session.query(
+                                sa.func.distinct(Session.project_id)
+                            ).filter(
+                                Session.start_at.is_not(None),
+                                sa.or_(
+                                    sa.and_(
+                                        Session.start_at >= timestamp - gap,
+                                        Session.start_at < timestamp,
+                                    ),
+                                    sa.and_(
+                                        Session.end_at > timestamp - gap,
+                                        Session.end_at <= timestamp,
+                                    ),
+                                ),
+                            )
+                        ),
+                    )
+                )
+            )
+            .join(Session.project)
+            .filter(cls.state.PUBLISHED)
+        ).union(
+            cls.query.filter(
+                cls.state.PUBLISHED,
+                cls.start_at.is_not(None),
+                cls.start_at >= timestamp,
+                cls.start_at < timestamp + within,
+            )
+        )
+
+    @with_roles(call={'all'})
+    def current_sessions(self) -> dict | None:
+        if self.start_at is None or (self.start_at > utcnow() + timedelta(minutes=30)):
+            return None
+
+        current_sessions = (
+            self.sessions.outerjoin(VenueRoom)
+            .filter(Session.start_at <= sa.func.utcnow() + timedelta(minutes=30))
+            .filter(Session.end_at > sa.func.utcnow())
+            .order_by(Session.start_at.asc(), VenueRoom.seq.asc())
+        )
+
+        return {
+            'sessions': [
+                session.current_access(datasets=('without_parent', 'related'))
+                for session in current_sessions
+            ],
+            'rooms': [
+                room.current_access(datasets=('without_parent', 'related'))
+                for room in self.rooms
+            ],
+        }
+
+    # TODO: Use TypedDict for return type
+    def calendar_weeks(self, leading_weeks: bool = True) -> dict[str, Any]:
+        # session_dates is a list of tuples in this format -
+        # (date, day_start_at, day_end_at, event_count)
+        if self.schedule_start_at:
+            session_dates = list(
+                db.session.query(
+                    sa.func.date_trunc(
+                        'day', sa.func.timezone(self.timezone.zone, Session.start_at)
+                    ).label('date'),
+                    sa.func.min(Session.start_at).label('day_start_at'),
+                    sa.func.max(Session.end_at).label('day_end_at'),
+                    sa.func.count().label('count'),
+                )
+                .select_from(Session)
+                .filter(
+                    Session.project == self,
+                    Session.start_at.is_not(None),
+                    Session.end_at.is_not(None),
+                )
+                .group_by('date')
+                .order_by('date')
+            )
+        elif self.start_at:
+            start_at = cast(datetime, self.start_at_localized)
+            end_at = cast(datetime, self.end_at_localized)
+            if start_at.date() == end_at.date():
+                session_dates = [(start_at, start_at, end_at, 1)]
+            else:
+                session_dates = [
+                    (
+                        start_at + timedelta(days=plusdays),
+                        start_at + timedelta(days=plusdays),
+                        end_at - timedelta(days=plusdays),
+                        1,
+                    )
+                    for plusdays in range(
+                        (
+                            end_at.replace(hour=1, minute=0, second=0, microsecond=0)
+                            - start_at.replace(
+                                hour=0, minute=0, second=0, microsecond=0
+                            )
+                        ).days
+                        + 1
+                    )
+                ]
+        else:
+            session_dates = []
+
+        session_dates_dict = {
+            date.date(): {
+                'day_start_at': day_start_at,
+                'day_end_at': day_end_at,
+                'count': count,
+            }
+            for date, day_start_at, day_end_at, count in session_dates
+        }
+
+        # FIXME: This doesn't work. This code needs to be tested in isolation
+        # session_dates = (
+        #     db.session.query(
+        #         sa.cast(
+        #             sa.func.date_trunc(
+        #                 'day', sa.func.timezone(self.timezone.zone, Session.start_at)
+        #             ),
+        #             sa.Date,
+        #         ).label('date'),
+        #         sa.func.count().label('count'),
+        #     )
+        #     .filter(Session.project == self, Session.scheduled)
+        #     .group_by(sa.text('date'))
+        #     .order_by(sa.text('date'))
+        # )
+
+        # if the project's week is within next 2 weeks, send current week as well
+        now = utcnow().astimezone(self.timezone)
+        current_week = Week.withdate(now)
+
+        if leading_weeks and self.schedule_start_at is not None:
+            schedule_start_week = Week.withdate(self.schedule_start_at)
+
+            # session_dates is a list of tuples in this format -
+            # (date, day_start_at, day_end_at, event_count)
+            # as these days dont have any event, day_start/end_at are None,
+            # and count is 0.
+            if (
+                schedule_start_week > current_week
+                and (schedule_start_week - current_week) <= 2
+            ):
+                if (schedule_start_week - current_week) == 2:
+                    # add this so that the next week's dates
+                    # are also included in the calendar.
+                    session_dates.insert(0, (now + timedelta(days=7), None, None, 0))
+                session_dates.insert(0, (now, None, None, 0))
+
+        weeks: dict[str, dict[str, Any]] = defaultdict(dict)
+        today = now.date()
+        for project_date, _day_start_at, _day_end_at, session_count in session_dates:
+            weekobj = Week.withdate(project_date)
+            weekid = weekobj.isoformat()
+            if weekid not in weeks:
+                weeks[weekid]['year'] = weekobj.year
+                # Order is important, and we need dict to count easily
+                weeks[weekid]['dates'] = OrderedDict()
+            for wdate in weekobj.days():
+                weeks[weekid]['dates'].setdefault(wdate, 0)
+                if project_date.date() == wdate:
+                    # If the event is over don't set upcoming for current week
+                    if wdate >= today and weekobj >= current_week and session_count > 0:
+                        weeks[weekid]['upcoming'] = True
+                    weeks[weekid]['dates'][wdate] += session_count
+                    if 'month' not in weeks[weekid]:
+                        weeks[weekid]['month'] = format_date(wdate, 'MMM')
+        # Extract sorted weeks as a list
+        weeks_list = [v for k, v in sorted(weeks.items())]
+
+        for week in weeks_list:
+            # Converting to JSON messes up dictionary key order even though we used
+            # OrderedDict. This turns the OrderedDict into a list of tuples and JSON
+            # preserves that order.
+            week['dates'] = [
+                {
+                    'isoformat': date.isoformat(),
+                    'day': format_date(date, 'd'),
+                    'count': count,
+                    'day_start_at': (
+                        session_dates_dict[date]['day_start_at']
+                        .astimezone(self.timezone)
+                        .strftime('%I:%M %p')
+                        if date in session_dates_dict.keys()
+                        else None
+                    ),
+                    'day_end_at': (
+                        session_dates_dict[date]['day_end_at']
+                        .astimezone(self.timezone)
+                        .strftime('%I:%M %p %Z')
+                        if date in session_dates_dict.keys()
+                        else None
+                    ),
+                }
+                for date, count in week['dates'].items()
+            ]
+        return {
+            'locale': get_locale(),
+            'weeks': weeks_list,
+            'today': now.date().isoformat(),
+            'days': [format_date(day, 'EEE') for day in Week.thisweek().days()],
+        }
+
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
+    @cached_property
+    def calendar_weeks_full(self) -> dict[str, Any]:  # TODO: Use TypedDict
+        return self.calendar_weeks(leading_weeks=True)
+
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
+    @cached_property
+    def calendar_weeks_compact(self) -> dict[str, Any]:  # TODO: Use TypedDict
+        return self.calendar_weeks(leading_weeks=False)
+
+    @property
+    def published_updates(self) -> Query[Update]:
+        return self.updates.filter(Update.state.PUBLISHED).order_by(
+            Update.is_pinned.desc(), Update.published_at.desc()
+        )
+
+    with_roles(published_updates, read={'all'})
+
+    @property
+    def draft_updates(self) -> Query[Update]:
+        return self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
+
+    with_roles(draft_updates, read={'editor'})
+
+    @property
+    def pinned_update(self) -> Update | None:
+        return (
+            self.updates.filter(Update.state.PUBLISHED, Update.is_pinned.is_(True))
+            .order_by(Update.published_at.desc())
+            .first()
+        )
+
+    with_roles(pinned_update, read={'all'})
 
     @classmethod
     def order_by_date(cls) -> sa.Case:
@@ -974,5 +1558,85 @@ class ProjectLocation(TimestampMixin, Model):
 
 
 # Tail imports
+from .label import Label
 from .project_membership import ProjectMembership
-from .venue import Venue
+from .proposal import Proposal
+from .rsvp import Rsvp
+from .session import Session
+from .sponsor_membership import ProjectSponsorMembership
+from .update import Update
+from .venue import Venue, VenueRoom
+
+if TYPE_CHECKING:
+    from .saved import SavedProject
+    from .sync_ticket import TicketClient, TicketEvent, TicketParticipant, TicketType
+
+
+# Whether the project has any featured proposals. Returns `None` instead of
+# a boolean if the project does not have any proposal.
+# pylint: disable=protected-access
+Project._has_featured_proposals = sa_orm.column_property(
+    sa.exists()
+    .where(Proposal.project_id == Project.id)
+    .where(Proposal.featured.is_(True))
+    .correlate_except(Proposal),
+    deferred=True,
+)
+# pylint: enable=protected-access
+
+
+# Project schedule column expressions. Guide:
+# https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
+Project.schedule_start_at = with_roles(
+    sa_orm.column_property(
+        sa.select(sa.func.min(Session.start_at))
+        .where(Session.start_at.is_not(None))
+        .where(Session.project_id == Project.id)
+        .correlate_except(Session)
+        .scalar_subquery()
+    ),
+    read={'all'},
+    datasets={'primary', 'without_parent'},
+)
+
+Project.next_session_at = with_roles(
+    sa_orm.column_property(
+        sa.select(sa.func.min(sa.column('start_at')))
+        .select_from(
+            sa.select(sa.func.min(Session.start_at).label('start_at'))
+            .where(Session.start_at.is_not(None))
+            .where(Session.start_at >= sa.func.utcnow())
+            .where(Session.project_id == Project.id)
+            .correlate_except(Session)  # type: ignore[arg-type]
+            .union(
+                sa.select(Project.start_at.label('start_at'))  # type: ignore[has-type]
+                .where(Project.start_at.is_not(None))  # type: ignore[has-type]
+                .where(Project.start_at >= sa.func.utcnow())  # type: ignore[has-type]
+                .correlate(Project)
+            )
+            .subquery()
+        )
+        .scalar_subquery()
+    ),
+    read={'all'},
+)
+
+Project.schedule_end_at = with_roles(
+    sa_orm.column_property(
+        sa.select(sa.func.max(Session.end_at))
+        .where(Session.end_at.is_not(None))
+        .where(Session.project_id == Project.id)
+        .correlate_except(Session)
+        .scalar_subquery()
+    ),
+    read={'all'},
+    datasets={'primary', 'without_parent'},
+)
+
+with_roles(
+    Project.active_rsvps,
+    # This has to use a column reference because 'active_rsvps' has a join on Account
+    # and SQLAlchemy will interpret filter_by params to refer to attributes on the last
+    # joined model, not the first
+    grants_via={Rsvp.participant: {'participant', 'project_participant'}},
+)

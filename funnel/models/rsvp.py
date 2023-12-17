@@ -2,29 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Literal, cast, overload
+from typing import Literal, Self, overload
 
 from flask import current_app
-from werkzeug.utils import cached_property
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import (
-    Mapped,
-    Model,
-    NoIdMixin,
-    UuidMixin,
-    backref,
-    db,
-    relationship,
-    sa,
-    sa_orm,
-    types,
-)
+from . import Mapped, Model, NoIdMixin, UuidMixin, db, relationship, sa, sa_orm, types
 from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
-from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
 
@@ -46,7 +33,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=backref('rsvps', lazy='dynamic')),
+        relationship(back_populates='rsvps'),
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
         datasets={'primary'},
@@ -55,7 +42,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
     participant: Mapped[Account] = with_roles(
-        relationship(Account, backref=backref('rsvps', lazy='dynamic')),
+        relationship(back_populates='rsvps'),
         read={'owner', 'project_promoter'},
         grants={'owner'},
         datasets={'primary', 'without_parent'},
@@ -170,27 +157,27 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
 
     @overload
     @classmethod
-    def get_for(cls, project: Project, user: Account, create: Literal[True]) -> Rsvp:
+    def get_for(cls, project: Project, account: Account, create: Literal[True]) -> Self:
         ...
 
     @overload
     @classmethod
     def get_for(
         cls, project: Project, account: Account, create: Literal[False]
-    ) -> Rsvp | None:
+    ) -> Self | None:
         ...
 
     @overload
     @classmethod
     def get_for(
-        cls, project: Project, account: Account | None, create=False
-    ) -> Rsvp | None:
+        cls, project: Project, account: Account | None, create: bool = False
+    ) -> Self | None:
         ...
 
     @classmethod
     def get_for(
-        cls, project: Project, account: Account | None, create=False
-    ) -> Rsvp | None:
+        cls, project: Project, account: Account | None, create: bool = False
+    ) -> Self | None:
         if account is not None:
             result = cls.query.get((project.id, account.id))
             if not result and create:
@@ -198,57 +185,3 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
                 db.session.add(result)
             return result
         return None
-
-
-@reopen(Project)
-class __Project:
-    @property
-    def active_rsvps(self):
-        return self.rsvps.join(Account).filter(Rsvp.state.YES, Account.state.ACTIVE)
-
-    with_roles(
-        active_rsvps,
-        grants_via={Rsvp.participant: {'participant', 'project_participant'}},
-    )
-
-    @overload
-    def rsvp_for(self, account: Account, create: Literal[True]) -> Rsvp:
-        ...
-
-    @overload
-    def rsvp_for(self, account: Account | None, create: Literal[False]) -> Rsvp | None:
-        ...
-
-    def rsvp_for(self, account: Account | None, create=False) -> Rsvp | None:
-        return Rsvp.get_for(cast(Project, self), account, create)
-
-    def rsvps_with(self, status: str):
-        return (
-            cast(Project, self)
-            .rsvps.join(Account)
-            .filter(
-                Account.state.ACTIVE,
-                Rsvp._state == status,  # pylint: disable=protected-access
-            )
-        )
-
-    def rsvp_counts(self) -> dict[str, int]:
-        return dict(
-            db.session.query(
-                Rsvp._state,  # pylint: disable=protected-access
-                sa.func.count(Rsvp._state),  # pylint: disable=protected-access
-            )
-            .join(Account)
-            .filter(Account.state.ACTIVE, Rsvp.project == self)
-            .group_by(Rsvp._state)  # pylint: disable=protected-access
-            .all()
-        )
-
-    @cached_property
-    def rsvp_count_going(self) -> int:
-        return (
-            cast(Project, self)
-            .rsvps.join(Account)
-            .filter(Account.state.ACTIVE, Rsvp.state.YES)
-            .count()
-        )

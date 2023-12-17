@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 
 from coaster.sqlalchemy import with_roles
@@ -16,10 +18,8 @@ from . import (
     sa,
     sa_orm,
 )
-from .helpers import add_search_trigger, reopen, visual_field_delimiter
-from .project import Project
+from .helpers import add_search_trigger, visual_field_delimiter
 from .project_membership import project_child_role_map
-from .proposal import Proposal
 
 proposal_label = sa.Table(
     'proposal_label',
@@ -51,7 +51,7 @@ class Label(BaseScopedNameMixin, Model):
     )
     # Backref from project is defined in the Project model with an ordering list
     project: Mapped[Project] = with_roles(
-        relationship(Project), grants_via={None: project_child_role_map}
+        relationship(), grants_via={None: project_child_role_map}
     )
     # `parent` is required for
     # :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
@@ -131,7 +131,7 @@ class Label(BaseScopedNameMixin, Model):
 
     #: Proposals that this label is attached to
     proposals: Mapped[list[Proposal]] = relationship(
-        Proposal, secondary=proposal_label, back_populates='labels'
+        secondary=proposal_label, back_populates='labels'
     )
 
     __table_args__ = (
@@ -397,31 +397,7 @@ class ProposalLabelProxy:
         return self
 
 
-@reopen(Project)
-class __Project:
-    labels: Mapped[list[Label]] = relationship(
-        Label,
-        primaryjoin=sa.and_(
-            Label.project_id == Project.id,
-            Label.main_label_id.is_(None),
-            Label._archived.is_(False),  # pylint: disable=protected-access
-        ),
-        order_by=Label.seq,
-        viewonly=True,
-    )
-    all_labels: Mapped[list[Label]] = relationship(
-        Label,
-        collection_class=ordering_list('seq', count_from=1),
-        back_populates='project',
-    )
-
-
-@reopen(Proposal)
-class __Proposal:
-    #: For reading and setting labels from the edit form
-    formlabels = ProposalLabelProxy()
-
-    labels: Mapped[list[Label]] = with_roles(
-        relationship(Label, secondary=proposal_label, back_populates='proposals'),
-        read={'all'},
-    )
+# Tail imports
+if TYPE_CHECKING:
+    from .project import Project
+    from .proposal import Proposal

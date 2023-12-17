@@ -7,9 +7,8 @@ from datetime import datetime
 
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
-from . import Mapped, Model, NoIdMixin, backref, db, relationship, sa, sa_orm
+from . import Mapped, Model, NoIdMixin, db, relationship, sa, sa_orm
 from .account import Account
-from .helpers import reopen
 from .project import Project
 from .session import Session
 
@@ -23,7 +22,9 @@ class SavedProject(NoIdMixin, Model):
         nullable=False,
         primary_key=True,
     )
-    account: Mapped[Account] = relationship(back_populates='saved_projects')
+    account: Mapped[Account] = with_roles(
+        relationship(back_populates='saved_projects'), grants={'owner'}
+    )
     #: Project that was saved
     project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer,
@@ -32,10 +33,7 @@ class SavedProject(NoIdMixin, Model):
         primary_key=True,
         index=True,
     )
-    project: Mapped[Project] = relationship(
-        Project,
-        backref=backref('saved_by', lazy='dynamic', passive_deletes=True),
-    )
+    project: Mapped[Project] = relationship(back_populates='saves')
     #: Timestamp when the save happened
     saved_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
@@ -44,14 +42,6 @@ class SavedProject(NoIdMixin, Model):
     description: Mapped[str | None] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=True
     )
-
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        if actor is not None and actor == self.account:
-            roles.add('owner')
-        return roles
 
     @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
@@ -82,10 +72,7 @@ class SavedSession(NoIdMixin, Model):
         primary_key=True,
         index=True,
     )
-    session: Mapped[Session] = relationship(
-        Session,
-        backref=backref('saved_by', lazy='dynamic', passive_deletes=True),
-    )
+    session: Mapped[Session] = relationship(back_populates='saves')
     #: Timestamp when the save happened
     saved_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
@@ -114,12 +101,3 @@ class SavedSession(NoIdMixin, Model):
                 # TODO: `if ss.description`, don't discard, but add it to existing's
                 # description
                 db.session.delete(ss)
-
-
-@reopen(Project)
-class __Project:
-    @with_roles(call={'all'})
-    def is_saved_by(self, account: Account) -> bool:
-        return (
-            account is not None and self.saved_by.filter_by(account=account).notempty()
-        )

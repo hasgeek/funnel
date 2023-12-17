@@ -6,8 +6,6 @@ from collections.abc import Sequence
 from datetime import datetime
 from typing import Self
 
-from sqlalchemy.orm import Query as BaseQuery
-
 from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, StateManager, auto_init_default, with_roles
 from coaster.utils import LabeledEnum
@@ -19,7 +17,6 @@ from . import (
     Query,
     TSVectorType,
     UuidMixin,
-    backref,
     db,
     relationship,
     sa,
@@ -30,7 +27,6 @@ from .comment import SET_TYPE, Commentset
 from .helpers import (
     MarkdownCompositeDocument,
     add_search_trigger,
-    reopen,
     visual_field_delimiter,
 )
 from .project import Project
@@ -79,8 +75,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
     )
     created_by: Mapped[Account] = with_roles(
         relationship(
-            Account,
-            backref=backref('updates_created', lazy='dynamic'),
+            back_populates='created_updates',
             foreign_keys=[created_by_id],
         ),
         read={'all'},
@@ -91,7 +86,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, index=True
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=backref('updates', lazy='dynamic')),
+        relationship(back_populates='updates'),
         read={'all'},
         datasets={'primary'},
         grants_via={
@@ -113,7 +108,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
     # redefined in a subclass
     _project_when_unrestricted: Mapped[Project] = with_roles(
         relationship(
-            Project,
             viewonly=True,
             uselist=False,
             primaryjoin=sa.and_(
@@ -143,8 +137,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
     )
     published_by: Mapped[Account | None] = with_roles(
         relationship(
-            Account,
-            backref=backref('published_updates', lazy='dynamic'),
+            back_populates='published_updates',
             foreign_keys=[published_by_id],
         ),
         read={'all'},
@@ -157,11 +150,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         sa.ForeignKey('account.id'), nullable=True, index=True
     )
     deleted_by: Mapped[Account | None] = with_roles(
-        relationship(
-            Account,
-            backref=backref('deleted_updates', lazy='dynamic'),
-            foreign_keys=[deleted_by_id],
-        ),
+        relationship(back_populates='deleted_updates', foreign_keys=[deleted_by_id]),
         read={'reader'},
     )
     deleted_at: Mapped[datetime | None] = with_roles(
@@ -178,11 +167,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
     )
     commentset: Mapped[Commentset] = with_roles(
         relationship(
-            Commentset,
-            uselist=False,
-            lazy='joined',
-            single_parent=True,
-            back_populates='update',
+            uselist=False, lazy='joined', single_parent=True, back_populates='update'
         ),
         read={'all'},
     )
@@ -405,32 +390,3 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
 add_search_trigger(Update, 'search_vector')
 auto_init_default(Update._visibility_state)  # pylint: disable=protected-access
 auto_init_default(Update._state)  # pylint: disable=protected-access
-
-
-@reopen(Project)
-class __Project:
-    updates: BaseQuery
-
-    @property
-    def published_updates(self) -> BaseQuery:
-        return self.updates.filter(Update.state.PUBLISHED).order_by(
-            Update.is_pinned.desc(), Update.published_at.desc()
-        )
-
-    with_roles(published_updates, read={'all'})
-
-    @property
-    def draft_updates(self) -> BaseQuery:
-        return self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
-
-    with_roles(draft_updates, read={'editor'})
-
-    @property
-    def pinned_update(self) -> Update | None:
-        return (
-            self.updates.filter(Update.state.PUBLISHED, Update.is_pinned.is_(True))
-            .order_by(Update.published_at.desc())
-            .first()
-        )
-
-    with_roles(pinned_update, read={'all'})

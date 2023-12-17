@@ -8,11 +8,12 @@ import warnings
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Any, ClassVar, TypeVar, cast, get_type_hints
+from typing import Any, ClassVar, TypeVar, get_type_hints
 
 from better_profanity import profanity
 from furl import furl
 from markupsafe import Markup, escape as html_escape
+from sqlalchemy import event as sa_event
 from sqlalchemy.dialects.postgresql import TSQUERY
 from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
@@ -142,7 +143,7 @@ class PasswordCheckType:
         (guesses < 10^3)
     * 1: very guessable: protection from throttled online attacks
         (guesses < 10^6)
-    * 2: somewhat guessable: protection from unthrottled online attacks
+    * 2: somewhat guessable: protection from un-throttled online attacks
         (guesses < 10^8)
     * 3: safely unguessable: moderate protection from offline slow-hash scenario
         (guesses < 10^10)
@@ -198,6 +199,7 @@ with open(
     profanity.add_censor_words([_w.strip() for _w in badwordfile.readlines()])
 
 
+# Used as a delimiter in search results when showing a preview from multiple fields
 visual_field_delimiter = ' ¦ '
 
 
@@ -402,14 +404,11 @@ def quote_autocomplete_like(prefix: str, midway: bool = False) -> str:
     return lstrip_like_query
 
 
-def quote_autocomplete_tsquery(prefix: str) -> TSQUERY:
+def quote_autocomplete_tsquery(prefix: str) -> sa.Cast[str]:
     """Return a PostgreSQL tsquery suitable for autocomplete-type matches."""
-    return cast(
+    return sa.cast(
+        sa.func.concat(sa.func.phraseto_tsquery('simple', prefix or ''), ':*'),
         TSQUERY,
-        sa.func.cast(
-            sa.func.concat(sa.func.phraseto_tsquery('simple', prefix or ''), ':*'),
-            TSQUERY,
-        ),
     )
 
 
@@ -512,13 +511,13 @@ def add_search_trigger(model: type[Model], column_name: str) -> dict[str, str]:
         '''
     )
 
-    sa.event.listen(
+    sa_event.listen(
         model.__table__,
         'after_create',
         sa.DDL(trigger_function).execute_if(dialect='postgresql'),
     )
 
-    sa.event.listen(
+    sa_event.listen(
         model.__table__,
         'before_drop',
         sa.DDL(drop_statement).execute_if(dialect='postgresql'),

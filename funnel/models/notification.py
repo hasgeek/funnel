@@ -368,7 +368,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
     #: notifications of their own activity
-    created_by: Mapped[Account | None] = relationship(Account)
+    created_by: Mapped[Account | None] = relationship()
 
     #: UUID of document that the notification refers to
     document_uuid: Mapped[UUID] = immutable(
@@ -811,9 +811,9 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
         )
     )
 
-    #: User being notified (backref defined below, outside the model)
+    #: User being notified
     recipient: Mapped[Account] = with_roles(
-        relationship(Account), read={'owner'}, grants={'owner'}
+        relationship(), read={'owner'}, grants={'owner'}
     )
 
     #: Random eventid, shared with the Notification instance
@@ -1261,7 +1261,7 @@ class NotificationPreferences(BaseMixin, Model):
     )
     #: User account whose preferences are represented here
     account: Mapped[Account] = with_roles(
-        relationship(Account, back_populates='notification_preferences'),
+        relationship(back_populates='notification_preferences'),
         read={'owner'},
         grants={'owner'},
     )

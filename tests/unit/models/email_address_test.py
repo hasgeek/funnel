@@ -427,7 +427,7 @@ def email_models(database, app) -> Generator:
         emailuser_id: Mapped[int] = sa_orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=False
         )
-        emailuser = relationship(EmailUser)
+        emailuser: Mapped[EmailUser] = relationship()
 
     class EmailDocument(
         models.OptionalEmailAddressMixin, models.BaseMixin, models.Model
@@ -447,7 +447,7 @@ def email_models(database, app) -> Generator:
         emailuser_id: Mapped[int | None] = sa_orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=True
         )
-        emailuser: Mapped[EmailUser | None] = relationship(EmailUser)
+        emailuser: Mapped[EmailUser | None] = relationship()
 
     new_models = [EmailUser, EmailLink, EmailDocument, EmailLinkedDocument]
 

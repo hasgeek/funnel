@@ -378,7 +378,7 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
     account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
-    account: Mapped[Account] = relationship(Account, foreign_keys=[account_id])
+    account: Mapped[Account] = relationship(foreign_keys=[account_id])
     auth_client_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
@@ -386,7 +386,7 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
     login_session_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('login_session.id'), nullable=True
     )
-    login_session: Mapped[LoginSession | None] = relationship(LoginSession)
+    login_session: Mapped[LoginSession | None] = relationship()
     code: Mapped[str] = sa_orm.mapped_column(
         sa.String(44), default=newsecret, nullable=False
     )
@@ -427,7 +427,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         sa.Integer, sa.ForeignKey('login_session.id'), nullable=True
     )
     login_session: Mapped[LoginSession | None] = with_roles(
-        relationship(LoginSession, back_populates='authtokens'),
+        relationship(back_populates='authtokens'),
         read={'owner'},
     )
     #: The client this auth token is for
@@ -724,9 +724,7 @@ class AuthClientTeamPermissions(BaseMixin, Model):
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
     auth_client: Mapped[AuthClient] = with_roles(
-        relationship(
-            back_populates='team_permissions',
-        ),
+        relationship(back_populates='team_permissions'),
         grants_via={None: {'owner'}},
     )
     #: The permissions as a string of tokens

@@ -5,7 +5,7 @@ from __future__ import annotations
 import base64
 import os
 from collections.abc import Iterable, Sequence
-from typing import Any
+from typing import Any, Self
 
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
@@ -16,7 +16,6 @@ from . import (
     Mapped,
     Model,
     UuidMixin,
-    backref,
     db,
     relationship,
     sa,
@@ -24,7 +23,6 @@ from . import (
 )
 from .account import Account, AccountEmail
 from .email_address import EmailAddress, OptionalEmailAddressMixin
-from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
 
@@ -75,7 +73,7 @@ class GetTitleMixin(BaseScopedNameMixin):
     @classmethod
     def get(
         cls, parent: Any, name: str | None = None, title: str | None = None
-    ) -> GetTitleMixin | None:
+    ) -> Self | None:
         if not bool(name) ^ bool(title):
             raise TypeError("Expects name xor title")
         if name:
@@ -89,7 +87,7 @@ class GetTitleMixin(BaseScopedNameMixin):
         current_name: str | None = None,
         current_title: str | None = None,
         **fields,
-    ) -> GetTitleMixin:
+    ) -> Self:
         instance = cls.get(parent, current_name, current_title)
         if instance is not None:
             instance._set_fields(fields)  # pylint: disable=protected-access
@@ -117,30 +115,31 @@ class TicketEvent(GetTitleMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=backref('ticket_events')),
+        relationship(back_populates='ticket_events'),
         rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
     parent: Mapped[Project] = sa_orm.synonym('project')
     ticket_types: Mapped[list[TicketType]] = with_roles(
         relationship(
-            'TicketType',
-            secondary=ticket_event_ticket_type,
-            back_populates='ticket_events',
+            secondary=ticket_event_ticket_type, back_populates='ticket_events'
         ),
         rw={'project_promoter'},
     )
     ticket_participants: DynamicMapped[TicketParticipant] = with_roles(
         relationship(
-            'TicketParticipant',
             secondary='ticket_event_participant',
-            backref='ticket_events',
             lazy='dynamic',
+            back_populates='ticket_events',
         ),
         rw={'project_promoter'},
     )
     badge_template: Mapped[str | None] = with_roles(
         sa_orm.mapped_column(sa.Unicode(250), nullable=True), rw={'project_promoter'}
+    )
+
+    ticket_event_participants: Mapped[list[TicketEventParticipant]] = relationship(
+        back_populates='ticket_event', overlaps='ticket_events,ticket_participants'
     )
 
     __table_args__ = (
@@ -175,19 +174,17 @@ class TicketType(GetTitleMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=backref('ticket_types')),
+        relationship(back_populates='ticket_types'),
         rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
     parent: Mapped[Project] = sa_orm.synonym('project')
     ticket_events: Mapped[list[TicketEvent]] = with_roles(
-        relationship(
-            TicketEvent,
-            secondary=ticket_event_ticket_type,
-            back_populates='ticket_types',
-        ),
+        relationship(secondary=ticket_event_ticket_type, back_populates='ticket_types'),
         rw={'project_promoter'},
     )
+
+    sync_tickets: Mapped[list[SyncTicket]] = relationship(back_populates='ticket_type')
 
     __table_args__ = (
         sa.UniqueConstraint('project_id', 'name'),
@@ -254,7 +251,7 @@ class TicketParticipant(OptionalEmailAddressMixin, UuidMixin, BaseMixin, Model):
         sa.ForeignKey('account.id'), nullable=True
     )
     participant: Mapped[Account | None] = relationship(
-        Account, backref=backref('ticket_participants')
+        back_populates='ticket_participants'
     )
     project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
@@ -267,6 +264,17 @@ class TicketParticipant(OptionalEmailAddressMixin, UuidMixin, BaseMixin, Model):
 
     scanned_contacts: Mapped[ContactExchange] = relationship(
         passive_deletes=True, back_populates='ticket_participant'
+    )
+
+    ticket_events: Mapped[list[TicketEvent]] = relationship(
+        secondary='ticket_event_participant', back_populates='ticket_participants'
+    )
+    ticket_event_participants: Mapped[list[TicketEventParticipant]] = relationship(
+        overlaps='ticket_events,ticket_participants',
+        back_populates='ticket_participant',
+    )
+    sync_tickets: Mapped[list[SyncTicket]] = relationship(
+        back_populates='ticket_participant'
     )
 
     __table_args__ = (sa.UniqueConstraint('project_id', 'email_address_id'),)
@@ -404,22 +412,14 @@ class TicketEventParticipant(BaseMixin, Model):
         sa.Integer, sa.ForeignKey('ticket_participant.id'), nullable=False
     )
     ticket_participant: Mapped[TicketParticipant] = relationship(
-        TicketParticipant,
-        backref=backref(
-            'ticket_event_participants',
-            overlaps='ticket_events,ticket_participants',
-        ),
+        back_populates='ticket_event_participants',
         overlaps='ticket_events,ticket_participants',
     )
     ticket_event_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_event.id'), nullable=False
     )
     ticket_event: Mapped[TicketEvent] = relationship(
-        TicketEvent,
-        backref=backref(
-            'ticket_event_participants',
-            overlaps='ticket_events,ticket_participants',
-        ),
+        back_populates='ticket_event_participants',
         overlaps='ticket_events,ticket_participants',
     )
     checked_in: Mapped[bool] = sa_orm.mapped_column(
@@ -471,9 +471,13 @@ class TicketClient(BaseMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=backref('ticket_clients')),
+        relationship(back_populates='ticket_clients'),
         rw={'project_promoter'},
         grants_via={None: project_child_role_map},
+    )
+
+    sync_tickets: Mapped[list[SyncTicket]] = relationship(
+        back_populates='ticket_client'
     )
 
     __roles__ = {'all': {'call': {'url_for'}}}
@@ -529,22 +533,17 @@ class SyncTicket(BaseMixin, Model):
     ticket_type_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_type.id'), nullable=False
     )
-    ticket_type: Mapped[TicketType] = relationship(
-        TicketType, backref=backref('sync_tickets')
-    )
+    ticket_type: Mapped[TicketType] = relationship(back_populates='sync_tickets')
     ticket_participant_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_participant.id'), nullable=False
     )
     ticket_participant: Mapped[TicketParticipant] = relationship(
-        TicketParticipant,
-        backref=backref('sync_tickets'),
+        back_populates='sync_tickets'
     )
     ticket_client_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('ticket_client.id'), nullable=False
     )
-    ticket_client: Mapped[TicketClient] = relationship(
-        TicketClient, backref=backref('sync_tickets')
-    )
+    ticket_client: Mapped[TicketClient] = relationship(back_populates='sync_tickets')
     __table_args__ = (sa.UniqueConstraint('ticket_client_id', 'order_no', 'ticket_no'),)
 
     @classmethod
@@ -582,25 +581,6 @@ class SyncTicket(BaseMixin, Model):
             db.session.add(ticket)
 
         return ticket
-
-
-@reopen(Project)
-class __Project:
-    # XXX: This relationship exposes an edge case in RoleMixin. It previously expected
-    # TicketParticipant.participant to be unique per project, meaning one user could
-    # have one participant ticket only. This is not guaranteed by the model as tickets
-    # are unique per email address per ticket type, and one user can have (a) two email
-    # addresses with tickets, or (b) tickets of different types. RoleMixin has since
-    # been patched to look for the first matching record (.first() instead of .one()).
-    # This may expose a new edge case in future in case the TicketParticipant model adds
-    # an `offered_roles` method, as only the first matching record's method will be
-    # called
-    ticket_participants: DynamicMapped[TicketParticipant] = with_roles(
-        relationship(TicketParticipant, lazy='dynamic', back_populates='project'),
-        grants_via={
-            'participant': {'participant', 'project_participant', 'ticket_participant'}
-        },
-    )
 
 
 # Tail imports

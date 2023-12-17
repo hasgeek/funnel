@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import unicodedata
+import warnings
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, cast, overload
 
@@ -15,7 +16,13 @@ from sqlalchemy import event, inspect
 from sqlalchemy.orm import NO_VALUE, Mapper
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import StateManager, auto_init_default, immutable, with_roles
+from coaster.sqlalchemy import (
+    ModelWarning,
+    StateManager,
+    auto_init_default,
+    immutable,
+    with_roles,
+)
 from coaster.utils import LabeledEnum, require_one_of
 
 from ..signals import emailaddress_refcount_dropping
@@ -178,7 +185,7 @@ class EmailAddress(BaseMixin, Model):
     6. Upcoming: column-level encryption of the email column, securing SQL dumps.
 
     New email addresses must be added using the :meth:`add` or :meth:`add_for`
-    classmethods, depending on whether the email address is linked to an owner or not.
+    class methods, depending on whether the email address is linked to an owner or not.
     """
 
     __tablename__ = 'email_address'
@@ -204,7 +211,7 @@ class EmailAddress(BaseMixin, Model):
     #: BLAKE2b 160-bit hash of :property:`email_normalized`. Kept permanently even if
     #: email is removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite
     #: the name, we're only storing 20 bytes
-    blake2b160 = immutable(
+    blake2b160: Mapped[bytes] = immutable(
         sa_orm.mapped_column(
             sa.LargeBinary,
             sa.CheckConstraint(
@@ -219,7 +226,7 @@ class EmailAddress(BaseMixin, Model):
     #: BLAKE2b 160-bit hash of :property:`email_canonical`. Kept permanently for blocked
     #: email detection. Indexed but does not use a unique constraint because a+b@tld and
     #: a+c@tld are both a@tld canonically but can exist in records separately.
-    blake2b160_canonical = immutable(
+    blake2b160_canonical: Mapped[bytes] = immutable(
         sa_orm.mapped_column(sa.LargeBinary, nullable=False, index=True)
     )
 
@@ -292,6 +299,11 @@ class EmailAddress(BaseMixin, Model):
             'email_address_email_domain_check',
         ),
     )
+
+    if TYPE_CHECKING:
+        used_in_account_email: Mapped[list[AccountEmail]] = relationship()
+        used_in_account_email_claim: Mapped[list[AccountEmailClaim]] = relationship()
+        used_in_ticket_participant: Mapped[list[TicketParticipant]] = relationship()
 
     @hybrid_property
     def is_blocked(self) -> bool:
@@ -744,7 +756,8 @@ class OptionalEmailAddressMixin:
         EmailAddress.__backrefs__.add(backref_name)
         if cls.__email_for__ and cls.__email_is_exclusive__:
             EmailAddress.__exclusive_backrefs__.add(backref_name)
-        return relationship(EmailAddress, backref=backref_name)
+        with warnings.catch_warnings(action='ignore', category=ModelWarning):
+            return relationship(EmailAddress, backref=backref_name)
 
     @property
     def email(self) -> str | None:
@@ -930,4 +943,5 @@ def _email_address_mixin_configure_events(
 
 
 if TYPE_CHECKING:
-    from .account import Account
+    from .account import Account, AccountEmail, AccountEmailClaim
+    from .sync_ticket import TicketParticipant

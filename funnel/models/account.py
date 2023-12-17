@@ -678,6 +678,7 @@ class Account(UuidMixin, BaseMixin, Model):
         viewonly=True,
     )
 
+    # This is a User property of the proposals the user account is a collaborator in
     proposals = DynamicAssociationProxy['Proposal']('proposal_memberships', 'proposal')
 
     @property
@@ -696,7 +697,16 @@ class Account(UuidMixin, BaseMixin, Model):
         'public_proposal_memberships', 'proposal'
     )
 
+    # proposal.py
+    created_proposals: DynamicMapped[Proposal] = relationship(
+        lazy='dynamic', back_populates='created_by'
+    )
+
     # rsvp.py
+    rsvps: DynamicMapped[Rsvp] = relationship(
+        lazy='dynamic', back_populates='participant'
+    )
+
     @property
     def rsvp_followers(self) -> Query[Account]:
         """All users with an active RSVP in a project."""
@@ -857,6 +867,10 @@ class Account(UuidMixin, BaseMixin, Model):
     )
 
     # sync_ticket.py:
+    ticket_participants: Mapped[list[TicketParticipant]] = relationship(
+        back_populates='participant'
+    )
+
     @property
     def ticket_followers(self) -> Query[Account]:
         """All users with a ticket in a project."""
@@ -868,6 +882,23 @@ class Account(UuidMixin, BaseMixin, Model):
         )
 
     with_roles(ticket_followers, grants={'follower'})
+
+    # update.py
+    created_updates: DynamicMapped[Update] = relationship(
+        lazy='dynamic',
+        foreign_keys=lambda: Update.created_by_id,
+        back_populates='created_by',
+    )
+    published_updates: DynamicMapped[Update] = relationship(
+        lazy='dynamic',
+        foreign_keys=lambda: Update.published_by_id,
+        back_populates='published_by',
+    )
+    deleted_updates: DynamicMapped[Update] = relationship(
+        lazy='dynamic',
+        foreign_keys=lambda: Update.deleted_by_id,
+        back_populates='deleted_by',
+    )
 
     __table_args__ = (
         sa.Index(
@@ -979,8 +1010,10 @@ class Account(UuidMixin, BaseMixin, Model):
         """Return filter for the subclass's type."""
         return cls.type_ == cls.__mapper_args__.get('polymorphic_identity')
 
-    primary_email: Mapped[AccountEmail | None] = relationship()
-    primary_phone: Mapped[AccountPhone | None] = relationship()
+    if TYPE_CHECKING:
+        # These are added via add_primary_relationship
+        primary_email: Mapped[AccountEmail | None] = relationship()
+        primary_phone: Mapped[AccountPhone | None] = relationship()
 
     def __repr__(self) -> str:
         if self.name:
@@ -2786,6 +2819,7 @@ from .session import Session
 from .site_membership import SiteMembership
 from .sponsor_membership import ProjectSponsorMembership, ProposalSponsorMembership
 from .sync_ticket import TicketParticipant
+from .update import Update
 
 if TYPE_CHECKING:
     from .auth_client import AuthClientTeamPermissions

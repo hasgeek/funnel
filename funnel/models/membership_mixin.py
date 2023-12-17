@@ -514,11 +514,7 @@ class ReorderMembershipProtoMixin(ReorderProtoMixin):
     #: However, it can be argued that relocating a sponsor in the list constitutes a
     #: change that must be recorded as a revision. We may need to change our opinion
     #: on `seq` being mutable in a future iteration.
-    @declared_attr
-    @classmethod
-    def seq(cls) -> Mapped[int]:
-        """Ordering sequence number."""
-        return sa_orm.mapped_column(sa.Integer, nullable=False)
+    seq: Mapped[int] = sa_orm.mapped_column(nullable=False)
 
     @declared_attr.directive
     @classmethod

@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
+from coaster.sqlalchemy import immutable
 
-from . import DynamicMapped, Mapped, Model, backref, db, relationship, sa, sa_orm
-from .account import Account
-from .helpers import reopen
+from . import Mapped, Model, relationship, sa, sa_orm
 from .membership_mixin import (
     FrozenAttributionProtoMixin,
     ImmutableUserMembershipMixin,
@@ -80,29 +80,24 @@ class ProjectSponsorMembership(  # type: ignore[misc]
         },
     }
 
-    revoke_on_member_delete = False
+    revoke_on_member_delete: ClassVar[bool] = False
 
     project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
-    project: Mapped[Project] = relationship(
-        Project,
-        backref=backref(
-            'all_sponsor_memberships',
-            lazy='dynamic',
-            passive_deletes=True,
-        ),
-    )
+    project: Mapped[Project] = relationship(back_populates='all_sponsor_memberships')
     parent_id: Mapped[int] = sa_orm.synonym('project_id')
     parent_id_column = 'project_id'
     parent: Mapped[Project] = sa_orm.synonym('project')
 
     #: Is this sponsor being promoted for commercial reasons? Projects may have a legal
     #: obligation to reveal this. This column records a declaration from the project.
-    is_promoted = immutable(sa_orm.mapped_column(sa.Boolean, nullable=False))
+    is_promoted: Mapped[bool] = immutable(
+        sa_orm.mapped_column(sa.Boolean, nullable=False)
+    )
 
     #: Optional label, indicating the type of sponsor
-    label = immutable(
+    label: Mapped[str | None] = immutable(
         sa_orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint(
@@ -121,30 +116,6 @@ class ProjectSponsorMembership(  # type: ignore[misc]
     def offered_roles(self) -> set[str]:
         """Return empty set as this membership does not offer any roles on Project."""
         return set()
-
-
-@reopen(Project)
-class __Project:
-    sponsor_memberships: DynamicMapped[ProjectSponsorMembership] = with_roles(
-        relationship(
-            ProjectSponsorMembership,
-            lazy='dynamic',
-            primaryjoin=sa.and_(
-                ProjectSponsorMembership.project_id == Project.id,
-                ProjectSponsorMembership.is_active,
-            ),
-            order_by=ProjectSponsorMembership.seq,
-            viewonly=True,
-        ),
-        read={'all'},
-    )
-
-    @with_roles(read={'all'})
-    @cached_property
-    def has_sponsors(self) -> bool:
-        return db.session.query(self.sponsor_memberships.exists()).scalar()
-
-    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
 
 
 # FIXME: Replace this with existing proposal collaborator as they're now both related
@@ -209,29 +180,24 @@ class ProposalSponsorMembership(  # type: ignore[misc]
         },
     }
 
-    revoke_on_member_delete = False
+    revoke_on_member_delete: ClassVar[bool] = False
 
     proposal_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
-    proposal: Mapped[Proposal] = relationship(
-        Proposal,
-        backref=backref(
-            'all_sponsor_memberships',
-            lazy='dynamic',
-            passive_deletes=True,
-        ),
-    )
+    proposal: Mapped[Proposal] = relationship(back_populates='all_sponsor_memberships')
     parent_id: Mapped[int] = sa_orm.synonym('proposal_id')
     parent_id_column = 'proposal_id'
     parent: Mapped[Proposal] = sa_orm.synonym('proposal')
 
     #: Is this sponsor being promoted for commercial reasons? Proposals may have a legal
     #: obligation to reveal this. This column records a declaration from the proposal.
-    is_promoted = immutable(sa_orm.mapped_column(sa.Boolean, nullable=False))
+    is_promoted: Mapped[bool] = immutable(
+        sa_orm.mapped_column(sa.Boolean, nullable=False)
+    )
 
     #: Optional label, indicating the type of sponsor
-    label = immutable(
+    label: Mapped[str | None] = immutable(
         sa_orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint(
@@ -245,27 +211,3 @@ class ProposalSponsorMembership(  # type: ignore[misc]
     def offered_roles(self) -> set[str]:
         """Return empty set as this membership does not offer any roles on Proposal."""
         return set()
-
-
-@reopen(Proposal)
-class __Proposal:
-    sponsor_memberships: DynamicMapped[ProposalSponsorMembership] = with_roles(
-        relationship(
-            ProposalSponsorMembership,
-            lazy='dynamic',
-            primaryjoin=sa.and_(
-                ProposalSponsorMembership.proposal_id == Proposal.id,
-                ProposalSponsorMembership.is_active,
-            ),
-            order_by=ProposalSponsorMembership.seq,
-            viewonly=True,
-        ),
-        read={'all'},
-    )
-
-    @with_roles(read={'all'})
-    @cached_property
-    def has_sponsors(self) -> bool:
-        return db.session.query(self.sponsor_memberships.exists()).scalar()
-
-    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')

@@ -16,7 +16,7 @@ from . import (
     sa,
     sa_orm,
 )
-from .helpers import MarkdownCompositeBasic, reopen
+from .helpers import MarkdownCompositeBasic
 from .project import Project
 from .project_membership import project_child_role_map, project_child_role_set
 
@@ -30,8 +30,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, back_populates='venues'),
-        grants_via={None: project_child_role_map},
+        relationship(back_populates='venues'), grants_via={None: project_child_role_map}
     )
     parent: Mapped[Project] = sa_orm.synonym('project')
     description, description_text, description_html = MarkdownCompositeBasic.create(
@@ -55,7 +54,6 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
     )
 
     rooms: Mapped[list[VenueRoom]] = relationship(
-        'VenueRoom',
         order_by=lambda: VenueRoom.seq,
         collection_class=ordering_list('seq', count_from=1),
         back_populates='venue',
@@ -119,7 +117,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
         sa.Integer, sa.ForeignKey('venue.id'), nullable=False
     )
     venue: Mapped[Venue] = with_roles(
-        relationship(Venue, back_populates='rooms'),
+        relationship(back_populates='rooms'),
         # Since Venue already remaps Project roles, we just want the remapped role names
         grants_via={None: project_child_role_set},
     )
@@ -133,6 +131,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
 
     seq: Mapped[int] = sa_orm.mapped_column(sa.Integer, nullable=False)
 
+    sessions: Mapped[list[Session]] = relationship(back_populates='venue_room')
     scheduled_sessions: Mapped[list[Session]] = relationship(
         primaryjoin=lambda: sa.and_(
             Session.venue_room_id == VenueRoom.id,
@@ -190,23 +189,6 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
 
 add_primary_relationship(Project, 'primary_venue', Venue, 'project', 'project_id')
 with_roles(Project.primary_venue, read={'all'}, datasets={'primary', 'without_parent'})
-
-
-@reopen(Project)
-class __Project:
-    venues: Mapped[list[Venue]] = with_roles(
-        relationship(
-            Venue,
-            order_by=lambda: Venue.seq,
-            collection_class=ordering_list('seq', count_from=1),
-            back_populates='project',
-        ),
-        read={'all'},
-    )
-
-    @property
-    def rooms(self):
-        return [room for venue in self.venues for room in venue.rooms]
 
 
 # Tail imports

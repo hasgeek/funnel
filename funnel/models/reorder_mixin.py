@@ -81,6 +81,7 @@ class ReorderProtoMixin:
                 cls.seq >= min(self.seq, other.seq),
                 cls.seq <= max(self.seq, other.seq),
             )
+            .populate_existing()  # Force reload `.seq` into session cache
             .with_for_update(of=cls)  # Lock these rows to prevent a parallel update
             .options(sa_orm.load_only(cls.id, cls.seq))
             .order_by(*order_columns)

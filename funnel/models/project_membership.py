@@ -133,7 +133,7 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
     )
 
     #: Optional label, indicating the member's role in the project
-    label = immutable(
+    label: Mapped[str | None] = immutable(
         sa_orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint(

@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import immutable, with_roles
 
-from . import Mapped, Model, backref, relationship, sa, sa_orm
-from .account import Account
-from .helpers import reopen
+from . import Mapped, Model, relationship, sa, sa_orm
 from .membership_mixin import (
     FrozenAttributionProtoMixin,
     ImmutableUserMembershipMixin,
@@ -74,7 +74,7 @@ class ProposalMembership(  # type: ignore[misc]
         },
     }
 
-    revoke_on_member_delete = False
+    revoke_on_member_delete: ClassVar[bool] = False
 
     proposal_id: Mapped[int] = with_roles(
         sa_orm.mapped_column(
@@ -86,14 +86,7 @@ class ProposalMembership(  # type: ignore[misc]
     )
 
     proposal: Mapped[Proposal] = with_roles(
-        relationship(
-            Proposal,
-            backref=backref(
-                'all_memberships',
-                lazy='dynamic',
-                passive_deletes=True,
-            ),
-        ),
+        relationship(back_populates='all_memberships'),
         read={'member', 'editor'},
         grants_via={None: {'editor'}},
     )
@@ -109,7 +102,7 @@ class ProposalMembership(  # type: ignore[misc]
     )
 
     #: Optional label, indicating the member's role on the proposal
-    label = immutable(
+    label: Mapped[str | None] = immutable(
         sa_orm.mapped_column(
             sa.Unicode,
             sa.CheckConstraint("label <> ''", name='proposal_membership_label_check'),
@@ -122,34 +115,3 @@ class ProposalMembership(  # type: ignore[misc]
         """Roles offered by this membership record."""
         # This method is not used. See the `Proposal.memberships` relationship below.
         return {'submitter', 'editor'}
-
-
-# Project relationships
-@reopen(Proposal)
-class __Proposal:
-    created_by: Account
-
-    # This relationship does not use `lazy='dynamic'` because it is expected to contain
-    # <2 records on average, and won't exceed 50 in the most extreme cases
-    memberships: Mapped[list[ProposalMembership]] = with_roles(
-        relationship(
-            ProposalMembership,
-            primaryjoin=sa.and_(
-                ProposalMembership.proposal_id == Proposal.id,
-                ProposalMembership.is_active,
-            ),
-            order_by=ProposalMembership.seq,
-            viewonly=True,
-        ),
-        read={'all'},
-        # These grants are authoritative and used instead of `offered_roles` above
-        grants_via={'member': {'submitter', 'editor'}},
-    )
-
-    @property
-    def first_user(self) -> Account:
-        """Return the first credited member on the proposal, or creator if none."""
-        for membership in self.memberships:
-            if not membership.is_uncredited:
-                return membership.member
-        return self.created_by

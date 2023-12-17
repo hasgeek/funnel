@@ -225,7 +225,7 @@ class GeoName(BaseNameMixin, GeonameModel):
         primaryjoin=lambda: GeoAdmin2Code.id == sa_orm.foreign(GeoName.id),
         back_populates='geoname',
     )
-    alternate_titles: Mapped[list[GeoAltName]] = relationship()
+    alternate_titles: Mapped[list[GeoAltName]] = relationship(back_populates='geoname')
 
     __table_args__ = (
         sa.Index(

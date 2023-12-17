@@ -83,7 +83,7 @@ class AccountMembership(ImmutableUserMembershipMixin, Model):
         nullable=False,
     )
     account: Mapped[Account] = with_roles(
-        relationship(Account, foreign_keys=[account_id], back_populates='memberships'),
+        relationship(foreign_keys=[account_id], back_populates='memberships'),
         grants_via={None: {'admin': 'account_admin', 'owner': 'account_owner'}},
     )
     parent_id: Mapped[int] = sa_orm.synonym('account_id')

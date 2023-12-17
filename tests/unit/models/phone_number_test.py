@@ -64,7 +64,7 @@ def phone_models(database, app) -> Generator:
         phoneuser_id: Mapped[int] = sa_orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=False
         )
-        phoneuser: Mapped[PhoneUser] = relationship(PhoneUser)
+        phoneuser: Mapped[PhoneUser] = relationship()
 
     class PhoneDocument(
         models.OptionalPhoneNumberMixin, models.BaseMixin, models.Model
@@ -84,7 +84,7 @@ def phone_models(database, app) -> Generator:
         phoneuser_id: Mapped[int | None] = sa_orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=True
         )
-        phoneuser: Mapped[PhoneUser | None] = relationship(PhoneUser)
+        phoneuser: Mapped[PhoneUser | None] = relationship()
 
     new_models = [PhoneUser, PhoneLink, PhoneDocument, PhoneLinkedDocument]
 

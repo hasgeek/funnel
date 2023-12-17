@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import warnings
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, overload
 
@@ -14,7 +15,7 @@ from sqlalchemy.sql.expression import ColumnElement
 from werkzeug.utils import cached_property
 
 from baseframe import _
-from coaster.sqlalchemy import immutable, with_roles
+from coaster.sqlalchemy import ModelWarning, immutable, with_roles
 from coaster.utils import require_one_of
 
 from ..signals import phonenumber_refcount_dropping
@@ -333,6 +334,10 @@ class PhoneNumber(BaseMixin, Model):
     blocked_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
+
+    if TYPE_CHECKING:
+        used_in_sms_message: Mapped[list[SmsMessage]] = relationship()
+        used_in_account_phone: Mapped[list[AccountPhone]] = relationship()
 
     __table_args__ = (
         # If `blocked_at` is not None, `number` and `has_*` must be None
@@ -776,7 +781,8 @@ class OptionalPhoneNumberMixin:
         PhoneNumber.__backrefs__.add(backref_name)
         if cls.__phone_for__ and cls.__phone_is_exclusive__:
             PhoneNumber.__exclusive_backrefs__.add(backref_name)
-        return relationship(PhoneNumber, backref=backref_name)
+        with warnings.catch_warnings(action='ignore', category=ModelWarning):
+            return relationship(PhoneNumber, backref=backref_name)
 
     @property
     def phone(self) -> str | None:
@@ -952,4 +958,5 @@ def _phone_number_mixin_configure_events(
 
 
 if TYPE_CHECKING:
-    from .account import Account
+    from .account import Account, AccountPhone
+    from .notification import SmsMessage
