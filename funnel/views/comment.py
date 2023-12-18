@@ -218,7 +218,7 @@ class CommentsetView(UrlForView, ModelView[Commentset]):
     @requires_login
     def subscribe(self) -> ReturnView:
         subscribe_form = CommentsetSubscribeForm()
-        subscribe_form.form_nonce.data = subscribe_form.form_nonce.default()
+        subscribe_form.form_nonce.data = subscribe_form.form_nonce.get_default()
         if subscribe_form.validate_on_submit():
             if subscribe_form.subscribe.data:
                 self.obj.add_subscriber(

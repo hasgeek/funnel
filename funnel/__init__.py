@@ -26,14 +26,14 @@ from ._version import __version__
 
 #: Main app for hasgeek.com
 app = Flask(__name__, instance_relative_config=True)
-app.name = 'funnel'
+app.name = 'funnel'  # pyright: ignore[reportGeneralTypeIssues]
 app.config['SITE_TITLE'] = __("Hasgeek")
-#: Shortlink app at has.gy
+#: Short link app at has.gy
 shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True)
-shortlinkapp.name = 'shortlink'
+shortlinkapp.name = 'shortlink'  # pyright: ignore[reportGeneralTypeIssues]
 #: Unsubscribe app at bye.li
 unsubscribeapp = Flask(__name__, static_folder=None, instance_relative_config=True)
-unsubscribeapp.name = 'unsubscribe'
+unsubscribeapp.name = 'unsubscribe'  # pyright: ignore[reportGeneralTypeIssues]
 
 all_apps = [app, shortlinkapp, unsubscribeapp]
 
@@ -92,9 +92,6 @@ for each_app in all_apps:
         each_app, ['py', 'env'], env_prefix=['FLASK', f'APP_{each_app.name.upper()}']
     )
 
-# Legacy additional config for the main app (pending deprecation)
-coaster.app.load_config_from_file(app, 'hasgeekapp.py')
-
 # Force specific config settings, overriding deployment config
 shortlinkapp.config['SERVER_NAME'] = app.config['SHORTLINK_DOMAIN']
 if app.config.get('UNSUBSCRIBE_DOMAIN'):
@@ -147,7 +144,12 @@ executor.init_app(app)
 geoip.geoip.init_app(app)
 
 # Baseframe is required for apps with UI ('funnel' theme is registered above)
-baseframe.init_app(app, requires=['funnel'], theme='funnel', error_handlers=False)
+baseframe.init_app(
+    app,
+    requires=['funnel'],
+    theme='funnel',  # type: ignore[arg-type]
+    error_handlers=False,
+)
 
 # Initialize available login providers from app config
 loginproviders.init_app(app)
@@ -195,7 +197,7 @@ app.assets.register(  # type: ignore[attr-defined]
 
 views.siteadmin.init_rq_dashboard()
 
-# --- Serve static files with Whitenoise -----------------------------------------------
+# --- Serve static files with WhiteNoise -----------------------------------------------
 
 app.wsgi_app = WhiteNoise(  # type: ignore[method-assign]
     app.wsgi_app, root=app.static_folder, prefix=app.static_url_path

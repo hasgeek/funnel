@@ -438,7 +438,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     @message.inplace.setter
     def _message_setter(self, value: Any) -> None:
         """Edit the message of a comment."""
-        self._message = value  # type: ignore[assignment]
+        self._message = value
 
     @message.inplace.expression
     @classmethod

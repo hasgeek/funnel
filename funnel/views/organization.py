@@ -60,6 +60,8 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView[Account]):
             if not obj.state.ACTIVE:
                 abort(410)
             self.obj = obj
+        else:
+            self.obj = None  # type: ignore[assignment]
 
     # The /new root URL is intentional
     @route('/new', methods=['GET', 'POST'], endpoint='new_organization')

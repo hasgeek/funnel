@@ -102,9 +102,7 @@ class ReorderProtoMixin:
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
         self.seq = (
-            sa.select(  # type: ignore[assignment]
-                sa.func.coalesce(sa.func.max(cls.seq) + 1, 1)
-            )
+            sa.select(sa.func.coalesce(sa.func.max(cls.seq) + 1, 1))
             .where(self.parent_scoped_reorder_query_filter)
             .scalar_subquery()
         )

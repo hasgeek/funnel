@@ -634,7 +634,7 @@ class GeoAltName(BaseMixin, GeonameModel):
         sa.Unicode, nullable=True, index=True
     )
     title: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
-    is_preferred_name: Mapped[str] = sa_orm.mapped_column(sa.Boolean, nullable=False)
+    is_preferred_name: Mapped[bool] = sa_orm.mapped_column(sa.Boolean, nullable=False)
     is_short_name: Mapped[bool] = sa_orm.mapped_column(sa.Boolean, nullable=False)
     is_colloquial: Mapped[bool] = sa_orm.mapped_column(sa.Boolean, nullable=False)
     is_historic: Mapped[bool] = sa_orm.mapped_column(sa.Boolean, nullable=False)

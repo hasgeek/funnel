@@ -103,7 +103,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
         #: subclasses)
         parent_id: Mapped[int] | None
         #: Parent object
-        parent: Mapped[Model | None]
+        parent: Mapped[Model] | None
         #: Subject of this membership (subclasses must define)
         member: Mapped[Account]
 

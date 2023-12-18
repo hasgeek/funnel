@@ -459,7 +459,7 @@ def test_phone_number_add() -> None:
         models.PhoneNumber.add('invalid')
 
     with pytest.raises(models.PhoneNumberInvalidError):
-        models.PhoneNumber.add(None)  # type: ignore[arg-type]
+        models.PhoneNumber.add(None)  # pyright: ignore[reportGeneralTypeIssues]
 
 
 @pytest.mark.usefixtures('db_session')

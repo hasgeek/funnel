@@ -1,5 +1,6 @@
 """Account model with subtypes, and account-linked personal data models."""
 # pylint: disable=unnecessary-lambda,invalid-unary-operand-type
+# pyright: reportGeneralTypeIssues=false
 
 from __future__ import annotations
 
@@ -19,7 +20,7 @@ from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.ext.hybrid import Comparator
 from sqlalchemy.sql.expression import ColumnElement
 from werkzeug.utils import cached_property
-from zbase32 import decode as zbase32_decode, encode as zbase32_encode  # type: ignore
+from zbase32 import decode as zbase32_decode, encode as zbase32_encode
 
 from baseframe import __
 from coaster.sqlalchemy import (
@@ -2334,8 +2335,8 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
     def __init__(self, *, account: Account, email: str, **kwargs) -> None:
         kwargs['email_address'] = EmailAddress.add_for(account, email)
         super().__init__(account=account, **kwargs)
-        self.blake2b = hashlib.blake2b(  # self.email is not optional, so this ignore:
-            self.email.lower().encode(), digest_size=16  # type: ignore[union-attr]
+        self.blake2b = hashlib.blake2b(
+            self.email.lower().encode(), digest_size=16
         ).digest()
 
     def __repr__(self) -> str:

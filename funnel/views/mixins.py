@@ -248,7 +248,7 @@ class DraftViewProtoMixin:
             return {
                 'status': 'ok',
                 'revision': draft.revision,
-                'form_nonce': form.form_nonce.default(),
+                'form_nonce': form.form_nonce.get_default(),
             }
         return (
             {

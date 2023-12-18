@@ -148,7 +148,7 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
     def __table_args__(cls) -> tuple:
         """Table arguments."""
         try:
-            args = list(super().__table_args__)  # type: ignore[misc]
+            args = list(super().__table_args__)
         except AttributeError:
             args = []
         kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None

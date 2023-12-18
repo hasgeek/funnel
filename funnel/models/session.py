@@ -123,7 +123,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
                     start_at.is_not(None),
                     end_at.is_not(None),
                     end_at > start_at,
-                    end_at <= start_at + timedelta(days=1),  # type: ignore[operator]
+                    end_at <= start_at + timedelta(days=1),
                 ),
             ),
             'session_start_at_end_at_check',

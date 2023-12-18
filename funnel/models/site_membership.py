@@ -65,7 +65,7 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
     def __table_args__(cls) -> tuple:
         """Table arguments."""
         try:
-            args = list(super().__table_args__)  # type: ignore[misc]
+            args = list(super().__table_args__)
         except AttributeError:
             args = []
         args.append(

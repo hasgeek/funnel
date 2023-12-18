@@ -76,22 +76,30 @@ def when_anonuser_navigates_login_and_submits(
         pytest.fail("Unknown username type")
     page.click('.header__button')
     wait_until_recaptcha_loaded(page)
-    page.wait_for_selector('input[name=username]').fill(username)
+    selector = page.wait_for_selector('input[name=username]')
+    assert selector is not None
+    selector.fill(username)
     page.click('#form-passwordlogin button')
     return {'phone_or_email': phone_or_email, 'username': username}
 
 
 @then("they are prompted for their name and the OTP, which they provide")
 def then_anonuser_prompted_name_and_otp(anon_username, live_server, page: Page) -> None:
-    page.wait_for_selector('input[name=fullname]').fill('Twoflower')
+    selector = page.wait_for_selector('input[name=fullname]')
+    assert selector is not None
+    selector.fill('Twoflower')
     if anon_username['phone_or_email'] == "a phone number":
         otp = live_server.transport_calls.sms[-1].vars['otp']
     elif anon_username['phone_or_email'] == "an email address":
         subject = live_server.transport_calls.email[-1].subject
-        otp = re.search(r'\b\d{4}\b', subject).group(0)
+        match = re.search(r'\b\d{4}\b', subject)
+        assert match is not None
+        otp = match.group(0)
     else:
         pytest.fail("Unknown username type")
-    page.wait_for_selector('input[name=otp]').fill(otp)
+    selector = page.wait_for_selector('input[name=otp]')
+    assert selector is not None
+    selector.fill(otp)
     page.click('#form-otp button')
 
 
@@ -99,10 +107,9 @@ def then_anonuser_prompted_name_and_otp(anon_username, live_server, page: Page) 
 def then_they_are_logged_in(
     user_twoflower_with_password_and_contact, live_server, page: Page
 ) -> None:
-    assert (
-        page.wait_for_selector('.alert__text').inner_text()
-        == "You are now one of us. Welcome aboard!"
-    )
+    selector = page.wait_for_selector('.alert__text')
+    assert selector is not None
+    assert selector.inner_text() == "You are now one of us. Welcome aboard!"
 
 
 @given("Twoflower visitor is on the home page")
@@ -122,26 +129,34 @@ def when_navigate_to_login_page(app, live_server, page: Page):
 @when("submit an email address with password")
 def when_submit_email_password(page: Page) -> None:
     wait_until_recaptcha_loaded(page)
-    page.wait_for_selector('input[name=username]').fill(TWOFLOWER_EMAIL)
+    selector = page.wait_for_selector('input[name=username]')
+    assert selector is not None
+    selector.fill(TWOFLOWER_EMAIL)
     page.click('#use-password-login')
-    page.wait_for_selector('input[name=password]').fill(TWOFLOWER_PASSWORD)
+    selector = page.wait_for_selector('input[name=password]')
+    assert selector is not None
+    selector.fill(TWOFLOWER_PASSWORD)
     page.click('#login-btn')
 
 
 @then("they are logged in")
 def then_logged_in(live_server, page: Page) -> None:
-    assert (
-        page.wait_for_selector('.alert__text').inner_text() == "You are now logged in"
-    )
+    selector = page.wait_for_selector('.alert__text')
+    assert selector is not None
+    assert selector.inner_text() == "You are now logged in"
 
 
 @when("they submit the phone number with password")
 @when("submit a phone number with password")
 def when_submit_phone_password(app, live_server, page: Page) -> None:
     wait_until_recaptcha_loaded(page)
-    page.wait_for_selector('input[name=username]').fill(TWOFLOWER_PHONE)
+    selector = page.wait_for_selector('input[name=username]')
+    assert selector is not None
+    selector.fill(TWOFLOWER_PHONE)
     page.click('#use-password-login')
-    page.wait_for_selector('input[name=password]').fill(TWOFLOWER_PASSWORD)
+    selector = page.wait_for_selector('input[name=password]')
+    assert selector is not None
+    selector.fill(TWOFLOWER_PASSWORD)
     page.click('#login-btn')
 
 
@@ -154,13 +169,17 @@ def given_anonymous_project_page(
 
 @when("they click on follow")
 def when_they_click_follow(page: Page) -> None:
-    page.wait_for_selector("#register-nav").click()
+    selector = page.wait_for_selector("#register-nav")
+    assert selector is not None
+    selector.click()
 
 
 @then("a register modal appears")
 def then_register_modal_appear(page: Page) -> None:
+    selector = page.wait_for_selector('xpath=//*[@id="passwordform"]/p[2]')
+    assert selector is not None
     assert (
-        page.wait_for_selector('xpath=//*[@id="passwordform"]/p[2]').inner_text()
+        selector.inner_text()
         == "Tell us where you’d like to get updates. We’ll send an OTP to confirm."
     )
 
@@ -177,7 +196,9 @@ def when_they_enter_email(page: Page, phone_or_email: str) -> dict[str, str]:
         username = ANONYMOUS_EMAIL
     else:
         pytest.fail("Unknown username type")
-    page.wait_for_selector('input[name=username]').fill(username)
+    selector = page.wait_for_selector('input[name=username]')
+    assert selector is not None
+    selector.fill(username)
     page.click('#form-passwordlogin button')
     return {'phone_or_email': phone_or_email, 'username': username}
 
@@ -215,7 +236,11 @@ def when_twoflower_visits_login_page_recaptcha(app, live_server, page: Page) -> 
 
 @then("they submit and Recaptcha validation passes")
 def then_submit_recaptcha_validation_passes(live_server, page: Page) -> None:
-    page.wait_for_selector("input[name=username]").fill(TWOFLOWER_EMAIL)
+    selector = page.wait_for_selector("input[name=username]")
+    assert selector is not None
+    selector.fill(TWOFLOWER_EMAIL)
     page.click('#use-password-login')
-    page.wait_for_selector('input[name=password]').fill(TWOFLOWER_PASSWORD)
+    selector = page.wait_for_selector('input[name=password]')
+    assert selector is not None
+    selector.fill(TWOFLOWER_PASSWORD)
     page.click('#login-btn')

@@ -48,7 +48,7 @@ class AccountSelectField(forms.AutocompleteField):
     def _value(self) -> str:
         """Return value for HTML rendering."""
         if self.data is not None:
-            return self.data.name
+            return self.data.name or ''
         return ''
 
     def process_formdata(self, valuelist: Sequence[str]) -> None:
@@ -83,9 +83,7 @@ class EmailAddressAvailable:
 
     def __call__(self, form: forms.Form, field: forms.Field) -> None:
         # Get actor (from form, or current_auth.actor)
-        actor: User | None = None
-        if hasattr(form, 'edit_user'):
-            actor = form.edit_user
+        actor: User | None = getattr(form, 'edit_user', None)
         if actor is None:
             actor = current_auth.actor
 
@@ -174,9 +172,7 @@ class PhoneNumberAvailable:
 
     def __call__(self, form: forms.Form, field: forms.Field) -> None:
         # Get actor (from existing obj, or current_auth.actor)
-        actor: User | None = None
-        if hasattr(form, 'edit_user'):
-            actor = form.edit_user
+        actor: User | None = getattr(form, 'edit_user', None)
         if actor is None:
             actor = current_auth.actor
 

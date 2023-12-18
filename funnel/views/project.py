@@ -7,7 +7,7 @@ from json import JSONDecodeError
 from types import SimpleNamespace
 
 from flask import Response, abort, current_app, flash, render_template, request
-from flask_babel import LazyString, format_number
+from flask_babel import format_number
 from markupsafe import Markup
 
 from baseframe import _, __, forms
@@ -58,10 +58,10 @@ from .notification import dispatch_notification
 class CountWords:
     """Labels for a count of registrations."""
 
-    unregistered: str | LazyString
-    registered: str | LazyString
-    not_following: str | LazyString
-    following: str | LazyString
+    unregistered: str
+    registered: str
+    not_following: str
+    following: str
 
 
 registration_count_messages = [
@@ -140,9 +140,7 @@ numeric_count = CountWords(
 )
 
 
-def get_registration_text(
-    count: int, registered=False, follow_mode=False
-) -> str | LazyString:
+def get_registration_text(count: int, registered=False, follow_mode=False) -> str:
     if count < len(registration_count_messages):
         if registered and not follow_mode:
             return registration_count_messages[count].registered
@@ -248,7 +246,7 @@ def project_follow_mode(obj: Project) -> bool:
 
 
 @Project.views('registration_text')
-def project_registration_text(obj: Project) -> str | LazyString:
+def project_registration_text(obj: Project) -> str:
     return get_registration_text(
         count=obj.rsvp_count_going,
         registered=obj.features.rsvp_registered,
@@ -472,7 +470,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
 
             return render_redirect(self.obj.url_for())
         # Reset nonce to avoid conflict with autosave
-        form.form_nonce.data = form.form_nonce.default()
+        form.form_nonce.data = form.form_nonce.get_default()
         return render_form(
             form=form,
             title=_("Edit project"),
@@ -806,7 +804,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     def save(self) -> ReturnView:
         """Save (bookmark) a project."""
         form = self.SavedProjectForm()
-        form.form_nonce.data = form.form_nonce.default()
+        form.form_nonce.data = form.form_nonce.get_default()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
                 account=current_auth.user, project=self.obj

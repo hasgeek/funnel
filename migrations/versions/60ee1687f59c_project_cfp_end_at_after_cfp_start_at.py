@@ -24,7 +24,7 @@ def upgrade() -> None:
     op.create_check_constraint(
         'project_cfp_start_at_cfp_end_at_check',
         'project',
-        sa.or_(  # type: ignore[arg-type]
+        sa.or_(
             sa.and_(cfp_start_at.is_(None), cfp_end_at.is_(None)),
             sa.and_(cfp_start_at.is_not(None), cfp_end_at.is_(None)),
             sa.and_(

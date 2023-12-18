@@ -155,7 +155,8 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         index=True,
     )
     state = with_roles(
-        StateManager('_state', PROJECT_STATE, doc="Project state"), call={'all'}
+        StateManager['Project']('_state', PROJECT_STATE, doc="Project state"),
+        call={'all'},
     )
     _cfp_state: Mapped[int] = sa_orm.mapped_column(
         'cfp_state',
@@ -166,7 +167,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         index=True,
     )
     cfp_state = with_roles(
-        StateManager('_cfp_state', CFP_STATE, doc="CfP state"), call={'all'}
+        StateManager['Project']('_cfp_state', CFP_STATE, doc="CfP state"), call={'all'}
     )
 
     #: State of RSVPs
@@ -595,9 +596,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     cfp_state.add_conditional_state(
         'HAS_PROPOSALS',
         cfp_state.ANY,
-        lambda project: db.session.query(  # type: ignore[has-type]
-            project.proposals.exists()
-        ).scalar(),
+        lambda project: db.session.query(project.proposals.exists()).scalar(),
         label=('has_proposals', __("Has submissions")),
     )
     cfp_state.add_conditional_state(
@@ -1607,11 +1606,11 @@ Project.next_session_at = with_roles(
             .where(Session.start_at.is_not(None))
             .where(Session.start_at >= sa.func.utcnow())
             .where(Session.project_id == Project.id)
-            .correlate_except(Session)  # type: ignore[arg-type]
+            .correlate_except(Session)
             .union(
-                sa.select(Project.start_at.label('start_at'))  # type: ignore[has-type]
-                .where(Project.start_at.is_not(None))  # type: ignore[has-type]
-                .where(Project.start_at >= sa.func.utcnow())  # type: ignore[has-type]
+                sa.select(Project.start_at.label('start_at'))
+                .where(Project.start_at.is_not(None))
+                .where(Project.start_at >= sa.func.utcnow())
                 .correlate(Project)
             )
             .subquery()

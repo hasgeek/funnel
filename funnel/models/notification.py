@@ -187,17 +187,15 @@ notification_categories: SimpleNamespace = SimpleNamespace(
         __("Projects I am participating in"),
         # Criteria: User has registered or proposed
         lambda user: (
-            db.session.query(user.rsvps.exists()).scalar()  # type: ignore[has-type]
-            or db.session.query(  # type: ignore[has-type]
-                user.proposal_memberships.exists()
-            ).scalar()
+            db.session.query(user.rsvps.exists()).scalar()
+            or db.session.query(user.proposal_memberships.exists()).scalar()
         ),
     ),
     project_crew=NotificationCategory(
         4,
         __("Projects I am a crew member in"),
         # Criteria: user has ever been a project crew member
-        lambda user: db.session.query(  # type: ignore[has-type]
+        lambda user: db.session.query(
             user.projects_as_crew_memberships.exists()
         ).scalar(),
     ),
@@ -205,7 +203,7 @@ notification_categories: SimpleNamespace = SimpleNamespace(
         5,
         __("Accounts I manage"),
         # Criteria: user has ever been an organization admin
-        lambda user: db.session.query(  # type: ignore[has-type]
+        lambda user: db.session.query(
             user.organization_admin_memberships.exists()
         ).scalar(),
     ),
