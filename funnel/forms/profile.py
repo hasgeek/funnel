@@ -91,10 +91,9 @@ class ProfileTransitionForm(forms.Form):
 
     def set_queries(self) -> None:
         """Prepare form for use."""
-        self.transition.choices = [
-            (k, v.data['title'])
-            for k, v in self.edit_obj.profile_state.transitions().items()
-        ]
+        self.transition.choices = list(
+            self.edit_obj.profile_state.transitions().items()
+        )
 
 
 @Account.forms('logo')

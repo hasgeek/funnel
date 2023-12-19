@@ -282,9 +282,7 @@ class ProjectTransitionForm(forms.Form):
 
     def set_queries(self) -> None:
         """Prepare form for use."""
-        self.transition.choices = [
-            (k, v.data['title']) for k, v in self.edit_obj.state.transitions().items()
-        ]
+        self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
 @Project.forms('cfp_transition')
