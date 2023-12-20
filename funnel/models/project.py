@@ -12,7 +12,7 @@ from flask_babel import format_date, get_locale
 from furl import furl
 from isoweek import Week
 from pytz import BaseTzInfo, utc
-from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 from werkzeug.utils import cached_property
 
 from baseframe import __, localize_timezone
@@ -343,7 +343,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         order_by=lambda: Label.seq,
         viewonly=True,
     )
-    all_labels: Mapped[list[Label]] = relationship(
+    all_labels: Mapped[OrderingList[Label]] = relationship(
         collection_class=ordering_list('seq', count_from=1),
         back_populates='project',
     )
@@ -478,7 +478,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     )
 
     # venue.py
-    venues: Mapped[list[Venue]] = with_roles(
+    venues: Mapped[OrderingList[Venue]] = with_roles(
         relationship(
             order_by=lambda: Venue.seq,
             collection_class=ordering_list('seq', count_from=1),

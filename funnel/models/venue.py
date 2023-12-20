@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 
 from coaster.sqlalchemy import add_primary_relationship, with_roles
 
@@ -53,7 +53,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
         sa.Unicode(2), default='', nullable=False
     )
 
-    rooms: Mapped[list[VenueRoom]] = relationship(
+    rooms: Mapped[OrderingList[VenueRoom]] = relationship(
         order_by=lambda: VenueRoom.seq,
         collection_class=ordering_list('seq', count_from=1),
         back_populates='venue',
