@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from html import unescape as html_unescape
-from typing import Any, TypedDict, TypeVar, cast
+from typing import Any, TypedDict, TypeVar
 from urllib.parse import quote as urlquote
 
 from flask import request, url_for
@@ -28,6 +28,7 @@ from ..models import (
     Update,
     db,
     sa,
+    sa_orm,
     visual_field_delimiter,
 )
 from ..typing import ReturnRenderWith
@@ -144,7 +145,7 @@ class SearchProvider:
 
     def all_count(self, tsquery: sa.Function) -> int:
         """Return count of results for :meth:`all_query`."""
-        return self.all_query(tsquery).options(sa.orm.load_only(self.model.id)).count()
+        return self.all_query(tsquery).options(sa_orm.load_only(self.model.id)).count()
 
 
 class SearchInAccountProvider(SearchProvider):
@@ -158,7 +159,7 @@ class SearchInAccountProvider(SearchProvider):
         """Return count of results for :meth:`account_query`."""
         return (
             self.account_query(tsquery, account)
-            .options(sa.orm.load_only(self.model.id))
+            .options(sa_orm.load_only(self.model.id))
             .count()
         )
 
@@ -174,7 +175,7 @@ class SearchInProjectProvider(SearchInAccountProvider):
         """Return count of results for :meth:`project_query`."""
         return (
             self.project_query(tsquery, project)
-            .options(sa.orm.load_only(self.model.id))
+            .options(sa_orm.load_only(self.model.id))
             .count()
         )
 
@@ -763,13 +764,10 @@ def search_results(
         query = sp.all_query(tsquery)
 
     # Add the three additional columns to the query and paginate results
-    query = cast(
-        Query,
-        query.add_columns(
-            sp.hltitle_column(tsquery),
-            sp.hlsnippet_column(tsquery),
-            sp.matched_text_column(tsquery),
-        ),
+    query = query.add_columns(
+        sp.hltitle_column(tsquery),
+        sp.hlsnippet_column(tsquery),
+        sp.matched_text_column(tsquery),
     )
     pagination = query.paginate(page=page, per_page=per_page, max_per_page=100)
 

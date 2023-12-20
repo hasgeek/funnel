@@ -29,7 +29,7 @@ def test_user(db_session) -> None:
 
 
 def test_user_pickername(user_twoflower, user_rincewind) -> None:
-    """Test to verify pickername contains fullname and optional username."""
+    """Test to verify `pickername` contains fullname and optional username."""
     assert user_twoflower.pickername == "Twoflower"
     assert user_rincewind.pickername == "Rincewind (@rincewind)"
 

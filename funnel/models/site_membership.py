@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from werkzeug.utils import cached_property
 
-from . import Mapped, Model, declared_attr, relationship, sa
-from .account import Account
-from .helpers import reopen
+from . import Mapped, Model, declared_attr, sa, sa_orm
 from .membership_mixin import ImmutableUserMembershipMixin
 
 __all__ = ['SiteMembership']
@@ -46,19 +44,19 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
     # Site admin roles (at least one must be True):
 
     #: Comment moderators can delete comments
-    is_comment_moderator: Mapped[bool] = sa.orm.mapped_column(
+    is_comment_moderator: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: User moderators can suspend users
-    is_user_moderator: Mapped[bool] = sa.orm.mapped_column(
+    is_user_moderator: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: Site editors can feature or reject projects
-    is_site_editor: Mapped[bool] = sa.orm.mapped_column(
+    is_site_editor: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: Sysadmins can manage technical settings
-    is_sysadmin: Mapped[bool] = sa.orm.mapped_column(
+    is_sysadmin: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
 
@@ -67,7 +65,7 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
     def __table_args__(cls) -> tuple:
         """Table arguments."""
         try:
-            args = list(super().__table_args__)  # type: ignore[misc]
+            args = list(super().__table_args__)
         except AttributeError:
             args = []
         args.append(
@@ -111,56 +109,3 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
         if self.is_sysadmin:
             roles.add('sysadmin')
         return roles
-
-
-@reopen(Account)
-class __Account:
-    # Singular, as only one can be active
-    active_site_membership: Mapped[SiteMembership] = relationship(
-        SiteMembership,
-        lazy='select',
-        primaryjoin=sa.and_(
-            SiteMembership.member_id == Account.id,  # type: ignore[has-type]
-            SiteMembership.is_active,
-        ),
-        viewonly=True,
-        uselist=False,
-    )
-
-    @cached_property
-    def is_comment_moderator(self) -> bool:
-        """Test if this user is a comment moderator."""
-        return (
-            self.active_site_membership is not None
-            and self.active_site_membership.is_comment_moderator
-        )
-
-    @cached_property
-    def is_user_moderator(self) -> bool:
-        """Test if this user is an account moderator."""
-        return (
-            self.active_site_membership is not None
-            and self.active_site_membership.is_user_moderator
-        )
-
-    @cached_property
-    def is_site_editor(self) -> bool:
-        """Test if this user is a site editor."""
-        return (
-            self.active_site_membership is not None
-            and self.active_site_membership.is_site_editor
-        )
-
-    @cached_property
-    def is_sysadmin(self) -> bool:
-        """Test if this user is a sysadmin."""
-        return (
-            self.active_site_membership is not None
-            and self.active_site_membership.is_sysadmin
-        )
-
-    # site_admin means user has one or more of above roles
-    @cached_property
-    def is_site_admin(self) -> bool:
-        """Test if this user has any site-level admin rights."""
-        return self.active_site_membership is not None

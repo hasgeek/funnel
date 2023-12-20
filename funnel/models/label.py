@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 
 from coaster.sqlalchemy import with_roles
@@ -14,11 +16,10 @@ from . import (
     hybrid_property,
     relationship,
     sa,
+    sa_orm,
 )
-from .helpers import add_search_trigger, reopen, visual_field_delimiter
-from .project import Project
+from .helpers import add_search_trigger, visual_field_delimiter
 from .project_membership import project_child_role_map
-from .proposal import Proposal
 
 proposal_label = sa.Table(
     'proposal_label',
@@ -45,21 +46,21 @@ proposal_label = sa.Table(
 class Label(BaseScopedNameMixin, Model):
     __tablename__ = 'label'
 
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     # Backref from project is defined in the Project model with an ordering list
     project: Mapped[Project] = with_roles(
-        relationship(Project), grants_via={None: project_child_role_map}
+        relationship(), grants_via={None: project_child_role_map}
     )
     # `parent` is required for
     # :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
 
     #: Parent label's id. Do not write to this column directly, as we don't have the
     #: ability to : validate the value within the app. Always use the :attr:`main_label`
     #: relationship.
-    main_label_id: Mapped[int | None] = sa.orm.mapped_column(
+    main_label_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('label.id', ondelete='CASCADE'),
         index=True,
@@ -71,7 +72,7 @@ class Label(BaseScopedNameMixin, Model):
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
     options: Mapped[OrderingList[Label]] = relationship(
         back_populates='main_label',
-        order_by='Label.seq',
+        order_by=lambda: Label.seq,
         passive_deletes=True,
         collection_class=ordering_list('seq', count_from=1),
     )
@@ -81,39 +82,39 @@ class Label(BaseScopedNameMixin, Model):
     # add_primary_relationship)
 
     #: Sequence number for this label, used in UI for ordering
-    seq: Mapped[int] = sa.orm.mapped_column(sa.Integer, nullable=False)
+    seq: Mapped[int] = sa_orm.mapped_column(sa.Integer, nullable=False)
 
     # A single-line description of this label, shown when picking labels (optional)
-    description: Mapped[str] = sa.orm.mapped_column(
+    description: Mapped[str] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=False, default=''
     )
 
     #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
     #: Since emoji can be composed from multiple symbols, there is no length
     #: limit imposed here
-    icon_emoji: Mapped[str | None] = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
+    icon_emoji: Mapped[str | None] = sa_orm.mapped_column(sa.UnicodeText, nullable=True)
 
     #: Restricted mode specifies that this label may only be applied by someone with
     #: an editorial role (TODO: name the role). If this label is a parent, it applies
     #: to all its children
-    _restricted: Mapped[bool] = sa.orm.mapped_column(
+    _restricted: Mapped[bool] = sa_orm.mapped_column(
         'restricted', sa.Boolean, nullable=False, default=False
     )
 
     #: Required mode signals to UI that if this label is a parent, one of its
     #: children must be mandatorily applied to the proposal. The value of this
     #: field must be ignored if the label is not a parent
-    _required: Mapped[bool] = sa.orm.mapped_column(
+    _required: Mapped[bool] = sa_orm.mapped_column(
         'required', sa.Boolean, nullable=False, default=False
     )
 
     #: Archived mode specifies that the label is no longer available for use
     #: although all the previous records will stay in database.
-    _archived: Mapped[bool] = sa.orm.mapped_column(
+    _archived: Mapped[bool] = sa_orm.mapped_column(
         'archived', sa.Boolean, nullable=False, default=False
     )
 
-    search_vector: Mapped[str] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
             'name',
             'title',
@@ -130,7 +131,7 @@ class Label(BaseScopedNameMixin, Model):
 
     #: Proposals that this label is attached to
     proposals: Mapped[list[Proposal]] = relationship(
-        Proposal, secondary=proposal_label, back_populates='labels'
+        secondary=proposal_label, back_populates='labels'
     )
 
     __table_args__ = (
@@ -396,31 +397,7 @@ class ProposalLabelProxy:
         return self
 
 
-@reopen(Project)
-class __Project:
-    labels: Mapped[list[Label]] = relationship(
-        Label,
-        primaryjoin=sa.and_(
-            Label.project_id == Project.id,
-            Label.main_label_id.is_(None),
-            Label._archived.is_(False),  # pylint: disable=protected-access
-        ),
-        order_by=Label.seq,
-        viewonly=True,
-    )
-    all_labels: Mapped[list[Label]] = relationship(
-        Label,
-        collection_class=ordering_list('seq', count_from=1),
-        back_populates='project',
-    )
-
-
-@reopen(Proposal)
-class __Proposal:
-    #: For reading and setting labels from the edit form
-    formlabels = ProposalLabelProxy()
-
-    labels: Mapped[list[Label]] = with_roles(
-        relationship(Label, secondary=proposal_label, back_populates='proposals'),
-        read={'all'},
-    )
+# Tail imports
+if TYPE_CHECKING:
+    from .project import Project
+    from .proposal import Proposal

@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import datetime
-
-from sqlalchemy.orm import Query as BaseQuery
+from typing import Self
 
 from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, StateManager, auto_init_default, with_roles
@@ -18,17 +17,16 @@ from . import (
     Query,
     TSVectorType,
     UuidMixin,
-    backref,
     db,
     relationship,
     sa,
+    sa_orm,
 )
 from .account import Account
 from .comment import SET_TYPE, Commentset
 from .helpers import (
     MarkdownCompositeDocument,
     add_search_trigger,
-    reopen,
     visual_field_delimiter,
 )
 from .project import Project
@@ -50,7 +48,7 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
 class Update(UuidMixin, BaseScopedIdNameMixin, Model):
     __tablename__ = 'update'
 
-    _visibility_state: Mapped[int] = sa.orm.mapped_column(
+    _visibility_state: Mapped[int] = sa_orm.mapped_column(
         'visibility_state',
         sa.SmallInteger,
         StateManager.check_constraint('visibility_state', VISIBILITY_STATE),
@@ -58,11 +56,11 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         nullable=False,
         index=True,
     )
-    visibility_state = StateManager(
+    visibility_state = StateManager['Update'](
         '_visibility_state', VISIBILITY_STATE, doc="Visibility state"
     )
 
-    _state: Mapped[int] = sa.orm.mapped_column(
+    _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', UPDATE_STATE),
@@ -70,26 +68,25 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         nullable=False,
         index=True,
     )
-    state = StateManager('_state', UPDATE_STATE, doc="Update state")
+    state = StateManager['Update']('_state', UPDATE_STATE, doc="Update state")
 
-    created_by_id: Mapped[int] = sa.orm.mapped_column(
+    created_by_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, index=True
     )
     created_by: Mapped[Account] = with_roles(
         relationship(
-            Account,
-            backref=backref('updates_created', lazy='dynamic'),
+            back_populates='created_updates',
             foreign_keys=[created_by_id],
         ),
         read={'all'},
         grants={'creator'},
     )
 
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, index=True
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, backref=backref('updates', lazy='dynamic')),
+        relationship(back_populates='updates'),
         read={'all'},
         datasets={'primary'},
         grants_via={
@@ -100,7 +97,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
             }
         },
     )
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
 
     # Relationship to project that exists only when the Update is not restricted, for
     # the purpose of inheriting the account_participant role. We do this because
@@ -111,7 +108,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
     # redefined in a subclass
     _project_when_unrestricted: Mapped[Project] = with_roles(
         relationship(
-            Project,
             viewonly=True,
             uselist=False,
             primaryjoin=sa.and_(
@@ -127,66 +123,56 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
 
     #: Update number, for Project updates, assigned when the update is published
     number: Mapped[int | None] = with_roles(
-        sa.orm.mapped_column(sa.Integer, nullable=True, default=None), read={'all'}
+        sa_orm.mapped_column(sa.Integer, nullable=True, default=None), read={'all'}
     )
 
     #: Like pinned tweets. You can keep posting updates,
     #: but might want to pin an update from a week ago.
     is_pinned: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, default=False, nullable=False), read={'all'}
+        sa_orm.mapped_column(sa.Boolean, default=False, nullable=False), read={'all'}
     )
 
-    published_by_id: Mapped[int | None] = sa.orm.mapped_column(
+    published_by_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True, index=True
     )
     published_by: Mapped[Account | None] = with_roles(
         relationship(
-            Account,
-            backref=backref('published_updates', lazy='dynamic'),
+            back_populates='published_updates',
             foreign_keys=[published_by_id],
         ),
         read={'all'},
     )
     published_at: Mapped[datetime | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    deleted_by_id: Mapped[int | None] = sa.orm.mapped_column(
+    deleted_by_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True, index=True
     )
     deleted_by: Mapped[Account | None] = with_roles(
-        relationship(
-            Account,
-            backref=backref('deleted_updates', lazy='dynamic'),
-            foreign_keys=[deleted_by_id],
-        ),
+        relationship(back_populates='deleted_updates', foreign_keys=[deleted_by_id]),
         read={'reader'},
     )
     deleted_at: Mapped[datetime | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'reader'},
     )
 
     edited_at: Mapped[datetime | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    commentset_id: Mapped[int] = sa.orm.mapped_column(
+    commentset_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
         relationship(
-            Commentset,
-            uselist=False,
-            lazy='joined',
-            cascade='all',
-            single_parent=True,
-            backref=backref('update', uselist=False),
+            uselist=False, lazy='joined', single_parent=True, back_populates='update'
         ),
         read={'all'},
     )
 
-    search_vector: Mapped[str] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
             'name',
             'title',
@@ -365,7 +351,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         return roles
 
     @classmethod
-    def all_published_public(cls) -> Query[Update]:
+    def all_published_public(cls) -> Query[Self]:
         return cls.query.join(Project).filter(
             Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
         )
@@ -404,32 +390,3 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
 add_search_trigger(Update, 'search_vector')
 auto_init_default(Update._visibility_state)  # pylint: disable=protected-access
 auto_init_default(Update._state)  # pylint: disable=protected-access
-
-
-@reopen(Project)
-class __Project:
-    updates: BaseQuery
-
-    @property
-    def published_updates(self) -> BaseQuery:
-        return self.updates.filter(Update.state.PUBLISHED).order_by(
-            Update.is_pinned.desc(), Update.published_at.desc()
-        )
-
-    with_roles(published_updates, read={'all'})
-
-    @property
-    def draft_updates(self) -> BaseQuery:
-        return self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
-
-    with_roles(draft_updates, read={'editor'})
-
-    @property
-    def pinned_update(self) -> Update | None:
-        return (
-            self.updates.filter(Update.state.PUBLISHED, Update.is_pinned.is_(True))
-            .order_by(Update.published_at.desc())
-            .first()
-        )
-
-    with_roles(pinned_update, read={'all'})

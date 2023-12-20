@@ -4,14 +4,16 @@ from __future__ import annotations
 
 import os.path
 import re
+import warnings
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Any, ClassVar, TypeVar, cast
+from typing import Any, ClassVar, TypeVar, get_type_hints
 
 from better_profanity import profanity
 from furl import furl
 from markupsafe import Markup, escape as html_escape
+from sqlalchemy import event as sa_event
 from sqlalchemy.dialects.postgresql import TSQUERY
 from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
@@ -23,7 +25,7 @@ from zxcvbn import zxcvbn
 from .. import app
 from ..typing import T
 from ..utils import MarkdownConfig, MarkdownString, markdown_escape
-from . import Model, UrlType, sa
+from . import Model, UrlType, sa, sa_orm
 
 __all__ = [
     'RESERVED_NAMES',
@@ -141,7 +143,7 @@ class PasswordCheckType:
         (guesses < 10^3)
     * 1: very guessable: protection from throttled online attacks
         (guesses < 10^6)
-    * 2: somewhat guessable: protection from unthrottled online attacks
+    * 2: somewhat guessable: protection from un-throttled online attacks
         (guesses < 10^8)
     * 3: safely unguessable: moderate protection from offline slow-hash scenario
         (guesses < 10^10)
@@ -197,6 +199,7 @@ with open(
     profanity.add_censor_words([_w.strip() for _w in badwordfile.readlines()])
 
 
+# Used as a delimiter in search results when showing a preview from multiple fields
 visual_field_delimiter = ' ¦ '
 
 
@@ -237,7 +240,7 @@ ReopenedType = TypeVar('ReopenedType', bound=type)
 TempType = TypeVar('TempType', bound=type)
 
 
-def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
+def reopen(cls: ReopenedType) -> Callable[[type], ReopenedType]:
     """
     Move the contents of the decorated class into an existing class and return it.
 
@@ -271,7 +274,7 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     properties that do more processing.
     """
 
-    def decorator(temp_cls: TempType) -> ReopenedType:
+    def decorator(temp_cls: type) -> ReopenedType:
         if temp_cls.__bases__ != (object,):
             raise TypeError("Reopened class cannot add base classes")
         if temp_cls.__class__ is not type:
@@ -283,7 +286,25 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
             '__setattr__',
             '__delattr__',
         }.intersection(set(temp_cls.__dict__.keys())):
-            raise TypeError("Reopened class contains unsupported __attributes__")
+            raise TypeError("Reopened class contains unsupported __dunder__ attributes")
+        if '__annotations__' in temp_cls.__dict__:
+            # Temp class annotations must be un-stringified as they may refer to names
+            # not available in the reopened class's namespace
+            try:
+                annotations = get_type_hints(temp_cls, include_extras=True)
+            except NameError as exc:
+                warnings.warn(
+                    f"{temp_cls.__qualname__} has a forward annotation that cannot be"
+                    f" resolved. Annotations in {cls.__qualname__} may not be usable at"
+                    f" runtime: {exc}",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
+                annotations = temp_cls.__annotations__
+            if '__annotations__' not in cls.__dict__:
+                cls.__annotations__ = annotations
+            else:
+                cls.__annotations__ = annotations | cls.__annotations__
         for attr, value in list(temp_cls.__dict__.items()):
             # Skip the standard Python attributes, process the rest
             if attr not in (
@@ -295,18 +316,21 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
             ):
                 # Refuse to overwrite existing attributes
                 if hasattr(cls, attr):
+                    # At this time we've already merged __annotations__, so there's no
+                    # good way to recover from this error -- it's effectively fatal and
+                    # requires code rewrite. This is however an implicit assumption when
+                    # using @reopen -- it should not be within a try block.
                     raise AttributeError(
-                        f"{cls.__name__} already has attribute {attr}",
+                        f"{cls.__qualname__} already has attribute {attr!r}",
                         name=attr,
                         obj=cls,
                     )
                 # All good? Copy the attribute over...
                 setattr(cls, attr, value)
+                if hasattr(value, '__set_name__'):
+                    value.__set_name__(cls, attr)
                 # ...And remove it from the temporary class
                 delattr(temp_cls, attr)
-            # Merge typing annotations
-            elif attr == '__annotations__':
-                cls.__annotations__.update(value)
         # Return the original class. Leave the temporary class to the garbage collector
         return cls
 
@@ -380,14 +404,11 @@ def quote_autocomplete_like(prefix: str, midway: bool = False) -> str:
     return lstrip_like_query
 
 
-def quote_autocomplete_tsquery(prefix: str) -> TSQUERY:
+def quote_autocomplete_tsquery(prefix: str) -> sa.Cast[str]:
     """Return a PostgreSQL tsquery suitable for autocomplete-type matches."""
-    return cast(
+    return sa.cast(
+        sa.func.concat(sa.func.phraseto_tsquery('simple', prefix or ''), ':*'),
         TSQUERY,
-        sa.func.cast(
-            sa.func.concat(sa.func.phraseto_tsquery('simple', prefix or ''), ':*'),
-            TSQUERY,
-        ),
     )
 
 
@@ -399,7 +420,7 @@ def add_search_trigger(model: type[Model], column_name: str) -> dict[str, str]:
 
         class MyModel(Model):
             ...
-            search_vector: Mapped[str] = sa.orm.mapped_column(
+            search_vector: Mapped[str] = sa_orm.mapped_column(
                 TSVectorType(
                     'name', 'title', *indexed_columns,
                     weights={'name': 'A', 'title': 'B'},
@@ -490,13 +511,13 @@ def add_search_trigger(model: type[Model], column_name: str) -> dict[str, str]:
         '''
     )
 
-    sa.event.listen(
+    sa_event.listen(
         model.__table__,
         'after_create',
         sa.DDL(trigger_function).execute_if(dialect='postgresql'),
     )
 
-    sa.event.listen(
+    sa_event.listen(
         model.__table__,
         'before_drop',
         sa.DDL(drop_statement).execute_if(dialect='postgresql'),
@@ -621,7 +642,7 @@ class MarkdownCompositeBase(MutableComposite):
         """Implement format_spec support as required by MarkdownString."""
         # This call's MarkdownString's __format__ instead of __markdown_format__ as the
         # content has not been manipulated from the source string
-        return self.__markdown__().__format__(format_spec)
+        return format(self.__markdown__(), format_spec)
 
     def __html__(self) -> str:
         """Return HTML representation."""
@@ -631,7 +652,7 @@ class MarkdownCompositeBase(MutableComposite):
         """Implement format_spec support as required by Markup."""
         # This call's Markup's __format__ instead of __html_format__ as the
         # content has not been manipulated from the source string
-        return self.__html__().__format__(format_spec)
+        return format(self.__html__(), format_spec)
 
     # Return a Markup string of the HTML
     @property
@@ -701,16 +722,16 @@ class MarkdownCompositeBase(MutableComposite):
         deferred: bool = False,
         deferred_group: str | None = None,
         **kwargs,
-    ) -> tuple[sa.orm.Composite[_MC], Mapped[str], Mapped[str]]:
+    ) -> tuple[sa_orm.Composite[_MC], Mapped[str], Mapped[str]]:
         """Create a composite column and backing individual columns."""
-        col_text = sa.orm.mapped_column(
+        col_text = sa_orm.mapped_column(
             name + '_text',
             sa.UnicodeText,
             deferred=deferred,
             deferred_group=deferred_group,
             **kwargs,
         )
-        col_html = sa.orm.mapped_column(
+        col_html = sa_orm.mapped_column(
             name + '_html',
             sa.UnicodeText,
             deferred=deferred,

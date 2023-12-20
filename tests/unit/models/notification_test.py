@@ -18,11 +18,9 @@ pytestmark = pytest.mark.filterwarnings(
 @pytest.fixture(scope='session')
 def notification_types(database) -> SimpleNamespace:
     class ProjectIsParent:
-        document: models.UuidModelUnion
-
         @property
         def preference_context(self) -> models.Account:
-            return self.document.project.account
+            return self.document.project.account  # type: ignore[attr-defined]
 
     class TestNewUpdateNotification(
         ProjectIsParent,

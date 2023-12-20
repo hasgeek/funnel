@@ -56,7 +56,7 @@ def test_comment_report_same(
         db_session.commit()
     report1_id = report1.id
 
-    assert comment.is_reviewed_by(new_user_admin)
+    assert comment.was_reviewed_by(new_user_admin)
 
     login.as_(new_user)
 
@@ -149,7 +149,7 @@ def test_comment_report_opposing(
     assert bool(comment2_refetched.state.SPAM) is False
     assert bool(comment2_refetched.state.PUBLIC) is True
     # a new report will be created
-    assert comment2_refetched.is_reviewed_by(new_user)
+    assert comment2_refetched.was_reviewed_by(new_user)
     assert (
         models.CommentModeratorReport.query.filter_by(
             comment=comment2_refetched,

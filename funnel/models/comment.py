@@ -19,11 +19,11 @@ from . import (
     Model,
     TSVectorType,
     UuidMixin,
-    backref,
     db,
     hybrid_property,
     relationship,
     sa,
+    sa_orm,
 )
 from .account import (
     Account,
@@ -32,12 +32,7 @@ from .account import (
     removed_account,
     unknown_account,
 )
-from .helpers import (
-    MarkdownCompositeBasic,
-    MessageComposite,
-    add_search_trigger,
-    reopen,
-)
+from .helpers import MarkdownCompositeBasic, MessageComposite, add_search_trigger
 
 __all__ = ['Comment', 'Commentset']
 
@@ -89,7 +84,7 @@ message_removed = MessageComposite(__("[removed]"), 'del')
 class Commentset(UuidMixin, BaseMixin, Model):
     __tablename__ = 'commentset'
     #: Commentset state code
-    _state: Mapped[int] = sa.orm.mapped_column(
+    _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.SmallInteger,
         StateManager.check_constraint('state', COMMENTSET_STATE),
@@ -97,24 +92,69 @@ class Commentset(UuidMixin, BaseMixin, Model):
         default=COMMENTSET_STATE.OPEN,
     )
     #: Commentset state manager
-    state = StateManager('_state', COMMENTSET_STATE, doc="Commentset state")
+    state = StateManager['Commentset'](
+        '_state', COMMENTSET_STATE, doc="Commentset state"
+    )
     #: Type of parent object
     settype: Mapped[int | None] = with_roles(
-        sa.orm.mapped_column('type', sa.Integer, nullable=True),
+        sa_orm.mapped_column('type', sa.Integer, nullable=True),
         read={'all'},
         datasets={'primary'},
     )
     #: Count of comments, stored to avoid count(*) queries
     count: Mapped[int] = with_roles(
-        sa.orm.mapped_column(sa.Integer, default=0, nullable=False),
+        sa_orm.mapped_column(sa.Integer, default=0, nullable=False),
         read={'all'},
         datasets={'primary'},
     )
     #: Timestamp of last comment, for ordering.
     last_comment_at: Mapped[datetime | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary'},
+    )
+
+    comments: DynamicMapped[Comment] = relationship(
+        lazy='dynamic', back_populates='commentset'
+    )
+    toplevel_comments: DynamicMapped[Comment] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            Comment.commentset_id == Commentset.id, Comment.in_reply_to_id.is_(None)
+        ),
+        viewonly=True,
+    )
+    active_memberships: DynamicMapped[CommentsetMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            CommentsetMembership.commentset_id == Commentset.id,
+            CommentsetMembership.is_active,
+        ),
+        viewonly=True,
+    )
+    # Send notifications only to subscribers who haven't muted
+    active_memberships_unmuted: DynamicMapped[CommentsetMembership] = with_roles(
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                CommentsetMembership.commentset_id == Commentset.id,
+                CommentsetMembership.is_active,
+                CommentsetMembership.is_muted.is_(False),
+            ),
+            viewonly=True,
+        ),
+        grants_via={'member': {'document_subscriber'}},
+    )
+
+    project: Mapped[Project | None] = with_roles(
+        relationship(uselist=False, back_populates='commentset'),
+        grants_via={None: {'editor': 'document_subscriber'}},
+    )
+    proposal: Mapped[Proposal | None] = relationship(
+        uselist=False, back_populates='commentset'
+    )
+    update: Mapped[Update | None] = relationship(
+        uselist=False, back_populates='commentset'
     )
 
     __roles__ = {
@@ -135,7 +175,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
 
     @cached_property
     def parent(self) -> Project | Proposal | Update:
-        # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
+        # TODO: Move this to a CommentMixin that uses a registry, like EmailAddress
         if self.project is not None:
             return self.project
         if self.proposal is not None:
@@ -182,10 +222,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
         # 2. Make a CommentMixin (like EmailAddressMixin) and insert logic into the
         #    parent, which can override methods and add custom restrictions
         comment = Comment(
-            posted_by=actor,
-            commentset=self,
-            message=message,
-            in_reply_to=in_reply_to,
+            posted_by=actor, commentset=self, message=message, in_reply_to=in_reply_to
         )
         self.count = Commentset.count + 1
         db.session.add(comment)
@@ -201,62 +238,117 @@ class Commentset(UuidMixin, BaseMixin, Model):
 
     # Transitions for the other two states are pending on the TODO notes in post_comment
 
+    def update_last_seen_at(self, member: Account) -> None:
+        subscription = CommentsetMembership.query.filter_by(
+            commentset=self, member=member, is_active=True
+        ).one_or_none()
+        if subscription is not None:
+            subscription.update_last_seen_at()
+
+    def add_subscriber(self, actor: Account, member: Account) -> bool:
+        """Return True is subscriber is added or unmuted, False if already exists."""
+        changed = False
+        subscription = CommentsetMembership.query.filter_by(
+            commentset=self, member=member, is_active=True
+        ).one_or_none()
+        if subscription is None:
+            subscription = CommentsetMembership(
+                commentset=self,
+                member=member,
+                granted_by=actor,
+            )
+            db.session.add(subscription)
+            changed = True
+        elif subscription.is_muted:
+            subscription = subscription.replace(actor=actor, is_muted=False)
+            changed = True
+        subscription.update_last_seen_at()
+        return changed
+
+    def mute_subscriber(self, actor: Account, member: Account) -> bool:
+        """Return True if subscriber was muted, False if already muted or missing."""
+        subscription = CommentsetMembership.query.filter_by(
+            commentset=self, member=member, is_active=True
+        ).one_or_none()
+        if subscription is not None and not subscription.is_muted:
+            subscription.replace(actor=actor, is_muted=True)
+            return True
+        return False
+
+    def unmute_subscriber(self, actor: Account, member: Account) -> bool:
+        """Return True if subscriber was unmuted, False if not muted or missing."""
+        subscription = CommentsetMembership.query.filter_by(
+            commentset=self, member=member, is_active=True
+        ).one_or_none()
+        if subscription is not None and subscription.is_muted:
+            subscription.replace(actor=actor, is_muted=False)
+            return True
+        return False
+
+    def remove_subscriber(self, actor: Account, member: Account) -> bool:
+        """Return True is subscriber is removed, False if already removed."""
+        subscription = CommentsetMembership.query.filter_by(
+            commentset=self, member=member, is_active=True
+        ).one_or_none()
+        if subscription is not None:
+            subscription.revoke(actor=actor)
+            return True
+        return False
+
 
 class Comment(UuidMixin, BaseMixin, Model):
     __tablename__ = 'comment'
 
-    posted_by_id: Mapped[int | None] = sa.orm.mapped_column(
+    posted_by_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=True
     )
     _posted_by: Mapped[Account | None] = with_roles(
-        relationship(
-            Account, backref=backref('comments', lazy='dynamic', cascade='all')
-        ),
+        relationship(back_populates='comments'),
         grants={'author'},
     )
-    commentset_id: Mapped[int] = sa.orm.mapped_column(
+    commentset_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
-        relationship(
-            Commentset,
-            backref=backref('comments', lazy='dynamic', cascade='all'),
-        ),
+        relationship(back_populates='comments'),
         grants_via={None: {'document_subscriber'}},
     )
 
-    in_reply_to_id: Mapped[int | None] = sa.orm.mapped_column(
+    in_reply_to_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('comment.id'), nullable=True
     )
-    replies: Mapped[list[Comment]] = relationship(
-        'Comment', backref=backref('in_reply_to', remote_side='Comment.id')
+    in_reply_to: Mapped[Comment] = relationship(
+        back_populates='replies', remote_side='Comment.id'
     )
+    replies: Mapped[list[Comment]] = relationship(back_populates='in_reply_to')
 
     _message, message_text, message_html = MarkdownCompositeBasic.create(
         'message', nullable=False
     )
 
-    _state: Mapped[int] = sa.orm.mapped_column(
+    _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', COMMENT_STATE),
         default=COMMENT_STATE.SUBMITTED,
         nullable=False,
     )
-    state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment")
+    state = StateManager['Comment'](
+        '_state', COMMENT_STATE, doc="Current state of the comment"
+    )
 
     edited_at: Mapped[datetime | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary', 'related', 'json'},
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
     revisionid: Mapped[int] = with_roles(
-        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+        sa_orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[str] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
             'message_text',
             weights={'message_text': 'A'},
@@ -265,6 +357,10 @@ class Comment(UuidMixin, BaseMixin, Model):
         ),
         nullable=False,
         deferred=True,
+    )
+
+    moderator_reports: DynamicMapped[CommentModeratorReport] = relationship(
+        lazy='dynamic', back_populates='comment'
     )
 
     __table_args__ = (
@@ -324,7 +420,7 @@ class Comment(UuidMixin, BaseMixin, Model):
 
     @posted_by.inplace.expression
     @classmethod
-    def _posted_by_expression(cls) -> sa.orm.InstrumentedAttribute[Account | None]:
+    def _posted_by_expression(cls) -> sa_orm.InstrumentedAttribute[Account | None]:
         """Return SQL Expression."""
         return cls._posted_by
 
@@ -346,7 +442,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     @message.inplace.setter
     def _message_setter(self, value: Any) -> None:
         """Edit the message of a comment."""
-        self._message = value  # type: ignore[assignment]
+        self._message = value
 
     @message.inplace.expression
     @classmethod
@@ -366,14 +462,16 @@ class Comment(UuidMixin, BaseMixin, Model):
             return _("{user} commented on {obj}").format(
                 user=self.posted_by.pickername, obj=obj.title
             )
-        return _("{account} commented").format(account=self.posted_by.pickername)
+        return _("{account} commented").format(  # type: ignore[unreachable]
+            account=self.posted_by.pickername
+        )
 
     with_roles(title, read={'all'}, datasets={'primary', 'related', 'json'})
 
     @property
     def badges(self) -> set[str]:
         badges = set()
-        roles = set()
+        roles: set[str] | LazyRoleSet = set()
         if self.commentset.project is not None:
             roles = self.commentset.project.roles_for(self._posted_by)
         elif self.commentset.proposal is not None:
@@ -416,6 +514,13 @@ class Comment(UuidMixin, BaseMixin, Model):
     def mark_not_spam(self) -> None:
         """Mark this comment as not spam."""
 
+    def was_reviewed_by(self, account: Account) -> bool:
+        return CommentModeratorReport.query.filter(
+            CommentModeratorReport.comment == self,
+            CommentModeratorReport.resolved_at.is_(None),
+            CommentModeratorReport.reported_by == account,
+        ).notempty()
+
     def roles_for(
         self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
@@ -427,19 +532,10 @@ class Comment(UuidMixin, BaseMixin, Model):
 add_search_trigger(Comment, 'search_vector')
 
 
-@reopen(Commentset)
-class __Commentset:
-    toplevel_comments: DynamicMapped[Comment] = relationship(
-        Comment,
-        lazy='dynamic',
-        primaryjoin=sa.and_(
-            Comment.commentset_id == Commentset.id, Comment.in_reply_to_id.is_(None)
-        ),
-        viewonly=True,
-    )
-
-
 # Tail imports for type checking
+from .commentset_membership import CommentsetMembership
+from .moderation import CommentModeratorReport
+
 if TYPE_CHECKING:
     from .project import Project
     from .proposal import Proposal

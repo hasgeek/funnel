@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 import sqlalchemy as sa
+import sqlalchemy.orm as sa_orm
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped
 
@@ -419,35 +420,38 @@ def email_models(database, app) -> Generator:
         """Test model connecting EmailUser to EmailAddress."""
 
         __tablename__ = 'test_email_link'
-        __email_optional__ = False
         __email_unique__ = True
         __email_for__ = 'emailuser'
         __email_is_exclusive__ = True
 
-        emailuser_id: Mapped[int] = sa.orm.mapped_column(
+        emailuser_id: Mapped[int] = sa_orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=False
         )
-        emailuser = relationship(EmailUser)
+        emailuser: Mapped[EmailUser] = relationship()
 
-    class EmailDocument(models.EmailAddressMixin, models.BaseMixin, models.Model):
+    class EmailDocument(
+        models.OptionalEmailAddressMixin, models.BaseMixin, models.Model
+    ):
         """Test model unaffiliated to a user that has an email address attached."""
 
         __tablename__ = 'test_email_document'
 
-    class EmailLinkedDocument(models.EmailAddressMixin, models.BaseMixin, models.Model):
+    class EmailLinkedDocument(
+        models.OptionalEmailAddressMixin, models.BaseMixin, models.Model
+    ):
         """Test model that accepts an optional user and an optional email."""
 
         __tablename__ = 'test_email_linked_document'
         __email_for__ = 'emailuser'
 
-        emailuser_id: Mapped[int | None] = sa.orm.mapped_column(
+        emailuser_id: Mapped[int | None] = sa_orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=True
         )
-        emailuser: Mapped[EmailUser | None] = relationship(EmailUser)
+        emailuser: Mapped[EmailUser | None] = relationship()
 
     new_models = [EmailUser, EmailLink, EmailDocument, EmailLinkedDocument]
 
-    sa.orm.configure_mappers()
+    sa_orm.configure_mappers()
     # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
         database.metadata.create_all(

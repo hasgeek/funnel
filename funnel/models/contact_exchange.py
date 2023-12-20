@@ -6,6 +6,7 @@ from collections.abc import Collection, Sequence
 from dataclasses import dataclass
 from datetime import date as date_type, datetime
 from itertools import groupby
+from typing import Self
 from uuid import UUID
 
 from pytz import timezone
@@ -20,10 +21,10 @@ from . import (
     Query,
     RoleMixin,
     TimestampMixin,
-    backref,
     db,
     relationship,
     sa,
+    sa_orm,
 )
 from .account import Account
 from .project import Project
@@ -58,39 +59,30 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
 
     __tablename__ = 'contact_exchange'
     #: User who scanned this contact
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'), primary_key=True
     )
-    account: Mapped[Account] = relationship(
-        Account,
-        backref=backref(
-            'scanned_contacts',
-            lazy='dynamic',
-            order_by='ContactExchange.scanned_at.desc()',
-            passive_deletes=True,
-        ),
-    )
+    account: Mapped[Account] = relationship(back_populates='scanned_contacts')
     #: Participant whose contact was scanned
-    ticket_participant_id: Mapped[int] = sa.orm.mapped_column(
+    ticket_participant_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('ticket_participant.id', ondelete='CASCADE'),
         primary_key=True,
         index=True,
     )
     ticket_participant: Mapped[TicketParticipant] = relationship(
-        TicketParticipant,
-        backref=backref('scanned_contacts', passive_deletes=True),
+        back_populates='scanned_contacts'
     )
     #: Datetime at which the scan happened
-    scanned_at: Mapped[datetime] = sa.orm.mapped_column(
+    scanned_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: Note recorded by the user (plain text)
-    description: Mapped[str] = sa.orm.mapped_column(
+    description: Mapped[str] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=False, default=''
     )
     #: Archived flag
-    archived: Mapped[bool] = sa.orm.mapped_column(
+    archived: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
 
@@ -156,10 +148,10 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
 
         query = (
             db.session.query(
-                sa.column('project_id'),
-                sa.column('project_uuid'),
-                sa.column('project_title'),
-                sa.column('project_timezone'),
+                sa.column('project_id', sa.Integer()),
+                sa.column('project_uuid', sa.Uuid()),
+                sa.column('project_title', sa.String()),
+                sa.column('project_timezone', sa.String()),
                 sa.cast(
                     sa.func.date_trunc(
                         'day',
@@ -257,7 +249,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     @classmethod
     def contacts_for_project_and_date(
         cls, account: Account, project: Project, date: date_type, archived: bool = False
-    ) -> Query[ContactExchange]:
+    ) -> Query[Self]:
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(
             cls.account == account,
@@ -284,7 +276,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     @classmethod
     def contacts_for_project(
         cls, account: Account, project: Project, archived: bool = False
-    ) -> Query[ContactExchange]:
+    ) -> Query[Self]:
         """Return contacts for a given user and project."""
         query = cls.query.join(TicketParticipant).filter(
             cls.account == account,

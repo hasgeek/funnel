@@ -37,6 +37,7 @@ mdit-py-plugins
 oauth2client
 passlib
 phonenumbers
+playwright  # Relocated from test.in because of greenlet version pin
 premailer
 progressbar2
 psycopg[binary]

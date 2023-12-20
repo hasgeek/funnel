@@ -405,9 +405,7 @@ class AccountNotificationView(ClassView):
             else:
                 email_address.mark_active()
                 db.session.commit()
-        elif (
-            payload['transport'] in ('sms', 'whatsapp', 'signal') and 'hash' in payload
-        ):
+        elif payload['transport'] in ('sms', 'whatsapp') and 'hash' in payload:
             phone_number = PhoneNumber.get(phone_hash=payload['hash'])
             if phone_number is None:
                 current_app.logger.error(

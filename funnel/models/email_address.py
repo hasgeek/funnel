@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import unicodedata
+import warnings
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, cast, overload
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, cast, overload
 
 import base58
 import idna
@@ -15,7 +16,13 @@ from sqlalchemy import event, inspect
 from sqlalchemy.orm import NO_VALUE, Mapper
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import StateManager, auto_init_default, immutable, with_roles
+from coaster.sqlalchemy import (
+    ModelWarning,
+    StateManager,
+    auto_init_default,
+    immutable,
+    with_roles,
+)
 from coaster.utils import LabeledEnum, require_one_of
 
 from ..signals import emailaddress_refcount_dropping
@@ -30,6 +37,7 @@ from . import (
     hybrid_property,
     relationship,
     sa,
+    sa_orm,
 )
 
 __all__ = [
@@ -38,6 +46,7 @@ __all__ = [
     'EmailAddressBlockedError',
     'EmailAddressInUseError',
     'EmailAddress',
+    'OptionalEmailAddressMixin',
     'EmailAddressMixin',
 ]
 
@@ -176,7 +185,7 @@ class EmailAddress(BaseMixin, Model):
     6. Upcoming: column-level encryption of the email column, securing SQL dumps.
 
     New email addresses must be added using the :meth:`add` or :meth:`add_for`
-    classmethods, depending on whether the email address is linked to an owner or not.
+    class methods, depending on whether the email address is linked to an owner or not.
     """
 
     __tablename__ = 'email_address'
@@ -185,15 +194,15 @@ class EmailAddress(BaseMixin, Model):
     #: Contains the name of the relationship in the :class:`EmailAddress` model
     __backrefs__: ClassVar[set[str]] = set()
     #: These backrefs claim exclusive use of the email address for their linked owner.
-    #: See :class:`EmailAddressMixin` for implementation detail
+    #: See :class:`OptionalEmailAddressMixin` for implementation detail
     __exclusive_backrefs__: ClassVar[set[str]] = set()
 
     #: The email address, centrepiece of this model. Case preserving.
     #: Validated by the :func:`_validate_email` event handler
-    email: Mapped[str | None] = sa.orm.mapped_column(sa.Unicode, nullable=True)
+    email: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
     #: The domain of the email, stored for quick lookup of related addresses
     #: Read-only, accessible via the :property:`domain` property
-    _domain: Mapped[str | None] = sa.orm.mapped_column(
+    _domain: Mapped[str | None] = sa_orm.mapped_column(
         'domain', sa.Unicode, nullable=True, index=True
     )
 
@@ -202,8 +211,8 @@ class EmailAddress(BaseMixin, Model):
     #: BLAKE2b 160-bit hash of :property:`email_normalized`. Kept permanently even if
     #: email is removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite
     #: the name, we're only storing 20 bytes
-    blake2b160 = immutable(
-        sa.orm.mapped_column(
+    blake2b160: Mapped[bytes] = immutable(
+        sa_orm.mapped_column(
             sa.LargeBinary,
             sa.CheckConstraint(
                 'LENGTH(blake2b160) = 20',
@@ -217,12 +226,12 @@ class EmailAddress(BaseMixin, Model):
     #: BLAKE2b 160-bit hash of :property:`email_canonical`. Kept permanently for blocked
     #: email detection. Indexed but does not use a unique constraint because a+b@tld and
     #: a+c@tld are both a@tld canonically but can exist in records separately.
-    blake2b160_canonical = immutable(
-        sa.orm.mapped_column(sa.LargeBinary, nullable=False, index=True)
+    blake2b160_canonical: Mapped[bytes] = immutable(
+        sa_orm.mapped_column(sa.LargeBinary, nullable=False, index=True)
     )
 
     #: Does this email address work? Records last known delivery state
-    _delivery_state: Mapped[int] = sa.orm.mapped_column(
+    _delivery_state: Mapped[int] = sa_orm.mapped_column(
         'delivery_state',
         sa.Integer,
         StateManager.check_constraint(
@@ -233,17 +242,17 @@ class EmailAddress(BaseMixin, Model):
         nullable=False,
         default=EMAIL_DELIVERY_STATE.UNKNOWN,
     )
-    delivery_state = StateManager(
+    delivery_state = StateManager['EmailAddress'](
         '_delivery_state',
         EMAIL_DELIVERY_STATE,
         doc="Last known delivery state of this email address",
     )
     #: Timestamp of last known delivery state
-    delivery_state_at: Mapped[datetime] = sa.orm.mapped_column(
+    delivery_state_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: Timestamp of last known recipient activity resulting from sent mail
-    active_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    active_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
@@ -252,7 +261,7 @@ class EmailAddress(BaseMixin, Model):
     #: so a test for whether an address is blocked should use blake2b160_canonical to
     #: load the record. Other records with the same canonical hash _may_ exist without
     #: setting the flag due to a lack of database-side enforcement
-    _is_blocked: Mapped[bool] = sa.orm.mapped_column(
+    _is_blocked: Mapped[bool] = sa_orm.mapped_column(
         'is_blocked', sa.Boolean, nullable=False, default=False
     )
 
@@ -290,6 +299,11 @@ class EmailAddress(BaseMixin, Model):
             'email_address_email_domain_check',
         ),
     )
+
+    if TYPE_CHECKING:
+        used_in_account_email: Mapped[list[AccountEmail]] = relationship()
+        used_in_account_email_claim: Mapped[list[AccountEmailClaim]] = relationship()
+        used_in_ticket_participant: Mapped[list[TicketParticipant]] = relationship()
 
     @hybrid_property
     def is_blocked(self) -> bool:
@@ -356,7 +370,7 @@ class EmailAddress(BaseMixin, Model):
         """Format the email address."""
         if not format_spec:
             return self.__str__()
-        return self.__str__().__format__(format_spec)
+        return format(self.__str__(), format_spec)
 
     def __repr__(self) -> str:
         """Debugging representation of the email address."""
@@ -472,7 +486,7 @@ class EmailAddress(BaseMixin, Model):
         email_hash: str | None = None,
     ) -> sa.ColumnElement[bool] | None:
         """
-        Get an filter condition for retriving an :class:`EmailAddress`.
+        Get an filter condition for retrieving an :class:`EmailAddress`.
 
         Accepts an email address or a blake2b160 hash in either bytes or base58 form.
         Internally converts all lookups to a bytes-based hash lookup. Returns an
@@ -527,14 +541,15 @@ class EmailAddress(BaseMixin, Model):
 
         Internally converts an email-based lookup into a hash-based lookup.
         """
-        return cls.query.filter(
-            cls.get_filter(email=email, blake2b160=blake2b160, email_hash=email_hash)
-        ).one_or_none()
+        email_filter = cls.get_filter(
+            email=email, blake2b160=blake2b160, email_hash=email_hash
+        )
+        if email_filter is None:
+            return None
+        return cls.query.filter(email_filter).one_or_none()
 
     @classmethod
-    def get_canonical(
-        cls, email: str, is_blocked: bool | None = None
-    ) -> Query[EmailAddress]:
+    def get_canonical(cls, email: str, is_blocked: bool | None = None) -> Query[Self]:
         """
         Get :class:`EmailAddress` instances matching the canonical representation.
 
@@ -699,7 +714,7 @@ class EmailAddress(BaseMixin, Model):
 
 
 @declarative_mixin
-class EmailAddressMixin:
+class OptionalEmailAddressMixin:
     """
     Mixin class for models that refer to :class:`EmailAddress`.
 
@@ -725,7 +740,7 @@ class EmailAddressMixin:
     @classmethod
     def email_address_id(cls) -> Mapped[int | None]:
         """Foreign key to email_address table."""
-        return sa.orm.mapped_column(
+        return sa_orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('email_address.id', ondelete='SET NULL'),
             nullable=cls.__email_optional__,
@@ -735,13 +750,14 @@ class EmailAddressMixin:
 
     @declared_attr
     @classmethod
-    def email_address(cls) -> Mapped[EmailAddress]:
+    def email_address(cls) -> Mapped[EmailAddress | None]:
         """Instance of :class:`EmailAddress` as a relationship."""
         backref_name = 'used_in_' + cls.__tablename__
         EmailAddress.__backrefs__.add(backref_name)
         if cls.__email_for__ and cls.__email_is_exclusive__:
             EmailAddress.__exclusive_backrefs__.add(backref_name)
-        return relationship(EmailAddress, backref=backref_name)
+        with warnings.catch_warnings(action='ignore', category=ModelWarning):
+            return relationship(EmailAddress, backref=backref_name)
 
     @property
     def email(self) -> str | None:
@@ -761,19 +777,19 @@ class EmailAddressMixin:
         return None
 
     @email.setter
-    def email(self, value: str | None) -> None:
+    def email(self, __value: str | None) -> None:
         """Set an email address."""
         if self.__email_for__:
-            if value is not None:
+            if __value is not None:
                 self.email_address = EmailAddress.add_for(
-                    getattr(self, self.__email_for__), value
+                    getattr(self, self.__email_for__), __value
                 )
             else:
                 self.email_address = None
 
         else:
-            if value is not None:
-                self.email_address = EmailAddress.add(value)
+            if __value is not None:
+                self.email_address = EmailAddress.add(__value)
             else:
                 self.email_address = None
 
@@ -795,6 +811,37 @@ class EmailAddressMixin:
             if self.email_address  # pylint: disable=using-constant-test
             else None
         )
+
+
+@declarative_mixin
+class EmailAddressMixin(OptionalEmailAddressMixin):
+    """Non-optional version of :class:`OptionalEmailAddressMixin`."""
+
+    __email_optional__: ClassVar[bool] = False
+
+    if TYPE_CHECKING:
+
+        @declared_attr
+        @classmethod
+        def email_address_id(cls) -> Mapped[int]:  # type: ignore[override]
+            ...
+
+        @declared_attr
+        @classmethod
+        def email_address(cls) -> Mapped[EmailAddress]:  # type: ignore[override]
+            ...
+
+        @property  # type: ignore[override]
+        def email(self) -> str:
+            ...
+
+        @email.setter
+        def email(self, __value: str) -> None:
+            ...
+
+        @property
+        def transport_hash(self) -> str:
+            ...
 
 
 auto_init_default(EmailAddress._delivery_state)  # pylint: disable=protected-access
@@ -860,7 +907,7 @@ def _send_refcount_event_remove(
 
 
 def _send_refcount_event_before_delete(
-    _mapper: Any, _connection: Any, target: EmailAddressMixin
+    _mapper: Any, _connection: Any, target: OptionalEmailAddressMixin
 ) -> None:
     if target.email_address:
         emailaddress_refcount_dropping.send(target.email_address)
@@ -874,7 +921,7 @@ def _setup_refcount_events() -> None:
 
 
 def _email_address_mixin_set_validator(
-    target: EmailAddressMixin,
+    target: OptionalEmailAddressMixin,
     value: EmailAddress | None,
     old_value: EmailAddress | None,
     _initiator: Any,
@@ -887,13 +934,14 @@ def _email_address_mixin_set_validator(
                 raise EmailAddressInUseError("This email address it not available")
 
 
-@event.listens_for(EmailAddressMixin, 'mapper_configured', propagate=True)
+@event.listens_for(OptionalEmailAddressMixin, 'mapper_configured', propagate=True)
 def _email_address_mixin_configure_events(
-    _mapper: Any, cls: type[EmailAddressMixin]
+    _mapper: Any, cls: type[OptionalEmailAddressMixin]
 ) -> None:
     event.listen(cls.email_address, 'set', _email_address_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)
 
 
 if TYPE_CHECKING:
-    from .account import Account
+    from .account import Account, AccountEmail, AccountEmailClaim
+    from .sync_ticket import TicketParticipant

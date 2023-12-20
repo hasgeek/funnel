@@ -45,6 +45,7 @@ def test_usersession_revoke(db_session, user_twoflower) -> None:
     db_session.add(yet_another_usersession)
     yet_another_usersession.revoke()
     result = models.LoginSession.get(yet_another_usersession.buid)
+    assert result is not None
     assert result.revoked_at is not None
 
 

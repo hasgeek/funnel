@@ -758,7 +758,7 @@ def upgrade_() -> None:
     # Insert organization data into account
     with console.status("Copying organization data into account table"):
         op.execute(
-            account.insert().from_select(  # type: ignore[arg-type]
+            account.insert().from_select(
                 [
                     'type',
                     'uuid',
@@ -827,7 +827,7 @@ def upgrade_() -> None:
             .where(profile.c.uuid == account.c.uuid, profile.c.reserved.is_(False))
         )
         op.execute(
-            account.insert().from_select(  # type: ignore[arg-type]
+            account.insert().from_select(
                 [
                     'type',
                     'uuid',
@@ -1428,11 +1428,7 @@ def downgrade_() -> None:
 
     # Delete all non-user rows from account
     with console.status("Dropping all non-user data from account table (slow!)"):
-        op.execute(
-            account.delete().where(  # type: ignore[arg-type]
-                account.c.type != AccountType.USER
-            )
-        )
+        op.execute(account.delete().where(account.c.type != AccountType.USER))
 
     with console.status("Dropping new columns and indexes on account"):
         op.drop_index(op.f('ix_account_name_lower'), table_name='account')

@@ -200,7 +200,7 @@ def downgrade_() -> None:
     )
     # TODO: Populate organization
     op.execute(
-        organization.insert().from_select(  # type: ignore[arg-type]
+        organization.insert().from_select(
             [
                 'uuid',
                 'created_at',
@@ -313,7 +313,7 @@ def downgrade_() -> None:
     )
     # Copy user profiles
     op.execute(
-        profile.insert().from_select(  # type: ignore[arg-type]
+        profile.insert().from_select(
             [
                 'account_id',
                 'organization_id',
@@ -358,7 +358,7 @@ def downgrade_() -> None:
     )
     # Copy org profiles
     op.execute(
-        profile.insert().from_select(  # type: ignore[arg-type]
+        profile.insert().from_select(
             [
                 'account_id',
                 'organization_id',
@@ -407,7 +407,7 @@ def downgrade_() -> None:
     )
     # Copy reserved (placeholder) profiles
     op.execute(
-        profile.insert().from_select(  # type: ignore[arg-type]
+        profile.insert().from_select(
             [
                 'account_id',
                 'organization_id',

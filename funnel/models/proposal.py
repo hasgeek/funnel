@@ -4,33 +4,42 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import datetime as datetime_type
+from typing import TYPE_CHECKING, Self
+
+from werkzeug.utils import cached_property
 
 from baseframe import __
 from baseframe.filters import preview
-from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
+from coaster.sqlalchemy import (
+    DynamicAssociationProxy,
+    LazyRoleSet,
+    StateManager,
+    with_roles,
+)
 from coaster.utils import LabeledEnum
 
 from . import (
     BaseMixin,
     BaseScopedIdNameMixin,
+    DynamicMapped,
     Mapped,
     Model,
     Query,
     TSVectorType,
     UuidMixin,
-    backref,
     db,
     relationship,
     sa,
+    sa_orm,
 )
 from .account import Account
 from .comment import SET_TYPE, Commentset
 from .helpers import (
     MarkdownCompositeDocument,
     add_search_trigger,
-    reopen,
     visual_field_delimiter,
 )
+from .label import Label, ProposalLabelProxy, proposal_label
 from .project import Project
 from .project_membership import project_child_role_map
 from .reorder_mixin import ReorderProtoMixin
@@ -123,33 +132,23 @@ class Proposal(  # type: ignore[misc]
 ):
     __tablename__ = 'proposal'
 
-    created_by_id: Mapped[int] = sa.orm.mapped_column(
+    created_by_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False
     )
     created_by: Mapped[Account] = with_roles(
-        relationship(
-            Account,
-            foreign_keys=[created_by_id],
-            backref=backref('created_proposals', cascade='all', lazy='dynamic'),
-        ),
+        relationship(back_populates='created_proposals'),
         grants={'creator', 'participant'},
     )
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        relationship(
-            Project,
-            foreign_keys=[project_id],
-            backref=backref(
-                'proposals', cascade='all', lazy='dynamic', order_by='Proposal.url_id'
-            ),
-        ),
+        relationship(back_populates='proposals'),
         grants_via={None: project_child_role_map},
     )
-    parent_id: Mapped[int] = sa.orm.synonym('project_id')
+    parent_id: Mapped[int] = sa_orm.synonym('project_id')
     parent_id_column = 'project_id'
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
 
     #: Reuse the `url_id` column from BaseScopedIdNameMixin as a sorting order column.
     #: `url_id` was a public number on talkfunnel.com, but is private on hasgeek.com.
@@ -159,58 +158,55 @@ class Proposal(  # type: ignore[misc]
     #: to all proposals, including drafts. A user-facing sequence will have gaps.
     #: Should numbering be required in the product, see `Update.number` for a better
     #: implementation.
-    seq: Mapped[int] = sa.orm.synonym('url_id')
+    seq: Mapped[int] = sa_orm.synonym('url_id')
 
     # TODO: Stand-in for `submitted_at` until proposals have a workflow-driven datetime
-    datetime: Mapped[datetime_type] = sa.orm.synonym('created_at')
+    datetime: Mapped[datetime_type] = sa_orm.synonym('created_at')
 
-    _state: Mapped[int] = sa.orm.mapped_column(
+    _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.Integer,
         StateManager.check_constraint('state', PROPOSAL_STATE),
         default=PROPOSAL_STATE.SUBMITTED,
         nullable=False,
     )
-    state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
+    state = StateManager['Proposal'](
+        '_state', PROPOSAL_STATE, doc="Current state of the proposal"
+    )
 
-    commentset_id: Mapped[int] = sa.orm.mapped_column(
+    commentset_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset: Mapped[Commentset] = relationship(
-        Commentset,
-        uselist=False,
-        lazy='joined',
-        cascade='all',
-        single_parent=True,
-        back_populates='proposal',
+        uselist=False, lazy='joined', single_parent=True, back_populates='proposal'
     )
 
     body, body_text, body_html = MarkdownCompositeDocument.create(
         'body', nullable=False, default=''
     )
-    description: Mapped[str] = sa.orm.mapped_column(
+    description: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode, nullable=False, default=''
     )
-    custom_description: Mapped[bool] = sa.orm.mapped_column(
+    custom_description: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
-    template: Mapped[bool] = sa.orm.mapped_column(
+    template: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
-    featured: Mapped[bool] = sa.orm.mapped_column(
+    featured: Mapped[bool] = sa_orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
 
-    edited_at: Mapped[datetime_type | None] = sa.orm.mapped_column(
+    edited_at: Mapped[datetime_type | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
     revisionid: Mapped[int] = with_roles(
-        sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
+        sa_orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[str] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
             'title',
             'description',
@@ -229,6 +225,54 @@ class Proposal(  # type: ignore[misc]
         ),
         nullable=False,
         deferred=True,
+    )
+
+    #: For reading and setting labels from the edit form
+    formlabels = ProposalLabelProxy()
+
+    labels: Mapped[list[Label]] = with_roles(
+        relationship(Label, secondary=proposal_label, back_populates='proposals'),
+        read={'all'},
+    )
+
+    all_memberships: DynamicMapped[ProposalMembership] = relationship(
+        lazy='dynamic', passive_deletes=True, back_populates='proposal'
+    )
+
+    # This relationship does not use `lazy='dynamic'` because it is expected to contain
+    # <2 records on average, and won't exceed 50 in the most extreme cases
+    memberships: Mapped[list[ProposalMembership]] = with_roles(
+        relationship(
+            primaryjoin=lambda: sa.and_(
+                ProposalMembership.proposal_id == Proposal.id,
+                ProposalMembership.is_active,
+            ),
+            order_by=lambda: ProposalMembership.seq,
+            viewonly=True,
+        ),
+        read={'all'},
+        # These grants are authoritative and used instead of `offered_roles` above
+        grants_via={'member': {'submitter', 'editor'}},
+    )
+
+    session: Mapped[Session | None] = relationship(
+        uselist=False, back_populates='proposal'
+    )
+
+    all_sponsor_memberships: DynamicMapped[ProposalSponsorMembership] = relationship(
+        lazy='dynamic', passive_deletes=True, back_populates='proposal'
+    )
+    sponsor_memberships: DynamicMapped[ProposalSponsorMembership] = with_roles(
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                ProposalSponsorMembership.proposal_id == Proposal.id,
+                ProposalSponsorMembership.is_active,
+            ),
+            order_by=lambda: ProposalSponsorMembership.seq,
+            viewonly=True,
+        ),
+        read={'all'},
     )
 
     __table_args__ = (
@@ -314,7 +358,7 @@ class Proposal(  # type: ignore[misc]
     def __format__(self, format_spec: str) -> str:
         if not format_spec:
             return self.title
-        return self.title.__format__(format_spec)
+        return format(self.title, format_spec)
 
     # State transitions
     state.add_conditional_state(
@@ -458,6 +502,14 @@ class Proposal(  # type: ignore[misc]
     def delete(self):
         pass
 
+    @property
+    def first_user(self) -> Account:
+        """Return the first credited member on the proposal, or creator if none."""
+        for membership in self.memberships:
+            if not membership.is_uncredited:
+                return membership.member
+        return self.created_by
+
     @with_roles(call={'project_editor'})
     def move_to(self, project: Project) -> None:
         """Move to a new project and reset :attr:`url_id`."""
@@ -489,6 +541,13 @@ class Proposal(  # type: ignore[misc]
             .first()
         )
 
+    @with_roles(read={'all'})
+    @cached_property
+    def has_sponsors(self) -> bool:
+        return db.session.query(self.sponsor_memberships.exists()).scalar()
+
+    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
+
     def roles_for(
         self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
@@ -506,7 +565,7 @@ class Proposal(  # type: ignore[misc]
         return roles
 
     @classmethod
-    def all_public(cls) -> Query[Proposal]:
+    def all_public(cls) -> Query[Self]:
         return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.state.PUBLIC)
 
     @classmethod
@@ -525,84 +584,18 @@ class ProposalSuuidRedirect(BaseMixin, Model):
 
     __tablename__ = 'proposal_suuid_redirect'
 
-    suuid: Mapped[str] = sa.orm.mapped_column(
+    suuid: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(22), nullable=False, index=True
     )
-    proposal_id: Mapped[int] = sa.orm.mapped_column(
+    proposal_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
-    proposal: Mapped[Proposal] = relationship(Proposal)
-
-
-@reopen(Commentset)
-class __Commentset:
-    proposal: Mapped[Proposal] = relationship(
-        Proposal, uselist=False, back_populates='commentset'
-    )
-
-
-@reopen(Project)
-class __Project:
-    @property
-    def proposals_all(self):
-        if self.subprojects:
-            return Proposal.query.filter(
-                Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
-            )
-        return self.proposals
-
-    @property
-    def proposals_by_state(self):
-        if self.subprojects:
-            basequery = Proposal.query.filter(
-                Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
-            )
-        else:
-            basequery = Proposal.query.filter_by(project=self)
-        return Proposal.state.group(
-            basequery.filter(
-                ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
-            ).order_by(sa.desc('created_at'))
-        )
-
-    @property
-    def proposals_by_confirmation(self):
-        if self.subprojects:
-            basequery = Proposal.query.filter(
-                Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
-            )
-        else:
-            basequery = Proposal.query.filter_by(project=self)
-        return {
-            'confirmed': basequery.filter(Proposal.state.CONFIRMED)
-            .order_by(sa.desc('created_at'))
-            .all(),
-            'unconfirmed': basequery.filter(
-                ~(Proposal.state.CONFIRMED),
-                ~(Proposal.state.DRAFT),
-                ~(Proposal.state.DELETED),
-            )
-            .order_by(sa.desc('created_at'))
-            .all(),
-        }
-
-    # Whether the project has any featured proposals. Returns `None` instead of
-    # a boolean if the project does not have any proposal.
-    _has_featured_proposals: Mapped[bool | None] = sa.orm.column_property(
-        sa.exists()
-        .where(Proposal.project_id == Project.id)
-        .where(Proposal.featured.is_(True))
-        .correlate_except(Proposal),
-        deferred=True,
-    )
-
-    @property
-    def has_featured_proposals(self) -> bool:
-        return bool(self._has_featured_proposals)
-
-    with_roles(has_featured_proposals, read={'all'})
+    proposal: Mapped[Proposal] = relationship()
 
 
 # Tail imports
-# pylint: disable=wrong-import-position
-from .proposal_membership import ProposalMembership  # isort:skip
+from .proposal_membership import ProposalMembership
+from .sponsor_membership import ProposalSponsorMembership
+
+if TYPE_CHECKING:
+    from .session import Session

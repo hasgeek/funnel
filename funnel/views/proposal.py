@@ -38,6 +38,7 @@ from ..models import (
     ProposalSuuidRedirect,
     db,
     sa,
+    sa_orm,
 )
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
@@ -114,12 +115,12 @@ class ProjectProposalView(ProjectViewBase):
         if Form().validate_on_submit():
             proposal: Proposal = (
                 Proposal.query.filter_by(uuid_b58=target)
-                .options(sa.orm.load_only(Proposal.id, Proposal.seq))
+                .options(sa_orm.load_only(Proposal.id, Proposal.seq))
                 .one_or_404()
             )
             other_proposal: Proposal = (
                 Proposal.query.filter_by(uuid_b58=other)
-                .options(sa.orm.load_only(Proposal.id, Proposal.seq))
+                .options(sa_orm.load_only(Proposal.id, Proposal.seq))
                 .one_or_404()
             )
             proposal.current_access().reorder_item(other_proposal, before)

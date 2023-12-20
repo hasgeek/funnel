@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 
 from coaster.sqlalchemy import add_primary_relationship, with_roles
 
@@ -14,8 +14,9 @@ from . import (
     UuidMixin,
     relationship,
     sa,
+    sa_orm,
 )
-from .helpers import MarkdownCompositeBasic, reopen
+from .helpers import MarkdownCompositeBasic
 from .project import Project
 from .project_membership import project_child_role_map, project_child_role_set
 
@@ -25,43 +26,40 @@ __all__ = ['Venue', 'VenueRoom']
 class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
     __tablename__ = 'venue'
 
-    project_id: Mapped[int] = sa.orm.mapped_column(
+    project_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False
     )
     project: Mapped[Project] = with_roles(
-        relationship(Project, back_populates='venues'),
-        grants_via={None: project_child_role_map},
+        relationship(back_populates='venues'), grants_via={None: project_child_role_map}
     )
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
     description, description_text, description_html = MarkdownCompositeBasic.create(
         'description', default='', nullable=False
     )
-    address1: Mapped[str] = sa.orm.mapped_column(
+    address1: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(160), default='', nullable=False
     )
-    address2: Mapped[str] = sa.orm.mapped_column(
+    address2: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(160), default='', nullable=False
     )
-    city: Mapped[str] = sa.orm.mapped_column(sa.Unicode(30), default='', nullable=False)
-    state: Mapped[str] = sa.orm.mapped_column(
+    city: Mapped[str] = sa_orm.mapped_column(sa.Unicode(30), default='', nullable=False)
+    state: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(30), default='', nullable=False
     )
-    postcode: Mapped[str] = sa.orm.mapped_column(
+    postcode: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(20), default='', nullable=False
     )
-    country: Mapped[str] = sa.orm.mapped_column(
+    country: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(2), default='', nullable=False
     )
 
-    rooms: Mapped[list[VenueRoom]] = relationship(
-        'VenueRoom',
-        cascade='all',
-        order_by='VenueRoom.seq',
+    rooms: Mapped[OrderingList[VenueRoom]] = relationship(
+        order_by=lambda: VenueRoom.seq,
         collection_class=ordering_list('seq', count_from=1),
         back_populates='venue',
     )
 
-    seq: Mapped[int] = sa.orm.mapped_column(sa.Integer, nullable=False)
+    seq: Mapped[int] = sa_orm.mapped_column(sa.Integer, nullable=False)
 
     __table_args__ = (sa.UniqueConstraint('project_id', 'name'),)
 
@@ -115,23 +113,31 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
 class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
     __tablename__ = 'venue_room'
 
-    venue_id: Mapped[int] = sa.orm.mapped_column(
+    venue_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('venue.id'), nullable=False
     )
     venue: Mapped[Venue] = with_roles(
-        relationship(Venue, back_populates='rooms'),
+        relationship(back_populates='rooms'),
         # Since Venue already remaps Project roles, we just want the remapped role names
         grants_via={None: project_child_role_set},
     )
-    parent: Mapped[Venue] = sa.orm.synonym('venue')
+    parent: Mapped[Venue] = sa_orm.synonym('venue')
     description, description_text, description_html = MarkdownCompositeBasic.create(
         'description', default='', nullable=False
     )
-    bgcolor: Mapped[str] = sa.orm.mapped_column(
+    bgcolor: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(6), nullable=False, default='229922'
     )
 
-    seq: Mapped[int] = sa.orm.mapped_column(sa.Integer, nullable=False)
+    seq: Mapped[int] = sa_orm.mapped_column(sa.Integer, nullable=False)
+
+    sessions: Mapped[list[Session]] = relationship(back_populates='venue_room')
+    scheduled_sessions: Mapped[list[Session]] = relationship(
+        primaryjoin=lambda: sa.and_(
+            Session.venue_room_id == VenueRoom.id, Session.scheduled
+        ),
+        viewonly=True,
+    )
 
     __table_args__ = (sa.UniqueConstraint('venue_id', 'name'),)
 
@@ -184,19 +190,5 @@ add_primary_relationship(Project, 'primary_venue', Venue, 'project', 'project_id
 with_roles(Project.primary_venue, read={'all'}, datasets={'primary', 'without_parent'})
 
 
-@reopen(Project)
-class __Project:
-    venues: Mapped[list[Venue]] = with_roles(
-        relationship(
-            Venue,
-            cascade='all',
-            order_by='Venue.seq',
-            collection_class=ordering_list('seq', count_from=1),
-            back_populates='project',
-        ),
-        read={'all'},
-    )
-
-    @property
-    def rooms(self):
-        return [room for venue in self.venues for room in venue.rooms]
+# Tail imports
+from .session import Session

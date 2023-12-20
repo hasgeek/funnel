@@ -15,7 +15,7 @@ from coaster.views import ModelView, UrlChangeCheck, UrlForView, requestform, ro
 
 from .. import app
 from ..forms import ProjectSponsorForm
-from ..models import Account, Project, ProjectSponsorMembership, db, sa
+from ..models import Account, Project, ProjectSponsorMembership, db, sa_orm
 from ..typing import ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_site_editor
@@ -94,7 +94,7 @@ class ProjectSponsorLandingView(ProjectViewBase):
             sponsor: ProjectSponsorMembership = (
                 ProjectSponsorMembership.query.filter_by(uuid_b58=target)
                 .options(
-                    sa.orm.load_only(
+                    sa_orm.load_only(
                         ProjectSponsorMembership.id, ProjectSponsorMembership.seq
                     )
                 )
@@ -103,7 +103,7 @@ class ProjectSponsorLandingView(ProjectViewBase):
             other_sponsor: ProjectSponsorMembership = (
                 ProjectSponsorMembership.query.filter_by(uuid_b58=other)
                 .options(
-                    sa.orm.load_only(
+                    sa_orm.load_only(
                         ProjectSponsorMembership.id, ProjectSponsorMembership.seq
                     )
                 )

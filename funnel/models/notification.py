@@ -91,6 +91,7 @@ from typing import (
     Generic,
     Optional,
     Protocol,
+    Self,
     TypeVar,
     Union,
     cast,
@@ -100,8 +101,7 @@ from typing import (
 from uuid import UUID, uuid4
 
 from sqlalchemy import event
-from sqlalchemy.orm import column_keyed_dict
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from typing_extensions import get_original_bases
 from werkzeug.utils import cached_property
 
@@ -123,15 +123,14 @@ from . import (
     Model,
     NoIdMixin,
     Query,
-    backref,
     db,
     hybrid_property,
     postgresql,
     relationship,
     sa,
+    sa_orm,
 )
 from .account import Account, AccountEmail, AccountPhone
-from .helpers import reopen
 from .phone_number import PhoneNumber, PhoneNumberMixin
 from .typing import UuidModelUnion
 
@@ -188,17 +187,15 @@ notification_categories: SimpleNamespace = SimpleNamespace(
         __("Projects I am participating in"),
         # Criteria: User has registered or proposed
         lambda user: (
-            db.session.query(user.rsvps.exists()).scalar()  # type: ignore[has-type]
-            or db.session.query(  # type: ignore[has-type]
-                user.proposal_memberships.exists()
-            ).scalar()
+            db.session.query(user.rsvps.exists()).scalar()
+            or db.session.query(user.proposal_memberships.exists()).scalar()
         ),
     ),
     project_crew=NotificationCategory(
         4,
         __("Projects I am a crew member in"),
         # Criteria: user has ever been a project crew member
-        lambda user: db.session.query(  # type: ignore[has-type]
+        lambda user: db.session.query(
             user.projects_as_crew_memberships.exists()
         ).scalar(),
     ),
@@ -206,7 +203,7 @@ notification_categories: SimpleNamespace = SimpleNamespace(
         5,
         __("Accounts I manage"),
         # Criteria: user has ever been an organization admin
-        lambda user: db.session.query(  # type: ignore[has-type]
+        lambda user: db.session.query(
             user.organization_admin_memberships.exists()
         ).scalar(),
     ),
@@ -239,26 +236,25 @@ class SmsMessage(PhoneNumberMixin, BaseMixin, Model):
     """An outbound SMS message."""
 
     __tablename__ = 'sms_message'
-    __phone_optional__ = False
     __phone_unique__ = False
     __phone_is_exclusive__ = False
     phone_number_reference_is_active: bool = False
 
     transactionid: Mapped[str | None] = immutable(
-        sa.orm.mapped_column(sa.UnicodeText, unique=True, nullable=True)
+        sa_orm.mapped_column(sa.UnicodeText, unique=True, nullable=True)
     )
     # The message itself
     message: Mapped[str] = immutable(
-        sa.orm.mapped_column(sa.UnicodeText, nullable=False)
+        sa_orm.mapped_column(sa.UnicodeText, nullable=False)
     )
     # Flags
-    status: Mapped[int] = sa.orm.mapped_column(
+    status: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, default=SMS_STATUS.QUEUED, nullable=False
     )
-    status_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    status_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
-    fail_reason: Mapped[str | None] = sa.orm.mapped_column(
+    fail_reason: Mapped[str | None] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=True
     )
 
@@ -309,14 +305,14 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     #: be shared across notifications, and will be used to enforce a limit of one
     #: instance of a UserNotification per-event rather than per-notification
     eventid: Mapped[UUID] = immutable(
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             postgresql.UUID, primary_key=True, nullable=False, default=uuid4
         )
     )
 
     #: Notification id
     id: Mapped[UUID] = immutable(  # noqa: A003
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             postgresql.UUID, primary_key=True, nullable=False, default=uuid4
         )
     )
@@ -360,28 +356,32 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
     type_: Mapped[str] = immutable(
-        sa.orm.mapped_column('type', sa.Unicode, nullable=False)
+        sa_orm.mapped_column('type', sa.Unicode, nullable=False)
     )
 
     #: Id of user that triggered this notification
-    created_by_id: Mapped[int | None] = sa.orm.mapped_column(
+    created_by_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
     )
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
     #: notifications of their own activity
-    created_by: Mapped[Account | None] = relationship(Account)
+    created_by: Mapped[Account | None] = relationship()
 
     #: UUID of document that the notification refers to
     document_uuid: Mapped[UUID] = immutable(
-        sa.orm.mapped_column(postgresql.UUID, nullable=False, index=True)
+        sa_orm.mapped_column(postgresql.UUID, nullable=False, index=True)
     )
 
     #: Optional fragment within document that the notification refers to. This may be
     #: the document itself, or something within it, such as a comment. Notifications for
     #: multiple fragments are collapsed into a single notification
     fragment_uuid: Mapped[UUID | None] = immutable(
-        sa.orm.mapped_column(postgresql.UUID, nullable=True)
+        sa_orm.mapped_column(postgresql.UUID, nullable=True)
+    )
+
+    recipients: DynamicMapped[NotificationRecipient] = relationship(
+        lazy='dynamic', back_populates='notification'
     )
 
     __table_args__ = (
@@ -553,7 +553,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
             # pylint: disable=isinstance-second-argument-not-valid-type
             if not isinstance(fragment, self.fragment_model):
                 raise TypeError(f"{fragment!r} is not of type {self.fragment_model!r}")
-            kwargs['fragment_uuid'] = fragment.uuid
+            kwargs['fragment_uuid'] = fragment.uuid  # type: ignore[union-attr]
         super().__init__(**kwargs)
 
     @property
@@ -694,7 +694,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     # Make :attr:`type_` available under the name `type`, but declare this at the very
     # end of the class to avoid conflicts with the Python `type` global that is
     # used for type-hinting
-    type: Mapped[str] = sa.orm.synonym('type_')  # noqa: A003
+    type: Mapped[str] = sa_orm.synonym('type_')  # noqa: A003
 
 
 class PreviewNotification(NotificationType):
@@ -801,7 +801,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
 
     #: Id of user being notified
     recipient_id: Mapped[int] = immutable(
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('account.id', ondelete='CASCADE'),
             primary_key=True,
@@ -809,27 +809,27 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
         )
     )
 
-    #: User being notified (backref defined below, outside the model)
+    #: User being notified
     recipient: Mapped[Account] = with_roles(
-        relationship(Account), read={'owner'}, grants={'owner'}
+        relationship(), read={'owner'}, grants={'owner'}
     )
 
     #: Random eventid, shared with the Notification instance
     eventid: Mapped[UUID] = with_roles(
         immutable(
-            sa.orm.mapped_column(postgresql.UUID, primary_key=True, nullable=False)
+            sa_orm.mapped_column(postgresql.UUID, primary_key=True, nullable=False)
         ),
         read={'owner'},
     )
 
     #: Id of notification that this user received (fkey in __table_args__ below)
-    notification_id: Mapped[UUID] = sa.orm.mapped_column(
+    notification_id: Mapped[UUID] = sa_orm.mapped_column(
         postgresql.UUID, nullable=False
     )
 
     #: Notification that this user received
     notification: Mapped[Notification] = with_roles(
-        relationship(Notification, backref=backref('recipients', lazy='dynamic')),
+        relationship(back_populates='recipients'),
         read={'owner'},
     )
 
@@ -840,12 +840,12 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
     #: entirely in-app symbol (i.e., code refactorable) to being data in the database
     #: (i.e., requiring a data migration alongside a code refactor)
     role: Mapped[str] = with_roles(
-        immutable(sa.orm.mapped_column(sa.Unicode, nullable=False)), read={'owner'}
+        immutable(sa_orm.mapped_column(sa.Unicode, nullable=False)), read={'owner'}
     )
 
     #: Timestamp for when this notification was marked as read
     read_at: Mapped[datetime | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), default=None, nullable=True),
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), default=None, nullable=True),
         read={'owner'},
     )
 
@@ -855,32 +855,32 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
     #:    a recipient of the new notification
     #: 3. The underlying document or fragment has been deleted
     revoked_at: Mapped[datetime | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'owner'},
     )
 
     #: When a roll-up is performed, record an identifier for the items rolled up
     rollupid: Mapped[UUID | None] = with_roles(
-        sa.orm.mapped_column(postgresql.UUID, nullable=True, index=True),
+        sa_orm.mapped_column(postgresql.UUID, nullable=True, index=True),
         read={'owner'},
     )
 
     #: Message id for email delivery
-    messageid_email: Mapped[str | None] = sa.orm.mapped_column(
+    messageid_email: Mapped[str | None] = sa_orm.mapped_column(
         sa.Unicode, nullable=True
     )
     #: Message id for SMS delivery
-    messageid_sms: Mapped[str | None] = sa.orm.mapped_column(sa.Unicode, nullable=True)
+    messageid_sms: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
     #: Message id for web push delivery
-    messageid_webpush: Mapped[str | None] = sa.orm.mapped_column(
+    messageid_webpush: Mapped[str | None] = sa_orm.mapped_column(
         sa.Unicode, nullable=True
     )
     #: Message id for Telegram delivery
-    messageid_telegram: Mapped[str | None] = sa.orm.mapped_column(
+    messageid_telegram: Mapped[str | None] = sa_orm.mapped_column(
         sa.Unicode, nullable=True
     )
     #: Message id for WhatsApp delivery
-    messageid_whatsapp: Mapped[str | None] = sa.orm.mapped_column(
+    messageid_whatsapp: Mapped[str | None] = sa_orm.mapped_column(
         sa.Unicode, nullable=True
     )
 
@@ -1122,7 +1122,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
                     NotificationRecipient.rollupid == self.rollupid,
                 )
                 .options(
-                    sa.orm.load_only(
+                    sa_orm.load_only(
                         NotificationRecipient.recipient_id,
                         NotificationRecipient.eventid,
                         NotificationRecipient.revoked_at,
@@ -1135,7 +1135,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
 
     def rolledup_fragments(self) -> Query | None:
         """Return all fragments in the rolled up batch as a base query."""
-        if not self.notification.fragment_model:
+        if self.notification.fragment_model is None:
             return None
         # Return a query on the fragment model with the rolled up identifiers
         if not self.rollupid:
@@ -1159,12 +1159,12 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
     @classmethod
     def web_notifications_for(
         cls, user: Account, unread_only: bool = False
-    ) -> Query[NotificationRecipient]:
+    ) -> Query[Self]:
         """Return web notifications for a user, optionally returning unread-only."""
-        query = NotificationRecipient.query.join(Notification).filter(
+        query = cls.query.join(Notification).filter(
             Notification.type.in_(notification_web_types),
-            NotificationRecipient.recipient == user,
-            NotificationRecipient.revoked_at.is_(None),
+            cls.recipient == user,
+            cls.revoked_at.is_(None),
         )
         if unread_only:
             query = query.filter(NotificationRecipient.read_at.is_(None))
@@ -1251,7 +1251,7 @@ class NotificationPreferences(BaseMixin, Model):
     __tablename__ = 'notification_preferences'
 
     #: Id of account whose preferences are represented here
-    account_id: Mapped[int] = sa.orm.mapped_column(
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
@@ -1259,7 +1259,7 @@ class NotificationPreferences(BaseMixin, Model):
     )
     #: User account whose preferences are represented here
     account: Mapped[Account] = with_roles(
-        relationship(Account, back_populates='notification_preferences'),
+        relationship(back_populates='notification_preferences'),
         read={'owner'},
         grants={'owner'},
     )
@@ -1267,23 +1267,23 @@ class NotificationPreferences(BaseMixin, Model):
     # Notification type, corresponding to Notification.type (a class attribute there)
     # notification_type = '' holds the veto switch to disable a transport entirely
     notification_type: Mapped[str] = immutable(
-        sa.orm.mapped_column(sa.Unicode, nullable=False)
+        sa_orm.mapped_column(sa.Unicode, nullable=False)
     )
 
     by_email: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
+        sa_orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
     )
     by_sms: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
+        sa_orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
     )
     by_webpush: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
+        sa_orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
     )
     by_telegram: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
+        sa_orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
     )
     by_whatsapp: Mapped[bool] = with_roles(
-        sa.orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
+        sa_orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
     )
 
     __table_args__ = (sa.UniqueConstraint('account_id', 'notification_type'),)
@@ -1378,60 +1378,13 @@ class NotificationPreferences(BaseMixin, Model):
             {'account_id': new_account.id}, synchronize_session=False
         )
 
-    @sa.orm.validates('notification_type')
+    @sa_orm.validates('notification_type')
     def _valid_notification_type(self, key: str, value: str | None) -> str:
         if value == '':  # Special-cased name for main preferences
             return value
         if value is None or value not in notification_type_registry:
             raise ValueError(f"Invalid notification_type: {value}")
         return value
-
-
-@reopen(Account)
-class __Account:
-    all_notifications: DynamicMapped[NotificationRecipient] = with_roles(
-        relationship(
-            NotificationRecipient,
-            lazy='dynamic',
-            order_by=NotificationRecipient.created_at.desc(),
-            viewonly=True,
-        ),
-        read={'owner'},
-    )
-
-    notification_preferences: Mapped[dict[str, NotificationPreferences]] = relationship(
-        NotificationPreferences,
-        collection_class=column_keyed_dict(NotificationPreferences.notification_type),
-        back_populates='account',
-    )
-
-    # This relationship is wrapped in a property that creates it on first access
-    _main_notification_preferences: Mapped[NotificationPreferences] = relationship(
-        NotificationPreferences,
-        primaryjoin=sa.and_(
-            NotificationPreferences.account_id == Account.id,
-            NotificationPreferences.notification_type == '',
-        ),
-        uselist=False,
-        viewonly=True,
-    )
-
-    @cached_property
-    def main_notification_preferences(self) -> NotificationPreferences:
-        """Return user's main notification preferences, toggling transports on/off."""
-        if not self._main_notification_preferences:
-            main = NotificationPreferences(
-                notification_type='',
-                account=self,
-                by_email=True,
-                by_sms=True,
-                by_webpush=False,
-                by_telegram=False,
-                by_whatsapp=False,
-            )
-            db.session.add(main)
-            return main
-        return self._main_notification_preferences
 
 
 # --- Signal handlers ------------------------------------------------------------------

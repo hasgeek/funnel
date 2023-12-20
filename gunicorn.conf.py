@@ -1,5 +1,5 @@
 """Gunicorn default configuration."""
-# The settings in this file may be overriden using env var `GUNICORN_CMD_ARGS` or
+# The settings in this file may be overridden using env var `GUNICORN_CMD_ARGS` or
 # directly on the command line to `gunicorn`
 
 import multiprocessing

@@ -265,7 +265,7 @@ def autoset_timezone_and_locale() -> None:
             if remapped_timezone is not None:
                 user.timezone = remapped_timezone  # type: ignore[assignment]
     if user.auto_locale or not user.locale or str(user.locale) not in supported_locales:
-        user.locale = (
+        user.locale = (  # pyright: ignore[reportGeneralTypeIssues]
             request.accept_languages.best_match(  # type: ignore[assignment]
                 supported_locales.keys()
             )
@@ -344,10 +344,7 @@ def validate_rate_limit(
         tags={'resource': resource},
     )
     cache_key = f'rate_limit/v1/{resource}/{identifier}'
-    # XXX: Typing for cache.get is incorrectly specified as returning Optional[str]
-    cache_value: tuple[int, str] | None = cache.get(  # type: ignore[assignment]
-        cache_key
-    )
+    cache_value: tuple[int, str] | None = cache.get(cache_key)
     if cache_value is None:
         count, cache_token = None, None
         statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 201})
@@ -435,8 +432,7 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
 
 def retrieve_cached_token(token: str) -> dict | None:
     """Retrieve cached data given a token generated using :func:`make_cached_token`."""
-    # XXX: Typing for cache.get is incorrectly specified as returning Optional[str]
-    return cache.get(TEXT_TOKEN_PREFIX + token)  # type: ignore[return-value]
+    return cache.get(TEXT_TOKEN_PREFIX + token)
 
 
 def delete_cached_token(token: str) -> bool:
