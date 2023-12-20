@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import urllib.parse
-from collections.abc import Iterable, Sequence
+from collections.abc import Collection, Sequence
 from datetime import datetime, timedelta
 from hashlib import blake2b, sha256
 from typing import Self, cast, overload
@@ -58,14 +58,14 @@ class ScopeMixin:
         )
 
     @property
-    def scope(self) -> Iterable[str]:
+    def scope(self) -> Collection[str]:
         """Represent scope column as a container of strings."""
         if not self._scope:
             return ()
         return tuple(sorted(self._scope.split()))
 
     @scope.setter
-    def scope(self, value: str | Iterable | None) -> None:
+    def scope(self, value: str | Collection | None) -> None:
         if value is None:
             if self.__scope_null_allowed__:
                 self._scope = None
@@ -77,7 +77,7 @@ class ScopeMixin:
         if not self._scope and self.__scope_null_allowed__:
             self._scope = None
 
-    def add_scope(self, additional: str | Iterable) -> None:
+    def add_scope(self, additional: str | Collection) -> None:
         """Add additional items to the scope."""
         if isinstance(additional, str):
             additional = [additional]
@@ -189,12 +189,12 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         return credential.secret_is(candidate)
 
     @property
-    def redirect_uris(self) -> tuple[str, ...]:
+    def redirect_uris(self) -> Sequence[str]:
         """Return redirect URIs as a sequence."""
         return tuple(self._redirect_uris.split()) if self._redirect_uris else ()
 
     @redirect_uris.setter
-    def redirect_uris(self, value: Iterable[str]) -> None:
+    def redirect_uris(self, value: Sequence[str]) -> None:
         """Set redirect URIs from a sequence, storing internally as lines of text."""
         self._redirect_uris = '\r\n'.join(value)
 
@@ -214,7 +214,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         if netloc:
             return netloc in (
                 urllib.parse.urlsplit(r).netloc
-                for r in (self.redirect_uris + (self.website,))
+                for r in (tuple(self.redirect_uris) + (self.website,))
             )
         return False
 
@@ -600,7 +600,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
         ).one_or_none()
 
     @classmethod
-    def all(cls, accounts: Query | Sequence[Account]) -> list[Self]:  # noqa: A003
+    def all(cls, accounts: Query | Collection[Account]) -> list[Self]:  # noqa: A003
         """Return all AuthToken for the specified accounts."""
         query = cls.query.join(AuthClient)
         if isinstance(accounts, QueryBaseClass):

@@ -317,9 +317,9 @@ def test_phone_number_mutability() -> None:
     with pytest.raises(ValueError, match="A phone number is required"):
         pn.number = ''
     with pytest.raises(ValueError, match="A phone number is required"):
-        pn.number = False
+        pn.number = False  # type: ignore[assignment]
     with pytest.raises(ValueError, match="Phone number cannot be changed"):
-        pn.number = [1, 2, 3]
+        pn.number = [1, 2, 3]  # type: ignore[assignment]
 
     # Changing after nulling is not allowed as hash won't match
     pn.number = None
@@ -328,9 +328,9 @@ def test_phone_number_mutability() -> None:
     with pytest.raises(ValueError, match="A phone number is required"):
         pn.number = ''
     with pytest.raises(ValueError, match="A phone number is required"):
-        pn.number = False
+        pn.number = False  # type: ignore[assignment]
     with pytest.raises(ValueError, match="Invalid value for phone number"):
-        pn.number = [1, 2, 3]
+        pn.number = [1, 2, 3]  # type: ignore[assignment]
 
 
 def test_phone_number_md5() -> None:

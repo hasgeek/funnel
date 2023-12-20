@@ -26,7 +26,9 @@ def invalidate_cache(project):
 
 
 @pytest.mark.flaky(reruns=1)  # Rerun in case assert with timedelta fails
-def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
+def test_cfp_state_draft(
+    db_session, new_organization: models.Organization, new_project: models.Project
+) -> None:
     assert new_project.cfp_start_at is None
     assert new_project.state.DRAFT
     assert new_project.cfp_state.NONE
@@ -38,6 +40,7 @@ def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
 
     assert new_project.cfp_state.PUBLIC
     # Start date is automatically set by open_cfp to utcnow()
+    assert new_project.cfp_start_at is not None
     assert new_project.cfp_start_at > utcnow() - timedelta(minutes=1)
     assert not new_project.cfp_state.DRAFT
     assert new_project.cfp_state.OPEN
@@ -59,7 +62,7 @@ def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
 
 
 def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
-    db_session, new_project
+    db_session, new_project: models.Project
 ) -> None:
     # without any session the project will have no start and end dates
     assert new_project.sessions.count() == 0

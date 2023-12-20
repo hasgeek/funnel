@@ -121,7 +121,7 @@ def test_sponsorship_edit(
         models.ProjectSponsorMembership.is_active,
         models.ProjectSponsorMembership.project == org_uu_sponsorship.project,
         models.ProjectSponsorMembership.member == org_uu_sponsorship.member,
-    ).one_or_none()
+    ).one()
     assert edited_sponsorship.label == "Edited"
     assert edited_sponsorship.is_promoted is False
 

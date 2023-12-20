@@ -151,7 +151,9 @@ def test_valid_json_register(
         headers={'Content-Type': 'application/json'},
     )
     assert rv.status_code == 303
-    assert project_expo2010.rsvp_for(user_twoflower).form == valid_json_rsvp
+    rsvp = project_expo2010.rsvp_for(user_twoflower)
+    assert rsvp is not None
+    assert rsvp.form == valid_json_rsvp
 
 
 def test_valid_encoded_json_register(
@@ -173,7 +175,9 @@ def test_valid_encoded_json_register(
         },
     )
     assert rv.status_code == 303
-    assert project_expo2010.rsvp_for(user_twoflower).form == valid_json_rsvp
+    rsvp = project_expo2010.rsvp_for(user_twoflower)
+    assert rsvp is not None
+    assert rsvp.form == valid_json_rsvp
 
 
 def test_invalid_json_register(

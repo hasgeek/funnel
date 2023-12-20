@@ -906,7 +906,9 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         ...
 
     @overload
-    def rsvp_for(self, account: Account | None, create: Literal[False]) -> Rsvp | None:
+    def rsvp_for(
+        self, account: Account | None, create: Literal[False] = False
+    ) -> Rsvp | None:
         ...
 
     def rsvp_for(self, account: Account | None, create=False) -> Rsvp | None:
