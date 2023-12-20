@@ -1203,7 +1203,8 @@ def getuser(request) -> Callable[[str], funnel_models.User]:
             pytest.fail(f"No user fixture named {user}")
         return request.getfixturevalue(usermap[user])
 
-    func.usermap = usermap  # Aid for tests  # type: ignore[attr-defined]
+    # Aid for tests
+    func.usermap = usermap  # type: ignore[attr-defined]
     return func
 
 

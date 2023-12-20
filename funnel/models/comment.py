@@ -92,7 +92,9 @@ class Commentset(UuidMixin, BaseMixin, Model):
         default=COMMENTSET_STATE.OPEN,
     )
     #: Commentset state manager
-    state = StateManager('_state', COMMENTSET_STATE, doc="Commentset state")
+    state = StateManager['Commentset'](
+        '_state', COMMENTSET_STATE, doc="Commentset state"
+    )
     #: Type of parent object
     settype: Mapped[int | None] = with_roles(
         sa_orm.mapped_column('type', sa.Integer, nullable=True),
@@ -331,7 +333,9 @@ class Comment(UuidMixin, BaseMixin, Model):
         default=COMMENT_STATE.SUBMITTED,
         nullable=False,
     )
-    state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment")
+    state = StateManager['Comment'](
+        '_state', COMMENT_STATE, doc="Current state of the comment"
+    )
 
     edited_at: Mapped[datetime | None] = with_roles(
         sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),

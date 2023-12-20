@@ -56,7 +56,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         nullable=False,
         index=True,
     )
-    visibility_state = StateManager(
+    visibility_state = StateManager['Update'](
         '_visibility_state', VISIBILITY_STATE, doc="Visibility state"
     )
 
@@ -68,7 +68,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, Model):
         nullable=False,
         index=True,
     )
-    state = StateManager('_state', UPDATE_STATE, doc="Update state")
+    state = StateManager['Update']('_state', UPDATE_STATE, doc="Update state")
 
     created_by_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, index=True

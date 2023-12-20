@@ -62,7 +62,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         nullable=False,
     )
     state = with_roles(
-        StateManager('_state', RSVP_STATUS, doc="RSVP answer"),
+        StateManager['Rsvp']('_state', RSVP_STATUS, doc="RSVP answer"),
         call={'owner', 'project_promoter'},
     )
 
@@ -121,7 +121,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         return self.participant.transport_for_email(self.project.account)
 
     @with_roles(call={'owner', 'project_promoter'})
-    def participant_phone(self) -> AccountEmail | None:
+    def participant_phone(self) -> AccountPhone | None:
         """Participant's preferred phone number for this registration."""
         return self.participant.transport_for_sms(self.project.account)
 

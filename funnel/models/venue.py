@@ -134,8 +134,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
     sessions: Mapped[list[Session]] = relationship(back_populates='venue_room')
     scheduled_sessions: Mapped[list[Session]] = relationship(
         primaryjoin=lambda: sa.and_(
-            Session.venue_room_id == VenueRoom.id,
-            Session.scheduled,
+            Session.venue_room_id == VenueRoom.id, Session.scheduled
         ),
         viewonly=True,
     )

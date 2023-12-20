@@ -553,7 +553,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
             # pylint: disable=isinstance-second-argument-not-valid-type
             if not isinstance(fragment, self.fragment_model):
                 raise TypeError(f"{fragment!r} is not of type {self.fragment_model!r}")
-            kwargs['fragment_uuid'] = fragment.uuid
+            kwargs['fragment_uuid'] = fragment.uuid  # type: ignore[union-attr]
         super().__init__(**kwargs)
 
     @property
@@ -1135,7 +1135,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
 
     def rolledup_fragments(self) -> Query | None:
         """Return all fragments in the rolled up batch as a base query."""
-        if not self.notification.fragment_model:
+        if self.notification.fragment_model is None:
             return None
         # Return a query on the fragment model with the rolled up identifiers
         if not self.rollupid:

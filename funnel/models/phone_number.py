@@ -732,10 +732,12 @@ class PhoneNumber(BaseMixin, Model):
             .options(sa_orm.load_only(cls.number))
             .yield_per(1000)
         )
+        # This query only has results where `.number` is not None, so we type checkers
+        # have to be told to ignore the possibility of a null:
         if remove:
             skip = len(prefix)
-            return {r.number[skip:] for r in query}
-        return {r.number for r in query}
+            return {r.number[skip:] for r in query}  # type: ignore[index]
+        return {r.number for r in query}  # type: ignore[misc]
 
 
 @declarative_mixin

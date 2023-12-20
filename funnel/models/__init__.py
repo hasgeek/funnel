@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 import sqlalchemy as sa
 import sqlalchemy.exc as sa_exc
 import sqlalchemy.orm as sa_orm
@@ -40,12 +42,14 @@ from coaster.sqlalchemy import (
 class Model(ModelBase, DeclarativeBase):
     """Base for all models."""
 
+    __table__: ClassVar[sa.Table]
     __with_timezone__ = True
 
 
 class GeonameModel(ModelBase, DeclarativeBase):
     """Base for geoname models."""
 
+    __table__: ClassVar[sa.Table]
     __bind_key__ = 'geoname'
     __with_timezone__ = True
 

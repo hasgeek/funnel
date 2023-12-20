@@ -170,7 +170,9 @@ class Proposal(  # type: ignore[misc]
         default=PROPOSAL_STATE.SUBMITTED,
         nullable=False,
     )
-    state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
+    state = StateManager['Proposal'](
+        '_state', PROPOSAL_STATE, doc="Current state of the proposal"
+    )
 
     commentset_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False

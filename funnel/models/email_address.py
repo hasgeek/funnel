@@ -242,7 +242,7 @@ class EmailAddress(BaseMixin, Model):
         nullable=False,
         default=EMAIL_DELIVERY_STATE.UNKNOWN,
     )
-    delivery_state = StateManager(
+    delivery_state = StateManager['EmailAddress'](
         '_delivery_state',
         EMAIL_DELIVERY_STATE,
         doc="Last known delivery state of this email address",

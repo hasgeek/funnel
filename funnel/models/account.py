@@ -241,7 +241,7 @@ class Account(UuidMixin, BaseMixin, Model):
         default=ACCOUNT_STATE.ACTIVE,
     )
     #: Account state manager
-    state = StateManager('_state', ACCOUNT_STATE, doc="Account state")
+    state = StateManager['Account']('_state', ACCOUNT_STATE, doc="Account state")
     #: Other accounts that were merged into this account
     old_accounts: AssociationProxy[list[Account]] = association_proxy(
         'oldids', 'old_account'
@@ -254,7 +254,7 @@ class Account(UuidMixin, BaseMixin, Model):
         nullable=False,
         default=PROFILE_STATE.AUTO,
     )
-    profile_state = StateManager(
+    profile_state = StateManager['Account'](
         '_profile_state', PROFILE_STATE, doc="Current state of the account profile"
     )
 
