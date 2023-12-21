@@ -9,7 +9,7 @@ Cypress.Commands.add('login', (route, username, password) => {
 Cypress.Commands.add('logout', () => {
   cy.get('#hgnav').find('a[data-testid="my-account"]').click();
   cy.wait(1000);
-  cy.get('button[data-testid="Logout"]:visible').click();
+  cy.get('button[data-testid="logout"]:visible').click();
 });
 
 Cypress.Commands.add('fill_login_details', (username, password) => {

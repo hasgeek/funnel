@@ -5,7 +5,7 @@
 {% block title %}{% trans %}Setup events for check-in{% endtrans %}{% endblock title %}
 
 {% block top_title %}
-  <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
+  <h1 class="mui--text-headline"><a href="{{ project.url_for() }}" data-testid="project-page">{{ project.title }}</a></h1>
   <p class="mui--text-subhead">{% trans %}Setup events for check-in{% endtrans %}</p>
 {% endblock top_title %}
 
@@ -25,7 +25,7 @@
         <ol class="list--aligned">
           {%- for ticket_event in ticket_events %}
             <li>
-              <a href="{{ ticket_event.url_for('view') }}" class="mui--text-subhead" data-testid="{{ ticket_event.title }}" data-ga="View event">{{ ticket_event.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-ga="edit event">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
+              <a href="{{ ticket_event.url_for('view') }}" class="mui--text-subhead" data-testid="event-{{ ticket_event.title }}" data-ga="View event">{{ ticket_event.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-ga="edit event">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>

@@ -31,7 +31,7 @@ describe('Add sponsor to project', () => {
     cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');
     cy.get('button[data-testid="form-submit-btn"]').click();
     cy.wait(2000);
-    cy.get('[data-testid="profile-link"]').contains(sponsor.title);
+    cy.get('[data-testid="sponsor-link"]').contains(sponsor.title);
 
     cy.get('a[data-testid="edit-sponsor"]:visible').click();
     cy.wait('@edit-sponsor-form');

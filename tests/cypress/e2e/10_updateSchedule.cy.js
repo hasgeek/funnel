@@ -53,7 +53,7 @@ describe('Add schedule and livestream', () => {
     cy.wait('@add-session');
 
     cy.get('[data-testid="settings"]').click();
-    cy.get('[data-testid="open"]').eq(0).click();
+    cy.get('[data-testid="collapsible-open"]').eq(0).click();
     cy.get('.sp-dd').eq(0).click();
     cy.get('.sp-palette-container').should('exist');
 
@@ -63,7 +63,7 @@ describe('Add schedule and livestream', () => {
     cy.wait(1000);
     cy.get('a[data-testid="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
-    cy.get('a[data-testid="add-livestream"]').click();
+    cy.get('a[data-testid="add-livestream-btn"]').click();
     cy.location('pathname').should('contain', '/edit');
 
     cy.get('#field-livestream_urls')

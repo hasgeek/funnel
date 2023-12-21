@@ -39,7 +39,7 @@
 
 {% macro livestream_edit_btn(project) %}
   {% if project.view_for('edit_livestream').is_available() %}
-    <a href="{{ project.url_for('edit_livestream') }}" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn" data-testid="add-livestream" aria-label="{% trans %}Update livestream URLs{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a>
+    <a href="{{ project.url_for('edit_livestream') }}" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn" data-testid="add-livestream-btn" aria-label="{% trans %}Update livestream URLs{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a>
   {% endif %}
 {% endmacro %}
 
@@ -168,9 +168,9 @@
           <a class="mui-btn mui-btn--raised {% if project.features.show_tickets %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
         {% elif project.features.rsvp_unregistered -%}
           {% if not project.features.follow_mode and not project.features.rsvp_for_members %}<span class="register-block__content__txt mui--text-light">{% trans %}This is a free event{% endtrans %}</span>{% endif %}
-          <a id="rsvp-btn" class="mui-btn mui-btn--raised mui-btn--dark register-block__btn js-register-btn" href="{{ project.url_for('rsvp_modal') }}" rel="modal:open" role="button" aria-haspopup="true">
+          <a id="rsvp-btn" class="mui-btn mui-btn--raised mui-btn--dark register-block__btn js-register-btn" href="{{ project.url_for('rsvp_modal') }}" rel="modal:open" role="button" aria-haspopup="true" data-testid="member-rsvp">
             <span class="register-block__btn__txt" data-testid="unregistered">{{ project.views.register_button_text() }}</span>
-            <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt" data-testid="unregistered">{{ project.views.registration_text() }}</span>
+            <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt">{{ project.views.registration_text() }}</span>
           </a>
         {%- endif %}
       </div>
@@ -180,11 +180,11 @@
       </div>
     {% elif project.features.rsvp_for_members -%}
       <div class="register-block__content">
-        <button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}Registration for members only{% endtrans %}</button>
+        <button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled" data-testid="rsvp-only-for-members">{% trans %}Registration for members only{% endtrans %}</button>
       </div>
     {% endif %}
     {% if project.current_roles.account_member %}
-      <div class="register-block__content"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
+      <div class="register-block__content"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled" data-testid="project-member">{% trans %}You are a member{% endtrans %}</button></div>
     {% elif project.features.show_tickets %}
       <div class="register-block__content">
           <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">

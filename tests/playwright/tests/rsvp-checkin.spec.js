@@ -7,15 +7,13 @@ const project = require('../fixtures/project.json');
 const { promoter, usher, user } = require('../fixtures/user.json');
 const events = require('../fixtures/ticket_events.json');
 const ticket_participants = require('../fixtures/ticket_participants.json');
+const dayjs = require('dayjs');
 
 test('Open rsvp, for all and members only', async ({ page }) => {
-  // let projectPage = new ProjectPage(page);
-  // let randomProjectName = await projectPage.addProject([{'username': promoter.username, 'role': 'promoter'}, {'username': usher.username, 'role': 'usher'}]);
-  // let loginPage = new LoginPage(page);
-  // await loginPage.login(`/${profile.title}/${randomProjectName}`, promoter.username, promoter.password);
-
+  let projectPage = new ProjectPage(page);
+  let randomProjectName = await projectPage.addProject([{'username': promoter.username, 'role': 'promoter'}, {'username': usher.username, 'role': 'usher'}]);
   let loginPage = new LoginPage(page);
-  await loginPage.login('testcypressproject/zgs0w', promoter.username, promoter.password);
+  await loginPage.login(`/${profile.title}/${randomProjectName}`, promoter.username, promoter.password);
 
   await page.getByTestId('project-menu').locator('visible=true').click();
   await page.getByTestId('settings').locator('visible=true').click();
@@ -61,14 +59,41 @@ test('Open rsvp, for all and members only', async ({ page }) => {
     await page.getByTestId('form-submit-btn').click();
   }
 
-  await page.getByTestId(`{ticketEvents[0].title}`).click();
-  await page.getByTestId('ticket-participant', { hasText: ticketParticipants[0].fullname }).isVisible();
-  await page.getByTestId('ticket-participant', { hasText: ticketParticipants[1].fullname }).isVisible();
+  await page.getByTestId(`event-${events[0].title}`).click();
+  await page.getByTestId('ticket-participant', { hasText: ticket_participants[0].fullname }).isVisible();
+  await page.getByTestId('ticket-participant', { hasText: ticket_participants[1].fullname }).isVisible();
   await Promise.all([
     page.waitForResponse(response => response.url().includes("/json") && response.status() === 200, {timeout: 60000}),
-    page.getByTestId('ticket-participant', { hasText: user.username }).getByTestId('checkin').click()
+    page.getByTestId(user.fullname).getByTestId('checkin').click()
   ]);
   await page.getByTestId('cancel-checkin').isVisible();
   await page.getByTestId('back-to-setup').click();
+  await page.getByTestId('project-page').click();
+
+  await page.getByTestId('project-menu').locator('visible=true').click();
+  await page.getByTestId('edit').locator('visible=true').click();
+  let eventStartDate = dayjs().add(1, 'days').format('YYYY-MM-DDTHH:MM');
+  let eventEndDate = dayjs().add(10, 'days').format('YYYY-MM-DDTHH:MM');
+  await page.locator('#start_at').fill(eventStartDate);
+  await page.locator('#end_at').fill(eventEndDate);
+  await page.getByTestId('form-submit-btn').click();
+  await page.getByTestId('project-menu').locator('visible=true').click();
+  await page.getByTestId('settings').locator('visible=true').click();
+  await page.getByTestId('publish').click();
+  await page.getByTestId('project-menu').locator('visible=true').click();
+  await page.getByTestId('settings').locator('visible=true').click();
+  await page.getByTestId('add-tickets').click();
+  await page.getByLabel('Only members can register').click();
+  await page.locator('#has_membership').click();
+  await page.getByTestId('form-submit-btn').click();
+  await page.getByTestId('rsvp-only-for-members').isVisible();
+  await loginPage.logout();
+
+  await loginPage.login(`/${profile.title}/${randomProjectName}`, user.username, user.password);
+  await page.getByTestId('project-member').isVisible();
+  await page.getByTestId('member-rsvp').click();
+  await page.locator('#rsvp-form').waitFor(60000);
+  await page.getByTestId('confirm').click();
+  await page.getByTestId('registered').isVisible();
 
 });

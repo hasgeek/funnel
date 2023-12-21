@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 describe('Verify roles of editor and publish project', () => {
-  const { editor } = require('../fixtures/user.json');
+  const { editor, promoter } = require('../fixtures/user.json');
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
@@ -27,5 +27,15 @@ describe('Verify roles of editor and publish project', () => {
     cy.get('a[data-testid="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('[data-testid="project-state"]').contains('Published');
+    cy.logout();
+
+    cy.login(`/${profile.title}`, promoter.username, promoter.password);
+    cy.get(`[data-testid="${project.title}"]`).first().click();
+    cy.get('a[data-testid="project-menu"]:visible').click();
+    cy.wait(1000);
+    cy.get('a[data-testid="settings"]:visible').click();
+    cy.get('a[data-testid="add-tickets"]').click();
+    cy.get('#rsvp_state').find('li').eq(1).find('input').click();
+    cy.get('button[data-testid="form-submit-btn"]').click();
   });
 });

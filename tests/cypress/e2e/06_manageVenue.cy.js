@@ -39,7 +39,7 @@ describe('Manage project venue', () => {
       cy.get(`[data-testid="${venues[1].venue_title}"]`).find('em').contains('(primary)');
 
       venues.forEach((venue) => {
-        cy.get(`.card[data-testid="${venue.venue_title}"]`)
+        cy.get(`.card[data-testid="${venue.venue_title}-rooms"]`)
           .find('a[data-testid="add-room"]')
           .click();
         cy.location('pathname').should('contain', '/new');
@@ -53,7 +53,7 @@ describe('Manage project venue', () => {
           'include',
           `/testcypressproject/${project.url}/venues`
         );
-        cy.get(`.card[data-testid="${venue.venue_title}"]`)
+        cy.get(`.card[data-testid="${venue.venue_title}-rooms"]`)
           .find('li')
           .contains(venue.room.title);
       });

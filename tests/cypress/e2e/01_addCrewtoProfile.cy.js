@@ -25,7 +25,7 @@ describe('Adding crew to profile', () => {
 
     cy.get('[data-testid="member"]').contains(admin.username).click();
     cy.wait('@edit-form');
-    cy.get('button[data-testid="revoke"]').click();
+    cy.get('button[data-testid="revoke-btn"]').click();
     cy.wait('@delete-form');
     cy.get('button[data-testid="form-submit-btn"]').click();
     cy.wait('@delete-member');
@@ -48,9 +48,6 @@ describe('Adding crew to profile', () => {
     cy.get('a.modal__close:visible').click();
     cy.wait(1000);
 
-    cy.get('a[data-testid="profile-public"]:visible').click();
-    cy.wait(1000);
-    cy.get('button[data-testid="make-public-btn"]:visible').click();
-    cy.wait(1000);
+    cy.get('a[data-testid="new-profile-btn"]:visible').click();
   });
 });

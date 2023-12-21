@@ -360,7 +360,7 @@
               </div>
               <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
                 {% if profile.features.new_project() %}
-                  <a class="mui-btn mui-btn--primary mui-btn--raised profile-create-btn" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }} {% trans %}New project{% endtrans %}</a>
+                  <a class="mui-btn mui-btn--primary mui-btn--raised profile-create-btn" href="{{ profile.url_for('new_project') }}" data-testid="new-project-btn">{{ faicon(icon='plus', icon_size='caption') }} {% trans %}New project{% endtrans %}</a>
                 {% elif profile.features.make_public() %}
                   <a class="mui-btn mui-btn--raised mui-btn--primary profile-create-btn" href="#make-public-modal" rel="modal:open" role="button" aria-haspopup="true" data-testid="make-profile-public">{% trans %}Make account public{% endtrans %}</a>
                   <div class="modal" id="make-public-modal" role="dialog" aria-labelledby="profile-public-modal-title" aria-modal="true" tabindex="-1">
