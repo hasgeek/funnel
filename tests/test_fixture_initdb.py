@@ -67,10 +67,40 @@ def init_models():
         )
 
         org = Organization(
-            name='testcypressproject', title='testcypressproject', owner=profile_owner
+            name='testprofile', title='testprofile', owner=profile_owner
         )
         org.is_verified = True
         org.make_profile_public()
+
+        org1 = Organization(
+            name='fifthelephant', title='Fifth elephant', owner=profile_owner
+        )
+        org1.is_verified = True
+        org1.make_profile_public()
+
+        org2 = Organization(
+            name='rootconf', title='Rootconf', owner=user_admin
+        )
+        org2.is_verified = True
+        org2.make_profile_public()
+
+        org3 = Organization(
+            name='jsfoo', title='JSFoo', owner=editor
+        )
+        org3.is_verified = True
+        org3.make_profile_public()
+
+        org4 = Organization(
+            name='metarefresh', title='Metarefresh', owner=promoter
+        )
+        org4.is_verified = True
+        org4.make_profile_public()
+
+        org5 = Organization(
+            name='kilter', title='Kilter', owner=usher
+        )
+        org5.is_verified = True
+        org5.make_profile_public()
 
         db.session.add_all(
             [
@@ -90,6 +120,11 @@ def init_models():
                 user3,
                 sm,
                 org,
+                org1,
+                org2,
+                org3,
+                org4,
+                org5
             ]
         )
         db.session.commit()

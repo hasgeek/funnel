@@ -30,7 +30,7 @@ describe('Manage project venue', () => {
         cy.get('button[data-testid="form-submit-btn"]').click();
         cy.location('pathname').should(
           'include',
-          `/testcypressproject/${project.url}/venues`
+          `/${profile.title}/${project.url}/venues`
         );
       });
 
@@ -51,7 +51,7 @@ describe('Manage project venue', () => {
         cy.get('button[data-testid="form-submit-btn"]').click();
         cy.location('pathname').should(
           'include',
-          `/testcypressproject/${project.url}/venues`
+          `/${profile.title}/${project.url}/venues`
         );
         cy.get(`.card[data-testid="${venue.venue_title}-rooms"]`)
           .find('li')

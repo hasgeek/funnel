@@ -2,27 +2,32 @@
   "owner": {
     "username": "profile_cypress",
     "fullname": "profile-cypress",
-    "password": "profile-cypress123_St"
+    "password": "profile-cypress123_St",
+    "owns_profile": "fifthelephant",
   },
   "admin": {
     "username": "admin_user",
     "fullname": "admin-user",
-    "password": "admin-user129_Ftz"
-  },
-  "promoter": {
-    "username": "promoter_user",
-    "fullname": "promoter-user",
-    "password": "promoter-user34_qQE"
-  },
-  "usher": {
-    "username": "usher_cypress",
-    "fullname": "usher-cypress",
-    "password": "usher-cypress566_YUt"
+    "password": "admin-user129_Ftz",
+    "owns_profile": "rootconf",
   },
   "editor": {
     "username": "editor_cypress",
     "fullname": "editor-cypress",
-    "password": "editor-cypress9_GH"
+    "password": "editor-cypress9_GH",
+    "owns_profile": "jsfoo",
+  },
+  "promoter": {
+    "username": "promoter_user",
+    "fullname": "promoter-user",
+    "password": "promoter-user34_qQE",
+    "owns_profile": "metarefresh",
+  },
+  "usher": {
+    "username": "usher_cypress",
+    "fullname": "usher-cypress",
+    "password": "usher-cypress566_YUt",
+    "owns_profile": "kilter",
   },
   "user": {
     "username": "member_user",

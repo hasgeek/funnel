@@ -4,16 +4,16 @@ const { LoginPage } = require('../page/login');
 const { ProjectPage } = require('../page/create-project');
 const profile = require('../fixtures/profile.json');
 const project = require('../fixtures/project.json');
-const { promoter, usher, user } = require('../fixtures/user.json');
+const { admin, promoter, usher, user } = require('../fixtures/user.json');
 const events = require('../fixtures/ticket_events.json');
 const ticket_participants = require('../fixtures/ticket_participants.json');
 const dayjs = require('dayjs');
 
 test('Open rsvp, for all and members only', async ({ page }) => {
   let projectPage = new ProjectPage(page);
-  let randomProjectName = await projectPage.addProject([{'username': promoter.username, 'role': 'promoter'}, {'username': usher.username, 'role': 'usher'}]);
+  let randomProjectName = await projectPage.addProject(admin, [{'username': promoter.username, 'role': 'promoter'}, {'username': usher.username, 'role': 'usher'}]);
   let loginPage = new LoginPage(page);
-  await loginPage.login(`/${profile.title}/${randomProjectName}`, promoter.username, promoter.password);
+  await loginPage.login(`/${admin.owns_profile}/${randomProjectName}`, promoter.username, promoter.password);
 
   await page.getByTestId('project-menu').locator('visible=true').click();
   await page.getByTestId('settings').locator('visible=true').click();
@@ -89,7 +89,7 @@ test('Open rsvp, for all and members only', async ({ page }) => {
   await page.getByTestId('rsvp-only-for-members').isVisible();
   await loginPage.logout();
 
-  await loginPage.login(`/${profile.title}/${randomProjectName}`, user.username, user.password);
+  await loginPage.login(`/${admin.owns_profile}/${randomProjectName}`, user.username, user.password);
   await page.getByTestId('project-member').isVisible();
   await page.getByTestId('member-rsvp').click();
   await page.locator('#rsvp-form').waitFor(60000);

@@ -3,8 +3,6 @@ import { test, expect } from '@playwright/test';
 const { LoginPage } = require('../page/login');
 const { ProjectCrewFormPage } = require('../page/project-crew-form');
 const { ProjectPage } = require('../page/create-project');
-const profile = require('../fixtures/profile.json');
-const project = require('../fixtures/project.json');
 const { owner, admin, promoter, usher, editor, hguser } = require('../fixtures/user.json');
 
 test('Add crew to project', async ({ page }) => {
@@ -12,7 +10,7 @@ test('Add crew to project', async ({ page }) => {
   let projectNameCapitalize = randomProjectName.charAt(0).toUpperCase() + randomProjectName.slice(1);
   let loginPage;
   loginPage = new LoginPage(page);
-  await loginPage.login(`/${profile.title}`, owner.username, owner.password);
+  await loginPage.login(`/${owner.owns_profile}`, owner.username, owner.password);
   let projectPage = new ProjectPage(page);
   await projectPage.createNewProject(projectNameCapitalize);
 

@@ -2,16 +2,15 @@ import { test, expect } from '@playwright/test';
 
 const { LoginPage } = require('../page/login');
 const { ProjectPage } = require('../page/create-project');
-const profile = require('../fixtures/profile.json');
 const project = require('../fixtures/project.json');
-const { owner, editor } = require('../fixtures/user.json');
+const { admin, editor } = require('../fixtures/user.json');
 const videos = require('../fixtures/embed_video.json');
 
 test('Add livestream and verify embed youtube and vimeo urls', async ({ page }) => {
   let projectPage = new ProjectPage(page);
-  let randomProjectName = await projectPage.addProject([{'username': editor.username, 'role': 'editor'}]);
+  let randomProjectName = await projectPage.addProject(admin, [{'username': editor.username, 'role': 'editor'}]);
   let loginPage = new LoginPage(page);
-  await loginPage.login(`/${profile.title}/${randomProjectName}`, editor.username, editor.password);
+  await loginPage.login(`/${admin.owns_profile}/${randomProjectName}`, editor.username, editor.password);
 
   await page.getByTestId('add-livestream').click();
   for(let video of videos) {

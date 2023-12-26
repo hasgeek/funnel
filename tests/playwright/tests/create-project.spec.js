@@ -2,16 +2,15 @@ import { test, expect } from '@playwright/test';
 
 const { LoginPage } = require('../page/login');
 const { ProjectPage } = require('../page/create-project');
-const profile = require('../fixtures/profile.json');
 const project = require('../fixtures/project.json');
-const { owner } = require('../fixtures/user.json');
+const { admin } = require('../fixtures/user.json');
 
 test('To create project, edit, publish', async ({ page }) => {
   let randomProjectName = Math.random().toString(36).substring(2, 7);
   let projectNameCapitalize = randomProjectName.charAt(0).toUpperCase() + randomProjectName.slice(1);
   let loginPage;
   loginPage = new LoginPage(page);
-  await loginPage.login(`/${profile.title}`, owner.username, owner.password);
+  await loginPage.login(`/${admin.owns_profile}`, admin.username, admin.password);
 
   let projectPage = new ProjectPage(page);
   await projectPage.createNewProject(projectNameCapitalize);

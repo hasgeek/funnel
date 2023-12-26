@@ -1,10 +1,11 @@
 /* eslint-disable global-require */
 describe('Verify attendee list', () => {
   const { user, promoter } = require('../fixtures/user.json');
+  const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
   it('Verify list of attendees who have responded yes to attending a project', () => {
-    cy.login('/testcypressproject', promoter.username, promoter.password);
+    cy.login(`/${profile.title}`, promoter.username, promoter.password);
 
     cy.get(`[data-testid="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);

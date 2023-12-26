@@ -1,24 +1,22 @@
 import { test, expect } from '@playwright/test';
 
 const { LoginPage } = require('../page/login');
-const { ProjectCrewFormPage } = require('../page/project-crew-form');
 const { ProjectPage } = require('../page/create-project');
-const profile = require('../fixtures/profile.json');
 const project = require('../fixtures/project.json');
-const { owner, user, usher } = require('../fixtures/user.json');
+const { user, usher } = require('../fixtures/user.json');
 const proposal = require('../fixtures/proposal.json');
 let randomProjectName;
 
 test('Submitting a proposal to a project', async ({ page }) => {
   let projectPage = new ProjectPage(page);
-  randomProjectName = await projectPage.addProject();
+  randomProjectName = await projectPage.addProject(usher);
   let loginPage = new LoginPage(page);
-  await loginPage.login(`/${profile.title}/${randomProjectName}`, owner.username, owner.password);
+  await loginPage.login(`/${usher.owns_profile}/${randomProjectName}`, usher.username, usher.password);
   await projectPage.addLabels();
   await projectPage.openCFP();
   await loginPage.logout();
 
-  await loginPage.login(`/${profile.title}/${randomProjectName}`, user.username, user.password);
+  await loginPage.login(`/${usher.owns_profile}/${randomProjectName}`, user.username, user.password);
   await page.getByTestId('propose-a-session').locator('visible=true').click();
   await page.getByTestId('close-consent-modal').click();
   await page.locator('#title').fill(proposal.title);

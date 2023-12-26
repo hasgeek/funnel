@@ -4,16 +4,16 @@ const { LoginPage } = require('../page/login');
 const { ProjectPage } = require('../page/create-project');
 const profile = require('../fixtures/profile.json');
 const project = require('../fixtures/project.json');
-const { owner, editor, user } = require('../fixtures/user.json');
+const { promoter, editor, user } = require('../fixtures/user.json');
 const cfp = require('../fixtures/cfp.json');
 const labels = require('../fixtures/labels.json');
 const dayjs = require('dayjs');
 
 test('Open call for proposal of the project and add schedule', async ({ page }) => {
   let projectPage = new ProjectPage(page);
-  let randomProjectName = await projectPage.addProject([{'username': editor.username, 'role': 'editor'}]);
+  let randomProjectName = await projectPage.addProject(promoter, [{'username': editor.username, 'role': 'editor'}]);
   let loginPage = new LoginPage(page);
-  await loginPage.login(`/${profile.title}/${randomProjectName}`, editor.username, editor.password);
+  await loginPage.login(`/${promoter.owns_profile}/${randomProjectName}`, editor.username, editor.password);
   await projectPage.addVenue();
   await page.getByTestId('submissions').click();
   await page.getByTestId('add-cfp').click();

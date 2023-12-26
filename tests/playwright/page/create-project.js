@@ -3,7 +3,6 @@ const { LoginPage } = require('../page/login');
 const { ProjectCrewFormPage } = require('../page/project-crew-form');
 const profile = require('../fixtures/profile.json');
 const project = require('../fixtures/project.json');
-const { owner } = require('../fixtures/user.json');
 
 export class ProjectPage {
   constructor(page) {
@@ -78,12 +77,12 @@ export class ProjectPage {
     await this.page.locator('label.switch-label').locator("visible=true").click();
   }
 
-  async addProject(crew=[]) {
+  async addProject(owner, crew=[]) {
     let randomProjectName = Math.random().toString(36).substring(2, 7);
     let projectNameCapitalize = randomProjectName.charAt(0).toUpperCase() + randomProjectName.slice(1);
     let loginPage;
     loginPage = new LoginPage(this.page);
-    await loginPage.login(`/${profile.title}`, owner.username, owner.password);
+    await loginPage.login(`/${owner.owns_profile}`, owner.username, owner.password);
     await this.createNewProject(projectNameCapitalize);
     let crewForm = new ProjectCrewFormPage(this.page);
     await this.page.getByTestId('crew').click();

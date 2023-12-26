@@ -1,13 +1,14 @@
 /* eslint-disable global-require */
 describe('Responding yes to attend a project', () => {
   const { user } = require('../fixtures/user.json');
+  const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
   it('Respond to attend a project', () => {
     cy.server();
     cy.route('POST', '**/save').as('bookmark-project');
 
-    cy.login('/testcypressproject', user.username, user.password);
+    cy.login(`/${profile.title}`, user.username, user.password);
 
     cy.get('.upcoming').find('.card').contains(project.title).click({ force: true });
     cy.location('pathname').should('contain', project.url);

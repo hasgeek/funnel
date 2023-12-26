@@ -1,6 +1,7 @@
 /* eslint-disable global-require */
 describe('View and update print status of badge', () => {
   const { admin } = require('../../fixtures/user.json');
+  const profile = require('../fixtures/profile.json');
   const project = require('../../fixtures/project.json');
   const ticketEvents = require('../../fixtures/ticket_events.json');
 
@@ -9,7 +10,7 @@ describe('View and update print status of badge', () => {
     cy.route('POST', '**/ticket_participants/checkin?*').as('checkin');
     cy.route('**/ticket_participants/json').as('ticket-participant-list');
 
-    cy.login('/testcypressproject', admin.username, admin.password);
+    cy.login(`/${profile.title}`, admin.username, admin.password);
 
     cy.get(`[data-testid="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
