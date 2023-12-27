@@ -84,7 +84,7 @@ from __future__ import annotations
 from collections.abc import Callable, Generator, Sequence
 from dataclasses import dataclass
 from datetime import datetime
-from types import SimpleNamespace
+from types import SimpleNamespace, UnionType
 from typing import (
     Any,
     ClassVar,
@@ -113,7 +113,7 @@ from coaster.sqlalchemy import (
     immutable,
     with_roles,
 )
-from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
+from coaster.utils import LabeledEnum, utcnow, uuid_from_base58, uuid_to_base58
 
 from ..typing import T
 from . import (
@@ -153,7 +153,7 @@ __all__ = [
 # Document generic type
 _D = TypeVar('_D', bound=UuidModelUnion)
 # Fragment generic type
-_F = TypeVar('_F', bound=Optional[UuidModelUnion])
+_F = TypeVar('_F', bound=UuidModelUnion | None)
 # Type of None (required to detect Optional)
 NoneType = type(None)
 
@@ -271,6 +271,9 @@ class SmsMessage(PhoneNumberMixin, BaseMixin, Model):
 class NotificationType(Generic[_D, _F], Protocol):
     """Protocol for :class:`Notification` and :class:`PreviewNotification`."""
 
+    preference_context: ClassVar[Any]
+    for_private_recipient: bool
+
     type: str  # noqa: A003
     eventid: UUID
     id: UUID  # noqa: A003
@@ -279,6 +282,7 @@ class NotificationType(Generic[_D, _F], Protocol):
     document_uuid: UUID
     fragment: _F | None
     fragment_uuid: UUID | None
+    created_at: datetime
     created_by_id: int | None
     created_by: Account | None
 
@@ -492,7 +496,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
                     fragment_model = None
                 elif get_origin(fragment_model) is Optional:
                     fragment_model = get_args(fragment_model)[0]
-                elif get_origin(fragment_model) is Union:
+                elif get_origin(fragment_model) in (Union, UnionType):
                     _union_args = get_args(fragment_model)
                     if len(_union_args) == 2 and _union_args[1] is NoneType:
                         fragment_model = _union_args[0]
@@ -636,7 +640,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     @property
     def role_provider_obj(self) -> _F | _D:
         """Return fragment if exists, document otherwise, indicating role provider."""
-        return cast(_F | _D, self.fragment or self.document)
+        return self.fragment or self.document
 
     def dispatch(self) -> Generator[NotificationRecipient, None, None]:
         """
@@ -709,6 +713,8 @@ class PreviewNotification(NotificationType):
         )
     """
 
+    preference_context = None
+
     def __init__(  # pylint: disable=super-init-not-called
         self,
         cls: type[Notification],
@@ -721,10 +727,12 @@ class PreviewNotification(NotificationType):
         self.eventid_b58 = uuid_to_base58(self.eventid)
         self.cls = cls
         self.type = cls.cls_type
+        self.for_private_recipient = cls.for_private_recipient
         self.document = document
         self.document_uuid = document.uuid
         self.fragment = fragment
         self.fragment_uuid = fragment.uuid if fragment is not None else None
+        self.created_at = utcnow()
         self.created_by = user
         self.created_by_id = cast(int, user.id) if user is not None else None
 
@@ -784,7 +792,7 @@ class NotificationRecipientProtoMixin:
             pass
         if revoke:
             self.is_revoked = True
-            # Do not set self.rollupid because this is not a rollup
+            # Do not set `self.rollupid` because this is not a rollup
         return False
 
 

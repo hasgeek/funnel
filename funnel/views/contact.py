@@ -10,11 +10,11 @@ from flask import Response, current_app, render_template, request
 from sqlalchemy.exc import IntegrityError
 
 from baseframe import _
-from coaster.auth import current_auth
 from coaster.utils import getbool, make_name, midnight_to_utc, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
+from ..auth import current_auth
 from ..models import ContactExchange, Project, TicketParticipant, db, sa_orm
 from ..typing import ReturnRenderWith, ReturnView
 from ..utils import format_twitter_handle
@@ -47,7 +47,7 @@ class ContactView(ClassView):
     @render_with('contacts.html.jinja2')
     def contacts(self) -> ReturnRenderWith:
         """Return contacts grouped by project and date."""
-        archived = getbool(request.args.get('archived'))
+        archived = getbool(request.args.get('archived')) or False
         return {
             'contacts': ContactExchange.grouped_counts_for(
                 current_auth.user, archived=archived
@@ -104,7 +104,7 @@ class ContactView(ClassView):
     @requires_login
     def project_date_csv(self, uuid_b58: str, datestr: str) -> ReturnView:
         """Return contacts for a given project and date in CSV format."""
-        archived = getbool(request.args.get('archived'))
+        archived = getbool(request.args.get('archived')) or False
         project = self.get_project(uuid_b58)
         date = datetime.strptime(datestr, '%Y-%m-%d').date()
 
@@ -121,7 +121,7 @@ class ContactView(ClassView):
     @requires_login
     def project_csv(self, uuid_b58: str) -> ReturnView:
         """Return contacts for a given project in CSV format."""
-        archived = getbool(request.args.get('archived'))
+        archived = getbool(request.args.get('archived')) or False
         project = self.get_project(uuid_b58)
 
         contacts = ContactExchange.contacts_for_project(

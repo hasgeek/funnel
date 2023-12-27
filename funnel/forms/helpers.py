@@ -9,9 +9,9 @@ from typing import Literal
 from flask import flash
 
 from baseframe import _, __, forms
-from coaster.auth import current_auth
 
 from .. import app
+from ..auth import current_auth
 from ..models import (
     Account,
     AccountEmailClaim,

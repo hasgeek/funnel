@@ -6,7 +6,6 @@ from flask import flash, request, url_for
 
 from baseframe import _, forms
 from baseframe.forms import Form, render_form
-from coaster.auth import current_auth
 from coaster.views import (
     ClassView,
     ModelView,
@@ -18,6 +17,7 @@ from coaster.views import (
 )
 
 from .. import app
+from ..auth import current_auth
 from ..forms import CommentForm, CommentsetSubscribeForm
 from ..models import (
     Account,

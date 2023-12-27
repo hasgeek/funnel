@@ -8,16 +8,18 @@ from typing import cast
 
 from flask import render_template
 from markupsafe import Markup, escape
+from werkzeug.utils import cached_property
 
 from baseframe import _, __
 
 from ...models import (
     Account,
     AccountMembership,
+    Notification,
     NotificationRecipient,
-    NotificationType,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
+    sa,
 )
 from ...transports.sms import MessageTemplate
 from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotification
@@ -345,7 +347,7 @@ class RenderShared:
 
     organization: Account
     membership: AccountMembership
-    notification: NotificationType
+    notification: Notification
     notification_recipient: NotificationRecipient
     template_picker: DecisionBranch
 
@@ -439,7 +441,9 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     email_heading = __("Membership granted!")
     template_picker = grant_amend_templates
 
-    fragments_order_by = [AccountMembership.granted_at.desc()]
+    @cached_property
+    def fragments_order_by(self) -> list[sa.UnaryExpression]:
+        return [AccountMembership.granted_at.desc()]
 
     def membership_actor(
         self, membership: AccountMembership | None = None
@@ -472,7 +476,9 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     email_heading = __("Membership revoked")
     template_picker = revoke_templates
 
-    fragments_order_by = [AccountMembership.revoked_at.desc()]
+    @cached_property
+    def fragments_order_by(self) -> list[sa.UnaryExpression]:
+        return [AccountMembership.revoked_at.desc()]
 
     def membership_actor(
         self, membership: AccountMembership | None = None

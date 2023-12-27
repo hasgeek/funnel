@@ -1,6 +1,8 @@
-"""̌Comment noficiations."""
+"""Comment notifications."""
 
 from __future__ import annotations
+
+from typing import cast
 
 from flask import render_template, url_for
 from markupsafe import Markup, escape
@@ -15,7 +17,6 @@ from ...models import (
     CommentReplyNotification,
     CommentReportReceivedNotification,
     Commentset,
-    DuckTypeAccount,
     NewCommentNotification,
     Project,
     Proposal,
@@ -129,10 +130,16 @@ class CommentNotification(RenderNotification):
     hero_image = 'img/email/chars-v1/comment.png'
     email_heading = __("New comment!")
 
+    @cached_property
+    def commentset(self) -> Commentset:
+        if isinstance(self.document, Commentset):
+            return self.document
+        return self.document.commentset
+
     @property
-    def actor(self) -> Account | DuckTypeAccount:
+    def actor(self) -> Account:
         """Actor who commented."""
-        return self.comment.posted_by
+        return cast(Account, self.comment.posted_by)
 
     @cached_property
     def commenters(self) -> list[Account]:
@@ -150,16 +157,16 @@ class CommentNotification(RenderNotification):
 
     @property
     def project(self) -> Project | None:
-        if self.document_type == 'project':
-            return self.document.project
-        if self.document_type == 'proposal':
-            return self.document.proposal.project
+        if (document_type := self.document_type) == 'project':
+            return self.commentset.project
+        if document_type == 'proposal':
+            return self.commentset.proposal.project  # type: ignore[union-attr]
         return None
 
     @property
     def proposal(self) -> Proposal | None:
         if self.document_type == 'proposal':
-            return self.document.proposal
+            return self.commentset.proposal
         return None
 
     @property
@@ -167,25 +174,25 @@ class CommentNotification(RenderNotification):
         """Return type of document this comment is on ('comment' for replies)."""
         if self.notification.document_type == 'comment':
             return 'comment'
-        return self.document.parent_type
+        return self.commentset.parent_type
 
     def document_comments_url(self, **kwargs) -> str:
         """URL to comments view on the document."""
-        if self.document_type == 'project':
-            return self.document.parent.url_for('comments', **kwargs)
-        if self.document_type == 'proposal':
-            return self.document.parent.url_for('view', **kwargs) + '#comments'
+        if (document_type := self.document_type) == 'project':
+            return self.commentset.parent.url_for('comments', **kwargs)
+        if document_type == 'proposal':
+            return self.commentset.parent.url_for('view', **kwargs) + '#comments'
         return self.document.url_for('view', **kwargs)
 
     def activity_template_standalone(self, comment: Comment | None = None) -> str:
         """Activity template for standalone use, such as email subject."""
         if comment is None:
             comment = self.comment
-        if self.document_type == 'comment':
+        if (document_type := self.document_type) == 'comment':
             return _("{actor} replied to your comment in {project}")
-        if self.document_type == 'project':
+        if document_type == 'project':
             return _("{actor} commented in {project}")
-        if self.document_type == 'proposal':
+        if document_type == 'proposal':
             return _("{actor} commented on {proposal}")
         # Unknown document type
         return _("{actor} replied to you")
@@ -194,11 +201,11 @@ class CommentNotification(RenderNotification):
         """Activity template for inline use with other content, like SMS with URL."""
         if comment is None:
             comment = self.comment
-        if self.document_type == 'comment':
+        if (document_type := self.document_type) == 'comment':
             return _("{actor} replied to your comment in {project}:")
-        if self.document_type == 'project':
+        if document_type == 'project':
             return _("{actor} commented in {project}:")
-        if self.document_type == 'proposal':
+        if document_type == 'proposal':
             return _("{actor} commented on {proposal}:")
         # Unknown document type
         return _("{actor} replied to you:")

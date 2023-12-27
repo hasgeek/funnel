@@ -9,11 +9,11 @@ from flask import abort, current_app, flash, redirect, request, session, url_for
 
 from baseframe import _, __
 from baseframe.forms import render_form, render_message
-from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import SetNotificationPreferenceForm, UnsubscribeForm, transport_labels
 from ..models import (
     Account,

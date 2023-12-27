@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from html import unescape as html_unescape
-from typing import Any, TypedDict, TypeVar
+from typing import Any, ClassVar, Generic, TypedDict, TypeVar
 from urllib.parse import quote as urlquote
 
 from flask import request, url_for
@@ -19,11 +19,11 @@ from ..models import (
     Account,
     Comment,
     Commentset,
+    ModelSearchProtocol,
     Project,
     Proposal,
     ProposalMembership,
     Query,
-    SearchModelUnion,
     Session,
     Update,
     db,
@@ -39,6 +39,7 @@ from .mixins import AccountViewBase, ProjectViewBase
 # --- Definitions ----------------------------------------------------------------------
 
 _Q = TypeVar('_Q', bound=Query)
+_ST = TypeVar('_ST', bound=ModelSearchProtocol)
 
 
 # PostgreSQL ts_headline markers
@@ -61,15 +62,15 @@ html_whitespace_re = re.compile(r'\s+', re.ASCII)
 # --- Search provider types ------------------------------------------------------------
 
 
-class SearchProvider:
+class SearchProvider(Generic[_ST]):
     """Base class for search providers."""
 
     #: Label to use in UI
     label: str
     #: Model to query against
-    model: type[SearchModelUnion]
+    model: type[_ST]
     #: Does this model have a title column?
-    has_title: bool = True
+    has_title: ClassVar[bool] = True
 
     @property
     def regconfig(self) -> str:
@@ -145,7 +146,7 @@ class SearchProvider:
 
     def all_count(self, tsquery: sa.Function) -> int:
         """Return count of results for :meth:`all_query`."""
-        return self.all_query(tsquery).options(sa_orm.load_only(self.model.id)).count()
+        return self.all_query(tsquery).options(sa_orm.load_only(self.model.id_)).count()
 
 
 class SearchInAccountProvider(SearchProvider):
@@ -159,7 +160,7 @@ class SearchInAccountProvider(SearchProvider):
         """Return count of results for :meth:`account_query`."""
         return (
             self.account_query(tsquery, account)
-            .options(sa_orm.load_only(self.model.id))
+            .options(sa_orm.load_only(self.model.id_))
             .count()
         )
 
@@ -175,7 +176,7 @@ class SearchInProjectProvider(SearchInAccountProvider):
         """Return count of results for :meth:`project_query`."""
         return (
             self.project_query(tsquery, project)
-            .options(sa_orm.load_only(self.model.id))
+            .options(sa_orm.load_only(self.model.id_))
             .count()
         )
 

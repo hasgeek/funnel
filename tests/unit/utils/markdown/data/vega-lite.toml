@@ -352,11 +352,11 @@ markdown = """
 """
 
 [config]
-profiles = [ "basic", "document",]
+profiles = ["basic", "document"]
 
 [config.custom_profiles.vega_lite]
 preset = "default"
-plugins = [ "vega_lite",]
+plugins = ["vega_lite"]
 
 [expected_output]
 basic = """<h1>vega-lite tests</h1>
@@ -1031,7 +1031,7 @@ document = """<h1 id="h:vega-lite-tests"><a href="#h:vega-lite-tests">vega-lite 
 
 </pre><div class="embed-container"></div></div>
 """
-vega-lite = """<h1>vega-lite tests</h1>
+vega_lite = """<h1>vega-lite tests</h1>
 <h2>Interactive Scatter Plot Matrix</h2>
 <div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,

@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from flask import abort, current_app, flash, render_template, request
 
 from baseframe import _
 from baseframe.filters import date_filter
 from baseframe.forms import render_form
-from coaster.auth import current_auth
 from coaster.views import (
     UrlChangeCheck,
     get_next_url,
@@ -18,6 +19,7 @@ from coaster.views import (
 )
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     ProfileBannerForm,
     ProfileForm,
@@ -77,7 +79,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @render_with({'text/html': template_switcher}, json=True)
     def view(self) -> ReturnRenderWith:
         template_name = None
-        ctx = {}
+        ctx: dict[str, Any] = {}
 
         if self.obj.is_user_profile:
             template_name = 'user_profile.html.jinja2'
@@ -173,7 +175,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             # If the user is an admin of this account, show all draft projects.
             # Else, only show the drafts they have a crew role in
             if self.obj.current_roles.admin:
-                draft_projects = self.obj.draft_projects
+                draft_projects: list[Project] = self.obj.draft_projects.all()
                 unscheduled_projects = self.obj.projects.filter(
                     Project.state.PUBLISHED_WITHOUT_SESSIONS
                 ).all()
@@ -278,7 +280,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @route('past.projects')
     @requestargs(('page', int), ('per_page', int))
     @render_with('past_projects_section.html.jinja2')
-    def past_projects(self, page: int = 1, per_page: int = 10) -> ReturnView:
+    def past_projects(self, page: int = 1, per_page: int = 10) -> ReturnRenderWith:
         projects = self.obj.listed_projects.order_by(None)
         past_projects = projects.filter(Project.state.PAST).order_by(
             Project.start_at.desc()
@@ -305,7 +307,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @route('past.sessions')
     @requestargs(('page', int), ('per_page', int))
     @render_with('past_sessions_section.html.jinja2')
-    def past_sessions(self, page: int = 1, per_page: int = 10) -> ReturnView:
+    def past_sessions(self, page: int = 1, per_page: int = 10) -> ReturnRenderWith:
         featured_sessions = (
             Session.query.join(Project, Session.project_id == Project.id)
             .filter(

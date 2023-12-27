@@ -10,9 +10,9 @@ import pytest
 from flask import redirect, request, session
 from werkzeug.datastructures import MultiDict
 
-from coaster.auth import current_auth
 from coaster.utils import utcnow
 
+from funnel.auth import current_auth
 from funnel.registry import LoginCallbackError, LoginInitError, LoginProviderData
 from funnel.transports import TransportConnectionError, TransportRecipientError
 from funnel.views.otp import OtpSession

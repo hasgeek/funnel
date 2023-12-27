@@ -102,18 +102,22 @@ repos:
       - id: black
   # Mypy is temporarily disabled until the SQLAlchemy 2.0 migration is complete
   # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v1.3.0
+  #   rev: v1.8.0
   #   hooks:
   #     - id: mypy
   #       # warn-unused-ignores is unsafe with pre-commit, see
   #       # https://github.com/python/mypy/issues/2960
-  #       args: ['--no-warn-unused-ignores', '--ignore-missing-imports']
+  #       args:
+  #         [
+  #           '--no-warn-unused-ignores',
+  #           '--no-warn-redundant-casts',
+  #           '--ignore-missing-imports',
+  #         ]
   #       additional_dependencies:
   #         - flask
   #         - lxml-stubs
   #         - sqlalchemy
   #         - toml
-  #         - tomli
   #         - types-chevron
   #         - types-geoip2
   #         - types-python-dateutil

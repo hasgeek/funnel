@@ -203,7 +203,7 @@ class Account(UuidMixin, BaseMixin, Model):
     #: Alias title as user's fullname
     fullname: Mapped[str] = sa_orm.synonym('title')
     #: Alias name as user's username
-    username: Mapped[str] = sa_orm.synonym('name')
+    username: Mapped[str | None] = sa_orm.synonym('name')
 
     #: Argon2 or Bcrypt hash of the user's password
     pw_hash: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
@@ -1119,14 +1119,11 @@ class Account(UuidMixin, BaseMixin, Model):
     ) -> AccountEmail:
         """Add an email address (assumed to be verified)."""
         accountemail = AccountEmail(account=self, email=email, private=private)
-        accountemail = cast(
-            AccountEmail,
-            failsafe_add(
-                db.session,
-                accountemail,
-                account=self,
-                email_address=accountemail.email_address,
-            ),
+        accountemail = failsafe_add(
+            db.session,
+            accountemail,
+            account=self,
+            email_address=accountemail.email_address,
         )
         if primary:
             self.primary_email = accountemail
@@ -1176,14 +1173,11 @@ class Account(UuidMixin, BaseMixin, Model):
     ) -> AccountPhone:
         """Add a phone number (assumed to be verified)."""
         accountphone = AccountPhone(account=self, phone=phone, private=private)
-        accountphone = cast(
-            AccountPhone,
-            failsafe_add(
-                db.session,
-                accountphone,
-                account=self,
-                phone_number=accountphone.phone_number,
-            ),
+        accountphone = failsafe_add(
+            db.session,
+            accountphone,
+            account=self,
+            phone_number=accountphone.phone_number,
         )
         if primary:
             self.primary_phone = accountphone
@@ -1427,11 +1421,14 @@ class Account(UuidMixin, BaseMixin, Model):
             raise ValueError("Account cannot be deleted")
 
         # 1. Delete contact information
-        for contact_source in (
-            self.emails,
-            self.emailclaims,
-            self.phones,
-            self.externalids,
+        for contact_source in cast(
+            list,
+            (
+                self.emails,
+                self.emailclaims,
+                self.phones,
+                self.externalids,
+            ),
         ):
             for contact in contact_source:
                 db.session.delete(contact)
@@ -2103,7 +2100,7 @@ class Team(UuidMixin, BaseMixin, Model):
                 # `migrate_account` methods as team_membership is an unmapped table.
                 new_account.member_teams.append(team)
             old_account.member_teams.remove(team)
-        return [cast(sa.Table, cls.__table__).name, team_membership.name]
+        return [cls.__table__.name, team_membership.name]
 
     @classmethod
     def get(cls, buid: str, with_parent: bool = False) -> Team | None:
@@ -2297,7 +2294,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         if new_account.primary_email is None:
             new_account.primary_email = primary_email
         old_account.primary_email = None
-        return [cast(sa.Table, cls.__table__).name, user_email_primary_table.name]
+        return [cls.__table__.name, user_email_primary_table.name]
 
 
 class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
@@ -2674,7 +2671,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         if new_account.primary_phone is None:
             new_account.primary_phone = primary_phone
         old_account.primary_phone = None
-        return [cast(sa.Table, cls.__table__).name, user_phone_primary_table.name]
+        return [cls.__table__.name, user_phone_primary_table.name]
 
 
 class AccountExternalId(BaseMixin, Model):
@@ -2698,10 +2695,8 @@ class AccountExternalId(BaseMixin, Model):
         sa.UnicodeText, nullable=False
     )  # Unique id (or obsolete OpenID)
     #: Optional public-facing username on the external service
-    # FIXME: change to sa.Unicode
-    username: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
-    )  # LinkedIn once used full URLs
+    # FIXME: change to sa.Unicode. LinkedIn once used full URLs
+    username: Mapped[str | None] = sa_orm.mapped_column(sa.UnicodeText, nullable=True)
     #: OAuth or OAuth2 access token
     # FIXME: change to sa.Unicode
     oauth_token: Mapped[str | None] = sa_orm.mapped_column(

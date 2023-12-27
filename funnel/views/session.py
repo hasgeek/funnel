@@ -2,16 +2,14 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 from flask import render_template, request
 
 from baseframe import _
-from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
 from ..models import Account, Project, Proposal, SavedSession, Session, db
 from ..proxies import request_wants
@@ -61,7 +59,7 @@ def session_edit(
     else:
         form = SessionForm()
         if proposal is not None:
-            form.description.data = proposal.body
+            form.description.data = str(proposal.body)
             form.speaker.data = proposal.first_user.fullname
             form.title.data = proposal.title
 
@@ -92,7 +90,6 @@ def session_edit(
             else:
                 db.session.add(session)
         db.session.commit()
-        session = cast(Session, session)  # Tell mypy session is not None
         session.project.update_schedule_timestamps()
         db.session.commit()
         if request_wants.html_in_json:
@@ -177,13 +174,13 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
                 datasets=('without_parent', 'related')
             ),
             from_date=(
-                self.obj.project.start_at_localized.isoformat()
-                if self.obj.project.start_at
+                start_at.isoformat()
+                if (start_at := self.obj.project.start_at_localized)
                 else None
             ),
             to_date=(
-                self.obj.project.end_at_localized.isoformat()
-                if self.obj.project.end_at
+                end_at.isoformat()
+                if (end_at := self.obj.project.end_at_localized)
                 else None
             ),
             active_session=session_data(self.obj, with_modal_url='view'),

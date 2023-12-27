@@ -10,9 +10,9 @@ from flask import abort, g, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
-from coaster.auth import current_auth
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, route
 
+from ..auth import current_auth
 from ..forms import SavedProjectForm
 from ..models import (
     Account,

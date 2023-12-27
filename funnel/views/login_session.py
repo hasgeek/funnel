@@ -25,11 +25,11 @@ from furl import furl
 
 from baseframe import _, __, statsd
 from baseframe.forms import render_form
-from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url, get_next_url
 
 from .. import app
+from ..auth import add_auth_attribute, current_auth, request_has_auth
 from ..forms import OtpForm, PasswordForm
 from ..geoip import GeoIP2Error, geoip
 from ..models import (
@@ -49,7 +49,7 @@ from ..models import (
 from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
-from ..typing import P, ResponseType, ReturnResponse, T
+from ..typing import P, ResponseType, ReturnResponse, ReturnView, T
 from ..utils import abort_null
 from .helpers import (
     app_context,
@@ -389,7 +389,7 @@ def save_session_next_url() -> bool:
     return False
 
 
-def reload_for_cookies(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
+def reload_for_cookies(f: Callable[P, ReturnView]) -> Callable[P, ReturnView]:
     """
     Decorate a view to reload to obtain SameSite=strict cookies.
 
@@ -405,7 +405,7 @@ def reload_for_cookies(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
     """
 
     @wraps(f)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | ReturnResponse:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> ReturnView:
         if 'lastuser' not in request.cookies:
             add_auth_attribute('suppress_empty_cookie', True)
             attempt = request.args.get('cookiereload')
@@ -426,15 +426,15 @@ def reload_for_cookies(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
 
 
 def requires_user_not_spammy(
-    get_current: Callable[P, str] | None = None
-) -> Callable[[Callable[P, T]], Callable[P, T | ReturnResponse]]:
+    get_current: Callable[..., str] | None = None
+) -> Callable[[Callable[P, ReturnView]], Callable[P, ReturnView]]:
     """Decorate a view to require the user to prove they are not likely a spammer."""
 
-    def decorator(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
+    def decorator(f: Callable[P, ReturnView]) -> Callable[P, ReturnView]:
         """Apply decorator using the specified :attr:`get_current` function."""
 
         @wraps(f)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | ReturnResponse:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> ReturnView:
             """Validate user rights in a view."""
             if not current_auth.is_authenticated:
                 flash(_("Confirm your phone number to continue"), 'info')
@@ -543,7 +543,7 @@ def del_sudo_preference_context() -> None:
     session.pop('sudo_context', None)
 
 
-def requires_sudo(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
+def requires_sudo(f: Callable[P, ReturnView]) -> Callable[P, ReturnView]:
     """
     Decorate a view to require the current user to have re-authenticated recently.
 
@@ -555,7 +555,7 @@ def requires_sudo(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
     """
 
     @wraps(f)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | ReturnResponse:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> ReturnView:
         """Prompt for re-authentication to proceed."""
         add_auth_attribute('login_required', True)
         # If the user is not logged in, require login first
@@ -661,7 +661,7 @@ def requires_sudo(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
                 abort(422)
 
             # Allow 5 password or OTP guesses per 60 seconds
-            validate_rate_limit('account_sudo', current_auth.user.userid, 5, 60)
+            validate_rate_limit('account_sudo', current_auth.user.uuid_b64, 5, 60)
             if form.validate_on_submit():
                 # User has successfully authenticated. Update their sudo timestamp
                 # and reload the page with a GET request, as the wrapped view may

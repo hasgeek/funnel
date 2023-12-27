@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from flask import flash, request, url_for
+from flask import abort, flash, request, url_for
 from sqlalchemy.exc import IntegrityError
 
 from baseframe import _, forms
@@ -260,6 +260,8 @@ class TicketEventParticipantView(TicketEventViewBase):
             ticket_participant_ids = request.form.getlist('puuid_b58')
             for ticket_participant_id in ticket_participant_ids:
                 attendee = TicketEventParticipant.get(self.obj, ticket_participant_id)
+                if attendee is None:
+                    abort(404)
                 attendee.checked_in = bool(checked_in)
             db.session.commit()
             if request_wants.json:

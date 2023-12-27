@@ -12,6 +12,7 @@ from ...models import (
     Proposal,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
+    sa,
     sa_orm,
 )
 from ...transports.sms import SmsPriority, SmsTemplate
@@ -71,7 +72,7 @@ class RenderProposalReceivedNotification(RenderNotification):
     email_heading = __("New submission!")
 
     @cached_property
-    def fragments_order_by(self):
+    def fragments_order_by(self) -> list[sa.UnaryExpression]:
         return [Proposal.datetime.desc()]
 
     @property
@@ -123,7 +124,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
     emoji_prefix = "📤 "
     reason = __("You are receiving this because you made this submission")
     hero_image = 'img/email/chars-v1/sent-submission.png'
-    email_heading = __("Proposal sumbitted!")
+    email_heading = __("Proposal submitted!")
 
     def web(self) -> str:
         return render_template(

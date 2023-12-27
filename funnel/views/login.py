@@ -22,11 +22,11 @@ from flask import (
 from baseframe import _, __, forms, statsd
 from baseframe.forms import render_message
 from baseframe.signals import exception_catchall
-from coaster.auth import current_auth
 from coaster.utils import getbool, utcnow
 from coaster.views import get_next_url, requestargs
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     LoginForm,
     LoginPasswordResetException,
@@ -44,6 +44,7 @@ from ..models import (
     AccountExternalId,
     AuthClientCredential,
     LoginSession,
+    User,
     db,
     getextid,
     merge_accounts,
@@ -174,7 +175,7 @@ def login() -> ReturnView:
             if success:
                 user = loginform.user
                 if TYPE_CHECKING:
-                    assert isinstance(user, Account)  # nosec
+                    assert isinstance(user, User)  # nosec B101
                 login_internal(user, login_service='password')
                 db.session.commit()
                 if loginform.weak_password:
@@ -278,7 +279,7 @@ def login() -> ReturnView:
                     # Register an account
                     user = register_internal(None, otp_form.fullname.data, None)
                     if TYPE_CHECKING:
-                        assert isinstance(user, Account)  # nosec
+                        assert isinstance(user, User)  # nosec B101
                     if otp_session.email:
                         db.session.add(user.add_email(otp_session.email, primary=True))
                     if otp_session.phone:
@@ -408,7 +409,8 @@ def account_logout() -> ReturnView:
 
     for field_errors in form.errors.values():
         for error in field_errors:
-            flash(error, 'error')
+            if error is not None:
+                flash(error, 'error')
     return render_redirect(url_for('account'))
 
 
@@ -456,7 +458,9 @@ def login_service_callback(service: str) -> ReturnView:
     return login_service_postcallback(service, userdata)
 
 
-def get_user_extid(service, userdata):
+def get_user_extid(
+    service: str, userdata: LoginProviderData
+) -> tuple[Account | None, AccountExternalId | None, AccountEmail | None]:
     """Retrieve user, extid and email from the given service and userdata."""
     provider = login_registry[service]
     extid = getextid(service=service, userid=userdata.userid)
@@ -587,6 +591,8 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
         user.fullname = userdata.fullname
 
     if not current_auth:  # If a user isn't already logged in, login now.
+        if TYPE_CHECKING:
+            assert isinstance(user, User)  # nosec B101
         login_internal(user, login_service=service)
         flash(
             _("You have logged in via {service}").format(
@@ -629,6 +635,8 @@ def account_merge() -> ReturnView:
         if 'merge' in request.form:
             new_user = merge_accounts(current_auth.user, other_user)
             if new_user is not None:
+                if TYPE_CHECKING:
+                    assert isinstance(new_user, User)  # nosec B101
                 login_internal(
                     new_user,
                     login_service=current_auth.session.login_service
@@ -759,6 +767,8 @@ def hasjobapp_login_callback(token):
     login_session = LoginSession.get(request_token['sessionid'])
     if login_session is not None:
         user = login_session.account
+        if TYPE_CHECKING:
+            assert isinstance(user, User)  # nosec B101
         login_internal(user, login_session)
         db.session.commit()
         flash(_("You are now logged in"), category='success')

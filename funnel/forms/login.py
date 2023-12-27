@@ -297,8 +297,7 @@ class OtpForm(forms.Form):
 class EmailOtpForm(OtpForm):
     """Verify an OTP sent to email."""
 
-    def set_queries(self) -> None:
-        super().set_queries()
+    def __post_init__(self) -> None:
         self.otp.description = _("One-time password sent to your email address")
 
 

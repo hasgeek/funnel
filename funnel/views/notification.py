@@ -17,10 +17,10 @@ from flask_babel import force_locale
 from werkzeug.utils import cached_property
 
 from baseframe import __, statsd
-from coaster.auth import current_auth
 from coaster.sqlalchemy import RoleAccessProxy
 
 from .. import app
+from ..auth import current_auth
 from ..models import (
     Account,
     AccountEmail,
@@ -30,6 +30,7 @@ from ..models import (
     NotificationRecipient,
     UuidModelUnion,
     db,
+    sa,
 )
 from ..serializers import token_serializer
 from ..transports import TransportError, email, platform_transports, sms
@@ -253,11 +254,15 @@ class RenderNotification:
         # This payload is consumed by :meth:`AccountNotificationView.unsubscribe`
         # in `views/notification_preferences.py`
         return token_serializer().dumps(
+            # pylint: disable=used-before-assignment
+            # https://github.com/pylint-dev/pylint/issues/8486
             {
                 'buid': self.notification_recipient.recipient.buid,
                 'notification_type': self.notification.type,
                 'transport': transport,
-                'hash': self.transport_for(transport).transport_hash,
+                'hash': anchor.transport_hash
+                if (anchor := self.transport_for(transport)) is not None
+                else '',
             }
         )
 
@@ -281,11 +286,15 @@ class RenderNotification:
         # use this, and can't add utm_* tags to the URL as it only examines the token
         # after cleaning up the URL, so there are no more redirects left.
         token = make_cached_token(
+            # pylint: disable=used-before-assignment
+            # https://github.com/pylint-dev/pylint/issues/8486
             {
                 'buid': self.notification_recipient.recipient.buid,
                 'notification_type': self.notification.type,
                 'transport': transport,
-                'hash': self.transport_for(transport).transport_hash,
+                'hash': anchor.transport_hash
+                if (anchor := self.transport_for(transport)) is not None
+                else '',
                 'eventid_b58': self.notification.eventid_b58,
                 'timestamp': datetime.utcnow(),  # Naive timestamp
             },
@@ -299,7 +308,7 @@ class RenderNotification:
         return url_for('notification_unsubscribe_short', token=token, _external=True)
 
     @cached_property
-    def fragments_order_by(self) -> list:  # TODO: Full spec
+    def fragments_order_by(self) -> list[sa.UnaryExpression]:
         """Provide a list of order_by columns for loading fragments."""
         if self.notification.fragment_model is None:
             return []
@@ -316,12 +325,11 @@ class RenderNotification:
 
     @cached_property
     def fragments(self) -> list[RoleAccessProxy[UuidModelUnion]]:
-        if not self.notification.fragment_model:
+        query = self.notification_recipient.rolledup_fragments()
+        if query is None:
             return []
 
-        query = self.notification_recipient.rolledup_fragments().order_by(
-            *self.fragments_order_by
-        )
+        query = query.order_by(*self.fragments_order_by)
         if self.fragments_query_options:
             query = query.options(*self.fragments_query_options)
 
@@ -388,6 +396,12 @@ class RenderNotification:
             return f"{self.notification.preference_context.title} (via Hasgeek)"
         return "Hasgeek"
 
+    def sms_with_unsubscribe(self) -> sms.SmsTemplate:
+        """Add an unsubscribe link to the SMS message."""
+        msg = self.sms()
+        msg.unsubscribe_url = self.unsubscribe_short_url('sms')
+        return msg
+
     def sms(self) -> sms.SmsTemplate:
         """
         Render a short text message. Templates must use a single line with a link.
@@ -399,12 +413,6 @@ class RenderNotification:
     def text(self) -> str:
         """Render a short plain text notification using the SMS template."""
         return self.sms().text
-
-    def sms_with_unsubscribe(self) -> sms.SmsTemplate:
-        """Add an unsubscribe link to the SMS message."""
-        msg = self.sms()
-        msg.unsubscribe_url = self.unsubscribe_short_url('sms')
-        return msg
 
     def webpush(self) -> str:
         """

@@ -1,18 +1,22 @@
 """Tests for model helpers."""
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
+from collections.abc import Callable
 from types import SimpleNamespace
+from typing import LiteralString, cast
 
 import pytest
 import sqlalchemy as sa
 import sqlalchemy.orm as sa_orm
-from flask_babel import lazy_gettext
+from flask_babel import lazy_gettext as lazy_gettext_base
 from furl import furl
 from sqlalchemy.exc import StatementError
 from sqlalchemy.orm import Mapped
 
 import funnel.models.helpers as mhelpers
 from funnel import models
+
+lazy_gettext = cast(Callable[[LiteralString], str], lazy_gettext_base)
 
 
 def test_valid_name() -> None:
@@ -282,7 +286,7 @@ def test_quote_autocomplete_tsquery(db_session, prefix, tsquery) -> None:
 
 
 def test_message_composite() -> None:
-    """Test mhelpers.MessageComposite has similar properties to MarkdownComposite."""
+    """Test MessageComposite has similar properties to MarkdownComposite."""
     text1 = mhelpers.MessageComposite("Text1")
     assert text1.text == "Text1"
     assert text1.html == "<p>Text1</p>"

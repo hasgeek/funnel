@@ -9,11 +9,11 @@ from flask import abort, flash, render_template, request
 from baseframe import _
 from baseframe.forms import Form
 from baseframe.forms.auto import ConfirmDeleteForm
-from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, requestform, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import ProjectSponsorForm
 from ..models import Account, Project, ProjectSponsorMembership, db, sa_orm
 from ..typing import ReturnView

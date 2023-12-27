@@ -7,7 +7,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Collection
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, NoReturn
+from typing import Any, NoReturn, cast
 
 from flask import Response, abort, jsonify, request
 from werkzeug.datastructures import MultiDict
@@ -16,7 +16,7 @@ from baseframe import _
 from baseframe.signals import exception_catchall
 
 from .models import AccountExternalId, AuthToken
-from .typing import P, ReturnResponse
+from .typing import ReturnResponse
 
 # Bearer token, as per
 # http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
@@ -32,7 +32,9 @@ class ResourceRegistry(OrderedDict):
         description: str | None = None,
         trusted: bool = False,
         scope: str | None = None,
-    ) -> Callable[[Callable[P, Any]], Callable[[], ReturnResponse]]:
+    ) -> Callable[
+        [Callable[[AuthToken, MultiDict, MultiDict], Any]], Callable[[], ReturnResponse]
+    ]:
         """
         Decorate a resource function.
 
@@ -137,7 +139,7 @@ class ResourceRegistry(OrderedDict):
                 'trusted': trusted,
                 'f': f,
             }
-            return wrapper
+            return cast(Callable[[], ReturnResponse], wrapper)
 
         return decorator
 

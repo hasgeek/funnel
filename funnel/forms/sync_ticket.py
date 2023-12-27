@@ -94,7 +94,7 @@ class ProjectBoxofficeForm(forms.Form):
         validators=[forms.validators.Optional(), validate_and_convert_json],
     )
 
-    def set_queries(self):
+    def __post_init__(self):
         """Set form schema description."""
         self.register_form_schema.description = Markup(
             '<p>{description}</p><pre><code>{schema}</code></pre>'
@@ -214,7 +214,7 @@ class TicketParticipantForm(forms.Form):
         validators=[forms.validators.DataRequired("Select at least one event")],
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.ticket_events.query = self.edit_parent.ticket_events
 

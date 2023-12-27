@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Literal, NamedTuple, overload
+from typing import Literal, NamedTuple, TypeVar, overload
 
 import phonenumbers
 from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from .. import app
 from ..typing import OptionalMigratedTables
+from . import Model, db
 from .account import (
     Account,
     AccountEmail,
@@ -16,10 +17,9 @@ from .account import (
     AccountExternalId,
     AccountPhone,
     Anchor,
-    Model,
-    db,
 )
 from .phone_number import PHONE_LOOKUP_REGIONS
+from .typing import ModelIdProtocol
 
 __all__ = [
     'IncompleteUserMigrationError',
@@ -89,7 +89,7 @@ def getuser(name: str, anchor: bool = False) -> Account | AccountAndAnchor | Non
             return AccountAndAnchor(None, None)
         return None
     else:
-        # If it wasn't an email address or an @username, check if it's a phone number
+        # If it was not an email address or an @username, check if it's a phone number
         try:
             # Assume unprefixed numbers to be a local number in one of our supported
             # regions, in order of priority. Also see
@@ -107,9 +107,9 @@ def getuser(name: str, anchor: bool = False) -> Account | AccountAndAnchor | Non
                         if anchor:
                             return AccountAndAnchor(accountphone.account, accountphone)
                         return accountphone.account
-            # No matching accountphone? Continue to trying as a username
+            # No matching account phone? Continue to trying as a username
         except phonenumbers.NumberParseException:
-            # This was not a parseable phone number. Continue to trying as a username
+            # This was not a parsable phone number. Continue to trying as a username
             pass
 
     # Last guess: username
@@ -137,8 +137,15 @@ def getextid(service: str, userid: str) -> AccountExternalId | None:
     return AccountExternalId.get(service=service, userid=userid)
 
 
-def merge_accounts(current_account: Account, other_account: Account) -> Account | None:
+_A1 = TypeVar('_A1', bound=Account)
+_A2 = TypeVar('_A2', bound=Account)
+
+
+def merge_accounts(current_account: _A1, other_account: _A2) -> _A1 | _A2 | None:
     """Merge two user accounts and return the new user account."""
+    keep_account: _A1 | _A2
+    merge_account: _A1 | _A2
+
     app.logger.info(
         "Preparing to merge accounts %s and %s", current_account, other_account
     )
@@ -156,7 +163,7 @@ def merge_accounts(current_account: Account, other_account: Account) -> Account 
     # keep_account.
     safe = do_migrate_instances(merge_account, keep_account, 'migrate_account')
     if safe:
-        # 2. Add merge_account's uuid to oldids and mark account as merged
+        # 2. Add merge_account's uuid to `oldids` and mark account as merged
         merge_account.mark_merged_into(keep_account)
         # 3. Transfer name and password if required
         if not keep_account.name:
@@ -188,8 +195,8 @@ def merge_accounts(current_account: Account, other_account: Account) -> Account 
 
 
 def do_migrate_instances(
-    old_instance: Model,
-    new_instance: Model,
+    old_instance: ModelIdProtocol,
+    new_instance: ModelIdProtocol,
     helper_method: str | None = None,
 ) -> bool:
     """
@@ -270,8 +277,8 @@ def do_migrate_instances(
         for column in target_columns:
             session.execute(
                 table.update()
-                .where(column == old_instance.id)
-                .values(**{column.name: new_instance.id})
+                .where(column == old_instance.id_)
+                .values(**{column.name: new_instance.id_})
             )
             session.flush()
 

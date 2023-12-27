@@ -282,7 +282,7 @@ def downgrade_():
         commentset_memberships = conn.execute(
             sa.select(commentset_membership.c.id)
             .where(commentset_membership.c.commentset_id == project_item.commentset_id)
-            .where(commentset_membership.c.revoked_at is None)
+            .where(commentset_membership.c.revoked_at.is_(None))
             .select_from(commentset_membership)
         )
         for membership_item in commentset_memberships:
@@ -307,7 +307,7 @@ def downgrade_():
         commentset_memberships = conn.execute(
             sa.select(commentset_membership.c.id)
             .where(commentset_membership.c.commentset_id == proposal_item.commentset_id)
-            .where(commentset_membership.c.revoked_at is None)
+            .where(commentset_membership.c.revoked_at.is_(None))
             .select_from(commentset_membership)
         )
         for membership_item in commentset_memberships:

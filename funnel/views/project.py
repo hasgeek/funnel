@@ -12,11 +12,11 @@ from markupsafe import Markup
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
-from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import get_next_url, render_with, requires_roles, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     CfpForm,
     ProjectBannerForm,
@@ -222,7 +222,7 @@ def feature_project_register(obj: Project) -> bool:
 @Project.features('rsvp_registered', cached_property=True)
 def feature_project_deregister(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
-    return rsvp is not None and rsvp.state.YES
+    return rsvp is not None and bool(rsvp.state.YES)
 
 
 @Project.features('schedule_no_sessions')

@@ -68,6 +68,7 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
             args = list(super().__table_args__)
         except AttributeError:
             args = []
+        kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
         args.append(
             sa.CheckConstraint(
                 sa.or_(
@@ -79,6 +80,8 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
                 name='site_membership_has_role',
             )
         )
+        if kwargs:
+            args.append(kwargs)
         return tuple(args)
 
     def __repr__(self) -> str:

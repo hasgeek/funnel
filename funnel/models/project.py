@@ -912,16 +912,12 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         ...
 
     def rsvp_for(self, account: Account | None, create=False) -> Rsvp | None:
-        return Rsvp.get_for(cast(Project, self), account, create)
+        return Rsvp.get_for(self, account, create)
 
     def rsvps_with(self, status: str):
-        return (
-            cast(Project, self)
-            .rsvps.join(Account)
-            .filter(
-                Account.state.ACTIVE,
-                Rsvp._state == status,  # pylint: disable=protected-access
-            )
+        return self.rsvps.join(Account).filter(
+            Account.state.ACTIVE,
+            Rsvp._state == status,  # pylint: disable=protected-access
         )
 
     def rsvp_counts(self) -> dict[str, int]:
@@ -940,8 +936,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     @cached_property
     def rsvp_count_going(self) -> int:
         return (
-            cast(Project, self)
-            .rsvps.join(Account)
+            self.rsvps.join(Account)
             .filter(Account.state.ACTIVE, Rsvp.state.YES)
             .count()
         )

@@ -203,8 +203,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
     @property
     def redirect_uri(self) -> str | None:
         """Return the first redirect URI, if present."""
-        uris = self.redirect_uris  # Assign to local var to avoid splitting twice
-        if uris:
+        if uris := self.redirect_uris:
             return uris[0]
         return None
 

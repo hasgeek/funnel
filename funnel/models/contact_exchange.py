@@ -9,7 +9,7 @@ from itertools import groupby
 from typing import Self
 from uuid import UUID
 
-from pytz import timezone
+from pytz import BaseTzInfo, timezone
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from coaster.sqlalchemy import LazyRoleSet
@@ -42,7 +42,7 @@ class ProjectId:
     uuid: UUID
     uuid_b58: str
     title: str
-    timezone: str
+    timezone: BaseTzInfo
 
 
 @dataclass
@@ -51,7 +51,7 @@ class DateCountContacts:
 
     date: datetime
     count: int
-    contacts: Collection[ContactExchange]
+    contacts: Collection[ContactExchange] | Query[ContactExchange]
 
 
 class ContactExchange(TimestampMixin, RoleMixin, Model):
@@ -248,7 +248,11 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
 
     @classmethod
     def contacts_for_project_and_date(
-        cls, account: Account, project: Project, date: date_type, archived: bool = False
+        cls,
+        account: Account,
+        project: Project | ProjectId,
+        date: date_type,
+        archived: bool = False,
     ) -> Query[Self]:
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(

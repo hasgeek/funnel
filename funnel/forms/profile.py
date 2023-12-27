@@ -58,7 +58,7 @@ class ProfileForm(OrganizationForm):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.logo_url.profile = self.account.name or self.account.buid
 
@@ -89,7 +89,7 @@ class ProfileTransitionForm(forms.Form):
         __("Account visibility"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.transition.choices = list(
             self.edit_obj.profile_state.transitions().items()
@@ -117,7 +117,7 @@ class ProfileLogoForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.logo_url.widget_type = 'modal'
         self.logo_url.profile = self.account.name or self.account.buid
@@ -144,7 +144,7 @@ class ProfileBannerForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.banner_image_url.widget_type = 'modal'
         self.banner_image_url.profile = self.account.name or self.account.buid

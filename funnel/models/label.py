@@ -21,7 +21,7 @@ from . import (
 from .helpers import add_search_trigger, visual_field_delimiter
 from .project_membership import project_child_role_map
 
-proposal_label = sa.Table(
+proposal_label: sa.Table = sa.Table(
     'proposal_label',
     Model.metadata,
     sa.Column(

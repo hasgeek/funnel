@@ -126,7 +126,7 @@ class ProjectForm(forms.Form):
                 __("Quotes are not necessary in the location name")
             )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         self.bg_image.profile = self.account.name or self.account.buid
         if self.edit_obj is not None and self.edit_obj.schedule_start_at:
             # Don't allow user to directly manipulate timestamps when it's done via
@@ -186,7 +186,7 @@ class ProjectNameForm(forms.Form):
     """Form to change the URL name of a project."""
 
     # TODO: Add validators for `account` and unique name here instead of delegating to
-    # the view. Also add `set_queries` method to change ``name.prefix``
+    # the view. Also add `__post_init__` method to change ``name.prefix``
 
     name = forms.AnnotatedTextField(
         __("Custom URL"),
@@ -236,7 +236,7 @@ class ProjectBannerForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.bg_image.widget_type = 'modal'
         self.bg_image.profile = self.account.name or self.account.buid
@@ -280,7 +280,7 @@ class ProjectTransitionForm(forms.Form):
         __("Status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.transition.choices = list(self.edit_obj.state.transitions().items())
 
@@ -349,7 +349,7 @@ class RsvpTransitionForm(forms.Form):
         __("Status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         # Usually you need to use an instance's state.transitions to find
         # all the valid transitions for the current state of the instance.

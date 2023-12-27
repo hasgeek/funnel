@@ -18,7 +18,7 @@ from typing import Any, NamedTuple, Protocol, cast
 
 from flask import Flask
 
-from . import app as main_app, shortlinkapp, transports, unsubscribeapp
+from . import all_apps, app as main_app, transports
 from .models import db
 from .typing import ReturnView
 
@@ -100,7 +100,7 @@ class AppByHostWsgi:
         return use_app(environ, start_response)
 
 
-devtest_app = AppByHostWsgi(main_app, shortlinkapp, unsubscribeapp)
+devtest_app = AppByHostWsgi(*all_apps)
 
 # --- Background worker ----------------------------------------------------------------
 
@@ -312,7 +312,7 @@ class BackgroundWorker:
                 raise RuntimeError(f"Server exited with code {self._process.exitcode}")
 
     def _is_ready(self) -> bool:
-        """Probe for readyness with a socket connection."""
+        """Probe for readiness with a socket connection."""
         if not self.probe_at:
             return False
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

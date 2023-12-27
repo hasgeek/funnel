@@ -4,21 +4,23 @@ from __future__ import annotations
 
 from collections.abc import Callable, Collection
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from flask import render_template
 from markupsafe import Markup, escape
+from werkzeug.utils import cached_property
 
 from baseframe import _, __
 
 from ...models import (
     Account,
+    Notification,
     NotificationRecipient,
-    NotificationType,
     Project,
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
     ProjectMembership,
+    sa,
 )
 from ...transports.sms import OneLineTemplate
 from ..helpers import shortlink
@@ -667,7 +669,7 @@ class RenderShared:
 
     project: Project
     membership: ProjectMembership
-    notification: NotificationType
+    notification: Notification
     notification_recipient: NotificationRecipient
     #: Subclasses must specify a base template picker
     template_picker: DecisionBranch
@@ -771,12 +773,18 @@ class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
     aliases = {'document': 'project', 'fragment': 'membership'}
     hero_image = 'img/email/chars-v1/access-granted.png'
     email_heading = __("Crew membership granted!")
-    fragments_order_by = [ProjectMembership.granted_at.desc()]
     template_picker = grant_amend_templates
+
+    @cached_property
+    def fragments_order_by(self) -> list[sa.UnaryExpression]:
+        return [ProjectMembership.granted_at.desc()]
 
     def membership_actor(self, membership: ProjectMembership | None = None) -> Account:
         """Actual actor who granted (or edited) the membership, for the template."""
-        return (membership or self.membership).granted_by
+        actor = (membership or self.membership).granted_by
+        if TYPE_CHECKING:
+            assert actor is not None  # nosec B101
+        return actor
 
     def web(self):
         return render_template(

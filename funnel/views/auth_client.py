@@ -6,7 +6,6 @@ from flask import flash, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form
-from coaster.auth import current_auth
 from coaster.views import (
     ClassView,
     ModelView,
@@ -17,6 +16,7 @@ from coaster.views import (
 )
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     AuthClientCredentialForm,
     AuthClientForm,

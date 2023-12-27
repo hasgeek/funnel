@@ -514,8 +514,9 @@ class Proposal(  # type: ignore[misc]
     def move_to(self, project: Project) -> None:
         """Move to a new project and reset :attr:`url_id`."""
         self.project = project
-        self.url_id = None  # pylint: disable=attribute-defined-outside-init
-        self.make_id()
+        # pylint: disable=attribute-defined-outside-init
+        self.url_id = None  # type: ignore[assignment]
+        self.make_scoped_id()
 
     def update_description(self) -> None:
         if not self.custom_description:

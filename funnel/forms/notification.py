@@ -143,7 +143,7 @@ class UnsubscribeForm(forms.Form):
         __("Unsubscribe token type"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         # Populate choices with all notification types that the user has a preference
         # row for.
@@ -188,7 +188,7 @@ class UnsubscribeForm(forms.Form):
         # self.types.data will only contain the enabled preferences. Therefore, iterate
         # through all choices and toggle true or false based on whether it's in the
         # enabled list. This uses dict access instead of .get because the rows are known
-        # to exist (set_queries loaded from this source).
+        # to exist (`__post_init__` loaded from this source).
         for ntype, _title in self.types.choices:
             obj.notification_preferences[ntype].set_transport(
                 self.transport, ntype in self.types.data
@@ -205,7 +205,7 @@ class SetNotificationPreferenceForm(forms.Form):
     )
     enabled = forms.BooleanField(__("Enable this transport"))
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         # The main switch is special-cased with an empty string for notification type
         self.notification_type.choices = [('', __("Main switch"))] + [
