@@ -6,6 +6,7 @@ from flask import abort, current_app, flash, render_template, request
 
 from baseframe import _
 from baseframe.filters import date_filter
+from baseframe import forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.views import (
@@ -277,6 +278,19 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ],
         }
 
+
+    @route('followers')
+    @render_with('profile_followers.html.jinja2', json=True)
+    def followers(self) -> ReturnRenderWith:
+        # Tobechanged: Return followers
+        return {
+            'profile': self.obj.current_access(datasets=('primary', 'related')),
+            'followers': [
+                membership.current_access(datasets=('without_parent', 'related'))
+                for membership in self.obj.active_admin_memberships
+            ],
+        }
+
     @route('past.projects')
     @requestargs(('page', int), ('per_page', int))
     @render_with('past_projects_section.html.jinja2')
@@ -466,6 +480,18 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 _("There was a problem saving your changes. Please try again"), 'error'
             )
         return render_redirect(get_next_url(referrer=True))
+
+
+    @route('follow', methods=['GET'])
+    @render_with('follow_share_details_modal.html.jinja2')
+    @requires_login
+    def follow(self) -> ReturnRenderWith:
+        """Edit project banner."""
+        form = forms.Form()
+        return {
+            'profile': self.obj,
+            'form': form,
+        }
 
 
 ProfileView.init_app(app)

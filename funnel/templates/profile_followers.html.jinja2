@@ -1,0 +1,100 @@
+{% extends "profile_layout.html.jinja2" %}
+{%- from "macros.html.jinja2" import faicon, useravatar %}
+
+{%- block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/profile.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/membership.css') }}" />
+  <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+       "@type" : "WebSite",
+       "name" : {{ config['SITE_TITLE']|tojson }},
+       "url" : {{ url_for('index', _external=true)|tojson }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ url_for('search', _external=true) }}?q={query}",
+        "query-input": "required name=query"
+      }
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Organization",
+      "name" : {{ profile.title|tojson }},
+      {%- if profile.banner_image_url.url %}
+      "logo" : {{ profile.banner_image_url.url|tojson }},
+      {%- elif profile.logo_url.url %}
+      "logo" : {{ profile.logo_url.url|tojson }},
+      {% endif %}
+      "url" : {{ profile.url_for(_external=true)|tojson }}
+    }
+  </script>
+{%- endblock pageheaders %}
+
+{% block bodyattrs %}class="bg-primary mobile-header"{% endblock bodyattrs %}
+
+{% block contenthead %}
+{% endblock contenthead %}
+
+{% block baseheadline %}
+  {{ profile_header(profile, class="mui--hidden-xs mui--hidden-sm", current_page="followers", title=_("Followers")) }}
+{% endblock baseheadline %}
+
+{% block basecontent %}
+  <div class="bg-accent top-padding">
+    <div class="mui-container">
+      <div class="page-content">
+        <div class="grid" id="crew">
+          <div class="grid__col-xs-12">
+            <a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ profile.url_for('follow') }}" rel="modal:open">{% trans %}Follow{% endtrans %}</a>
+            <form class="display-inlineblock search search--small search--icon mui--z1">
+              <div class="textfield">
+                <input class="search-query" id="search" type="text" name="key" value="" placeholder="{% trans %}Search{% endtrans %}"/>{{ faicon(icon='search', css_class="search-form__icon")}}
+              </div>
+            </form>
+            <table id="js-followers-table">
+              <tbody class="membership-wrapper__members">
+                {%- for membership in followers %}
+                  {%- if membership %}
+                    <tr class="membership-wrapper__members__list user" id="p-{{ membership.member.username }}">
+                      <td class="js-searchable mui--hide">{{ membership.member.fullname }}</td>
+                      <td class="js-searchable mui--hide">{{ membership.member.username }}</td>
+                      <td>
+                        <div class="member mui--clearfix">
+                            <div class="user__box mui--pull-left">
+                              {{ useravatar(membership.member, add_profile_link=true, size='big') }}
+                              <div class="user__box__header">
+                                <h3 class="mui--text-body2 user__box__fullname">{{ membership.member.fullname }}<span>{% if membership.member.features.is_private() %}{{ faicon(icon='lock-alt', icon_size='caption', baseline=false, css_class="margin-left") }}{%- endif %}</span></h3>
+                                <h3 v-if="membership.member.username" class="mui--text-caption user__box__userid"><span  data-cy="member">@{{ membership.member.username }}</span></h3>
+                              </div>
+                            </div>
+                            <div class="mui--pull-right">
+                            </div>
+                        </div>
+                      </td>
+                  </tr>
+                  {%- endif %}
+                {%- endfor %}
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock basecontent %}
+
+{% block innerscripts %}
+  <script src="{{ manifest('profile_followers.js') }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      search = {
+        tableId: 'js-followers-table',
+        inputId: 'search'
+      };
+      Hasgeek.profileFollowersInit(search);
+    });
+  </script>
+{% endblock innerscripts %}
