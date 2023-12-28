@@ -12,13 +12,13 @@ from coaster.sqlalchemy import failsafe_add
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles, route
 
 from .. import app
-from ..forms import SavedSessionForm, SessionForm
-from ..models import Project, Proposal, SavedSession, Session, db
+from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
+from ..models import Account, Project, Proposal, SavedSession, Session, db
 from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import localize_date, render_redirect
 from .login_session import requires_login
-from .mixins import ProjectViewMixin, SessionViewMixin
+from .mixins import AccountCheckMixin, ProjectViewBase
 from .schedule import schedule_data, session_data, session_list_data
 
 
@@ -36,7 +36,7 @@ def rooms_list(project):
 
 def get_form_template(form: SessionForm) -> ReturnView:
     """Render Session form html."""
-    form.form_nonce.data = form.form_nonce.default()
+    form.form_nonce.data = form.form_nonce.get_default()
     form_template = render_template(
         'session_form.html.jinja2',
         form=form,
@@ -123,8 +123,8 @@ def session_edit(
 
 
 @Project.views('session_new')
-@route('/<account>/<project>/sessions')
-class ProjectSessionView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>/<project>/sessions', init_app=app)
+class ProjectSessionView(ProjectViewBase):
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
@@ -132,12 +132,31 @@ class ProjectSessionView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
         return session_edit(self.obj)
 
 
-ProjectSessionView.init_app(app)
-
-
 @Session.views('main')
-@route('/<account>/<project>/schedule/<session>')
-class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>/<project>/schedule/<session>', init_app=app)
+class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Session]):
+    route_model_map = {
+        'account': 'project.account.urlname',
+        'project': 'project.name',
+        'session': 'url_name_uuid_b58',
+    }
+    SavedProjectForm = SavedProjectForm
+
+    def loader(self, account: str, project: str, session: str) -> Session:
+        return (
+            Session.query.join(Project, Session.project_id == Project.id)
+            .join(Account, Project.account)
+            .filter(Session.url_name_uuid_b58 == session)
+            .first_or_404()
+        )
+
+    def post_init(self) -> None:
+        self.account = self.obj.project.account
+
+    @property
+    def project_currently_saved(self):
+        return self.obj.project.is_saved_by(current_auth.user)
+
     @route('')
     @route('viewsession-popup')  # Legacy route, will be auto-redirected to base URL
     # @requires_roles({'reader'})
@@ -252,6 +271,3 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             },
             400,
         )
-
-
-SessionView.init_app(app)

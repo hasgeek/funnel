@@ -101,18 +101,6 @@ transport_labels = {
         disabled_main=__("Disabled all WhatsApp notifications"),
         disabled=__("Disabled this WhatsApp notification"),
     ),
-    'signal': TransportLabels(
-        title=__("Signal"),
-        requirement=__("To enable, add your Signal number"),
-        requirement_action=lambda: url_for('add_phone'),
-        unsubscribe_form=__("Notify me on Signal (beta)"),
-        unsubscribe_description=__("Uncheck this to disable all Signal notifications"),
-        switch=__("Signal notifications"),
-        enabled_main=__("Enabled selected Signal notifications"),
-        enabled=__("Enabled this Signal notification"),
-        disabled_main=__("Disabled all Signal notifications"),
-        disabled=__("Disabled this Signal notification"),
-    ),
 }
 
 

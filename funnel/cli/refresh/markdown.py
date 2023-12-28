@@ -9,7 +9,7 @@ import click
 import rich.progress
 
 from ... import models
-from ...models import MarkdownModelUnion, db, sa
+from ...models import MarkdownModelUnion, db, sa_orm
 from . import refresh
 
 _M = TypeVar('_M', bound=MarkdownModelUnion)
@@ -60,7 +60,7 @@ class MarkdownModel(Generic[_M]):
             )
             iter_list = (
                 self.model.query.order_by(self.model.id)
-                .options(sa.orm.load_only(*load_columns))
+                .options(sa_orm.load_only(*load_columns))
                 .yield_per(10)
             )
             iter_total = self.model.query.count()

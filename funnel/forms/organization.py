@@ -9,7 +9,7 @@ from markupsafe import Markup
 
 from baseframe import _, __, forms
 
-from ..models import Account, Team
+from ..models import Account, Team, User
 
 __all__ = ['OrganizationForm', 'TeamForm']
 
@@ -19,7 +19,7 @@ class OrganizationForm(forms.Form):
     """Form for an organization's name and title."""
 
     __expects__: Iterable[str] = ('edit_user',)
-    edit_user: Account
+    edit_user: User
     edit_obj: Account | None
 
     title = forms.StringField(

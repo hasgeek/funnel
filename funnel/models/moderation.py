@@ -9,10 +9,9 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, Mapped, Model, UuidMixin, backref, db, relationship, sa
+from . import BaseMixin, Mapped, Model, UuidMixin, db, relationship, sa, sa_orm
 from .account import Account
 from .comment import Comment
-from .helpers import reopen
 from .site_membership import SiteMembership
 
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
@@ -26,32 +25,24 @@ class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
 class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
     __tablename__ = 'comment_moderator_report'
 
-    comment_id: Mapped[int] = sa.orm.mapped_column(
+    comment_id: Mapped[int] = sa_orm.mapped_column(
         sa.Integer, sa.ForeignKey('comment.id'), nullable=False, index=True
     )
-    comment: Mapped[Comment] = relationship(
-        Comment,
-        foreign_keys=[comment_id],
-        backref=backref('moderator_reports', cascade='all', lazy='dynamic'),
-    )
-    reported_by_id: Mapped[int] = sa.orm.mapped_column(
+    comment: Mapped[Comment] = relationship(back_populates='moderator_reports')
+    reported_by_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), nullable=False, index=True
     )
-    reported_by: Mapped[Account] = relationship(
-        Account,
-        foreign_keys=[reported_by_id],
-        backref=backref('moderator_reports', cascade='all', lazy='dynamic'),
-    )
-    report_type: Mapped[int] = sa.orm.mapped_column(
+    reported_by: Mapped[Account] = relationship(back_populates='moderator_reports')
+    report_type: Mapped[int] = sa_orm.mapped_column(
         sa.SmallInteger,
         StateManager.check_constraint('report_type', MODERATOR_REPORT_TYPE),
         nullable=False,
         default=MODERATOR_REPORT_TYPE.SPAM,
     )
-    reported_at: Mapped[datetime] = sa.orm.mapped_column(
+    reported_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), default=sa.func.utcnow(), nullable=False
     )
-    resolved_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    resolved_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
 
@@ -113,17 +104,3 @@ class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
         )
 
     with_roles(users_who_are_comment_moderators, grants={'comment_moderator'})
-
-
-@reopen(Comment)
-class __Comment:
-    def is_reviewed_by(self, account: Account) -> bool:
-        return db.session.query(
-            db.session.query(CommentModeratorReport)
-            .filter(
-                CommentModeratorReport.comment == self,
-                CommentModeratorReport.resolved_at.is_(None),
-                CommentModeratorReport.reported_by == account,
-            )
-            .exists()
-        ).scalar()

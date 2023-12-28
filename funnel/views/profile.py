@@ -10,9 +10,7 @@ from baseframe import forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.views import (
-    ModelView,
     UrlChangeCheck,
-    UrlForView,
     get_next_url,
     render_with,
     requestargs,
@@ -31,7 +29,7 @@ from ..models import Account, Project, Session, db, sa
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
-from .mixins import AccountViewMixin
+from .mixins import AccountViewBase
 from .schedule import schedule_data, session_list_data
 
 
@@ -74,8 +72,8 @@ def template_switcher(templateargs):
 
 
 @Account.views('main')
-@route('/<account>')
-class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>', init_app=app)
+class ProfileView(UrlChangeCheck, AccountViewBase):
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
     def view(self) -> ReturnRenderWith:

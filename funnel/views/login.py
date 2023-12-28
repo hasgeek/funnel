@@ -100,7 +100,7 @@ def render_otp_form(
     form: OtpForm | RegisterOtpForm, cancel_url: str, action: str
 ) -> ReturnView:
     """Render OTP form."""
-    form.form_nonce.data = form.form_nonce.default()
+    form.form_nonce.data = form.form_nonce.get_default()
     return (
         render_template(
             'otpform.html.jinja2',

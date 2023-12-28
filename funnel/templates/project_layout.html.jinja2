@@ -51,7 +51,7 @@
 
 {% macro project_header(project) %}
   {%- if project.livestream_urls %}
-    {% if (project.is_restricted_video and project.current_roles.participant) or not project.is_restricted_video %}
+    {% if (project.is_restricted_video and project.current_roles.account_member) or not project.is_restricted_video %}
       <div class="livestream-box project-banner__left" id="livestream">
         {% if project.livestream_urls|length >= 2 %}
         <ul class="mui-tabs__bar project-banner__box" role="tablist">
@@ -125,7 +125,7 @@
           </a>
         {% endif %}
         <a href="{{ project.account.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.account.title }}</a>
-        {% if project.features.subscription and project.current_roles.participant %}
+        {% if project.features.subscription and project.current_roles.account_member %}
           <span class="chip chip--bg-success project-banner__profile-details__badge text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span>
         {% elif project.features.subscription %}
           <span class="chip project-banner__profile-details__badge text-bold">{{ faicon(icon='lock-alt', baseline=true, css_class="fa-icon--right-margin") }}{% trans %}For members{% endtrans %}</span>

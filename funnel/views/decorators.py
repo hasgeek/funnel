@@ -114,9 +114,8 @@ def etag_cache_for_user(
             # 2. Get existing data from cache. There may be multiple copies of data,
             # for each distinct rhash. Look for the one matching our rhash
 
-            # XXX: Typing for cache.get is incorrectly specified as returning
             # Optional[str]
-            cache_data: dict | None = cache.get(cache_key)  # type: ignore[assignment]
+            cache_data: dict | None = cache.get(cache_key)
             response_data = None
             if cache_data:
                 rhash_data = cache_data.get(rhash, {})

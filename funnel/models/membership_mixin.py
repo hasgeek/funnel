@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from datetime import datetime as datetime_type
-from typing import TYPE_CHECKING, Any, ClassVar, Generic, TypeVar
+from types import SimpleNamespace
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeVar
 from uuid import UUID
 
 from sqlalchemy import event
@@ -26,6 +27,7 @@ from . import (
     hybrid_property,
     relationship,
     sa,
+    sa_orm,
 )
 from .account import Account
 from .reorder_mixin import ReorderProtoMixin
@@ -99,9 +101,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
         __tablename__: str
         #: Parent column (declare as synonym of 'profile_id' or 'project_id' in
         #: subclasses)
-        parent_id: Mapped[int]
+        parent_id: Mapped[int] | None
         #: Parent object
-        parent: Mapped[Model | None]
+        parent: Mapped[Model] | None
         #: Subject of this membership (subclasses must define)
         member: Mapped[Account]
 
@@ -117,7 +119,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
     #: for records created when the member table was added to the database
     granted_at: Mapped[datetime_type] = with_roles(
         immutable(
-            sa.orm.mapped_column(
+            sa_orm.mapped_column(
                 sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
             )
         ),
@@ -125,13 +127,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
     )
     #: End time of membership, ordinarily a mirror of updated_at
     revoked_at: Mapped[datetime_type | None] = with_roles(
-        sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
+        sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'member', 'editor'},
     )
     #: Record type
     record_type: Mapped[int] = with_roles(
         immutable(
-            sa.orm.mapped_column(
+            sa_orm.mapped_column(
                 sa.Integer,
                 StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
                 default=MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
@@ -151,7 +153,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
     @classmethod
     def revoked_by_id(cls) -> Mapped[int | None]:
         """Id of user who revoked the membership."""
-        return sa.orm.mapped_column(
+        return sa_orm.mapped_column(
             sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
         )
 
@@ -171,7 +173,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
         This is nullable only for historical data. New records always require a value
         for granted_by.
         """
-        return sa.orm.mapped_column(
+        return sa_orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('account.id', ondelete='SET NULL'),
             nullable=cls.__null_granted_by__,
@@ -375,7 +377,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def member_id(cls) -> Mapped[int]:
         """Foreign key column to account table."""
-        return sa.orm.mapped_column(
+        return sa_orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('account.id', ondelete='CASCADE'),
             nullable=False,
@@ -393,7 +395,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def user(cls) -> Mapped[Account]:
         """Legacy alias for member in this membership record."""
-        return sa.orm.synonym('member')
+        return sa_orm.synonym('member')
 
     @declared_attr.directive
     @classmethod
@@ -451,7 +453,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """
-        Migrate memberhip records from one account to another.
+        Migrate membership records from one account to another.
 
         If both accounts have active records, they are merged into a new record in the
         new account's favour. All revoked records for the old account are transferred to
@@ -512,11 +514,7 @@ class ReorderMembershipProtoMixin(ReorderProtoMixin):
     #: However, it can be argued that relocating a sponsor in the list constitutes a
     #: change that must be recorded as a revision. We may need to change our opinion
     #: on `seq` being mutable in a future iteration.
-    @declared_attr
-    @classmethod
-    def seq(cls) -> Mapped[int]:
-        """Ordering sequence number."""
-        return sa.orm.mapped_column(sa.Integer, nullable=False)
+    seq: Mapped[int] = sa_orm.mapped_column(nullable=False)
 
     @declared_attr.directive
     @classmethod
@@ -580,7 +578,7 @@ class FrozenAttributionProtoMixin:
 
     if TYPE_CHECKING:
         member: Mapped[Account]
-        replace: Callable[..., FrozenAttributionType]
+        replace: Callable[..., Self]
         _local_data_only: bool
 
     @declared_attr
@@ -588,7 +586,7 @@ class FrozenAttributionProtoMixin:
     def _title(cls) -> Mapped[str | None]:
         """Create optional attribution title for this membership record."""
         return immutable(
-            sa.orm.mapped_column(
+            sa_orm.mapped_column(
                 'title', sa.Unicode, sa.CheckConstraint("title <> ''"), nullable=True
             )
         )
@@ -597,7 +595,7 @@ class FrozenAttributionProtoMixin:
     def title(self) -> str:
         """Attribution title for this record."""
         if self._local_data_only:
-            # self._title may be None
+            # self._title may be None when returning local data
             return self._title  # type: ignore[return-value]
         return self._title or self.member.title
 
@@ -614,14 +612,10 @@ class FrozenAttributionProtoMixin:
         return self._title if self._title else self.member.pickername
 
     @with_roles(call={'owner', 'member'})
-    def freeze_member_attribution(
-        self: FrozenAttributionType, actor: Account
-    ) -> FrozenAttributionType:
+    def freeze_member_attribution(self, actor: Account) -> Self:
         """Freeze member attribution and return a replacement record."""
         if self._title is None:
-            membership: FrozenAttributionType = self.replace(
-                actor=actor, title=self.member.title
-            )
+            membership = self.replace(actor=actor, title=self.member.title)
         else:
             membership = self
         return membership
@@ -643,6 +637,10 @@ class AmendMembership(Generic[MembershipType]):
     to any attribute listed as a data column.
     """
 
+    membership: MembershipType
+    _actor: Account
+    _new: dict[str, Any]
+
     def __init__(self, membership: MembershipType, actor: Account) -> None:
         """Create an amendment placeholder."""
         if membership.revoked_at is not None:
@@ -650,8 +648,8 @@ class AmendMembership(Generic[MembershipType]):
                 "This membership record has already been revoked"
             )
         object.__setattr__(self, 'membership', membership)
-        object.__setattr__(self, '_new', {})
         object.__setattr__(self, '_actor', actor)
+        object.__setattr__(self, '_new', {})
 
     def __getattr__(self, attr: str) -> Any:
         """Get an attribute from the underlying record."""
@@ -662,7 +660,13 @@ class AmendMembership(Generic[MembershipType]):
     def __setattr__(self, attr: str, value: Any) -> None:
         """Set an amended value."""
         if attr not in self.membership.__data_columns__:
-            raise AttributeError(f"{attr} cannot be set")
+            raise AttributeError(
+                f"{attr} cannot be set",
+                name=attr,
+                obj=SimpleNamespace(
+                    **{_: None for _ in self.membership.__data_columns__}
+                ),
+            )
         self._new[attr] = value
 
     def __enter__(self) -> AmendMembership:
@@ -697,10 +701,14 @@ def _confirm_enumerated_mixins(_mapper: Any, cls: type[Account]) -> None:
             if attr_relationship is None:
                 raise AttributeError(
                     f'{cls.__name__} does not have a relationship named'
-                    f' {attr_name!r} targeting a subclass of {expected_class.__name__}'
+                    f' {attr_name!r} targeting a subclass of {expected_class.__name__}',
+                    name=attr_name,
+                    obj=cls,
                 )
             if not issubclass(attr_relationship.property.mapper.class_, expected_class):
                 raise AttributeError(
                     f'{cls.__name__}.{attr_name} should be a relationship to a'
-                    f' subclass of {expected_class.__name__}'
+                    f' subclass of {expected_class.__name__}',
+                    name=attr_name,
+                    obj=cls,
                 )

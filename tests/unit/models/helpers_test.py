@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 import sqlalchemy as sa
+import sqlalchemy.orm as sa_orm
 from flask_babel import lazy_gettext
 from furl import furl
 from sqlalchemy.exc import StatementError
@@ -120,7 +121,7 @@ def test_reopen() -> None:
 
     # The decorator will refuse to process classes that affect the original's attributes
     # (__slots__, __getattribute__, __get/set/delattr__)
-    with pytest.raises(TypeError, match='contains unsupported __attributes__'):
+    with pytest.raises(TypeError, match='contains unsupported __dunder__'):
 
         @mhelpers.reopen(OriginalClass)
         class HasSlots:  # pylint: disable=unused-variable
@@ -170,10 +171,10 @@ def test_add_to_class() -> None:
 def image_models(database, app):
     class MyImageModel(models.Model):
         __tablename__ = 'test_my_image_model'
-        id: Mapped[int] = sa.orm.mapped_column(  # noqa: A003
+        id: Mapped[int] = sa_orm.mapped_column(  # noqa: A003
             sa.Integer, primary_key=True
         )
-        image_url: Mapped[furl] = sa.orm.mapped_column(models.ImgeeType)
+        image_url: Mapped[furl] = sa_orm.mapped_column(models.ImgeeType)
 
     with app.app_context():
         database.create_all()

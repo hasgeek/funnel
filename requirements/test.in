@@ -4,7 +4,6 @@ colorama
 coverage
 coveralls
 lxml
-playwright
 Pygments
 pytest
 pytest-asyncio

@@ -57,6 +57,7 @@ def test_project_crew_membership(
         .filter_by(project=new_project, user=new_user)
         .first()
     )
+    assert previous_membership2 is not None
     previous_membership2.revoke(actor=new_user_owner)
     db_session.commit()
 

@@ -38,7 +38,7 @@ policy_pages = [
 ]
 
 
-@route('/')
+@route('/', init_app=app)
 class IndexView(ClassView):
     current_section = 'home'
     SavedProjectForm = SavedProjectForm
@@ -127,7 +127,9 @@ class IndexView(ClassView):
         featured_account_sort_key = {
             _n.lower(): _i for _i, _n in enumerate(app.config['FEATURED_ACCOUNTS'])
         }
-        featured_accounts.sort(key=lambda a: featured_account_sort_key[a.name.lower()])
+        featured_accounts.sort(
+            key=lambda a: featured_account_sort_key[(a.name or a.title).lower()]
+        )
 
         return {
             'all_projects': [
@@ -151,40 +153,38 @@ class IndexView(ClassView):
             'featured_project_sessions': scheduled_sessions_list,
             'featured_project_schedule': featured_project_schedule,
             'featured_accounts': [
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                p.current_access(datasets=('primary', 'related'))
                 for p in featured_accounts
             ],
         }
 
-
-IndexView.init_app(app)
-
-
-@app.route('/past.projects', endpoint='past_projects')
-@requestargs(('page', int), ('per_page', int))
-@render_with('past_projects_section.html.jinja2')
-def past_projects(page: int = 1, per_page: int = 10) -> ReturnView:
-    g.account = None
-    projects = Project.all_unsorted()
-    pagination = (
-        projects.filter(Project.state.PAST)
-        .order_by(Project.start_at.desc())
-        .paginate(page=page, per_page=per_page)
-    )
-    return {
-        'status': 'ok',
-        'next_page': pagination.page + 1 if pagination.page < pagination.pages else '',
-        'total_pages': pagination.pages,
-        'past_projects': [
-            {
-                'title': p.title,
-                'datetime': date_filter(p.end_at_localized, format='dd MMM yyyy'),
-                'venue': p.primary_venue.city if p.primary_venue else p.location,
-                'url': p.url_for(),
-            }
-            for p in pagination.items
-        ],
-    }
+    @route('past.projects', endpoint='past_projects')
+    @render_with('past_projects_section.html.jinja2')
+    @requestargs(('page', int), ('per_page', int))
+    def past_projects(self, page: int = 1, per_page: int = 10) -> ReturnRenderWith:
+        g.account = None
+        projects = Project.all_unsorted()
+        pagination = (
+            projects.filter(Project.state.PAST)
+            .order_by(Project.start_at.desc())
+            .paginate(page=page, per_page=per_page)
+        )
+        return {
+            'status': 'ok',
+            'next_page': pagination.page + 1
+            if pagination.page < pagination.pages
+            else '',
+            'total_pages': pagination.pages,
+            'past_projects': [
+                {
+                    'title': p.title,
+                    'datetime': date_filter(p.end_at_localized, format='dd MMM yyyy'),
+                    'venue': p.primary_venue.city if p.primary_venue else p.location,
+                    'url': p.url_for(),
+                }
+                for p in pagination.items
+            ],
+        }
 
 
 @app.route('/about')

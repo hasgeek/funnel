@@ -8,6 +8,7 @@ from types import SimpleNamespace
 import phonenumbers
 import pytest
 import sqlalchemy as sa
+import sqlalchemy.orm as sa_orm
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped
 
@@ -56,35 +57,38 @@ def phone_models(database, app) -> Generator:
         """Test model connecting PhoneUser to PhoneNumber."""
 
         __tablename__ = 'test_phone_link'
-        __phone_optional__ = False
         __phone_unique__ = True
         __phone_for__ = 'phoneuser'
         __phone_is_exclusive__ = True
 
-        phoneuser_id: Mapped[int] = sa.orm.mapped_column(
+        phoneuser_id: Mapped[int] = sa_orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=False
         )
-        phoneuser: Mapped[PhoneUser] = relationship(PhoneUser)
+        phoneuser: Mapped[PhoneUser] = relationship()
 
-    class PhoneDocument(models.PhoneNumberMixin, models.BaseMixin, models.Model):
+    class PhoneDocument(
+        models.OptionalPhoneNumberMixin, models.BaseMixin, models.Model
+    ):
         """Test model unaffiliated to a user that has a phone number attached."""
 
         __tablename__ = 'test_phone_document'
 
-    class PhoneLinkedDocument(models.PhoneNumberMixin, models.BaseMixin, models.Model):
+    class PhoneLinkedDocument(
+        models.OptionalPhoneNumberMixin, models.BaseMixin, models.Model
+    ):
         """Test model that accepts an optional user and an optional phone."""
 
         __tablename__ = 'test_phone_linked_document'
         __phone_for__ = 'phoneuser'
 
-        phoneuser_id: Mapped[int | None] = sa.orm.mapped_column(
+        phoneuser_id: Mapped[int | None] = sa_orm.mapped_column(
             sa.Integer, sa.ForeignKey('test_phone_user.id'), nullable=True
         )
-        phoneuser: Mapped[PhoneUser | None] = relationship(PhoneUser)
+        phoneuser: Mapped[PhoneUser | None] = relationship()
 
     new_models = [PhoneUser, PhoneLink, PhoneDocument, PhoneLinkedDocument]
 
-    sa.orm.configure_mappers()
+    sa_orm.configure_mappers()
     # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
         database.metadata.create_all(
@@ -313,9 +317,9 @@ def test_phone_number_mutability() -> None:
     with pytest.raises(ValueError, match="A phone number is required"):
         pn.number = ''
     with pytest.raises(ValueError, match="A phone number is required"):
-        pn.number = False
+        pn.number = False  # type: ignore[assignment]
     with pytest.raises(ValueError, match="Phone number cannot be changed"):
-        pn.number = [1, 2, 3]
+        pn.number = [1, 2, 3]  # type: ignore[assignment]
 
     # Changing after nulling is not allowed as hash won't match
     pn.number = None
@@ -324,9 +328,9 @@ def test_phone_number_mutability() -> None:
     with pytest.raises(ValueError, match="A phone number is required"):
         pn.number = ''
     with pytest.raises(ValueError, match="A phone number is required"):
-        pn.number = False
+        pn.number = False  # type: ignore[assignment]
     with pytest.raises(ValueError, match="Invalid value for phone number"):
-        pn.number = [1, 2, 3]
+        pn.number = [1, 2, 3]  # type: ignore[assignment]
 
 
 def test_phone_number_md5() -> None:
@@ -455,7 +459,7 @@ def test_phone_number_add() -> None:
         models.PhoneNumber.add('invalid')
 
     with pytest.raises(models.PhoneNumberInvalidError):
-        models.PhoneNumber.add(None)  # type: ignore[arg-type]
+        models.PhoneNumber.add(None)  # pyright: ignore[reportGeneralTypeIssues]
 
 
 @pytest.mark.usefixtures('db_session')

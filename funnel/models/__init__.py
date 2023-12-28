@@ -4,7 +4,11 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 import sqlalchemy as sa
+import sqlalchemy.exc as sa_exc
+import sqlalchemy.orm as sa_orm
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -38,12 +42,14 @@ from coaster.sqlalchemy import (
 class Model(ModelBase, DeclarativeBase):
     """Base for all models."""
 
+    __table__: ClassVar[sa.Table]
     __with_timezone__ = True
 
 
 class GeonameModel(ModelBase, DeclarativeBase):
     """Base for geoname models."""
 
+    __table__: ClassVar[sa.Table]
     __bind_key__ = 'geoname'
     __with_timezone__ = True
 
@@ -51,7 +57,7 @@ class GeonameModel(ModelBase, DeclarativeBase):
 # This must be set _before_ any of the models using db.Model are imported
 TimestampMixin.__with_timezone__ = True
 
-db = SQLAlchemy(query_class=Query, metadata=Model.metadata)  # type: ignore[arg-type]
+db: SQLAlchemy = SQLAlchemy(query_class=Query, metadata=Model.metadata)  # type: ignore[arg-type]
 Model.init_flask_sqlalchemy(db)
 GeonameModel.init_flask_sqlalchemy(db)
 

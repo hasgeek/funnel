@@ -197,7 +197,11 @@ class ProjectNameForm(forms.Form):
         ),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=Project.__name_length__),
+            forms.validators.Length(
+                max=Project.__name_length__
+                if Project.__name_length__ is not None
+                else -1
+            ),
             forms.validators.ValidName(
                 __(
                     "This URL contains unsupported characters. It can contain lowercase"
@@ -354,7 +358,7 @@ class RsvpTransitionForm(forms.Form):
         # options in the form even without an Rsvp instance.
         self.transition.choices = [
             (transition_name, getattr(Rsvp, transition_name))
-            for transition_name in Rsvp.state.statemanager.transitions
+            for transition_name in Rsvp.state.transitions
         ]
 
 

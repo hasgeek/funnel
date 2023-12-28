@@ -2,19 +2,21 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from coaster.utils import getbool
 from coaster.views import requestargs
 
 from ... import app
 from ...models import GeoName
-from ...typing import ReturnRenderWith
+from ...typing import ReturnView
 
 
 @app.route('/api/1/geo/get_by_name')
 @requestargs('name', ('related', getbool), ('alternate_titles', getbool))
 def geo_get_by_name(
     name: str, related: bool = False, alternate_titles: bool = False
-) -> ReturnRenderWith:
+) -> ReturnView:
     """Get a geoname record given a single URL stub name or geoname id."""
     if name.isdigit():
         geoname = GeoName.query.get(int(name))
@@ -36,7 +38,7 @@ def geo_get_by_name(
 @requestargs('name[]', ('related', getbool), ('alternate_titles', getbool))
 def geo_get_by_names(
     name: list[str], related: bool = False, alternate_titles: bool = False
-) -> ReturnRenderWith:
+) -> ReturnView:
     """Get geoname records matching given URL stub names or geonameids."""
     geonames = []
     for n in name:
@@ -57,7 +59,7 @@ def geo_get_by_names(
 
 @app.route('/api/1/geo/get_by_title')
 @requestargs('title[]', 'lang')
-def geo_get_by_title(title: list[str], lang: str | None = None) -> ReturnRenderWith:
+def geo_get_by_title(title: list[str], lang: str | None = None) -> ReturnView:
     """Get locations matching given titles."""
     return {
         'status': 'ok',
@@ -73,9 +75,9 @@ def geo_parse_location(
     lang: str | None = None,
     bias: list[str] | None = None,
     alternate_titles: bool = False,
-) -> ReturnRenderWith:
+) -> ReturnView:
     """Parse locations from a string of locations."""
-    result = GeoName.parse_locations(q, special, lang, bias)
+    result = cast(list[dict], GeoName.parse_locations(q, special, lang, bias))
     for item in result:
         if 'geoname' in item:
             item['geoname'] = item['geoname'].as_dict(alternate_titles=alternate_titles)
@@ -84,9 +86,7 @@ def geo_parse_location(
 
 @app.route('/api/1/geo/autocomplete')
 @requestargs('q', 'lang', ('limit', int))
-def geo_autocomplete(
-    q: str, lang: str | None = None, limit: int = 100
-) -> ReturnRenderWith:
+def geo_autocomplete(q: str, lang: str | None = None, limit: int = 100) -> ReturnView:
     """Autocomplete a geoname record."""
     return {
         'status': 'ok',

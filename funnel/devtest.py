@@ -1,4 +1,5 @@
 """Support for development and testing environments."""
+# pyright: reportGeneralTypeIssues=false
 
 from __future__ import annotations
 
@@ -13,7 +14,7 @@ import time
 import weakref
 from collections.abc import Callable, Iterable
 from secrets import token_urlsafe
-from typing import Any, NamedTuple, Protocol
+from typing import Any, NamedTuple, Protocol, cast
 
 from flask import Flask
 
@@ -29,7 +30,7 @@ __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
 # Pytest `live_server` fixture used for end-to-end tests. Fork on macOS is not
 # compatible with the Objective C framework. If you have a framework Python build and
 # experience crashes, try setting the environment variable
-# OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+# `OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`
 mpcontext = multiprocessing.get_context('fork')
 
 # --- Development and testing app multiplexer ------------------------------------------
@@ -160,7 +161,7 @@ def install_mock(func: Callable, mock: Callable) -> None:
     # Use weakref to dereference func from local namespace
     func = weakref.ref(func)
     gc.collect()
-    refs = gc.get_referrers(func())  # type: ignore[misc]
+    refs = gc.get_referrers(func())  # type: ignore[misc]  # Typeshed says not callable
     # Recover func from the weakref so we can do an `is` match in referrers
     func = func()  # type: ignore[misc]
     for ref in refs:
@@ -170,6 +171,10 @@ def install_mock(func: Callable, mock: Callable) -> None:
             for key, value in ref.items():
                 if value is func:
                     ref[key] = mock
+        else:
+            raise RuntimeError(
+                f"Can't patch {func.__qualname__} in unknown reference type {ref!r}"
+            )
 
 
 def _prepare_subprocess(
@@ -267,9 +272,9 @@ class BackgroundWorker:
         self.mock_transports = mock_transports
 
         manager = mpcontext.Manager()
-        self.calls: CapturedCalls = manager.Namespace()
-        self.calls.email = manager.list()
-        self.calls.sms = manager.list()
+        self.calls = cast(CapturedCalls, manager.Namespace())
+        self.calls.email = cast(list[CapturedEmail], manager.list())
+        self.calls.sms = cast(list[CapturedSms], manager.list())
 
     def start(self) -> None:
         """Start worker in a separate process."""

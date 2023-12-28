@@ -18,16 +18,20 @@ from unittest.mock import patch
 import flask_wtf.csrf
 import pytest
 import sqlalchemy as sa
+import sqlalchemy.exc as sa_exc
+import sqlalchemy.orm as sa_orm
 import typeguard
 from flask import session
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.session import Session as FsaSession
+from sqlalchemy import event
 from sqlalchemy.orm import Session as DatabaseSessionClass
 
 if TYPE_CHECKING:
     from flask import Flask
-    from flask.testing import FlaskClient, TestResponse
+    from flask.testing import FlaskClient
     from rich.console import Console
+    from werkzeug.test import TestResponse
 
     import funnel.models as funnel_models
 
@@ -61,7 +65,7 @@ def firefox_options(firefox_options):
     return firefox_options
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 def browser_context_args(browser_context_args):
     return browser_context_args | {'ignore_https_errors': True}
 
@@ -90,7 +94,7 @@ def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:
         # as item.location == (file_path, line_no, function_name). However, pytest-bdd
         # reports itself for file_path, so we can't use that and must extract the path
         # from the test module instead
-        module_file = item.module.__file__
+        module_file = item.module.__file__ if item.module is not None else ''
         for counter, path in enumerate(test_order):
             if path in module_file:
                 return (counter, module_file)
@@ -377,7 +381,7 @@ def print_stack(pytestconfig, colorama, colorize_code) -> Callable[[int, int], N
             stack.pop(0)
 
         # Find the first exit from our code and keep only that line and later to
-        # remove unneccesary context
+        # remove unnecessary context
         for index, fi in enumerate(stack):
             if not fi.filename.startswith(boundary_path):
                 stack = stack[index - 1 :]
@@ -485,7 +489,7 @@ def _mock_config(request: pytest.FixtureRequest) -> Iterator:
             app_fixture.config[key] = value
 
     if request.node.get_closest_marker('mock_config'):
-        saved_app_config: dict[str, Any] = {}
+        saved_app_config: dict[Flask, Any] = {}
         for mark in request.node.iter_markers('mock_config'):
             if len(mark.args) < 1:
                 pytest.fail(_mock_config_syntax)
@@ -600,7 +604,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
                 return f'{entity.__name__}(repr-error)'
             return 'repr-error'
 
-    @sa.event.listens_for(models.Model, 'init', propagate=True)
+    @event.listens_for(models.Model, 'init', propagate=True)
     def event_init(obj, args, kwargs):
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
@@ -610,49 +614,49 @@ def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
             f"{colorama.Style.BRIGHT}obj: new:{colorama.Style.NORMAL}" f" {code}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'transient_to_pending')
+    @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
     def event_transient_to_pending(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: transient to pending:{colorama.Style.NORMAL}"
             f" {colorize_code(safe_repr(obj))}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'pending_to_transient')
+    @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
     def event_pending_to_transient(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: pending to transient:{colorama.Style.NORMAL}"
             f" {colorize_code(safe_repr(obj))}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
+    @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
     def event_pending_to_persistent(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: pending to persistent:{colorama.Style.NORMAL}"
             f" {colorize_code(safe_repr(obj))}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
+    @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
     def event_loaded_as_persistent(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: loaded as persistent:{colorama.Style.NORMAL}"
             f" {safe_repr(obj)}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
+    @event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
     def event_persistent_to_transient(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: persistent to transient:"
             f"{colorama.Style.NORMAL} {safe_repr(obj)}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
+    @event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
     def event_persistent_to_deleted(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: persistent to deleted:{colorama.Style.NORMAL}"
             f" {safe_repr(obj)}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
+    @event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
     def event_deleted_to_detached(_session, obj):
         i = sa.inspect(obj)
         print(  # noqa: T201
@@ -660,7 +664,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
             f" {obj.__class__.__qualname__}/{i.identity}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
+    @event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
     def event_persistent_to_detached(_session, obj):
         i = sa.inspect(obj)
         print(  # noqa: T201
@@ -668,21 +672,21 @@ def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
             f"{colorama.Style.NORMAL} {obj.__class__.__qualname__}/{i.identity}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
+    @event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
     def event_detached_to_persistent(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: detached to persistent:"
             f"{colorama.Style.NORMAL} {safe_repr(obj)}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
+    @event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
     def event_deleted_to_persistent(session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: deleted to persistent:{colorama.Style.NORMAL}"
             f" {safe_repr(obj)}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'do_orm_execute')
+    @event.listens_for(DatabaseSessionClass, 'do_orm_execute')
     def event_do_orm_execute(orm_execute_state):
         state_is = []
         if orm_execute_state.is_column_load:
@@ -709,7 +713,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
             f" {', '.join(state_is)}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'after_begin')
+    @event.listens_for(DatabaseSessionClass, 'after_begin')
     def event_after_begin(_session, transaction, _connection):
         if transaction.nested:
             if transaction.parent.nested:
@@ -728,21 +732,21 @@ def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
             )
         print_stack()
 
-    @sa.event.listens_for(DatabaseSessionClass, 'after_commit')
+    @event.listens_for(DatabaseSessionClass, 'after_commit')
     def event_after_commit(session):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} COMMIT"
             f" ({session.info!r})"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'after_flush')
+    @event.listens_for(DatabaseSessionClass, 'after_flush')
     def event_after_flush(session, _flush_context):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} FLUSH"
             f" ({session.info})"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'after_rollback')
+    @event.listens_for(DatabaseSessionClass, 'after_rollback')
     def event_after_rollback(session):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} ROLLBACK"
@@ -750,7 +754,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
         )
         print_stack()
 
-    @sa.event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
+    @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
     def event_after_soft_rollback(session, _previous_transaction):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} SOFT ROLLBACK"
@@ -758,7 +762,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
         )
         print_stack()
 
-    @sa.event.listens_for(DatabaseSessionClass, 'after_transaction_create')
+    @event.listens_for(DatabaseSessionClass, 'after_transaction_create')
     def event_after_transaction_create(_session, transaction):
         if transaction.nested:
             if transaction.parent.nested:
@@ -778,7 +782,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
             )
         print_stack()
 
-    @sa.event.listens_for(DatabaseSessionClass, 'after_transaction_end')
+    @event.listens_for(DatabaseSessionClass, 'after_transaction_end')
     def event_after_transaction_end(_session, transaction):
         if transaction.nested:
             if transaction.parent.nested:
@@ -800,49 +804,45 @@ def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
 
     yield
 
-    sa.event.remove(models.Model, 'init', event_init)
-    sa.event.remove(
+    event.remove(models.Model, 'init', event_init)
+    event.remove(
         DatabaseSessionClass, 'transient_to_pending', event_transient_to_pending
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'pending_to_transient', event_pending_to_transient
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'pending_to_persistent', event_pending_to_persistent
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'loaded_as_persistent', event_loaded_as_persistent
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'persistent_to_transient', event_persistent_to_transient
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'persistent_to_deleted', event_persistent_to_deleted
     )
-    sa.event.remove(
-        DatabaseSessionClass, 'deleted_to_detached', event_deleted_to_detached
-    )
-    sa.event.remove(
+    event.remove(DatabaseSessionClass, 'deleted_to_detached', event_deleted_to_detached)
+    event.remove(
         DatabaseSessionClass, 'persistent_to_detached', event_persistent_to_detached
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'detached_to_persistent', event_detached_to_persistent
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'deleted_to_persistent', event_deleted_to_persistent
     )
-    sa.event.remove(DatabaseSessionClass, 'do_orm_execute', event_do_orm_execute)
-    sa.event.remove(DatabaseSessionClass, 'after_begin', event_after_begin)
-    sa.event.remove(DatabaseSessionClass, 'after_commit', event_after_commit)
-    sa.event.remove(DatabaseSessionClass, 'after_flush', event_after_flush)
-    sa.event.remove(DatabaseSessionClass, 'after_rollback', event_after_rollback)
-    sa.event.remove(
-        DatabaseSessionClass, 'after_soft_rollback', event_after_soft_rollback
-    )
-    sa.event.remove(
+    event.remove(DatabaseSessionClass, 'do_orm_execute', event_do_orm_execute)
+    event.remove(DatabaseSessionClass, 'after_begin', event_after_begin)
+    event.remove(DatabaseSessionClass, 'after_commit', event_after_commit)
+    event.remove(DatabaseSessionClass, 'after_flush', event_after_flush)
+    event.remove(DatabaseSessionClass, 'after_rollback', event_after_rollback)
+    event.remove(DatabaseSessionClass, 'after_soft_rollback', event_after_soft_rollback)
+    event.remove(
         DatabaseSessionClass, 'after_transaction_create', event_after_transaction_create
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'after_transaction_end', event_after_transaction_end
     )
 
@@ -851,8 +851,8 @@ def _truncate_all_tables(engine: sa.Engine) -> None:
     """Truncate all tables in the given database engine."""
     deadlock_retries = 0
     while True:
-        try:
-            with engine.begin() as transaction:
+        with engine.begin() as transaction:
+            try:
                 transaction.execute(
                     sa.text(
                         '''
@@ -869,29 +869,30 @@ def _truncate_all_tables(engine: sa.Engine) -> None:
                         END; $$'''
                     )
                 )
-            break
-        except sa.exc.OperationalError:
-            # The TRUNCATE TABLE call will occasionally have a deadlock when the
-            # background server process has not finalised the transaction. SQLAlchemy
-            # recasts :exc:`psycopg.errors.DeadlockDetected` as
-            # :exc:`sqlalchemy.exc.OperationalError`. Pytest will show as::
-            #
-            #     ERROR <filename> - sqlalchemy.exc.OperationalError:
-            #     (psycopg.errors.DeadlockDetected) deadlock detected
-            #     DETAIL: Process <pid1> waits for AccessExclusiveLock on relation
-            #     <rel1> of database <db>; blocked by process <pid2>. Process <pid2>
-            #     waits for AccessShareLock on relation <rel2> of database <db>;
-            #     blocked by process <pid1>.
-            #
-            # We overcome the deadlock by rolling back the transaction, sleeping a
-            # second and attempting to truncate again, retrying two more times. If the
-            # deadlock remains unresolved, we raise the error to pytest. We are not
-            # explicitly checking for OperationalError wrapping DeadlockDetected on the
-            # assumption that this retry is safe for all operational errors. Any new
-            # type of non-transient error will be reported by the final raise.
-            if (deadlock_retries := deadlock_retries + 1) > 3:
-                raise
-            transaction.rollback()
+                break
+            except sa_exc.OperationalError:
+                # The TRUNCATE TABLE call will occasionally have a deadlock when the
+                # background server process has not finalised the transaction.
+                # SQLAlchemy recasts :exc:`psycopg.errors.DeadlockDetected` as
+                # :exc:`sqlalchemy.exc.OperationalError`. Pytest will show as::
+                #
+                #     ERROR <filename> - sqlalchemy.exc.OperationalError:
+                #     (psycopg.errors.DeadlockDetected) deadlock detected
+                #     DETAIL: Process <pid1> waits for AccessExclusiveLock on relation
+                #     <rel1> of database <db>; blocked by process <pid2>. Process <pid2>
+                #     waits for AccessShareLock on relation <rel2> of database <db>;
+                #     blocked by process <pid1>.
+                #
+                # We overcome the deadlock by rolling back the transaction, sleeping a
+                # second and attempting to truncate again, retrying two more times. If
+                # the deadlock remains unresolved, we raise the error to pytest. We are
+                # not explicitly checking for OperationalError wrapping DeadlockDetected
+                # on the assumption that this retry is safe for all operational errors.
+                # Any new type of non-transient error will be reported by the final
+                # raise.
+                if (deadlock_retries := deadlock_retries + 1) > 3:
+                    raise
+                transaction.rollback()
             time.sleep(1)
 
 
@@ -920,7 +921,7 @@ def db_session_truncate(
 ) -> Iterator[DatabaseSessionClass]:
     """Empty the database after each use of the fixture."""
     yield database.session
-    sa.orm.close_all_sessions()
+    sa_orm.close_all_sessions()
 
     # Iterate through all database engines and empty their tables
     for engine in database.engines.values():
@@ -957,12 +958,18 @@ class BoundSession(FsaSession):
         if bind is not None:
             return bind
         if mapper is not None:
-            mapper = sa.inspect(mapper)
-            table = mapper.local_table
-            bind_key = table.metadata.info.get('bind_key')
-            return self.bindcts[bind_key].connection
+            mapper_insp: sa_orm.Mapper = sa.inspect(mapper)
+            table = mapper_insp.local_table
+            if isinstance(table, sa.Table):
+                # This is always a table when using SQLAlchemy declarative with
+                # __table__ or __tablename__ in a model
+                bind_key = table.metadata.info.get('bind_key')
+                return self.bindcts[bind_key].connection
+            raise NotImplementedError(  # pragma: no cover
+                f"Unexpected mapper local_table type: {table!r}"
+            )
         if isinstance(clause, sa.Table):
-            bind_key = table.metadata.info.get('bind_key')
+            bind_key = clause.metadata.info.get('bind_key')
             return self.bindcts[bind_key].connection
         return self.bindcts[None].connection
 
@@ -1196,7 +1203,8 @@ def getuser(request) -> Callable[[str], funnel_models.User]:
             pytest.fail(f"No user fixture named {user}")
         return request.getfixturevalue(usermap[user])
 
-    func.usermap = usermap  # Aid for tests
+    # Aid for tests
+    func.usermap = usermap  # type: ignore[attr-defined]
     return func
 
 

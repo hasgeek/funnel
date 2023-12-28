@@ -7,22 +7,14 @@ from json import JSONDecodeError
 from types import SimpleNamespace
 
 from flask import Response, abort, current_app, flash, render_template, request
-from flask_babel import LazyString, format_number
+from flask_babel import format_number
 from markupsafe import Markup
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
-from coaster.views import (
-    ModelView,
-    UrlChangeCheck,
-    UrlForView,
-    get_next_url,
-    render_with,
-    requires_roles,
-    route,
-)
+from coaster.views import get_next_url, render_with, requires_roles, route
 
 from .. import app
 from ..forms import (
@@ -58,7 +50,7 @@ from .login_session import (
     requires_site_editor,
     requires_user_not_spammy,
 )
-from .mixins import AccountViewMixin, DraftViewMixin, ProjectViewMixin
+from .mixins import AccountViewBase, DraftViewProtoMixin, ProjectViewBase
 from .notification import dispatch_notification
 
 
@@ -66,10 +58,10 @@ from .notification import dispatch_notification
 class CountWords:
     """Labels for a count of registrations."""
 
-    unregistered: str | LazyString
-    registered: str | LazyString
-    not_following: str | LazyString
-    following: str | LazyString
+    unregistered: str
+    registered: str
+    not_following: str
+    following: str
 
 
 registration_count_messages = [
@@ -148,9 +140,7 @@ numeric_count = CountWords(
 )
 
 
-def get_registration_text(
-    count: int, registered=False, follow_mode=False
-) -> str | LazyString:
+def get_registration_text(count: int, registered=False, follow_mode=False) -> str:
     if count < len(registration_count_messages):
         if registered and not follow_mode:
             return registration_count_messages[count].registered
@@ -256,7 +246,7 @@ def project_follow_mode(obj: Project) -> bool:
 
 
 @Project.views('registration_text')
-def project_registration_text(obj: Project) -> str | LazyString:
+def project_registration_text(obj: Project) -> str:
     return get_registration_text(
         count=obj.rsvp_count_going,
         registered=obj.features.rsvp_registered,
@@ -283,8 +273,8 @@ def project_register_button_text(obj: Project) -> str:
 
 
 @Account.views('project_new')
-@route('/<account>')
-class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
+@route('/<account>', init_app=app)
+class AccountProjectView(AccountViewBase):
     """Project views inside the account (new project view only)."""
 
     @route('new', methods=['GET', 'POST'])
@@ -318,23 +308,16 @@ class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
         )
 
 
-AccountProjectView.init_app(app)
-
-
-# mypy has trouble with the definition of `obj` and `model` between ProjectViewMixin and
-# DraftViewMixin
 @Project.views('main')
-@route('/<account>/<project>/')
-class ProjectView(  # type: ignore[misc]
-    ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
-):
+@route('/<account>/<project>/', init_app=app)
+class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     """All main project views."""
 
     @route('')
     @render_with(html_in_json('project.html.jinja2'))
     @requires_roles({'reader'})
     def view(self) -> ReturnRenderWith:
-        """Render project landing lage."""
+        """Render project landing page."""
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'featured_proposals': [
@@ -487,7 +470,7 @@ class ProjectView(  # type: ignore[misc]
 
             return render_redirect(self.obj.url_for())
         # Reset nonce to avoid conflict with autosave
-        form.form_nonce.data = form.form_nonce.default()
+        form.form_nonce.data = form.form_nonce.get_default()
         return render_form(
             form=form,
             title=_("Edit project"),
@@ -821,7 +804,7 @@ class ProjectView(  # type: ignore[misc]
     def save(self) -> ReturnView:
         """Save (bookmark) a project."""
         form = self.SavedProjectForm()
-        form.form_nonce.data = form.form_nonce.default()
+        form.form_nonce.data = form.form_nonce.get_default()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
                 account=current_auth.user, project=self.obj
@@ -930,6 +913,3 @@ class ProjectView(  # type: ignore[misc]
                 'message': _("This project is no longer featured"),
             }
         return render_redirect(get_next_url(referrer=True))
-
-
-ProjectView.init_app(app)

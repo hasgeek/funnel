@@ -221,15 +221,15 @@ class TestEventModels:
         p1 = models.TicketParticipant.query.filter_by(
             email_address=models.EmailAddress.get('participant1@gmail.com'),
             project=self.project,
-        ).one_or_none()
+        ).one()
         p2 = models.TicketParticipant.query.filter_by(
             email_address=models.EmailAddress.get('participant2@gmail.com'),
             project=self.project,
-        ).one_or_none()
+        ).one()
         p3 = models.TicketParticipant.query.filter_by(
             email_address=models.EmailAddress.get('participant3@gmail.com'),
             project=self.project,
-        ).one_or_none()
+        ).one()
         assert models.SyncTicket.query.count() == 3
         assert models.TicketParticipant.query.count() == 3
         assert len(p1.ticket_events) == 2
@@ -247,7 +247,7 @@ class TestEventModels:
         p4 = models.TicketParticipant.query.filter_by(
             email_address=models.EmailAddress.get('participant4@gmail.com'),
             project=self.project,
-        ).one_or_none()
+        ).one()
         assert len(p1.ticket_events) == 2
         assert len(p2.ticket_events) == 0
         assert len(p3.ticket_events) == 0

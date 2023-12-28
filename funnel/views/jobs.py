@@ -78,21 +78,17 @@ def import_tickets(ticket_client_id: int) -> None:
 
 @rqjob()
 def tag_locations(project_id: int) -> None:
-    """
-    Tag a project with geoname locations.
-
-    This function used to retrieve data from Hascore, which has been merged into Funnel
-    and is available directly as the GeoName model. This code continues to operate with
-    the legacy Hascore data structure, and is pending rewrite.
-    """
+    """Tag a project with geoname locations. This is legacy code pending a rewrite."""
     project = Project.query.get(project_id)
+    if project is None:
+        return
     if not project.location:
         return
     results = GeoName.parse_locations(
         project.location, special=["Internet", "Online"], bias=['IN', 'US']
     )
-    geonames = defaultdict(dict)
-    tokens = []
+    geonames: dict[str, dict] = defaultdict(dict)
+    tokens: list[dict] = []
     for item in results:
         if 'geoname' in item:
             geoname = item['geoname'].as_dict(alternate_titles=False)
