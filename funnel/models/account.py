@@ -206,7 +206,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     username: Mapped[str | None] = sa_orm.synonym('name')
 
     #: Argon2 or Bcrypt hash of the user's password
-    pw_hash: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
+    pw_hash: Mapped[str | None] = sa_orm.mapped_column()
     #: Timestamp for when the user's password last changed
     pw_set_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
@@ -221,17 +221,13 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         read={'owner'},
     )
     #: Update timezone automatically from browser activity
-    auto_timezone: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, default=True, nullable=False
-    )
+    auto_timezone: Mapped[bool] = sa_orm.mapped_column(default=True)
     #: User's preferred/last known locale
     locale: Mapped[Locale | None] = with_roles(
         sa_orm.mapped_column(LocaleType, nullable=True), read={'owner'}
     )
     #: Update locale automatically from browser activity
-    auto_locale: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, default=True, nullable=False
-    )
+    auto_locale: Mapped[bool] = sa_orm.mapped_column(default=True)
     #: User's state code (active, suspended, merged, deleted)
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
@@ -259,7 +255,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     )
 
     tagline: Mapped[str | None] = sa_orm.mapped_column(
-        sa.Unicode, sa.CheckConstraint("tagline <> ''"), nullable=True
+        sa.CheckConstraint("tagline <> ''")
     )
     description, description_text, description_html = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
@@ -279,20 +275,18 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
 
     #: Protected accounts cannot be deleted
     is_protected: Mapped[bool] = with_roles(
-        immutable(sa_orm.mapped_column(sa.Boolean, default=False, nullable=False)),
+        immutable(sa_orm.mapped_column(default=False)),
         read={'owner', 'admin'},
     )
     #: Verified accounts get listed on the home page and are not considered throwaway
     #: accounts for spam control. There are no other privileges at this time
     is_verified: Mapped[bool] = with_roles(
-        sa_orm.mapped_column(sa.Boolean, default=False, nullable=False, index=True),
+        sa_orm.mapped_column(default=False, index=True),
         read={'all'},
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
-    revisionid: Mapped[int] = with_roles(
-        sa_orm.mapped_column(sa.Integer, nullable=False), read={'all'}
-    )
+    revisionid: Mapped[int] = with_roles(sa_orm.mapped_column(), read={'all'})
 
     search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
@@ -1081,9 +1075,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             # Also see :meth:`password_is` for transparent upgrade
         self.pw_set_at = sa.func.utcnow()
         # Expire passwords after one year. TODO: make this configurable
-        self.pw_expires_at = self.pw_set_at + sa.cast(  # type: ignore[assignment]
-            '1 year', sa.Interval
-        )
+        self.pw_expires_at = sa.func.utcnow() + sa.cast('1 year', sa.Interval)
 
     #: Write-only property (passwords cannot be read back in plain text)
     password = property(fset=_set_password, doc=_set_password.__doc__)
@@ -1900,7 +1892,7 @@ class AccountOldId(UuidMixin, BaseMixin[UUID, Account], Model):
     )
     #: User id of new user
     account_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), default=None, nullable=False
     )
     #: New account
     account: Mapped[Account] = relationship(
@@ -2056,7 +2048,7 @@ class Team(UuidMixin, BaseMixin[int, Account], Model):
     )
     #: Organization
     account_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False, index=True
+        sa.ForeignKey('account.id'), default=None, nullable=False, index=True
     )
     account: Mapped[Account] = with_roles(
         relationship(foreign_keys=[account_id], back_populates='teams'),
@@ -2069,9 +2061,7 @@ class Team(UuidMixin, BaseMixin[int, Account], Model):
         grants={'member'},
     )
 
-    is_public: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_public: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     # --- Backrefs
     client_permissions: Mapped[list[AuthClientTeamPermissions]] = relationship(
@@ -2128,18 +2118,13 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
     __email_is_exclusive__ = True
     __email_for__ = 'account'
 
-    # Tell mypy that these are not optional
-    email_address: Mapped[EmailAddress]  # type: ignore[assignment]
-
     account_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), default=None, nullable=False
     )
     account: Mapped[Account] = relationship(back_populates='emails')
     user: Mapped[Account] = sa_orm.synonym('account')
 
-    private: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    private: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     __datasets__ = {
         'primary': {'member', 'email', 'private', 'type'},
@@ -2306,21 +2291,16 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
     __email_for__ = 'account'
     __email_is_exclusive__ = False
 
-    # Tell mypy that these are not optional
-    email_address: Mapped[EmailAddress]  # type: ignore[assignment]
-
     account_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), default=None, nullable=False
     )
     account: Mapped[Account] = relationship(back_populates='emailclaims')
     user: Mapped[Account] = sa_orm.synonym('account')
     verification_code: Mapped[str] = sa_orm.mapped_column(
-        sa.String(44), nullable=False, default=newsecret
+        sa.String(44), nullable=False, insert_default=newsecret, default=None
     )
 
-    private: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    private: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     __table_args__ = (sa.UniqueConstraint('account_id', 'email_address_id'),)
 
@@ -2496,14 +2476,12 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
     __phone_for__ = 'account'
 
     account_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), default=None
     )
     account: Mapped[Account] = relationship(back_populates='phones')
     user: Mapped[Account] = sa_orm.synonym('account')
 
-    private: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    private: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     __datasets__ = {
         'primary': {'member', 'phone', 'private', 'type'},
@@ -2682,7 +2660,7 @@ class AccountExternalId(BaseMixin[int, Account], Model):
     __at_username_services__: ClassVar[list[str]] = []
     #: Foreign key to user table
     account_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), default=None
     )
     #: User that this connected account belongs to
     account: Mapped[Account] = relationship(back_populates='externalids')
@@ -2719,9 +2697,7 @@ class AccountExternalId(BaseMixin[int, Account], Model):
         sa.UnicodeText, nullable=True
     )
     #: OAuth2 token expiry in seconds, as sent by service provider
-    oauth_expires_in: Mapped[int | None] = sa_orm.mapped_column(
-        sa.Integer, nullable=True
-    )
+    oauth_expires_in: Mapped[int | None] = sa_orm.mapped_column()
     #: OAuth2 token expiry timestamp, estimate from created_at + oauth_expires_in
     oauth_expires_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
@@ -2729,7 +2705,7 @@ class AccountExternalId(BaseMixin[int, Account], Model):
 
     #: Timestamp of when this connected account was last (re-)authorised by the user
     last_used_at: Mapped[datetime] = sa_orm.mapped_column(
-        sa.TIMESTAMP(timezone=True), default=sa.func.utcnow(), nullable=False
+        sa.TIMESTAMP(timezone=True), insert_default=sa.func.utcnow(), default=None
     )
 
     __table_args__ = (

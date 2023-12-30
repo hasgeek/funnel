@@ -78,8 +78,8 @@ class AccountMembership(ImmutableUserMembershipMixin, Model):
 
     #: Organization that this membership is being granted on
     account_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer,
         sa.ForeignKey('account.id', ondelete='CASCADE'),
+        default=None,
         nullable=False,
     )
     account: Mapped[Account] = with_roles(
@@ -91,9 +91,7 @@ class AccountMembership(ImmutableUserMembershipMixin, Model):
     parent: Mapped[Account] = sa_orm.synonym('account')
 
     # Organization roles:
-    is_owner: Mapped[bool] = immutable(
-        sa_orm.mapped_column(sa.Boolean, nullable=False, default=False)
-    )
+    is_owner: Mapped[bool] = immutable(sa_orm.mapped_column(default=False))
 
     @cached_property
     def offered_roles(self) -> set[str]:

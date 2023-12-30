@@ -58,7 +58,10 @@ class GeonameModel(ModelBase, DeclarativeBase):
 # This must be set _before_ any of the models using db.Model are imported
 TimestampMixin.__with_timezone__ = True
 
-db: SQLAlchemy = SQLAlchemy(query_class=Query, metadata=Model.metadata)  # type: ignore[arg-type]
+db: SQLAlchemy = SQLAlchemy(
+    query_class=Query,  # type: ignore[arg-type]
+    metadata=Model.metadata,
+)
 Model.init_flask_sqlalchemy(db)
 GeonameModel.init_flask_sqlalchemy(db)
 

@@ -41,7 +41,7 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
 class Rsvp(UuidMixin, NoIdMixin, Model):
     __tablename__ = 'rsvp'
     project_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
+        sa.ForeignKey('project.id'), default=None, nullable=False, primary_key=True
     )
     project: Mapped[Project] = with_roles(
         relationship(back_populates='rsvps'),
@@ -50,7 +50,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         datasets={'primary'},
     )
     participant_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False, primary_key=True
+        sa.ForeignKey('account.id'), default=None, nullable=False, primary_key=True
     )
     participant: Mapped[Account] = with_roles(
         relationship(back_populates='rsvps'),

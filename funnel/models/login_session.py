@@ -91,28 +91,24 @@ class LoginSession(UuidMixin, BaseMixin[int, Account], Model):
     __tablename__ = 'login_session'
 
     account_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), default=None, nullable=False
     )
     account: Mapped[Account] = relationship(back_populates='all_login_sessions')
 
     #: User's last known IP address
     ipaddr: Mapped[str] = sa_orm.mapped_column(sa.String(45), nullable=False)
     #: City geonameid from IP address
-    geonameid_city: Mapped[int | None] = sa_orm.mapped_column(sa.Integer, nullable=True)
+    geonameid_city: Mapped[int | None] = sa_orm.mapped_column()
     #: State/subdivision geonameid from IP address
-    geonameid_subdivision: Mapped[int | None] = sa_orm.mapped_column(
-        sa.Integer, nullable=True
-    )
+    geonameid_subdivision: Mapped[int | None] = sa_orm.mapped_column()
     #: Country geonameid from IP address
-    geonameid_country: Mapped[int | None] = sa_orm.mapped_column(
-        sa.Integer, nullable=True
-    )
+    geonameid_country: Mapped[int | None] = sa_orm.mapped_column()
     #: User's network, from IP address
-    geoip_asn: Mapped[int | None] = sa_orm.mapped_column(sa.Integer, nullable=True)
+    geoip_asn: Mapped[int | None] = sa_orm.mapped_column()
     #: User agent
     user_agent: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
     #: The login service that was used to make this session
-    login_service: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
+    login_service: Mapped[str | None] = sa_orm.mapped_column()
 
     accessed_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False
@@ -121,7 +117,10 @@ class LoginSession(UuidMixin, BaseMixin[int, Account], Model):
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     sudo_enabled_at: Mapped[datetime] = sa_orm.mapped_column(
-        sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
+        sa.TIMESTAMP(timezone=True),
+        nullable=False,
+        insert_default=sa.func.utcnow(),
+        default=None,
     )
 
     # --- Backrefs

@@ -28,7 +28,7 @@ class Venue(UuidMixin, BaseScopedNameMixin[int, Account], CoordinatesMixin, Mode
     __tablename__ = 'venue'
 
     project_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id'), nullable=False
+        sa.ForeignKey('project.id'), default=None, nullable=False
     )
     project: Mapped[Project] = with_roles(
         relationship(back_populates='venues'), grants_via={None: project_child_role_map}
@@ -60,7 +60,7 @@ class Venue(UuidMixin, BaseScopedNameMixin[int, Account], CoordinatesMixin, Mode
         back_populates='venue',
     )
 
-    seq: Mapped[int] = sa_orm.mapped_column(sa.Integer, nullable=False)
+    seq: Mapped[int] = sa_orm.mapped_column()
 
     __table_args__ = (sa.UniqueConstraint('project_id', 'name'),)
 
@@ -115,7 +115,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     __tablename__ = 'venue_room'
 
     venue_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('venue.id'), nullable=False
+        sa.ForeignKey('venue.id'), default=None, nullable=False
     )
     venue: Mapped[Venue] = with_roles(
         relationship(back_populates='rooms'),
@@ -130,12 +130,13 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         sa.Unicode(6), nullable=False, default='229922'
     )
 
-    seq: Mapped[int] = sa_orm.mapped_column(sa.Integer, nullable=False)
+    seq: Mapped[int] = sa_orm.mapped_column()
 
     sessions: Mapped[list[Session]] = relationship(back_populates='venue_room')
     scheduled_sessions: Mapped[list[Session]] = relationship(
         primaryjoin=lambda: sa.and_(
-            Session.venue_room_id == VenueRoom.id, Session.scheduled
+            Session.venue_room_id == VenueRoom.id,
+            Session.scheduled,  # type: ignore[has-type]  # FIXME
         ),
         viewonly=True,
     )

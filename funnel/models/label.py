@@ -48,7 +48,7 @@ class Label(BaseScopedNameMixin[int, Account], Model):
     __tablename__ = 'label'
 
     project_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
+        sa.ForeignKey('project.id', ondelete='CASCADE'), default=None, nullable=False
     )
     # Backref from project is defined in the Project model with an ordering list
     project: Mapped[Project] = with_roles(
@@ -62,8 +62,8 @@ class Label(BaseScopedNameMixin[int, Account], Model):
     #: ability to : validate the value within the app. Always use the :attr:`main_label`
     #: relationship.
     main_label_id: Mapped[int | None] = sa_orm.mapped_column(
-        sa.Integer,
         sa.ForeignKey('label.id', ondelete='CASCADE'),
+        default=None,
         index=True,
         nullable=True,
     )
@@ -83,7 +83,7 @@ class Label(BaseScopedNameMixin[int, Account], Model):
     # add_primary_relationship)
 
     #: Sequence number for this label, used in UI for ordering
-    seq: Mapped[int] = sa_orm.mapped_column(sa.Integer, nullable=False)
+    seq: Mapped[int] = sa_orm.mapped_column()
 
     # A single-line description of this label, shown when picking labels (optional)
     description: Mapped[str] = sa_orm.mapped_column(
@@ -98,22 +98,16 @@ class Label(BaseScopedNameMixin[int, Account], Model):
     #: Restricted mode specifies that this label may only be applied by someone with
     #: an editorial role (TODO: name the role). If this label is a parent, it applies
     #: to all its children
-    _restricted: Mapped[bool] = sa_orm.mapped_column(
-        'restricted', sa.Boolean, nullable=False, default=False
-    )
+    _restricted: Mapped[bool] = sa_orm.mapped_column('restricted', default=False)
 
     #: Required mode signals to UI that if this label is a parent, one of its
     #: children must be mandatorily applied to the proposal. The value of this
     #: field must be ignored if the label is not a parent
-    _required: Mapped[bool] = sa_orm.mapped_column(
-        'required', sa.Boolean, nullable=False, default=False
-    )
+    _required: Mapped[bool] = sa_orm.mapped_column('required', default=False)
 
     #: Archived mode specifies that the label is no longer available for use
     #: although all the previous records will stay in database.
-    _archived: Mapped[bool] = sa_orm.mapped_column(
-        'archived', sa.Boolean, nullable=False, default=False
-    )
+    _archived: Mapped[bool] = sa_orm.mapped_column('archived', default=False)
 
     search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(

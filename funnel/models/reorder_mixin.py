@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, ClassVar, TypeVar
-from uuid import UUID
+from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
 
-from . import Mapped, QueryProperty, db, declarative_mixin, sa, sa_orm
+from . import Mapped, QueryProperty, db, declarative_mixin, declared_attr, sa, sa_orm
 
 __all__ = ['ReorderProtoMixin']
 
@@ -23,11 +22,11 @@ class ReorderProtoMixin:
 
     if TYPE_CHECKING:
         #: Subclasses must have a created_at column
-        created_at: Mapped[datetime]
+        created_at: declared_attr[datetime]
         #: Subclass must have a primary key that is int or uuid
-        id: Mapped[int | UUID]  # noqa: A001
+        id_: declared_attr[Any]
         #: Subclass must declare a parent_id synonym to the parent model fkey column
-        parent_id: Mapped[int | UUID]
+        parent_id: Mapped[Any]
         #: Subclass must declare a seq column or synonym, holding a sequence id. It
         #: need not be unique, but reordering is meaningless when both items have the
         #: same number
@@ -37,7 +36,7 @@ class ReorderProtoMixin:
         query: ClassVar[QueryProperty]
 
     @property
-    def parent_scoped_reorder_query_filter(self: Reorderable) -> sa.ColumnElement[bool]:
+    def parent_scoped_reorder_query_filter(self) -> sa.ColumnElement[bool]:
         """
         Return a query filter that includes a scope limitation to the parent.
 
@@ -83,13 +82,13 @@ class ReorderProtoMixin:
             )
             .populate_existing()  # Force reload `.seq` into session cache
             .with_for_update(of=cls)  # Lock these rows to prevent a parallel update
-            .options(sa_orm.load_only(cls.id, cls.seq))
+            .options(sa_orm.load_only(cls.id_, cls.seq))
             .order_by(*order_columns)
             .all()
         )
 
         # Pop-off items that share a sequence number and don't need to be moved
-        while items_to_reorder[0].id != self.id:
+        while items_to_reorder[0].id_ != self.id_:
             items_to_reorder.pop(0)
 
         # Reordering! Move down the list (reversed if `before`), reassigning numbers.
@@ -115,7 +114,7 @@ class ReorderProtoMixin:
             # of SQLAlchemy 2.0.x. Should that behaviour change, a switch to
             # bulk_update_mappings will be required
             db.session.flush()
-            if reorderable_item.id == other.id:
+            if reorderable_item.id_ == other.id_:
                 # Don't bother reordering anything after `other`
                 break
         # Assign other's previous sequence number to self

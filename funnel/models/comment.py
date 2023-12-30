@@ -97,13 +97,13 @@ class Commentset(UuidMixin, BaseMixin[int, Account], Model):
     )
     #: Type of parent object
     settype: Mapped[int | None] = with_roles(
-        sa_orm.mapped_column('type', sa.Integer, nullable=True),
+        sa_orm.mapped_column('type', nullable=True),
         read={'all'},
         datasets={'primary'},
     )
     #: Count of comments, stored to avoid count(*) queries
     count: Mapped[int] = with_roles(
-        sa_orm.mapped_column(sa.Integer, default=0, nullable=False),
+        sa_orm.mapped_column(default=0, nullable=False),
         read={'all'},
         datasets={'primary'},
     )
@@ -300,14 +300,14 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
     __tablename__ = 'comment'
 
     posted_by_id: Mapped[int | None] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=True
+        sa.ForeignKey('account.id'), default=None, nullable=True
     )
     _posted_by: Mapped[Account | None] = with_roles(
         relationship(back_populates='comments'),
         grants={'author'},
     )
     commentset_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
+        sa.ForeignKey('commentset.id'), default=None, nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
         relationship(back_populates='comments'),
@@ -315,7 +315,7 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
     )
 
     in_reply_to_id: Mapped[int | None] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('comment.id'), nullable=True
+        sa.ForeignKey('comment.id'), default=None, nullable=True
     )
     in_reply_to: Mapped[Comment] = relationship(
         back_populates='replies', remote_side='Comment.id'
@@ -328,7 +328,6 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        sa.Integer,
         StateManager.check_constraint('state', COMMENT_STATE),
         default=COMMENT_STATE.SUBMITTED,
         nullable=False,
@@ -344,9 +343,7 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
-    revisionid: Mapped[int] = with_roles(
-        sa_orm.mapped_column(sa.Integer, nullable=False), read={'all'}
-    )
+    revisionid: Mapped[int] = with_roles(sa_orm.mapped_column(), read={'all'})
 
     search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(

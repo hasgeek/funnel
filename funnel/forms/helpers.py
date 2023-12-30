@@ -40,7 +40,7 @@ MSG_PHONE_BLOCKED = __("This phone number has been blocked from use")
 class AccountSelectField(forms.AutocompleteField):
     """Render an autocomplete field for selecting an account."""
 
-    data: Account | None  # type: ignore[assignment]
+    data: Account | None  # type: ignore[assignment]  # FIXME
     widget = forms.Select2Widget()
     multiple = False
     widget_autocomplete = True
@@ -231,9 +231,7 @@ def image_url_validator() -> forms.validators.ValidUrl:
     """Customise ValidUrl for hosted image URL validation."""
     return forms.validators.ValidUrl(
         allowed_schemes=lambda: app.config.get('IMAGE_URL_SCHEMES', ('https',)),
-        allowed_domains=lambda: app.config.get(  # type: ignore[arg-type, return-value]
-            'IMAGE_URL_DOMAINS'
-        ),
+        allowed_domains=lambda: app.config.get('IMAGE_URL_DOMAINS'),
         message_schemes=__("A https:// URL is required"),
         message_domains=__("Images must be hosted at images.hasgeek.com"),
     )

@@ -249,7 +249,7 @@ class SmsMessage(PhoneNumberMixin, BaseMixin[int, Account], Model):
     )
     # Flags
     status: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, default=SMS_STATUS.QUEUED, nullable=False
+        default=SMS_STATUS.QUEUED, nullable=False
     )
     status_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
@@ -310,14 +310,22 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     #: instance of a UserNotification per-event rather than per-notification
     eventid: Mapped[UUID] = immutable(
         sa_orm.mapped_column(
-            postgresql.UUID, primary_key=True, nullable=False, default=uuid4
+            postgresql.UUID,
+            primary_key=True,
+            nullable=False,
+            insert_default=uuid4,
+            default=None,
         )
     )
 
     #: Notification id
     id: Mapped[UUID] = immutable(  # noqa: A003
         sa_orm.mapped_column(
-            postgresql.UUID, primary_key=True, nullable=False, default=uuid4
+            postgresql.UUID,
+            primary_key=True,
+            nullable=False,
+            insert_default=uuid4,
+            default=None,
         )
     )
 
@@ -359,13 +367,13 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     preference_context: ClassVar[Any] = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
-    type_: Mapped[str] = immutable(
-        sa_orm.mapped_column('type', sa.Unicode, nullable=False)
-    )
+    type_: Mapped[str] = immutable(sa_orm.mapped_column('type'))
 
     #: Id of user that triggered this notification
     created_by_id: Mapped[int | None] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
+        sa.ForeignKey('account.id', ondelete='SET NULL'),
+        default=None,
+        nullable=True,
     )
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
@@ -811,9 +819,9 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
     #: Id of user being notified
     recipient_id: Mapped[int] = immutable(
         sa_orm.mapped_column(
-            sa.Integer,
             sa.ForeignKey('account.id', ondelete='CASCADE'),
             primary_key=True,
+            default=None,
             nullable=False,
         )
     )
@@ -848,9 +856,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
     #: Note: This column represents the first instance of a role shifting from being an
     #: entirely in-app symbol (i.e., code refactorable) to being data in the database
     #: (i.e., requiring a data migration alongside a code refactor)
-    role: Mapped[str] = with_roles(
-        immutable(sa_orm.mapped_column(sa.Unicode, nullable=False)), read={'owner'}
-    )
+    role: Mapped[str] = with_roles(immutable(sa_orm.mapped_column()), read={'owner'})
 
     #: Timestamp for when this notification was marked as read
     read_at: Mapped[datetime | None] = with_roles(
@@ -875,23 +881,15 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
     )
 
     #: Message id for email delivery
-    messageid_email: Mapped[str | None] = sa_orm.mapped_column(
-        sa.Unicode, nullable=True
-    )
+    messageid_email: Mapped[str | None] = sa_orm.mapped_column(default=None)
     #: Message id for SMS delivery
-    messageid_sms: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
+    messageid_sms: Mapped[str | None] = sa_orm.mapped_column(default=None)
     #: Message id for web push delivery
-    messageid_webpush: Mapped[str | None] = sa_orm.mapped_column(
-        sa.Unicode, nullable=True
-    )
+    messageid_webpush: Mapped[str | None] = sa_orm.mapped_column(default=None)
     #: Message id for Telegram delivery
-    messageid_telegram: Mapped[str | None] = sa_orm.mapped_column(
-        sa.Unicode, nullable=True
-    )
+    messageid_telegram: Mapped[str | None] = sa_orm.mapped_column(default=None)
     #: Message id for WhatsApp delivery
-    messageid_whatsapp: Mapped[str | None] = sa_orm.mapped_column(
-        sa.Unicode, nullable=True
-    )
+    messageid_whatsapp: Mapped[str | None] = sa_orm.mapped_column(default=None)
 
     __table_args__ = (
         sa.ForeignKeyConstraint(
@@ -1261,8 +1259,8 @@ class NotificationPreferences(BaseMixin[int, Account], Model):
 
     #: Id of account whose preferences are represented here
     account_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer,
         sa.ForeignKey('account.id', ondelete='CASCADE'),
+        default=None,
         nullable=False,
         index=True,
     )
@@ -1275,25 +1273,13 @@ class NotificationPreferences(BaseMixin[int, Account], Model):
 
     # Notification type, corresponding to Notification.type (a class attribute there)
     # notification_type = '' holds the veto switch to disable a transport entirely
-    notification_type: Mapped[str] = immutable(
-        sa_orm.mapped_column(sa.Unicode, nullable=False)
-    )
+    notification_type: Mapped[str] = immutable(sa_orm.mapped_column())
 
-    by_email: Mapped[bool] = with_roles(
-        sa_orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
-    )
-    by_sms: Mapped[bool] = with_roles(
-        sa_orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
-    )
-    by_webpush: Mapped[bool] = with_roles(
-        sa_orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
-    )
-    by_telegram: Mapped[bool] = with_roles(
-        sa_orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
-    )
-    by_whatsapp: Mapped[bool] = with_roles(
-        sa_orm.mapped_column(sa.Boolean, nullable=False), rw={'owner'}
-    )
+    by_email: Mapped[bool] = with_roles(sa_orm.mapped_column(), rw={'owner'})
+    by_sms: Mapped[bool] = with_roles(sa_orm.mapped_column(), rw={'owner'})
+    by_webpush: Mapped[bool] = with_roles(sa_orm.mapped_column(), rw={'owner'})
+    by_telegram: Mapped[bool] = with_roles(sa_orm.mapped_column(), rw={'owner'})
+    by_whatsapp: Mapped[bool] = with_roles(sa_orm.mapped_column(), rw={'owner'})
 
     __table_args__ = (sa.UniqueConstraint('account_id', 'notification_type'),)
 

@@ -63,17 +63,17 @@ class Mailer(BaseNameMixin[int, Account], Model):
 
     __tablename__ = 'mailer'
 
-    user_uuid: Mapped[UUID] = sa_orm.mapped_column(sa.ForeignKey('account.uuid'))
+    user_uuid: Mapped[UUID] = sa_orm.mapped_column(
+        sa.ForeignKey('account.uuid'), default=None
+    )
     user: Mapped[Account] = relationship(back_populates='mailers')
     status: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, nullable=False, default=MailerState.DRAFT
+        nullable=False, default=MailerState.DRAFT
     )
     _fields: Mapped[str] = sa_orm.mapped_column(
         'fields', sa.UnicodeText, nullable=False, default=''
     )
-    trackopens: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    trackopens: Mapped[bool] = sa_orm.mapped_column(default=False)
     stylesheet: Mapped[str] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=False, default=''
     )
@@ -191,7 +191,7 @@ class MailerDraft(BaseScopedIdMixin[int, Account], Model):
     __tablename__ = 'mailer_draft'
 
     mailer_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('mailer.id'), nullable=False
+        sa.ForeignKey('mailer.id'), default=None, nullable=False
     )
     mailer: Mapped[Mailer] = relationship(back_populates='drafts')
     parent: Mapped[Mailer] = sa_orm.synonym('mailer')
@@ -250,11 +250,13 @@ class MailerRecipient(BaseScopedIdMixin[int, Account], Model):
 
     # Support email open tracking
     opentoken: Mapped[str] = sa_orm.mapped_column(
-        sa.Unicode(44), nullable=False, default=newsecret, unique=True
+        sa.Unicode(44),
+        nullable=False,
+        insert_default=newsecret,
+        default=None,
+        unique=True,
     )
-    opened: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    opened: Mapped[bool] = sa_orm.mapped_column(default=False)
     opened_ipaddr: Mapped[str | None] = sa_orm.mapped_column(
         sa.Unicode(45), nullable=True
     )
@@ -264,13 +266,15 @@ class MailerRecipient(BaseScopedIdMixin[int, Account], Model):
     opened_last_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
-    opened_count: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, nullable=False, default=0
-    )
+    opened_count: Mapped[int] = sa_orm.mapped_column(nullable=False, default=0)
 
     # Support RSVP if the email requires it
     rsvptoken: Mapped[str] = sa_orm.mapped_column(
-        sa.Unicode(44), nullable=False, default=newsecret, unique=True
+        sa.Unicode(44),
+        nullable=False,
+        insert_default=newsecret,
+        default=None,
+        unique=True,
     )
     # Y/N/M response
     rsvp: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode(1), nullable=True)
@@ -292,7 +296,7 @@ class MailerRecipient(BaseScopedIdMixin[int, Account], Model):
     # Draft of the mailer template that the custom template is linked to (for updating
     # before finalising)
     draft_id: Mapped[int | None] = sa_orm.mapped_column(
-        sa.ForeignKey('mailer_draft.id')
+        sa.ForeignKey('mailer_draft.id'), default=None
     )
     draft: Mapped[MailerDraft | None] = relationship()
 

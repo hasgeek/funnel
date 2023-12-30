@@ -127,20 +127,18 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Proposal(  # type: ignore[misc]
-    UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderProtoMixin, Model
-):
+class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderProtoMixin, Model):
     __tablename__ = 'proposal'
 
     created_by_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), default=None, nullable=False
     )
     created_by: Mapped[Account] = with_roles(
         relationship(back_populates='created_proposals'),
         grants={'creator', 'participant'},
     )
     project_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id'), nullable=False
+        sa.ForeignKey('project.id'), default=None, nullable=False
     )
     project: Mapped[Project] = with_roles(
         relationship(back_populates='proposals'),
@@ -165,7 +163,6 @@ class Proposal(  # type: ignore[misc]
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        sa.Integer,
         StateManager.check_constraint('state', PROPOSAL_STATE),
         default=PROPOSAL_STATE.SUBMITTED,
         nullable=False,
@@ -175,7 +172,7 @@ class Proposal(  # type: ignore[misc]
     )
 
     commentset_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
+        sa.ForeignKey('commentset.id'), default=None, nullable=False
     )
     commentset: Mapped[Commentset] = relationship(
         uselist=False, lazy='joined', single_parent=True, back_populates='proposal'
@@ -184,27 +181,17 @@ class Proposal(  # type: ignore[misc]
     body, body_text, body_html = MarkdownCompositeDocument.create(
         'body', nullable=False, default=''
     )
-    description: Mapped[str] = sa_orm.mapped_column(
-        sa.Unicode, nullable=False, default=''
-    )
-    custom_description: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
-    template: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
-    featured: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    description: Mapped[str] = sa_orm.mapped_column(default='')
+    custom_description: Mapped[bool] = sa_orm.mapped_column(default=False)
+    template: Mapped[bool] = sa_orm.mapped_column(default=False)
+    featured: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     edited_at: Mapped[datetime_type | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
-    revisionid: Mapped[int] = with_roles(
-        sa_orm.mapped_column(sa.Integer, nullable=False), read={'all'}
-    )
+    revisionid: Mapped[int] = with_roles(sa_orm.mapped_column(), read={'all'})
 
     search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
@@ -245,7 +232,7 @@ class Proposal(  # type: ignore[misc]
         relationship(
             primaryjoin=lambda: sa.and_(
                 ProposalMembership.proposal_id == Proposal.id,
-                ProposalMembership.is_active,
+                ProposalMembership.is_active,  # type: ignore[has-type]  # FIXME
             ),
             order_by=lambda: ProposalMembership.seq,
             viewonly=True,
@@ -515,7 +502,7 @@ class Proposal(  # type: ignore[misc]
         """Move to a new project and reset :attr:`url_id`."""
         self.project = project
         # pylint: disable=attribute-defined-outside-init
-        self.url_id = None  # type: ignore[assignment]
+        self.url_id = None
         self.make_scoped_id()
 
     def update_description(self) -> None:
@@ -589,7 +576,7 @@ class ProposalSuuidRedirect(BaseMixin[int, Account], Model):
         sa.Unicode(22), nullable=False, index=True
     )
     proposal_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+        sa.ForeignKey('proposal.id', ondelete='CASCADE'), default=None, nullable=False
     )
     proposal: Mapped[Proposal] = relationship()
 

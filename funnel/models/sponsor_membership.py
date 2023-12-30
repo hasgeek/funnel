@@ -83,7 +83,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
     revoke_on_member_delete: ClassVar[bool] = False
 
     project_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
+        sa.ForeignKey('project.id', ondelete='CASCADE'), default=None, nullable=False
     )
     project: Mapped[Project] = relationship(back_populates='all_sponsor_memberships')
     parent_id: Mapped[int] = sa_orm.synonym('project_id')
@@ -92,18 +92,14 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
     #: Is this sponsor being promoted for commercial reasons? Projects may have a legal
     #: obligation to reveal this. This column records a declaration from the project.
-    is_promoted: Mapped[bool] = immutable(
-        sa_orm.mapped_column(sa.Boolean, nullable=False)
-    )
+    is_promoted: Mapped[bool] = immutable(sa_orm.mapped_column())
 
     #: Optional label, indicating the type of sponsor
     label: Mapped[str | None] = immutable(
         sa_orm.mapped_column(
-            sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='project_sponsor_membership_label_check'
-            ),
-            nullable=True,
+            )
         )
     )
 
@@ -183,7 +179,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
     revoke_on_member_delete: ClassVar[bool] = False
 
     proposal_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+        sa.ForeignKey('proposal.id', ondelete='CASCADE'), default=None, nullable=False
     )
     proposal: Mapped[Proposal] = relationship(back_populates='all_sponsor_memberships')
     parent_id: Mapped[int] = sa_orm.synonym('proposal_id')
@@ -192,18 +188,14 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
     #: Is this sponsor being promoted for commercial reasons? Proposals may have a legal
     #: obligation to reveal this. This column records a declaration from the proposal.
-    is_promoted: Mapped[bool] = immutable(
-        sa_orm.mapped_column(sa.Boolean, nullable=False)
-    )
+    is_promoted: Mapped[bool] = immutable(sa_orm.mapped_column())
 
     #: Optional label, indicating the type of sponsor
     label: Mapped[str | None] = immutable(
         sa_orm.mapped_column(
-            sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='proposal_sponsor_membership_label_check'
-            ),
-            nullable=True,
+            )
         )
     )
 

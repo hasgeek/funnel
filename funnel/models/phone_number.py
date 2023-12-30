@@ -263,9 +263,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
 
     #: The phone number, centrepiece of this model. Stored normalized in E164 format.
     #: Validated by the :func:`_validate_phone` event handler
-    number: Mapped[str | None] = sa_orm.mapped_column(
-        sa.Unicode, nullable=True, unique=True
-    )
+    number: Mapped[str | None] = sa_orm.mapped_column(unique=True)
 
     #: BLAKE2b 160-bit hash of :attr:`phone`. Kept permanently even if phone is
     #: removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the name,
@@ -287,13 +285,13 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
     # device, we record distinct timestamps for last sent, delivery and failure.
 
     #: Cached state for whether this phone number is known to have SMS support
-    has_sms: Mapped[bool | None] = sa_orm.mapped_column(sa.Boolean, nullable=True)
+    has_sms: Mapped[bool | None] = sa_orm.mapped_column()
     #: Timestamp at which this number was determined to be valid/invalid for SMS
     has_sms_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
     #: Cached state for whether this phone number is known to be on WhatsApp or not
-    has_wa: Mapped[bool | None] = sa_orm.mapped_column(sa.Boolean, nullable=True)
+    has_wa: Mapped[bool | None] = sa_orm.mapped_column()
     #: Timestamp at which this number was tested for availability on WhatsApp
     has_wa_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
@@ -768,8 +766,8 @@ class OptionalPhoneNumberMixin:
     def phone_number_id(cls) -> Mapped[int | None]:
         """Foreign key to phone_number table."""
         return sa_orm.mapped_column(
-            sa.Integer,
             sa.ForeignKey('phone_number.id', ondelete='SET NULL'),
+            default=None,
             nullable=cls.__phone_optional__,
             unique=cls.__phone_unique__,
             index=not cls.__phone_unique__,

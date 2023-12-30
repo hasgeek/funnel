@@ -43,7 +43,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin[int, Account], VideoMixin, Model)
     __tablename__ = 'session'
 
     project_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id'), nullable=False
+        sa.ForeignKey('project.id'), default=None, nullable=False
     )
     project: Mapped[Project] = with_roles(
         relationship(back_populates='sessions'),
@@ -54,7 +54,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin[int, Account], VideoMixin, Model)
         'description', default='', nullable=False
     )
     proposal_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('proposal.id'), nullable=True, unique=True
+        sa.ForeignKey('proposal.id'), default=None, nullable=True, unique=True
     )
     proposal: Mapped[Proposal | None] = relationship(back_populates='session')
     speaker: Mapped[str | None] = sa_orm.mapped_column(
@@ -67,26 +67,18 @@ class Session(UuidMixin, BaseScopedIdNameMixin[int, Account], VideoMixin, Model)
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
     venue_room_id: Mapped[int | None] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True
+        sa.ForeignKey('venue_room.id'), default=None, nullable=True
     )
     venue_room: Mapped[VenueRoom | None] = relationship(back_populates='sessions')
-    is_break: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, default=False, nullable=False
-    )
-    featured: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, default=False, nullable=False
-    )
-    is_restricted_video: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, default=False, nullable=False
-    )
+    is_break: Mapped[bool] = sa_orm.mapped_column(default=False)
+    featured: Mapped[bool] = sa_orm.mapped_column(default=False)
+    is_restricted_video: Mapped[bool] = sa_orm.mapped_column(default=False)
     banner_image_url: Mapped[str | None] = sa_orm.mapped_column(
         ImgeeType, nullable=True
     )
 
     #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
-    revisionid: Mapped[int] = with_roles(
-        sa_orm.mapped_column(sa.Integer, nullable=False), read={'all'}
-    )
+    revisionid: Mapped[int] = with_roles(sa_orm.mapped_column(), read={'all'})
 
     search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
@@ -231,7 +223,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin[int, Account], VideoMixin, Model)
     def start_at_localized(self) -> datetime | None:
         return (
             localize_timezone(self.start_at, tz=self.project.timezone)
-            if self.start_at
+            if self.start_at is not None
             else None
         )
 
@@ -239,7 +231,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin[int, Account], VideoMixin, Model)
     def end_at_localized(self) -> datetime | None:
         return (
             localize_timezone(self.end_at, tz=self.project.timezone)
-            if self.end_at
+            if self.end_at is not None
             else None
         )
 

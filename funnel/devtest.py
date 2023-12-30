@@ -143,7 +143,7 @@ def _signature_without_annotations(func) -> inspect.Signature:
     )
 
 
-def install_mock(func: Callable, mock: Callable) -> None:
+def install_mock(func: Any, mock: Any) -> None:
     """
     Patch all existing references to :attr:`func` with :attr:`mock`.
 
@@ -161,9 +161,9 @@ def install_mock(func: Callable, mock: Callable) -> None:
     # Use weakref to dereference func from local namespace
     func = weakref.ref(func)
     gc.collect()
-    refs = gc.get_referrers(func())  # type: ignore[misc]  # Typeshed says not callable
+    refs = gc.get_referrers(func())
     # Recover func from the weakref so we can do an `is` match in referrers
-    func = func()  # type: ignore[misc]
+    func = func()
     for ref in refs:
         if isinstance(ref, dict):
             # We have a namespace dict. Iterate through contents to find the reference

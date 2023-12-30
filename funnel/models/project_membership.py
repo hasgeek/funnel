@@ -104,7 +104,7 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
     }
 
     project_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
+        sa.ForeignKey('project.id', ondelete='CASCADE'), default=None, nullable=False
     )
     project: Mapped[Project] = with_roles(
         relationship(back_populates='crew_memberships'),
@@ -117,29 +117,21 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
     # Project crew roles (at least one must be True):
 
     #: Editors can edit all common and editorial details of an event
-    is_editor: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_editor: Mapped[bool] = sa_orm.mapped_column(default=False)
     #: Promoters are responsible for promotion and have write access
     #: to common details plus read access to everything else. Unlike
     #: editors, they cannot edit the schedule
-    is_promoter: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_promoter: Mapped[bool] = sa_orm.mapped_column(default=False)
     #: Ushers help participants find their way around an event and have
     #: the ability to scan badges at the door
-    is_usher: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_usher: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     #: Optional label, indicating the member's role in the project
     label: Mapped[str | None] = immutable(
         sa_orm.mapped_column(
-            sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='project_crew_membership_label_check'
-            ),
-            nullable=True,
+            )
         )
     )
 

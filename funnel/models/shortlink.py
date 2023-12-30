@@ -222,15 +222,13 @@ class Shortlink(NoIdMixin, Model):
     )
     #: Id of account that created this shortlink (optional)
     created_by_id: Mapped[int | None] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
+        sa.ForeignKey('account.id', ondelete='SET NULL'), default=None, nullable=True
     )
     #: Account that created this shortlink (optional)
     created_by: Mapped[Account | None] = relationship()
 
     #: Is this link enabled? If not, render 410 Gone
-    enabled: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=True
-    )
+    enabled: Mapped[bool] = sa_orm.mapped_column(default=True)
 
     @hybrid_property
     def name(self) -> str:

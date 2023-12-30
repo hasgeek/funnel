@@ -105,7 +105,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
         #: Parent object
         parent: Mapped[Model] | None
         #: Subject of this membership (subclasses must define)
-        member: Mapped[Account]
+        member: declared_attr[Account]
 
     #: Should an active membership record be revoked when the member is soft-deleted?
     #: (Hard deletes will cascade and also delete all membership records.)
@@ -120,7 +120,10 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     granted_at: Mapped[datetime_type] = with_roles(
         immutable(
             sa_orm.mapped_column(
-                sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
+                sa.TIMESTAMP(timezone=True),
+                nullable=False,
+                insert_default=sa.func.utcnow(),
+                default=None,
             )
         ),
         read={'member', 'editor'},
@@ -134,7 +137,6 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     record_type: Mapped[int] = with_roles(
         immutable(
             sa_orm.mapped_column(
-                sa.Integer,
                 StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
                 default=MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
                 nullable=False,
@@ -154,7 +156,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     def revoked_by_id(cls) -> Mapped[int | None]:
         """Id of user who revoked the membership."""
         return sa_orm.mapped_column(
-            sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
+            sa.ForeignKey('account.id', ondelete='SET NULL'),
+            default=None,
+            nullable=True,
         )
 
     @with_roles(read={'member', 'editor'}, grants={'editor'})
@@ -174,8 +178,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
         for granted_by.
         """
         return sa_orm.mapped_column(
-            sa.Integer,
             sa.ForeignKey('account.id', ondelete='SET NULL'),
+            default=None,
             nullable=cls.__null_granted_by__,
         )
 
@@ -373,21 +377,18 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
 class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     """Support class for immutable memberships for users."""
 
-    @declared_attr
-    @classmethod
-    def member_id(cls) -> Mapped[int]:
-        """Foreign key column to account table."""
-        return sa_orm.mapped_column(
-            sa.Integer,
-            sa.ForeignKey('account.id', ondelete='CASCADE'),
-            nullable=False,
-            index=True,
-        )
+    #: Foreign key column to account table
+    member_id: Mapped[int] = sa_orm.mapped_column(
+        sa.ForeignKey('account.id', ondelete='CASCADE'),
+        default=None,
+        nullable=False,
+        index=True,
+    )
 
     @with_roles(read={'member', 'editor'}, grants_via={None: {'admin': 'member'}})
     @declared_attr
     @classmethod
-    def member(cls) -> Mapped[Account]:  # type: ignore[override]
+    def member(cls) -> Mapped[Account]:
         """Member in this membership record."""
         return relationship(Account, foreign_keys=[cls.member_id])
 
@@ -447,8 +448,8 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
 
     with_roles(is_self_revoked, read={'member', 'editor'})
 
-    def copy_template(self: MembershipType, **kwargs) -> MembershipType:
-        return type(self)(member=self.member, **kwargs)  # type: ignore
+    def copy_template(self, **kwargs) -> Self:
+        return self.__class__(member=self.member, **kwargs)  # type: ignore[call-arg]
 
     @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
@@ -508,6 +509,8 @@ class ReorderMembershipProtoMixin(ReorderProtoMixin):
 
     if TYPE_CHECKING:
         parent_id_column: ClassVar[str]
+        parent: Any
+        is_active: hybrid_property[bool]
 
     #: Sequence number. Not immutable, and may be overwritten by ReorderMixin as a
     #: side-effect of reordering other records. This is not considered a revision.
@@ -564,9 +567,9 @@ class ReorderMembershipProtoMixin(ReorderProtoMixin):
         if self.parent_id is not None:
             return sa.and_(
                 cls.parent_id == self.parent_id,
-                cls.is_active,  # type: ignore[attr-defined]
+                cls.is_active,
             )
-        return sa.and_(  # type: ignore[unreachable]
+        return sa.and_(
             cls.parent == self.parent,
             cls.is_active,
         )

@@ -44,21 +44,13 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
     # Site admin roles (at least one must be True):
 
     #: Comment moderators can delete comments
-    is_comment_moderator: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_comment_moderator: Mapped[bool] = sa_orm.mapped_column(default=False)
     #: User moderators can suspend users
-    is_user_moderator: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_user_moderator: Mapped[bool] = sa_orm.mapped_column(default=False)
     #: Site editors can feature or reject projects
-    is_site_editor: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_site_editor: Mapped[bool] = sa_orm.mapped_column(default=False)
     #: Sysadmins can manage technical settings
-    is_sysadmin: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_sysadmin: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     @declared_attr.directive
     @classmethod
