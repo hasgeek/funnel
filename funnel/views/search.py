@@ -74,7 +74,7 @@ class SearchProvider(Generic[_ST]):
 
     @property
     def regconfig(self) -> str:
-        """Return PostgreSQL regconfig language, defaulting to English."""
+        """Return PostgreSQL `regconfig` language, defaulting to English."""
         return self.model.search_vector.type.options.get('regconfig', 'english')
 
     @property
@@ -84,7 +84,7 @@ class SearchProvider(Generic[_ST]):
         # That makes this return value incorrect, but here we ignore the error as
         # class:`CommentSearch` explicitly overrides :meth:`hltitle_column`, and that is
         # the only place this property is accessed
-        return self.model.title  # type: ignore[return-value]
+        return self.model.title  # type: ignore[return-value]  # FIXME
 
     @property
     def hltext(self) -> sa.ColumnElement[str]:
@@ -149,7 +149,7 @@ class SearchProvider(Generic[_ST]):
         return self.all_query(tsquery).options(sa_orm.load_only(self.model.id_)).count()
 
 
-class SearchInAccountProvider(SearchProvider):
+class SearchInAccountProvider(SearchProvider[_ST]):
     """Base class for search providers that support searching in an account."""
 
     def account_query(self, tsquery: sa.Function, account: Account) -> Query:
@@ -165,7 +165,7 @@ class SearchInAccountProvider(SearchProvider):
         )
 
 
-class SearchInProjectProvider(SearchInAccountProvider):
+class SearchInProjectProvider(SearchInAccountProvider[_ST]):
     """Base class for search providers that support searching in a project."""
 
     def project_query(self, tsquery: sa.Function, project: Project) -> Query:

@@ -132,7 +132,7 @@ from . import (
 )
 from .account import Account, AccountEmail, AccountPhone
 from .phone_number import PhoneNumber, PhoneNumberMixin
-from .typing import UuidModelUnion
+from .typing import ModelUuidProtocol
 
 __all__ = [
     'SMS_STATUS',
@@ -151,9 +151,9 @@ __all__ = [
 # --- Typing ---------------------------------------------------------------------------
 
 # Document generic type
-_D = TypeVar('_D', bound=UuidModelUnion)
+_D = TypeVar('_D', bound=ModelUuidProtocol)
 # Fragment generic type
-_F = TypeVar('_F', bound=UuidModelUnion | None)
+_F = TypeVar('_F', bound=ModelUuidProtocol | None)
 # Type of None (required to detect Optional)
 NoneType = type(None)
 
@@ -334,12 +334,12 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     pref_type: ClassVar[str] = ''
 
     #: Document model, must be specified in subclasses
-    document_model: ClassVar[type[UuidModelUnion]]
+    document_model: ClassVar[type[ModelUuidProtocol]]
     #: SQL table name for document type, auto-populated from the document model
     document_type: ClassVar[str]
 
     #: Fragment model, optional for subclasses
-    fragment_model: ClassVar[type[UuidModelUnion] | None] = None
+    fragment_model: ClassVar[type[ModelUuidProtocol] | None] = None
     #: SQL table name for fragment type, auto-populated from the fragment model
     fragment_type: ClassVar[str | None]
 
@@ -557,7 +557,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
             # pylint: disable=isinstance-second-argument-not-valid-type
             if not isinstance(fragment, self.fragment_model):
                 raise TypeError(f"{fragment!r} is not of type {self.fragment_model!r}")
-            kwargs['fragment_uuid'] = fragment.uuid  # type: ignore[union-attr]
+            kwargs['fragment_uuid'] = fragment.uuid
         super().__init__(**kwargs)
 
     @property
@@ -638,9 +638,9 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
         return getattr(cls, 'allow_' + transport)
 
     @property
-    def role_provider_obj(self) -> _F | _D:
+    def role_provider_obj(self) -> ModelUuidProtocol:
         """Return fragment if exists, document otherwise, indicating role provider."""
-        return self.fragment or self.document
+        return self.fragment or self.document  # type: ignore[return-value]  # FIXME
 
     def dispatch(self) -> Generator[NotificationRecipient, None, None]:
         """
@@ -655,6 +655,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
         Subclasses wanting more control over how their notifications are dispatched
         should override this method.
         """
+
         for account, role in self.role_provider_obj.actors_with(
             self.roles, with_role=True
         ):
@@ -718,8 +719,8 @@ class PreviewNotification(NotificationType):
     def __init__(  # pylint: disable=super-init-not-called
         self,
         cls: type[Notification],
-        document: UuidModelUnion,
-        fragment: UuidModelUnion | None = None,
+        document: ModelUuidProtocol,
+        fragment: ModelUuidProtocol | None = None,
         user: Account | None = None,
     ) -> None:
         self.eventid = uuid4()
@@ -764,14 +765,14 @@ class NotificationRecipientProtoMixin:
     with_roles(notification_pref_type, read={'owner'})
 
     @cached_property
-    def document(self) -> UuidModelUnion | None:
+    def document(self) -> ModelUuidProtocol | None:
         """Document that this notification is for."""
         return self.notification.document
 
     with_roles(document, read={'owner'})
 
     @cached_property
-    def fragment(self) -> UuidModelUnion | None:
+    def fragment(self) -> ModelUuidProtocol | None:
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
 

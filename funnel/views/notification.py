@@ -25,10 +25,10 @@ from ..models import (
     Account,
     AccountEmail,
     AccountPhone,
+    ModelUuidProtocol,
     Notification,
     NotificationFor,
     NotificationRecipient,
-    UuidModelUnion,
     db,
     sa,
 )
@@ -324,7 +324,7 @@ class RenderNotification:
         return []
 
     @cached_property
-    def fragments(self) -> list[RoleAccessProxy[UuidModelUnion]]:
+    def fragments(self) -> list[RoleAccessProxy[ModelUuidProtocol]]:
         query = self.notification_recipient.rolledup_fragments()
         if query is None:
             return []

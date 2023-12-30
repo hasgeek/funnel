@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal, Self, overload
+from typing import TYPE_CHECKING, Any, Literal, Self, overload
 
 from flask import current_app
 
@@ -10,7 +10,18 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import Mapped, Model, NoIdMixin, UuidMixin, db, relationship, sa, sa_orm, types
+from . import (
+    Mapped,
+    Model,
+    NoIdMixin,
+    UuidMixin,
+    db,
+    declared_attr,
+    relationship,
+    sa,
+    sa_orm,
+    types,
+)
 from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
 from .project import Project
 from .project_membership import project_child_role_map
@@ -65,6 +76,9 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         StateManager['Rsvp']('_state', RSVP_STATUS, doc="RSVP answer"),
         call={'owner', 'project_promoter'},
     )
+
+    if TYPE_CHECKING:
+        id_: declared_attr[Any]  # Fake entry for compatibility with ModelUuidProtocol
 
     __roles__ = {
         'owner': {'read': {'created_at', 'updated_at'}},

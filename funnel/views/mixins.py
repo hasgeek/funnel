@@ -17,10 +17,10 @@ from ..forms import SavedProjectForm
 from ..models import (
     Account,
     Draft,
+    ModelUuidProtocol,
     Project,
     ProjectRedirect,
     TicketEvent,
-    UuidModelUnion,
     db,
 )
 from ..typing import ReturnView
@@ -133,7 +133,7 @@ class DraftViewProtoMixin:
     model: Any
     obj: Any
 
-    def get_draft(self, obj: UuidModelUnion | None = None) -> Draft | None:
+    def get_draft(self, obj: ModelUuidProtocol | None = None) -> Draft | None:
         """
         Return the draft object for `obj`. Defaults to `self.obj`.
 
@@ -151,7 +151,7 @@ class DraftViewProtoMixin:
             raise ValueError(_("There is no draft for the given object"))
 
     def get_draft_data(
-        self, obj: UuidModelUnion | None = None
+        self, obj: ModelUuidProtocol | None = None
     ) -> tuple[None, None] | tuple[UUID | None, dict]:
         """
         Return a tuple of draft data.
@@ -163,7 +163,7 @@ class DraftViewProtoMixin:
             return draft.revision, draft.formdata
         return None, None
 
-    def autosave_post(self, obj: UuidModelUnion | None = None) -> ReturnView:
+    def autosave_post(self, obj: ModelUuidProtocol | None = None) -> ReturnView:
         """Handle autosave POST requests."""
         obj = obj if obj is not None else self.obj
         if 'form.revision' not in request.form:
