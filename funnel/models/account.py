@@ -986,6 +986,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             'is_verified',
         },
     }
+    __json_datasets__ = ('primary', 'related')
 
     profile_state.add_conditional_state(
         'ACTIVE_AND_PUBLIC',

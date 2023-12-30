@@ -9,7 +9,7 @@ from datetime import datetime
 from email.utils import formataddr
 from functools import wraps
 from itertools import islice
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar, Literal, cast
 from uuid import UUID, uuid4
 
 from flask import url_for
@@ -319,19 +319,21 @@ class RenderNotification:
         ]
 
     @property
-    def fragments_query_options(self) -> list:  # TODO: full spec
+    def fragments_query_options(self) -> Sequence:
         """Provide a list of SQLAlchemy options for loading fragments."""
         return []
 
     @cached_property
-    def fragments(self) -> list[RoleAccessProxy[ModelUuidProtocol]]:
+    def fragments(
+        self,
+    ) -> list[RoleAccessProxy[ModelUuidProtocol]]:  # type: ignore[type-var]  # FIXME
         query = self.notification_recipient.rolledup_fragments()
         if query is None:
             return []
 
         query = query.order_by(*self.fragments_order_by)
-        if self.fragments_query_options:
-            query = query.options(*self.fragments_query_options)
+        if query_options := self.fragments_query_options:
+            query = query.options(*query_options)
 
         return [
             _f.access_for(actor=self.notification_recipient.recipient)
@@ -366,7 +368,7 @@ class RenderNotification:
     @property
     def email_base_url(self) -> str:
         """Base URL for relative links in email."""
-        return self.notification.role_provider_obj.absolute_url
+        return cast(str, self.notification.role_provider_obj.absolute_url)
 
     def email_subject(self) -> str:
         """

@@ -383,6 +383,7 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
         'json': {'created_at', 'urls', 'uuid_b58', 'absolute_url'},
         'minimal': {'created_at', 'uuid_b58'},
     }
+    __json_datasets__ = ('json',)
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

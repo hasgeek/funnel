@@ -140,15 +140,17 @@ RESERVED_NAMES: set[str] = {
 class IntTitle(DataclassFromType, int):
     """Integer value with a title (for enums)."""
 
-    title: str
+    # The empty default is required for Mypy's enum plugin's `Enum.__call__` analysis
+    title: str = ''
 
 
 @dataclass(frozen=True)
 class IntNameTitle(DataclassFromType, int):
     """Integer value with a name and title (for enums)."""
 
-    name: str
-    title: str
+    # The empty default is required for Mypy's enum plugin's `Enum.__call__` analysis
+    name: str = ''
+    title: str = ''
 
 
 @dataclass

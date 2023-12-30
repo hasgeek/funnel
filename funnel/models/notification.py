@@ -735,7 +735,7 @@ class PreviewNotification(NotificationType):
         self.fragment_uuid = fragment.uuid if fragment is not None else None
         self.created_at = utcnow()
         self.created_by = user
-        self.created_by_id = cast(int, user.id) if user is not None else None
+        self.created_by_id = user.id if user is not None else None
 
     def __getattr__(self, attr: str) -> Any:
         """Get an attribute."""

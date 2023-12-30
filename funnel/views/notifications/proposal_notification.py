@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from flask import render_template
 from werkzeug.utils import cached_property
 
@@ -76,7 +78,7 @@ class RenderProposalReceivedNotification(RenderNotification):
         return [Proposal.datetime.desc()]
 
     @property
-    def fragments_query_options(self):
+    def fragments_query_options(self) -> Sequence:
         return [
             sa_orm.load_only(
                 Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid
