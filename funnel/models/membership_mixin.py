@@ -87,7 +87,7 @@ class MembershipRecordTypeError(MembershipError):
 
 
 @declarative_mixin
-class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID]):
+class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     """Support class for immutable memberships."""
 
     #: Can granted_by be null? Only in memberships based on legacy data

@@ -16,6 +16,7 @@ from . import (
     sa,
     sa_orm,
 )
+from .account import Account
 from .helpers import MarkdownCompositeBasic
 from .project import Project
 from .project_membership import project_child_role_map, project_child_role_set
@@ -23,7 +24,7 @@ from .project_membership import project_child_role_map, project_child_role_set
 __all__ = ['Venue', 'VenueRoom']
 
 
-class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
+class Venue(UuidMixin, BaseScopedNameMixin[int, Account], CoordinatesMixin, Model):
     __tablename__ = 'venue'
 
     project_id: Mapped[int] = sa_orm.mapped_column(
@@ -110,7 +111,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, Model):
     }
 
 
-class VenueRoom(UuidMixin, BaseScopedNameMixin, Model):
+class VenueRoom(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     __tablename__ = 'venue_room'
 
     venue_id: Mapped[int] = sa_orm.mapped_column(

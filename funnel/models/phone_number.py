@@ -235,7 +235,7 @@ def phone_blake2b160_hash(
 # --- Models ---------------------------------------------------------------------------
 
 
-class PhoneNumber(BaseMixin, Model):
+class PhoneNumber(BaseMixin[int, 'Account'], Model):
     """
     Represents a phone number as a standalone entity, with associated metadata.
 

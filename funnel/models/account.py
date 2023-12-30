@@ -158,7 +158,7 @@ team_membership = sa.Table(
 # --- Models ---------------------------------------------------------------------------
 
 
-class Account(UuidMixin, BaseMixin, Model):
+class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     """Account model."""
 
     __tablename__ = 'account'
@@ -1886,7 +1886,7 @@ add_search_trigger(Account, 'search_vector')
 add_search_trigger(Account, 'name_vector')
 
 
-class AccountOldId(UuidMixin, BaseMixin[UUID], Model):
+class AccountOldId(UuidMixin, BaseMixin[UUID, Account], Model):
     """Record of an older UUID for an account, after account merger."""
 
     __tablename__ = 'account_oldid'
@@ -2044,7 +2044,7 @@ class Placeholder(Account):
     is_placeholder_profile = True
 
 
-class Team(UuidMixin, BaseMixin, Model):
+class Team(UuidMixin, BaseMixin[int, Account], Model):
     """A team of users within an organization."""
 
     __tablename__ = 'team'
@@ -2119,7 +2119,7 @@ class Team(UuidMixin, BaseMixin, Model):
 # --- Account email/phone and misc
 
 
-class AccountEmail(EmailAddressMixin, BaseMixin, Model):
+class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
     """An email address linked to an account."""
 
     __tablename__ = 'account_email'
@@ -2297,7 +2297,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, Model):
         return [cls.__table__.name, user_email_primary_table.name]
 
 
-class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
+class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
     """Claimed but unverified email address for a user."""
 
     __tablename__ = 'account_email_claim'
@@ -2486,7 +2486,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin, Model):
 auto_init_default(AccountEmailClaim.verification_code)
 
 
-class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
+class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
     """A phone number linked to an account."""
 
     __tablename__ = 'account_phone'
@@ -2674,7 +2674,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, Model):
         return [cls.__table__.name, user_phone_primary_table.name]
 
 
-class AccountExternalId(BaseMixin, Model):
+class AccountExternalId(BaseMixin[int, Account], Model):
     """An external connected account for a user."""
 
     __tablename__ = 'account_externalid'

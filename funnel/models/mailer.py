@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from collections.abc import Collection, Iterator
 from datetime import datetime
-from enum import IntEnum
+from enum import ReprEnum
 from typing import Any, Self
 from uuid import UUID
 
@@ -31,6 +31,7 @@ from . import (
     sa_orm,
 )
 from .account import Account
+from .helpers import IntTitle
 from .types import jsonb
 
 __all__ = [
@@ -48,26 +49,16 @@ for _key in EMAIL_TAGS:
     EMAIL_TAGS[_key].append('style')
 
 
-class MailerState(IntEnum):
+class MailerState(IntTitle, ReprEnum):
     """Send state for :class:`Mailer`."""
 
-    DRAFT = 0
-    QUEUED = 1
-    SENDING = 2
-    SENT = 3
-
-    __titles__ = {
-        DRAFT: __("Draft"),
-        QUEUED: __("Queued"),
-        SENDING: __("Sending"),
-        SENT: __("Sent"),
-    }
-
-    def __init__(self, value: int) -> None:
-        self.title = self.__titles__[value]
+    DRAFT = 0, __("Draft")
+    QUEUED = (1, __("Queued"))
+    SENDING = 2, __("Sending")
+    SENT = 3, __("Sent")
 
 
-class Mailer(BaseNameMixin, Model):
+class Mailer(BaseNameMixin[int, Account], Model):
     """A mailer sent via email to multiple recipients."""
 
     __tablename__ = 'mailer'
@@ -194,7 +185,7 @@ class Mailer(BaseNameMixin, Model):
         return ''
 
 
-class MailerDraft(BaseScopedIdMixin, Model):
+class MailerDraft(BaseScopedIdMixin[int, Account], Model):
     """Revision-controlled draft of mailer text (a Mustache template)."""
 
     __tablename__ = 'mailer_draft'
@@ -223,7 +214,7 @@ class MailerDraft(BaseScopedIdMixin, Model):
         return self.mailer.render_preview(self.template)
 
 
-class MailerRecipient(BaseScopedIdMixin, Model):
+class MailerRecipient(BaseScopedIdMixin[int, Account], Model):
     """Recipient of a mailer."""
 
     __tablename__ = 'mailer_recipient'

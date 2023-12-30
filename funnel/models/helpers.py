@@ -22,6 +22,8 @@ from sqlalchemy.ext.mutable import MutableComposite
 from sqlalchemy.orm import Mapped, composite
 from zxcvbn import zxcvbn
 
+from coaster.utils import DataclassFromType
+
 from .. import app
 from ..typing import T
 from ..utils import MarkdownConfig, MarkdownString, markdown_escape
@@ -31,6 +33,8 @@ __all__ = [
     'RESERVED_NAMES',
     'PASSWORD_MIN_LENGTH',
     'PASSWORD_MAX_LENGTH',
+    'IntTitle',
+    'IntNameTitle',
     'check_password_strength',
     'profanity',
     'add_to_class',
@@ -130,6 +134,21 @@ RESERVED_NAMES: set[str] = {
     'workshops',
     'www',
 }
+
+
+@dataclass(frozen=True)
+class IntTitle(DataclassFromType, int):
+    """Integer value with a title (for enums)."""
+
+    title: str
+
+
+@dataclass(frozen=True)
+class IntNameTitle(DataclassFromType, int):
+    """Integer value with a name and title (for enums)."""
+
+    name: str
+    title: str
 
 
 @dataclass

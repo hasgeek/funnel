@@ -45,7 +45,7 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
     RESTRICTED = (2, 'restricted', __("Restricted"))
 
 
-class Update(UuidMixin, BaseScopedIdNameMixin, Model):
+class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     __tablename__ = 'update'
 
     _visibility_state: Mapped[int] = sa_orm.mapped_column(

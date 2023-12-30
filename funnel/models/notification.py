@@ -232,7 +232,7 @@ class SMS_STATUS(LabeledEnum):  # noqa: N801
 # --- Legacy models --------------------------------------------------------------------
 
 
-class SmsMessage(PhoneNumberMixin, BaseMixin, Model):
+class SmsMessage(PhoneNumberMixin, BaseMixin[int, Account], Model):
     """An outbound SMS message."""
 
     __tablename__ = 'sms_message'
@@ -1254,7 +1254,7 @@ class NotificationFor(NotificationRecipientProtoMixin):
 # --- Notification preferences ---------------------------------------------------------
 
 
-class NotificationPreferences(BaseMixin, Model):
+class NotificationPreferences(BaseMixin[int, Account], Model):
     """Holds a user's preferences for a particular :class:`Notification` type."""
 
     __tablename__ = 'notification_preferences'

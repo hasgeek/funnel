@@ -87,7 +87,7 @@ auth_client_login_session = sa.Table(
 )
 
 
-class LoginSession(UuidMixin, BaseMixin, Model):
+class LoginSession(UuidMixin, BaseMixin[int, Account], Model):
     __tablename__ = 'login_session'
 
     account_id: Mapped[int] = sa_orm.mapped_column(

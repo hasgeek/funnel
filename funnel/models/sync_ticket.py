@@ -202,7 +202,9 @@ class TicketType(GetTitleMixin, Model):
     }
 
 
-class TicketParticipant(OptionalEmailAddressMixin, UuidMixin, BaseMixin, Model):
+class TicketParticipant(
+    OptionalEmailAddressMixin, UuidMixin, BaseMixin[int, Account], Model
+):
     """A participant in one or more events, synced from an external ticket source."""
 
     __tablename__ = 'ticket_participant'
@@ -403,7 +405,7 @@ class TicketParticipant(OptionalEmailAddressMixin, UuidMixin, BaseMixin, Model):
         return query.all()
 
 
-class TicketEventParticipant(BaseMixin, Model):
+class TicketEventParticipant(BaseMixin[int, Account], Model):
     """Join model between :class:`TicketParticipant` and :class:`TicketEvent`."""
 
     __tablename__ = 'ticket_event_participant'
@@ -450,7 +452,7 @@ class TicketEventParticipant(BaseMixin, Model):
         )
 
 
-class TicketClient(BaseMixin, Model):
+class TicketClient(BaseMixin[int, Account], Model):
     __tablename__ = 'ticket_client'
     name: Mapped[str] = with_roles(
         sa_orm.mapped_column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
@@ -523,7 +525,7 @@ class TicketClient(BaseMixin, Model):
                 ticket.ticket_participant.add_events(ticket_type.ticket_events)
 
 
-class SyncTicket(BaseMixin, Model):
+class SyncTicket(BaseMixin[int, Account], Model):
     """Model for a ticket that was bought elsewhere, like Boxoffice or Explara."""
 
     __tablename__ = 'sync_ticket'

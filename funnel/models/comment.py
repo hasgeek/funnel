@@ -81,7 +81,7 @@ message_removed = MessageComposite(__("[removed]"), 'del')
 # --- Models ---------------------------------------------------------------------------
 
 
-class Commentset(UuidMixin, BaseMixin, Model):
+class Commentset(UuidMixin, BaseMixin[int, Account], Model):
     __tablename__ = 'commentset'
     #: Commentset state code
     _state: Mapped[int] = sa_orm.mapped_column(
@@ -296,7 +296,7 @@ class Commentset(UuidMixin, BaseMixin, Model):
         return False
 
 
-class Comment(UuidMixin, BaseMixin, Model):
+class Comment(UuidMixin, BaseMixin[int, Account], Model):
     __tablename__ = 'comment'
 
     posted_by_id: Mapped[int | None] = sa_orm.mapped_column(

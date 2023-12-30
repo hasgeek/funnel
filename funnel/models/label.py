@@ -18,6 +18,7 @@ from . import (
     sa,
     sa_orm,
 )
+from .account import Account
 from .helpers import add_search_trigger, visual_field_delimiter
 from .project_membership import project_child_role_map
 
@@ -43,7 +44,7 @@ proposal_label: sa.Table = sa.Table(
 )
 
 
-class Label(BaseScopedNameMixin, Model):
+class Label(BaseScopedNameMixin[int, Account], Model):
     __tablename__ = 'label'
 
     project_id: Mapped[int] = sa_orm.mapped_column(

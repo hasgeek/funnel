@@ -22,7 +22,7 @@ class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
     SPAM = (2, 'spam', __("Spam"))
 
 
-class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
+class CommentModeratorReport(UuidMixin, BaseMixin[UUID, Account], Model):
     __tablename__ = 'comment_moderator_report'
 
     comment_id: Mapped[int] = sa_orm.mapped_column(

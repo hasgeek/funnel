@@ -157,7 +157,7 @@ class EmailAddressInUseError(EmailAddressError):
     """Email address is in use by another owner."""
 
 
-class EmailAddress(BaseMixin, Model):
+class EmailAddress(BaseMixin[int, 'Account'], Model):
     """
     Represents an email address as a standalone entity, with associated metadata.
 

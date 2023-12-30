@@ -580,7 +580,7 @@ class Proposal(  # type: ignore[misc]
 add_search_trigger(Proposal, 'search_vector')
 
 
-class ProposalSuuidRedirect(BaseMixin, Model):
+class ProposalSuuidRedirect(BaseMixin[int, Account], Model):
     """Holds Proposal SUUIDs from before when they were deprecated."""
 
     __tablename__ = 'proposal_suuid_redirect'

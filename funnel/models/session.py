@@ -39,7 +39,7 @@ from .video_mixin import VideoMixin
 __all__ = ['Session']
 
 
-class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, Model):
+class Session(UuidMixin, BaseScopedIdNameMixin[int, Account], VideoMixin, Model):
     __tablename__ = 'session'
 
     project_id: Mapped[int] = sa_orm.mapped_column(

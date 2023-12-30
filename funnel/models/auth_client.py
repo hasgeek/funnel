@@ -84,7 +84,7 @@ class ScopeMixin:
         self.scope = set(self.scope).union(set(additional))
 
 
-class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
+class AuthClient(ScopeMixin, UuidMixin, BaseMixin[int, Account], Model):
     """OAuth client application."""
 
     __tablename__ = 'auth_client'
@@ -274,7 +274,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, Model):
         ).order_by(cls.title)
 
 
-class AuthClientCredential(BaseMixin, Model):
+class AuthClientCredential(BaseMixin[int, Account], Model):
     """
     AuthClient key and secret hash.
 
@@ -370,7 +370,7 @@ class AuthClientCredential(BaseMixin, Model):
         return cred, secret
 
 
-class AuthCode(ScopeMixin, BaseMixin, Model):
+class AuthCode(ScopeMixin, BaseMixin[int, Account], Model):
     """Short-lived authorization tokens."""
 
     __tablename__ = 'auth_code'
@@ -411,7 +411,7 @@ class AuthCode(ScopeMixin, BaseMixin, Model):
         ).one_or_none()
 
 
-class AuthToken(ScopeMixin, BaseMixin, Model):
+class AuthToken(ScopeMixin, BaseMixin[int, Account], Model):
     """Access tokens for access to data."""
 
     __tablename__ = 'auth_token'
@@ -632,7 +632,7 @@ class AuthToken(ScopeMixin, BaseMixin, Model):
 
 # This model's name is in plural because it defines multiple permissions within each
 # instance
-class AuthClientPermissions(BaseMixin, Model):
+class AuthClientPermissions(BaseMixin[int, Account], Model):
     """Permissions assigned to an account on a client app."""
 
     __tablename__ = 'auth_client_permissions'
@@ -709,7 +709,7 @@ class AuthClientPermissions(BaseMixin, Model):
 
 # This model's name is in plural because it defines multiple permissions within each
 # instance
-class AuthClientTeamPermissions(BaseMixin, Model):
+class AuthClientTeamPermissions(BaseMixin[int, Account], Model):
     """Permissions assigned to a team on a client app."""
 
     __tablename__ = 'auth_client_team_permissions'

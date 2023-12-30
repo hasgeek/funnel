@@ -85,7 +85,7 @@ class PROJECT_RSVP_STATE(LabeledEnum):  # noqa: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Project(UuidMixin, BaseScopedNameMixin, Model):
+class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     __tablename__ = 'project'
     reserved_names = RESERVED_NAMES
 
