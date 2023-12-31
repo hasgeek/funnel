@@ -153,23 +153,12 @@ repos:
     rev: v3.0.0
     hooks:
       - id: creosote
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
         args:
-          - --venv=.venv
-          - --path=funnel
-          - --path=tests
-          - --path=migrations/versions
-          - --deps-file=requirements/base.in
-          - --exclude-dep=argon2-cffi # Optional dep for passlib
-          - --exclude-dep=bcrypt # Optional dep for passlib
-          - --exclude-dep=greenlet # Optional dep for SQLAlchemy's asyncio support
-          - --exclude-dep=gunicorn # Not imported, used as server
-          - --exclude-dep=linkify-it-py # Optional dep for markdown-it-py
-          - --exclude-dep=psycopg # Optional dep for SQLAlchemy
-          - --exclude-dep=rq-dashboard # Creosote fails to recognise the import
-          - --exclude-dep=tzdata # Data-only dep, therefore no import statement
-          - --exclude-dep=urllib3 # Required to silence a pip-audit warning
-          - --exclude-dep=wtforms-sqlalchemy # Temp dep on an unreleased git branch
-
+          - --external-sources
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
