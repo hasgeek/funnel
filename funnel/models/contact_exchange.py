@@ -134,8 +134,8 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
             cls.scanned_at.label('scanned_at'),
             Project.id.label('project_id'),
             Project.uuid.label('project_uuid'),
-            Project.timezone.label('project_timezone'),
             Project.title.label('project_title'),
+            Project.timezone.label('project_timezone'),
         ).filter(
             cls.ticket_participant_id == TicketParticipant.id,
             TicketParticipant.project_id == Project.id,
@@ -225,7 +225,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
                 [
                     DateCountContacts(
                         r.scan_date,
-                        r.count,
+                        r.count,  # type: ignore[arg-type]  # FIXME
                         cls.contacts_for_project_and_date(
                             account, k, r.scan_date, archived
                         ),
@@ -235,12 +235,12 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
             )
             for k, g in groupby(
                 query,
-                lambda r: ProjectId(
-                    id=r.project_id,
-                    uuid=r.project_uuid,
-                    uuid_b58=uuid_to_base58(r.project_uuid),
-                    title=r.project_title,
-                    timezone=timezone(r.project_timezone),
+                lambda row: ProjectId(
+                    id=row.project_id,
+                    uuid=row.project_uuid,
+                    uuid_b58=uuid_to_base58(row.project_uuid),
+                    title=row.project_title,
+                    timezone=timezone(row.project_timezone),
                 ),
             )
         ]
