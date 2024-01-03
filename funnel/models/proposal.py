@@ -162,7 +162,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        StateManager.check_constraint('state', PROPOSAL_STATE),
+        StateManager.check_constraint('state', PROPOSAL_STATE, sa.Integer),
         default=PROPOSAL_STATE.SUBMITTED,
         nullable=False,
     )

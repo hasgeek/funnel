@@ -35,7 +35,9 @@ class CommentModeratorReport(UuidMixin, BaseMixin[UUID, Account], Model):
     reported_by: Mapped[Account] = relationship(back_populates='moderator_reports')
     report_type: Mapped[int] = sa_orm.mapped_column(
         sa.SmallInteger,
-        StateManager.check_constraint('report_type', MODERATOR_REPORT_TYPE),
+        StateManager.check_constraint(
+            'report_type', MODERATOR_REPORT_TYPE, sa.SmallInteger
+        ),
         nullable=False,
         default=MODERATOR_REPORT_TYPE.SPAM,
     )

@@ -234,6 +234,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
         StateManager.check_constraint(
             'delivery_state',
             EMAIL_DELIVERY_STATE,
+            sa.Integer,
             name='email_address_delivery_state_check',
         ),
         nullable=False,

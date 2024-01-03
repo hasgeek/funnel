@@ -154,7 +154,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        StateManager.check_constraint('state', PROJECT_STATE),
+        StateManager.check_constraint('state', PROJECT_STATE, sa.Integer),
         default=PROJECT_STATE.DRAFT,
         nullable=False,
         index=True,
@@ -165,7 +165,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     )
     _cfp_state: Mapped[int] = sa_orm.mapped_column(
         'cfp_state',
-        StateManager.check_constraint('cfp_state', CFP_STATE),
+        StateManager.check_constraint('cfp_state', CFP_STATE, sa.Integer),
         default=CFP_STATE.NONE,
         nullable=False,
         index=True,

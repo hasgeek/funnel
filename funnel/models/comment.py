@@ -87,7 +87,7 @@ class Commentset(UuidMixin, BaseMixin[int, Account], Model):
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.SmallInteger,
-        StateManager.check_constraint('state', COMMENTSET_STATE),
+        StateManager.check_constraint('state', COMMENTSET_STATE, sa.SmallInteger),
         nullable=False,
         default=COMMENTSET_STATE.OPEN,
     )
@@ -328,7 +328,7 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        StateManager.check_constraint('state', COMMENT_STATE),
+        StateManager.check_constraint('state', COMMENT_STATE, sa.Integer),
         default=COMMENT_STATE.SUBMITTED,
         nullable=False,
     )

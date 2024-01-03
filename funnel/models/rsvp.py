@@ -68,7 +68,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
     _state: Mapped[str] = sa_orm.mapped_column(
         'state',
         sa.CHAR(1),
-        StateManager.check_constraint('state', RSVP_STATUS),
+        StateManager.check_constraint('state', RSVP_STATUS, sa.CHAR(1)),
         default=RSVP_STATUS.AWAITING,
         nullable=False,
     )
