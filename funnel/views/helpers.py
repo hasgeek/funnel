@@ -54,9 +54,11 @@ avatar_color_count = 6
 # --- Timezone data --------------------------------------------------------------------
 
 # Get all known timezones from zoneinfo and make a lowercased lookup table
-valid_timezones = {tz.lower(): tz for tz in zoneinfo.available_timezones()}
+valid_timezones = {_tz.lower(): _tz for _tz in zoneinfo.available_timezones()}
 # Get timezone aliases from tzinfo.zi and place them in the lookup table
-with resources.open_text('tzdata.zoneinfo', 'tzdata.zi') as _tzdata:
+with (resources.files('tzdata.zoneinfo') / 'tzdata.zi').open(
+    'r', encoding='utf-8', errors='strict'
+) as _tzdata:
     for _tzline in _tzdata.readlines():
         if _tzline.startswith('L'):
             _tzlink, _tznew, _tzold = _tzline.strip().split()
