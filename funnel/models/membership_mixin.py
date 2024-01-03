@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from datetime import datetime as datetime_type
+from enum import ReprEnum
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeVar
 from uuid import UUID
@@ -14,7 +15,6 @@ from werkzeug.utils import cached_property
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, immutable, with_roles
-from coaster.utils import LabeledEnum
 
 from . import (
     BaseMixin,
@@ -30,11 +30,12 @@ from . import (
     sa_orm,
 )
 from .account import Account
+from .helpers import IntTitle
 from .reorder_mixin import ReorderProtoMixin
 
 # Export only symbols needed in views.
 __all__ = [
-    'MEMBERSHIP_RECORD_TYPE',
+    'MembershipRecordTypeEnum',
     'MembershipError',
     'MembershipRevokedError',
     'MembershipRecordTypeError',
@@ -50,22 +51,20 @@ FrozenAttributionType = TypeVar(
 # --- Enum -----------------------------------------------------------------------------
 
 
-class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # noqa: N801
+class MembershipRecordTypeEnum(IntTitle, ReprEnum):
     """Membership record types."""
 
-    # TODO: Convert into IntEnum
-
     #: An invite represents a potential future membership, but not a current membership
-    INVITE = (1, 'invite', __("Invite"))
+    INVITE = 1, __("Invite")
     #: An accept recognises a conversion from an invite into a current membership
-    ACCEPT = (2, 'accept', __("Accept"))
+    ACCEPT = 2, __("Accept")
     #: A direct add recognises a current membership without proof of consent
-    DIRECT_ADD = (3, 'direct_add', __("Direct add"))
+    DIRECT_ADD = 3, __("Direct add")
     #: An amendment is when data in the record has been changed
-    AMEND = (4, 'amend', __("Amend"))
+    AMEND = 4, __("Amend")
     #: A migrate record says this used to be some other form of membership and has been
     #: created due to a technical change in the product
-    # Forthcoming: MIGRATE = (5, 'migrate', __("Migrate"))
+    # Forthcoming: MIGRATE = 5, __("Migrate")
 
 
 # --- Exceptions -----------------------------------------------------------------------
@@ -137,8 +136,10 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     record_type: Mapped[int] = with_roles(
         immutable(
             sa_orm.mapped_column(
-                StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
-                default=MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
+                StateManager.check_constraint(
+                    'record_type', MembershipRecordTypeEnum, sa.Integer
+                ),
+                default=MembershipRecordTypeEnum.DIRECT_ADD,
                 nullable=False,
             )
         ),
@@ -146,10 +147,10 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     )
 
     @cached_property
-    def record_type_label(self):
-        return MEMBERSHIP_RECORD_TYPE[self.record_type]
+    def record_type_enum(self):
+        return MembershipRecordTypeEnum(self.record_type)
 
-    with_roles(record_type_label, read={'member', 'editor'})
+    with_roles(record_type_enum, read={'member', 'editor'})
 
     @declared_attr
     @classmethod
@@ -195,7 +196,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
         """Test if membership record is active (not revoked, not an invite)."""
         return (
             self.revoked_at is None
-            and self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
+            and self.record_type != MembershipRecordTypeEnum.INVITE
         )
 
     @is_active.inplace.expression
@@ -203,7 +204,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     def _is_active_expression(cls) -> sa.ColumnElement[bool]:
         """Test if membership record is active as a SQL expression."""
         return sa.and_(
-            cls.revoked_at.is_(None), cls.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
+            cls.revoked_at.is_(None), cls.record_type != MembershipRecordTypeEnum.INVITE
         )
 
     with_roles(is_active, read={'member'})
@@ -211,14 +212,14 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     @hybrid_property
     def is_invite(self) -> bool:
         """Test if membership record is an invitation."""
-        return self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
+        return self.record_type == MembershipRecordTypeEnum.INVITE
 
     with_roles(is_invite, read={'member', 'editor'})
 
     @hybrid_property
     def is_amendment(self) -> bool:
         """Test if membership record is an amendment."""
-        return self.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
+        return self.record_type == MembershipRecordTypeEnum.AMEND
 
     with_roles(is_amendment, read={'member', 'editor'})
 
@@ -265,7 +266,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
 
         # Perform sanity check. If nothing changed, just return self
         has_changes = False
-        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE and _accept:
+        if self.record_type == MembershipRecordTypeEnum.INVITE and _accept:
             # If the existing record is an INVITE and this is an ACCEPT, we have
             # a record change even if no data changed
             has_changes = True
@@ -291,13 +292,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
 
         # if existing record type is INVITE, then ACCEPT or amend as new INVITE
         # else replace it with AMEND
-        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
+        if self.record_type == MembershipRecordTypeEnum.INVITE:
             if _accept:
-                new.record_type = MEMBERSHIP_RECORD_TYPE.ACCEPT
+                new.record_type = MembershipRecordTypeEnum.ACCEPT
             else:
-                new.record_type = MEMBERSHIP_RECORD_TYPE.INVITE
+                new.record_type = MembershipRecordTypeEnum.INVITE
         else:
-            new.record_type = MEMBERSHIP_RECORD_TYPE.AMEND
+            new.record_type = MembershipRecordTypeEnum.AMEND
 
         self._local_data_only = True
         for column in self.__data_columns__:
@@ -326,8 +327,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
             raise MembershipRevokedError("Can't merge with a revoked membership record")
 
         if (
-            self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
-            and other.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
+            self.record_type == MembershipRecordTypeEnum.INVITE
+            and other.record_type != MembershipRecordTypeEnum.INVITE
         ):
             # If we are an INVITE but the other is not an INVITE, then we must ACCEPT
             # the INVITE before proceeding to an AMEND merger
@@ -354,7 +355,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     @with_roles(call={'member'})
     def accept(self: MembershipType, actor: Account) -> MembershipType:
         """Accept a membership invitation."""
-        if self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE:
+        if self.record_type != MembershipRecordTypeEnum.INVITE:
             raise MembershipRecordTypeError("This membership record is not an invite")
         if 'member' not in self.roles_for(actor):
             raise ValueError("Invite must be accepted by the invited user")

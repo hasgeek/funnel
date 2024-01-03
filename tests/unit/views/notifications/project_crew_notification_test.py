@@ -3,7 +3,7 @@
 from pytest_bdd import given, parsers, scenarios, then, when
 
 from funnel import models
-from funnel.models.membership_mixin import MEMBERSHIP_RECORD_TYPE
+from funnel.models.membership_mixin import MembershipRecordTypeEnum
 
 scenarios('notifications/project_crew_notification.feature')
 
@@ -142,7 +142,7 @@ def when_vetinari_invites_ridcully(
         parent=project_expo2010,
         member=user_ridcully,
         granted_by=user_vetinari,
-        record_type=MEMBERSHIP_RECORD_TYPE.INVITE,
+        record_type=MembershipRecordTypeEnum.INVITE,
         **role_columns(role),
     )
     db_session.add(ridcully_member)
@@ -160,7 +160,7 @@ def when_ridcully_accepts_invite(
     ridcully_member,
     user_ridcully,
 ) -> models.ProjectMembership:
-    assert ridcully_member.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
+    assert ridcully_member.record_type == MembershipRecordTypeEnum.INVITE
     assert ridcully_member.member == user_ridcully
     ridcully_member_accept = ridcully_member.accept(actor=user_ridcully)
     db_session.commit()

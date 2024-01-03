@@ -60,7 +60,7 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
         },
         'project_crew': {
             'read': {
-                'record_type_label',
+                'record_type_enum',
                 'granted_at',
                 'granted_by',
                 'revoked_at',

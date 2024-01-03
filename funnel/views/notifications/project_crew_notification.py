@@ -14,6 +14,7 @@ from baseframe import _, __
 
 from ...models import (
     Account,
+    MembershipRecordTypeEnum,
     Notification,
     NotificationRecipient,
     Project,
@@ -33,7 +34,7 @@ class DecisionFactorFields:
 
     is_member: bool | None = None
     for_actor: bool | None = None
-    rtypes: Collection[str] = ()
+    rtypes: Collection[MembershipRecordTypeEnum] = ()
     is_editor: bool | None = None
     is_promoter: bool | None = None
     is_usher: bool | None = None
@@ -48,7 +49,7 @@ class DecisionFactorFields:
         return (
             (self.is_member is None or self.is_member is is_member)
             and (self.for_actor is None or self.for_actor is for_actor)
-            and (not self.rtypes or membership.record_type_label.name in self.rtypes)
+            and (not self.rtypes or membership.record_type_enum in self.rtypes)
             and (self.is_editor is None or self.is_editor is membership.is_editor)
             and (self.is_promoter is None or self.is_promoter is membership.is_promoter)
             and (self.is_usher is None or self.is_usher is membership.is_usher)
@@ -79,7 +80,7 @@ class DecisionBranch(DecisionFactorFields, DecisionBranchBase):
 grant_amend_templates = DecisionBranch(
     factors=[
         DecisionBranch(
-            rtypes=['invite'],
+            rtypes=[MembershipRecordTypeEnum.INVITE],
             factors=[
                 DecisionBranch(
                     for_actor=False,
@@ -144,7 +145,7 @@ grant_amend_templates = DecisionBranch(
                                 "{actor} invited you to join the crew of {project}"
                             ),
                             is_member=True,
-                            rtypes=['invite'],
+                            rtypes=[MembershipRecordTypeEnum.INVITE],
                         ),
                     ],
                 ),
@@ -174,7 +175,7 @@ grant_amend_templates = DecisionBranch(
                             template=__(
                                 "You invited {user} to join the crew of {project}"
                             ),
-                            rtypes=['invite'],
+                            rtypes=[MembershipRecordTypeEnum.INVITE],
                             for_actor=True,
                         ),
                     ],
@@ -182,7 +183,7 @@ grant_amend_templates = DecisionBranch(
             ],
         ),
         DecisionBranch(
-            rtypes=['accept'],
+            rtypes=[MembershipRecordTypeEnum.ACCEPT],
             factors=[
                 DecisionBranch(
                     for_actor=False,
@@ -250,7 +251,7 @@ grant_amend_templates = DecisionBranch(
             ],
         ),
         DecisionBranch(
-            rtypes=['direct_add'],
+            rtypes=[MembershipRecordTypeEnum.DIRECT_ADD],
             factors=[
                 DecisionBranch(
                     for_actor=False,
@@ -346,7 +347,7 @@ grant_amend_templates = DecisionBranch(
                         ),
                         DecisionFactor(
                             template=__("You made {user} promoter of {project}"),
-                            rtypes=['direct_add'],
+                            rtypes=[MembershipRecordTypeEnum.DIRECT_ADD],
                             is_promoter=True,
                         ),
                         DecisionFactor(
@@ -379,7 +380,7 @@ grant_amend_templates = DecisionBranch(
             ],
         ),
         DecisionBranch(
-            rtypes=['amend'],
+            rtypes=[MembershipRecordTypeEnum.AMEND],
             factors=[
                 DecisionBranch(
                     for_actor=False,
@@ -532,7 +533,7 @@ grant_amend_templates = DecisionBranch(
                             template=__(
                                 "You changed your role to crew member of {project}"
                             ),
-                            rtypes=['amend'],
+                            rtypes=[MembershipRecordTypeEnum.AMEND],
                             is_self_granted=True,
                         ),
                     ],

@@ -50,7 +50,7 @@ class AccountMembership(ImmutableUserMembershipMixin, Model):
         'account_admin': {
             'read': {
                 'record_type',
-                'record_type_label',
+                'record_type_enum',
                 'granted_at',
                 'granted_by',
                 'revoked_at',
