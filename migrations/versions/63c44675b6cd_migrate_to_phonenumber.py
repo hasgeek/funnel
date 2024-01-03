@@ -148,10 +148,8 @@ def upgrade_() -> None:
                     allow_sm=False,
                 )
                 .returning(phone_number.c.id)
-            ).fetchone()[
-                0
-            ]  # type: ignore[index]
-
+            ).first()
+            assert pn_id is not None  # nosec B101
         conn.execute(
             user_phone.update()
             .where(user_phone.c.id == item.id)
@@ -175,7 +173,7 @@ def upgrade_() -> None:
     op.drop_column('user_phone', 'gets_text')
 
     # --- SmsMessage -------------------------------------------------------------------
-    # Remove rows with no transactionid, as the data is not validated in any way
+    # Remove rows with no `transactionid`, as the data is not validated in any way
     conn.execute(sa.delete(sms_message).where(sms_message.c.transactionid.is_(None)))
     op.add_column(
         'sms_message', sa.Column('phone_number_id', sa.Integer(), nullable=True)
@@ -279,9 +277,8 @@ def upgrade_() -> None:
                     **timestamps,
                 )
                 .returning(phone_number.c.id)
-            ).fetchone()[
-                0
-            ]  # type: ignore[index]
+            ).first()
+            assert pn_id is not None  # nosec B101
         conn.execute(
             sms_message.update()
             .where(sms_message.c.id == item.id)

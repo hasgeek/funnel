@@ -9,10 +9,10 @@ from baseframe import statsd
 
 from ... import app
 from ...models import (
-    SMS_STATUS,
     PhoneNumber,
     PhoneNumberError,
     SmsMessage,
+    SmsStatusEnum,
     canonical_phone_number,
     db,
     sa,
@@ -69,26 +69,26 @@ def process_twilio_event() -> ReturnView:
 
     if request.form['MessageStatus'] == 'queued':
         if sms_message:
-            sms_message.status = SMS_STATUS.QUEUED
+            sms_message.status = SmsStatusEnum.QUEUED
     elif request.form['MessageStatus'] == 'sent':
         if phone_number:
             phone_number.msg_sms_sent_at = sa.func.utcnow()
         if sms_message:
-            sms_message.status = SMS_STATUS.PENDING
+            sms_message.status = SmsStatusEnum.PENDING
     elif request.form['MessageStatus'] == 'failed':
         if phone_number:
             phone_number.msg_sms_failed_at = sa.func.utcnow()
         if sms_message:
-            sms_message.status = SMS_STATUS.FAILED
+            sms_message.status = SmsStatusEnum.FAILED
     elif request.form['MessageStatus'] == 'delivered':
         if phone_number:
             phone_number.msg_sms_delivered_at = sa.func.utcnow()
             phone_number.mark_has_sms(True)
         if sms_message:
-            sms_message.status = SMS_STATUS.DELIVERED
+            sms_message.status = SmsStatusEnum.DELIVERED
     else:
         if sms_message:
-            sms_message.status = SMS_STATUS.UNKNOWN
+            sms_message.status = SmsStatusEnum.UNKNOWN
     db.session.commit()
 
     current_app.logger.info(
@@ -158,26 +158,26 @@ def process_exotel_event(secret_token: str) -> ReturnView:
 
     if request.form['Status'] == 'queued':
         if sms_message:
-            sms_message.status = SMS_STATUS.QUEUED
+            sms_message.status = SmsStatusEnum.QUEUED
     elif request.form['Status'] in ('sending', 'submitted'):
         if phone_number:
             phone_number.msg_sms_sent_at = sa.func.utcnow()
         if sms_message:
-            sms_message.status = SMS_STATUS.PENDING
+            sms_message.status = SmsStatusEnum.PENDING
     elif request.form['Status'] in ('failed', 'failed_dnd'):
         if phone_number:
             phone_number.msg_sms_failed_at = sa.func.utcnow()
         if sms_message:
-            sms_message.status = SMS_STATUS.FAILED
+            sms_message.status = SmsStatusEnum.FAILED
     elif request.form['Status'] == 'sent':
         if phone_number:
             phone_number.msg_sms_delivered_at = sa.func.utcnow()
             phone_number.mark_has_sms(True)
         if sms_message:
-            sms_message.status = SMS_STATUS.DELIVERED
+            sms_message.status = SmsStatusEnum.DELIVERED
     else:
         if sms_message:
-            sms_message.status = SMS_STATUS.UNKNOWN
+            sms_message.status = SmsStatusEnum.UNKNOWN
     db.session.commit()
 
     current_app.logger.info(

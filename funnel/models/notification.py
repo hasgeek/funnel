@@ -84,6 +84,7 @@ from __future__ import annotations
 from collections.abc import Callable, Generator, Sequence
 from dataclasses import dataclass
 from datetime import datetime
+from enum import ReprEnum
 from types import SimpleNamespace, UnionType
 from typing import (
     Any,
@@ -113,7 +114,7 @@ from coaster.sqlalchemy import (
     immutable,
     with_roles,
 )
-from coaster.utils import LabeledEnum, utcnow, uuid_from_base58, uuid_to_base58
+from coaster.utils import utcnow, uuid_from_base58, uuid_to_base58
 
 from ..typing import T
 from . import (
@@ -131,11 +132,12 @@ from . import (
     sa_orm,
 )
 from .account import Account, AccountEmail, AccountPhone
+from .helpers import IntTitle
 from .phone_number import PhoneNumber, PhoneNumberMixin
 from .typing import ModelUuidProtocol
 
 __all__ = [
-    'SMS_STATUS',
+    'SmsStatusEnum',
     'notification_categories',
     'SmsMessage',
     'NotificationType',
@@ -219,14 +221,14 @@ notification_categories: SimpleNamespace = SimpleNamespace(
 # --- Flags ----------------------------------------------------------------------------
 
 
-class SMS_STATUS(LabeledEnum):  # noqa: N801
+class SmsStatusEnum(IntTitle, ReprEnum):
     """SMS delivery status."""
 
-    QUEUED = (1, __("Queued"))
-    PENDING = (2, __("Pending"))
-    DELIVERED = (3, __("Delivered"))
-    FAILED = (4, __("Failed"))
-    UNKNOWN = (5, __("Unknown"))
+    QUEUED = 1, __("Queued")
+    PENDING = 2, __("Pending")
+    DELIVERED = 3, __("Delivered")
+    FAILED = 4, __("Failed")
+    UNKNOWN = 5, __("Unknown")
 
 
 # --- Legacy models --------------------------------------------------------------------
@@ -249,7 +251,7 @@ class SmsMessage(PhoneNumberMixin, BaseMixin[int, Account], Model):
     )
     # Flags
     status: Mapped[int] = sa_orm.mapped_column(
-        default=SMS_STATUS.QUEUED, nullable=False
+        default=SmsStatusEnum.QUEUED, nullable=False
     )
     status_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
