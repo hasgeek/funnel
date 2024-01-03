@@ -693,8 +693,8 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
 
             # Since this query uses SQLAlchemy's session cache, we don't have to
             # bother with a local cache for the first case.
-            existing_notification = NotificationRecipient.query.get(
-                (account.id, self.eventid)
+            existing_notification = db.session.get(
+                NotificationRecipient, (account.id, self.eventid)
             )
             if existing_notification is None:
                 recipient = NotificationRecipient(
@@ -1163,7 +1163,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
     @classmethod
     def get_for(cls, user: Account, eventid_b58: str) -> NotificationRecipient | None:
         """Retrieve a :class:`UserNotification` using SQLAlchemy session cache."""
-        return cls.query.get((user.id, uuid_from_base58(eventid_b58)))
+        return db.session.get(cls, (user.id, uuid_from_base58(eventid_b58)))
 
     @classmethod
     def web_notifications_for(
@@ -1199,7 +1199,9 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
         for notification_recipient in cls.query.filter_by(
             recipient_id=old_account.id
         ).all():
-            existing = cls.query.get((new_account.id, notification_recipient.eventid))
+            existing = db.session.get(
+                cls, (new_account.id, notification_recipient.eventid)
+            )
             # TODO: Instead of dropping old_user's dupe notifications, check which of
             # the two has a higher priority role and keep that. This may not be possible
             # if the two copies are for different notifications under the same eventid.

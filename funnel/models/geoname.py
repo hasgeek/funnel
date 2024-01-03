@@ -391,7 +391,7 @@ class GeoName(BaseNameMixin, GeonameModel):
             and self.country
             and self.country.continent
         ):
-            continent = GeoName.query.get(continent_codes[self.country.continent])
+            continent = db.session.get(GeoName, continent_codes[self.country.continent])
             if continent:
                 related['continent'] = continent
 

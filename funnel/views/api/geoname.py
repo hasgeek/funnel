@@ -8,7 +8,7 @@ from coaster.utils import getbool
 from coaster.views import requestargs
 
 from ... import app
-from ...models import GeoName
+from ...models import GeoName, db
 from ...typing import ReturnView
 
 
@@ -19,7 +19,7 @@ def geo_get_by_name(
 ) -> ReturnView:
     """Get a geoname record given a single URL stub name or geoname id."""
     if name.isdigit():
-        geoname = GeoName.query.get(int(name))
+        geoname = db.session.get(GeoName, int(name))
     else:
         geoname = GeoName.get(name)
     return (
@@ -43,7 +43,7 @@ def geo_get_by_names(
     geonames = []
     for n in name:
         if n.isdigit():
-            geoname = GeoName.query.get(int(n))
+            geoname = db.session.get(GeoName, int(n))
         else:
             geoname = GeoName.get(n)
         if geoname:

@@ -156,7 +156,7 @@ class Mailer(BaseNameMixin[int, Account], Model):
             .all()
         ]
         for rid in ids:
-            recipient = MailerRecipient.query.get(rid)
+            recipient = db.session.get(MailerRecipient, rid)
             if recipient:
                 yield recipient
 

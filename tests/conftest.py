@@ -19,7 +19,14 @@ from io import StringIO
 from pprint import saferepr
 from textwrap import indent
 from types import MethodType, ModuleType, SimpleNamespace
-from typing import TYPE_CHECKING, Any, NamedTuple, Protocol, get_type_hints
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    NamedTuple,
+    Protocol,
+    get_type_hints,
+    runtime_checkable,
+)
 from unittest.mock import patch
 
 import flask
@@ -41,7 +48,7 @@ from rich.markup import escape as rich_escape
 from rich.syntax import Syntax
 from rich.text import Text
 from sqlalchemy import event
-from sqlalchemy.orm import Session as DatabaseSessionClass
+from sqlalchemy.orm import Session as DatabaseSessionClass, scoped_session
 from werkzeug import run_simple
 from werkzeug.test import TestResponse
 
@@ -127,12 +134,15 @@ def pytest_runtest_call(item: pytest.Function) -> None:
         # get_type_hints may fail on Python <3.10 because pytest-bdd appears to have
         # `dict[str, str]` as a type somewhere, and builtin type subscripting isn't
         # supported yet
-        warnings.warn(
-            f"Type annotations could not be retrieved for {item.obj!r}",
+        warnings.warn(  # noqa: B028
+            f"Type annotations could not be retrieved for {item.obj.__qualname__}",
             RuntimeWarning,
-            stacklevel=1,
         )
         return
+    except NameError as exc:
+        pytest.fail(
+            f"{item.obj.__qualname__} has an unknown annotation for {exc.name}. Is it imported under TYPE_CHECKING?"
+        )
 
     for attr, type_ in annotations.items():
         if attr in item.funcargs:
@@ -937,7 +947,7 @@ def database(funnel, models, request, app) -> SQLAlchemy:
 @pytest.fixture()
 def db_session_truncate(
     funnel, app, database, app_context
-) -> Iterator[DatabaseSessionClass]:
+) -> Iterator[DatabaseSessionClass | scoped_session]:
     """Empty the database after each use of the fixture."""
     yield database.session
     sa_orm.close_all_sessions()
@@ -996,7 +1006,7 @@ class BoundSession(FsaSession):
 @pytest.fixture()
 def db_session_rollback(
     funnel, app, database, app_context
-) -> Iterator[DatabaseSessionClass]:
+) -> Iterator[DatabaseSessionClass | scoped_session]:
     """Create a nested transaction for the test and rollback after."""
     original_session = database.session
 
@@ -1036,7 +1046,7 @@ db_session_implementations = {
 
 
 @pytest.fixture()
-def db_session(request) -> DatabaseSessionClass:
+def db_session(request) -> DatabaseSessionClass | scoped_session:
     """
     Database session fixture.
 
@@ -1148,6 +1158,7 @@ def csrf_token(app, client) -> str:
     return token
 
 
+@runtime_checkable
 class LoginFixtureProtocol(Protocol):
     def as_(self, user: funnel_models.User) -> None:
         ...

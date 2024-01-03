@@ -509,7 +509,7 @@ def transport_worker_wrapper(
     def inner(notification_recipient_ids: Sequence[tuple[int, UUID]]) -> None:
         """Convert a notification id into an object for worker to process."""
         queue = [
-            NotificationRecipient.query.get(identity)
+            db.session.get(NotificationRecipient, identity)
             for identity in notification_recipient_ids
         ]
         for notification_recipient in queue:
@@ -627,7 +627,9 @@ DISPATCH_BATCH_SIZE = 10
 @rqjob()
 def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -> None:
     """Process :class:`Notification` into batches of :class:`UserNotification`."""
-    notifications = [Notification.query.get((eventid, nid)) for nid in notification_ids]
+    notifications = [
+        db.session.get(Notification, (eventid, nid)) for nid in notification_ids
+    ]
 
     # Dispatch, creating batches of DISPATCH_BATCH_SIZE each
     for notification in notifications:
@@ -655,7 +657,7 @@ def dispatch_notification_recipients_job(
     """Process notifications for users and enqueue transport delivery."""
     # TODO: Can this be a single query instead of a loop of queries?
     queue = [
-        NotificationRecipient.query.get(identity)
+        db.session.get(NotificationRecipient, identity)
         for identity in notification_recipient_ids
     ]
     transport_batch: dict[str, list[tuple[int, UUID]]] = defaultdict(list)

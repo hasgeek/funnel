@@ -302,7 +302,7 @@ class TicketParticipant(
         if actor is not None:
             if actor == self.participant:
                 roles.add('member')
-            cx = ContactExchange.query.get((actor.id, self.id))
+            cx = db.session.get(ContactExchange, (actor.id, self.id))
             if cx is not None:
                 roles.add('scanner')
         return roles

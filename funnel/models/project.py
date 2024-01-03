@@ -1509,7 +1509,7 @@ class ProjectRedirect(TimestampMixin, Model):
             account = project.account
         if name is None:
             name = project.name
-        redirect = cls.query.get((account.id, name))
+        redirect = db.session.get(cls, (account.id, name))
         if redirect is None:
             redirect = cls(account=account, name=name, project=project)
             db.session.add(redirect)

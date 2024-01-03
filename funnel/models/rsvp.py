@@ -193,7 +193,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         cls, project: Project, account: Account | None, create: bool = False
     ) -> Self | None:
         if account is not None:
-            result = cls.query.get((project.id, account.id))
+            result = db.session.get(cls, (project.id, account.id))
             if not result and create:
                 result = cls(project=project, participant=account)
                 db.session.add(result)

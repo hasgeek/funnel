@@ -140,7 +140,7 @@ class DraftViewProtoMixin:
         `obj` is needed in case of multi-model views.
         """
         obj = obj if obj is not None else self.obj
-        return Draft.query.get((self.model.__tablename__, obj.uuid))
+        return db.session.get(Draft, (self.model.__tablename__, obj.uuid))
 
     def delete_draft(self, obj=None):
         """Delete draft for `obj`, or `self.obj` if `obj` is `None`."""
