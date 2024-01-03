@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from datetime import datetime as datetime_type
 from enum import ReprEnum
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Protocol, Self, TypeVar
 from uuid import UUID
 
 from sqlalchemy import event
@@ -44,9 +44,18 @@ __all__ = [
 # --- Typing ---------------------------------------------------------------------------
 
 MembershipType = TypeVar('MembershipType', bound='ImmutableMembershipMixin')
-FrozenAttributionType = TypeVar(
-    'FrozenAttributionType', bound='FrozenAttributionProtoMixin'
-)
+
+
+class MembershipMixinProtocol(Protocol):
+    _title: declared_attr[str | None]
+    member: declared_attr[Account]
+    _local_data_only: bool
+
+    def replace(self, actor: Account, **data: Any) -> Self:
+        ...
+
+
+MembershipMixinType = TypeVar('MembershipMixinType', bound=MembershipMixinProtocol)
 
 # --- Enum -----------------------------------------------------------------------------
 
@@ -248,14 +257,12 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
         self.revoked_at = sa.func.utcnow()
         self.revoked_by = actor
 
-    def copy_template(self: MembershipType, **kwargs) -> MembershipType:
+    def copy_template(self, **kwargs) -> Self:
         """Make a copy of self for customization."""
         raise NotImplementedError("Subclasses must implement copy_template")
 
     @with_roles(call={'editor'})
-    def replace(
-        self: MembershipType, actor: Account, _accept: bool = False, **data: Any
-    ) -> MembershipType:
+    def replace(self, actor: Account, _accept: bool = False, **data: Any) -> Self:
         """Replace this membership record with changes to role columns."""
         if self.revoked_at is not None:
             raise MembershipRevokedError(
@@ -315,9 +322,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
         """Amend a membership in a `with` context."""
         return AmendMembership(self, actor)
 
-    def merge_and_replace(
-        self: MembershipType, actor: Account, other: MembershipType
-    ) -> MembershipType:
+    def merge_and_replace(self, actor: Account, other: Self) -> Self:
         """Replace this record by merging data from an independent record."""
         if self.__class__ is not other.__class__:
             raise TypeError("Merger requires membership records of the same type")
@@ -353,7 +358,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
         return replacement
 
     @with_roles(call={'member'})
-    def accept(self: MembershipType, actor: Account) -> MembershipType:
+    def accept(self, actor: Account) -> Self:
         """Accept a membership invitation."""
         if self.record_type != MembershipRecordTypeEnum.INVITE:
             raise MembershipRecordTypeError("This membership record is not an invite")
@@ -362,9 +367,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
         return self.replace(actor, _accept=True)
 
     @with_roles(call={'owner', 'member'})
-    def freeze_member_attribution(
-        self: MembershipType, actor: Account
-    ) -> MembershipType:
+    def freeze_member_attribution(self, actor: Account) -> Self:
         """
         Freeze member attribution and return a replacement record.
 
@@ -577,13 +580,8 @@ class ReorderMembershipProtoMixin(ReorderProtoMixin):
 
 
 @declarative_mixin
-class FrozenAttributionProtoMixin:
+class FrozenAttributionMixin:
     """Provides a `title` data column and support method to freeze it."""
-
-    if TYPE_CHECKING:
-        member: Mapped[Account]
-        replace: Callable[..., Self]
-        _local_data_only: bool
 
     @declared_attr
     @classmethod
@@ -596,7 +594,7 @@ class FrozenAttributionProtoMixin:
         )
 
     @property
-    def title(self) -> str:
+    def title(self: MembershipMixinProtocol) -> str:
         """Attribution title for this record."""
         if self._local_data_only:
             # self._title may be None when returning local data
@@ -611,12 +609,14 @@ class FrozenAttributionProtoMixin:
         self._title = value or None  # Don't set empty string
 
     @property
-    def pickername(self) -> str:
+    def pickername(self: MembershipMixinProtocol) -> str:
         """Return member's pickername, but only if attribution isn't frozen."""
         return self._title if self._title else self.member.pickername
 
     @with_roles(call={'owner', 'member'})
-    def freeze_member_attribution(self, actor: Account) -> Self:
+    def freeze_member_attribution(
+        self: MembershipMixinType, actor: Account
+    ) -> MembershipMixinType:
         """Freeze member attribution and return a replacement record."""
         if self._title is None:
             membership = self.replace(actor=actor, title=self.member.title)

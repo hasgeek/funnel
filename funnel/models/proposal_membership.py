@@ -10,7 +10,7 @@ from coaster.sqlalchemy import immutable, with_roles
 
 from . import Mapped, Model, relationship, sa, sa_orm
 from .membership_mixin import (
-    FrozenAttributionProtoMixin,
+    FrozenAttributionMixin,
     ImmutableUserMembershipMixin,
     ReorderMembershipProtoMixin,
 )
@@ -19,9 +19,9 @@ from .proposal import Proposal
 __all__ = ['ProposalMembership']
 
 
-class ProposalMembership(  # type: ignore[misc]
+class ProposalMembership(  # type: ignore[misc]  # FIXME
+    FrozenAttributionMixin,
     ImmutableUserMembershipMixin,
-    FrozenAttributionProtoMixin,
     ReorderMembershipProtoMixin,
     Model,
 ):

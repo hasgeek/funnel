@@ -254,7 +254,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderProtoMixin, 
             lazy='dynamic',
             primaryjoin=lambda: sa.and_(
                 ProposalSponsorMembership.proposal_id == Proposal.id,
-                ProposalSponsorMembership.is_active,
+                ProposalSponsorMembership.is_active,  # type: ignore[has-type]  # FIXME
             ),
             order_by=lambda: ProposalSponsorMembership.seq,
             viewonly=True,

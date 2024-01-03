@@ -10,7 +10,7 @@ from coaster.sqlalchemy import immutable
 
 from . import Mapped, Model, relationship, sa, sa_orm
 from .membership_mixin import (
-    FrozenAttributionProtoMixin,
+    FrozenAttributionMixin,
     ImmutableUserMembershipMixin,
     ReorderMembershipProtoMixin,
 )
@@ -20,9 +20,9 @@ from .proposal import Proposal
 __all__ = ['ProjectSponsorMembership', 'ProposalSponsorMembership']
 
 
-class ProjectSponsorMembership(  # type: ignore[misc]
+class ProjectSponsorMembership(  # type: ignore[misc]  # FIXME
+    FrozenAttributionMixin,
     ImmutableUserMembershipMixin,
-    FrozenAttributionProtoMixin,
     ReorderMembershipProtoMixin,
     Model,
 ):
@@ -116,10 +116,10 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
 # FIXME: Replace this with existing proposal collaborator as they're now both related
 # to "account"
-class ProposalSponsorMembership(  # type: ignore[misc]
-    FrozenAttributionProtoMixin,
-    ReorderMembershipProtoMixin,
+class ProposalSponsorMembership(  # type: ignore[misc]  # FIXME
+    FrozenAttributionMixin,
     ImmutableUserMembershipMixin,
+    ReorderMembershipProtoMixin,
     Model,
 ):
     """Sponsor of a proposal."""
