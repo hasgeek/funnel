@@ -45,7 +45,6 @@ from . import (
     types,
 )
 from .account import Account
-from .comment import SET_TYPE, Commentset
 from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
@@ -1641,3 +1640,7 @@ with_roles(
     # joined model, not the first
     grants_via={Rsvp.participant: {'participant', 'project_participant'}},
 )
+
+
+# Tail imports
+from .comment import SET_TYPE, Commentset

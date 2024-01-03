@@ -33,7 +33,6 @@ from . import (
     sa_orm,
 )
 from .account import Account
-from .comment import SET_TYPE, Commentset
 from .helpers import (
     MarkdownCompositeDocument,
     add_search_trigger,
@@ -582,6 +581,7 @@ class ProposalSuuidRedirect(BaseMixin[int, Account], Model):
 
 
 # Tail imports
+from .comment import SET_TYPE, Commentset
 from .proposal_membership import ProposalMembership
 from .sponsor_membership import ProposalSponsorMembership
 

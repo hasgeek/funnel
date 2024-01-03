@@ -10,9 +10,6 @@ from werkzeug.utils import cached_property
 from . import Mapped, Model, Query, relationship, sa, sa_orm
 from .account import Account
 from .membership_mixin import ImmutableMembershipMixin
-from .project import Project
-from .proposal import Proposal
-from .update import Update
 
 __all__ = ['CommentsetMembership']
 
@@ -100,6 +97,9 @@ class CommentsetMembership(ImmutableMembershipMixin, Model):
 
 # Tail imports
 from .comment import Comment, Commentset
+from .project import Project
+from .proposal import Proposal
+from .update import Update
 
 CommentsetMembership.new_comment_count = sa_orm.column_property(
     sa.select(sa.func.count(Comment.id))
