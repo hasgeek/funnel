@@ -9,10 +9,10 @@ from markupsafe import Markup
 from baseframe import __, forms
 
 from ..models import (
-    PROJECT_RSVP_STATE,
     Account,
     AccountEmail,
     Project,
+    ProjectRsvpStateEnum,
     TicketClient,
     TicketEvent,
     TicketParticipant,
@@ -71,8 +71,8 @@ class ProjectBoxofficeForm(forms.Form):
     )
     rsvp_state = forms.RadioField(
         __("Registrations"),
-        choices=PROJECT_RSVP_STATE.items(),
-        default=PROJECT_RSVP_STATE.NONE,
+        choices=[(int(member.value), member.title) for member in ProjectRsvpStateEnum],
+        default=int(ProjectRsvpStateEnum.NONE),
     )
     is_subscription = forms.BooleanField(
         __("Paid tickets are for a subscription"),

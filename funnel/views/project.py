@@ -30,10 +30,10 @@ from ..forms import (
     ProjectTransitionForm,
 )
 from ..models import (
-    PROJECT_RSVP_STATE,
     RSVP_STATUS,
     Account,
     Project,
+    ProjectRsvpStateEnum,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
     Rsvp,
@@ -164,9 +164,9 @@ def feature_project_rsvp(obj: Project) -> bool:
         obj.state.PUBLISHED
         and (obj.start_at is None or not obj.state.PAST)
         and (
-            obj.rsvp_state == PROJECT_RSVP_STATE.ALL
+            obj.rsvp_state == ProjectRsvpStateEnum.ALL
             or (
-                obj.rsvp_state == PROJECT_RSVP_STATE.MEMBERS
+                obj.rsvp_state == ProjectRsvpStateEnum.MEMBERS
                 and obj.current_roles.account_member
             )
         )
@@ -178,7 +178,7 @@ def feature_project_rsvp_for_members(obj: Project) -> bool:
     return bool(
         obj.state.PUBLISHED
         and (obj.start_at is None or not obj.state.PAST)
-        and obj.rsvp_state == PROJECT_RSVP_STATE.MEMBERS
+        and obj.rsvp_state == ProjectRsvpStateEnum.MEMBERS
     )
 
 

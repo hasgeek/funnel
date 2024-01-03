@@ -28,7 +28,7 @@ pytestmark = pytest.mark.filterwarnings(
 def published_project(db_session, new_project: models.Project) -> models.Project:
     """Published project fixture."""
     new_project.publish()
-    new_project.rsvp_state = models.PROJECT_RSVP_STATE.ALL
+    new_project.rsvp_state = models.ProjectRsvpStateEnum.ALL
     db_session.commit()
     return new_project
 

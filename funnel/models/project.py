@@ -6,6 +6,7 @@ from __future__ import annotations
 from collections import OrderedDict, defaultdict
 from collections.abc import Sequence
 from datetime import datetime, timedelta
+from enum import ReprEnum
 from typing import TYPE_CHECKING, Any, Literal, Self, cast, overload
 
 from flask_babel import format_date, get_locale
@@ -48,13 +49,14 @@ from .comment import SET_TYPE, Commentset
 from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
+    IntTitle,
     MarkdownCompositeDocument,
     add_search_trigger,
     valid_name,
     visual_field_delimiter,
 )
 
-__all__ = ['PROJECT_RSVP_STATE', 'Project', 'ProjectLocation', 'ProjectRedirect']
+__all__ = ['ProjectRsvpStateEnum', 'Project', 'ProjectLocation', 'ProjectRedirect']
 
 
 # --- Constants ---------------------------------------------------------------
@@ -76,10 +78,10 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
     ANY = {NONE, PUBLIC, CLOSED}
 
 
-class PROJECT_RSVP_STATE(LabeledEnum):  # noqa: N801
-    NONE = (1, __("Not accepting registrations"))
-    ALL = (2, __("Anyone can register"))
-    MEMBERS = (3, __("Only members can register"))
+class ProjectRsvpStateEnum(IntTitle, ReprEnum):
+    NONE = 1, __("Not accepting registrations")
+    ALL = 2, __("Anyone can register")
+    MEMBERS = 3, __("Only members can register")
 
 
 # --- Models ------------------------------------------------------------------
@@ -177,8 +179,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     rsvp_state: Mapped[int] = with_roles(
         sa_orm.mapped_column(
             sa.SmallInteger,
-            StateManager.check_constraint('rsvp_state', PROJECT_RSVP_STATE),
-            default=PROJECT_RSVP_STATE.NONE,
+            StateManager.check_constraint(
+                'rsvp_state', ProjectRsvpStateEnum, sa.SmallInteger
+            ),
+            default=ProjectRsvpStateEnum.NONE,
             nullable=False,
         ),
         read={'all'},
@@ -898,7 +902,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     @hybrid_property
     def allow_rsvp(self) -> bool:
         """RSVP state as a boolean value (allowed for all or not)."""
-        return self.rsvp_state == PROJECT_RSVP_STATE.ALL
+        return self.rsvp_state == ProjectRsvpStateEnum.ALL
 
     @property
     def active_rsvps(self) -> Query[Rsvp]:

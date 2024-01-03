@@ -96,7 +96,7 @@ def test_valid_registration_form_schema(
             {
                 'org': '',
                 'item_collection_id': '',
-                'rsvp_state': models.PROJECT_RSVP_STATE.ALL,
+                'rsvp_state': int(models.ProjectRsvpStateEnum.ALL),
                 'is_subscription': False,
                 'register_button_txt': 'Follow',
                 'register_form_schema': app.json.dumps(valid_schema),
