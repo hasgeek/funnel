@@ -5,12 +5,12 @@ from __future__ import annotations
 from werkzeug.utils import cached_property
 
 from . import Mapped, Model, declared_attr, sa, sa_orm
-from .membership_mixin import ImmutableUserMembershipMixin
+from .membership_mixin import ImmutableMembershipMixin
 
 __all__ = ['SiteMembership']
 
 
-class SiteMembership(ImmutableUserMembershipMixin, Model):
+class SiteMembership(ImmutableMembershipMixin, Model):
     """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'
@@ -38,7 +38,7 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
 
     #: SiteMembership doesn't have a container limiting its scope
     parent_id = None
-    parent_id_column = None
+    parent_id_column = ''  # Must be of type str, not None
     parent = None
 
     # Site admin roles (at least one must be True):
@@ -54,7 +54,7 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
 
     @declared_attr.directive
     @classmethod
-    def __table_args__(cls) -> tuple:
+    def __table_args__(cls) -> tuple:  # type: ignore[override]
         """Table arguments."""
         try:
             args = list(super().__table_args__)

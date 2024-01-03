@@ -167,7 +167,7 @@ def upgrade() -> None:
         'user_email', sa.Column('email_address_id', sa.Integer(), nullable=True)
     )
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(user_email))
     progress = get_progressbar("Emails", count)
     progress.start()
     items = conn.execute(
@@ -259,7 +259,9 @@ def upgrade() -> None:
         ondelete='SET NULL',
     )
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email_claim))
+    count = conn.scalar(
+        sa.select(sa.func.count(sa.text('*'))).select_from(user_email_claim)
+    )
     progress = get_progressbar("Email claims", count)
     progress.start()
     items = conn.execute(
@@ -348,7 +350,7 @@ def upgrade() -> None:
     )
 
     count = conn.scalar(
-        sa.select(sa.func.count('*'))
+        sa.select(sa.func.count(sa.text('*')))
         .select_from(proposal)
         .where(proposal.c.email.is_not(None))
     )
@@ -413,7 +415,7 @@ def downgrade() -> None:
     )
 
     count = conn.scalar(
-        sa.select(sa.func.count('*'))
+        sa.select(sa.func.count(sa.text('*')))
         .select_from(proposal)
         .where(proposal.c.email_address_id.is_not(None))
     )
@@ -449,7 +451,9 @@ def downgrade() -> None:
         sa.Column('email', sa.VARCHAR(length=254), autoincrement=False, nullable=True),
     )
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email_claim))
+    count = conn.scalar(
+        sa.select(sa.func.count(sa.text('*'))).select_from(user_email_claim)
+    )
     progress = get_progressbar("Email claims", count)
     progress.start()
     items = conn.execute(
@@ -519,7 +523,7 @@ def downgrade() -> None:
         sa.Column('blake2b', postgresql.BYTEA(), autoincrement=False, nullable=True),
     )
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(user_email))
     progress = get_progressbar("Emails", count)
     progress.start()
     items = conn.execute(

@@ -416,7 +416,7 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
     def _posted_by_setter(self, value: Account | None) -> None:
         self._posted_by = value
 
-    @posted_by.inplace.expression
+    @posted_by.inplace.expression  # type: ignore[arg-type]
     @classmethod
     def _posted_by_expression(cls) -> sa_orm.InstrumentedAttribute[Account | None]:
         """Return SQL Expression."""

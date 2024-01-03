@@ -7,7 +7,7 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import immutable, with_roles
 
 from . import Mapped, Model, declared_attr, relationship, sa, sa_orm
-from .membership_mixin import ImmutableUserMembershipMixin
+from .membership_mixin import ImmutableMembershipMixin
 from .project import Project
 
 __all__ = ['ProjectMembership', 'project_child_role_map', 'project_child_role_set']
@@ -35,7 +35,7 @@ project_membership_role_map.update(
 )
 
 
-class ProjectMembership(ImmutableUserMembershipMixin, Model):
+class ProjectMembership(ImmutableMembershipMixin, Model):
     """Users can be crew members of projects, with specified access rights."""
 
     __tablename__ = 'project_membership'
@@ -137,7 +137,7 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
 
     @declared_attr.directive
     @classmethod
-    def __table_args__(cls) -> tuple:
+    def __table_args__(cls) -> tuple:  # type: ignore[override]
         """Table arguments."""
         try:
             args = list(super().__table_args__)

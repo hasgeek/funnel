@@ -9,23 +9,14 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import immutable
 
 from . import Mapped, Model, relationship, sa, sa_orm
-from .membership_mixin import (
-    FrozenAttributionMixin,
-    ImmutableUserMembershipMixin,
-    ReorderMembershipProtoMixin,
-)
+from .membership_mixin import FrozenAttributionMixin, ReorderMembershipMixin
 from .project import Project
 from .proposal import Proposal
 
 __all__ = ['ProjectSponsorMembership', 'ProposalSponsorMembership']
 
 
-class ProjectSponsorMembership(  # type: ignore[misc]  # FIXME
-    FrozenAttributionMixin,
-    ImmutableUserMembershipMixin,
-    ReorderMembershipProtoMixin,
-    Model,
-):
+class ProjectSponsorMembership(FrozenAttributionMixin, ReorderMembershipMixin, Model):
     """Sponsor of a project."""
 
     __tablename__ = 'project_sponsor_membership'
@@ -116,12 +107,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]  # FIXME
 
 # FIXME: Replace this with existing proposal collaborator as they're now both related
 # to "account"
-class ProposalSponsorMembership(  # type: ignore[misc]  # FIXME
-    FrozenAttributionMixin,
-    ImmutableUserMembershipMixin,
-    ReorderMembershipProtoMixin,
-    Model,
-):
+class ProposalSponsorMembership(FrozenAttributionMixin, ReorderMembershipMixin, Model):
     """Sponsor of a proposal."""
 
     __tablename__ = 'proposal_sponsor_membership'

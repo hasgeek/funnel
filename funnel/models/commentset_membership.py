@@ -9,7 +9,7 @@ from werkzeug.utils import cached_property
 
 from . import Mapped, Model, Query, relationship, sa, sa_orm
 from .account import Account
-from .membership_mixin import ImmutableUserMembershipMixin
+from .membership_mixin import ImmutableMembershipMixin
 from .project import Project
 from .proposal import Proposal
 from .update import Update
@@ -17,7 +17,7 @@ from .update import Update
 __all__ = ['CommentsetMembership']
 
 
-class CommentsetMembership(ImmutableUserMembershipMixin, Model):
+class CommentsetMembership(ImmutableMembershipMixin, Model):
     """Membership roles for users who are commentset users and subscribers."""
 
     __tablename__ = 'commentset_membership'

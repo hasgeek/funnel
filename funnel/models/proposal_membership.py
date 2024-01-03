@@ -9,22 +9,13 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import immutable, with_roles
 
 from . import Mapped, Model, relationship, sa, sa_orm
-from .membership_mixin import (
-    FrozenAttributionMixin,
-    ImmutableUserMembershipMixin,
-    ReorderMembershipProtoMixin,
-)
+from .membership_mixin import FrozenAttributionMixin, ReorderMembershipMixin
 from .proposal import Proposal
 
 __all__ = ['ProposalMembership']
 
 
-class ProposalMembership(  # type: ignore[misc]  # FIXME
-    FrozenAttributionMixin,
-    ImmutableUserMembershipMixin,
-    ReorderMembershipProtoMixin,
-    Model,
-):
+class ProposalMembership(FrozenAttributionMixin, ReorderMembershipMixin, Model):
     """Users can be presenters or reviewers on proposals."""
 
     __tablename__ = 'proposal_membership'

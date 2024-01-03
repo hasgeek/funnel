@@ -19,7 +19,6 @@ from coaster.sqlalchemy import StateManager, immutable, with_roles
 from . import (
     BaseMixin,
     Mapped,
-    Model,
     UuidMixin,
     db,
     declarative_mixin,
@@ -31,7 +30,7 @@ from . import (
 )
 from .account import Account
 from .helpers import IntTitle
-from .reorder_mixin import ReorderProtoMixin
+from .reorder_mixin import ReorderMixin
 
 # Export only symbols needed in views.
 __all__ = [
@@ -47,15 +46,37 @@ MembershipType = TypeVar('MembershipType', bound='ImmutableMembershipMixin')
 
 
 class MembershipMixinProtocol(Protocol):
-    _title: declared_attr[str | None]
+    member_id: Mapped[int]
     member: declared_attr[Account]
     _local_data_only: bool
+    parent_id_column: ClassVar[str]
 
     def replace(self, actor: Account, **data: Any) -> Self:
         ...
 
 
+class FrozenAttributionSubclassProtocol(MembershipMixinProtocol, Protocol):
+    _title: declared_attr[str | None]
+
+
+class ReorderSubclassProtocol(Protocol):
+    seq: Mapped[Any]
+    parent_id: Mapped[Any]
+    parent: Mapped[Any]
+    is_active: hybrid_property[bool]
+
+    @property
+    def parent_scoped_reorder_query_filter(
+        self: ReorderSubclassProtocol,
+    ) -> ColumnElement[bool]:
+        ...
+
+
 MembershipMixinType = TypeVar('MembershipMixinType', bound=MembershipMixinProtocol)
+FrozenAttributionType = TypeVar(
+    'FrozenAttributionType', bound=FrozenAttributionSubclassProtocol
+)
+
 
 # --- Enum -----------------------------------------------------------------------------
 
@@ -98,22 +119,80 @@ class MembershipRecordTypeError(MembershipError):
 class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     """Support class for immutable memberships."""
 
-    #: Can granted_by be null? Only in memberships based on legacy data
-    __null_granted_by__: ClassVar[bool] = False
-    #: List of columns that will be copied into a new row when a membership is amended
-    __data_columns__: ClassVar[Iterable[str]] = ()
-    #: Name of the parent id column, used in SQL constraints
-    parent_id_column: ClassVar[str | None]
     if TYPE_CHECKING:
         #: Subclass has a table name
         __tablename__: str
         #: Parent column (declare as synonym of 'profile_id' or 'project_id' in
         #: subclasses)
-        parent_id: Mapped[int] | None
+        parent_id: Mapped[Any] | None
         #: Parent object
-        parent: Mapped[Model] | None
-        #: Subject of this membership (subclasses must define)
-        member: declared_attr[Account]
+        parent: Mapped[Any] | None
+
+    #: Can granted_by be null? Only in memberships based on legacy data
+    __null_granted_by__: ClassVar[bool] = False
+    #: List of columns that will be copied into a new row when a membership is amended
+    __data_columns__: ClassVar[Iterable[str]] = ()
+    #: Name of the parent id column, used in SQL constraints
+    parent_id_column: ClassVar[str]
+    #: Foreign key column to account table
+    member_id: Mapped[int] = sa_orm.mapped_column(
+        sa.ForeignKey('account.id', ondelete='CASCADE'),
+        default=None,
+        nullable=False,
+        index=True,
+    )
+
+    @classmethod
+    def __member(cls) -> Mapped[Account]:
+        """Member in this membership record."""
+        return relationship(Account, foreign_keys=[cls.member_id])
+
+    member = with_roles(
+        declared_attr(__member),
+        read={'member', 'editor'},
+        grants_via={None: {'admin': 'member'}},
+    )
+    del __member
+
+    @declared_attr
+    @classmethod
+    def user(cls) -> Mapped[Account]:
+        """Legacy alias for member in this membership record."""
+        return sa_orm.synonym('member')
+
+    __table_args__: tuple  # pyright: ignore[reportGeneralTypeIssues]
+
+    @declared_attr.directive  # type: ignore[no-redef]
+    @classmethod
+    def __table_args__(cls) -> tuple:
+        """Table arguments for SQLAlchemy."""
+        try:
+            args = list(super().__table_args__)  # type: ignore[misc]
+        except AttributeError:
+            args = []
+        kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
+        if cls.parent_id_column:
+            args.append(
+                sa.Index(
+                    'ix_' + cls.__tablename__ + '_active',
+                    cls.parent_id_column,
+                    'member_id',
+                    unique=True,
+                    postgresql_where='revoked_at IS NULL',
+                ),
+            )
+        else:
+            args.append(
+                sa.Index(
+                    'ix_' + cls.__tablename__ + '_active',
+                    'member_id',
+                    unique=True,
+                    postgresql_where='revoked_at IS NULL',
+                ),
+            )
+        if kwargs:
+            args.append(kwargs)
+        return tuple(args)
 
     #: Should an active membership record be revoked when the member is soft-deleted?
     #: (Hard deletes will cascade and also delete all membership records.)
@@ -257,10 +336,6 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
         self.revoked_at = sa.func.utcnow()
         self.revoked_by = actor
 
-    def copy_template(self, **kwargs) -> Self:
-        """Make a copy of self for customization."""
-        raise NotImplementedError("Subclasses must implement copy_template")
-
     @with_roles(call={'editor'})
     def replace(self, actor: Account, _accept: bool = False, **data: Any) -> Self:
         """Replace this membership record with changes to role columns."""
@@ -366,74 +441,6 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
             raise ValueError("Invite must be accepted by the invited user")
         return self.replace(actor, _accept=True)
 
-    @with_roles(call={'owner', 'member'})
-    def freeze_member_attribution(self, actor: Account) -> Self:
-        """
-        Freeze member attribution and return a replacement record.
-
-        Subclasses that support member attribution must override this method. The
-        default implementation returns `self`.
-        """
-        return self
-
-
-@declarative_mixin
-class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
-    """Support class for immutable memberships for users."""
-
-    #: Foreign key column to account table
-    member_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id', ondelete='CASCADE'),
-        default=None,
-        nullable=False,
-        index=True,
-    )
-
-    @with_roles(read={'member', 'editor'}, grants_via={None: {'admin': 'member'}})
-    @declared_attr
-    @classmethod
-    def member(cls) -> Mapped[Account]:
-        """Member in this membership record."""
-        return relationship(Account, foreign_keys=[cls.member_id])
-
-    @declared_attr
-    @classmethod
-    def user(cls) -> Mapped[Account]:
-        """Legacy alias for member in this membership record."""
-        return sa_orm.synonym('member')
-
-    @declared_attr.directive
-    @classmethod
-    def __table_args__(cls) -> tuple:
-        """Table arguments for SQLAlchemy."""
-        try:
-            args = list(super().__table_args__)  # type: ignore[misc]
-        except AttributeError:
-            args = []
-        kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
-        if cls.parent_id_column is not None:
-            args.append(
-                sa.Index(
-                    'ix_' + cls.__tablename__ + '_active',
-                    cls.parent_id_column,
-                    'member_id',
-                    unique=True,
-                    postgresql_where='revoked_at IS NULL',
-                ),
-            )
-        else:
-            args.append(
-                sa.Index(
-                    'ix_' + cls.__tablename__ + '_active',
-                    'member_id',
-                    unique=True,
-                    postgresql_where='revoked_at IS NULL',
-                ),
-            )
-        if kwargs:
-            args.append(kwargs)
-        return tuple(args)
-
     @hybrid_property
     def is_self_granted(self) -> bool:
         """Return True if the member in this record is also the granting actor."""
@@ -453,6 +460,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     with_roles(is_self_revoked, read={'member', 'editor'})
 
     def copy_template(self, **kwargs) -> Self:
+        """Make a copy of self for customization."""
         return self.__class__(member=self.member, **kwargs)  # type: ignore[call-arg]
 
     @classmethod
@@ -508,13 +516,8 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
 
 
 @declarative_mixin
-class ReorderMembershipProtoMixin(ReorderProtoMixin):
+class ReorderMembershipMixin(ImmutableMembershipMixin, ReorderMixin):
     """Customizes ReorderMixin for membership models."""
-
-    if TYPE_CHECKING:
-        parent_id_column: ClassVar[str]
-        parent: Any
-        is_active: hybrid_property[bool]
 
     #: Sequence number. Not immutable, and may be overwritten by ReorderMixin as a
     #: side-effect of reordering other records. This is not considered a revision.
@@ -523,19 +526,21 @@ class ReorderMembershipProtoMixin(ReorderProtoMixin):
     #: on `seq` being mutable in a future iteration.
     seq: Mapped[int] = sa_orm.mapped_column(nullable=False)
 
-    @declared_attr.directive
+    __table_args__: tuple  # pyright: ignore[reportGeneralTypeIssues]
+
+    @declared_attr.directive  # type: ignore[no-redef]
     @classmethod
-    def __table_args__(cls) -> tuple:
+    def __table_args__(cls) -> tuple:  # type: ignore[override]
         """Table arguments."""
         try:
-            args = list(super().__table_args__)  # type: ignore[misc]
+            args = list(super().__table_args__)
         except AttributeError:
             args = []
         kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
         # Add unique constraint on :attr:`seq` for active records
         args.append(
             sa.Index(
-                'ix_' + cls.__tablename__ + '_seq',  # type: ignore[attr-defined]
+                'ix_' + cls.__tablename__ + '_seq',
                 cls.parent_id_column,
                 'seq',
                 unique=True,
@@ -546,18 +551,20 @@ class ReorderMembershipProtoMixin(ReorderProtoMixin):
             args.append(kwargs)
         return tuple(args)
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self: ReorderSubclassProtocol, **kwargs) -> None:
         super().__init__(**kwargs)
         # Assign a default value to `seq`
         if self.seq is None:  # Will be None until first commit
-            self.seq = (  # type: ignore[unreachable]
+            self.seq = (
                 sa.select(sa.func.coalesce(sa.func.max(self.__class__.seq) + 1, 1))
                 .where(self.parent_scoped_reorder_query_filter)
                 .scalar_subquery()
             )
 
     @property
-    def parent_scoped_reorder_query_filter(self) -> ColumnElement:
+    def parent_scoped_reorder_query_filter(
+        self: ReorderSubclassProtocol,
+    ) -> ColumnElement[bool]:
         """
         Return a query filter that includes a scope limitation to active records.
 
@@ -583,9 +590,8 @@ class ReorderMembershipProtoMixin(ReorderProtoMixin):
 class FrozenAttributionMixin:
     """Provides a `title` data column and support method to freeze it."""
 
-    @declared_attr
     @classmethod
-    def _title(cls) -> Mapped[str | None]:
+    def __title(cls) -> Mapped[str | None]:
         """Create optional attribution title for this membership record."""
         return immutable(
             sa_orm.mapped_column(
@@ -593,8 +599,11 @@ class FrozenAttributionMixin:
             )
         )
 
+    _title = declared_attr(__title)
+    del __title
+
     @property
-    def title(self: MembershipMixinProtocol) -> str:
+    def title(self: FrozenAttributionSubclassProtocol) -> str:
         """Attribution title for this record."""
         if self._local_data_only:
             # self._title may be None when returning local data
@@ -609,14 +618,14 @@ class FrozenAttributionMixin:
         self._title = value or None  # Don't set empty string
 
     @property
-    def pickername(self: MembershipMixinProtocol) -> str:
+    def pickername(self: FrozenAttributionSubclassProtocol) -> str:
         """Return member's pickername, but only if attribution isn't frozen."""
         return self._title if self._title else self.member.pickername
 
     @with_roles(call={'owner', 'member'})
     def freeze_member_attribution(
-        self: MembershipMixinType, actor: Account
-    ) -> MembershipMixinType:
+        self: FrozenAttributionType, actor: Account
+    ) -> FrozenAttributionType:
         """Freeze member attribution and return a replacement record."""
         if self._title is None:
             membership = self.replace(actor=actor, title=self.member.title)
@@ -695,7 +704,7 @@ def _confirm_enumerated_mixins(_mapper: Any, cls: type[Account]) -> None:
     """Confirm that the membership collection attributes actually exist."""
     expected_class = ImmutableMembershipMixin
     if issubclass(cls, Account):
-        expected_class = ImmutableUserMembershipMixin
+        expected_class = ImmutableMembershipMixin
     for source in (
         cls.__active_membership_attrs__,
         cls.__noninvite_membership_attrs__,

@@ -231,7 +231,7 @@ class ProjectSearch(SearchInAccountProvider):
     def all_count(self, tsquery: sa.Function) -> int:
         """Return count of matching projects across the entire site."""
         return (
-            db.session.query(sa.func.count('*'))
+            db.session.query(sa.func.count(sa.text('*')))
             .select_from(Project)
             .join(Account, Project.account)
             .filter(

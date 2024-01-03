@@ -110,7 +110,7 @@ def upgrade_() -> None:
     op.add_column(
         'user_phone', sa.Column('phone_number_id', sa.Integer(), nullable=True)
     )
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_phone))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(user_phone))
     items = conn.execute(
         sa.select(
             user_phone.c.id,
@@ -181,7 +181,7 @@ def upgrade_() -> None:
 
     rows_to_delete = set()
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(sms_message))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(sms_message))
     items = conn.execute(
         sa.select(
             sms_message.c.id,
@@ -325,7 +325,7 @@ def downgrade_() -> None:
             nullable=True,
         ),
     )
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(sms_message))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(sms_message))
     items = conn.execute(
         sa.select(sms_message.c.id, phone_number.c.number).where(
             sms_message.c.phone_number_id == phone_number.c.id
@@ -359,7 +359,7 @@ def downgrade_() -> None:
     op.add_column(
         'user_phone', sa.Column('phone', sa.TEXT(), autoincrement=False, nullable=True)
     )
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_phone))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(user_phone))
     items = conn.execute(
         sa.select(user_phone.c.id, phone_number.c.number).where(
             user_phone.c.phone_number_id == phone_number.c.id

@@ -2,41 +2,43 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
+from typing import Any, Protocol, TypeVar
 
-from . import Mapped, QueryProperty, db, declarative_mixin, declared_attr, sa, sa_orm
+from . import Mapped, db, declarative_mixin, sa, sa_orm
+from .typing import ModelIdProtocol
 
-__all__ = ['ReorderProtoMixin']
+__all__ = ['ReorderMixin']
 
 
 # Use of TypeVar for subclasses of ReorderMixin as defined in these mypy tickets:
 # https://github.com/python/mypy/issues/1212
 # https://github.com/python/mypy/issues/7191
-Reorderable = TypeVar('Reorderable', bound='ReorderProtoMixin')
 
 
-@declarative_mixin
-class ReorderProtoMixin:
-    """Adds support for re-ordering sequences within a parent container."""
-
-    if TYPE_CHECKING:
-        #: Subclasses must have a created_at column
-        created_at: declared_attr[datetime]
-        #: Subclass must have a primary key that is int or uuid
-        id_: declared_attr[Any]
-        #: Subclass must declare a parent_id synonym to the parent model fkey column
-        parent_id: Mapped[Any]
-        #: Subclass must declare a seq column or synonym, holding a sequence id. It
-        #: need not be unique, but reordering is meaningless when both items have the
-        #: same number
-        seq: Mapped[int]
-
-        #: Subclass must offer a SQLAlchemy query (this is standard from base classes)
-        query: ClassVar[QueryProperty]
+class ReorderSubclassProtocol(ModelIdProtocol, Protocol):
+    parent_id: Mapped[Any]
+    parent: Mapped[Any]
+    seq: Mapped[Any]
 
     @property
     def parent_scoped_reorder_query_filter(self) -> sa.ColumnElement[bool]:
+        ...
+
+    def reorder_item(self: Reorderable, other: Reorderable, before: bool) -> None:
+        ...
+
+
+Reorderable = TypeVar('Reorderable', bound='ReorderSubclassProtocol')
+
+
+@declarative_mixin
+class ReorderMixin:
+    """Adds support for re-ordering sequences within a parent container."""
+
+    @property
+    def parent_scoped_reorder_query_filter(
+        self: ReorderSubclassProtocol,
+    ) -> sa.ColumnElement[bool]:
         """
         Return a query filter that includes a scope limitation to the parent.
 
@@ -100,7 +102,7 @@ class ReorderProtoMixin:
 
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
-        self.seq = (
+        self.seq: Mapped[int] = (
             sa.select(sa.func.coalesce(sa.func.max(cls.seq) + 1, 1))
             .where(self.parent_scoped_reorder_query_filter)
             .scalar_subquery()

@@ -8,12 +8,12 @@ from coaster.sqlalchemy import immutable, with_roles
 
 from . import Mapped, Model, relationship, sa, sa_orm
 from .account import Account
-from .membership_mixin import ImmutableUserMembershipMixin
+from .membership_mixin import ImmutableMembershipMixin
 
 __all__ = ['AccountMembership']
 
 
-class AccountMembership(ImmutableUserMembershipMixin, Model):
+class AccountMembership(ImmutableMembershipMixin, Model):
     """
     An account can be a member of another account as an owner, admin or follower.
 

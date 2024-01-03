@@ -1428,7 +1428,10 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
 
         # 2. Revoke all active memberships
         for membership in self.active_memberships():
-            membership = membership.freeze_member_attribution(self)
+            if callable(
+                freeze := getattr(membership, 'freeze_member_attribution', None)
+            ):
+                membership = freeze(self)
             if membership.revoke_on_member_delete:
                 membership.revoke(actor=self)
         # TODO: freeze fullname in unrevoked memberships (pending title column there)
@@ -1498,7 +1501,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     @classmethod
     def _uuid_zbase32_comparator(cls) -> ZBase32Comparator:
         """Return SQL comparator for :prop:`uuid_zbase32`."""
-        return ZBase32Comparator(cls.uuid)
+        return ZBase32Comparator(cls.uuid)  # type: ignore[arg-type]
 
     @classmethod
     def name_is(cls, name: str) -> ColumnElement:
