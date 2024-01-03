@@ -141,7 +141,8 @@ def pytest_runtest_call(item: pytest.Function) -> None:
         return
     except NameError as exc:
         pytest.fail(
-            f"{item.obj.__qualname__} has an unknown annotation for {exc.name}. Is it imported under TYPE_CHECKING?"
+            f"{item.obj.__qualname__} has an unknown annotation for {exc.name}."
+            " Is it imported within a TYPE_CHECKING test?"
         )
 
     for attr, type_ in annotations.items():
