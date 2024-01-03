@@ -24,6 +24,8 @@ cattrs==22.1.0
     # via reformat-gherkin
 cfgv==3.4.0
     # via pre-commit
+colorama==0.4.6
+    # via djlint
 cssbeautifier==1.14.11
     # via djlint
 dill==0.3.7

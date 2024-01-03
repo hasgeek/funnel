@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os.path
 import re
 import time
 import warnings
@@ -11,30 +12,41 @@ from contextlib import ExitStack
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from difflib import unified_diff
+from dis import disassemble
+from functools import partial
+from inspect import stack as inspect_stack
+from io import StringIO
+from pprint import saferepr
+from textwrap import indent
 from types import MethodType, ModuleType, SimpleNamespace
-from typing import TYPE_CHECKING, Any, NamedTuple, get_type_hints
+from typing import TYPE_CHECKING, Any, NamedTuple, Protocol, get_type_hints
 from unittest.mock import patch
 
-import flask_wtf.csrf
+import flask
 import pytest
 import sqlalchemy as sa
 import sqlalchemy.exc as sa_exc
 import sqlalchemy.orm as sa_orm
 import typeguard
-from flask import session
+from flask import Flask, session
+from flask.testing import FlaskClient
+from flask.wrappers import Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.session import Session as FsaSession
+from flask_wtf.csrf import generate_csrf
+from lxml.html import FormElement, HtmlElement, fromstring  # nosec
+from rich.console import Console
+from rich.highlighter import RegexHighlighter, ReprHighlighter
+from rich.markup import escape as rich_escape
+from rich.syntax import Syntax
+from rich.text import Text
 from sqlalchemy import event
 from sqlalchemy.orm import Session as DatabaseSessionClass
+from werkzeug import run_simple
+from werkzeug.test import TestResponse
 
 if TYPE_CHECKING:
-    from flask import Flask
-    from flask.testing import FlaskClient
-    from rich.console import Console
-    from werkzeug.test import TestResponse
-
     import funnel.models as funnel_models
-
 
 # --- Pytest config --------------------------------------------------------------------
 
@@ -165,9 +177,6 @@ def funnel_devtest() -> ModuleType:
 
 @pytest.fixture(scope='session')
 def response_with_forms() -> Any:  # Since the actual return type is defined within
-    from flask.wrappers import Response
-    from lxml.html import FormElement, HtmlElement, fromstring  # nosec
-
     # --- ResponseWithForms, to make form submission in the test client testing easier
     # --- Adapted from the abandoned Flask-Fillin package
 
@@ -302,107 +311,109 @@ def response_with_forms() -> Any:  # Since the actual return type is defined wit
 
 @pytest.fixture(scope='session')
 def rich_console() -> Console:
-    """Provide a rich console for color output."""
-    from rich.console import Console
+    """Provide a rich console for colour output."""
 
-    return Console()
+    return Console(highlight=False)
 
 
-@pytest.fixture(scope='session')
-def colorama() -> Iterator[SimpleNamespace]:
-    """Provide the colorama print colorizer."""
-    from colorama import Back, Fore, Style, deinit, init
-
-    init()
-    yield SimpleNamespace(Fore=Fore, Back=Back, Style=Style)
-    deinit()
+class PrintStackProtocol(Protocol):
+    def __call__(self, skip: int = 0, limit: int | None = None) -> None:
+        ...
 
 
 @pytest.fixture(scope='session')
-def colorize_code(rich_console: Console) -> Callable[[str, str | None], str]:
-    """Return colorized output for a string of code, for current terminal's colors."""
-
-    def no_colorize(code_string: str, lang: str | None = 'python') -> str:
-        # Pygments is not available or terminal does not support colour output
-        return code_string
-
-    try:
-        from pygments import highlight
-        from pygments.formatters import (
-            Terminal256Formatter,
-            TerminalFormatter,
-            TerminalTrueColorFormatter,
-        )
-        from pygments.lexers import get_lexer_by_name, guess_lexer
-    except ModuleNotFoundError:
-        return no_colorize
-
-    if rich_console.color_system == 'truecolor':
-        formatter = TerminalTrueColorFormatter()
-    elif rich_console.color_system == '256':
-        formatter = Terminal256Formatter()
-    elif rich_console.color_system == 'standard':
-        formatter = TerminalFormatter()
-    else:
-        # color_system is `None` or `'windows'` or something unrecognised. No colours.
-        return no_colorize
-
-    def colorize(code_string: str, lang: str | None = 'python') -> str:
-        if lang in (None, 'auto'):
-            lexer = guess_lexer(code_string)
-        else:
-            lexer = get_lexer_by_name(lang)
-        return highlight(code_string, lexer, formatter).rstrip()
-
-    return colorize
-
-
-@pytest.fixture(scope='session')
-def print_stack(pytestconfig, colorama, colorize_code) -> Callable[[int, int], None]:
+def print_stack(pytestconfig, rich_console: Console) -> PrintStackProtocol:
     """Print a stack trace up to an outbound call from within this repository."""
-    import os.path
-    from inspect import stack as inspect_stack
 
     boundary_path = str(pytestconfig.rootpath)
     if not boundary_path.endswith('/'):
         boundary_path += '/'
 
-    def func(skip: int = 0, indent: int = 2) -> None:
+    class PathHighlighter(RegexHighlighter):
+        highlights = [
+            r'^(?=(?:\.\./|\.venv/))(?P<blue>.*)',
+            r'^(?!(?:\.\./|\.venv/))(?P<green>.*)',
+            r'(?P<dim>.*/)(?P<bold>.+)',
+        ]
+
+    def func(skip: int = 0, limit: int | None = None) -> None:
         # Retrieve call stack, removing ourselves and as many frames as the caller wants
         # to skip
-        prefix = ' ' * indent
         stack = inspect_stack()[2 + skip :]
+        try:
+            path_highlighter = PathHighlighter()
+            lines: list[Text | Syntax] = []
+            # Reverse list to order from outermost to innermost, and remove outer frames
+            # that are outside our code
+            stack.reverse()
+            while stack and (
+                stack[0].filename.startswith(boundary_path + '.venv/')
+                or not stack[0].filename.startswith(boundary_path)
+            ):
+                stack.pop(0)
 
-        lines = []
-        # Reverse list to order from outermost to innermost, and remove outer frames
-        # that are outside our code
-        stack.reverse()
-        while stack and not stack[0].filename.startswith(boundary_path):
-            stack.pop(0)
+            # Find the first exit from our code and keep only that line and later to
+            # remove unnecessary context. "Our code" = anything that is within
+            # boundary_path but not in a top-level `.venv` folder
+            for index, frame_info in enumerate(stack):
+                if stack[0].filename.startswith(
+                    boundary_path + '.venv/'
+                ) or not frame_info.filename.startswith(boundary_path):
+                    stack = stack[index - 1 :]
+                    break
 
-        # Find the first exit from our code and keep only that line and later to
-        # remove unnecessary context
-        for index, fi in enumerate(stack):
-            if not fi.filename.startswith(boundary_path):
-                stack = stack[index - 1 :]
-                break
+            for frame_info in stack[:limit]:
+                text = Text.assemble(
+                    path_highlighter(
+                        Text(
+                            os.path.relpath(frame_info.filename, boundary_path),
+                            style='pygments.string',
+                        )
+                    ),
+                    (':', 'pygments.text'),
+                    (str(frame_info.lineno), 'pygments.number'),
+                    (' in ', 'dim'),
+                    (frame_info.function, 'pygments.function'),
+                    ('\t', 'pygments.text'),
+                    style='pygments.text',
+                )
+                lines.append(text)
+                if frame_info.code_context:
+                    lines.append(
+                        Syntax(
+                            '\n'.join(
+                                [
+                                    '    ' + line.strip()
+                                    for line in frame_info.code_context
+                                ]
+                            ),
+                            'python',
+                            background_color='default',
+                            word_wrap=True,
+                        )
+                    )
+                else:
+                    dis_file = StringIO()
+                    disassemble(
+                        frame_info.frame.f_code,
+                        lasti=frame_info.frame.f_lasti,
+                        file=dis_file,
+                    )
+                    lines.append(
+                        Syntax(
+                            indent(dis_file.getvalue().rstrip(), '    '),
+                            'python',  # Code is Python bytecode, but this seems to work
+                            background_color='default',
+                            word_wrap=True,
+                        )
+                    )
 
-        for fi in stack:
-            line_color = (
-                colorama.Fore.RED
-                if fi.filename.startswith(boundary_path)
-                else colorama.Fore.GREEN
-            )
-            code_line = '\n'.join(fi.code_context or []).strip()
-            lines.append(
-                f'{prefix}{line_color}'
-                f'{os.path.relpath(fi.filename)}:{fi.lineno}::{fi.function}'
-                f'\t{colorize_code(code_line)}'
-                f'{colorama.Style.RESET_ALL}'
-            )
-        del stack
+            if limit and limit < len(stack):
+                lines.append(Text.assemble((f'✂️ {len(stack)-limit} more…', 'dim')))
+        finally:
+            del stack
         # Now print the lines
-        print(*lines, sep='\n')  # noqa: T201
+        rich_console.print(*lines)
 
     return func
 
@@ -544,17 +555,13 @@ def _requires_config(request: pytest.FixtureRequest) -> None:
 
 
 @pytest.fixture(scope='session')
-def _app_events(colorama, print_stack, app) -> Iterator:
+def _app_events(
+    rich_console: Console, print_stack: PrintStackProtocol, app: Flask
+) -> Iterator:
     """Fixture to report Flask signals with a stack trace when debugging a test."""
-    from functools import partial
-
-    import flask
 
     def signal_handler(signal_name, *args, **kwargs):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}Signal:{colorama.Style.NORMAL}"
-            f" {colorama.Fore.YELLOW}{signal_name}{colorama.Style.RESET_ALL}"
-        )
+        rich_console.print(f"[bold]Signal:[/] [yellow]{rich_escape(signal_name)}[/]")
         print_stack(2)  # Skip two stack frames from Blinker
 
     request_started = partial(signal_handler, 'request_started')
@@ -582,7 +589,9 @@ def _app_events(colorama, print_stack, app) -> Iterator:
 
 
 @pytest.fixture()
-def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
+def _database_events(
+    models: ModuleType, rich_console: Console, print_stack: PrintStackProtocol
+) -> Iterator:
     """
     Fixture to report database session events for debugging a test.
 
@@ -592,98 +601,124 @@ def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
         def test_whatever() -> None:
             ...
     """
-    from pprint import saferepr
+    repr_highlighter = ReprHighlighter()
 
     def safe_repr(entity):
         try:
             return saferepr(entity)
         except Exception:  # noqa: B902  # pylint: disable=broad-except
             if hasattr(entity, '__class__'):
-                return f'{entity.__class__.__qualname__}(class-repr-error)'
+                return f'<ReprError: class {entity.__class__.__qualname__}>'
+            if hasattr(entity, '__qualname__'):
+                return f'<ReprError: {entity.__qualname__}'
             if hasattr(entity, '__name__'):
-                return f'{entity.__name__}(repr-error)'
-            return 'repr-error'
+                return f'<ReprError: {entity.__name__}'
+            return '<ReprError>'
 
     @event.listens_for(models.Model, 'init', propagate=True)
     def event_init(obj, args, kwargs):
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
         rparams = f'{rargs, rkwargs}' if rargs else rkwargs
-        code = colorize_code(f"{obj.__class__.__qualname__}({rparams})")
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: new:{colorama.Style.NORMAL}" f" {code}"
+        code = f'{obj.__class__.__qualname__}({rparams})'
+        rich_console.print(
+            Text.assemble(('obj:', 'bold'), ' new: ', repr_highlighter(code))
         )
 
     @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
     def event_transient_to_pending(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: transient to pending:{colorama.Style.NORMAL}"
-            f" {colorize_code(safe_repr(obj))}"
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' transient → pending: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
     def event_pending_to_transient(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: pending to transient:{colorama.Style.NORMAL}"
-            f" {colorize_code(safe_repr(obj))}"
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' pending → transient: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
     def event_pending_to_persistent(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: pending to persistent:{colorama.Style.NORMAL}"
-            f" {colorize_code(safe_repr(obj))}"
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' pending → persistent: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
     @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
     def event_loaded_as_persistent(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: loaded as persistent:{colorama.Style.NORMAL}"
-            f" {safe_repr(obj)}"
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' loaded as persistent: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
     def event_persistent_to_transient(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: persistent to transient:"
-            f"{colorama.Style.NORMAL} {safe_repr(obj)}"
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' persistent → transient: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
     def event_persistent_to_deleted(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: persistent to deleted:{colorama.Style.NORMAL}"
-            f" {safe_repr(obj)}"
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' persistent → deleted: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
     def event_deleted_to_detached(_session, obj):
         i = sa.inspect(obj)
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: deleted to detached:{colorama.Style.NORMAL}"
-            f" {obj.__class__.__qualname__}/{i.identity}"
+        rich_console.print(
+            "[bold]obj:[/] deleted → detached:"
+            f" {rich_escape(obj.__class__.__qualname__)}/{i.identity}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
     def event_persistent_to_detached(_session, obj):
         i = sa.inspect(obj)
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: persistent to detached:"
-            f"{colorama.Style.NORMAL} {obj.__class__.__qualname__}/{i.identity}"
+        rich_console.print(
+            "[bold]obj:[/] persistent → detached:"
+            f" {rich_escape(obj.__class__.__qualname__)}/{i.identity}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
     def event_detached_to_persistent(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: detached to persistent:"
-            f"{colorama.Style.NORMAL} {safe_repr(obj)}"
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' detached → persistent: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
     def event_deleted_to_persistent(session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: deleted to persistent:{colorama.Style.NORMAL}"
-            f" {safe_repr(obj)}"
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' deleted → persistent: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
     @event.listens_for(DatabaseSessionClass, 'do_orm_execute')
@@ -706,101 +741,85 @@ def _database_events(models, colorama, colorize_code, print_stack) -> Iterator:
         class_name = (
             orm_execute_state.bind_mapper.class_.__qualname__
             if orm_execute_state.bind_mapper
-            else None
+            else '<unknown>'
         )
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}exec:{colorama.Style.NORMAL} {class_name}:"
-            f" {', '.join(state_is)}"
+        rich_console.print(
+            Text.assemble(
+                ('exec: ', 'bold'),
+                ', '.join(state_is),
+                (' on ', 'dim'),
+                (class_name, 'repr.call'),
+            )
         )
 
     @event.listens_for(DatabaseSessionClass, 'after_begin')
     def event_after_begin(_session, transaction, _connection):
         if transaction.nested:
             if transaction.parent.nested:
-                print(  # noqa: T201
-                    f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL}"
-                    f" BEGIN (double nested)"
-                )
+                rich_console.print("[bold]session:[/] BEGIN (double nested)")
             else:
-                print(  # noqa: T201
-                    f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL}"
-                    f" BEGIN (nested)"
-                )
+                rich_console.print("[bold]session:[/] BEGIN (nested)")
         else:
-            print(  # noqa: T201
-                f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} BEGIN (outer)"
-            )
-        print_stack()
+            rich_console.print("[bold]session:[/] BEGIN (outer)")
+        print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_commit')
     def event_after_commit(session):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} COMMIT"
-            f" ({session.info!r})"
+        rich_console.print(
+            Text.assemble(
+                ('session:', 'bold'), ' COMMIT ', repr_highlighter(repr(session.info))
+            )
         )
 
     @event.listens_for(DatabaseSessionClass, 'after_flush')
     def event_after_flush(session, _flush_context):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} FLUSH"
-            f" ({session.info})"
+        rich_console.print(
+            Text.assemble(
+                ('session:', 'bold'), ' FLUSH ', repr_highlighter(repr(session.info))
+            )
         )
 
     @event.listens_for(DatabaseSessionClass, 'after_rollback')
     def event_after_rollback(session):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} ROLLBACK"
-            f" ({session.info})"
+        rich_console.print(
+            Text.assemble(
+                ('session:', 'bold'), ' ROLLBACK ', repr_highlighter(repr(session.info))
+            )
         )
-        print_stack()
+        print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
     def event_after_soft_rollback(session, _previous_transaction):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} SOFT ROLLBACK"
-            f" ({session.info})"
+        rich_console.print(
+            Text.assemble(
+                ('session:', 'bold'),
+                ' SOFT ROLLBACK ',
+                repr_highlighter(repr(session.info)),
+            )
         )
-        print_stack()
+        print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_transaction_create')
     def event_after_transaction_create(_session, transaction):
         if transaction.nested:
             if transaction.parent.nested:
-                print(  # noqa: T201
-                    f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
-                    f" CREATE (savepoint)"
-                )
+                rich_console.print("[bold]transaction:[/] CREATE (savepoint)")
             else:
-                print(  # noqa: T201
-                    f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
-                    f" CREATE (fixture)"
-                )
+                rich_console.print("[bold]transaction:[/] CREATE (fixture)")
         else:
-            print(  # noqa: T201
-                f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
-                f" CREATE (db)"
-            )
-        print_stack()
+            rich_console.print("[bold]transaction:[/] CREATE (db)")
+        print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_transaction_end')
     def event_after_transaction_end(_session, transaction):
         if transaction.nested:
             if transaction.parent.nested:
-                print(  # noqa: T201
-                    f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
-                    f" (double nested)"
-                )
+                rich_console.print("[bold]transaction:[/] END (double nested)")
             else:
-                print(  # noqa: T201
-                    f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
-                    f" (nested)"
-                )
+                rich_console.print("[bold]transaction:[/] END (nested)")
         else:
-            print(  # noqa: T201
-                f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
-                f" (outer)"
-            )
-        print_stack()
+            rich_console.print("[bold]transaction:[/] END (outer)")
+        print_stack(0, 5)
 
     yield
 
@@ -1052,7 +1071,6 @@ def db_session(request) -> DatabaseSessionClass:
 @pytest.fixture()
 def client(response_with_forms, app, db_session) -> FlaskClient:
     """Provide a test client that commits the db session before any action."""
-    from flask.testing import FlaskClient
 
     client: FlaskClient = FlaskClient(app, response_with_forms, use_cookies=True)
     client_open = client.open
@@ -1068,7 +1086,6 @@ def client(response_with_forms, app, db_session) -> FlaskClient:
 @pytest.fixture(scope='session')
 def live_server(funnel_devtest, app, database):
     """Run application in a separate process."""
-    from werkzeug import run_simple
 
     # Use HTTPS for live server (set to False if required)
     use_https = True
@@ -1123,7 +1140,7 @@ def csrf_token(app, client) -> str:
     """Supply a CSRF token for use in form submissions."""
     field_name = app.config.get('WTF_CSRF_FIELD_NAME', 'csrf_token')
     with app.test_request_context():
-        token = flask_wtf.csrf.generate_csrf()
+        token = generate_csrf()
         assert field_name in session
         session_token = session[field_name]
     with client.session_transaction() as client_session:
@@ -1131,8 +1148,16 @@ def csrf_token(app, client) -> str:
     return token
 
 
+class LoginFixtureProtocol(Protocol):
+    def as_(self, user: funnel_models.User) -> None:
+        ...
+
+    def logout(self) -> None:
+        ...
+
+
 @pytest.fixture()
-def login(app, client, db_session) -> SimpleNamespace:
+def login(app, client, db_session) -> LoginFixtureProtocol:
     """Provide a login fixture."""
 
     def as_(user) -> None:
@@ -1151,7 +1176,9 @@ def login(app, client, db_session) -> SimpleNamespace:
             client.server_name, 'lastuser', domain=app.config['LASTUSER_COOKIE_DOMAIN']
         )
 
-    return SimpleNamespace(as_=as_, logout=logout)
+    return SimpleNamespace(  # pyright:ignore[reportGeneralTypeIssues]
+        as_=as_, logout=logout
+    )
 
 
 # --- Sample data: users, organizations, projects, etc ---------------------------------
