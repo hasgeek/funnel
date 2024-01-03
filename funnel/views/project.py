@@ -30,13 +30,13 @@ from ..forms import (
     ProjectTransitionForm,
 )
 from ..models import (
-    RSVP_STATUS,
     Account,
     Project,
     ProjectRsvpStateEnum,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
     Rsvp,
+    RsvpStateEnum,
     SavedProject,
     db,
     sa,
@@ -744,7 +744,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'going_rsvps': [
                 _r.current_access(datasets=('without_parent', 'related', 'related'))
-                for _r in self.obj.rsvps_with(RSVP_STATUS.YES)
+                for _r in self.obj.rsvps_with(RsvpStateEnum.YES)
             ],
             'rsvp_form_fields': [
                 field.get('name', '')
@@ -755,7 +755,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             else None,
         }
 
-    def get_rsvp_state_csv(self, state):
+    def get_rsvp_state_csv(self, state: RsvpStateEnum) -> Response:
         """Export participant list as a CSV."""
         outfile = io.StringIO(newline='')
         out = csv.writer(outfile)
@@ -789,14 +789,14 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     @requires_roles({'promoter'})
     def rsvp_list_yes_csv(self) -> ReturnView:
         """Return a CSV of RSVP participants who answered Yes."""
-        return self.get_rsvp_state_csv(state=RSVP_STATUS.YES)
+        return self.get_rsvp_state_csv(RsvpStateEnum.YES)
 
     @route('rsvp_list/maybe.csv')
     @requires_login
     @requires_roles({'promoter'})
     def rsvp_list_maybe_csv(self) -> ReturnView:
         """Return a CSV of RSVP participants who answered Maybe."""
-        return self.get_rsvp_state_csv(state=RSVP_STATUS.MAYBE)
+        return self.get_rsvp_state_csv(RsvpStateEnum.MAYBE)
 
     @route('save', methods=['POST'])
     @requires_login

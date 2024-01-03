@@ -34,7 +34,6 @@ __all__ = [
     'PASSWORD_MIN_LENGTH',
     'PASSWORD_MAX_LENGTH',
     'IntTitle',
-    'IntNameTitle',
     'check_password_strength',
     'profanity',
     'add_to_class',
@@ -141,15 +140,6 @@ class IntTitle(DataclassFromType, int):
     """Integer value with a title (for enums)."""
 
     # The empty default is required for Mypy's enum plugin's `Enum.__call__` analysis
-    title: str = ''
-
-
-@dataclass(frozen=True)
-class IntNameTitle(DataclassFromType, int):
-    """Integer value with a name and title (for enums)."""
-
-    # The empty default is required for Mypy's enum plugin's `Enum.__call__` analysis
-    name: str = ''
     title: str = ''
 
 

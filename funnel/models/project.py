@@ -920,10 +920,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     def rsvp_for(self, account: Account | None, create=False) -> Rsvp | None:
         return Rsvp.get_for(self, account, create)
 
-    def rsvps_with(self, status: str):
+    def rsvps_with(self, state: RsvpStateEnum) -> Query[Rsvp]:
         return self.rsvps.join(Account).filter(
             Account.state.ACTIVE,
-            Rsvp._state == status,  # pylint: disable=protected-access
+            Rsvp._state == state,  # pylint: disable=protected-access
         )
 
     def rsvp_counts(self) -> dict[str, int]:
@@ -1561,7 +1561,7 @@ class ProjectLocation(TimestampMixin, Model):
 from .label import Label
 from .project_membership import ProjectMembership
 from .proposal import Proposal
-from .rsvp import Rsvp
+from .rsvp import Rsvp, RsvpStateEnum
 from .session import Session
 from .sponsor_membership import ProjectSponsorMembership
 from .update import Update
