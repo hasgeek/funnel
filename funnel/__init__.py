@@ -89,7 +89,7 @@ from .models import db, sa_orm  # isort:skip
 # present, it is loaded in debug and testing modes only
 for each_app in all_apps:
     coaster.app.init_app(
-        each_app, ['py', 'env'], env_prefix=['FLASK', f'APP_{each_app.name.upper()}']
+        each_app, ['env'], env_prefix=['FLASK', f'APP_{each_app.name.upper()}']
     )
 
 # Force specific config settings, overriding deployment config
