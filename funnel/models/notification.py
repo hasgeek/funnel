@@ -665,7 +665,6 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
         Subclasses wanting more control over how their notifications are dispatched
         should override this method.
         """
-
         for account, role in self.role_provider_obj.actors_with(
             self.roles, with_role=True
         ):

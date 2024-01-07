@@ -35,7 +35,7 @@ def test_reorder(db_session, user_twoflower, project_expo2010) -> None:
     assert proposal3.url_id == 3
 
     assert proposal1.title == "Test Proposal 1"
-    assert proposal1.url_id < proposal2.url_id < proposal3.url_id  # type: ignore[operator]
+    assert proposal1.url_id < proposal2.url_id < proposal3.url_id
 
     proposal1.reorder_after(proposal2)
     db_session.commit()

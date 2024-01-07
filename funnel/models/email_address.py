@@ -860,10 +860,7 @@ def _validate_email(
     if old_value == value:
         # Old value is new value. Do nothing. Return without validating
         return
-    if (
-        old_value is NO_VALUE
-        and inspect(target).has_identity is False  # type: ignore[attr-defined]
-    ):
+    if old_value is NO_VALUE and inspect(target).has_identity is False:
         # Old value is unknown and target is a transient object. Continue
         pass
     elif value is None:

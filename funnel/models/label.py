@@ -276,7 +276,7 @@ class Label(BaseScopedNameMixin[int, Account], Model):
             result = ''.join(w[0] for w in self.title.strip().title().split(None, 2))
             if len(result) <= 1:
                 result = self.title.strip()[:3]
-        return result  # type: ignore[return-value]
+        return result
 
     def __repr__(self) -> str:
         """Represent :class:`Label` as a string."""

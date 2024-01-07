@@ -8,7 +8,7 @@ import hashlib
 import itertools
 from collections.abc import Iterable, Iterator, Sequence
 from datetime import datetime
-from typing import TYPE_CHECKING, ClassVar, Literal, Self, cast, overload
+from typing import TYPE_CHECKING, ClassVar, Literal, Self, TypeAlias, cast, overload
 from uuid import UUID
 
 import phonenumbers
@@ -2776,7 +2776,9 @@ user_phone_primary_table = add_primary_relationship(
 )
 
 #: Anchor type
-Anchor = AccountEmail | AccountEmailClaim | AccountPhone | EmailAddress | PhoneNumber
+Anchor: TypeAlias = (
+    AccountEmail | AccountEmailClaim | AccountPhone | EmailAddress | PhoneNumber
+)
 
 # Tail imports
 from .account_membership import AccountMembership

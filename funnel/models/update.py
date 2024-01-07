@@ -284,7 +284,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         if self.number is None:
             self.number = (
                 sa.select(sa.func.coalesce(sa.func.max(Update.number), 0) + 1)
-                .where(Update.project == self.project)  # type: ignore[arg-type]
+                .where(Update.project == self.project)
                 .scalar_subquery()
             )
         return first_publishing
