@@ -323,7 +323,6 @@ def response_with_forms() -> Any:  # Since the actual return type is defined wit
 @pytest.fixture(scope='session')
 def rich_console() -> Console:
     """Provide a rich console for colour output."""
-
     return Console(highlight=False)
 
 
@@ -335,7 +334,6 @@ class PrintStackProtocol(Protocol):
 @pytest.fixture(scope='session')
 def print_stack(pytestconfig, rich_console: Console) -> PrintStackProtocol:
     """Print a stack trace up to an outbound call from within this repository."""
-
     boundary_path = str(pytestconfig.rootpath)
     if not boundary_path.endswith('/'):
         boundary_path += '/'
@@ -1082,7 +1080,6 @@ def db_session(request) -> DatabaseSessionClass | scoped_session:
 @pytest.fixture()
 def client(response_with_forms, app, db_session) -> FlaskClient:
     """Provide a test client that commits the db session before any action."""
-
     client: FlaskClient = FlaskClient(app, response_with_forms, use_cookies=True)
     client_open = client.open
 
@@ -1097,7 +1094,6 @@ def client(response_with_forms, app, db_session) -> FlaskClient:
 @pytest.fixture(scope='session')
 def live_server(funnel_devtest, app, database):
     """Run application in a separate process."""
-
     # Use HTTPS for live server (set to False if required)
     use_https = True
     scheme = 'https' if use_https else 'http'
