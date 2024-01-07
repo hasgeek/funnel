@@ -211,5 +211,6 @@ repos:
           - --no-warn-redundant-casts
           - . # Required to honour settings in pyproject.toml
         language: system
-        pass_filenames: false
         types_or: [python, pyi]
+        require_serial: true
+        pass_filenames: false # Mypy is unreliable if module import order varies
