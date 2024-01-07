@@ -51,7 +51,7 @@ repos:
       - id: pyupgrade
         args: ['--keep-runtime-typing', '--py311-plus']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.9
+    rev: v0.1.11
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
@@ -100,32 +100,31 @@ repos:
     rev: 23.12.1
     hooks:
       - id: black
-  # Mypy is temporarily disabled until the SQLAlchemy 2.0 migration is complete
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v1.8.0
-  #   hooks:
-  #     - id: mypy
-  #       # warn-unused-ignores is unsafe with pre-commit, see
-  #       # https://github.com/python/mypy/issues/2960
-  #       args:
-  #         [
-  #           '--no-warn-unused-ignores',
-  #           '--no-warn-redundant-casts',
-  #           '--ignore-missing-imports',
-  #         ]
-  #       additional_dependencies:
-  #         - flask
-  #         - lxml-stubs
-  #         - sqlalchemy
-  #         - toml
-  #         - types-chevron
-  #         - types-geoip2
-  #         - types-python-dateutil
-  #         - types-pytz
-  #         - types-requests
-  #         - typing-extensions
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        # warn-unused-ignores is unsafe with pre-commit, see
+        # https://github.com/python/mypy/issues/2960
+        args:
+          [
+            '--no-warn-unused-ignores',
+            '--no-warn-redundant-casts',
+            '--ignore-missing-imports',
+          ]
+        additional_dependencies:
+          - flask
+          - lxml-stubs
+          - sqlalchemy
+          - toml
+          - types-chevron
+          - types-geoip2
+          - types-python-dateutil
+          - types-pytz
+          - types-requests
+          - typing-extensions
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
+    rev: 7.0.0
     hooks:
       - id: flake8
         additional_dependencies: *flake8deps

@@ -888,7 +888,10 @@ def _validate_number(
     if old_value == value:
         # Old value is new value. Do nothing. Return without validating
         return value
-    if old_value is NO_VALUE and inspect(target).has_identity is False:
+    if (
+        old_value is NO_VALUE
+        and inspect(target).has_identity is False  # type: ignore[attr-defined]
+    ):
         # Old value is unknown and target is a transient object. Continue
         pass
     elif value is None:

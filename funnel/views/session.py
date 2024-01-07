@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from flask import render_template, request
 
 from baseframe import _
@@ -90,6 +92,8 @@ def session_edit(
             else:
                 db.session.add(session)
         db.session.commit()
+        if TYPE_CHECKING:  # FIXME: Needed for Mypy in pre-commit only, unclear why
+            assert session is not None  # nosec B101
         session.project.update_schedule_timestamps()
         db.session.commit()
         if request_wants.html_in_json:

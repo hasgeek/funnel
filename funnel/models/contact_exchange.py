@@ -139,7 +139,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         ).filter(
             cls.ticket_participant_id == TicketParticipant.id,
             TicketParticipant.project_id == Project.id,
-            cls.account == account,
+            cls.account == account,  # type: ignore[arg-type]
         )
 
         if not archived:

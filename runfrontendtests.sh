@@ -3,8 +3,11 @@
 # Load config into environment variables
 set -o allexport
 source .flaskenv
+# shellcheck disable=SC1091
 source .env
+# shellcheck disable=SC1091
 source .testenv
+# shellcheck disable=SC1091
 source .env.testing
 set +o allexport
 

@@ -266,7 +266,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin[int, Account], Model):
             return cls.query.order_by(cls.title)
         return cls.query.filter(
             sa.or_(
-                cls.account == account,
+                cls.account == account,  # type: ignore[arg-type]
                 cls.account_id.in_(account.organizations_as_owner_ids()),
             )
         ).order_by(cls.title)
