@@ -5,12 +5,12 @@ from __future__ import annotations
 from collections import defaultdict
 from datetime import timedelta
 from types import SimpleNamespace
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from flask import Response, current_app, json
 from icalendar import Alarm, Calendar, Event, vCalAddress, vText
 from pytz import utc
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from baseframe import _, localize_timezone
 from coaster.utils import utcnow
@@ -69,7 +69,9 @@ def session_data(
 
 
 def session_list_data(
-    sessions: list[Session], with_modal_url=False, with_delete_url=False
+    sessions: list[Session],
+    with_modal_url: str | None = None,
+    with_delete_url: bool = False,
 ):
     return [
         session_data(session, with_modal_url, with_delete_url) for session in sessions
@@ -115,7 +117,7 @@ def schedule_data(
 
 def schedule_ical(
     project: Project, rsvp: Rsvp | None = None, future_only: bool = False
-):
+) -> bytes:
     cal = Calendar()
     cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
     cal.add('version', '2.0')
@@ -130,7 +132,7 @@ def schedule_ical(
     cal.add('x-published-ttl', 'PT12H')
     now = utcnow()
     for session in project.scheduled_sessions:
-        if not future_only or session.end_at > now:
+        if not future_only or (session.end_at is not None and session.end_at > now):
             cal.add_component(session_ical(session, rsvp))
     if not project.scheduled_sessions and project.start_at:
         cal.add_component(
@@ -291,10 +293,12 @@ class ProjectScheduleView(ProjectViewBase):
             'project': self.obj,
             'proposals': proposals,
             'from_date': (
-                self.obj.start_at_localized.isoformat() if self.obj.start_at else None
+                start_at.isoformat()
+                if (start_at := self.obj.start_at_localized)
+                else None
             ),
             'to_date': (
-                self.obj.end_at_localized.isoformat() if self.obj.end_at else None
+                end_at.isoformat() if (end_at := self.obj.end_at_localized) else None
             ),
             'timezone': self.obj.timezone.zone,
             'venues': [venue.current_access() for venue in self.obj.venues],
@@ -400,6 +404,9 @@ class ScheduleVenueRoomView(VenueRoomViewBase):
             .first()
         )
         if current_session is not None:
+            if TYPE_CHECKING:
+                assert current_session.start_at is not None  # nosec B101
+                assert current_session.end_at is not None  # nosec B101
             current_session.start_at = localize_date(
                 current_session.start_at, to_tz=self.obj.venue.project.timezone
             )
@@ -408,14 +415,18 @@ class ScheduleVenueRoomView(VenueRoomViewBase):
             )
         nextdiff = None
         if next_session is not None:
+            if TYPE_CHECKING:
+                assert next_session.start_at is not None  # nosec B101
+                assert next_session.end_at is not None  # nosec B101
             next_session.start_at = localize_date(
                 next_session.start_at, to_tz=self.obj.venue.project.timezone
             )
             next_session.end_at = localize_date(
                 next_session.end_at, to_tz=self.obj.venue.project.timezone
             )
-            nextdiff = next_session.start_at.date() - now.date()
-            nextdiff = nextdiff.total_seconds() / 86400
+            nextdiff = (
+                next_session.start_at.date() - now.date()
+            ).total_seconds() / 86400
         return {
             'room': self.obj,
             'current_session': current_session,

@@ -19,6 +19,7 @@ class SavedProject(NoIdMixin, Model):
     #: User account that saved this project
     account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'),
+        default=None,
         nullable=False,
         primary_key=True,
     )
@@ -27,8 +28,8 @@ class SavedProject(NoIdMixin, Model):
     )
     #: Project that was saved
     project_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer,
         sa.ForeignKey('project.id', ondelete='CASCADE'),
+        default=None,
         nullable=False,
         primary_key=True,
         index=True,
@@ -36,7 +37,10 @@ class SavedProject(NoIdMixin, Model):
     project: Mapped[Project] = relationship(back_populates='saves')
     #: Timestamp when the save happened
     saved_at: Mapped[datetime] = sa_orm.mapped_column(
-        sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
+        sa.TIMESTAMP(timezone=True),
+        nullable=False,
+        insert_default=sa.func.utcnow(),
+        default=None,
     )
     #: User's plaintext note to self on why they saved this (optional)
     description: Mapped[str | None] = sa_orm.mapped_column(
@@ -60,14 +64,15 @@ class SavedSession(NoIdMixin, Model):
     #: User account that saved this session
     account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'),
+        default=None,
         nullable=False,
         primary_key=True,
     )
     account: Mapped[Account] = relationship(back_populates='saved_sessions')
     #: Session that was saved
     session_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer,
         sa.ForeignKey('session.id', ondelete='CASCADE'),
+        default=None,
         nullable=False,
         primary_key=True,
         index=True,
@@ -75,7 +80,10 @@ class SavedSession(NoIdMixin, Model):
     session: Mapped[Session] = relationship(back_populates='saves')
     #: Timestamp when the save happened
     saved_at: Mapped[datetime] = sa_orm.mapped_column(
-        sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
+        sa.TIMESTAMP(timezone=True),
+        nullable=False,
+        insert_default=sa.func.utcnow(),
+        default=None,
     )
     #: User's plaintext note to self on why they saved this (optional)
     description: Mapped[str | None] = sa_orm.mapped_column(

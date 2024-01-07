@@ -125,7 +125,7 @@ class ProposalLabelsForm(forms.Form):
     edit_parent: Project
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.formlabels.form = proposal_label_form(
             project=self.edit_parent, proposal=self.edit_obj
@@ -139,7 +139,7 @@ class ProposalLabelsAdminForm(forms.Form):
     edit_parent: Project
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.formlabels.form = proposal_label_admin_form(
             project=self.edit_parent, proposal=self.edit_obj
@@ -175,7 +175,7 @@ class ProposalForm(forms.Form):
     )
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         label_form = proposal_label_form(
             project=self.edit_parent, proposal=self.edit_obj
@@ -229,7 +229,7 @@ class ProposalTransitionForm(forms.Form):
         __("Status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         # value: transition method name
         # label: transition object itself
@@ -251,6 +251,6 @@ class ProposalMoveForm(forms.Form):
         get_label='title',
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.target.query = self.user.projects_as_editor

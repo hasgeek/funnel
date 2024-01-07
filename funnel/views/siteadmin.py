@@ -21,10 +21,10 @@ except ModuleNotFoundError:
 
 from baseframe import _
 from baseframe.forms import Form
-from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import ModeratorReportForm
 from ..models import (
     MODERATOR_REPORT_TYPE,
@@ -215,7 +215,7 @@ class SiteadminView(ClassView):
                     auth_client_login_session.c.login_session_id == LoginSession.id,
                     Account.state.ACTIVE,
                     auth_client_login_session.c.accessed_at
-                    >= sa.func.utcnow() - sa.func.cast(interval, INTERVAL),
+                    >= sa.func.utcnow() - sa.func.cast(sa.text(interval), INTERVAL),
                 )
                 .group_by(
                     auth_client_login_session.c.auth_client_id, LoginSession.account_id
@@ -310,11 +310,7 @@ class SiteadminView(ClassView):
             'comment_spam_form': Form(),
         }
 
-    @route(
-        'comments/markspam',
-        endpoint='siteadmin_comments_spam',
-        methods=['POST'],
-    )
+    @route('comments/markspam', endpoint='siteadmin_comments_spam', methods=['POST'])
     @requires_comment_moderator
     def markspam(self) -> ReturnResponse:
         """Mark comments as spam."""

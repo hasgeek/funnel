@@ -5,10 +5,10 @@ from __future__ import annotations
 from flask import abort
 
 from baseframe import forms
-from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
+from ..auth import current_auth
 from ..models import NotificationRecipient, db
 from ..typing import ReturnRenderWith
 from .login_session import requires_login

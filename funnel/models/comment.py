@@ -81,13 +81,13 @@ message_removed = MessageComposite(__("[removed]"), 'del')
 # --- Models ---------------------------------------------------------------------------
 
 
-class Commentset(UuidMixin, BaseMixin, Model):
+class Commentset(UuidMixin, BaseMixin[int, Account], Model):
     __tablename__ = 'commentset'
     #: Commentset state code
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.SmallInteger,
-        StateManager.check_constraint('state', COMMENTSET_STATE),
+        StateManager.check_constraint('state', COMMENTSET_STATE, sa.SmallInteger),
         nullable=False,
         default=COMMENTSET_STATE.OPEN,
     )
@@ -97,13 +97,13 @@ class Commentset(UuidMixin, BaseMixin, Model):
     )
     #: Type of parent object
     settype: Mapped[int | None] = with_roles(
-        sa_orm.mapped_column('type', sa.Integer, nullable=True),
+        sa_orm.mapped_column('type', nullable=True),
         read={'all'},
         datasets={'primary'},
     )
     #: Count of comments, stored to avoid count(*) queries
     count: Mapped[int] = with_roles(
-        sa_orm.mapped_column(sa.Integer, default=0, nullable=False),
+        sa_orm.mapped_column(default=0, nullable=False),
         read={'all'},
         datasets={'primary'},
     )
@@ -296,18 +296,18 @@ class Commentset(UuidMixin, BaseMixin, Model):
         return False
 
 
-class Comment(UuidMixin, BaseMixin, Model):
+class Comment(UuidMixin, BaseMixin[int, Account], Model):
     __tablename__ = 'comment'
 
     posted_by_id: Mapped[int | None] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=True
+        sa.ForeignKey('account.id'), default=None, nullable=True
     )
     _posted_by: Mapped[Account | None] = with_roles(
         relationship(back_populates='comments'),
         grants={'author'},
     )
     commentset_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
+        sa.ForeignKey('commentset.id'), default=None, nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
         relationship(back_populates='comments'),
@@ -315,7 +315,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     )
 
     in_reply_to_id: Mapped[int | None] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('comment.id'), nullable=True
+        sa.ForeignKey('comment.id'), default=None, nullable=True
     )
     in_reply_to: Mapped[Comment] = relationship(
         back_populates='replies', remote_side='Comment.id'
@@ -328,8 +328,7 @@ class Comment(UuidMixin, BaseMixin, Model):
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        sa.Integer,
-        StateManager.check_constraint('state', COMMENT_STATE),
+        StateManager.check_constraint('state', COMMENT_STATE, sa.Integer),
         default=COMMENT_STATE.SUBMITTED,
         nullable=False,
     )
@@ -344,9 +343,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     )
 
     #: Revision number maintained by SQLAlchemy, starting at 1
-    revisionid: Mapped[int] = with_roles(
-        sa_orm.mapped_column(sa.Integer, nullable=False), read={'all'}
-    )
+    revisionid: Mapped[int] = with_roles(sa_orm.mapped_column(), read={'all'})
 
     search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
@@ -383,6 +380,7 @@ class Comment(UuidMixin, BaseMixin, Model):
         'json': {'created_at', 'urls', 'uuid_b58', 'absolute_url'},
         'minimal': {'created_at', 'uuid_b58'},
     }
+    __json_datasets__ = ('json',)
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -418,7 +416,7 @@ class Comment(UuidMixin, BaseMixin, Model):
     def _posted_by_setter(self, value: Account | None) -> None:
         self._posted_by = value
 
-    @posted_by.inplace.expression
+    @posted_by.inplace.expression  # type: ignore[arg-type]
     @classmethod
     def _posted_by_expression(cls) -> sa_orm.InstrumentedAttribute[Account | None]:
         """Return SQL Expression."""

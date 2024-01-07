@@ -151,7 +151,7 @@ class LabelView(AccountCheckMixin, UrlForView, ModelView[Label]):
                     # existing option
                     subl = Label.query.filter_by(
                         project=self.obj.project, name=name
-                    ).first()
+                    ).one()
                     subl.title = title
                     subl.icon_emoji = emoji
                     subl.seq = counter + 1  # Counter is 0-indexed, seq is 1-indexed

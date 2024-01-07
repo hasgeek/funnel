@@ -157,7 +157,7 @@ class EmailAddressInUseError(EmailAddressError):
     """Email address is in use by another owner."""
 
 
-class EmailAddress(BaseMixin, Model):
+class EmailAddress(BaseMixin[int, 'Account'], Model):
     """
     Represents an email address as a standalone entity, with associated metadata.
 
@@ -199,12 +199,10 @@ class EmailAddress(BaseMixin, Model):
 
     #: The email address, centrepiece of this model. Case preserving.
     #: Validated by the :func:`_validate_email` event handler
-    email: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
+    email: Mapped[str | None] = sa_orm.mapped_column()
     #: The domain of the email, stored for quick lookup of related addresses
     #: Read-only, accessible via the :property:`domain` property
-    _domain: Mapped[str | None] = sa_orm.mapped_column(
-        'domain', sa.Unicode, nullable=True, index=True
-    )
+    _domain: Mapped[str | None] = sa_orm.mapped_column('domain', index=True)
 
     # email_normalized is defined below
 
@@ -233,10 +231,10 @@ class EmailAddress(BaseMixin, Model):
     #: Does this email address work? Records last known delivery state
     _delivery_state: Mapped[int] = sa_orm.mapped_column(
         'delivery_state',
-        sa.Integer,
         StateManager.check_constraint(
             'delivery_state',
             EMAIL_DELIVERY_STATE,
+            sa.Integer,
             name='email_address_delivery_state_check',
         ),
         nullable=False,
@@ -249,7 +247,10 @@ class EmailAddress(BaseMixin, Model):
     )
     #: Timestamp of last known delivery state
     delivery_state_at: Mapped[datetime] = sa_orm.mapped_column(
-        sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
+        sa.TIMESTAMP(timezone=True),
+        nullable=False,
+        insert_default=sa.func.utcnow(),
+        default=None,
     )
     #: Timestamp of last known recipient activity resulting from sent mail
     active_at: Mapped[datetime | None] = sa_orm.mapped_column(
@@ -261,9 +262,7 @@ class EmailAddress(BaseMixin, Model):
     #: so a test for whether an address is blocked should use blake2b160_canonical to
     #: load the record. Other records with the same canonical hash _may_ exist without
     #: setting the flag due to a lack of database-side enforcement
-    _is_blocked: Mapped[bool] = sa_orm.mapped_column(
-        'is_blocked', sa.Boolean, nullable=False, default=False
-    )
+    _is_blocked: Mapped[bool] = sa_orm.mapped_column('is_blocked', default=False)
 
     __table_args__ = (
         # `domain` must be lowercase always. Note that Python `.lower()` is not
@@ -743,6 +742,7 @@ class OptionalEmailAddressMixin:
         return sa_orm.mapped_column(
             sa.Integer,
             sa.ForeignKey('email_address.id', ondelete='SET NULL'),
+            default=None,
             nullable=cls.__email_optional__,
             unique=cls.__email_unique__,
             index=not cls.__email_unique__,

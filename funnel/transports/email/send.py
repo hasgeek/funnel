@@ -5,7 +5,7 @@ from __future__ import annotations
 import smtplib
 from dataclasses import dataclass
 from email.utils import formataddr, getaddresses, make_msgid, parseaddr
-from typing import Optional, Union
+from typing import Union
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -30,14 +30,14 @@ __all__ = [
 ]
 
 # Email recipient type
-EmailRecipient = Union[Account, tuple[Optional[str], str], str]
+EmailRecipient = Union[Account, tuple[str | None, str], str]
 
 
 @dataclass
 class EmailAttachment:
     """An email attachment. Must have content, filename and mimetype."""
 
-    content: str
+    content: bytes
     filename: str
     mimetype: str
 
@@ -74,7 +74,6 @@ def jsonld_confirm_action(description: str, url: str, title: str) -> dict[str, o
 def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
     """Schema.org JSON-LD markup for an event reservation."""
     location: str | dict[str, object]
-    event_mode: str
     venue = rsvp.project.primary_venue
     if venue is not None:
         location = {

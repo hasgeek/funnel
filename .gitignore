@@ -2,6 +2,8 @@
 *.egg-info
 *.pyc
 .coverage
+coverage/
+coverage.xml
 .eslintcache
 .mypy_cache
 .pytest_cache
@@ -46,7 +48,6 @@ tests/cypress/screenshots
 tests/cypress/videos
 tests/screenshots
 tests/unit/utils/markdown/data/output.html
-coverage/
 
 # Instance files that should not be checked-in
 instance/development.py

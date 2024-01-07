@@ -47,8 +47,8 @@ def test_session_intersection() -> None:
     fake_session_intersection = {'test': 'value', 'other': 'other_value'}
     fake_session_disjoint = {'other': 'other_value', 'yet_other': 'yet_other_value'}
 
-    assert st.has_intersection(fake_session_intersection)
-    assert not st.has_intersection(fake_session_disjoint)
+    assert st.has_overlap_with(fake_session_intersection)
+    assert not st.has_overlap_with(fake_session_disjoint)
 
 
 @pytest.fixture()

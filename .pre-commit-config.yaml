@@ -12,6 +12,7 @@ ci:
       'no-commit-to-branch',
       # 'hadolint-docker',
       'docker-compose-check',
+      'mypy', # Runs as a local hook now
     ]
 repos:
   - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
@@ -51,7 +52,7 @@ repos:
       - id: pyupgrade
         args: ['--keep-runtime-typing', '--py311-plus']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.9
+    rev: v0.1.11
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
@@ -100,28 +101,8 @@ repos:
     rev: 23.12.1
     hooks:
       - id: black
-  # Mypy is temporarily disabled until the SQLAlchemy 2.0 migration is complete
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v1.3.0
-  #   hooks:
-  #     - id: mypy
-  #       # warn-unused-ignores is unsafe with pre-commit, see
-  #       # https://github.com/python/mypy/issues/2960
-  #       args: ['--no-warn-unused-ignores', '--ignore-missing-imports']
-  #       additional_dependencies:
-  #         - flask
-  #         - lxml-stubs
-  #         - sqlalchemy
-  #         - toml
-  #         - tomli
-  #         - types-chevron
-  #         - types-geoip2
-  #         - types-python-dateutil
-  #         - types-pytz
-  #         - types-requests
-  #         - typing-extensions
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
+    rev: 7.0.0
     hooks:
       - id: flake8
         additional_dependencies: *flake8deps
@@ -149,23 +130,12 @@ repos:
     rev: v3.0.0
     hooks:
       - id: creosote
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
         args:
-          - --venv=.venv
-          - --path=funnel
-          - --path=tests
-          - --path=migrations/versions
-          - --deps-file=requirements/base.in
-          - --exclude-dep=argon2-cffi # Optional dep for passlib
-          - --exclude-dep=bcrypt # Optional dep for passlib
-          - --exclude-dep=greenlet # Optional dep for SQLAlchemy's asyncio support
-          - --exclude-dep=gunicorn # Not imported, used as server
-          - --exclude-dep=linkify-it-py # Optional dep for markdown-it-py
-          - --exclude-dep=psycopg # Optional dep for SQLAlchemy
-          - --exclude-dep=rq-dashboard # Creosote fails to recognise the import
-          - --exclude-dep=tzdata # Data-only dep, therefore no import statement
-          - --exclude-dep=urllib3 # Required to silence a pip-audit warning
-          - --exclude-dep=wtforms-sqlalchemy # Temp dep on an unreleased git branch
-
+          - --external-sources
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -231,3 +201,16 @@ repos:
     rev: v3.0.1
     hooks:
       - id: docker-compose-check
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: .venv/bin/mypy
+        args:
+          - --no-warn-unused-ignores
+          - --no-warn-redundant-casts
+          - . # Required to honour settings in pyproject.toml
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+        pass_filenames: false # Mypy is unreliable if module import order varies

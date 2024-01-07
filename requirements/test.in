@@ -1,10 +1,8 @@
 -r base.in
 beautifulsoup4
-colorama
 coverage
 coveralls
 lxml
-Pygments
 pytest
 pytest-asyncio
 pytest-bdd

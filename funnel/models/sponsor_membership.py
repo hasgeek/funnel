@@ -9,23 +9,14 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import immutable
 
 from . import Mapped, Model, relationship, sa, sa_orm
-from .membership_mixin import (
-    FrozenAttributionProtoMixin,
-    ImmutableUserMembershipMixin,
-    ReorderMembershipProtoMixin,
-)
+from .membership_mixin import FrozenAttributionMixin, ReorderMembershipMixin
 from .project import Project
 from .proposal import Proposal
 
 __all__ = ['ProjectSponsorMembership', 'ProposalSponsorMembership']
 
 
-class ProjectSponsorMembership(  # type: ignore[misc]
-    ImmutableUserMembershipMixin,
-    FrozenAttributionProtoMixin,
-    ReorderMembershipProtoMixin,
-    Model,
-):
+class ProjectSponsorMembership(FrozenAttributionMixin, ReorderMembershipMixin, Model):
     """Sponsor of a project."""
 
     __tablename__ = 'project_sponsor_membership'
@@ -83,7 +74,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
     revoke_on_member_delete: ClassVar[bool] = False
 
     project_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
+        sa.ForeignKey('project.id', ondelete='CASCADE'), default=None, nullable=False
     )
     project: Mapped[Project] = relationship(back_populates='all_sponsor_memberships')
     parent_id: Mapped[int] = sa_orm.synonym('project_id')
@@ -92,18 +83,14 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
     #: Is this sponsor being promoted for commercial reasons? Projects may have a legal
     #: obligation to reveal this. This column records a declaration from the project.
-    is_promoted: Mapped[bool] = immutable(
-        sa_orm.mapped_column(sa.Boolean, nullable=False)
-    )
+    is_promoted: Mapped[bool] = immutable(sa_orm.mapped_column())
 
     #: Optional label, indicating the type of sponsor
     label: Mapped[str | None] = immutable(
         sa_orm.mapped_column(
-            sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='project_sponsor_membership_label_check'
-            ),
-            nullable=True,
+            )
         )
     )
 
@@ -120,12 +107,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
 # FIXME: Replace this with existing proposal collaborator as they're now both related
 # to "account"
-class ProposalSponsorMembership(  # type: ignore[misc]
-    FrozenAttributionProtoMixin,
-    ReorderMembershipProtoMixin,
-    ImmutableUserMembershipMixin,
-    Model,
-):
+class ProposalSponsorMembership(FrozenAttributionMixin, ReorderMembershipMixin, Model):
     """Sponsor of a proposal."""
 
     __tablename__ = 'proposal_sponsor_membership'
@@ -183,7 +165,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
     revoke_on_member_delete: ClassVar[bool] = False
 
     proposal_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+        sa.ForeignKey('proposal.id', ondelete='CASCADE'), default=None, nullable=False
     )
     proposal: Mapped[Proposal] = relationship(back_populates='all_sponsor_memberships')
     parent_id: Mapped[int] = sa_orm.synonym('proposal_id')
@@ -192,18 +174,14 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
     #: Is this sponsor being promoted for commercial reasons? Proposals may have a legal
     #: obligation to reveal this. This column records a declaration from the proposal.
-    is_promoted: Mapped[bool] = immutable(
-        sa_orm.mapped_column(sa.Boolean, nullable=False)
-    )
+    is_promoted: Mapped[bool] = immutable(sa_orm.mapped_column())
 
     #: Optional label, indicating the type of sponsor
     label: Mapped[str | None] = immutable(
         sa_orm.mapped_column(
-            sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='proposal_sponsor_membership_label_check'
-            ),
-            nullable=True,
+            )
         )
     )
 

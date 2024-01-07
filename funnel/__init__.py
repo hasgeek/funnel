@@ -89,7 +89,7 @@ from .models import db, sa_orm  # isort:skip
 # present, it is loaded in debug and testing modes only
 for each_app in all_apps:
     coaster.app.init_app(
-        each_app, ['py', 'env'], env_prefix=['FLASK', f'APP_{each_app.name.upper()}']
+        each_app, ['env'], env_prefix=['FLASK', f'APP_{each_app.name.upper()}']
     )
 
 # Force specific config settings, overriding deployment config
@@ -147,7 +147,7 @@ geoip.geoip.init_app(app)
 baseframe.init_app(
     app,
     requires=['funnel'],
-    theme='funnel',  # type: ignore[arg-type]
+    theme='funnel',  # type: ignore[arg-type]  # FIXME
     error_handlers=False,
 )
 
@@ -162,7 +162,7 @@ if not app.config.get('FEATURED_ACCOUNTS'):
 transports.init()
 
 # Register JS and CSS assets on both apps
-app.assets.register(  # type: ignore[attr-defined]
+app.assets.register(  # type: ignore[attr-defined]  # FIXME
     'js_fullcalendar',
     Bundle(
         assets.require(
@@ -178,7 +178,7 @@ app.assets.register(  # type: ignore[attr-defined]
         filters='rjsmin',
     ),
 )
-app.assets.register(  # type: ignore[attr-defined]
+app.assets.register(  # type: ignore[attr-defined]  # FIXME
     'css_fullcalendar',
     Bundle(
         assets.require('jquery.fullcalendar.css', 'spectrum.css'),
@@ -186,7 +186,7 @@ app.assets.register(  # type: ignore[attr-defined]
         filters='cssmin',
     ),
 )
-app.assets.register(  # type: ignore[attr-defined]
+app.assets.register(  # type: ignore[attr-defined]  # FIXME
     'js_schedules',
     Bundle(
         assets.require('schedules.js'),
@@ -199,12 +199,9 @@ views.siteadmin.init_rq_dashboard()
 
 # --- Serve static files with WhiteNoise -----------------------------------------------
 
-app.wsgi_app = WhiteNoise(  # type: ignore[method-assign]
-    app.wsgi_app, root=app.static_folder, prefix=app.static_url_path
-)
-app.wsgi_app.add_files(  # type: ignore[attr-defined]
-    baseframe.static_folder, prefix=baseframe.static_url_path
-)
+_wn = WhiteNoise(app.wsgi_app, root=app.static_folder, prefix=app.static_url_path)
+_wn.add_files(baseframe.static_folder, prefix=baseframe.static_url_path)
+app.wsgi_app = _wn  # type: ignore[method-assign]
 
 # --- Init SQLAlchemy mappers ----------------------------------------------------------
 

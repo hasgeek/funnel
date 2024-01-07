@@ -6,7 +6,6 @@ from flask import abort, flash
 
 from baseframe import _, forms
 from baseframe.forms import render_form
-from coaster.auth import current_auth
 from coaster.utils import make_name
 from coaster.views import (
     ModelView,
@@ -18,6 +17,7 @@ from coaster.views import (
 )
 
 from .. import app
+from ..auth import current_auth
 from ..forms import SavedProjectForm, UpdateForm
 from ..models import Account, NewUpdateNotification, Project, Update, db
 from ..typing import ReturnRenderWith, ReturnView

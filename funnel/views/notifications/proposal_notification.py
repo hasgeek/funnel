@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from flask import render_template
 from werkzeug.utils import cached_property
 
@@ -12,6 +14,7 @@ from ...models import (
     Proposal,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
+    sa,
     sa_orm,
 )
 from ...transports.sms import SmsPriority, SmsTemplate
@@ -71,11 +74,11 @@ class RenderProposalReceivedNotification(RenderNotification):
     email_heading = __("New submission!")
 
     @cached_property
-    def fragments_order_by(self):
+    def fragments_order_by(self) -> list[sa.UnaryExpression]:
         return [Proposal.datetime.desc()]
 
     @property
-    def fragments_query_options(self):
+    def fragments_query_options(self) -> Sequence:
         return [
             sa_orm.load_only(
                 Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid
@@ -123,7 +126,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
     emoji_prefix = "📤 "
     reason = __("You are receiving this because you made this submission")
     hero_image = 'img/email/chars-v1/sent-submission.png'
-    email_heading = __("Proposal sumbitted!")
+    email_heading = __("Proposal submitted!")
 
     def web(self) -> str:
         return render_template(

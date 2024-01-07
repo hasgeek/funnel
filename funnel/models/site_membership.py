@@ -5,12 +5,12 @@ from __future__ import annotations
 from werkzeug.utils import cached_property
 
 from . import Mapped, Model, declared_attr, sa, sa_orm
-from .membership_mixin import ImmutableUserMembershipMixin
+from .membership_mixin import ImmutableMembershipMixin
 
 __all__ = ['SiteMembership']
 
 
-class SiteMembership(ImmutableUserMembershipMixin, Model):
+class SiteMembership(ImmutableMembershipMixin, Model):
     """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'
@@ -38,36 +38,29 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
 
     #: SiteMembership doesn't have a container limiting its scope
     parent_id = None
-    parent_id_column = None
+    parent_id_column = ''  # Must be of type str, not None
     parent = None
 
     # Site admin roles (at least one must be True):
 
     #: Comment moderators can delete comments
-    is_comment_moderator: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_comment_moderator: Mapped[bool] = sa_orm.mapped_column(default=False)
     #: User moderators can suspend users
-    is_user_moderator: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_user_moderator: Mapped[bool] = sa_orm.mapped_column(default=False)
     #: Site editors can feature or reject projects
-    is_site_editor: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_site_editor: Mapped[bool] = sa_orm.mapped_column(default=False)
     #: Sysadmins can manage technical settings
-    is_sysadmin: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_sysadmin: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     @declared_attr.directive
     @classmethod
-    def __table_args__(cls) -> tuple:
+    def __table_args__(cls) -> tuple:  # type: ignore[override]
         """Table arguments."""
         try:
             args = list(super().__table_args__)
         except AttributeError:
             args = []
+        kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
         args.append(
             sa.CheckConstraint(
                 sa.or_(
@@ -79,6 +72,8 @@ class SiteMembership(ImmutableUserMembershipMixin, Model):
                 name='site_membership_has_role',
             )
         )
+        if kwargs:
+            args.append(kwargs)
         return tuple(args)
 
     def __repr__(self) -> str:

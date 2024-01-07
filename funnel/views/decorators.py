@@ -6,13 +6,12 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from functools import wraps
 from hashlib import blake2b
-from typing import cast
 
 from flask import Response, make_response, request, url_for
 
 from baseframe import cache
-from coaster.auth import current_auth
 
+from ..auth import current_auth
 from ..proxies import request_wants
 from ..typing import P, ReturnResponse, ReturnView, T
 from .helpers import compress_response, render_redirect
@@ -59,7 +58,7 @@ def etag_cache_for_user(
     timeout: int,
     max_age: int | None = None,
     query_params: set | None = None,
-) -> Callable[[Callable[P, ReturnView]], Callable[P, Response]]:
+) -> Callable[[Callable[P, ReturnView]], Callable[P, ReturnView]]:
     """
     Cache and compress a response, and add an ETag header for browser cache.
 
@@ -72,9 +71,9 @@ def etag_cache_for_user(
     if max_age is None:
         max_age = timeout
 
-    def decorator(f: Callable[P, ReturnView]) -> Callable[P, Response]:
+    def decorator(f: Callable[P, ReturnView]) -> Callable[P, ReturnView]:
         @wraps(f)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> ReturnResponse:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> ReturnView:
             # No ETag or cache storage if the request is not GET or HEAD
             if request.method not in ('GET', 'HEAD'):
                 return f(*args, **kwargs)
@@ -87,7 +86,7 @@ def etag_cache_for_user(
             # Hash of request args, query parameters and common headers that influence
             # output. May need to be expanded to also add headers from Vary (which must
             # be specified in the decorator)
-            rhash = blake2b(
+            request_hash = blake2b(
                 '\n'.join(
                     [
                         request.headers.get('Accept', ''),
@@ -112,13 +111,12 @@ def etag_cache_for_user(
             ).hexdigest()
 
             # 2. Get existing data from cache. There may be multiple copies of data,
-            # for each distinct rhash. Look for the one matching our rhash
+            # for each distinct request_hash. Look for the one matching our request_hash
 
-            # Optional[str]
             cache_data: dict | None = cache.get(cache_key)
             response_data = None
             if cache_data:
-                rhash_data = cache_data.get(rhash, {})
+                rhash_data = cache_data.get(request_hash, {})
                 try:
                     response_data = rhash_data['response_data']
                     content_encoding = rhash_data['content_encoding']
@@ -155,10 +153,10 @@ def etag_cache_for_user(
                 chash = blake2b(response.get_data()).hexdigest()
                 etag = blake2b(
                     f'{identifier}/{view_version}/{current_auth.user.uuid_b64}'
-                    f'/{chash}/{rhash}'.encode()
+                    f'/{chash}/{request_hash}'.encode()
                 ).hexdigest()
                 last_modified = datetime.utcnow()
-                cache_data[rhash] = {
+                cache_data[request_hash] = {
                     'response_data': response_data,
                     'content_encoding': content_encoding,
                     'cash': chash,
@@ -177,7 +175,7 @@ def etag_cache_for_user(
             response.cache_control.max_age = max_age
             response.expires = (
                 response.last_modified or datetime.utcnow()
-            ) + timedelta(seconds=cast(int, max_age))
+            ) + timedelta(seconds=max_age)
 
             return response.make_conditional(request)
 

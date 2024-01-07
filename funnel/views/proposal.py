@@ -6,7 +6,6 @@ from flask import abort, flash, request
 
 from baseframe import _, __
 from baseframe.forms import Form, render_delete_sqla, render_form, render_template
-from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import (
     ModelView,
@@ -19,6 +18,7 @@ from coaster.views import (
 )
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     ProposalFeaturedForm,
     ProposalForm,
@@ -72,9 +72,9 @@ class ProjectProposalView(ProjectViewBase):
     @route('sub/new', methods=['GET', 'POST'])
     @route('proposals/new', methods=['GET', 'POST'])
     @requires_login
-    @render_with('submission_form.html.jinja2')
     @requires_roles({'reader'})
     @requires_user_not_spammy()
+    @render_with('submission_form.html.jinja2')
     def new_proposal(self) -> ReturnRenderWith:
         # This along with the `reader` role makes it possible for
         # anyone to submit a proposal if the CFP is open.

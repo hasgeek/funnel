@@ -32,7 +32,7 @@ def test_user_avatar(db_session, user_twoflower, user_rincewind) -> None:
     assert user_rincewind.logo_url is None
     db_session.commit()
 
-    # Now test avatar is Optional[ImgeeFurl]
+    # Now test avatar is ImgeeFurl | None
     assert user_twoflower.logo_url is None
     assert user_rincewind.logo_url is None
 

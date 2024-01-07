@@ -61,7 +61,7 @@ def rqjob(
 @rqjob()
 def import_tickets(ticket_client_id: int) -> None:
     """Import tickets from Boxoffice."""
-    ticket_client = TicketClient.query.get(ticket_client_id)
+    ticket_client = db.session.get(TicketClient, ticket_client_id)
     if ticket_client is not None:
         if ticket_client.name.lower() == 'explara':
             ticket_list = ExplaraAPI(
@@ -79,7 +79,7 @@ def import_tickets(ticket_client_id: int) -> None:
 @rqjob()
 def tag_locations(project_id: int) -> None:
     """Tag a project with geoname locations. This is legacy code pending a rewrite."""
-    project = Project.query.get(project_id)
+    project = db.session.get(Project, project_id)
     if project is None:
         return
     if not project.location:
@@ -116,7 +116,7 @@ def tag_locations(project_id: int) -> None:
     project.parsed_location = {'tokens': tokens}
 
     for locdata in geonames.values():
-        loc = ProjectLocation.query.get((project_id, locdata['geonameid']))
+        loc = db.session.get(ProjectLocation, (project_id, locdata['geonameid']))
         if loc is None:
             loc = ProjectLocation(project=project, geonameid=locdata['geonameid'])
             db.session.add(loc)

@@ -3,17 +3,17 @@
 from __future__ import annotations
 
 from collections.abc import Container
-from typing import Any, Literal, cast
+from typing import Any, Literal
 
 from flask import abort, jsonify, render_template, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import __
-from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import jsonp, requestargs
 
 from ... import app
+from ...auth import current_auth
 from ...models import (
     Account,
     AuthClient,
@@ -547,7 +547,7 @@ def resource_login_providers(
     response = {}
     for extid in authtoken.effective_user.externalids:
         if service is None or extid.service == service:
-            response[cast(str, extid.service)] = {
+            response[extid.service] = {
                 'userid': str(extid.userid),
                 'username': str(extid.username),
                 'oauth_token': str(extid.oauth_token),

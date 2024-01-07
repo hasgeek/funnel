@@ -22,25 +22,30 @@ class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
     SPAM = (2, 'spam', __("Spam"))
 
 
-class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
+class CommentModeratorReport(UuidMixin, BaseMixin[UUID, Account], Model):
     __tablename__ = 'comment_moderator_report'
 
     comment_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('comment.id'), nullable=False, index=True
+        sa.ForeignKey('comment.id'), default=None, nullable=False, index=True
     )
     comment: Mapped[Comment] = relationship(back_populates='moderator_reports')
     reported_by_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False, index=True
+        sa.ForeignKey('account.id'), default=None, nullable=False, index=True
     )
     reported_by: Mapped[Account] = relationship(back_populates='moderator_reports')
     report_type: Mapped[int] = sa_orm.mapped_column(
         sa.SmallInteger,
-        StateManager.check_constraint('report_type', MODERATOR_REPORT_TYPE),
+        StateManager.check_constraint(
+            'report_type', MODERATOR_REPORT_TYPE, sa.SmallInteger
+        ),
         nullable=False,
         default=MODERATOR_REPORT_TYPE.SPAM,
     )
     reported_at: Mapped[datetime] = sa_orm.mapped_column(
-        sa.TIMESTAMP(timezone=True), default=sa.func.utcnow(), nullable=False
+        sa.TIMESTAMP(timezone=True),
+        insert_default=sa.func.utcnow(),
+        default=None,
+        nullable=False,
     )
     resolved_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True

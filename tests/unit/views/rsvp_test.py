@@ -4,9 +4,13 @@
 import datetime
 
 import pytest
+from flask import Flask
+from flask.testing import FlaskClient
 from werkzeug.datastructures import MultiDict
 
 from funnel import models
+
+from ...conftest import LoginFixtureProtocol
 
 valid_schema = {
     'fields': [
@@ -80,9 +84,9 @@ def project_expo2010(project_expo2010: models.Project) -> models.Project:
 
 # Organizer side testing
 def test_valid_registration_form_schema(
-    app,
-    client,
-    login,
+    app: Flask,
+    client: FlaskClient,
+    login: LoginFixtureProtocol,
     csrf_token: str,
     user_vetinari: models.User,
     project_expo2010: models.Project,
@@ -96,7 +100,7 @@ def test_valid_registration_form_schema(
             {
                 'org': '',
                 'item_collection_id': '',
-                'rsvp_state': models.PROJECT_RSVP_STATE.ALL,
+                'rsvp_state': int(models.ProjectRsvpStateEnum.ALL),
                 'is_subscription': False,
                 'register_button_txt': 'Follow',
                 'register_form_schema': app.json.dumps(valid_schema),
@@ -108,8 +112,8 @@ def test_valid_registration_form_schema(
 
 
 def test_invalid_registration_form_schema(
-    client,
-    login,
+    client: FlaskClient,
+    login: LoginFixtureProtocol,
     csrf_token: str,
     user_vetinari: models.User,
     project_expo2010: models.Project,
@@ -130,9 +134,9 @@ def test_invalid_registration_form_schema(
 
 
 def test_valid_json_register(
-    app,
-    client,
-    login,
+    app: Flask,
+    client: FlaskClient,
+    login: LoginFixtureProtocol,
     csrf_token: str,
     user_twoflower: models.User,
     project_expo2010: models.Project,
@@ -157,9 +161,9 @@ def test_valid_json_register(
 
 
 def test_valid_encoded_json_register(
-    app,
-    client,
-    login,
+    app: Flask,
+    client: FlaskClient,
+    login: LoginFixtureProtocol,
     csrf_token: str,
     user_twoflower: models.User,
     project_expo2010: models.Project,
@@ -181,7 +185,10 @@ def test_valid_encoded_json_register(
 
 
 def test_invalid_json_register(
-    client, login, user_twoflower: models.User, project_expo2010: models.Project
+    client: FlaskClient,
+    login: LoginFixtureProtocol,
+    user_twoflower: models.User,
+    project_expo2010: models.Project,
 ) -> None:
     """If a registration form is not JSON, it is rejected."""
     login.as_(user_twoflower)

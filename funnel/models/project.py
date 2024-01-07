@@ -6,6 +6,7 @@ from __future__ import annotations
 from collections import OrderedDict, defaultdict
 from collections.abc import Sequence
 from datetime import datetime, timedelta
+from enum import ReprEnum
 from typing import TYPE_CHECKING, Any, Literal, Self, cast, overload
 
 from flask_babel import format_date, get_locale
@@ -44,17 +45,17 @@ from . import (
     types,
 )
 from .account import Account
-from .comment import SET_TYPE, Commentset
 from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
+    IntTitle,
     MarkdownCompositeDocument,
     add_search_trigger,
     valid_name,
     visual_field_delimiter,
 )
 
-__all__ = ['PROJECT_RSVP_STATE', 'Project', 'ProjectLocation', 'ProjectRedirect']
+__all__ = ['ProjectRsvpStateEnum', 'Project', 'ProjectLocation', 'ProjectRedirect']
 
 
 # --- Constants ---------------------------------------------------------------
@@ -76,25 +77,25 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
     ANY = {NONE, PUBLIC, CLOSED}
 
 
-class PROJECT_RSVP_STATE(LabeledEnum):  # noqa: N801
-    NONE = (1, __("Not accepting registrations"))
-    ALL = (2, __("Anyone can register"))
-    MEMBERS = (3, __("Only members can register"))
+class ProjectRsvpStateEnum(IntTitle, ReprEnum):
+    NONE = 1, __("Not accepting registrations")
+    ALL = 2, __("Anyone can register")
+    MEMBERS = 3, __("Only members can register")
 
 
 # --- Models ------------------------------------------------------------------
 
 
-class Project(UuidMixin, BaseScopedNameMixin, Model):
+class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     __tablename__ = 'project'
     reserved_names = RESERVED_NAMES
 
     created_by_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), default=None, nullable=False
     )
     created_by: Mapped[Account] = relationship(foreign_keys=[created_by_id])
     account_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False
+        sa.ForeignKey('account.id'), default=None, nullable=False
     )
     account: Mapped[Account] = with_roles(
         relationship(foreign_keys=[account_id], back_populates='projects'),
@@ -141,15 +142,19 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         datasets={'primary', 'without_parent'},
     )
     timezone: Mapped[BaseTzInfo] = with_roles(
-        sa_orm.mapped_column(TimezoneType(backend='pytz'), nullable=False, default=utc),
+        sa_orm.mapped_column(
+            TimezoneType(backend='pytz'),
+            nullable=False,
+            insert_default=utc,
+            default=None,
+        ),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        sa.Integer,
-        StateManager.check_constraint('state', PROJECT_STATE),
+        StateManager.check_constraint('state', PROJECT_STATE, sa.Integer),
         default=PROJECT_STATE.DRAFT,
         nullable=False,
         index=True,
@@ -160,8 +165,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     )
     _cfp_state: Mapped[int] = sa_orm.mapped_column(
         'cfp_state',
-        sa.Integer,
-        StateManager.check_constraint('cfp_state', CFP_STATE),
+        StateManager.check_constraint('cfp_state', CFP_STATE, sa.Integer),
         default=CFP_STATE.NONE,
         nullable=False,
         index=True,
@@ -174,8 +178,10 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     rsvp_state: Mapped[int] = with_roles(
         sa_orm.mapped_column(
             sa.SmallInteger,
-            StateManager.check_constraint('rsvp_state', PROJECT_RSVP_STATE),
-            default=PROJECT_RSVP_STATE.NONE,
+            StateManager.check_constraint(
+                'rsvp_state', ProjectRsvpStateEnum, sa.SmallInteger
+            ),
+            default=ProjectRsvpStateEnum.NONE,
             nullable=False,
         ),
         read={'all'},
@@ -251,11 +257,11 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         sa_orm.mapped_column(UrlType, nullable=True), read={'all'}
     )
     hasjob_embed_limit: Mapped[int | None] = with_roles(
-        sa_orm.mapped_column(sa.Integer, default=8, nullable=True), read={'all'}
+        sa_orm.mapped_column(default=8, nullable=True), read={'all'}
     )
 
     commentset_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('commentset.id'), nullable=False
+        sa.ForeignKey('commentset.id'), default=None, nullable=False
     )
     commentset: Mapped[Commentset] = relationship(
         uselist=False, single_parent=True, back_populates='project'
@@ -264,6 +270,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     parent_project_id: Mapped[int | None] = sa_orm.mapped_column(
         'parent_id',  # TODO: Migration required
         sa.ForeignKey('project.id', ondelete='SET NULL'),
+        default=None,
         nullable=True,
     )
     parent_project: Mapped[Project | None] = relationship(
@@ -274,7 +281,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or account admins.
     site_featured: Mapped[bool] = with_roles(
-        sa_orm.mapped_column(sa.Boolean, default=False, nullable=False),
+        sa_orm.mapped_column(default=False),
         read={'all'},
         write={'site_editor'},
         datasets={'primary', 'without_parent'},
@@ -285,21 +292,20 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
             sa.ARRAY(sa.UnicodeText, dimensions=1),
             nullable=True,  # For legacy data
             server_default=sa.text("'{}'::text[]"),
+            default=None,
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
 
     is_restricted_video: Mapped[bool] = with_roles(
-        sa_orm.mapped_column(sa.Boolean, default=False, nullable=False),
+        sa_orm.mapped_column(default=False),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
 
     #: Revision number maintained by SQLAlchemy, used for vCal files, starting at 1
-    revisionid: Mapped[int] = with_roles(
-        sa_orm.mapped_column(sa.Integer, nullable=False), read={'all'}
-    )
+    revisionid: Mapped[int] = with_roles(sa_orm.mapped_column(), read={'all'})
 
     search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
@@ -357,7 +363,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
             lazy='dynamic',
             primaryjoin=lambda: sa.and_(
                 ProjectMembership.project_id == Project.id,
-                ProjectMembership.is_active,
+                ProjectMembership.is_active,  # type: ignore[has-type]  # FIXME
             ),
             viewonly=True,
         ),
@@ -368,7 +374,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         lazy='dynamic',
         primaryjoin=lambda: sa.and_(
             ProjectMembership.project_id == Project.id,
-            ProjectMembership.is_active,
+            ProjectMembership.is_active,  # type: ignore[has-type]  # FIXME
             ProjectMembership.is_editor.is_(True),
         ),
         viewonly=True,
@@ -378,7 +384,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         lazy='dynamic',
         primaryjoin=lambda: sa.and_(
             ProjectMembership.project_id == Project.id,
-            ProjectMembership.is_active,
+            ProjectMembership.is_active,  # type: ignore[has-type]  # FIXME
             ProjectMembership.is_promoter.is_(True),
         ),
         viewonly=True,
@@ -388,7 +394,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         lazy='dynamic',
         primaryjoin=lambda: sa.and_(
             ProjectMembership.project_id == Project.id,
-            ProjectMembership.is_active,
+            ProjectMembership.is_active,  # type: ignore[has-type]  # FIXME
             ProjectMembership.is_usher.is_(True),
         ),
         viewonly=True,
@@ -437,7 +443,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
             lazy='dynamic',
             primaryjoin=lambda: sa.and_(
                 ProjectSponsorMembership.project_id == Project.id,
-                ProjectSponsorMembership.is_active,
+                ProjectSponsorMembership.is_active,  # type: ignore[has-type]  # FIXME
             ),
             order_by=lambda: ProjectSponsorMembership.seq,
             viewonly=True,
@@ -895,7 +901,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     @hybrid_property
     def allow_rsvp(self) -> bool:
         """RSVP state as a boolean value (allowed for all or not)."""
-        return self.rsvp_state == PROJECT_RSVP_STATE.ALL
+        return self.rsvp_state == ProjectRsvpStateEnum.ALL
 
     @property
     def active_rsvps(self) -> Query[Rsvp]:
@@ -912,16 +918,12 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
         ...
 
     def rsvp_for(self, account: Account | None, create=False) -> Rsvp | None:
-        return Rsvp.get_for(cast(Project, self), account, create)
+        return Rsvp.get_for(self, account, create)
 
-    def rsvps_with(self, status: str):
-        return (
-            cast(Project, self)
-            .rsvps.join(Account)
-            .filter(
-                Account.state.ACTIVE,
-                Rsvp._state == status,  # pylint: disable=protected-access
-            )
+    def rsvps_with(self, state: RsvpStateEnum) -> Query[Rsvp]:
+        return self.rsvps.join(Account).filter(
+            Account.state.ACTIVE,
+            Rsvp._state == state,  # pylint: disable=protected-access
         )
 
     def rsvp_counts(self) -> dict[str, int]:
@@ -940,8 +942,7 @@ class Project(UuidMixin, BaseScopedNameMixin, Model):
     @cached_property
     def rsvp_count_going(self) -> int:
         return (
-            cast(Project, self)
-            .rsvps.join(Account)
+            self.rsvps.join(Account)
             .filter(Account.state.ACTIVE, Rsvp.state.YES)
             .count()
         )
@@ -1459,7 +1460,7 @@ class ProjectRedirect(TimestampMixin, Model):
     __tablename__ = 'project_redirect'
 
     account_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False, primary_key=True
+        sa.ForeignKey('account.id'), default=None, nullable=False, primary_key=True
     )
     account: Mapped[Account] = relationship(back_populates='project_redirects')
     parent: Mapped[Account] = sa_orm.synonym('account')
@@ -1468,7 +1469,7 @@ class ProjectRedirect(TimestampMixin, Model):
     )
 
     project_id: Mapped[int | None] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
+        sa.ForeignKey('project.id', ondelete='SET NULL'), default=None, nullable=True
     )
     project: Mapped[Project | None] = relationship(back_populates='redirects')
 
@@ -1508,7 +1509,7 @@ class ProjectRedirect(TimestampMixin, Model):
             account = project.account
         if name is None:
             name = project.name
-        redirect = cls.query.get((account.id, name))
+        redirect = db.session.get(cls, (account.id, name))
         if redirect is None:
             redirect = cls(account=account, name=name, project=project)
             db.session.add(redirect)
@@ -1539,16 +1540,14 @@ class ProjectLocation(TimestampMixin, Model):
     __tablename__ = 'project_location'
     #: Project we are tagging
     project_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False
+        sa.ForeignKey('project.id'), default=None, primary_key=True, nullable=False
     )
     project: Mapped[Project] = relationship(back_populates='locations')
     #: Geonameid for this project
     geonameid: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, primary_key=True, nullable=False, index=True
+        primary_key=True, nullable=False, index=True
     )
-    primary: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, default=True, nullable=False
-    )
+    primary: Mapped[bool] = sa_orm.mapped_column(default=True, nullable=False)
 
     def __repr__(self) -> str:
         """Represent :class:`ProjectLocation` as a string."""
@@ -1562,7 +1561,7 @@ class ProjectLocation(TimestampMixin, Model):
 from .label import Label
 from .project_membership import ProjectMembership
 from .proposal import Proposal
-from .rsvp import Rsvp
+from .rsvp import Rsvp, RsvpStateEnum
 from .session import Session
 from .sponsor_membership import ProjectSponsorMembership
 from .update import Update
@@ -1641,3 +1640,7 @@ with_roles(
     # joined model, not the first
     grants_via={Rsvp.participant: {'participant', 'project_participant'}},
 )
+
+
+# Tail imports
+from .comment import SET_TYPE, Commentset

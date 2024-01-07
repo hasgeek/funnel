@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from collections.abc import Collection, Iterator
 from datetime import datetime
-from enum import IntEnum
+from enum import ReprEnum
 from typing import Any, Self
 from uuid import UUID
 
@@ -31,6 +31,7 @@ from . import (
     sa_orm,
 )
 from .account import Account
+from .helpers import IntTitle
 from .types import jsonb
 
 __all__ = [
@@ -48,41 +49,31 @@ for _key in EMAIL_TAGS:
     EMAIL_TAGS[_key].append('style')
 
 
-class MailerState(IntEnum):
+class MailerState(IntTitle, ReprEnum):
     """Send state for :class:`Mailer`."""
 
-    DRAFT = 0
-    QUEUED = 1
-    SENDING = 2
-    SENT = 3
-
-    __titles__ = {
-        DRAFT: __("Draft"),
-        QUEUED: __("Queued"),
-        SENDING: __("Sending"),
-        SENT: __("Sent"),
-    }
-
-    def __init__(self, value: int) -> None:
-        self.title = self.__titles__[value]
+    DRAFT = 0, __("Draft")
+    QUEUED = (1, __("Queued"))
+    SENDING = 2, __("Sending")
+    SENT = 3, __("Sent")
 
 
-class Mailer(BaseNameMixin, Model):
+class Mailer(BaseNameMixin[int, Account], Model):
     """A mailer sent via email to multiple recipients."""
 
     __tablename__ = 'mailer'
 
-    user_uuid: Mapped[UUID] = sa_orm.mapped_column(sa.ForeignKey('account.uuid'))
+    user_uuid: Mapped[UUID] = sa_orm.mapped_column(
+        sa.ForeignKey('account.uuid'), default=None
+    )
     user: Mapped[Account] = relationship(back_populates='mailers')
     status: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, nullable=False, default=MailerState.DRAFT
+        nullable=False, default=MailerState.DRAFT
     )
     _fields: Mapped[str] = sa_orm.mapped_column(
         'fields', sa.UnicodeText, nullable=False, default=''
     )
-    trackopens: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    trackopens: Mapped[bool] = sa_orm.mapped_column(default=False)
     stylesheet: Mapped[str] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=False, default=''
     )
@@ -165,7 +156,7 @@ class Mailer(BaseNameMixin, Model):
             .all()
         ]
         for rid in ids:
-            recipient = MailerRecipient.query.get(rid)
+            recipient = db.session.get(MailerRecipient, rid)
             if recipient:
                 yield recipient
 
@@ -194,13 +185,13 @@ class Mailer(BaseNameMixin, Model):
         return ''
 
 
-class MailerDraft(BaseScopedIdMixin, Model):
+class MailerDraft(BaseScopedIdMixin[int, Account], Model):
     """Revision-controlled draft of mailer text (a Mustache template)."""
 
     __tablename__ = 'mailer_draft'
 
     mailer_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('mailer.id'), nullable=False
+        sa.ForeignKey('mailer.id'), default=None, nullable=False
     )
     mailer: Mapped[Mailer] = relationship(back_populates='drafts')
     parent: Mapped[Mailer] = sa_orm.synonym('mailer')
@@ -223,7 +214,7 @@ class MailerDraft(BaseScopedIdMixin, Model):
         return self.mailer.render_preview(self.template)
 
 
-class MailerRecipient(BaseScopedIdMixin, Model):
+class MailerRecipient(BaseScopedIdMixin[int, Account], Model):
     """Recipient of a mailer."""
 
     __tablename__ = 'mailer_recipient'
@@ -259,11 +250,13 @@ class MailerRecipient(BaseScopedIdMixin, Model):
 
     # Support email open tracking
     opentoken: Mapped[str] = sa_orm.mapped_column(
-        sa.Unicode(44), nullable=False, default=newsecret, unique=True
+        sa.Unicode(44),
+        nullable=False,
+        insert_default=newsecret,
+        default=None,
+        unique=True,
     )
-    opened: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    opened: Mapped[bool] = sa_orm.mapped_column(default=False)
     opened_ipaddr: Mapped[str | None] = sa_orm.mapped_column(
         sa.Unicode(45), nullable=True
     )
@@ -273,13 +266,15 @@ class MailerRecipient(BaseScopedIdMixin, Model):
     opened_last_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
-    opened_count: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, nullable=False, default=0
-    )
+    opened_count: Mapped[int] = sa_orm.mapped_column(nullable=False, default=0)
 
     # Support RSVP if the email requires it
     rsvptoken: Mapped[str] = sa_orm.mapped_column(
-        sa.Unicode(44), nullable=False, default=newsecret, unique=True
+        sa.Unicode(44),
+        nullable=False,
+        insert_default=newsecret,
+        default=None,
+        unique=True,
     )
     # Y/N/M response
     rsvp: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode(1), nullable=True)
@@ -301,7 +296,7 @@ class MailerRecipient(BaseScopedIdMixin, Model):
     # Draft of the mailer template that the custom template is linked to (for updating
     # before finalising)
     draft_id: Mapped[int | None] = sa_orm.mapped_column(
-        sa.ForeignKey('mailer_draft.id')
+        sa.ForeignKey('mailer_draft.id'), default=None
     )
     draft: Mapped[MailerDraft | None] = relationship()
 

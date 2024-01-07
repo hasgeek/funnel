@@ -152,7 +152,7 @@ class Rtable(Rn):
                     # If not renaming (new is None), use old name from `self.old`
                     rn.table_name = self.future_name or self.current_name
                     rn.old_table_name = self.current_name
-                    rn.symbol = symbol
+                    rn.symbol = symbol  # type: ignore[assignment]
 
     def upgrade(self) -> None:
         """Do the rename."""

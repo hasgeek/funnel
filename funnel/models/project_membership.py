@@ -7,7 +7,7 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import immutable, with_roles
 
 from . import Mapped, Model, declared_attr, relationship, sa, sa_orm
-from .membership_mixin import ImmutableUserMembershipMixin
+from .membership_mixin import ImmutableMembershipMixin
 from .project import Project
 
 __all__ = ['ProjectMembership', 'project_child_role_map', 'project_child_role_set']
@@ -35,7 +35,7 @@ project_membership_role_map.update(
 )
 
 
-class ProjectMembership(ImmutableUserMembershipMixin, Model):
+class ProjectMembership(ImmutableMembershipMixin, Model):
     """Users can be crew members of projects, with specified access rights."""
 
     __tablename__ = 'project_membership'
@@ -60,7 +60,7 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
         },
         'project_crew': {
             'read': {
-                'record_type_label',
+                'record_type_enum',
                 'granted_at',
                 'granted_by',
                 'revoked_at',
@@ -104,7 +104,7 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
     }
 
     project_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
+        sa.ForeignKey('project.id', ondelete='CASCADE'), default=None, nullable=False
     )
     project: Mapped[Project] = with_roles(
         relationship(back_populates='crew_memberships'),
@@ -117,35 +117,27 @@ class ProjectMembership(ImmutableUserMembershipMixin, Model):
     # Project crew roles (at least one must be True):
 
     #: Editors can edit all common and editorial details of an event
-    is_editor: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_editor: Mapped[bool] = sa_orm.mapped_column(default=False)
     #: Promoters are responsible for promotion and have write access
     #: to common details plus read access to everything else. Unlike
     #: editors, they cannot edit the schedule
-    is_promoter: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_promoter: Mapped[bool] = sa_orm.mapped_column(default=False)
     #: Ushers help participants find their way around an event and have
     #: the ability to scan badges at the door
-    is_usher: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_usher: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     #: Optional label, indicating the member's role in the project
     label: Mapped[str | None] = immutable(
         sa_orm.mapped_column(
-            sa.Unicode,
             sa.CheckConstraint(
                 "label <> ''", name='project_crew_membership_label_check'
-            ),
-            nullable=True,
+            )
         )
     )
 
     @declared_attr.directive
     @classmethod
-    def __table_args__(cls) -> tuple:
+    def __table_args__(cls) -> tuple:  # type: ignore[override]
         """Table arguments."""
         try:
             args = list(super().__table_args__)

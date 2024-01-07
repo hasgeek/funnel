@@ -197,7 +197,7 @@ class PasswordPolicyForm(forms.Form):
     )
 
     def validate_password(self, field: forms.Field) -> None:
-        """Test password strength and save resuls (no errors raised)."""
+        """Test password strength and save results (no errors raised)."""
         user_inputs = []
 
         if self.edit_user:
@@ -283,6 +283,7 @@ class PasswordResetForm(forms.Form):
 
     __returns__ = ('password_strength',)
     password_strength: int | None = None
+    edit_user: User
 
     # TODO: This form has been deprecated with OTP-based reset as that doesn't need
     # username and now uses :class:`PasswordCreateForm`. This form is retained in the
@@ -502,7 +503,7 @@ class EnableNotificationsDescriptionProtoMixin:
 
     enable_notifications: forms.Field
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Change the description to include a link."""
         self.enable_notifications.description = Markup(
             _(
@@ -614,7 +615,7 @@ class ModeratorReportForm(forms.Form):
         __("Report type"), coerce=int, validators=[forms.validators.InputRequired()]
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.report_type.choices = [
             (idx, report_type.title)

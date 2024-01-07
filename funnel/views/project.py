@@ -12,11 +12,11 @@ from markupsafe import Markup
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
-from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import get_next_url, render_with, requires_roles, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     CfpForm,
     ProjectBannerForm,
@@ -30,13 +30,13 @@ from ..forms import (
     ProjectTransitionForm,
 )
 from ..models import (
-    PROJECT_RSVP_STATE,
-    RSVP_STATUS,
     Account,
     Project,
+    ProjectRsvpStateEnum,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
     Rsvp,
+    RsvpStateEnum,
     SavedProject,
     db,
     sa,
@@ -164,9 +164,9 @@ def feature_project_rsvp(obj: Project) -> bool:
         obj.state.PUBLISHED
         and (obj.start_at is None or not obj.state.PAST)
         and (
-            obj.rsvp_state == PROJECT_RSVP_STATE.ALL
+            obj.rsvp_state == ProjectRsvpStateEnum.ALL
             or (
-                obj.rsvp_state == PROJECT_RSVP_STATE.MEMBERS
+                obj.rsvp_state == ProjectRsvpStateEnum.MEMBERS
                 and obj.current_roles.account_member
             )
         )
@@ -178,7 +178,7 @@ def feature_project_rsvp_for_members(obj: Project) -> bool:
     return bool(
         obj.state.PUBLISHED
         and (obj.start_at is None or not obj.state.PAST)
-        and obj.rsvp_state == PROJECT_RSVP_STATE.MEMBERS
+        and obj.rsvp_state == ProjectRsvpStateEnum.MEMBERS
     )
 
 
@@ -222,7 +222,7 @@ def feature_project_register(obj: Project) -> bool:
 @Project.features('rsvp_registered', cached_property=True)
 def feature_project_deregister(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
-    return rsvp is not None and rsvp.state.YES
+    return rsvp is not None and bool(rsvp.state.YES)
 
 
 @Project.features('schedule_no_sessions')
@@ -744,7 +744,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'going_rsvps': [
                 _r.current_access(datasets=('without_parent', 'related', 'related'))
-                for _r in self.obj.rsvps_with(RSVP_STATUS.YES)
+                for _r in self.obj.rsvps_with(RsvpStateEnum.YES)
             ],
             'rsvp_form_fields': [
                 field.get('name', '')
@@ -755,7 +755,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             else None,
         }
 
-    def get_rsvp_state_csv(self, state):
+    def get_rsvp_state_csv(self, state: RsvpStateEnum) -> Response:
         """Export participant list as a CSV."""
         outfile = io.StringIO(newline='')
         out = csv.writer(outfile)
@@ -789,14 +789,14 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     @requires_roles({'promoter'})
     def rsvp_list_yes_csv(self) -> ReturnView:
         """Return a CSV of RSVP participants who answered Yes."""
-        return self.get_rsvp_state_csv(state=RSVP_STATUS.YES)
+        return self.get_rsvp_state_csv(RsvpStateEnum.YES)
 
     @route('rsvp_list/maybe.csv')
     @requires_login
     @requires_roles({'promoter'})
     def rsvp_list_maybe_csv(self) -> ReturnView:
         """Return a CSV of RSVP participants who answered Maybe."""
-        return self.get_rsvp_state_csv(state=RSVP_STATUS.MAYBE)
+        return self.get_rsvp_state_csv(RsvpStateEnum.MAYBE)
 
     @route('save', methods=['POST'])
     @requires_login

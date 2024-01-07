@@ -9,15 +9,12 @@ from werkzeug.utils import cached_property
 
 from . import Mapped, Model, Query, relationship, sa, sa_orm
 from .account import Account
-from .membership_mixin import ImmutableUserMembershipMixin
-from .project import Project
-from .proposal import Proposal
-from .update import Update
+from .membership_mixin import ImmutableMembershipMixin
 
 __all__ = ['CommentsetMembership']
 
 
-class CommentsetMembership(ImmutableUserMembershipMixin, Model):
+class CommentsetMembership(ImmutableMembershipMixin, Model):
     """Membership roles for users who are commentset users and subscribers."""
 
     __tablename__ = 'commentset_membership'
@@ -38,9 +35,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
     }
 
     commentset_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer,
-        sa.ForeignKey('commentset.id', ondelete='CASCADE'),
-        nullable=False,
+        sa.ForeignKey('commentset.id', ondelete='CASCADE'), default=None, nullable=False
     )
     commentset: Mapped[Commentset] = relationship()
 
@@ -49,9 +44,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
     parent: Mapped[Commentset] = sa_orm.synonym('commentset')
 
     #: Flag to indicate notifications are muted
-    is_muted: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_muted: Mapped[bool] = sa_orm.mapped_column(default=False)
     #: When the user visited this commentset last
     last_seen_at: Mapped[datetime] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
@@ -104,11 +97,14 @@ class CommentsetMembership(ImmutableUserMembershipMixin, Model):
 
 # Tail imports
 from .comment import Comment, Commentset
+from .project import Project
+from .proposal import Proposal
+from .update import Update
 
 CommentsetMembership.new_comment_count = sa_orm.column_property(
     sa.select(sa.func.count(Comment.id))
     .where(Comment.commentset_id == CommentsetMembership.commentset_id)
-    .where(Comment.state.PUBLIC)
+    .where(Comment.state.PUBLIC)  # type: ignore[has-type]  # FIXME
     .where(Comment.created_at > CommentsetMembership.last_seen_at)
     .correlate_except(Comment)
     .scalar_subquery()

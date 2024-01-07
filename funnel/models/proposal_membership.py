@@ -9,22 +9,13 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import immutable, with_roles
 
 from . import Mapped, Model, relationship, sa, sa_orm
-from .membership_mixin import (
-    FrozenAttributionProtoMixin,
-    ImmutableUserMembershipMixin,
-    ReorderMembershipProtoMixin,
-)
+from .membership_mixin import FrozenAttributionMixin, ReorderMembershipMixin
 from .proposal import Proposal
 
 __all__ = ['ProposalMembership']
 
 
-class ProposalMembership(  # type: ignore[misc]
-    ImmutableUserMembershipMixin,
-    FrozenAttributionProtoMixin,
-    ReorderMembershipProtoMixin,
-    Model,
-):
+class ProposalMembership(FrozenAttributionMixin, ReorderMembershipMixin, Model):
     """Users can be presenters or reviewers on proposals."""
 
     __tablename__ = 'proposal_membership'
@@ -78,8 +69,8 @@ class ProposalMembership(  # type: ignore[misc]
 
     proposal_id: Mapped[int] = with_roles(
         sa_orm.mapped_column(
-            sa.Integer,
             sa.ForeignKey('proposal.id', ondelete='CASCADE'),
+            default=None,
             nullable=False,
         ),
         read={'member', 'editor'},
@@ -97,16 +88,12 @@ class ProposalMembership(  # type: ignore[misc]
     #: Uncredited members are not listed in the main display, but can edit and may be
     #: listed in a details section. Uncredited memberships are for support roles such
     #: as copy editors.
-    is_uncredited: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    is_uncredited: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     #: Optional label, indicating the member's role on the proposal
     label: Mapped[str | None] = immutable(
         sa_orm.mapped_column(
-            sa.Unicode,
-            sa.CheckConstraint("label <> ''", name='proposal_membership_label_check'),
-            nullable=True,
+            sa.CheckConstraint("label <> ''", name='proposal_membership_label_check')
         )
     )
 

@@ -12,15 +12,16 @@ from werkzeug.exceptions import Forbidden, RequestTimeout, TooManyRequests
 from werkzeug.utils import cached_property
 
 from baseframe import _
-from coaster.auth import current_auth
 from coaster.utils import newpin, require_one_of
 
 from .. import app
+from ..auth import current_auth
 from ..models import (
     Account,
     AccountEmail,
     AccountEmailClaim,
     AccountPhone,
+    Anchor,
     EmailAddress,
     EmailAddressBlockedError,
     PhoneNumber,
@@ -134,7 +135,7 @@ class OtpSession(Generic[OptionalAccountType]):
         cls: type[OtpSessionType],
         reason: str,
         user: OptionalAccountType,
-        anchor: AccountEmail | AccountEmailClaim | AccountPhone | EmailAddress | None,
+        anchor: Anchor | None,
         phone: str | None = None,
         email: str | None = None,
     ) -> OtpSessionType:

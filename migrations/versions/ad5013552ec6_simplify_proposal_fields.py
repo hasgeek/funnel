@@ -87,7 +87,7 @@ def upgrade() -> None:
     op.add_column('proposal', sa.Column('body_html', sa.UnicodeText(), nullable=True))
     op.add_column('proposal', sa.Column('description', sa.Unicode(), nullable=True))
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(proposal))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(proposal))
     progress = get_progressbar("Proposals", count)
     progress.start()
     items = conn.execute(proposal.select())

@@ -2,20 +2,33 @@
 
 from __future__ import annotations
 
-from typing import Literal, Self, overload
+from dataclasses import dataclass
+from enum import ReprEnum
+from typing import TYPE_CHECKING, Any, Literal, Self, overload
 
 from flask import current_app
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
-from coaster.utils import LabeledEnum
+from coaster.utils import DataclassFromType, LabeledEnum
 
-from . import Mapped, Model, NoIdMixin, UuidMixin, db, relationship, sa, sa_orm, types
+from . import (
+    Mapped,
+    Model,
+    NoIdMixin,
+    UuidMixin,
+    db,
+    declared_attr,
+    relationship,
+    sa,
+    sa_orm,
+    types,
+)
 from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
 from .project import Project
 from .project_membership import project_child_role_map
 
-__all__ = ['Rsvp', 'RSVP_STATUS']
+__all__ = ['RSVP_STATUS', 'RsvpStateEnum', 'Rsvp']
 
 
 class RSVP_STATUS(LabeledEnum):  # noqa: N801
@@ -27,10 +40,26 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
     AWAITING = ('A', 'awaiting', __("Awaiting"))
 
 
+@dataclass(frozen=True)
+class _RsvpOptions(DataclassFromType, str):
+    """RSVP options."""
+
+    # The empty default is required for Mypy's enum plugin's `Enum.__call__` analysis
+    response: str = ''
+    label: str = ''
+
+
+class RsvpStateEnum(_RsvpOptions, ReprEnum):
+    YES = 'Y', __("Yes"), __("Going")
+    NO = 'N', __("No"), __("Not going")
+    MAYBE = 'M', __("Maybe"), __("Maybe")
+    AWAITING = 'A', __("Invite"), __("Awaiting")
+
+
 class Rsvp(UuidMixin, NoIdMixin, Model):
     __tablename__ = 'rsvp'
     project_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
+        sa.ForeignKey('project.id'), default=None, nullable=False, primary_key=True
     )
     project: Mapped[Project] = with_roles(
         relationship(back_populates='rsvps'),
@@ -39,7 +68,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         datasets={'primary'},
     )
     participant_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False, primary_key=True
+        sa.ForeignKey('account.id'), default=None, nullable=False, primary_key=True
     )
     participant: Mapped[Account] = with_roles(
         relationship(back_populates='rsvps'),
@@ -57,14 +86,17 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
     _state: Mapped[str] = sa_orm.mapped_column(
         'state',
         sa.CHAR(1),
-        StateManager.check_constraint('state', RSVP_STATUS),
-        default=RSVP_STATUS.AWAITING,
+        StateManager.check_constraint('state', RsvpStateEnum, sa.CHAR(1)),
+        default=RsvpStateEnum.AWAITING,
         nullable=False,
     )
     state = with_roles(
         StateManager['Rsvp']('_state', RSVP_STATUS, doc="RSVP answer"),
         call={'owner', 'project_promoter'},
     )
+
+    if TYPE_CHECKING:
+        id_: declared_attr[Any]  # Fake entry for compatibility with ModelUuidProtocol
 
     __roles__ = {
         'owner': {'read': {'created_at', 'updated_at'}},
@@ -179,7 +211,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         cls, project: Project, account: Account | None, create: bool = False
     ) -> Self | None:
         if account is not None:
-            result = cls.query.get((project.id, account.id))
+            result = db.session.get(cls, (project.id, account.id))
             if not result and create:
                 result = cls(project=project, participant=account)
                 db.session.add(result)

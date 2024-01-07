@@ -7,9 +7,9 @@ from typing import cast
 from flask import request
 
 from baseframe import _
-from coaster.auth import current_auth
 
 from ... import app
+from ...auth import current_auth
 from ...forms import PasswordPolicyForm, UsernameAvailableForm
 from ...typing import ReturnView
 from ..helpers import progressive_rate_limit_validator, validate_rate_limit
@@ -78,7 +78,9 @@ def account_username_availability() -> ReturnView:
     # Allow user or source IP to check for up to 20 usernames every 10 minutes (600s)
     validate_rate_limit(
         'account_username-available',
-        current_auth.actor.uuid_b58 if current_auth.actor else request.remote_addr,
+        current_auth.actor.uuid_b58
+        if current_auth.actor
+        else (request.remote_addr or 'unknown-ipaddr'),
         # 20 username candidates
         20,
         # per every 10 minutes (600s)

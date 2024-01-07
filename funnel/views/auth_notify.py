@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ..models import Account, AuthToken, LoginSession, Organization, Team
+from ..models import Account, AuthClient, AuthToken, LoginSession, Team
 from ..signals import (
     org_data_changed,
     session_revoked,
@@ -93,7 +93,7 @@ def notify_user_data_changed(user: Account, changes) -> None:
 
 @org_data_changed.connect
 def notify_org_data_changed(
-    org: Organization, user: Account, changes, team: Team | None = None
+    org: Account, user: Account, changes, team: Team | None = None
 ) -> None:
     """
     Send notifications to trusted auth clients about org data changes.
@@ -101,7 +101,7 @@ def notify_org_data_changed(
     Like :func:`notify_user_data_changed`, except also looks at all other owners of this
     org to find apps that need to be notified.
     """
-    client_users = {}
+    client_users: dict[AuthClient, list[Account]] = {}
     for token in AuthToken.all(accounts=org.admin_users):
         if (
             token.auth_client.trusted

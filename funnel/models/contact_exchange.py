@@ -9,7 +9,7 @@ from itertools import groupby
 from typing import Self
 from uuid import UUID
 
-from pytz import timezone
+from pytz import BaseTzInfo, timezone
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from coaster.sqlalchemy import LazyRoleSet
@@ -42,7 +42,7 @@ class ProjectId:
     uuid: UUID
     uuid_b58: str
     title: str
-    timezone: str
+    timezone: BaseTzInfo
 
 
 @dataclass
@@ -51,7 +51,7 @@ class DateCountContacts:
 
     date: datetime
     count: int
-    contacts: Collection[ContactExchange]
+    contacts: Collection[ContactExchange] | Query[ContactExchange]
 
 
 class ContactExchange(TimestampMixin, RoleMixin, Model):
@@ -60,14 +60,14 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     __tablename__ = 'contact_exchange'
     #: User who scanned this contact
     account_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('account.id', ondelete='CASCADE'), primary_key=True
+        sa.ForeignKey('account.id', ondelete='CASCADE'), primary_key=True, default=None
     )
     account: Mapped[Account] = relationship(back_populates='scanned_contacts')
     #: Participant whose contact was scanned
     ticket_participant_id: Mapped[int] = sa_orm.mapped_column(
-        sa.Integer,
         sa.ForeignKey('ticket_participant.id', ondelete='CASCADE'),
         primary_key=True,
+        default=None,
         index=True,
     )
     ticket_participant: Mapped[TicketParticipant] = relationship(
@@ -75,16 +75,17 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     )
     #: Datetime at which the scan happened
     scanned_at: Mapped[datetime] = sa_orm.mapped_column(
-        sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
+        sa.TIMESTAMP(timezone=True),
+        nullable=False,
+        insert_default=sa.func.utcnow(),
+        default=None,
     )
     #: Note recorded by the user (plain text)
     description: Mapped[str] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=False, default=''
     )
     #: Archived flag
-    archived: Mapped[bool] = sa_orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
+    archived: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     __roles__ = {
         'owner': {
@@ -133,8 +134,8 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
             cls.scanned_at.label('scanned_at'),
             Project.id.label('project_id'),
             Project.uuid.label('project_uuid'),
-            Project.timezone.label('project_timezone'),
             Project.title.label('project_title'),
+            Project.timezone.label('project_timezone'),
         ).filter(
             cls.ticket_participant_id == TicketParticipant.id,
             TicketParticipant.project_id == Project.id,
@@ -224,7 +225,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
                 [
                     DateCountContacts(
                         r.scan_date,
-                        r.count,
+                        r.count,  # type: ignore[arg-type]  # FIXME
                         cls.contacts_for_project_and_date(
                             account, k, r.scan_date, archived
                         ),
@@ -234,12 +235,12 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
             )
             for k, g in groupby(
                 query,
-                lambda r: ProjectId(
-                    id=r.project_id,
-                    uuid=r.project_uuid,
-                    uuid_b58=uuid_to_base58(r.project_uuid),
-                    title=r.project_title,
-                    timezone=timezone(r.project_timezone),
+                lambda row: ProjectId(
+                    id=row.project_id,
+                    uuid=row.project_uuid,
+                    uuid_b58=uuid_to_base58(row.project_uuid),
+                    title=row.project_title,
+                    timezone=timezone(row.project_timezone),
                 ),
             )
         ]
@@ -248,7 +249,11 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
 
     @classmethod
     def contacts_for_project_and_date(
-        cls, account: Account, project: Project, date: date_type, archived: bool = False
+        cls,
+        account: Account,
+        project: Project | ProjectId,
+        date: date_type,
+        archived: bool = False,
     ) -> Query[Self]:
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(

@@ -18,7 +18,7 @@ from typing import Any, NamedTuple, Protocol, cast
 
 from flask import Flask
 
-from . import app as main_app, shortlinkapp, transports, unsubscribeapp
+from . import all_apps, app as main_app, transports
 from .models import db
 from .typing import ReturnView
 
@@ -100,7 +100,7 @@ class AppByHostWsgi:
         return use_app(environ, start_response)
 
 
-devtest_app = AppByHostWsgi(main_app, shortlinkapp, unsubscribeapp)
+devtest_app = AppByHostWsgi(*all_apps)
 
 # --- Background worker ----------------------------------------------------------------
 
@@ -143,7 +143,7 @@ def _signature_without_annotations(func) -> inspect.Signature:
     )
 
 
-def install_mock(func: Callable, mock: Callable) -> None:
+def install_mock(func: Any, mock: Any) -> None:
     """
     Patch all existing references to :attr:`func` with :attr:`mock`.
 
@@ -161,9 +161,9 @@ def install_mock(func: Callable, mock: Callable) -> None:
     # Use weakref to dereference func from local namespace
     func = weakref.ref(func)
     gc.collect()
-    refs = gc.get_referrers(func())  # type: ignore[misc]  # Typeshed says not callable
+    refs = gc.get_referrers(func())
     # Recover func from the weakref so we can do an `is` match in referrers
-    func = func()  # type: ignore[misc]
+    func = func()
     for ref in refs:
         if isinstance(ref, dict):
             # We have a namespace dict. Iterate through contents to find the reference
@@ -312,7 +312,7 @@ class BackgroundWorker:
                 raise RuntimeError(f"Server exited with code {self._process.exitcode}")
 
     def _is_ready(self) -> bool:
-        """Probe for readyness with a socket connection."""
+        """Probe for readiness with a socket connection."""
         if not self.probe_at:
             return False
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

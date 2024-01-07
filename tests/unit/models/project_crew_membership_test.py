@@ -38,7 +38,7 @@ def test_project_crew_membership(
     assert 'editor' in new_project.roles_for(new_user_owner)
     assert new_membership.is_active
     assert new_membership in new_project.active_crew_memberships
-    assert new_membership.record_type == models.MEMBERSHIP_RECORD_TYPE.DIRECT_ADD
+    assert new_membership.record_type == models.MembershipRecordTypeEnum.DIRECT_ADD
 
     # only one membership can be active for a user at a time.
     # so adding a new membership without revoking the previous one
@@ -86,7 +86,7 @@ def test_project_crew_membership(
     assert 'editor' in new_project.roles_for(new_user)
     assert 'promoter' not in new_project.roles_for(new_user)
     assert 'usher' not in new_project.roles_for(new_user)
-    assert new_membership3.record_type == models.MEMBERSHIP_RECORD_TYPE.AMEND
+    assert new_membership3.record_type == models.MembershipRecordTypeEnum.AMEND
 
     # replace() can replace a single role as well, rest stays as they were
     new_membership4 = new_membership3.replace(actor=new_user_owner, is_usher=True)
@@ -101,7 +101,7 @@ def test_project_crew_membership(
         'editor',
         'usher',
     }
-    assert new_membership4.record_type == models.MEMBERSHIP_RECORD_TYPE.AMEND
+    assert new_membership4.record_type == models.MembershipRecordTypeEnum.AMEND
 
     # can't replace with an unknown role
     with pytest.raises(AttributeError):

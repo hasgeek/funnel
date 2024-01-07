@@ -1,6 +1,5 @@
 """Tests for UserExternalId model."""
 
-from typing import cast
 
 import pytest
 
@@ -30,7 +29,7 @@ def test_organization_get(db_session, user_twoflower) -> None:
     with pytest.raises(TypeError):
         models.Organization.get()  # type: ignore[call-overload]
     # scenario 2: when buid is passed
-    buid = cast(str, org.buid)
+    buid = org.buid
     get_by_buid = models.Organization.get(buid=buid)
     assert get_by_buid == org
     # scenario 3: when username is passed
