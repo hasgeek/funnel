@@ -1,30 +1,18 @@
 import { test, expect } from '@playwright/test';
 
 const { LoginPage } = require('../page/login');
-const { ProjectPage } = require('../page/create-project');
-const profile = require('../fixtures/profile.json');
-const project = require('../fixtures/project.json');
-const { admin, promoter, usher, user } = require('../fixtures/user.json');
+const { admin, user } = require('../fixtures/user.json');
 const events = require('../fixtures/ticket_events.json');
 const ticket_participants = require('../fixtures/ticket_participants.json');
 const dayjs = require('dayjs');
 
 test('Open rsvp, for all and members only', async ({ page }) => {
-  let projectPage = new ProjectPage(page);
-  let randomProjectName = await projectPage.addProject(admin, [{'username': promoter.username, 'role': 'promoter'}, {'username': usher.username, 'role': 'usher'}]);
   let loginPage = new LoginPage(page);
-  await loginPage.login(`/${admin.owns_profile}/${randomProjectName}`, promoter.username, promoter.password);
+  await loginPage.login(`/${admin.owns_profile}/${admin.project}`, admin.username, admin.password);
 
   await page.getByTestId('project-menu').locator('visible=true').click();
   await page.getByTestId('settings').locator('visible=true').click();
   await page.getByTestId('setup-ticket-events').click();
-
-  for (let event of events) {
-    await page.getByTestId('new-ticket-event').click();
-    await page.locator('#title').fill(event.title);
-    await page.locator('#badge_template').fill(event.badge_template);
-    await page.getByTestId('form-submit-btn').click();
-  }
 
   await page.getByTestId('new-ticket-client').click();
   await page.locator('#name').fill(process.env.BOXOFFICE_CLIENT_ID);
@@ -35,7 +23,14 @@ test('Open rsvp, for all and members only', async ({ page }) => {
   await page.getByTestId('form-submit-btn').click();
 
   await page.getByTestId('sync-tickets').click();
-  await page.waitForTimeout(12000);
+
+  for (let event of events) {
+    await page.getByTestId('new-ticket-event').click();
+    await page.locator('#title').fill(event.title);
+    await page.locator('#badge_template').fill(event.badge_template);
+    await page.getByTestId('form-submit-btn').click();
+  }
+
   await page.getByTestId('sync-tickets').click();
 
   for (let event of events) {
@@ -44,8 +39,6 @@ test('Open rsvp, for all and members only', async ({ page }) => {
     await page.getByTestId('form-submit-btn').click();
   }
 
-  await page.getByTestId('sync-tickets').click();
-  await page.waitForTimeout(12000);
   await page.getByTestId('sync-tickets').click();
 
   for (let participant of ticket_participants) {
@@ -71,16 +64,6 @@ test('Open rsvp, for all and members only', async ({ page }) => {
   await page.getByTestId('project-page').click();
 
   await page.getByTestId('project-menu').locator('visible=true').click();
-  await page.getByTestId('edit').locator('visible=true').click();
-  let eventStartDate = dayjs().add(1, 'days').format('YYYY-MM-DDTHH:MM');
-  let eventEndDate = dayjs().add(10, 'days').format('YYYY-MM-DDTHH:MM');
-  await page.locator('#start_at').fill(eventStartDate);
-  await page.locator('#end_at').fill(eventEndDate);
-  await page.getByTestId('form-submit-btn').click();
-  await page.getByTestId('project-menu').locator('visible=true').click();
-  await page.getByTestId('settings').locator('visible=true').click();
-  await page.getByTestId('publish').click();
-  await page.getByTestId('project-menu').locator('visible=true').click();
   await page.getByTestId('settings').locator('visible=true').click();
   await page.getByTestId('add-tickets').click();
   await page.getByLabel('Only members can register').click();
@@ -89,7 +72,7 @@ test('Open rsvp, for all and members only', async ({ page }) => {
   await page.getByTestId('rsvp-only-for-members').isVisible();
   await loginPage.logout();
 
-  await loginPage.login(`/${admin.owns_profile}/${randomProjectName}`, user.username, user.password);
+  await loginPage.login(`/${admin.owns_profile}/${admin.project}`, user.username, user.password);
   await page.getByTestId('project-member').isVisible();
   await page.getByTestId('member-rsvp').click();
   await page.locator('#rsvp-form').waitFor(60000);

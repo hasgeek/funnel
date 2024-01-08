@@ -2,19 +2,16 @@ import { test, expect } from '@playwright/test';
 
 const { LoginPage } = require('../page/login');
 const { ProjectPage } = require('../page/create-project');
-const profile = require('../fixtures/profile.json');
 const project = require('../fixtures/project.json');
-const { promoter, editor, user } = require('../fixtures/user.json');
+const { promoter, user } = require('../fixtures/user.json');
 const cfp = require('../fixtures/cfp.json');
 const labels = require('../fixtures/labels.json');
 const dayjs = require('dayjs');
 
-test('Open call for proposal of the project and add schedule', async ({ page }) => {
-  let projectPage = new ProjectPage(page);
-  let randomProjectName = await projectPage.addProject(promoter, [{'username': editor.username, 'role': 'editor'}]);
+test('Add schedule to a  project (open cfp, add labels, sort labels, add session, publish schedule)', async ({ page }) => {
   let loginPage = new LoginPage(page);
-  await loginPage.login(`/${promoter.owns_profile}/${randomProjectName}`, editor.username, editor.password);
-  await projectPage.addVenue();
+  let projectPage = new ProjectPage(page);
+  await loginPage.login(`/${promoter.owns_profile}/${promoter.project}`, promoter.username, promoter.password);
   await page.getByTestId('submissions').click();
   await page.getByTestId('add-cfp').click();
   await page.locator('#field-instructions .cm-editor .cm-line').fill(cfp.instructions);
@@ -81,7 +78,7 @@ test('Open call for proposal of the project and add schedule', async ({ page }) 
   await page.locator('#title').fill(project.session_title);
   await page.locator('select#venue_room_id').click();
   await page.getByText(`${project.venues[0].title} – ${project.venues[0].room}`).locator('visible=true').click();
-  await page.locator('#speaker').fill(editor.username);
+  await page.locator('#speaker').fill(promoter.username);
   await page.locator('#is_break').click();
   await Promise.all([
     page.waitForRequest(request => request.url().includes("/new"), {timeout: 60000}),
@@ -138,7 +135,7 @@ test('Open call for proposal of the project and add schedule', async ({ page }) 
   ]);
   await page.locator('#session-modal').isVisible();
   await expect(page.getByTestId('title')).toContainText(project.proposal_title);
-  await expect(page.getByTestId('speaker')).toContainText(editor.fullname);
+  await expect(page.getByTestId('speaker')).toContainText(promoter.fullname);
   await page.getByTestId('time').isVisible();
   await expect(page.getByTestId('room')).toContainText(`${project.venues[1].room}, ${project.venues[1].title}`);
   await page.getByTestId('session-video').locator('iframe').isVisible();

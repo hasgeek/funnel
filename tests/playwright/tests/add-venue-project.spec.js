@@ -1,16 +1,13 @@
 import { test, expect } from '@playwright/test';
 
 const { LoginPage } = require('../page/login');
-const { ProjectCrewFormPage } = require('../page/project-crew-form');
-const { ProjectPage } = require('../page/create-project');
 const venues = require('../fixtures/venues.json');
-const { promoter, usher } = require('../fixtures/user.json');
+const { owner } = require('../fixtures/user.json');
 
 test('Add venue to project', async ({ page }) => {
-  let projectPage = new ProjectPage(page);
-  let randomProjectName = await projectPage.addProject(promoter, [{'username': usher.username, 'role': 'editor'}]);
-  let loginPage = new LoginPage(page);
-  await loginPage.login(`/${promoter.owns_profile}/${randomProjectName}`, usher.username, usher.password);
+  let loginPage;
+  loginPage = new LoginPage(page);
+  await loginPage.login(`/${owner.owns_profile}/${owner.project}`, owner.username, owner.password);
 
   await page.getByTestId('project-menu').locator("visible=true").click();
   await page.getByTestId('settings').locator("visible=true").waitFor();
