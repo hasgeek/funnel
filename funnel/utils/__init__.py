@@ -6,7 +6,6 @@ __ignore__ = ['base', 'escape', 'tabs']  # Unwanted exports from markdown sub-pa
 
 from . import markdown, misc, mustache
 from .markdown import (
-    HasMarkdown,
     MarkdownConfig,
     MarkdownPlugin,
     MarkdownString,
@@ -31,7 +30,6 @@ from .misc import (
 from .mustache import mustache_html, mustache_md
 
 __all__ = [
-    "HasMarkdown",
     "MarkdownConfig",
     "MarkdownPlugin",
     "MarkdownString",

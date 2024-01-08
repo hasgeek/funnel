@@ -99,14 +99,16 @@ def block_of_sessions(
     db_session.add_all(refresh_attrs)
     db_session.commit()
 
-    def refresh():
+    def refresh() -> None:
         for attr in refresh_attrs:
             db_session.add(attr)
 
     return SimpleNamespace(**locals())
 
 
-def find_projects(starting_times, within, gap) -> dict[datetime, list[models.Project]]:
+def find_projects(
+    starting_times: list[datetime], within: timedelta, gap: timedelta
+) -> dict[datetime, list[models.Project]]:
     # Keep the timestamps at which projects were found, plus the project. Criteria:
     # starts at `timestamp` + up to `within` period, with `gap` from prior sessions
     return {

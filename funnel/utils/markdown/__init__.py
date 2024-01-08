@@ -13,10 +13,9 @@ from .base import (
     markdown_inline,
     markdown_mailer,
 )
-from .escape import HasMarkdown, MarkdownString, markdown_escape
+from .escape import MarkdownString, markdown_escape
 
 __all__ = [
-    "HasMarkdown",
     "MarkdownConfig",
     "MarkdownPlugin",
     "MarkdownString",
