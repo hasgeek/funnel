@@ -5,6 +5,8 @@ from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 
+from ...conftest import scoped_session
+
 
 def invalidate_cache(user):
     """Remove cached properties."""
@@ -21,7 +23,9 @@ def invalidate_cache(user):
             pass
 
 
-def test_siteadmin_roles(db_session, user_mort, user_death) -> None:
+def test_siteadmin_roles(
+    db_session: scoped_session, user_mort: models.User, user_death: models.User
+) -> None:
     """`SiteMembership` grants siteadmin roles."""
     assert user_mort.active_site_membership is None
     assert user_mort.is_site_admin is False
@@ -87,7 +91,7 @@ def test_siteadmin_roles(db_session, user_mort, user_death) -> None:
 
 
 def test_site_membership_migrate_account_transfer(
-    db_session, user_death, user_mort
+    db_session: scoped_session, user_death: models.User, user_mort: models.User
 ) -> None:
     """Test for transfer of a site membership when merging users."""
     assert user_mort.active_site_membership is None
@@ -123,7 +127,7 @@ def test_site_membership_migrate_account_transfer(
 
 
 def test_site_membership_migrate_account_retain(
-    db_session, user_death, user_mort
+    db_session: scoped_session, user_death: models.User, user_mort: models.User
 ) -> None:
     """Test for retaining a site membership when merging users."""
     assert user_mort.active_site_membership is None
@@ -176,7 +180,7 @@ def test_site_membership_migrate_account_retain(
 
 
 def test_site_membership_migrate_account_merge(
-    db_session, user_death, user_mort
+    db_session: scoped_session, user_death: models.User, user_mort: models.User
 ) -> None:
     """Test for merging site memberships when merging users."""
     assert user_mort.active_site_membership is None
@@ -232,7 +236,9 @@ def test_site_membership_migrate_account_merge(
     assert membership.is_site_editor is False  # This was not granted to either user
 
 
-def test_amend_siteadmin(db_session, user_vetinari, user_vimes) -> None:
+def test_amend_siteadmin(
+    db_session: scoped_session, user_vetinari: models.User, user_vimes: models.User
+) -> None:
     """Amend a membership record."""
     membership = models.SiteMembership(
         member=user_vimes,

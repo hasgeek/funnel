@@ -11,6 +11,8 @@ from coaster.utils import utcnow
 
 from funnel.views.helpers import SessionTimeouts, session_timeouts
 
+from ...conftest import TestClient
+
 test_timeout_seconds = 1
 
 
@@ -61,7 +63,7 @@ def _timeout_var() -> Generator[None, None, None]:
 
 @pytest.mark.flaky(reruns=1)  # Rerun in case assert with timedelta fails
 @pytest.mark.usefixtures('_timeout_var')
-def test_session_temp_vars(client) -> None:
+def test_session_temp_vars(client: TestClient) -> None:
     with client.session_transaction() as session:
         assert 'test_timeout' not in session
         assert 'test_timeout_at' not in session

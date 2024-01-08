@@ -8,8 +8,12 @@ from coaster.sqlalchemy import StateTransitionError
 
 from funnel import models
 
+from ...conftest import scoped_session
 
-def test_account_logo_url_valid(db_session, new_organization) -> None:
+
+def test_account_logo_url_valid(
+    db_session: scoped_session, new_organization: models.Organization
+) -> None:
     assert new_organization.name == 'test_org'
     new_organization.logo_url = "https://images.example.com/"
     db_session.commit()  # Required to roundtrip logo_url from db and turn into furl
@@ -17,14 +21,18 @@ def test_account_logo_url_valid(db_session, new_organization) -> None:
     assert new_organization.logo_url.url == "https://images.example.com/"
 
 
-def test_account_logo_url_invalid(db_session, new_organization) -> None:
+def test_account_logo_url_invalid(
+    db_session: scoped_session, new_organization: models.Organization
+) -> None:
     new_organization.logo_url = "noturl"
     with pytest.raises(StatementError):
         db_session.commit()
     db_session.rollback()
 
 
-def test_user_avatar(db_session, user_twoflower, user_rincewind) -> None:
+def test_user_avatar(
+    db_session: scoped_session, user_twoflower: models.User, user_rincewind: models.User
+) -> None:
     """User.logo_url returns a coherent value despite content variations."""
     # Test fixture has what we need
     assert user_twoflower.name is None
@@ -49,7 +57,9 @@ def test_user_avatar(db_session, user_twoflower, user_rincewind) -> None:
 
 
 @pytest.mark.filterwarnings("ignore:Object of type <AccountPhone> not in session")
-def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
+def test_suspended_user_private_profile(
+    db_session: scoped_session, user_wolfgang: models.User
+) -> None:
     """Suspending a user will mark their account page as private."""
     # Account cannot be public until the user has a verified phone number.
     # This constraint is enforced in the view and not in the model, as the test on
@@ -76,7 +86,9 @@ def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
         user_wolfgang.make_profile_public()
 
 
-def test_account_name_is(user_rincewind, org_uu, user_lutze) -> None:
+def test_account_name_is(
+    user_rincewind: models.User, org_uu: models.Organization, user_lutze: models.User
+) -> None:
     """Test Account.name_is to return a query filter."""
     assert (
         models.Account.query.filter(models.Account.name_is('rincewind')).one()
@@ -98,7 +110,9 @@ def test_account_name_is(user_rincewind, org_uu, user_lutze) -> None:
     )
 
 
-def test_account_name_in(user_rincewind, org_uu, user_lutze) -> None:
+def test_account_name_in(
+    user_rincewind: models.User, org_uu: models.Organization, user_lutze: models.User
+) -> None:
     """Test Account.name_in to return a query filter."""
     assert models.Account.query.filter(
         models.Account.name_in(['lu-tze', 'lu_tze'])
@@ -108,7 +122,9 @@ def test_account_name_in(user_rincewind, org_uu, user_lutze) -> None:
     ) == {user_rincewind, org_uu}
 
 
-def test_account_name_like(user_rincewind, user_ridcully, user_lutze) -> None:
+def test_account_name_like(
+    user_rincewind: models.User, user_ridcully: models.User, user_lutze: models.User
+) -> None:
     """Test Account.name_like to return a query filter."""
     assert set(models.Account.query.filter(models.Account.name_like('r%')).all()) == {
         user_rincewind,

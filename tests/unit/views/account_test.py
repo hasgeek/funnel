@@ -1,13 +1,19 @@
 """Test account views."""
 
 from types import SimpleNamespace
+from typing import cast
 
 import pytest
 
+from funnel import models
 from funnel.views.account import user_agent_details
 
+from ...conftest import LoginFixtureProtocol, TestClient, scoped_session
 
-def test_account_always_has_profile_url(user_twoflower, user_rincewind) -> None:
+
+def test_account_always_has_profile_url(
+    user_twoflower: models.User, user_rincewind: models.User
+) -> None:
     """An account without a username will still have an absolute URL for a profile."""
     assert user_twoflower.username is None
     assert user_twoflower.absolute_url is not None
@@ -15,7 +21,12 @@ def test_account_always_has_profile_url(user_twoflower, user_rincewind) -> None:
     assert user_rincewind.absolute_url is not None
 
 
-def test_username_available(db_session, client, user_rincewind, csrf_token) -> None:
+def test_username_available(
+    db_session: scoped_session,
+    client: TestClient,
+    user_rincewind: models.User,
+    csrf_token: str,
+) -> None:
     """Test the username availability endpoint."""
     endpoint = '/api/1/account/username_available'
 
@@ -48,7 +59,7 @@ def test_username_available(db_session, client, user_rincewind, csrf_token) -> N
         'error_description': "This username has been taken",
     }
 
-    # Misformatted usernames will render an explanatory error
+    # Mis-formatted usernames will render an explanatory error
     rv = client.post(
         endpoint,
         data={'username': 'this is invalid', 'csrf_token': csrf_token},
@@ -64,11 +75,16 @@ def test_username_available(db_session, client, user_rincewind, csrf_token) -> N
 
 # Sample password that will pass zxcvbn's complexity validation, but will be flagged
 # by the pwned password validator
-PWNED_PASSWORD = "thisisone1"  # nosec
+PWNED_PASSWORD = 'thisisone1'  # nosec
 
 
 @pytest.mark.enable_socket()
-def test_pwned_password(client, csrf_token, login, user_rincewind) -> None:
+def test_pwned_password(
+    client: TestClient,
+    csrf_token: str,
+    login: LoginFixtureProtocol,
+    user_rincewind: models.User,
+) -> None:
     """Pwned password validator will block attempt to use a compromised password."""
     login.as_(user_rincewind)
     rv = client.post(
@@ -86,7 +102,11 @@ def test_pwned_password(client, csrf_token, login, user_rincewind) -> None:
 
 
 def test_pwned_password_mock_endpoint_down(
-    requests_mock, client, csrf_token, login, user_rincewind
+    requests_mock,
+    client: TestClient,
+    csrf_token: str,
+    login: LoginFixtureProtocol,
+    user_rincewind: models.User,
 ) -> None:
     """If the pwned password API is not available, the password is allowed."""
     requests_mock.get('https://api.pwnedpasswords.com/range/1F074', status_code=404)
@@ -198,5 +218,10 @@ def test_pwned_password_mock_endpoint_down(
         ),
     ],
 )
-def test_user_agent_details(user_agent, output) -> None:
-    assert user_agent_details(SimpleNamespace(user_agent=user_agent)) == output
+def test_user_agent_details(user_agent: str, output: dict) -> None:
+    assert (
+        user_agent_details(
+            cast(models.LoginSession, SimpleNamespace(user_agent=user_agent))
+        )
+        == output
+    )

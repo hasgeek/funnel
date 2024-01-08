@@ -6,9 +6,10 @@ from types import SimpleNamespace
 
 import pytest
 import sqlalchemy as sa
-from sqlalchemy.orm.scoping import scoped_session
 
 from funnel import models
+
+from ...conftest import scoped_session
 
 
 @pytest.fixture()

@@ -1,15 +1,16 @@
 """Tests for Proposal forms."""
 
-from funnel import models
+from flask import Flask
+
+from funnel import forms, models
 
 
 def test_proposal_label_admin_form(
-    forms,
-    app,
-    new_main_label,
-    new_main_label_unrestricted,
-    new_label,
-    new_proposal,
+    app: Flask,
+    new_main_label: models.Label,
+    new_main_label_unrestricted: models.Label,
+    new_label: models.Label,
+    new_proposal: models.Proposal,
 ) -> None:
     assert new_main_label.restricted
     assert not new_main_label_unrestricted.restricted
@@ -39,12 +40,11 @@ def test_proposal_label_admin_form(
 
 
 def test_proposal_label_form(
-    forms,
-    app,
-    new_main_label,
-    new_main_label_unrestricted,
-    new_label,
-    new_proposal,
+    app: Flask,
+    new_main_label: models.Label,
+    new_main_label_unrestricted: models.Label,
+    new_label: models.Label,
+    new_proposal: models.Proposal,
 ) -> None:
     assert new_main_label.restricted
     assert not new_main_label_unrestricted.restricted

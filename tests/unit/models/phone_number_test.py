@@ -14,9 +14,10 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped
-from sqlalchemy.orm.scoping import scoped_session
 
 from funnel import models, signals
+
+from ...conftest import scoped_session
 
 # These numbers were obtained from libphonenumber with region codes 'IN' and 'US':
 # >>> phonenumbers.example_number_for_type(region, phonenumbers.PhoneNumberType.MOBILE)
@@ -220,13 +221,17 @@ def test_validate_phone_number(
         ),
     ],
 )
-def test_canonical_phone_number(candidate, expected, raises) -> None:
+def test_canonical_phone_number(
+    candidate: str | phonenumbers.PhoneNumber,
+    expected: str | None,
+    raises: ContextManager,
+) -> None:
     with raises:
         assert models.canonical_phone_number(candidate) == expected
 
 
 def test_phone_hash_stability() -> None:
-    """Safety test to ensure phone_blakeb160_hash doesn't change spec."""
+    """Safety test to ensure phone_blake2b160_hash doesn't change spec."""
     phash = models.phone_blake2b160_hash
     with pytest.raises(ValueError, match="Not a phone number"):
         phash('not-a-valid-number')

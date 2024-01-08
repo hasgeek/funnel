@@ -9,6 +9,7 @@ from coaster.utils import buid, utcnow
 
 from funnel import models
 
+from ...conftest import scoped_session
 from .db_test import TestDatabaseFixture
 
 
@@ -210,7 +211,10 @@ class TestAuthToken(TestDatabaseFixture):
 
 
 def test_authtoken_migrate_account_move(
-    db_session, user_twoflower, user_rincewind, client_hex
+    db_session: scoped_session,
+    user_twoflower: models.User,
+    user_rincewind: models.User,
+    client_hex: models.AuthClient,
 ) -> None:
     """Auth token is moved from old user to new user."""
     token = models.AuthToken(auth_client=client_hex, account=user_twoflower, scope='')
@@ -225,7 +229,10 @@ def test_authtoken_migrate_account_move(
 
 
 def test_authtoken_migrate_account_retain(
-    db_session, user_twoflower, user_rincewind, client_hex
+    db_session: scoped_session,
+    user_twoflower: models.User,
+    user_rincewind: models.User,
+    client_hex: models.AuthClient,
 ) -> None:
     """Auth token is retained on new user when migrating from old user."""
     token = models.AuthToken(auth_client=client_hex, account=user_rincewind, scope='')
@@ -240,7 +247,10 @@ def test_authtoken_migrate_account_retain(
 
 
 def test_authtoken_migrate_account_merge(
-    db_session, user_twoflower, user_rincewind, client_hex
+    db_session: scoped_session,
+    user_twoflower: models.User,
+    user_rincewind: models.User,
+    client_hex: models.AuthClient,
 ) -> None:
     """Merging two auth token will merge their scope."""
     token1 = models.AuthToken(

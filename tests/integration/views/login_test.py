@@ -12,9 +12,8 @@ from flask import redirect, request, session
 from werkzeug.datastructures import MultiDict
 
 from coaster.utils import utcnow
-from tests.conftest import LoginFixtureProtocol
 
-from funnel import models
+from funnel import forms, models
 from funnel.auth import current_auth
 from funnel.loginproviders import GitHubProvider
 from funnel.registry import (
@@ -27,7 +26,7 @@ from funnel.registry import (
 from funnel.transports import TransportConnectionError, TransportRecipientError
 from funnel.views.otp import OtpSession
 
-from ...conftest import TestClient, scoped_session
+from ...conftest import LoginFixtureProtocol, TestClient, scoped_session
 
 pytestmark = pytest.mark.filterwarnings(
     "ignore:Object of type <AccountPhone> not in session",
@@ -719,7 +718,7 @@ def test_phone_otp_not_sent(
 
 
 @pytest.mark.usefixtures('user_rincewind_email', 'user_rincewind_with_weak_password')
-def test_weak_password_exception(forms, client: TestClient, csrf_token: str) -> None:
+def test_weak_password_exception(client: TestClient, csrf_token: str) -> None:
     """If login form blocks weak password, login view will force user to reset it."""
     with client:
         with patch(

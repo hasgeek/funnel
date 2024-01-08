@@ -1,9 +1,11 @@
 """Test Project views."""
 
+from flask.ctx import AppContext
+
 from funnel.views.project import get_registration_text
 
 
-def test_registration_text(app_context) -> None:
+def test_registration_text(app_context: AppContext) -> None:
     assert get_registration_text(count=0, registered=False).startswith("Be the first")
     assert get_registration_text(count=1, registered=True).startswith(
         "You have registered"

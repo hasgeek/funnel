@@ -8,6 +8,8 @@ from coaster.utils import buid, utcnow
 
 from funnel import models
 
+from ...conftest import scoped_session
+
 sample_user_agent = (
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like'
     ' Gecko) Chrome/49.0.2623.110 Safari/537.36'
@@ -20,7 +22,9 @@ def test_usersession_init() -> None:
     assert isinstance(result, models.LoginSession)
 
 
-def test_usersession_has_sudo(db_session, user_twoflower) -> None:
+def test_usersession_has_sudo(
+    db_session: scoped_session, user_twoflower: models.User
+) -> None:
     """Test to set sudo and test if UserSession instance has_sudo."""
     another_user_session = models.LoginSession(
         account=user_twoflower,
@@ -34,7 +38,9 @@ def test_usersession_has_sudo(db_session, user_twoflower) -> None:
     assert another_user_session.has_sudo is True
 
 
-def test_usersession_revoke(db_session, user_twoflower) -> None:
+def test_usersession_revoke(
+    db_session: scoped_session, user_twoflower: models.User
+) -> None:
     """Test to revoke on UserSession instance."""
     yet_another_usersession = models.LoginSession(
         account=user_twoflower,
@@ -49,7 +55,9 @@ def test_usersession_revoke(db_session, user_twoflower) -> None:
     assert result.revoked_at is not None
 
 
-def test_usersession_get(db_session, user_twoflower) -> None:
+def test_usersession_get(
+    db_session: scoped_session, user_twoflower: models.User
+) -> None:
     """Test for verifying UserSession's get method."""
     twoflower_buid = buid()
     twoflower_session = models.LoginSession(
@@ -65,7 +73,9 @@ def test_usersession_get(db_session, user_twoflower) -> None:
     assert result.account == user_twoflower
 
 
-def test_usersession_active_sessions(db_session, user_twoflower) -> None:
+def test_usersession_active_sessions(
+    db_session: scoped_session, user_twoflower: models.User
+) -> None:
     """Test for verifying UserSession's active_sessions."""
     twoflower_session = models.LoginSession(
         account=user_twoflower,
@@ -79,7 +89,9 @@ def test_usersession_active_sessions(db_session, user_twoflower) -> None:
     assert user_twoflower.active_login_sessions.all() == [twoflower_session]
 
 
-def test_usersession_authenticate(db_session, user_dibbler) -> None:
+def test_usersession_authenticate(
+    db_session: scoped_session, user_dibbler: models.User
+) -> None:
     """Test to verify authenticate method on UserSession."""
     dibbler_session = models.LoginSession(
         account=user_dibbler,
@@ -113,7 +125,9 @@ def test_usersession_authenticate(db_session, user_dibbler) -> None:
     assert models.LoginSession.authenticate(dibbler_session.buid, silent=True) is None
 
 
-def test_usersession_authenticate_suspended_user(db_session, user_dibbler) -> None:
+def test_usersession_authenticate_suspended_user(
+    db_session: scoped_session, user_dibbler: models.User
+) -> None:
     """Test to verify authenticate method on UserSession with a suspended user."""
     dibbler_session = models.LoginSession(
         account=user_dibbler,

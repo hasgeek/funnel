@@ -5,11 +5,10 @@ from typing import cast
 
 import pytest
 from flask import Flask
-from sqlalchemy.orm.scoping import scoped_session
 
 from funnel import models
 
-from ...conftest import LoginFixtureProtocol, TestClient
+from ...conftest import LoginFixtureProtocol, TestClient, scoped_session
 
 
 @pytest.fixture()
@@ -65,8 +64,8 @@ def test_check_site_editor_edit_sponsorship(
     client: TestClient,
     login: LoginFixtureProtocol,
     org_uu_sponsorship: models.ProjectSponsorMembership,
-    user_site_membership,
-    status_code,
+    user_site_membership: str,
+    status_code: int,
 ) -> None:
     login.as_(request.getfixturevalue(user_site_membership).member)
     endpoint = org_uu_sponsorship.url_for('edit')
@@ -90,13 +89,13 @@ def test_sponsorship_add(
     user_vetinari_site_editor: models.SiteMembership,
     org_uu: models.Organization,
     project_expo2010: models.Project,
-    label,
-    is_promoted,
+    label: str | None,
+    is_promoted: bool,
     csrf_token: str,
 ) -> None:
     login.as_(cast(models.User, user_vetinari_site_editor.member))
     endpoint = project_expo2010.url_for('add_sponsor')
-    data = {
+    data: dict = {
         'member': org_uu.name,
         'label': label,
         'csrf_token': csrf_token,
