@@ -18,7 +18,8 @@ from coaster.sqlalchemy import (
 )
 from coaster.utils import LabeledEnum
 
-from . import (
+from .account import Account
+from .base import (
     BaseMixin,
     BaseScopedIdNameMixin,
     DynamicMapped,
@@ -32,7 +33,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account
 from .helpers import (
     MarkdownCompositeDocument,
     add_search_trigger,

@@ -9,8 +9,8 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, Mapped, Model, UuidMixin, db, relationship, sa, sa_orm
 from .account import Account
+from .base import BaseMixin, Mapped, Model, UuidMixin, db, relationship, sa, sa_orm
 from .comment import Comment
 from .site_membership import SiteMembership
 

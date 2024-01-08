@@ -26,7 +26,7 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, require_one_of
 
 from ..signals import emailaddress_refcount_dropping
-from . import (
+from .base import (
     BaseMixin,
     Mapped,
     Model,

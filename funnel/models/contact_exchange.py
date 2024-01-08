@@ -15,7 +15,8 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
-from . import (
+from .account import Account
+from .base import (
     Mapped,
     Model,
     Query,
@@ -26,7 +27,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account
 from .project import Project
 from .sync_ticket import TicketParticipant
 

@@ -6,12 +6,13 @@ from types import SimpleNamespace
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.orm.scoping import scoped_session
 
 from funnel import models
 
 
 @pytest.fixture()
-def team_merge_data(db_session):
+def team_merge_data(db_session: scoped_session) -> SimpleNamespace:
     user1 = models.User(
         username='user1',
         fullname="User 1",
@@ -28,7 +29,7 @@ def team_merge_data(db_session):
     return SimpleNamespace(**locals())
 
 
-def test_team_migrate_user1(team_merge_data) -> None:
+def test_team_migrate_user1(team_merge_data: SimpleNamespace) -> None:
     """
     Test to verify teams are transferred when merging users.
 
@@ -41,13 +42,14 @@ def test_team_migrate_user1(team_merge_data) -> None:
     assert team_merge_data.user2.member_teams == []
 
     merged = models.merge_accounts(team_merge_data.user1, team_merge_data.user2)
+    assert merged is not None
     assert merged == team_merge_data.user1
     assert merged.member_teams == [team_merge_data.team]
     assert team_merge_data.user1.member_teams == [team_merge_data.team]
     assert team_merge_data.user2.member_teams == []
 
 
-def test_team_migrate_user2(team_merge_data) -> None:
+def test_team_migrate_user2(team_merge_data: SimpleNamespace) -> None:
     """
     Test to verify teams are transferred when merging users.
 
@@ -60,13 +62,14 @@ def test_team_migrate_user2(team_merge_data) -> None:
     assert team_merge_data.user2.member_teams == [team_merge_data.team]
 
     merged = models.merge_accounts(team_merge_data.user1, team_merge_data.user2)
+    assert merged is not None
     assert merged == team_merge_data.user1
     assert merged.member_teams == [team_merge_data.team]
     assert team_merge_data.user1.member_teams == [team_merge_data.team]
     assert team_merge_data.user2.member_teams == []
 
 
-def test_team_migrate_user3(team_merge_data) -> None:
+def test_team_migrate_user3(team_merge_data: SimpleNamespace) -> None:
     """
     Test to verify teams are transferred when merging users.
 
@@ -83,6 +86,7 @@ def test_team_migrate_user3(team_merge_data) -> None:
     assert team_merge_data.user2.member_teams == [team_merge_data.team]
 
     merged = models.merge_accounts(team_merge_data.user1, team_merge_data.user2)
+    assert merged is not None
     assert merged == team_merge_data.user1
     assert merged.member_teams == [team_merge_data.team]
     assert team_merge_data.user1.member_teams == [team_merge_data.team]

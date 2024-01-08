@@ -19,7 +19,7 @@ from coaster.sqlalchemy import ModelWarning, immutable, with_roles
 from coaster.utils import require_one_of
 
 from ..signals import phonenumber_refcount_dropping
-from . import (
+from .base import (
     BaseMixin,
     Mapped,
     Model,

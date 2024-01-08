@@ -1,13 +1,24 @@
 """Test ProjectSponsorship views."""
 # pylint: disable=redefined-outer-name
 
+from typing import cast
+
 import pytest
+from flask import Flask
+from sqlalchemy.orm.scoping import scoped_session
 
 from funnel import models
 
+from ...conftest import LoginFixtureProtocol, TestClient
+
 
 @pytest.fixture()
-def org_uu_sponsorship(db_session, user_vetinari, org_uu, project_expo2010):
+def org_uu_sponsorship(
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    org_uu: models.Organization,
+    project_expo2010: models.Project,
+) -> models.ProjectSponsorMembership:
     sponsorship = models.ProjectSponsorMembership(
         granted_by=user_vetinari,
         member=org_uu,
@@ -21,7 +32,9 @@ def org_uu_sponsorship(db_session, user_vetinari, org_uu, project_expo2010):
 
 
 @pytest.fixture()
-def user_vetinari_site_editor(db_session, user_vetinari):
+def user_vetinari_site_editor(
+    db_session: scoped_session, user_vetinari: models.User
+) -> models.SiteMembership:
     site_editor = models.SiteMembership(
         member=user_vetinari, granted_by=user_vetinari, is_site_editor=True
     )
@@ -31,7 +44,9 @@ def user_vetinari_site_editor(db_session, user_vetinari):
 
 
 @pytest.fixture()
-def user_twoflower_not_site_editor(db_session, user_twoflower):
+def user_twoflower_not_site_editor(
+    db_session: scoped_session, user_twoflower: models.User
+) -> models.SiteMembership:
     not_site_editor = models.SiteMembership(
         member=user_twoflower, granted_by=user_twoflower, is_comment_moderator=True
     )
@@ -45,7 +60,13 @@ def user_twoflower_not_site_editor(db_session, user_twoflower):
     [('user_vetinari_site_editor', 200), ('user_twoflower_not_site_editor', 403)],
 )
 def test_check_site_editor_edit_sponsorship(
-    request, app, client, login, org_uu_sponsorship, user_site_membership, status_code
+    request: pytest.FixtureRequest,
+    app: Flask,
+    client: TestClient,
+    login: LoginFixtureProtocol,
+    org_uu_sponsorship: models.ProjectSponsorMembership,
+    user_site_membership,
+    status_code,
 ) -> None:
     login.as_(request.getfixturevalue(user_site_membership).member)
     endpoint = org_uu_sponsorship.url_for('edit')
@@ -63,17 +84,17 @@ def test_check_site_editor_edit_sponsorship(
     ],
 )
 def test_sponsorship_add(
-    app,
-    client,
-    login,
-    user_vetinari_site_editor,
-    org_uu,
-    project_expo2010,
+    app: Flask,
+    client: TestClient,
+    login: LoginFixtureProtocol,
+    user_vetinari_site_editor: models.SiteMembership,
+    org_uu: models.Organization,
+    project_expo2010: models.Project,
     label,
     is_promoted,
-    csrf_token,
+    csrf_token: str,
 ) -> None:
-    login.as_(user_vetinari_site_editor.member)
+    login.as_(cast(models.User, user_vetinari_site_editor.member))
     endpoint = project_expo2010.url_for('add_sponsor')
     data = {
         'member': org_uu.name,
@@ -99,15 +120,15 @@ def test_sponsorship_add(
 
 
 def test_sponsorship_edit(
-    app,
-    client,
-    login,
-    org_uu_sponsorship,
-    user_vetinari_site_editor,
-    csrf_token,
+    app: Flask,
+    client: TestClient,
+    login: LoginFixtureProtocol,
+    org_uu_sponsorship: models.ProjectSponsorMembership,
+    user_vetinari_site_editor: models.SiteMembership,
+    csrf_token: str,
 ) -> None:
     assert org_uu_sponsorship.is_promoted is True
-    login.as_(user_vetinari_site_editor.member)
+    login.as_(cast(models.User, user_vetinari_site_editor.member))
     endpoint = org_uu_sponsorship.url_for('edit')
     data = {
         'label': "Edited",
@@ -127,14 +148,14 @@ def test_sponsorship_edit(
 
 
 def test_sponsorship_remove(
-    db_session,
-    app,
-    client,
-    login,
-    org_uu_sponsorship,
-    user_vetinari,
-    user_vetinari_site_editor,
-    csrf_token,
+    db_session: scoped_session,
+    app: Flask,
+    client: TestClient,
+    login: LoginFixtureProtocol,
+    org_uu_sponsorship: models.ProjectSponsorMembership,
+    user_vetinari: models.User,
+    user_vetinari_site_editor: models.SiteMembership,
+    csrf_token: str,
 ) -> None:
     db_session.add(user_vetinari_site_editor)
     db_session.commit()

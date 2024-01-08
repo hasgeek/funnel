@@ -7,7 +7,7 @@ import os.path
 import re
 import time
 import warnings
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import ExitStack
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -52,10 +52,10 @@ from rich.text import Text
 from sqlalchemy import event
 from sqlalchemy.orm import Session as DatabaseSessionClass, scoped_session
 from werkzeug import run_simple
-from werkzeug.test import TestResponse
 
 if TYPE_CHECKING:
     import funnel.models as funnel_models
+    from funnel.devtest import BackgroundWorker, CapturedCalls
 
 # --- Pytest config --------------------------------------------------------------------
 
@@ -200,7 +200,7 @@ class MetaRefreshContent(NamedTuple):
     url: str | None = None
 
 
-class ResponseWithForms(Response):
+class TestResponse(Response):
     """
     Wrapper for the test client response that makes form submission easier.
 
@@ -215,6 +215,17 @@ class ResponseWithForms(Response):
             next_response = form.submit(client)
     """
 
+    # Tell Pytest this class isn't a test
+    __test__ = False
+
+    if TYPE_CHECKING:
+        #: Type hint for the `text` cached_property available via
+        #: :class:`werkzeug.test.TestResponse`, which will be used to make a subclass
+        #: of this class in :class:`werkzeug.test.Client`
+        @property
+        def text(self) -> str:
+            ...
+
     _parsed_html: HtmlElement | None = None
 
     @property
@@ -225,7 +236,7 @@ class ResponseWithForms(Response):
 
             # add click method to all links
             def _click(
-                self: HtmlElement, client: FlaskClient, **kwargs: Any
+                self: HtmlElement, client: TestClient, **kwargs: Any
             ) -> TestResponse:
                 # `self` is the `a` element here
                 path = self.attrib['href']
@@ -237,7 +248,7 @@ class ResponseWithForms(Response):
             # add submit method to all forms
             def _submit(
                 self: FormElement,
-                client: FlaskClient,
+                client: TestClient,
                 path: str | None = None,
                 **kwargs: Any,
             ) -> TestResponse:
@@ -252,8 +263,8 @@ class ResponseWithForms(Response):
                     kwargs['method'] = self.method
                 return client.open(path, data=data, **kwargs)
 
-            for form in self._parsed_html.forms:  # type: ignore[attr-defined]
-                form.submit = MethodType(_submit, form)
+            for form in self._parsed_html.forms:
+                form.submit = MethodType(_submit, form)  # type: ignore[attr-defined]
         return self._parsed_html
 
     @property
@@ -272,9 +283,9 @@ class ResponseWithForms(Response):
     ) -> FormElement | None:
         """Return the first form matching given id or name in the document."""
         if id_:
-            forms = self.html.cssselect(f'form#{id_}')
+            forms = cast(list[FormElement], self.html.cssselect(f'form#{id_}'))
         elif name:
-            forms = self.html.cssselect(f'form[name={name}]')
+            forms = cast(list[FormElement], self.html.cssselect(f'form[name={name}]'))
         else:
             forms = self.forms
         if forms:
@@ -313,6 +324,7 @@ def rich_console() -> Console:
     return Console(highlight=False)
 
 
+@runtime_checkable
 class PrintStackProtocol(Protocol):
     def __call__(self, skip: int = 0, limit: int | None = None) -> None:
         ...
@@ -438,14 +450,14 @@ def unsubscribeapp(funnel) -> Flask:
 
 
 @pytest.fixture()
-def app_context(app: Flask) -> Iterator[AppContext]:
+def app_context(app: Flask) -> Generator[AppContext, None, None]:
     """Create an app context for the test."""
     with app.app_context() as ctx:
         yield ctx
 
 
 @pytest.fixture()
-def request_context(app: Flask) -> Iterator[RequestContext]:
+def request_context(app: Flask) -> Generator[RequestContext, None, None]:
     """Create a request context with default values for the test."""
     with app.test_request_context() as ctx:
         yield ctx
@@ -478,7 +490,7 @@ _mock_config_syntax = (
 
 
 @pytest.fixture(autouse=True)
-def _mock_config(request: pytest.FixtureRequest) -> Iterator:
+def _mock_config(request: pytest.FixtureRequest) -> Generator[None, None, None]:
     """Mock app config (using ``mock_config`` mark)."""
 
     def backup_and_apply_config(
@@ -555,7 +567,7 @@ def _requires_config(request: pytest.FixtureRequest) -> None:
 @pytest.fixture(scope='session')
 def _app_events(
     rich_console: Console, print_stack: PrintStackProtocol, app: Flask
-) -> Iterator[None]:
+) -> Generator[None, None, None]:
     """Fixture to report Flask signals with a stack trace when debugging a test."""
 
     def signal_handler(signal_name, *args, **kwargs):
@@ -589,7 +601,7 @@ def _app_events(
 @pytest.fixture()
 def _database_events(
     models: ModuleType, rich_console: Console, print_stack: PrintStackProtocol
-) -> Iterator:
+) -> Generator[None, None, None]:
     """
     Fixture to report database session events for debugging a test.
 
@@ -939,7 +951,7 @@ def database(funnel, models, request: pytest.FixtureRequest, app: Flask) -> SQLA
 @pytest.fixture()
 def db_session_truncate(
     funnel, app, database: SQLAlchemy, app_context
-) -> Iterator[scoped_session]:
+) -> Generator[scoped_session, None, None]:
     """Empty the database after each use of the fixture."""
     yield database.session
     sa_orm.close_all_sessions()
@@ -997,8 +1009,8 @@ class BoundSession(FsaSession):
 
 @pytest.fixture()
 def db_session_rollback(
-    funnel, app, database: SQLAlchemy, app_context
-) -> Iterator[scoped_session]:
+    funnel, app: Flask, database: SQLAlchemy, app_context: AppContext
+) -> Generator[scoped_session, None, None]:
     """Create a nested transaction for the test and rollback after."""
     original_session = database.session
 
@@ -1038,7 +1050,7 @@ db_session_implementations = {
 
 
 @pytest.fixture()
-def db_session(request) -> scoped_session:
+def db_session(request: pytest.FixtureRequest) -> scoped_session:
     """
     Database session fixture.
 
@@ -1065,15 +1077,65 @@ def db_session(request) -> scoped_session:
         db_session_implementations[
             'truncate'
             if request.node.get_closest_marker('dbcommit')
-            else request.config.getoption('--dbsession')
+            else cast(str, request.config.getoption('--dbsession'))
         ]
     )
 
 
+class TestClient(FlaskClient):
+    """Dummy subclass used for corrected type hints as FlaskClient is not a Generic."""
+
+    # Tell Pytest this class isn't a test
+    __test__ = False
+
+    if TYPE_CHECKING:
+
+        def open(  # type: ignore[override]  # noqa: A001
+            self,
+            *args: Any,
+            buffered: bool = False,
+            follow_redirects: bool = False,
+            **kwargs: Any,
+        ) -> TestResponse:
+            ...
+
+        def get(self, *args: Any, **kw: Any) -> TestResponse:  # type: ignore[override]
+            ...
+
+        def post(self, *args: Any, **kw: Any) -> TestResponse:  # type: ignore[override]
+            ...
+
+        def put(self, *args: Any, **kw: Any) -> TestResponse:  # type: ignore[override]
+            ...
+
+        def delete(  # type: ignore[override]
+            self, *args: Any, **kw: Any
+        ) -> TestResponse:
+            ...
+
+        def patch(  # type: ignore[override]
+            self, *args: Any, **kw: Any
+        ) -> TestResponse:
+            ...
+
+        def options(  # type: ignore[override]
+            self, *args: Any, **kw: Any
+        ) -> TestResponse:
+            ...
+
+        def head(self, *args: Any, **kw: Any) -> TestResponse:  # type: ignore[override]
+            ...
+
+        def trace(  # type: ignore[override]
+            self, *args: Any, **kw: Any
+        ) -> TestResponse:
+            ...
+
+
 @pytest.fixture()
-def client(app: Flask, db_session: scoped_session) -> FlaskClient:
+def client(app: Flask, db_session: scoped_session) -> TestClient:
     """Provide a test client that commits the db session before any action."""
-    client: FlaskClient = FlaskClient(app, ResponseWithForms, use_cookies=True)
+    client = TestClient(app, TestResponse, use_cookies=True)
     client_open = client.open
 
     def commit_before_open(*args, **kwargs):
@@ -1084,8 +1146,18 @@ def client(app: Flask, db_session: scoped_session) -> FlaskClient:
     return client
 
 
+@runtime_checkable
+class LiveServerProtocol(Protocol):
+    background_worker: BackgroundWorker
+    transport_calls: CapturedCalls
+    url: str
+    urls: list[str]
+
+
 @pytest.fixture(scope='session')
-def live_server(funnel_devtest, app: Flask, database):
+def live_server(
+    funnel_devtest, app: Flask, database: SQLAlchemy
+) -> Generator[LiveServerProtocol, None, None]:
     """Run application in a separate process."""
     # Use HTTPS for live server (set to False if required)
     use_https = True
@@ -1124,19 +1196,22 @@ def live_server(funnel_devtest, app: Flask, database):
             probe_at=('127.0.0.1', port),
             mock_transports=True,
         ) as server:
-            yield SimpleNamespace(
-                background_worker=server,
-                transport_calls=server.calls,
-                url=f'{scheme}://{app.config["SERVER_NAME"]}/',
-                urls=[
-                    f'{scheme}://{m_app.config["SERVER_NAME"]}/'
-                    for m_app in funnel_devtest.devtest_app.apps_by_host.values()
-                ],
+            yield cast(
+                LiveServerProtocol,
+                SimpleNamespace(
+                    background_worker=server,
+                    transport_calls=server.calls,
+                    url=f'{scheme}://{app.config["SERVER_NAME"]}/',
+                    urls=[
+                        f'{scheme}://{m_app.config["SERVER_NAME"]}/'
+                        for m_app in funnel_devtest.devtest_app.apps_by_host.values()
+                    ],
+                ),
             )
 
 
 @pytest.fixture()
-def csrf_token(app: Flask, client: FlaskClient) -> str:
+def csrf_token(app: Flask, client: TestClient) -> str:
     """Supply a CSRF token for use in form submissions."""
     field_name = app.config.get('WTF_CSRF_FIELD_NAME', 'csrf_token')
     with app.test_request_context():
@@ -1158,7 +1233,9 @@ class LoginFixtureProtocol(Protocol):
 
 
 @pytest.fixture()
-def login(app, client, db_session: scoped_session) -> LoginFixtureProtocol:
+def login(
+    app: Flask, client: TestClient, db_session: scoped_session
+) -> LoginFixtureProtocol:
     """Provide a login fixture."""
 
     def as_(user) -> None:
@@ -1173,11 +1250,9 @@ def login(app, client, db_session: scoped_session) -> LoginFixtureProtocol:
 
     def logout() -> None:
         # TODO: Test this
-        client.delete_cookie(
-            client.server_name, 'lastuser', domain=app.config['LASTUSER_COOKIE_DOMAIN']
-        )
+        client.delete_cookie('lastuser', domain=app.config['LASTUSER_COOKIE_DOMAIN'])
 
-    return SimpleNamespace(  # pyright:ignore[reportGeneralTypeIssues]
+    return SimpleNamespace(  # pyright: ignore[reportGeneralTypeIssues]
         as_=as_, logout=logout
     )
 
@@ -1192,6 +1267,7 @@ def login(app, client, db_session: scoped_session) -> LoginFixtureProtocol:
 # --- Users
 
 
+@runtime_checkable
 class GetUserProtocol(Protocol):
     usermap: dict[str, str]
 
@@ -1664,7 +1740,7 @@ def project_ai2(
 @pytest.fixture()
 def client_hex(
     models, db_session: scoped_session, org_uu: funnel_models.Organization
-) -> funnel_models.Project:
+) -> funnel_models.AuthClient:
     """
     Hex, supercomputer at Unseen University, powered by an Anthill Inside.
 
@@ -1682,42 +1758,48 @@ def client_hex(
     return auth_client
 
 
+@runtime_checkable
+class CredProtocol(Protocol):
+    cred: funnel_models.AuthClientCredential
+    secret: str
+
+
 @pytest.fixture()
 def client_hex_credential(
     models, db_session: scoped_session, client_hex: funnel_models.AuthClient
-) -> SimpleNamespace:
+) -> CredProtocol:
     cred, secret = models.AuthClientCredential.new(client_hex)
     db_session.add(cred)
-    return SimpleNamespace(cred=cred, secret=secret)
+    return cast(CredProtocol, SimpleNamespace(cred=cred, secret=secret))
 
 
 @pytest.fixture()
 def all_fixtures(  # pylint: disable=too-many-locals
-    db_session,
-    user_twoflower,
-    user_rincewind,
-    user_death,
-    user_mort,
-    user_susan,
-    user_lutze,
-    user_ridcully,
-    user_librarian,
-    user_ponder_stibbons,
-    user_vetinari,
-    user_vimes,
-    user_carrot,
-    user_angua,
-    user_dibbler,
-    user_wolfgang,
-    user_om,
-    org_ankhmorpork,
-    org_uu,
-    org_citywatch,
-    project_expo2010,
-    project_expo2011,
-    project_ai1,
-    project_ai2,
-    client_hex,
+    db_session: scoped_session,
+    user_twoflower: funnel_models.User,
+    user_rincewind: funnel_models.User,
+    user_death: funnel_models.User,
+    user_mort: funnel_models.User,
+    user_susan: funnel_models.User,
+    user_lutze: funnel_models.User,
+    user_ridcully: funnel_models.User,
+    user_librarian: funnel_models.User,
+    user_ponder_stibbons: funnel_models.User,
+    user_vetinari: funnel_models.User,
+    user_vimes: funnel_models.User,
+    user_carrot: funnel_models.User,
+    user_angua: funnel_models.User,
+    user_dibbler: funnel_models.User,
+    user_wolfgang: funnel_models.User,
+    user_om: funnel_models.User,
+    org_ankhmorpork: funnel_models.User,
+    org_uu: funnel_models.User,
+    org_citywatch: funnel_models.User,
+    project_expo2010: funnel_models.User,
+    project_expo2011: funnel_models.User,
+    project_ai1: funnel_models.User,
+    project_ai2: funnel_models.User,
+    client_hex: funnel_models.User,
 ) -> SimpleNamespace:
     """Return All Discworld fixtures at once."""
     db_session.commit()

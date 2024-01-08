@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from werkzeug.utils import cached_property
 
-from . import Mapped, Model, declared_attr, sa, sa_orm
+from .base import Mapped, Model, declared_attr, sa, sa_orm
 from .membership_mixin import ImmutableMembershipMixin
 
 __all__ = ['SiteMembership']

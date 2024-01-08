@@ -5,12 +5,11 @@ import datetime
 
 import pytest
 from flask import Flask
-from flask.testing import FlaskClient
 from werkzeug.datastructures import MultiDict
 
 from funnel import models
 
-from ...conftest import LoginFixtureProtocol
+from ...conftest import LoginFixtureProtocol, TestClient
 
 valid_schema = {
     'fields': [
@@ -85,7 +84,7 @@ def project_expo2010(project_expo2010: models.Project) -> models.Project:
 # Organizer side testing
 def test_valid_registration_form_schema(
     app: Flask,
-    client: FlaskClient,
+    client: TestClient,
     login: LoginFixtureProtocol,
     csrf_token: str,
     user_vetinari: models.User,
@@ -112,7 +111,7 @@ def test_valid_registration_form_schema(
 
 
 def test_invalid_registration_form_schema(
-    client: FlaskClient,
+    client: TestClient,
     login: LoginFixtureProtocol,
     csrf_token: str,
     user_vetinari: models.User,
@@ -135,7 +134,7 @@ def test_invalid_registration_form_schema(
 
 def test_valid_json_register(
     app: Flask,
-    client: FlaskClient,
+    client: TestClient,
     login: LoginFixtureProtocol,
     csrf_token: str,
     user_twoflower: models.User,
@@ -162,7 +161,7 @@ def test_valid_json_register(
 
 def test_valid_encoded_json_register(
     app: Flask,
-    client: FlaskClient,
+    client: TestClient,
     login: LoginFixtureProtocol,
     csrf_token: str,
     user_twoflower: models.User,
@@ -185,7 +184,7 @@ def test_valid_encoded_json_register(
 
 
 def test_invalid_json_register(
-    client: FlaskClient,
+    client: TestClient,
     login: LoginFixtureProtocol,
     user_twoflower: models.User,
     project_expo2010: models.Project,

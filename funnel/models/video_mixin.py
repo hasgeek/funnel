@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from furl import furl
 
-from . import Mapped, declarative_mixin, sa, sa_orm
+from .base import Mapped, declarative_mixin, sa, sa_orm
 
 __all__ = ['VideoMixin', 'VideoError', 'parse_video_url']
 

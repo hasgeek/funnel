@@ -16,7 +16,8 @@ from baseframe import _
 from coaster.sqlalchemy import with_roles
 from coaster.utils import buid as make_buid, newsecret, require_one_of, utcnow
 
-from . import (
+from .account import Account, Team
+from .base import (
     BaseMixin,
     DynamicMapped,
     Mapped,
@@ -30,7 +31,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account, Team
 from .login_session import LoginSession, auth_client_login_session
 
 __all__ = [

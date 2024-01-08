@@ -6,7 +6,8 @@ from uuid import UUID
 
 from werkzeug.datastructures import MultiDict
 
-from . import Mapped, Model, NoIdMixin, sa_orm, types
+from . import types
+from .base import Mapped, Model, NoIdMixin, sa_orm
 
 __all__ = ['Draft']
 

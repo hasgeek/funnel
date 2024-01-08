@@ -19,7 +19,8 @@ from coaster.utils import MARKDOWN_HTML_TAGS, buid, md5sum, newsecret
 from .. import __
 from ..utils.markdown import MarkdownString, markdown_mailer
 from ..utils.mustache import mustache_md
-from . import (
+from .account import Account
+from .base import (
     BaseNameMixin,
     BaseScopedIdMixin,
     DynamicMapped,
@@ -30,7 +31,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account
 from .helpers import IntTitle
 from .types import jsonb
 

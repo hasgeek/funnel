@@ -92,7 +92,7 @@ class TestAuthToken(TestDatabaseFixture):
         )
         auth_token = models.AuthToken(auth_client=dachsadv, account=oakley, scope=scope)
         token = auth_token.token
-        self.db_session.add(dachsadv, auth_token)
+        self.db_session.add_all([dachsadv, auth_token])
         result = models.AuthToken.get(token)
         assert isinstance(result, models.AuthToken)
         assert result.auth_client == dachsadv

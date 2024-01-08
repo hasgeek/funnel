@@ -26,7 +26,9 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, buid, utcnow
 
 from .. import app
-from . import (
+from . import types
+from .account import Account
+from .base import (
     BaseScopedNameMixin,
     DynamicMapped,
     Mapped,
@@ -42,9 +44,7 @@ from . import (
     relationship,
     sa,
     sa_orm,
-    types,
 )
-from .account import Account
 from .helpers import (
     RESERVED_NAMES,
     ImgeeType,

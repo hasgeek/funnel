@@ -1,7 +1,7 @@
 """Tests for model helpers."""
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 from types import SimpleNamespace
 from typing import LiteralString, cast
 
@@ -15,6 +15,8 @@ from sqlalchemy.orm import Mapped
 
 import funnel.models.helpers as mhelpers
 from funnel import models
+
+from ...conftest import Flask, SQLAlchemy, scoped_session
 
 lazy_gettext = cast(Callable[[LiteralString], str], lazy_gettext_base)
 
@@ -160,7 +162,7 @@ def test_add_to_class() -> None:
 
     assert hasattr(ReferenceClass, 'spameggs')
     assert not hasattr(ReferenceClass, 'spameggs_property')
-    assert ReferenceClass.spameggs is spameggs_property
+    assert ReferenceClass.spameggs is spameggs_property  # pyright: ignore
     assert ReferenceClass().spameggs == 'is_spameggs'  # type: ignore[attr-defined]
 
     # Existing attributes cannot be replaced
@@ -172,7 +174,9 @@ def test_add_to_class() -> None:
 
 
 @pytest.fixture(scope='session')
-def image_models(database, app):
+def image_models(
+    database: SQLAlchemy, app: Flask
+) -> Generator[SimpleNamespace, None, None]:
     class MyImageModel(models.Model):
         __tablename__ = 'test_my_image_model'
         id: Mapped[int] = sa_orm.mapped_column(  # noqa: A003
@@ -180,12 +184,24 @@ def image_models(database, app):
         )
         image_url: Mapped[furl] = sa_orm.mapped_column(models.ImgeeType)
 
+    new_models = [MyImageModel]
+
+    sa_orm.configure_mappers()
+    # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
-        database.create_all()
-    return SimpleNamespace(**locals())
+        database.metadata.create_all(
+            bind=database.engine,
+            tables=[model.__table__ for model in new_models],
+        )
+    yield SimpleNamespace(**{model.__name__: model for model in new_models})
+    with app.app_context():
+        database.metadata.drop_all(
+            bind=database.engine,
+            tables=[model.__table__ for model in new_models],
+        )
 
 
-def test_imgeetype(db_session, image_models) -> None:
+def test_imgeetype(db_session: scoped_session, image_models: SimpleNamespace) -> None:
     valid_url = "https://images.example.com/embed/file/randomimagehash"
     valid_url_with_resize = (
         "https://images.example.com/embed/file/randomimagehash?size=120x100"
@@ -265,7 +281,7 @@ def test_imgeetype(db_session, image_models) -> None:
         ('\\%', True, r'%\\\%%'),
     ],
 )
-def test_quote_autocomplete_like(prefix, midway, query) -> None:
+def test_quote_autocomplete_like(prefix: str, midway: bool, query: str) -> None:
     """Test that the LIKE-based autocomplete helper function escapes correctly."""
     assert mhelpers.quote_autocomplete_like(prefix, midway) == query
 
@@ -278,7 +294,9 @@ def test_quote_autocomplete_like(prefix, midway, query) -> None:
         ('am', "'am':*"),  # No stemming (would have been invalid ':*' otherwise)
     ],
 )
-def test_quote_autocomplete_tsquery(db_session, prefix, tsquery) -> None:
+def test_quote_autocomplete_tsquery(
+    db_session: scoped_session, prefix: str, tsquery: str
+) -> None:
     assert (
         db_session.query(mhelpers.quote_autocomplete_tsquery(prefix)).scalar()
         == tsquery

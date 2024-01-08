@@ -15,7 +15,8 @@ from sqlalchemy.ext.hybrid import Comparator
 
 from coaster.sqlalchemy import immutable, with_roles
 
-from . import (
+from .account import Account
+from .base import (
     Mapped,
     Model,
     NoIdMixin,
@@ -26,7 +27,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account
 from .helpers import profanity
 
 __all__ = ['Shortlink']

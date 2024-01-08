@@ -114,7 +114,10 @@ repos:
     rev: 7.0.0
     hooks:
       - id: flake8
-        additional_dependencies: *flake8deps
+        name: flake8-pyi
+        types: [pyi]
+        additional_dependencies:
+          - flake8-pyi
   - repo: https://github.com/PyCQA/pylint
     rev: v3.0.3
     hooks:

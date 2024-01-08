@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
-from . import (
+from .account import Account
+from .base import (
     BaseMixin,
     DynamicMapped,
     Mapped,
@@ -18,7 +19,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account
 
 __all__ = [
     'LoginSession',

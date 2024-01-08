@@ -12,7 +12,14 @@ from baseframe import _, __
 from coaster.sqlalchemy import LazyRoleSet, RoleAccessProxy, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import (
+from .account import (
+    Account,
+    DuckTypeAccount,
+    deleted_account,
+    removed_account,
+    unknown_account,
+)
+from .base import (
     BaseMixin,
     DynamicMapped,
     Mapped,
@@ -24,13 +31,6 @@ from . import (
     relationship,
     sa,
     sa_orm,
-)
-from .account import (
-    Account,
-    DuckTypeAccount,
-    deleted_account,
-    removed_account,
-    unknown_account,
 )
 from .helpers import MarkdownCompositeBasic, MessageComposite, add_search_trigger
 

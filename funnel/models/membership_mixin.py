@@ -16,7 +16,8 @@ from werkzeug.utils import cached_property
 from baseframe import __
 from coaster.sqlalchemy import StateManager, immutable, with_roles
 
-from . import (
+from .account import Account
+from .base import (
     BaseMixin,
     Mapped,
     UuidMixin,
@@ -28,7 +29,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account
 from .helpers import IntTitle
 from .reorder_mixin import ReorderMixin
 

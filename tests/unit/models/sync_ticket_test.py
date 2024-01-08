@@ -7,6 +7,8 @@ from coaster.utils import uuid_b58
 
 from funnel import models
 
+from ...conftest import Flask, scoped_session
+
 # --- Fixture data
 
 event_ticket_types = [
@@ -165,7 +167,12 @@ def bulk_upsert(project, ticket_event_list):
 @pytest.mark.usefixtures('db_session')
 class TestEventModels:
     @pytest.fixture(autouse=True)
-    def _fixture_setup(self, request, db_session, app):
+    def _fixture_setup(
+        self,
+        request: pytest.FixtureRequest,
+        db_session: scoped_session,
+        app: Flask,
+    ) -> None:
         self.db_session = db_session
         self.ctx = app.test_request_context()
         self.ctx.push()

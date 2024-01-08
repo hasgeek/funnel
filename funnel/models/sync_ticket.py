@@ -9,7 +9,8 @@ from typing import Any, Self
 
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
-from . import (
+from .account import Account, AccountEmail
+from .base import (
     BaseMixin,
     BaseScopedNameMixin,
     DynamicMapped,
@@ -21,7 +22,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account, AccountEmail
 from .email_address import EmailAddress, OptionalEmailAddressMixin
 from .project import Project
 from .project_membership import project_child_role_map

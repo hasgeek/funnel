@@ -5,9 +5,15 @@ import pytest
 
 from funnel import models
 
+from ...conftest import scoped_session
+
 
 @pytest.fixture()
-def death_membership(db_session, org_ankhmorpork, user_death):
+def death_membership(
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    user_death: models.User,
+) -> models.AccountMembership:
     membership = models.AccountMembership(account=org_ankhmorpork, member=user_death)
     db_session.add(membership)
     db_session.commit()
@@ -15,7 +21,11 @@ def death_membership(db_session, org_ankhmorpork, user_death):
 
 
 @pytest.fixture()
-def death_owner_membership(db_session, org_ankhmorpork, user_death):
+def death_owner_membership(
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    user_death: models.User,
+) -> models.AccountMembership:
     membership = models.AccountMembership(
         account=org_ankhmorpork, member=user_death, is_owner=True
     )
@@ -25,7 +35,11 @@ def death_owner_membership(db_session, org_ankhmorpork, user_death):
 
 
 @pytest.fixture()
-def rincewind_membership(db_session, org_ankhmorpork, user_rincewind):
+def rincewind_membership(
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    user_rincewind: models.User,
+) -> models.AccountMembership:
     membership = models.AccountMembership(
         account=org_ankhmorpork, member=user_rincewind
     )
@@ -35,7 +49,11 @@ def rincewind_membership(db_session, org_ankhmorpork, user_rincewind):
 
 
 @pytest.fixture()
-def rincewind_owner_membership(db_session, org_ankhmorpork, user_rincewind):
+def rincewind_owner_membership(
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    user_rincewind: models.User,
+) -> models.AccountMembership:
     membership = models.AccountMembership(
         account=org_ankhmorpork, member=user_rincewind, is_owner=True
     )
@@ -48,7 +66,11 @@ def rincewind_owner_membership(db_session, org_ankhmorpork, user_rincewind):
 
 
 def test_merge_without_membership(
-    db_session, org_ankhmorpork, user_death, user_vetinari, user_rincewind
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    user_death: models.User,
+    user_vetinari: models.User,
+    user_rincewind: models.User,
 ) -> None:
     """Merge without any memberships works."""
     assert org_ankhmorpork.active_admin_memberships.count() == 1
@@ -62,12 +84,12 @@ def test_merge_without_membership(
 
 
 def test_merge_with_death_membership(
-    db_session,
-    org_ankhmorpork,
-    user_death,
-    user_vetinari,
-    user_rincewind,
-    death_membership,
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    user_death: models.User,
+    user_vetinari: models.User,
+    user_rincewind: models.User,
+    death_membership: models.AccountMembership,
 ) -> None:
     """When only the older account has a membership, it works."""
     assert org_ankhmorpork.active_admin_memberships.count() == 2
@@ -83,12 +105,12 @@ def test_merge_with_death_membership(
 
 
 def test_merge_with_rincewind_membership(
-    db_session,
-    org_ankhmorpork,
-    user_death,
-    user_vetinari,
-    user_rincewind,
-    rincewind_membership,
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    user_death: models.User,
+    user_vetinari: models.User,
+    user_rincewind: models.User,
+    rincewind_membership: models.AccountMembership,
 ) -> None:
     """When only the newer account has a membership, it is transferred."""
     assert org_ankhmorpork.active_admin_memberships.count() == 2
@@ -104,13 +126,13 @@ def test_merge_with_rincewind_membership(
 
 
 def test_merge_with_admin_membership(
-    db_session,
-    org_ankhmorpork,
-    user_death,
-    user_vetinari,
-    user_rincewind,
-    death_membership,
-    rincewind_membership,
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    user_death: models.User,
+    user_vetinari: models.User,
+    user_rincewind: models.User,
+    death_membership: models.AccountMembership,
+    rincewind_membership: models.AccountMembership,
 ) -> None:
     """When both have equal memberships, older account's is preserved."""
     assert org_ankhmorpork.active_admin_memberships.count() == 3
@@ -132,13 +154,13 @@ def test_merge_with_admin_membership(
 
 
 def test_merge_with_death_owner_membership(
-    db_session,
-    org_ankhmorpork,
-    user_death,
-    user_vetinari,
-    user_rincewind,
-    death_owner_membership,
-    rincewind_membership,
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    user_death: models.User,
+    user_vetinari: models.User,
+    user_rincewind: models.User,
+    death_owner_membership: models.AccountMembership,
+    rincewind_membership: models.AccountMembership,
 ) -> None:
     """When older user has more roles, older account's is preserved."""
     assert org_ankhmorpork.active_admin_memberships.count() == 3
@@ -160,13 +182,13 @@ def test_merge_with_death_owner_membership(
 
 
 def test_merge_with_rincewind_owner_membership(
-    db_session,
-    org_ankhmorpork,
-    user_death,
-    user_vetinari,
-    user_rincewind,
-    death_membership,
-    rincewind_owner_membership,
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    user_death: models.User,
+    user_vetinari: models.User,
+    user_rincewind: models.User,
+    death_membership: models.AccountMembership,
+    rincewind_owner_membership: models.AccountMembership,
 ) -> None:
     """When newer user has more roles, both are revoked and new record is created."""
     assert org_ankhmorpork.active_admin_memberships.count() == 3
@@ -188,13 +210,13 @@ def test_merge_with_rincewind_owner_membership(
 
 
 def test_merge_with_owner_membership(
-    db_session,
-    org_ankhmorpork,
-    user_death,
-    user_vetinari,
-    user_rincewind,
-    death_owner_membership,
-    rincewind_owner_membership,
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    user_death: models.User,
+    user_vetinari: models.User,
+    user_rincewind: models.User,
+    death_owner_membership: models.AccountMembership,
+    rincewind_owner_membership: models.AccountMembership,
 ) -> None:
     """When both have equal superior memberships, older account's is preserved."""
     assert org_ankhmorpork.active_admin_memberships.count() == 3
@@ -220,15 +242,15 @@ def test_merge_with_owner_membership(
 
 
 def test_merge_multiple_memberships(
-    db_session,
-    org_ankhmorpork,
-    org_uu,
-    user_death,
-    user_rincewind,
-    user_vetinari,
-    user_ridcully,
-    death_membership,
-    rincewind_owner_membership,
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    org_uu: models.Organization,
+    user_death: models.User,
+    user_rincewind: models.User,
+    user_vetinari: models.User,
+    user_ridcully: models.User,
+    death_membership: models.AccountMembership,
+    rincewind_owner_membership: models.AccountMembership,
 ) -> None:
     """Merger with memberships across organizations works."""
     uu_death_owner_membership = models.AccountMembership(

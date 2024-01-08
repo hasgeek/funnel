@@ -12,7 +12,8 @@ from sqlalchemy.dialects.postgresql import ARRAY
 
 from coaster.utils import make_name
 
-from . import (
+from . import types
+from .base import (
     BaseMixin,
     BaseNameMixin,
     GeonameModel,
@@ -22,7 +23,6 @@ from . import (
     relationship,
     sa,
     sa_orm,
-    types,
 )
 from .helpers import quote_autocomplete_like
 

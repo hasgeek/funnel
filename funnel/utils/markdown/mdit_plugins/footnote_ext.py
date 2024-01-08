@@ -5,9 +5,12 @@ from __future__ import annotations
 from collections.abc import MutableMapping, Sequence
 
 from markdown_it import MarkdownIt
-from markdown_it.renderer import OptionsDict, RendererHTML
+from markdown_it.renderer import RendererHTML
 from markdown_it.token import Token
+from markdown_it.utils import OptionsDict
 from mdit_py_plugins.footnote.index import render_footnote_caption
+
+__all__ = ['footnote_extend_plugin']
 
 
 def caption(

@@ -10,7 +10,8 @@ from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, StateManager, auto_init_default, with_roles
 from coaster.utils import LabeledEnum
 
-from . import (
+from .account import Account
+from .base import (
     BaseScopedIdNameMixin,
     Mapped,
     Model,
@@ -22,7 +23,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account
 from .comment import SET_TYPE, Commentset
 from .helpers import (
     MarkdownCompositeDocument,

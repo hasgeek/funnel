@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import immutable, with_roles
 
-from . import Mapped, Model, relationship, sa, sa_orm
+from .base import Mapped, Model, relationship, sa, sa_orm
 from .membership_mixin import FrozenAttributionMixin, ReorderMembershipMixin
 from .proposal import Proposal
 

@@ -14,11 +14,10 @@ flake8-isort
 flake8-logging-format
 flake8-mutable
 flake8-print
-flake8-pyi
 flake8-pytest-style
 flask-debugtoolbar
 isort
-lxml-stubs
+mkinit @ git+https://github.com/Erotemic/mkinit
 mypy
 mypy-json-report
 pep8-naming
@@ -32,6 +31,7 @@ ruff
 types-beautifulsoup4
 types-chevron
 types-geoip2
+types-lxml
 types-mock
 types-python-dateutil
 types-pytz

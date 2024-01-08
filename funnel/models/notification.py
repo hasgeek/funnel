@@ -117,7 +117,8 @@ from coaster.sqlalchemy import (
 from coaster.utils import utcnow, uuid_from_base58, uuid_to_base58
 
 from ..typing import T
-from . import (
+from .account import Account, AccountEmail, AccountPhone
+from .base import (
     BaseMixin,
     DynamicMapped,
     Mapped,
@@ -131,7 +132,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account, AccountEmail, AccountPhone
 from .helpers import IntTitle
 from .phone_number import PhoneNumber, PhoneNumberMixin
 from .typing import ModelUuidProtocol

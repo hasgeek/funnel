@@ -12,7 +12,9 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import DataclassFromType, LabeledEnum
 
-from . import (
+from . import types
+from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
+from .base import (
     Mapped,
     Model,
     NoIdMixin,
@@ -22,9 +24,7 @@ from . import (
     relationship,
     sa,
     sa_orm,
-    types,
 )
-from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
 from .project import Project
 from .project_membership import project_child_role_map
 

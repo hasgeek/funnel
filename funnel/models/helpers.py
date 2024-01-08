@@ -27,7 +27,7 @@ from coaster.utils import DataclassFromType
 from .. import app
 from ..typing import T
 from ..utils import MarkdownConfig, MarkdownString, markdown_escape
-from . import Model, UrlType, sa, sa_orm
+from .base import Model, UrlType, sa, sa_orm
 
 __all__ = [
     'RESERVED_NAMES',

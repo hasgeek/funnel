@@ -9,7 +9,6 @@ from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from .. import app
 from ..typing import OptionalMigratedTables
-from . import Model, db
 from .account import (
     Account,
     AccountEmail,
@@ -18,6 +17,7 @@ from .account import (
     AccountPhone,
     Anchor,
 )
+from .base import Model, db
 from .phone_number import PHONE_LOOKUP_REGIONS
 from .typing import ModelIdProtocol
 

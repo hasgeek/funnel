@@ -37,7 +37,7 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, newsecret, require_one_of, utcnow
 
 from ..typing import OptionalMigratedTables
-from . import (
+from .base import (
     BaseMixin,
     DynamicMapped,
     LocaleType,
@@ -70,6 +70,7 @@ from .phone_number import PhoneNumber, PhoneNumberMixin
 
 __all__ = [
     'ACCOUNT_STATE',
+    'Account',
     'deleted_account',
     'removed_account',
     'unknown_account',

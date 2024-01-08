@@ -8,7 +8,8 @@ from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 
 from coaster.sqlalchemy import with_roles
 
-from . import (
+from .account import Account
+from .base import (
     BaseScopedNameMixin,
     Mapped,
     Model,
@@ -18,7 +19,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account
 from .helpers import add_search_trigger, visual_field_delimiter
 from .project_membership import project_child_role_map
 

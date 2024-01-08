@@ -1,14 +1,11 @@
 """Tests for account deletion."""
 
-from typing import cast
-
-from flask.testing import FlaskClient
 from pytest_bdd import given, parsers, scenarios, then, when
 from sqlalchemy.orm import scoped_session
 
 from funnel import models
 
-from ...conftest import GetUserProtocol, ResponseWithForms
+from ...conftest import GetUserProtocol, TestClient, TestResponse
 
 scenarios('account/delete_confirm.feature')
 
@@ -49,22 +46,22 @@ def given_coowner(
 
 
 @when('they visit the delete page', target_fixture='delete_page')
-def when_user_visits_delete_page(client: FlaskClient) -> ResponseWithForms:
-    return cast(ResponseWithForms, client.get('/account/delete'))
+def when_user_visits_delete_page(client: TestClient) -> TestResponse:
+    return client.get('/account/delete')
 
 
 @then('they are cleared to delete the account')
-def then_user_delete_confirm(delete_page: ResponseWithForms) -> None:
+def then_user_delete_confirm(delete_page: TestResponse) -> None:
     assert delete_page.form('form-account-delete') is not None
 
 
 @then('they are told they have organizations without co-owners')
-def then_told_unshared_orgs(delete_page: ResponseWithForms) -> None:
+def then_told_unshared_orgs(delete_page: TestResponse) -> None:
     assert delete_page.form('form-account-delete') is None
     assert "organizations without co-owners" in delete_page.data.decode()
 
 
 @then('they are told their account is protected')
-def then_told_protected_account(delete_page: ResponseWithForms) -> None:
+def then_told_protected_account(delete_page: TestResponse) -> None:
     assert delete_page.form('form-account-delete') is None
     assert "This account is protected" in delete_page.data.decode()
