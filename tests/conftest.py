@@ -24,6 +24,7 @@ from typing import (
     Any,
     NamedTuple,
     Protocol,
+    cast,
     get_type_hints,
     runtime_checkable,
 )
@@ -36,6 +37,7 @@ import sqlalchemy.exc as sa_exc
 import sqlalchemy.orm as sa_orm
 import typeguard
 from flask import Flask, session
+from flask.ctx import AppContext, RequestContext
 from flask.testing import FlaskClient
 from flask.wrappers import Response
 from flask_sqlalchemy import SQLAlchemy
@@ -68,25 +70,6 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         help="Use db_session with 'rollback' (default) or 'truncate'"
         " (slower but more production-like)",
     )
-
-
-@pytest.fixture()
-def chrome_options(chrome_options):
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--ignore-ssl-errors=yes')
-    chrome_options.add_argument('--ignore-certificate-errors')
-    return chrome_options
-
-
-@pytest.fixture()
-def firefox_options(firefox_options):
-    firefox_options.add_argument('--headless')
-    return firefox_options
-
-
-@pytest.fixture(scope='session')
-def browser_context_args(browser_context_args):
-    return browser_context_args | {'ignore_https_errors': True}
 
 
 def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:
@@ -150,6 +133,15 @@ def pytest_runtest_call(item: pytest.Function) -> None:
             typeguard.check_type(item.funcargs[attr], type_)
 
 
+# --- Playwright browser config --------------------------------------------------------
+
+
+@pytest.fixture(scope='session')
+def browser_context_args(browser_context_args: dict) -> dict:
+    """The test server uses HTTPS with a self-signed certificate, so no verify."""
+    return browser_context_args | {'ignore_https_errors': True}
+
+
 # --- Import fixtures ------------------------------------------------------------------
 
 
@@ -186,138 +178,133 @@ def funnel_devtest() -> ModuleType:
 # --- Fixtures -------------------------------------------------------------------------
 
 
-@pytest.fixture(scope='session')
-def response_with_forms() -> Any:  # Since the actual return type is defined within
-    # --- ResponseWithForms, to make form submission in the test client testing easier
-    # --- Adapted from the abandoned Flask-Fillin package
+_meta_refresh_content_re = re.compile(
+    r"""
+    \s*
+    (?P<timeout>\d+)      # Timeout
+    \s*
+    ;?                    # ; separator for optional URL
+    \s*
+    (?:URL\s*=\s*["']?)?  # Optional 'URL=' or 'URL="' prefix
+    (?P<url>.*?)          # Optional URL
+    (?:["']?\s*)          # Optional closing quote for URL
+    """,
+    re.ASCII | re.IGNORECASE | re.VERBOSE,
+)
 
-    _meta_refresh_content_re = re.compile(
-        r"""
-        \s*
-        (?P<timeout>\d+)      # Timeout
-        \s*
-        ;?                    # ; separator for optional URL
-        \s*
-        (?:URL\s*=\s*["']?)?  # Optional 'URL=' or 'URL="' prefix
-        (?P<url>.*?)          # Optional URL
-        (?:["']?\s*)          # Optional closing quote for URL
-        """,
-        re.ASCII | re.IGNORECASE | re.VERBOSE,
-    )
 
-    class MetaRefreshContent(NamedTuple):
-        """Timeout and optional URL in a Meta Refresh tag."""
+class MetaRefreshContent(NamedTuple):
+    """Timeout and optional URL in a Meta Refresh tag."""
 
-        timeout: int
-        url: str | None = None
+    timeout: int
+    url: str | None = None
 
-    class ResponseWithForms(Response):
+
+class ResponseWithForms(Response):
+    """
+    Wrapper for the test client response that makes form submission easier.
+
+    Usage::
+
+        def test_mytest(client) -> None:
+            response = client.get('/page_with_forms')
+            form = response.form('login')
+            form.fields['username'] = 'my username'
+            form.fields['password'] = 'secret'
+            form.fields['remember'] = True
+            next_response = form.submit(client)
+    """
+
+    _parsed_html: HtmlElement | None = None
+
+    @property
+    def html(self) -> HtmlElement:
+        """Return the parsed HTML tree."""
+        if self._parsed_html is None:
+            self._parsed_html = fromstring(self.data)
+
+            # add click method to all links
+            def _click(
+                self: HtmlElement, client: FlaskClient, **kwargs: Any
+            ) -> TestResponse:
+                # `self` is the `a` element here
+                path = self.attrib['href']
+                return client.get(path, **kwargs)
+
+            for link in self._parsed_html.iter('a'):
+                link.click = MethodType(_click, link)  # type: ignore[attr-defined]
+
+            # add submit method to all forms
+            def _submit(
+                self: FormElement,
+                client: FlaskClient,
+                path: str | None = None,
+                **kwargs: Any,
+            ) -> TestResponse:
+                # `self` is the `form` element here
+                data = dict(self.form_values())
+                if 'data' in kwargs:
+                    data.update(kwargs['data'])
+                    del kwargs['data']
+                if path is None:
+                    path = self.action
+                if 'method' not in kwargs:
+                    kwargs['method'] = self.method
+                return client.open(path, data=data, **kwargs)
+
+            for form in self._parsed_html.forms:  # type: ignore[attr-defined]
+                form.submit = MethodType(_submit, form)
+        return self._parsed_html
+
+    @property
+    def forms(self) -> list[FormElement]:
         """
-        Wrapper for the test client response that makes form submission easier.
+        Return list of all forms in the document.
 
-        Usage::
-
-            def test_mytest(client) -> None:
-                response = client.get('/page_with_forms')
-                form = response.form('login')
-                form.fields['username'] = 'my username'
-                form.fields['password'] = 'secret'
-                form.fields['remember'] = True
-                next_response = form.submit(client)
+        Contains the LXML form type as documented at
+        http://lxml.de/lxmlhtml.html#forms with an additional `.submit(client)`
+        method to submit the form.
         """
+        return self.html.forms
 
-        _parsed_html: HtmlElement | None = None
+    def form(
+        self, id_: str | None = None, name: str | None = None
+    ) -> FormElement | None:
+        """Return the first form matching given id or name in the document."""
+        if id_:
+            forms = self.html.cssselect(f'form#{id_}')
+        elif name:
+            forms = self.html.cssselect(f'form[name={name}]')
+        else:
+            forms = self.forms
+        if forms:
+            return forms[0]
+        return None
 
-        @property
-        def html(self) -> HtmlElement:
-            """Return the parsed HTML tree."""
-            if self._parsed_html is None:
-                self._parsed_html = fromstring(self.data)
+    def links(self, selector: str = 'a') -> list[HtmlElement]:
+        """Get all the links matching the given CSS selector."""
+        return self.html.cssselect(selector)
 
-                # add click method to all links
-                def _click(
-                    self: HtmlElement, client: FlaskClient, **kwargs: Any
-                ) -> TestResponse:
-                    # `self` is the `a` element here
-                    path = self.attrib['href']
-                    return client.get(path, **kwargs)
+    def link(self, selector: str = 'a') -> HtmlElement | None:
+        """Get first link matching the given CSS selector."""
+        links = self.links(selector)
+        if links:
+            return links[0]
+        return None
 
-                for link in self._parsed_html.iter('a'):
-                    link.click = MethodType(_click, link)  # type: ignore[attr-defined]
-
-                # add submit method to all forms
-                def _submit(
-                    self: FormElement,
-                    client: FlaskClient,
-                    path: str | None = None,
-                    **kwargs: Any,
-                ) -> TestResponse:
-                    # `self` is the `form` element here
-                    data = dict(self.form_values())
-                    if 'data' in kwargs:
-                        data.update(kwargs['data'])
-                        del kwargs['data']
-                    if path is None:
-                        path = self.action
-                    if 'method' not in kwargs:
-                        kwargs['method'] = self.method
-                    return client.open(path, data=data, **kwargs)
-
-                for form in self._parsed_html.forms:  # type: ignore[attr-defined]
-                    form.submit = MethodType(_submit, form)
-            return self._parsed_html
-
-        @property
-        def forms(self) -> list[FormElement]:
-            """
-            Return list of all forms in the document.
-
-            Contains the LXML form type as documented at
-            http://lxml.de/lxmlhtml.html#forms with an additional `.submit(client)`
-            method to submit the form.
-            """
-            return self.html.forms
-
-        def form(
-            self, id_: str | None = None, name: str | None = None
-        ) -> FormElement | None:
-            """Return the first form matching given id or name in the document."""
-            if id_:
-                forms = self.html.cssselect(f'form#{id_}')
-            elif name:
-                forms = self.html.cssselect(f'form[name={name}]')
-            else:
-                forms = self.forms
-            if forms:
-                return forms[0]
+    @property
+    def metarefresh(self) -> MetaRefreshContent | None:
+        """Get content of Meta Refresh tag if present."""
+        meta_elements = self.html.cssselect('meta[http-equiv="refresh"]')
+        if not meta_elements:
             return None
-
-        def links(self, selector: str = 'a') -> list[HtmlElement]:
-            """Get all the links matching the given CSS selector."""
-            return self.html.cssselect(selector)
-
-        def link(self, selector: str = 'a') -> HtmlElement | None:
-            """Get first link matching the given CSS selector."""
-            links = self.links(selector)
-            if links:
-                return links[0]
+        content = meta_elements[0].attrib.get('content')
+        if content is None:
             return None
-
-        @property
-        def metarefresh(self) -> MetaRefreshContent | None:
-            """Get content of Meta Refresh tag if present."""
-            meta_elements = self.html.cssselect('meta[http-equiv="refresh"]')
-            if not meta_elements:
-                return None
-            content = meta_elements[0].attrib.get('content')
-            if content is None:
-                return None
-            match = _meta_refresh_content_re.fullmatch(content)
-            if match is None:
-                return None
-            return MetaRefreshContent(int(match['timeout']), match['url'] or None)
-
-    return ResponseWithForms
+        match = _meta_refresh_content_re.fullmatch(content)
+        if match is None:
+            return None
+        return MetaRefreshContent(int(match['timeout']), match['url'] or None)
 
 
 @pytest.fixture(scope='session')
@@ -332,7 +319,9 @@ class PrintStackProtocol(Protocol):
 
 
 @pytest.fixture(scope='session')
-def print_stack(pytestconfig, rich_console: Console) -> PrintStackProtocol:
+def print_stack(
+    pytestconfig: pytest.Config, rich_console: Console
+) -> PrintStackProtocol:
     """Print a stack trace up to an outbound call from within this repository."""
     boundary_path = str(pytestconfig.rootpath)
     if not boundary_path.endswith('/'):
@@ -449,14 +438,14 @@ def unsubscribeapp(funnel) -> Flask:
 
 
 @pytest.fixture()
-def app_context(app) -> Iterator:
+def app_context(app: Flask) -> Iterator[AppContext]:
     """Create an app context for the test."""
     with app.app_context() as ctx:
         yield ctx
 
 
 @pytest.fixture()
-def request_context(app) -> Iterator:
+def request_context(app: Flask) -> Iterator[RequestContext]:
     """Create a request context with default values for the test."""
     with app.test_request_context() as ctx:
         yield ctx
@@ -566,7 +555,7 @@ def _requires_config(request: pytest.FixtureRequest) -> None:
 @pytest.fixture(scope='session')
 def _app_events(
     rich_console: Console, print_stack: PrintStackProtocol, app: Flask
-) -> Iterator:
+) -> Iterator[None]:
     """Fixture to report Flask signals with a stack trace when debugging a test."""
 
     def signal_handler(signal_name, *args, **kwargs):
@@ -612,7 +601,7 @@ def _database_events(
     """
     repr_highlighter = ReprHighlighter()
 
-    def safe_repr(entity):
+    def safe_repr(entity: Any) -> str:
         try:
             return saferepr(entity)
         except Exception:  # noqa: B902  # pylint: disable=broad-except
@@ -625,7 +614,7 @@ def _database_events(
             return '<ReprError>'
 
     @event.listens_for(models.Model, 'init', propagate=True)
-    def event_init(obj, args, kwargs):
+    def event_init(obj: funnel_models.Model, args, kwargs):
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
         rparams = f'{rargs, rkwargs}' if rargs else rkwargs
@@ -635,7 +624,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
-    def event_transient_to_pending(_session, obj):
+    def event_transient_to_pending(_session, obj: funnel_models.Model):
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -645,7 +634,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
-    def event_pending_to_transient(_session, obj):
+    def event_pending_to_transient(_session, obj: funnel_models.Model):
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -655,7 +644,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
-    def event_pending_to_persistent(_session, obj):
+    def event_pending_to_persistent(_session, obj: funnel_models.Model):
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -665,7 +654,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
-    def event_loaded_as_persistent(_session, obj):
+    def event_loaded_as_persistent(_session, obj: funnel_models.Model):
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -675,7 +664,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
-    def event_persistent_to_transient(_session, obj):
+    def event_persistent_to_transient(_session, obj: funnel_models.Model):
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -685,7 +674,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
-    def event_persistent_to_deleted(_session, obj):
+    def event_persistent_to_deleted(_session, obj: funnel_models.Model):
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -695,7 +684,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
-    def event_deleted_to_detached(_session, obj):
+    def event_deleted_to_detached(_session, obj: funnel_models.Model):
         i = sa.inspect(obj)
         rich_console.print(
             "[bold]obj:[/] deleted → detached:"
@@ -703,7 +692,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
-    def event_persistent_to_detached(_session, obj):
+    def event_persistent_to_detached(_session, obj: funnel_models.Model):
         i = sa.inspect(obj)
         rich_console.print(
             "[bold]obj:[/] persistent → detached:"
@@ -711,7 +700,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
-    def event_detached_to_persistent(_session, obj):
+    def event_detached_to_persistent(_session, obj: funnel_models.Model):
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -721,7 +710,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
-    def event_deleted_to_persistent(session, obj):
+    def event_deleted_to_persistent(session, obj: funnel_models.Model):
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -731,7 +720,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'do_orm_execute')
-    def event_do_orm_execute(orm_execute_state):
+    def event_do_orm_execute(orm_execute_state: sa_orm.ORMExecuteState):
         state_is = []
         if orm_execute_state.is_column_load:
             state_is.append("is_column_load")
@@ -762,9 +751,11 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'after_begin')
-    def event_after_begin(_session, transaction, _connection):
+    def event_after_begin(
+        _session, transaction: sa_orm.SessionTransaction, _connection
+    ):
         if transaction.nested:
-            if transaction.parent.nested:
+            if transaction.parent and transaction.parent.nested:
                 rich_console.print("[bold]session:[/] BEGIN (double nested)")
             else:
                 rich_console.print("[bold]session:[/] BEGIN (nested)")
@@ -773,7 +764,7 @@ def _database_events(
         print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_commit')
-    def event_after_commit(session):
+    def event_after_commit(session: DatabaseSessionClass):
         rich_console.print(
             Text.assemble(
                 ('session:', 'bold'), ' COMMIT ', repr_highlighter(repr(session.info))
@@ -781,7 +772,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'after_flush')
-    def event_after_flush(session, _flush_context):
+    def event_after_flush(session: DatabaseSessionClass, _flush_context):
         rich_console.print(
             Text.assemble(
                 ('session:', 'bold'), ' FLUSH ', repr_highlighter(repr(session.info))
@@ -789,7 +780,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'after_rollback')
-    def event_after_rollback(session):
+    def event_after_rollback(session: DatabaseSessionClass):
         rich_console.print(
             Text.assemble(
                 ('session:', 'bold'), ' ROLLBACK ', repr_highlighter(repr(session.info))
@@ -798,7 +789,7 @@ def _database_events(
         print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
-    def event_after_soft_rollback(session, _previous_transaction):
+    def event_after_soft_rollback(session: DatabaseSessionClass, _previous_transaction):
         rich_console.print(
             Text.assemble(
                 ('session:', 'bold'),
@@ -809,9 +800,11 @@ def _database_events(
         print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_transaction_create')
-    def event_after_transaction_create(_session, transaction):
+    def event_after_transaction_create(
+        _session, transaction: sa_orm.SessionTransaction
+    ):
         if transaction.nested:
-            if transaction.parent.nested:
+            if transaction.parent and transaction.parent.nested:
                 rich_console.print("[bold]transaction:[/] CREATE (savepoint)")
             else:
                 rich_console.print("[bold]transaction:[/] CREATE (fixture)")
@@ -820,9 +813,9 @@ def _database_events(
         print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_transaction_end')
-    def event_after_transaction_end(_session, transaction):
+    def event_after_transaction_end(_session, transaction: sa_orm.SessionTransaction):
         if transaction.nested:
-            if transaction.parent.nested:
+            if transaction.parent and transaction.parent.nested:
                 rich_console.print("[bold]transaction:[/] END (double nested)")
             else:
                 rich_console.print("[bold]transaction:[/] END (nested)")
@@ -925,7 +918,7 @@ def _truncate_all_tables(engine: sa.Engine) -> None:
 
 
 @pytest.fixture(scope='session')
-def database(funnel, models, request, app) -> SQLAlchemy:
+def database(funnel, models, request: pytest.FixtureRequest, app: Flask) -> SQLAlchemy:
     """Provide a database structure."""
     with app.app_context():
         models.db.create_all()
@@ -945,8 +938,8 @@ def database(funnel, models, request, app) -> SQLAlchemy:
 
 @pytest.fixture()
 def db_session_truncate(
-    funnel, app, database, app_context
-) -> Iterator[DatabaseSessionClass | scoped_session]:
+    funnel, app, database: SQLAlchemy, app_context
+) -> Iterator[scoped_session]:
     """Empty the database after each use of the fixture."""
     yield database.session
     sa_orm.close_all_sessions()
@@ -1004,8 +997,8 @@ class BoundSession(FsaSession):
 
 @pytest.fixture()
 def db_session_rollback(
-    funnel, app, database, app_context
-) -> Iterator[DatabaseSessionClass | scoped_session]:
+    funnel, app, database: SQLAlchemy, app_context
+) -> Iterator[scoped_session]:
     """Create a nested transaction for the test and rollback after."""
     original_session = database.session
 
@@ -1045,7 +1038,7 @@ db_session_implementations = {
 
 
 @pytest.fixture()
-def db_session(request) -> DatabaseSessionClass | scoped_session:
+def db_session(request) -> scoped_session:
     """
     Database session fixture.
 
@@ -1078,9 +1071,9 @@ def db_session(request) -> DatabaseSessionClass | scoped_session:
 
 
 @pytest.fixture()
-def client(response_with_forms, app, db_session) -> FlaskClient:
+def client(app: Flask, db_session: scoped_session) -> FlaskClient:
     """Provide a test client that commits the db session before any action."""
-    client: FlaskClient = FlaskClient(app, response_with_forms, use_cookies=True)
+    client: FlaskClient = FlaskClient(app, ResponseWithForms, use_cookies=True)
     client_open = client.open
 
     def commit_before_open(*args, **kwargs):
@@ -1092,7 +1085,7 @@ def client(response_with_forms, app, db_session) -> FlaskClient:
 
 
 @pytest.fixture(scope='session')
-def live_server(funnel_devtest, app, database):
+def live_server(funnel_devtest, app: Flask, database):
     """Run application in a separate process."""
     # Use HTTPS for live server (set to False if required)
     use_https = True
@@ -1143,7 +1136,7 @@ def live_server(funnel_devtest, app, database):
 
 
 @pytest.fixture()
-def csrf_token(app, client) -> str:
+def csrf_token(app: Flask, client: FlaskClient) -> str:
     """Supply a CSRF token for use in form submissions."""
     field_name = app.config.get('WTF_CSRF_FIELD_NAME', 'csrf_token')
     with app.test_request_context():
@@ -1165,7 +1158,7 @@ class LoginFixtureProtocol(Protocol):
 
 
 @pytest.fixture()
-def login(app, client, db_session) -> LoginFixtureProtocol:
+def login(app, client, db_session: scoped_session) -> LoginFixtureProtocol:
     """Provide a login fixture."""
 
     def as_(user) -> None:
@@ -1199,8 +1192,15 @@ def login(app, client, db_session) -> LoginFixtureProtocol:
 # --- Users
 
 
+class GetUserProtocol(Protocol):
+    usermap: dict[str, str]
+
+    def __call__(self, user: str) -> funnel_models.User:
+        ...
+
+
 @pytest.fixture()
-def getuser(request) -> Callable[[str], funnel_models.User]:
+def getuser(request: pytest.FixtureRequest) -> GetUserProtocol:
     """Get a user fixture by their name."""
     usermap = {
         "Twoflower": 'user_twoflower',
@@ -1238,13 +1238,14 @@ def getuser(request) -> Callable[[str], funnel_models.User]:
             pytest.fail(f"No user fixture named {user}")
         return request.getfixturevalue(usermap[user])
 
+    func = cast(GetUserProtocol, func)
     # Aid for tests
-    func.usermap = usermap  # type: ignore[attr-defined]
+    func.usermap = usermap
     return func
 
 
 @pytest.fixture()
-def user_twoflower(models, db_session) -> funnel_models.User:
+def user_twoflower(models, db_session: scoped_session) -> funnel_models.User:
     """
     Twoflower is a tourist from the Agatean Empire who goes on adventures.
 
@@ -1258,7 +1259,7 @@ def user_twoflower(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_rincewind(models, db_session) -> funnel_models.User:
+def user_rincewind(models, db_session: scoped_session) -> funnel_models.User:
     """
     Rincewind is a wizard and a former member of Unseen University.
 
@@ -1271,7 +1272,7 @@ def user_rincewind(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_death(models, db_session) -> funnel_models.User:
+def user_death(models, db_session: scoped_session) -> funnel_models.User:
     """
     Death is the epoch user, present at the beginning and always having the last word.
 
@@ -1290,7 +1291,7 @@ def user_death(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_mort(models, db_session) -> funnel_models.User:
+def user_mort(models, db_session: scoped_session) -> funnel_models.User:
     """
     Mort is Death's apprentice, and a site admin in tests.
 
@@ -1306,7 +1307,7 @@ def user_mort(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_susan(models, db_session) -> funnel_models.User:
+def user_susan(models, db_session: scoped_session) -> funnel_models.User:
     """
     Susan Sto Helit (also written Sto-Helit) is Death's grand daughter.
 
@@ -1318,7 +1319,7 @@ def user_susan(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_lutze(models, db_session) -> funnel_models.User:
+def user_lutze(models, db_session: scoped_session) -> funnel_models.User:
     """
     Lu-Tze is a history monk and sweeper at the Monastery of Oi-Dong.
 
@@ -1330,7 +1331,7 @@ def user_lutze(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_ridcully(models, db_session) -> funnel_models.User:
+def user_ridcully(models, db_session: scoped_session) -> funnel_models.User:
     """
     Mustrum Ridcully, archchancellor of Unseen University.
 
@@ -1342,7 +1343,7 @@ def user_ridcully(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_librarian(models, db_session) -> funnel_models.User:
+def user_librarian(models, db_session: scoped_session) -> funnel_models.User:
     """
     Librarian of Unseen University, currently an orangutan.
 
@@ -1354,7 +1355,7 @@ def user_librarian(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_ponder_stibbons(models, db_session) -> funnel_models.User:
+def user_ponder_stibbons(models, db_session: scoped_session) -> funnel_models.User:
     """
     Ponder Stibbons, maintainer of Hex, the computer powered by an Anthill Inside.
 
@@ -1366,7 +1367,7 @@ def user_ponder_stibbons(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_vetinari(models, db_session) -> funnel_models.User:
+def user_vetinari(models, db_session: scoped_session) -> funnel_models.User:
     """
     Havelock Vetinari, patrician (aka dictator) of Ankh-Morpork.
 
@@ -1378,7 +1379,7 @@ def user_vetinari(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_vimes(models, db_session) -> funnel_models.User:
+def user_vimes(models, db_session: scoped_session) -> funnel_models.User:
     """
     Samuel Vimes, commander of the Ankh-Morpork City Watch.
 
@@ -1390,7 +1391,7 @@ def user_vimes(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_carrot(models, db_session) -> funnel_models.User:
+def user_carrot(models, db_session: scoped_session) -> funnel_models.User:
     """
     Carrot Ironfoundersson, captain of the Ankh-Morpork City Watch.
 
@@ -1402,7 +1403,7 @@ def user_carrot(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_angua(models, db_session) -> funnel_models.User:
+def user_angua(models, db_session: scoped_session) -> funnel_models.User:
     """
     Delphine Angua von Überwald, member of the Ankh-Morpork City Watch, and foreigner.
 
@@ -1420,7 +1421,7 @@ def user_angua(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_dibbler(models, db_session) -> funnel_models.User:
+def user_dibbler(models, db_session: scoped_session) -> funnel_models.User:
     """
     Cut Me Own Throat (or C.M.O.T) Dibbler, huckster who exploits small opportunities.
 
@@ -1432,7 +1433,7 @@ def user_dibbler(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_wolfgang(models, db_session) -> funnel_models.User:
+def user_wolfgang(models, db_session: scoped_session) -> funnel_models.User:
     """
     Wolfgang von Überwald, brother of Angua, violent shapeshifter.
 
@@ -1445,7 +1446,7 @@ def user_wolfgang(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_om(models, db_session) -> funnel_models.User:
+def user_om(models, db_session: scoped_session) -> funnel_models.User:
     """
     Great God Om of the theocracy of Omnia, who has lost his believers.
 
@@ -1461,7 +1462,9 @@ def user_om(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def org_ankhmorpork(models, db_session, user_vetinari) -> funnel_models.Organization:
+def org_ankhmorpork(
+    models, db_session: scoped_session, user_vetinari: funnel_models.User
+) -> funnel_models.Organization:
     """
     City of Ankh-Morpork, here representing the government rather than location.
 
@@ -1477,7 +1480,11 @@ def org_ankhmorpork(models, db_session, user_vetinari) -> funnel_models.Organiza
 
 @pytest.fixture()
 def org_uu(
-    models, db_session, user_ridcully, user_librarian, user_ponder_stibbons
+    models,
+    db_session: scoped_session,
+    user_ridcully: funnel_models.User,
+    user_librarian: funnel_models.User,
+    user_ponder_stibbons: funnel_models.User,
 ) -> funnel_models.Organization:
     """
     Unseen University is located in Ankh-Morpork.
@@ -1512,7 +1519,11 @@ def org_uu(
 
 @pytest.fixture()
 def org_citywatch(
-    models, db_session, user_vetinari, user_vimes, user_carrot
+    models,
+    db_session: scoped_session,
+    user_vetinari: funnel_models.User,
+    user_vimes: funnel_models.User,
+    user_carrot: funnel_models.User,
 ) -> funnel_models.Organization:
     """
     City Watch of Ankh-Morpork (a sub-organization).
@@ -1551,7 +1562,10 @@ def org_citywatch(
 
 @pytest.fixture()
 def project_expo2010(
-    models, db_session, org_ankhmorpork, user_vetinari
+    models,
+    db_session: scoped_session,
+    org_ankhmorpork: funnel_models.Organization,
+    user_vetinari: funnel_models.User,
 ) -> funnel_models.Project:
     """Ankh-Morpork hosts its 2010 expo."""
     db_session.flush()
@@ -1569,7 +1583,10 @@ def project_expo2010(
 
 @pytest.fixture()
 def project_expo2011(
-    models, db_session, org_ankhmorpork, user_vetinari
+    models,
+    db_session: scoped_session,
+    org_ankhmorpork: funnel_models.Organization,
+    user_vetinari: funnel_models.User,
 ) -> funnel_models.Project:
     """Ankh-Morpork hosts its 2011 expo."""
     db_session.flush()
@@ -1587,7 +1604,10 @@ def project_expo2011(
 
 @pytest.fixture()
 def project_ai1(
-    models, db_session, org_uu, user_ponder_stibbons
+    models,
+    db_session: scoped_session,
+    org_uu: funnel_models.Organization,
+    user_ponder_stibbons: funnel_models.User,
 ) -> funnel_models.Project:
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
@@ -1614,7 +1634,10 @@ def project_ai1(
 
 @pytest.fixture()
 def project_ai2(
-    models, db_session, org_uu, user_ponder_stibbons
+    models,
+    db_session: scoped_session,
+    org_uu: funnel_models.Organization,
+    user_ponder_stibbons: funnel_models.User,
 ) -> funnel_models.Project:
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
@@ -1639,7 +1662,9 @@ def project_ai2(
 
 
 @pytest.fixture()
-def client_hex(models, db_session, org_uu) -> funnel_models.Project:
+def client_hex(
+    models, db_session: scoped_session, org_uu: funnel_models.Organization
+) -> funnel_models.Project:
     """
     Hex, supercomputer at Unseen University, powered by an Anthill Inside.
 
@@ -1658,7 +1683,9 @@ def client_hex(models, db_session, org_uu) -> funnel_models.Project:
 
 
 @pytest.fixture()
-def client_hex_credential(models, db_session, client_hex) -> SimpleNamespace:
+def client_hex_credential(
+    models, db_session: scoped_session, client_hex: funnel_models.AuthClient
+) -> SimpleNamespace:
     cred, secret = models.AuthClientCredential.new(client_hex)
     db_session.add(cred)
     return SimpleNamespace(cred=cred, secret=secret)
@@ -1724,7 +1751,7 @@ TEST_DATA = {
 
 
 @pytest.fixture()
-def new_user(models, db_session) -> funnel_models.User:
+def new_user(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['testuser'])
     db_session.add(user)
     db_session.commit()
@@ -1732,7 +1759,7 @@ def new_user(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def new_user2(models, db_session) -> funnel_models.User:
+def new_user2(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['testuser2'])
     db_session.add(user)
     db_session.commit()
@@ -1740,7 +1767,7 @@ def new_user2(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def new_user_owner(models, db_session) -> funnel_models.User:
+def new_user_owner(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['test_org_owner'])
     db_session.add(user)
     db_session.commit()
@@ -1748,7 +1775,7 @@ def new_user_owner(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def new_user_admin(models, db_session) -> funnel_models.User:
+def new_user_admin(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['test_org_admin'])
     db_session.add(user)
     db_session.commit()
@@ -1757,7 +1784,10 @@ def new_user_admin(models, db_session) -> funnel_models.User:
 
 @pytest.fixture()
 def new_organization(
-    models, db_session, new_user_owner, new_user_admin
+    models,
+    db_session: scoped_session,
+    new_user_owner: funnel_models.User,
+    new_user_admin: funnel_models.User,
 ) -> funnel_models.Organization:
     org = models.Organization(owner=new_user_owner, title="Test org", name='test_org')
     db_session.add(org)
@@ -1774,7 +1804,12 @@ def new_organization(
 
 
 @pytest.fixture()
-def new_team(models, db_session, new_user, new_organization) -> funnel_models.Team:
+def new_team(
+    models,
+    db_session: scoped_session,
+    new_user: funnel_models.User,
+    new_organization: funnel_models.Organization,
+) -> funnel_models.Team:
     team = models.Team(title="Owners", account=new_organization)
     db_session.add(team)
     team.users.append(new_user)
@@ -1784,7 +1819,10 @@ def new_team(models, db_session, new_user, new_organization) -> funnel_models.Te
 
 @pytest.fixture()
 def new_project(
-    models, db_session, new_organization, new_user
+    models,
+    db_session: scoped_session,
+    new_organization: funnel_models.Organization,
+    new_user: funnel_models.User,
 ) -> funnel_models.Project:
     project = models.Project(
         account=new_organization,
@@ -1801,7 +1839,10 @@ def new_project(
 
 @pytest.fixture()
 def new_project2(
-    models, db_session, new_organization, new_user_owner
+    models,
+    db_session: scoped_session,
+    new_organization: funnel_models.Organization,
+    new_user_owner: funnel_models.User,
 ) -> funnel_models.Project:
     project = models.Project(
         account=new_organization,
@@ -1817,7 +1858,9 @@ def new_project2(
 
 
 @pytest.fixture()
-def new_main_label(models, db_session, new_project) -> funnel_models.Label:
+def new_main_label(
+    models, db_session: scoped_session, new_project: funnel_models.Project
+) -> funnel_models.Label:
     main_label_a = models.Label(
         title="Parent Label A", project=new_project, description="A test parent label"
     )
@@ -1835,7 +1878,9 @@ def new_main_label(models, db_session, new_project) -> funnel_models.Label:
 
 
 @pytest.fixture()
-def new_main_label_unrestricted(models, db_session, new_project) -> funnel_models.Label:
+def new_main_label_unrestricted(
+    models, db_session: scoped_session, new_project: funnel_models.Project
+) -> funnel_models.Label:
     main_label_b = models.Label(
         title="Parent Label B", project=new_project, description="A test parent label"
     )
@@ -1853,7 +1898,9 @@ def new_main_label_unrestricted(models, db_session, new_project) -> funnel_model
 
 
 @pytest.fixture()
-def new_label(models, db_session, new_project) -> funnel_models.Label:
+def new_label(
+    models, db_session: scoped_session, new_project: funnel_models.Project
+) -> funnel_models.Label:
     label_b = models.Label(title="Label B", icon_emoji="🔟", project=new_project)
     new_project.all_labels.append(label_b)
     db_session.add(label_b)
@@ -1862,7 +1909,12 @@ def new_label(models, db_session, new_project) -> funnel_models.Label:
 
 
 @pytest.fixture()
-def new_proposal(models, db_session, new_user, new_project) -> funnel_models.Proposal:
+def new_proposal(
+    models,
+    db_session: scoped_session,
+    new_user: funnel_models.User,
+    new_project: funnel_models.Project,
+) -> funnel_models.Proposal:
     proposal = models.Proposal(
         created_by=new_user,
         project=new_project,
@@ -1875,8 +1927,8 @@ def new_proposal(models, db_session, new_user, new_project) -> funnel_models.Pro
 
 
 @pytest.fixture()
-def fail_with_diff():
-    def func(left, right):
+def fail_with_diff() -> Callable[[str, str], None]:
+    def func(left: str, right: str) -> None:
         if left != right:
             difference = unified_diff(left.split('\n'), right.split('\n'))
             msg = []

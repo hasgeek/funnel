@@ -4,14 +4,16 @@ from copy import copy
 from datetime import datetime
 from pathlib import Path
 
+import pytest
 import tomlkit
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 from markupsafe import Markup
 
-from funnel.utils.markdown import MarkdownConfig
 
+def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
+    from funnel.utils.markdown import MarkdownConfig  # pylint: disable=C0415
 
-def pytest_generate_tests(metafunc) -> None:
     md_tests_data_root: Path = Path('tests/unit/utils/markdown/data')
 
     class MarkdownCase:
@@ -143,6 +145,7 @@ def pytest_generate_tests(metafunc) -> None:
                 (md_tests_data_root / 'template.html').read_text(), 'html.parser'
             )
             case_template = template.find(id='output_template')
+            assert isinstance(case_template, Tag)
             for md_testname, md_configname in cls.test_cases():
                 case: MarkdownCase = cls.test_case(md_testname, md_configname)
                 op = copy(case_template)
@@ -159,13 +162,20 @@ def pytest_generate_tests(metafunc) -> None:
                 op.select('.final_output .output')[0].append(
                     BeautifulSoup(case.output, 'html.parser')
                 )
-                op['class'] = op.get('class', []) + [
+                existing_class = op.get('class')
+                if not existing_class:
+                    existing_class = []
+                elif isinstance(existing_class, str):
+                    existing_class = [existing_class]
+                op['class'] = existing_class + [
                     'success' if case.expected_output == case.output else 'failed'
                 ]
-                template.find('body').append(op)
-            template.find(id='generated').string = datetime.now().strftime(
-                '%d %B, %Y %H:%M:%S'
-            )
+                body = template.find('body')
+                assert isinstance(body, Tag)
+                body.append(op)
+            generated = template.find(id='generated')
+            assert isinstance(generated, Tag)
+            generated.string = datetime.now().strftime('%d %B, %Y %H:%M:%S')
             (md_tests_data_root / 'output.html').write_text(template.prettify())
 
     if (
