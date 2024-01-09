@@ -100,7 +100,9 @@ def get_userinfo(
     return userinfo
 
 
-def resource_error(error, description=None, uri=None) -> Response:
+def resource_error(
+    error: str, description: str | None = None, uri: str | None = None
+) -> Response:
     """Return an error response."""
     params = {'status': 'error', 'error': error}
     if description:

@@ -5,8 +5,9 @@ from __future__ import annotations
 from collections.abc import MutableMapping, Sequence
 
 from markdown_it import MarkdownIt
-from markdown_it.renderer import OptionsDict, RendererHTML
+from markdown_it.renderer import RendererHTML
 from markdown_it.token import Token
+from markdown_it.utils import OptionsDict
 
 __all__ = ['del_plugin']
 

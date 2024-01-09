@@ -22,11 +22,11 @@ from .mixins import AccountCheckMixin, ProjectViewBase
 from .schedule import schedule_data, session_data, session_list_data
 
 
-def rooms_list(project):
+def rooms_list(project: Project) -> list[tuple[str, str]]:
     if project.rooms:
         return [("", _("Select Room"))] + [
             (
-                room.id,
+                str(room.id),
                 f"{room.venue.title} – {room.title}",
             )
             for room in project.rooms
@@ -155,7 +155,7 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
         self.account = self.obj.project.account
 
     @property
-    def project_currently_saved(self):
+    def project_currently_saved(self) -> bool:
         return self.obj.project.is_saved_by(current_auth.user)
 
     @route('')

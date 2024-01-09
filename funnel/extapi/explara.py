@@ -2,15 +2,33 @@
 
 from __future__ import annotations
 
+from typing import Any, TypedDict, cast
+
 import requests
 
 from ..utils import extract_twitter_handle
+from .typing import ExtTicketsDict
 
 __all__ = ['ExplaraAPI']
 
 
-def strip_or_empty(val):
-    return val.strip() if val else ''
+def strip_or_empty(val: Any) -> str:
+    return val.strip() if isinstance(val, str) else ''
+
+
+class ExplaraAttendeeDict(TypedDict, total=False):
+    name: str
+    email: str
+    Phone: str
+    phoneNo: str  # noqa: N815
+    ticketNo: str  # noqa: N815
+    ticketName: str  # noqa: N815
+    orderNo: str  # noqa: N815
+    status: str
+
+
+class ExplaraOrderDict(TypedDict):
+    attendee: list[ExplaraAttendeeDict]
 
 
 class ExplaraAPI:
@@ -20,15 +38,15 @@ class ExplaraAPI:
     Reference : https://developers.explara.com/api-document
     """
 
-    def __init__(self, access_token) -> None:
+    def __init__(self, access_token: str) -> None:
         self.access_token = access_token
         self.headers = {'Authorization': 'Bearer ' + self.access_token}
         self.base_url = 'https://www.explara.com/api/e/{0}'
 
-    def url_for(self, endpoint):
+    def url_for(self, endpoint: str) -> str:
         return self.base_url.format(endpoint)
 
-    def get_orders(self, explara_eventid):
+    def get_orders(self, explara_eventid: str) -> list[ExplaraOrderDict]:
         """
         Get the entire dump of orders for a given eventid in batches.
 
@@ -64,19 +82,19 @@ class ExplaraAPI:
 
         return ticket_orders
 
-    def get_tickets(self, explara_eventid):
-        tickets = []
+    def get_tickets(self, explara_eventid: str) -> list[ExtTicketsDict]:
+        tickets: list[ExtTicketsDict] = []
         for order in self.get_orders(explara_eventid):
-            for attendee in order.get('attendee'):
+            for attendee in order['attendee']:
                 # cancelled tickets are in this list too, hence the check
                 if attendee.get('status') == 'attending':
-                    status = 'confirmed'
+                    status: str | None = 'confirmed'
                 elif attendee.get('status') in ['cancelled', 'lcancelled']:
                     status = 'cancelled'
                 else:
                     status = attendee.get('status')
                 # we sometimes get an empty array for details
-                details = attendee.get('details') or {}
+                details = cast(dict, attendee.get('details') or {})
                 tickets.append(
                     {
                         'fullname': strip_or_empty(attendee.get('name')),

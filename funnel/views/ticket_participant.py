@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+from typing import Any, TypedDict
+
 from flask import abort, flash, request, url_for
 from sqlalchemy.exc import IntegrityError
 
@@ -39,8 +42,19 @@ from .login_session import requires_login
 from .mixins import AccountCheckMixin, ProjectViewBase, TicketEventViewBase
 
 
-def ticket_participant_badge_data(ticket_participants, project):
-    badges = []
+class BadgeDict(TypedDict):
+    first_name: str
+    last_name: str
+    twitter: str | None
+    company: str | None
+    qrcode_content: str
+    order_no: str
+
+
+def ticket_participant_badge_data(
+    ticket_participants: Iterable[TicketParticipant], project: Project
+) -> list[BadgeDict]:
+    badges: list[BadgeDict] = []
     for ticket_participant in ticket_participants:
         first_name, last_name = split_name(ticket_participant.fullname)
         ticket = SyncTicket.query.filter_by(
@@ -63,8 +77,8 @@ def ticket_participant_badge_data(ticket_participants, project):
 
 # FIXME: Do not process integer primary keys
 def ticket_participant_data(
-    ticket_participant: TicketParticipant, project_id: int, full=False
-):
+    ticket_participant: TicketParticipant, project_id: int, full: bool = False
+) -> dict[str, Any]:
     data = {
         '_id': ticket_participant.id,
         'puk': ticket_participant.puk,
@@ -84,7 +98,9 @@ def ticket_participant_data(
     return data
 
 
-def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
+def ticket_participant_checkin_data(
+    ticket_participant, project: Project, ticket_event: TicketEvent  # FIXME type
+) -> dict:
     puuid_b58 = uuid_to_base58(ticket_participant.uuid)
     data = {
         'puuid_b58': puuid_b58,

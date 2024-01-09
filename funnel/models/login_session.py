@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
-from . import (
+from .account import Account
+from .base import (
     BaseMixin,
     DynamicMapped,
     Mapped,
@@ -18,7 +19,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account
 
 __all__ = [
     'LoginSession',
@@ -34,7 +34,7 @@ __all__ = [
 class LoginSessionError(Exception):
     """Base exception for user session errors."""
 
-    def __init__(self, login_session: LoginSession, *args) -> None:
+    def __init__(self, login_session: LoginSession, *args: Any) -> None:
         self.login_session = login_session
         super().__init__(login_session, *args)
 

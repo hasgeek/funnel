@@ -5,9 +5,14 @@ from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 
+from ...conftest import scoped_session
+
 
 def test_project_crew_membership(
-    db_session, new_user, new_user_owner, new_project
+    db_session: scoped_session,
+    new_user: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
 ) -> None:
     """Test that project crew members get their roles from ProjectCrewMembership."""
     # new_user is account admin
@@ -109,7 +114,11 @@ def test_project_crew_membership(
 
 
 def test_project_roles_lazy_eval(
-    db_session, new_user, new_user_owner, new_organization, new_project2
+    db_session: scoped_session,
+    new_user: models.User,
+    new_user_owner: models.User,
+    new_organization: models.Organization,
+    new_project2: models.Project,
 ) -> None:
     """Test that the lazy roles evaluator picks up membership-based roles."""
     assert 'admin' in new_organization.roles_for(new_user_owner)
@@ -120,8 +129,12 @@ def test_project_roles_lazy_eval(
 
 
 def test_membership_amend(
-    db_session, user_vetinari, user_ridcully, project_expo2010, org_ankhmorpork
-):
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    user_ridcully: models.User,
+    project_expo2010: models.Project,
+    org_ankhmorpork: models.Organization,
+) -> None:
     ridcully_admin = models.AccountMembership(
         member=user_ridcully, account=org_ankhmorpork, granted_by=user_vetinari
     )

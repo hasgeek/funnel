@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from hashlib import blake2b
 from importlib import resources
 from os import urandom
+from typing import Any, ContextManager
 from urllib.parse import quote, unquote, urljoin, urlsplit
 
 import brotli
@@ -73,7 +74,7 @@ class SessionTimeouts(dict[str, timedelta]):
     Use the :attr:`session_timeouts` instance instead of this class.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Create a dictionary that separately tracks {key}_at keys."""
         super().__init__(*args, **kwargs)
         self.keys_at = {f'{key}_at' for key in self.keys()}
@@ -126,7 +127,7 @@ app.after_request(session_timeouts.crosscheck_session)
 # --- Utilities ------------------------------------------------------------------------
 
 
-def app_context():
+def app_context() -> ContextManager:
     """Return an app context if one is not active."""
     if current_app:
         return nullcontext()
@@ -140,7 +141,7 @@ def str_pw_set_at(user: Account) -> str:
     return 'None'
 
 
-def metarefresh_redirect(url: str):
+def metarefresh_redirect(url: str) -> Response:
     """Redirect using a non-standard Refresh header in a Meta tag."""
     return Response(render_template('meta_refresh.html.jinja2', url=url))
 
@@ -348,7 +349,7 @@ def validate_rate_limit(
     timeout: int,
     token: str | None = None,
     validator: Callable[[str, str | None], tuple[bool, bool]] | None = None,
-):
+) -> None:
     """
     Validate a rate limit on API-endpoint resources.
 
@@ -564,7 +565,7 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
 def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]:
     """Render a HTML fragment in a JSON wrapper, for use with ``@render_with``."""
 
-    def render_json_with_status(kwargs) -> ReturnResponse:
+    def render_json_with_status(kwargs: dict[str, Any]) -> ReturnResponse:
         """Render plain JSON."""
         return jsonify(
             status='ok',
@@ -576,7 +577,7 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
             },
         )
 
-    def render_html_in_json(kwargs) -> ReturnResponse:
+    def render_html_in_json(kwargs: dict[str, Any]) -> ReturnResponse:
         """Render HTML fragment in JSON."""
         resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
         resp.content_type = 'application/x.html+json; charset=utf-8'
@@ -593,13 +594,13 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
 
 
 @app.template_filter('url_join')
-def url_join(base, url=''):
+def url_join(base: str, url: str = '') -> str:
     """Join URLs in a template filter."""
     return urljoin(base, url)
 
 
 @app.template_filter('cleanurl')
-def cleanurl_filter(url):
+def cleanurl_filter(url: str | furl) -> str:
     """Clean a URL in a template filter."""
     if not isinstance(url, furl):
         url = furl(url)
@@ -627,7 +628,7 @@ def shortlink(url: str, actor: Account | None = None, shorter: bool = True) -> s
 
 
 @app.before_request
-def no_null_in_form():
+def no_null_in_form() -> None:
     """Disallow NULL characters in any form submit (but don't scan file attachments)."""
     if request.method == 'POST':
         for values in request.form.listvalues():

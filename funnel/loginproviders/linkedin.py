@@ -12,6 +12,7 @@ from sentry_sdk import capture_exception
 from baseframe import _
 
 from ..registry import LoginCallbackError, LoginProvider, LoginProviderData
+from ..typing import ReturnView
 
 __all__ = ['LinkedInProvider']
 
@@ -28,7 +29,7 @@ class LinkedInProvider(LoginProvider):
         'q=members&projection=(elements*(handle~))'
     )
 
-    def do(self, callback_url):
+    def do(self, callback_url: str) -> ReturnView:
         session['oauth_state'] = token_urlsafe()
         session['oauth_callback'] = callback_url
         return redirect(

@@ -10,7 +10,8 @@ from werkzeug.utils import cached_property
 from baseframe import localize_timezone
 from coaster.sqlalchemy import with_roles
 
-from . import (
+from .account import Account
+from .base import (
     BaseScopedIdNameMixin,
     DynamicMapped,
     Mapped,
@@ -24,7 +25,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account
 from .helpers import (
     ImgeeType,
     MarkdownCompositeDocument,

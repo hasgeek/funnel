@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, Self
 
 from werkzeug.utils import cached_property
 
-from . import Mapped, Model, Query, relationship, sa, sa_orm
 from .account import Account
+from .base import Mapped, Model, Query, relationship, sa, sa_orm
 from .membership_mixin import ImmutableMembershipMixin
 
 __all__ = ['CommentsetMembership']

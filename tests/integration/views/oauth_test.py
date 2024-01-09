@@ -8,8 +8,10 @@ import pytest
 
 from funnel import models
 
+from ...conftest import CredProtocol, LoginFixtureProtocol, TestClient
 
-def test_authcode_requires_login(client) -> None:
+
+def test_authcode_requires_login(client: TestClient) -> None:
     """The authcode endpoint requires a login."""
     rv = client.get('/api/1/auth', follow_redirects=True)
     assert rv.status_code == 200
@@ -22,7 +24,10 @@ def test_authcode_requires_login(client) -> None:
 
 
 def test_authcode_wellformed(
-    client, login, user_rincewind, client_hex_credential
+    client: TestClient,
+    login: LoginFixtureProtocol,
+    user_rincewind: models.User,
+    client_hex_credential: CredProtocol,
 ) -> None:
     """The authcode endpoint will raise 403 if not well formed."""
     login.as_(user_rincewind)
@@ -31,13 +36,13 @@ def test_authcode_wellformed(
     query_params: dict[str, str] = {}
     rv = client.get('/api/1/auth', query_string=query_params)
     assert rv.status_code == 403
-    assert "Missing client_id" in rv.get_data(as_text=True)
+    assert "Missing client_id" in rv.text
 
     # Unknown client
     query_params['client_id'] = 'unknown'
     rv = client.get('/api/1/auth', query_string=query_params)
     assert rv.status_code == 403
-    assert "Unknown client_id" in rv.get_data(as_text=True)
+    assert "Unknown client_id" in rv.text
 
     # Missing redirect URI (error is sent to client as a query parameter)
     query_params['client_id'] = client_hex_credential.cred.name
@@ -51,7 +56,12 @@ def test_authcode_wellformed(
 @pytest.mark.dbcommit()
 @pytest.mark.filterwarnings("ignore:Object of type <AuthToken> not in session")
 def test_auth_untrusted_confidential(
-    client, login, user_rincewind, client_hex, client_hex_credential, csrf_token
+    client: TestClient,
+    login: LoginFixtureProtocol,
+    user_rincewind: models.User,
+    client_hex: models.AuthClient,
+    client_hex_credential: CredProtocol,
+    csrf_token: str,
 ) -> None:
     """Test auth on an untrusted confidential auth client."""
     login.as_(user_rincewind)

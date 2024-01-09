@@ -6,7 +6,8 @@ from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 
 from coaster.sqlalchemy import add_primary_relationship, with_roles
 
-from . import (
+from .account import Account
+from .base import (
     BaseScopedNameMixin,
     CoordinatesMixin,
     Mapped,
@@ -16,7 +17,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account
 from .helpers import MarkdownCompositeBasic
 from .project import Project
 from .project_membership import project_child_role_map, project_child_role_set
@@ -184,7 +184,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     }
 
     @property
-    def scoped_name(self):
+    def scoped_name(self) -> str:
         return f'{self.parent.name}/{self.name}'
 
 

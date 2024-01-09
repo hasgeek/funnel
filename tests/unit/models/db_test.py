@@ -5,9 +5,13 @@ import pytest
 
 from funnel import models
 
+from ...conftest import Flask, TestClient, scoped_session
+
 
 class Fixtures:
-    def make_fixtures(self, db_session):  # pylint: disable=too-many-locals
+    def make_fixtures(  # pylint: disable=too-many-locals
+        self, db_session: scoped_session
+    ) -> None:
         """
         Create fixtures.
 
@@ -83,7 +87,9 @@ class Fixtures:
 
 class TestDatabaseFixture:
     @pytest.fixture(autouse=True)
-    def _pytest_fixtures(self, app, client, db_session):
+    def _pytest_fixtures(
+        self, app: Flask, client: TestClient, db_session: scoped_session
+    ) -> None:
         self.client = client
         self.db_session = db_session
         self.app = app

@@ -12,6 +12,7 @@ from markupsafe import Markup
 from sqlalchemy.sql import expression
 
 from baseframe import __
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import ClassView, render_with, requestargs, requires_roles, route
 
 from .. import app, executor
@@ -99,7 +100,7 @@ class SearchProvider(Generic[_ST]):
             *(getattr(self.model, c) for c in self.model.search_vector.type.columns),
         )
 
-    def hltitle_column(self, tsquery: sa.Function) -> sa.ColumnElement[str]:
+    def hltitle_column(self, tsquery: sa.Function) -> sa.ColumnElement:
         """Return a column expression for title with search terms highlighted."""
         return sa.func.ts_headline(
             self.regconfig,
@@ -508,7 +509,7 @@ class CommentSearch(SearchInProjectProvider):
     model = Comment
     has_title = False  # Comments don't have titles
 
-    def hltitle_column(self, tsquery: sa.Function):
+    def hltitle_column(self, tsquery: sa.Function) -> sa.ColumnElement:
         """Comments don't have titles, so return a null expression here."""
         return expression.null()
 
@@ -740,6 +741,26 @@ def search_counts(
     return results
 
 
+class SearchResultsItemDict(TypedDict):
+    title: str | None
+    title_html: str | None
+    url: str
+    snippet_html: str
+    obj: RoleAccessProxy
+
+
+class SearchResultsDict(TypedDict):
+    items: list[SearchResultsItemDict]
+    has_next: bool
+    has_prev: bool
+    page: int
+    per_page: int
+    pages: int
+    next_num: int | None
+    prev_num: int | None
+    count: int | None
+
+
 # @cache.memoize(timeout=300)
 def search_results(
     tsquery: sa.Function,
@@ -748,7 +769,7 @@ def search_results(
     per_page: int = 20,
     account: Account | None = None,
     project: Project | None = None,
-):
+) -> SearchResultsDict:
     """Return search results."""
     # Pick up model data for the given type string
     sp = search_providers[stype]

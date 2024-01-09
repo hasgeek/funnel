@@ -4,13 +4,14 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import datetime
-from typing import Self
+from typing import Any, Self
 
 from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, StateManager, auto_init_default, with_roles
 from coaster.utils import LabeledEnum
 
-from . import (
+from .account import Account
+from .base import (
     BaseScopedIdNameMixin,
     Mapped,
     Model,
@@ -22,7 +23,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account
 from .comment import SET_TYPE, Commentset
 from .helpers import (
     MarkdownCompositeDocument,
@@ -237,7 +237,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         'related': {'name', 'title', 'urls'},
     }
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.commentset = Commentset(settype=SET_TYPE.UPDATE)
 

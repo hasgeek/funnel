@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from baseframe import _, __, forms
 from coaster.utils import getbool
 
@@ -72,7 +74,7 @@ class ProjectCrewMembershipForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def validate(self, *args, **kwargs) -> bool:
+    def validate(self, *args: Any, **kwargs: Any) -> bool:
         """Validate form."""
         is_valid = super().validate(*args, **kwargs)
         if not any([self.is_editor.data, self.is_promoter.data, self.is_usher.data]):

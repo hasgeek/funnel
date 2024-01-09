@@ -6,7 +6,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import immutable, with_roles
 
-from . import Mapped, Model, declared_attr, relationship, sa, sa_orm
+from .base import Mapped, Model, declared_attr, relationship, sa, sa_orm
 from .membership_mixin import ImmutableMembershipMixin
 from .project import Project
 

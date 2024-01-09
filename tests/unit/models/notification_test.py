@@ -6,9 +6,12 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
+import sqlalchemy.orm as sa_orm
 from sqlalchemy.exc import IntegrityError
 
 from funnel import models
+
+from ...conftest import SQLAlchemy, scoped_session
 
 pytestmark = pytest.mark.filterwarnings(
     "ignore:Object of type <AccountEmail> not in session"
@@ -16,7 +19,7 @@ pytestmark = pytest.mark.filterwarnings(
 
 
 @pytest.fixture(scope='session')
-def notification_types(database) -> SimpleNamespace:
+def notification_types(database: SQLAlchemy) -> SimpleNamespace:
     class ProjectIsParent:
         @property
         def preference_context(self) -> models.Account:
@@ -55,12 +58,14 @@ def notification_types(database) -> SimpleNamespace:
         description = "When my project receives a new proposal"
         roles = ['project_editor']
 
-    database.configure_mappers()
+    sa_orm.configure_mappers()
     return SimpleNamespace(**locals())
 
 
 @pytest.fixture()
-def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many-locals
+def project_fixtures(
+    db_session: scoped_session,
+) -> SimpleNamespace:  # pylint: disable=too-many-locals
     """Provide users, one org and one project, for tests on them."""
     user_owner = models.User(username='user_owner', fullname="User Owner")
     user_owner.add_email('owner@example.com')
@@ -120,14 +125,14 @@ def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many
         attr for attr in locals().values() if isinstance(attr, models.Model)
     ]
 
-    def refresh():
+    def refresh() -> None:
         for attr in refresh_attrs:
             db_session.add(attr)
 
     return SimpleNamespace(**locals())
 
 
-def test_project_roles(project_fixtures) -> None:
+def test_project_roles(project_fixtures: SimpleNamespace) -> None:
     """Test that the fixtures have roles set up correctly."""
     owner_roles = project_fixtures.project.roles_for(project_fixtures.user_owner)
     assert 'editor' in owner_roles
@@ -167,7 +172,9 @@ def test_project_roles(project_fixtures) -> None:
 
 
 @pytest.fixture()
-def update(project_fixtures, db_session) -> models.Update:
+def update(
+    project_fixtures: SimpleNamespace, db_session: scoped_session
+) -> models.Update:
     """Publish an update as a fixture."""
     new_update = models.Update(
         project=project_fixtures.project,
@@ -182,7 +189,7 @@ def update(project_fixtures, db_session) -> models.Update:
     return new_update
 
 
-def test_update_roles(project_fixtures, update) -> None:
+def test_update_roles(project_fixtures: SimpleNamespace, update: models.Update) -> None:
     """Test whether Update grants the project_* roles to users."""
     owner_roles = update.roles_for(project_fixtures.user_owner)
     assert 'project_editor' in owner_roles
@@ -213,7 +220,10 @@ def test_update_roles(project_fixtures, update) -> None:
 
 
 def test_update_notification_structure(
-    notification_types, project_fixtures, update, db_session
+    notification_types: SimpleNamespace,
+    project_fixtures: SimpleNamespace,
+    update: models.Update,
+    db_session: scoped_session,
 ) -> None:
     """Test whether a NewUpdateNotification has the appropriate structure."""
     project_fixtures.refresh()
@@ -266,7 +276,9 @@ def test_update_notification_structure(
     assert project_fixtures.user_bystander not in all_recipients
 
 
-def test_account_notification_preferences(notification_types, db_session) -> None:
+def test_account_notification_preferences(
+    notification_types: SimpleNamespace, db_session: scoped_session
+) -> None:
     """Test that users have a notification_preferences dict."""
     nt = notification_types  # Short var for keeping lines within 88 columns below
     user = models.User(fullname="User")
@@ -315,7 +327,7 @@ def test_account_notification_preferences(notification_types, db_session) -> Non
     }
 
 
-def test_notification_metadata(notification_types) -> None:
+def test_notification_metadata(notification_types: SimpleNamespace) -> None:
     """Test that notification classes have appropriate cls_type and pref_type values."""
     assert notification_types.TestNewUpdateNotification.cls_type == 'update_new_test'
     assert notification_types.TestNewUpdateNotification.pref_type == 'update_new_test'
@@ -333,7 +345,10 @@ def test_notification_metadata(notification_types) -> None:
 
 
 def test_notification_preferences(
-    notification_types, project_fixtures, update, db_session
+    notification_types: SimpleNamespace,
+    project_fixtures: SimpleNamespace,
+    update: models.Update,
+    db_session: scoped_session,
 ) -> None:
     """Test whether user preferences are correctly accessed."""
     # Rather than dispatching, we'll hardcode UserNotification for each test user

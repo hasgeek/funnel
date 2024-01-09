@@ -116,17 +116,17 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `upgrade_` instead
     globals().get('upgrade_%s' % engine_name, lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `downgrade_` instead
     globals().get('downgrade_%s' % engine_name, lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     conn = op.get_bind()
 
     count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(project))
@@ -272,7 +272,7 @@ def upgrade_():
     progress.finish()
 
 
-def downgrade_():
+def downgrade_() -> None:
     conn = op.get_bind()
 
     count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(project))

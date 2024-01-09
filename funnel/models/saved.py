@@ -7,8 +7,8 @@ from datetime import datetime
 
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
-from . import Mapped, Model, NoIdMixin, db, relationship, sa, sa_orm
 from .account import Account
+from .base import Mapped, Model, NoIdMixin, db, relationship, sa, sa_orm
 from .project import Project
 from .session import Session
 

@@ -7,18 +7,20 @@ from werkzeug.datastructures import MultiDict
 
 from funnel import models
 
+from ...conftest import LoginFixtureProtocol, TestClient, scoped_session
+
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_same(
-    client,
-    db_session,
-    login,
-    new_user,
-    new_user2,
-    new_user_admin,
-    new_user_owner,
-    new_project,
-    csrf_token,
+    client: TestClient,
+    db_session: scoped_session,
+    login: LoginFixtureProtocol,
+    new_user: models.User,
+    new_user2: models.User,
+    new_user_admin: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
+    csrf_token: str,
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
@@ -86,15 +88,15 @@ def test_comment_report_same(
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_opposing(
-    client,
-    db_session,
-    login,
-    new_user,
-    new_user2,
-    new_user_admin,
-    new_user_owner,
-    new_project,
-    csrf_token,
+    client: TestClient,
+    db_session: scoped_session,
+    login: LoginFixtureProtocol,
+    new_user: models.User,
+    new_user2: models.User,
+    new_user_admin: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
+    csrf_token: str,
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
@@ -162,15 +164,15 @@ def test_comment_report_opposing(
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_majority_spam(
-    client,
-    db_session,
-    login,
-    new_user,
-    new_user2,
-    new_user_admin,
-    new_user_owner,
-    new_project,
-    csrf_token,
+    client: TestClient,
+    db_session: scoped_session,
+    login: LoginFixtureProtocol,
+    new_user: models.User,
+    new_user2: models.User,
+    new_user_admin: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
+    csrf_token: str,
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
@@ -251,15 +253,15 @@ def test_comment_report_majority_spam(
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_majority_ok(
-    client,
-    db_session,
-    login,
-    new_user,
-    new_user2,
-    new_user_admin,
-    new_user_owner,
-    new_project,
-    csrf_token,
+    client: TestClient,
+    db_session: scoped_session,
+    login: LoginFixtureProtocol,
+    new_user: models.User,
+    new_user2: models.User,
+    new_user_admin: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
+    csrf_token: str,
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(

@@ -12,7 +12,8 @@ from sqlalchemy.dialects.postgresql import ARRAY
 
 from coaster.utils import make_name
 
-from . import (
+from . import types
+from .base import (
     BaseMixin,
     BaseNameMixin,
     GeonameModel,
@@ -22,7 +23,6 @@ from . import (
     relationship,
     sa,
     sa_orm,
-    types,
 )
 from .helpers import quote_autocomplete_like
 
@@ -397,7 +397,7 @@ class GeoName(BaseNameMixin, GeonameModel):
 
         return related
 
-    def as_dict(self, related=True, alternate_titles=True) -> dict:
+    def as_dict(self, related: bool = True, alternate_titles: bool = True) -> dict:
         """Convert this record into a dictionary suitable for casting to JSON."""
         return {
             'geonameid': self.geonameid,
@@ -438,7 +438,7 @@ class GeoName(BaseNameMixin, GeonameModel):
         }
 
     @classmethod
-    def get(cls, name) -> GeoName | None:
+    def get(cls, name: str) -> GeoName | None:
         """Get geoname record matching given URL stub name."""
         return cls.query.filter_by(name=name).one_or_none()
 

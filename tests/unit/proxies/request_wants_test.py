@@ -35,7 +35,7 @@ def fixture_app() -> Flask:
     return tapp
 
 
-def test_request_wants_is_an_instance(request) -> None:
+def test_request_wants_is_an_instance(request: pytest.FixtureRequest) -> None:
     """request_wants proxy is an instance of RequestWants class."""
     # pylint: disable=protected-access
     assert isinstance(request_wants._get_current_object(), RequestWants)
@@ -61,7 +61,7 @@ def test_request_wants_is_an_instance(request) -> None:
         ('*/*', False),
     ],
 )
-def test_request_wants_json(app, accept_header: str, result: bool) -> None:
+def test_request_wants_json(app: Flask, accept_header: str, result: bool) -> None:
     """Request wants a JSON response."""
     with app.test_request_context(headers={'Accept': accept_header}):
         assert request_wants.json is result
@@ -85,7 +85,7 @@ def test_request_wants_json(app, accept_header: str, result: bool) -> None:
     ],
 )
 def test_request_wants_html_fragment_xhr(
-    app, xhr: bool, accept_header: str, result: bool
+    app: Flask, xhr: bool, accept_header: str, result: bool
 ) -> None:
     """Request wants a HTML fragment (XmlHttpRequest version)."""
     headers = {'Accept': accept_header}
@@ -115,7 +115,7 @@ def test_request_wants_html_fragment_xhr(
     ],
 )
 def test_request_wants_html_fragment_htmx(
-    app, hx_request: bool, accept_header: str | None, result: bool
+    app: Flask, hx_request: bool, accept_header: str | None, result: bool
 ) -> None:
     """Request wants a HTML fragment (HTMX version)."""
     # The Accept header is not a factor in HTMX calls.
@@ -138,7 +138,9 @@ def test_request_wants_html_fragment_htmx(
         ('*/*', False),
     ],
 )
-def test_request_wants_html_in_json(app, accept_header: str, result: bool) -> None:
+def test_request_wants_html_in_json(
+    app: Flask, accept_header: str, result: bool
+) -> None:
     """Request wants a HTML fragment embedded in a JSON response."""
     with app.test_request_context(headers={'Accept': accept_header}):
         assert request_wants.html_in_json is result
@@ -146,7 +148,7 @@ def test_request_wants_html_in_json(app, accept_header: str, result: bool) -> No
     assert request_wants.html_in_json is None
 
 
-def test_request_wants_htmx(app) -> None:
+def test_request_wants_htmx(app: Flask) -> None:
     """Request wants a HTMX-compatible response."""
     with app.test_request_context():
         assert request_wants.htmx is False
@@ -154,7 +156,7 @@ def test_request_wants_htmx(app) -> None:
         assert request_wants.htmx is True
 
 
-def test_response_varies(fixture_app) -> None:
+def test_response_varies(fixture_app: Flask) -> None:
     """Response Vary header is based on tests."""
     client = fixture_app.test_client()
 

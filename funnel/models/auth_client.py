@@ -6,7 +6,7 @@ import urllib.parse
 from collections.abc import Collection, Sequence
 from datetime import datetime, timedelta
 from hashlib import blake2b, sha256
-from typing import Self, cast, overload
+from typing import Any, Self, cast, overload
 
 from sqlalchemy.orm import attribute_keyed_dict, load_only
 from sqlalchemy.orm.query import Query as QueryBaseClass
@@ -16,7 +16,8 @@ from baseframe import _
 from coaster.sqlalchemy import with_roles
 from coaster.utils import buid as make_buid, newsecret, require_one_of, utcnow
 
-from . import (
+from .account import Account, Team
+from .base import (
     BaseMixin,
     DynamicMapped,
     Mapped,
@@ -30,7 +31,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account, Team
 from .login_session import LoginSession, auth_client_login_session
 
 __all__ = [
@@ -475,7 +475,7 @@ class AuthToken(ScopeMixin, BaseMixin[int, Account], Model):
         }
     }
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.token = make_buid()
         if self.effective_user:

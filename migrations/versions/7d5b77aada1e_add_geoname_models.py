@@ -17,25 +17,25 @@ branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `upgrade_` instead
     globals().get('upgrade_%s' % engine_name, lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `downgrade_` instead
     globals().get('downgrade_%s' % engine_name, lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     pass
 
 
-def downgrade_():
+def downgrade_() -> None:
     pass
 
 
-def upgrade_geoname():
+def upgrade_geoname() -> None:
     op.create_table(
         'geo_country_info',
         sa.Column('iso_alpha2', sa.CHAR(length=2), nullable=True),
@@ -191,7 +191,7 @@ def upgrade_geoname():
     )
 
 
-def downgrade_geoname():
+def downgrade_geoname() -> None:
     op.drop_index(op.f('ix_geo_alt_name_title'), table_name='geo_alt_name')
     op.drop_index(op.f('ix_geo_name_ascii_title'), table_name='geo_name')
     op.drop_index(op.f('ix_geo_name_title'), table_name='geo_name')

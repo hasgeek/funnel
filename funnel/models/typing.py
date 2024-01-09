@@ -40,7 +40,7 @@ class ModelUrlProtocol(Protocol):
     def absolute_url(self) -> str | None:
         ...
 
-    def url_for(self, action: str = 'view', **kwargs) -> str:
+    def url_for(self, action: str = 'view', **kwargs: Any) -> str:
         ...
 
 

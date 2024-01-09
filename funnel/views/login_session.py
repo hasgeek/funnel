@@ -95,17 +95,17 @@ class LoginManager:
     is_master_data_source = True
 
     @property
-    def autocomplete_endpoint(self):
+    def autocomplete_endpoint(self) -> str:
         """Endpoint for autocomplete of user name (used in Baseframe)."""
         return app_url_for(app, 'user_autocomplete')
 
     @property
-    def getuser_endpoint(self):
+    def getuser_endpoint(self) -> str:
         """Endpoint for getting a user by userid (used in Baseframe)."""
         return app_url_for(app, 'user_get_by_userids')
 
     @staticmethod
-    def _load_user():
+    def _load_user() -> None:
         """Load the user object to `current_auth` if there's a buid in the session."""
         add_auth_attribute('user', None)
         add_auth_attribute('session', None)
@@ -226,7 +226,7 @@ def session_mark_accessed(
     auth_client: AuthClient | None = None,
     ipaddr: str | None = None,
     user_agent: str | None = None,
-):
+) -> None:
     """
     Mark a session as currently active.
 
@@ -357,7 +357,7 @@ def update_user_session_timestamp(response: ResponseType) -> ResponseType:
         user_agent = str(request.user_agent.string[:250])
 
         @response.call_on_close
-        def mark_session_accessed_after_response():
+        def mark_session_accessed_after_response() -> None:
             # App context is needed for the call to statsd in mark_accessed()
             with app_context():
                 # 1. Add object back to the current database session as it's not
@@ -825,7 +825,7 @@ def login_internal(
     user: User,
     login_session: LoginSession | None = None,
     login_service: str | None = None,
-):
+) -> None:
     """
     Login a user and create a session.
 
@@ -866,7 +866,9 @@ def logout_internal() -> None:
     session.permanent = False
 
 
-def register_internal(username, fullname, password):
+def register_internal(
+    username: str | None, fullname: str, password: str | None
+) -> User:
     """Register a user account (helper function)."""
     user = User(username=username, fullname=fullname, password=password)
     if not username:
@@ -876,7 +878,7 @@ def register_internal(username, fullname, password):
     return user
 
 
-def set_loginmethod_cookie(response, value):
+def set_loginmethod_cookie(response: ResponseType, value: str) -> ResponseType:
     """Record the login method that was used, to provide a UI hint the next time."""
     # TODO: This is deprecated now that the primary emphasis is on OTP login.
     response.set_cookie(

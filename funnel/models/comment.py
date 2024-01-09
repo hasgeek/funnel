@@ -12,7 +12,14 @@ from baseframe import _, __
 from coaster.sqlalchemy import LazyRoleSet, RoleAccessProxy, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import (
+from .account import (
+    Account,
+    DuckTypeAccount,
+    deleted_account,
+    removed_account,
+    unknown_account,
+)
+from .base import (
     BaseMixin,
     DynamicMapped,
     Mapped,
@@ -24,13 +31,6 @@ from . import (
     relationship,
     sa,
     sa_orm,
-)
-from .account import (
-    Account,
-    DuckTypeAccount,
-    deleted_account,
-    removed_account,
-    unknown_account,
 )
 from .helpers import MarkdownCompositeBasic, MessageComposite, add_search_trigger
 
@@ -169,7 +169,7 @@ class Commentset(UuidMixin, BaseMixin[int, Account], Model):
         'related': {'uuid_b58', 'url_name_uuid_b58'},
     }
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.count = 0
 
@@ -193,7 +193,7 @@ class Commentset(UuidMixin, BaseMixin[int, Account], Model):
     with_roles(parent_type, read={'all'})
 
     @cached_property
-    def last_comment(self):
+    def last_comment(self) -> Comment | None:
         return (
             self.comments.filter(Comment.state.PUBLIC)
             .order_by(Comment.created_at.desc())
@@ -229,11 +229,11 @@ class Commentset(UuidMixin, BaseMixin[int, Account], Model):
         return comment
 
     @state.transition(state.OPEN, state.DISABLED)
-    def disable_comments(self):
+    def disable_comments(self) -> None:
         """Disable posting of comments."""
 
     @state.transition(state.DISABLED, state.OPEN)
-    def enable_comments(self):
+    def enable_comments(self) -> None:
         """Enable posting of comments."""
 
     # Transitions for the other two states are pending on the TODO notes in post_comment
@@ -382,7 +382,7 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
     }
     __json_datasets__ = ('json',)
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.commentset.last_comment_at = sa.func.utcnow()
 
@@ -444,7 +444,9 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
 
     @message.inplace.expression
     @classmethod
-    def _message_expression(cls):
+    def _message_expression(
+        cls,
+    ) -> sa_orm.InstrumentedAttribute[MarkdownCompositeBasic]:
         """Return SQL expression for comment message column."""
         return cls._message
 

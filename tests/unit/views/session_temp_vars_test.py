@@ -2,6 +2,7 @@
 # pylint: disable=redefined-outer-name
 
 import time
+from collections.abc import Generator
 from datetime import timedelta
 
 import pytest
@@ -9,6 +10,8 @@ import pytest
 from coaster.utils import utcnow
 
 from funnel.views.helpers import SessionTimeouts, session_timeouts
+
+from ...conftest import TestClient
 
 test_timeout_seconds = 1
 
@@ -52,7 +55,7 @@ def test_session_intersection() -> None:
 
 
 @pytest.fixture()
-def _timeout_var():
+def _timeout_var() -> Generator[None, None, None]:
     session_timeouts['test_timeout'] = timedelta(seconds=test_timeout_seconds)
     yield
     session_timeouts.pop('test_timeout')
@@ -60,7 +63,7 @@ def _timeout_var():
 
 @pytest.mark.flaky(reruns=1)  # Rerun in case assert with timedelta fails
 @pytest.mark.usefixtures('_timeout_var')
-def test_session_temp_vars(client) -> None:
+def test_session_temp_vars(client: TestClient) -> None:
     with client.session_transaction() as session:
         assert 'test_timeout' not in session
         assert 'test_timeout_at' not in session
@@ -71,7 +74,7 @@ def test_session_temp_vars(client) -> None:
         session['test_notimeout'] = 'test2'
 
     # Hit a lightweight endpoint to trigger the temp var timeout scanner
-    client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
+    _ = client.get('/api/baseframe/1/csrf/refresh').text
 
     with client.session_transaction() as session:
         assert 'test_timeout' in session
@@ -87,7 +90,7 @@ def test_session_temp_vars(client) -> None:
     time.sleep(test_timeout_seconds)
 
     # Hit a lightweight endpoint to trigger the temp var timeout scanner again
-    client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
+    _ = client.get('/api/baseframe/1/csrf/refresh').text
 
     # The temp var should be removed now, while the other var remains
     with client.session_transaction() as session:

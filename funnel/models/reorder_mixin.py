@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Protocol, TypeVar
 
-from . import Mapped, db, declarative_mixin, sa, sa_orm
+from .base import Mapped, db, declarative_mixin, sa, sa_orm
 from .typing import ModelIdProtocol
 
 __all__ = ['ReorderMixin']

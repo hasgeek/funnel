@@ -29,16 +29,15 @@ venvs = [".venv"]
 paths = ["funnel", "tests", "migrations/versions"]
 deps-file = "requirements/base.in"
 exclude-deps = [
-  "argon2-cffi",        # Optional dep for passlib
-  "bcrypt",             # Optional dep for passlib
-  "greenlet",           # Optional dep for SQLAlchemy's asyncio support
-  "gunicorn",           # Not imported, used as server
-  "linkify-it-py",      # Optional dep for markdown-it-py
-  "psycopg",            # Optional dep for SQLAlchemy
-  "rq-dashboard",       # Creosote fails to recognise the import
-  "tzdata",             # Resource-only dep, no code to import
-  "urllib3",            # Unused but required to silence a pip-audit warning
-  "wtforms-sqlalchemy", # Temp dep on an unreleased git branch
+  "argon2-cffi",   # Optional dep for passlib
+  "bcrypt",        # Optional dep for passlib
+  "greenlet",      # Optional dep for SQLAlchemy's asyncio support
+  "gunicorn",      # Not imported, used as server
+  "linkify-it-py", # Optional dep for markdown-it-py
+  "psycopg",       # Optional dep for SQLAlchemy
+  "rq-dashboard",  # Creosote fails to recognise the import
+  "tzdata",        # Resource-only dep, no code to import
+  "urllib3",       # Unused but required to silence a pip-audit warning
 ]
 
 [tool.djlint]
@@ -116,6 +115,7 @@ required_plugins = [
   'pytest-cov',
   'pytest-dotenv',
   'pytest-env',
+  'pytest-lazy-fixture',
   'pytest-rerunfailures',
   'pytest-socket',
   'requests-mock',
@@ -197,6 +197,12 @@ disable = [
   'unused-argument',                # Arguments required for spec compatibility aren't always used
   'wrong-import-order',             # Let isort and ruff handle this
   'wrong-import-position',          # Let black, isort and ruff handle this
+
+  # False positives caused by lazy_loader in funnel.models, so we depend on Mypy instead
+  'isinstance-second-argument-not-valid-type',
+  'no-name-in-module',
+  'not-callable',
+  'unsubscriptable-object',
 
   # Temporarily disabled pending audit and fixes
   'missing-class-docstring',

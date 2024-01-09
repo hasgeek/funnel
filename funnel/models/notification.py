@@ -117,7 +117,8 @@ from coaster.sqlalchemy import (
 from coaster.utils import utcnow, uuid_from_base58, uuid_to_base58
 
 from ..typing import T
-from . import (
+from .account import Account, AccountEmail, AccountPhone
+from .base import (
     BaseMixin,
     DynamicMapped,
     Mapped,
@@ -131,7 +132,6 @@ from . import (
     sa,
     sa_orm,
 )
-from .account import Account, AccountEmail, AccountPhone
 from .helpers import IntTitle
 from .phone_number import PhoneNumber, PhoneNumberMixin
 from .typing import ModelUuidProtocol
@@ -260,7 +260,7 @@ class SmsMessage(PhoneNumberMixin, BaseMixin[int, Account], Model):
         sa.UnicodeText, nullable=True
     )
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         phone = kwargs.pop('phone', None)
         if phone:
             kwargs['phone_number'] = PhoneNumber.add(phone)
@@ -491,7 +491,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
         cls,
         type: str,  # noqa: A002  # pylint: disable=redefined-builtin
         shadows: type[Notification] | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         # For SQLAlchemy's polymorphic support
         if '__mapper_args__' not in cls.__dict__:
@@ -1296,7 +1296,7 @@ class NotificationPreferences(BaseMixin[int, Account], Model):
         }
     }
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         if self.account:
             self.set_defaults()

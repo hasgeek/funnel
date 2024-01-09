@@ -165,11 +165,11 @@ class UnsubscribeForm(forms.Form):
             and nvalue.allow_transport(self.transport)
         ]  # Sorted by definition order. Usable until we introduce grouping
 
-    def get_main(self, obj) -> bool:
+    def get_main(self, obj: Account) -> bool:
         """Get main preferences switch (global enable/disable)."""
         return obj.main_notification_preferences.by_transport(self.transport)
 
-    def get_types(self, obj) -> list[str]:
+    def get_types(self, obj: Account) -> list[str]:
         """Get status for each notification type for the selected transport."""
         # Populate data with all notification types for which the user has the
         # current transport enabled
@@ -179,11 +179,11 @@ class UnsubscribeForm(forms.Form):
             if user_prefs.by_transport(self.transport)
         ]
 
-    def set_main(self, obj) -> None:
+    def set_main(self, obj: Account) -> None:
         """Set main preferences switch (global enable/disable)."""
         obj.main_notification_preferences.set_transport(self.transport, self.main.data)
 
-    def set_types(self, obj) -> None:
+    def set_types(self, obj: Account) -> None:
         """Set status for each notification type for the selected transport."""
         # self.types.data will only contain the enabled preferences. Therefore, iterate
         # through all choices and toggle true or false based on whether it's in the
@@ -217,7 +217,7 @@ class SetNotificationPreferenceForm(forms.Form):
             if is_available
         ]
 
-    def status_message(self):
+    def status_message(self) -> str:
         """Render a success or error message."""
         if self.errors:
             # Flatten errors into a single string because typically this will only

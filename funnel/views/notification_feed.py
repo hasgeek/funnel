@@ -23,7 +23,9 @@ class AllNotificationsView(ClassView):
     @requires_login
     @render_with('notification_feed.html.jinja2', json=True)
     @requestargs(('page', int), ('per_page', int))
-    def view(self, unread_only: bool, page=1, per_page=10) -> ReturnRenderWith:
+    def view(
+        self, unread_only: bool, page: int = 1, per_page: int = 10
+    ) -> ReturnRenderWith:
         pagination = NotificationRecipient.web_notifications_for(
             current_auth.user, unread_only
         ).paginate(page=page, per_page=per_page, max_per_page=100)

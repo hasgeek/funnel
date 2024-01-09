@@ -6,6 +6,7 @@ from flask import flash, request, url_for
 
 from baseframe import _, forms
 from baseframe.forms import Form, render_form
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import (
     ClassView,
     ModelView,
@@ -63,7 +64,7 @@ def update_proposal_commentset_membership(
 
 
 @Comment.views('url')
-def comment_url(obj):
+def comment_url(obj: Comment) -> str | None:
     url = None
     commentset_url = obj.commentset.views.url()
     if commentset_url is not None:
@@ -72,7 +73,7 @@ def comment_url(obj):
 
 
 @Commentset.views('json_comments')
-def commentset_json(obj):
+def commentset_json(obj: Commentset) -> list[RoleAccessProxy[Comment]]:
     toplevel_comments = obj.toplevel_comments.order_by(Comment.created_at.desc())
     return [
         comment.current_access(datasets=('json', 'related'))
@@ -82,7 +83,7 @@ def commentset_json(obj):
 
 
 @Commentset.views('url')
-def parent_comments_url(obj):
+def parent_comments_url(obj: Commentset) -> str | None:
     url = None  # project or proposal object
     if obj.project is not None:
         url = obj.project.url_for('comments', _external=True)
@@ -92,7 +93,7 @@ def parent_comments_url(obj):
 
 
 @Commentset.views('last_comment', cached_property=True)
-def last_comment(obj: Commentset) -> Comment | None:
+def last_comment(obj: Commentset) -> RoleAccessProxy[Comment] | None:
     comment = obj.last_comment
     if comment:
         return comment.current_access(datasets=('primary', 'related'))

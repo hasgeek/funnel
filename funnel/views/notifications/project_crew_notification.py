@@ -787,12 +787,12 @@ class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
             assert actor is not None  # nosec B101
         return actor
 
-    def web(self):
+    def web(self) -> str:
         return render_template(
             'notifications/project_crew_membership_granted_web.html.jinja2', view=self
         )
 
-    def email_content(self):
+    def email_content(self) -> str:
         return render_template(
             'notifications/project_crew_membership_granted_email.html.jinja2', view=self
         )

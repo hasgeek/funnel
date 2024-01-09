@@ -31,6 +31,7 @@ icalendar
 idna
 ijson
 itsdangerous
+lazy-loader
 linkify-it-py
 markdown-it-py
 mdit-py-plugins
@@ -64,6 +65,5 @@ urllib3[socks]  # Not direct dep; pip-audit complains of dupe urllib[socks] in t
 user-agents
 werkzeug
 whitenoise
-wtforms-sqlalchemy
 z-base-32
 zxcvbn

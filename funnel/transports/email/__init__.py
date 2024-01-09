@@ -1,7 +1,26 @@
 """Email transport support."""
-# flake8: noqa
 
-from __future__ import annotations
+__protected__ = ['aws_ses']
 
-from . import aws_ses
-from .send import *
+# --- Everything below this line is auto-generated using `make initpy` -----------------
+
+from . import aws_ses, send
+from .send import (
+    EmailAttachment,
+    jsonld_confirm_action,
+    jsonld_event_reservation,
+    jsonld_view_action,
+    process_recipient,
+    send_email,
+)
+
+__all__ = [
+    "EmailAttachment",
+    "aws_ses",
+    "jsonld_confirm_action",
+    "jsonld_event_reservation",
+    "jsonld_view_action",
+    "process_recipient",
+    "send",
+    "send_email",
+]

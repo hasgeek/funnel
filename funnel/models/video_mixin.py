@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from furl import furl
 
-from . import Mapped, declarative_mixin, sa, sa_orm
+from .base import Mapped, declarative_mixin, sa, sa_orm
 
 __all__ = ['VideoMixin', 'VideoError', 'parse_video_url']
 
@@ -87,7 +87,7 @@ class VideoMixin:
         return None
 
     @video_url.setter
-    def video_url(self, value: str):
+    def video_url(self, value: str) -> None:
         if not value:
             self.video_source, self.video_id = None, None
         else:

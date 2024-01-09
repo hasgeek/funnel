@@ -3,14 +3,25 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Self
 from uuid import UUID
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, Mapped, Model, UuidMixin, db, relationship, sa, sa_orm
 from .account import Account
+from .base import (
+    BaseMixin,
+    Mapped,
+    Model,
+    Query,
+    UuidMixin,
+    db,
+    relationship,
+    sa,
+    sa_orm,
+)
 from .comment import Comment
 from .site_membership import SiteMembership
 
@@ -63,12 +74,12 @@ class CommentModeratorReport(UuidMixin, BaseMixin[UUID, Account], Model):
     }
 
     @classmethod
-    def get_one(cls, exclude_user=None):
+    def get_one(cls, exclude_user: Account | None = None) -> Self | None:
         reports = cls.get_all(exclude_user)
         return reports.order_by(sa.func.random()).first()
 
     @classmethod
-    def get_all(cls, exclude_user=None):
+    def get_all(cls, exclude_user: Account | None = None) -> Query[Self]:
         """
         Get all reports.
 
@@ -100,7 +111,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin[UUID, Account], Model):
         return report, created
 
     @property
-    def users_who_are_comment_moderators(self):
+    def users_who_are_comment_moderators(self) -> Query[Account]:
         return Account.query.join(
             SiteMembership, SiteMembership.member_id == Account.id
         ).filter(

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 
 from markupsafe import Markup
 
@@ -94,7 +95,7 @@ class ProjectBoxofficeForm(forms.Form):
         validators=[forms.validators.Optional(), validate_and_convert_json],
     )
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Set form schema description."""
         self.register_form_schema.description = Markup(
             '<p>{description}</p><pre><code>{schema}</code></pre>'
@@ -218,7 +219,7 @@ class TicketParticipantForm(forms.Form):
         """Prepare form for use."""
         self.ticket_events.query = self.edit_parent.ticket_events
 
-    def validate(self, *args, **kwargs) -> bool:
+    def validate(self, *args: Any, **kwargs: Any) -> bool:
         """Validate form."""
         result = super().validate(*args, **kwargs)
         if self.email.data is None:

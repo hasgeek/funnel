@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import csv
+from collections.abc import Iterable
 from datetime import datetime, timedelta
 from io import StringIO
 
 from flask import Response, current_app, render_template, request
+from pytz import BaseTzInfo
 from sqlalchemy.exc import IntegrityError
 
 from baseframe import _
@@ -35,7 +37,7 @@ def contact_details(ticket_participant: TicketParticipant) -> dict[str, str | No
 class ContactView(ClassView):
     current_section = 'account'
 
-    def get_project(self, uuid_b58):
+    def get_project(self, uuid_b58: str) -> Project:
         return (
             Project.query.filter_by(uuid_b58=uuid_b58)
             .options(sa_orm.load_only(Project.id, Project.uuid, Project.title))
@@ -54,7 +56,9 @@ class ContactView(ClassView):
             )
         }
 
-    def contacts_to_csv(self, contacts, timezone, filename):
+    def contacts_to_csv(
+        self, contacts: Iterable[ContactExchange], timezone: BaseTzInfo, filename: str
+    ) -> Response:
         """Return a CSV of given contacts."""
         outfile = StringIO(newline='')
         out = csv.writer(outfile)

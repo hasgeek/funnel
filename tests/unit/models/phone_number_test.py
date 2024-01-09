@@ -4,16 +4,20 @@
 from collections.abc import Generator
 from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
+from typing import Any, ContextManager
 
 import phonenumbers
 import pytest
 import sqlalchemy as sa
 import sqlalchemy.orm as sa_orm
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped
 
-from funnel import models
-from funnel.models import relationship
+from funnel import models, signals
+
+from ...conftest import scoped_session
 
 # These numbers were obtained from libphonenumber with region codes 'IN' and 'US':
 # >>> phonenumbers.example_number_for_type(region, phonenumbers.PhoneNumberType.MOBILE)
@@ -47,7 +51,9 @@ hash_map = {
 # 2. Remove table from metadata using Model.metadata.remove(cls.__table__)
 # 3. Remove all relationships to other classes (unsolved)
 @pytest.fixture(scope='session')
-def phone_models(database, app) -> Generator:
+def phone_models(
+    database: SQLAlchemy, app: Flask
+) -> Generator[SimpleNamespace, None, None]:
     class PhoneUser(models.BaseMixin, models.Model):
         """Test model representing a user account."""
 
@@ -64,7 +70,7 @@ def phone_models(database, app) -> Generator:
         phoneuser_id: Mapped[int] = sa_orm.mapped_column(
             sa.ForeignKey('test_phone_user.id'), default=None, nullable=False
         )
-        phoneuser: Mapped[PhoneUser] = relationship()
+        phoneuser: Mapped[PhoneUser] = models.relationship()
 
     class PhoneDocument(
         models.OptionalPhoneNumberMixin, models.BaseMixin, models.Model
@@ -84,39 +90,40 @@ def phone_models(database, app) -> Generator:
         phoneuser_id: Mapped[int | None] = sa_orm.mapped_column(
             sa.ForeignKey('test_phone_user.id'), default=None, nullable=True
         )
-        phoneuser: Mapped[PhoneUser | None] = relationship()
+        phoneuser: Mapped[PhoneUser | None] = models.relationship()
 
-    new_models = [PhoneUser, PhoneLink, PhoneDocument, PhoneLinkedDocument]
+    new_models: list[type[models.ModelIdProtocol]] = [
+        PhoneUser,
+        PhoneLink,
+        PhoneDocument,
+        PhoneLinkedDocument,
+    ]
 
     sa_orm.configure_mappers()
     # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
         database.metadata.create_all(
             bind=database.engine,
-            tables=[
-                model.__table__ for model in new_models  # type: ignore[attr-defined]
-            ],
+            tables=[model.__table__ for model in new_models],
         )
     yield SimpleNamespace(**{model.__name__: model for model in new_models})
     with app.app_context():
         database.metadata.drop_all(
             bind=database.engine,
-            tables=[
-                model.__table__ for model in new_models  # type: ignore[attr-defined]
-            ],
+            tables=[model.__table__ for model in new_models],
         )
 
 
 @pytest.fixture()
-def refcount_data(funnel) -> Generator:
-    refcount_signal_fired = set()
+def refcount_data() -> Generator[set[models.PhoneNumber], None, None]:
+    refcount_signal_fired: set[models.PhoneNumber] = set()
 
-    def refcount_signal_receiver(sender):
+    def refcount_signal_receiver(sender: models.PhoneNumber) -> None:
         refcount_signal_fired.add(sender)
 
-    funnel.signals.phonenumber_refcount_dropping.connect(refcount_signal_receiver)
+    signals.phonenumber_refcount_dropping.connect(refcount_signal_receiver)
     yield refcount_signal_fired
-    funnel.signals.phonenumber_refcount_dropping.disconnect(refcount_signal_receiver)
+    signals.phonenumber_refcount_dropping.disconnect(refcount_signal_receiver)
 
 
 @pytest.mark.parametrize(
@@ -154,7 +161,9 @@ def refcount_data(funnel) -> Generator:
         ),
     ],
 )
-def test_parse_phone_number(candidate, sms, parsed, expected) -> None:
+def test_parse_phone_number(
+    candidate: str, sms: bool, parsed: bool, expected: Any
+) -> None:
     """Test that parse_phone_number is able to parse a number."""
     assert models.parse_phone_number(candidate, sms, parsed) == expected
 
@@ -181,7 +190,11 @@ def test_parse_phone_number(candidate, sms, parsed, expected) -> None:
         ),
     ],
 )
-def test_validate_phone_number(candidate, expected, raises) -> None:
+def test_validate_phone_number(
+    candidate: str | phonenumbers.PhoneNumber,
+    expected: str | None,
+    raises: ContextManager,
+) -> None:
     with raises:
         assert models.validate_phone_number(candidate) == expected
 
@@ -208,13 +221,17 @@ def test_validate_phone_number(candidate, expected, raises) -> None:
         ),
     ],
 )
-def test_canonical_phone_number(candidate, expected, raises) -> None:
+def test_canonical_phone_number(
+    candidate: str | phonenumbers.PhoneNumber,
+    expected: str | None,
+    raises: ContextManager,
+) -> None:
     with raises:
         assert models.canonical_phone_number(candidate) == expected
 
 
 def test_phone_hash_stability() -> None:
-    """Safety test to ensure phone_blakeb160_hash doesn't change spec."""
+    """Safety test to ensure phone_blake2b160_hash doesn't change spec."""
     phash = models.phone_blake2b160_hash
     with pytest.raises(ValueError, match="Not a phone number"):
         phash('not-a-valid-number')
@@ -350,14 +367,14 @@ def test_phone_number_is_blocked_flag() -> None:
         pn.is_blocked = True
 
 
-def test_phone_number_can_commit(db_session) -> None:
+def test_phone_number_can_commit(db_session: scoped_session) -> None:
     """A `PhoneNumber` can be committed to db."""
     pn = models.PhoneNumber(EXAMPLE_NUMBER_IN)
     db_session.add(pn)
     db_session.commit()
 
 
-def test_phone_number_conflict_integrity_error(db_session) -> None:
+def test_phone_number_conflict_integrity_error(db_session: scoped_session) -> None:
     """A conflicting `PhoneNumber` cannot be committed to db."""
     pn1 = models.PhoneNumber(EXAMPLE_NUMBER_IN)
     db_session.add(pn1)
@@ -380,7 +397,7 @@ def test_phone_number_conflict_integrity_error(db_session) -> None:
         db_session.commit()
 
 
-def test_phone_number_get(db_session) -> None:
+def test_phone_number_get(db_session: scoped_session) -> None:
     """Phone numbers can be loaded using PhoneNumber.get."""
     pn1 = models.PhoneNumber(EXAMPLE_NUMBER_IN)
     pn2 = models.PhoneNumber(EXAMPLE_NUMBER_US)
@@ -465,7 +482,7 @@ def test_phone_number_add() -> None:
 @pytest.mark.usefixtures('db_session')
 @pytest.mark.parametrize('sms', [True, False])
 @pytest.mark.parametrize('wa', [True, False])
-def test_phone_number_active(sms, wa) -> None:
+def test_phone_number_active(sms: bool, wa: bool) -> None:
     """A phone number can be marked as currently active, optionally with an app."""
     pn = models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
     assert pn.active_at is None
@@ -538,7 +555,7 @@ def test_phone_number_blocked() -> None:
     assert pn1.formatted == EXAMPLE_NUMBER_IN_FORMATTED
 
 
-def test_get_numbers(db_session) -> None:
+def test_get_numbers(db_session: scoped_session) -> None:
     """Get phone numbers in bulk."""
     for number in (
         EXAMPLE_NUMBER_IN,
@@ -565,7 +582,7 @@ def test_get_numbers(db_session) -> None:
 
 
 def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-statements
-    phone_models, db_session
+    phone_models: SimpleNamespace, db_session: scoped_session
 ) -> None:
     """The PhoneNumberMixin class adds safety checks for using a phone number."""
     blocked_phone = models.PhoneNumber(EXAMPLE_NUMBER_CA)
@@ -584,6 +601,7 @@ def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-stateme
     link1 = phone_models.PhoneLink(phoneuser=user1, phone=EXAMPLE_NUMBER_IN)
     db_session.add(link1)
     pn1 = models.PhoneNumber.get(EXAMPLE_NUMBER_IN)
+    assert pn1 is not None
     assert link1.phone == EXAMPLE_NUMBER_IN
     assert link1.phone_number == pn1
     assert link1.transport_hash == pn1.transport_hash
@@ -593,6 +611,7 @@ def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-stateme
     link2 = phone_models.PhoneLink(phoneuser=user2, phone=EXAMPLE_NUMBER_US)
     db_session.add(link2)
     pn2 = models.PhoneNumber.get(EXAMPLE_NUMBER_US)
+    assert pn2 is not None
     assert link2.phone == EXAMPLE_NUMBER_US
     assert link2.phone_number == pn2
     assert link2.transport_hash == pn2.transport_hash
@@ -697,11 +716,15 @@ def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-stateme
     assert pn1.number == EXAMPLE_NUMBER_IN
 
 
-def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> None:
+def test_phone_number_refcount_drop(
+    phone_models: SimpleNamespace,
+    db_session: scoped_session,
+    refcount_data: set[models.PhoneNumber],
+) -> None:
     """Test that PhoneNumber.refcount drop events are fired."""
     # The refcount changing signal handler will have received events for every phone
     # number in this test. A request teardown processor can use this to determine
-    # which phone numberes need to be forgotten (preferably in a background job)
+    # which phone numbers need to be forgotten (preferably in a background job)
 
     # We have an empty set at the start of this test
     assert isinstance(refcount_data, set)
@@ -734,7 +757,9 @@ def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> 
     assert pn.refcount() == 0
 
 
-def test_phone_number_validate_for(phone_models, db_session) -> None:
+def test_phone_number_validate_for(
+    phone_models: SimpleNamespace, db_session: scoped_session
+) -> None:
     """PhoneNumber.validate_for can be used to determine availability."""
     user1 = phone_models.PhoneUser()
     user2 = phone_models.PhoneUser()
@@ -781,7 +806,7 @@ def test_phone_number_validate_for(phone_models, db_session) -> None:
 
 
 def test_phone_number_existing_but_unused_validate_for(
-    phone_models, db_session
+    phone_models: SimpleNamespace, db_session: scoped_session
 ) -> None:
     """An unused but existing phone number should be available to claim."""
     user = phone_models.PhoneUser()

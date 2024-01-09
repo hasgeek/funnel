@@ -27,7 +27,7 @@ from coaster.utils import DataclassFromType
 from .. import app
 from ..typing import T
 from ..utils import MarkdownConfig, MarkdownString, markdown_escape
-from . import Model, UrlType, sa, sa_orm
+from .base import Model, UrlType, sa, sa_orm
 
 __all__ = [
     'RESERVED_NAMES',
@@ -732,7 +732,7 @@ class MarkdownCompositeBase(MutableComposite):
         name: str,
         deferred: bool = False,
         deferred_group: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> tuple[sa_orm.Composite[_MC], Mapped[str], Mapped[str]]:
         """Create a composite column and backing individual columns."""
         col_text = sa_orm.mapped_column(

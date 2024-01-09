@@ -6,6 +6,8 @@ import pytest
 
 from funnel import models
 
+from ...conftest import scoped_session
+
 
 @pytest.mark.dbcommit()  # Required for granted_at time to be unique per commit
 @pytest.mark.parametrize(
@@ -29,14 +31,14 @@ from funnel import models
     ],
 )
 def test_recent_organization_memberships_count(
-    db_session,
-    user_twoflower,
-    number_of_orgs,
-    require_listed,
-    require_overflow,
-    returned_listed,
-    returned_overflow,
-    returned_extra_count,
+    db_session: scoped_session,
+    user_twoflower: models.User,
+    number_of_orgs: int,
+    require_listed: int,
+    require_overflow: int,
+    returned_listed: int,
+    returned_overflow: int,
+    returned_extra_count: int,
 ) -> None:
     """Test if organization list in account menu handles counts correctly."""
     for i in range(number_of_orgs):

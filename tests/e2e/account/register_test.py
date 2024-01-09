@@ -4,10 +4,13 @@
 import re
 
 import pytest
+from flask import Flask
 from playwright.sync_api import Page, expect
 from pytest_bdd import given, parsers, scenarios, then, when
 
 from funnel import models
+
+from ...conftest import scoped_session
 
 scenarios('account/register.feature')
 pytestmark = pytest.mark.usefixtures('live_server')
@@ -25,7 +28,9 @@ pytestmark = pytest.mark.filterwarnings(
 
 
 @pytest.fixture()
-def published_project(db_session, new_project: models.Project) -> models.Project:
+def published_project(
+    db_session: scoped_session, new_project: models.Project
+) -> models.Project:
     """Published project fixture."""
     new_project.publish()
     new_project.rsvp_state = models.ProjectRsvpStateEnum.ALL
@@ -35,7 +40,7 @@ def published_project(db_session, new_project: models.Project) -> models.Project
 
 @pytest.fixture()
 def user_twoflower_with_password_and_contact(
-    db_session, user_twoflower: models.User
+    db_session: scoped_session, user_twoflower: models.User
 ) -> models.User:
     """User fixture with a password and contact."""
     user_twoflower.password = TWOFLOWER_PASSWORD
@@ -66,7 +71,7 @@ def given_anonuser_home_page(live_server, page: Page) -> None:
     target_fixture='anon_username',
 )
 def when_anonuser_navigates_login_and_submits(
-    app, live_server, phone_or_email: str, page: Page
+    app: Flask, live_server, phone_or_email: str, page: Page
 ) -> dict[str, str]:
     if phone_or_email == "a phone number":
         username = ANONYMOUS_PHONE

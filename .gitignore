@@ -47,7 +47,7 @@ geckodriver.log
 tests/cypress/screenshots
 tests/cypress/videos
 tests/screenshots
-tests/unit/utils/markdown/data/output.html
+tests/unit/utils/md/data/output.html
 
 # Instance files that should not be checked-in
 instance/development.py

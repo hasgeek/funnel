@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from flask import abort, g, request
@@ -55,7 +55,7 @@ class ProjectViewBase(
     CsrfForm = forms.Form
     project: Project
 
-    def load(self, account: str, project: str, **_kwargs) -> ReturnView | None:
+    def load(self, account: str, project: str, **_kwargs: Any) -> ReturnView | None:
         obj = (
             Project.query.join(Account, Project.account)
             .filter(Account.name_is(account), Project.name == project)
@@ -85,7 +85,7 @@ class ProjectViewBase(
         self.account = project.account
 
     @property
-    def project_currently_saved(self):
+    def project_currently_saved(self) -> bool:
         return self.obj.is_saved_by(current_auth.user)
 
 
@@ -130,6 +130,7 @@ class TicketEventViewBase(AccountCheckMixin, UrlForView, ModelView[TicketEvent])
 
 
 class DraftViewProtoMixin:
+    # These must be Any to avoid conflict with subclasses
     model: Any
     obj: Any
 
@@ -140,9 +141,11 @@ class DraftViewProtoMixin:
         `obj` is needed in case of multi-model views.
         """
         obj = obj if obj is not None else self.obj
+        if TYPE_CHECKING:
+            assert obj is not None  # nosec B101
         return db.session.get(Draft, (self.model.__tablename__, obj.uuid))
 
-    def delete_draft(self, obj=None):
+    def delete_draft(self, obj: ModelUuidProtocol | None = None) -> None:
         """Delete draft for `obj`, or `self.obj` if `obj` is `None`."""
         draft = self.get_draft(obj)
         if draft is not None:
