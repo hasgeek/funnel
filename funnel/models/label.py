@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self, overload
 
 from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 
@@ -385,7 +385,19 @@ class ProposalLabelProxyWrapper:
 
 
 class ProposalLabelProxy:
-    def __get__(self, obj, cls=None) -> ProposalLabelProxyWrapper | ProposalLabelProxy:
+    @overload
+    def __get__(self, obj: None, cls: type[Proposal] | None = None) -> Self:
+        ...
+
+    @overload
+    def __get__(
+        self, obj: Proposal, cls: type[Proposal] | None = None
+    ) -> ProposalLabelProxyWrapper:
+        ...
+
+    def __get__(
+        self, obj: Proposal | None, cls: type[Proposal] | None = None
+    ) -> ProposalLabelProxyWrapper | Self:
         """Get proposal label proxy."""
         if obj is not None:
             return ProposalLabelProxyWrapper(obj)

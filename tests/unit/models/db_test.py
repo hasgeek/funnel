@@ -11,7 +11,7 @@ from ...conftest import Flask, TestClient, scoped_session
 class Fixtures:
     def make_fixtures(  # pylint: disable=too-many-locals
         self, db_session: scoped_session
-    ):
+    ) -> None:
         """
         Create fixtures.
 

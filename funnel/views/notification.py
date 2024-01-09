@@ -70,7 +70,7 @@ class DecisionFactorBase:
 
     # Additional criteria must be defined in subclasses
 
-    def match(self, obj: Any, **kwargs) -> DecisionFactorBase | None:
+    def match(self, obj: Any, **kwargs: Any) -> DecisionFactorBase | None:
         """If the parameters match the defined criteria, return self."""
         return self if self.is_match(obj, **kwargs) else None
 
@@ -111,7 +111,7 @@ class DecisionBranchBase:
                         f"expected {expected_value}, got {factor_value} in {factor}"
                     )
 
-    def match(self, obj: Any, **kwargs) -> DecisionFactorBase | None:
+    def match(self, obj: Any, **kwargs: Any) -> DecisionFactorBase | None:
         """Find a matching decision factor, recursing through other branches."""
         if self.is_match(obj, **kwargs):
             for factor in self.factors:

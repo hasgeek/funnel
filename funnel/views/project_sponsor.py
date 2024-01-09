@@ -22,7 +22,7 @@ from .login_session import requires_login, requires_site_editor
 from .mixins import ProjectViewBase
 
 
-def edit_sponsor_form(obj):
+def edit_sponsor_form(obj: ProjectSponsorMembership) -> ProjectSponsorForm:
     """Customise ProjectSponsorForm to remove member field."""
     form = ProjectSponsorForm(obj=obj)
     del form.member

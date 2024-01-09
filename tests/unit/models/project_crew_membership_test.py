@@ -134,7 +134,7 @@ def test_membership_amend(
     user_ridcully: models.User,
     project_expo2010: models.Project,
     org_ankhmorpork: models.Organization,
-):
+) -> None:
     ridcully_admin = models.AccountMembership(
         member=user_ridcully, account=org_ankhmorpork, granted_by=user_vetinari
     )

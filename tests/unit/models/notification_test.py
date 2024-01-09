@@ -125,7 +125,7 @@ def project_fixtures(
         attr for attr in locals().values() if isinstance(attr, models.Model)
     ]
 
-    def refresh():
+    def refresh() -> None:
         for attr in refresh_attrs:
             db_session.add(attr)
 

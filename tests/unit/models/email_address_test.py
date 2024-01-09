@@ -33,7 +33,7 @@ hash_map = {
 def refcount_data() -> Generator[set[models.EmailAddress], None, None]:
     refcount_signal_fired: set[models.EmailAddress] = set()
 
-    def refcount_signal_receiver(sender: models.EmailAddress):
+    def refcount_signal_receiver(sender: models.EmailAddress) -> None:
         refcount_signal_fired.add(sender)
 
     signals.emailaddress_refcount_dropping.connect(refcount_signal_receiver)

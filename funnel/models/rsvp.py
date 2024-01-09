@@ -104,7 +104,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
     }
 
     @property
-    def response(self):
+    def response(self) -> str:
         """Return RSVP response as a raw value."""
         return self._state
 
@@ -122,7 +122,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         message=__("Your response has been saved"),
         type='primary',
     )
-    def rsvp_yes(self):
+    def rsvp_yes(self) -> None:
         pass
 
     @with_roles(call={'owner'})
@@ -133,7 +133,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         message=__("Your response has been saved"),
         type='dark',
     )
-    def rsvp_no(self):
+    def rsvp_no(self) -> None:
         pass
 
     @with_roles(call={'owner'})
@@ -144,7 +144,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         message=__("Your response has been saved"),
         type='accent',
     )
-    def rsvp_maybe(self):
+    def rsvp_maybe(self) -> None:
         pass
 
     @with_roles(call={'owner', 'project_promoter'})

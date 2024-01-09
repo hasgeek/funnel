@@ -72,7 +72,7 @@ class PasswordlessLoginIntercept:
 
     message = __("Password is required")
 
-    def __call__(self, form, field) -> None:
+    def __call__(self, form: LoginForm, field: forms.PasswordField) -> None:
         if not field.data:
             # Use getattr for when :meth:`LoginForm.validate_username` is skipped
             if getattr(form, 'anchor', None) is not None:

@@ -140,7 +140,9 @@ numeric_count = CountWords(
 )
 
 
-def get_registration_text(count: int, registered=False, follow_mode=False) -> str:
+def get_registration_text(
+    count: int, registered: bool = False, follow_mode: bool = False
+) -> str:
     if count < len(registration_count_messages):
         if registered and not follow_mode:
             return registration_count_messages[count].registered

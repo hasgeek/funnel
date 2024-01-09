@@ -28,8 +28,8 @@ from .venue import VenueRoomViewBase
 
 
 def session_data(
-    session: Session, with_modal_url: str | None = None, with_delete_url=False
-):
+    session: Session, with_modal_url: str | None = None, with_delete_url: bool = False
+) -> dict:
     data = {
         'id': session.url_id,
         'title': session.title,
@@ -72,14 +72,16 @@ def session_list_data(
     sessions: list[Session],
     with_modal_url: str | None = None,
     with_delete_url: bool = False,
-):
+) -> list[dict]:
     return [
         session_data(session, with_modal_url, with_delete_url) for session in sessions
     ]
 
 
 def schedule_data(
-    project: Project, with_slots=True, scheduled_sessions=None
+    project: Project,
+    with_slots: bool = True,
+    scheduled_sessions: list[dict] | None = None,
 ) -> list[dict]:
     scheduled_sessions = scheduled_sessions or session_list_data(
         project.scheduled_sessions
@@ -316,7 +318,7 @@ class ProjectScheduleView(ProjectViewBase):
     @requires_login
     @requires_roles({'editor'})
     @requestargs(('sessions', json.loads))
-    def update_schedule(self, sessions) -> ReturnRenderWith:
+    def update_schedule(self, sessions: list[dict]) -> ReturnRenderWith:
         for session in sessions:
             try:
                 s = Session.query.filter_by(

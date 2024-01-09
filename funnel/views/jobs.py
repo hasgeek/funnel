@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Callable
 from functools import wraps
-from typing import Protocol
+from typing import Any, Protocol, cast
 
 import requests
 from flask import g
@@ -43,7 +43,7 @@ class RqJobProtocol(Protocol[P, T_co]):
 
 
 def rqjob(
-    queue: str = 'funnel', **rqargs
+    queue: str = 'funnel', **rqargs: Any
 ) -> Callable[[Callable[P, T_co]], RqJobProtocol[P, T_co]]:
     """Decorate an RQ job with app context."""
 
@@ -53,7 +53,7 @@ def rqjob(
             with app_context():
                 return f(*args, **kwargs)
 
-        return rq.job(queue, **rqargs)(wrapper)
+        return cast(RqJobProtocol, rq.job(queue, **rqargs)(wrapper))
 
     return decorator
 
@@ -130,7 +130,12 @@ def tag_locations(project_id: int) -> None:
 
 # TODO: Deprecate this method and the AuthClient notification system
 @rqjob()
-def send_auth_client_notice(url, params=None, data=None, method='POST'):
+def send_auth_client_notice(
+    url: str,
+    params: dict[str, Any] | None = None,
+    data: dict[str, Any] | None = None,
+    method: str = 'POST',
+) -> None:
     """Send notice to AuthClient when some data changes."""
     requests.request(method, url, params=params, data=data, timeout=30)
 

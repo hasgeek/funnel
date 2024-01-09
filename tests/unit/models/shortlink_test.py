@@ -7,6 +7,7 @@
 # Since a random number generator is not a unique number generator, some tests are
 # marked as flaky and will be re-run in case a dupe value is generated
 
+from collections.abc import Sequence
 from typing import Any
 from unittest.mock import patch
 
@@ -21,7 +22,7 @@ from ...conftest import scoped_session
 class MockRandomBigint:
     """Mock for random_bigint that returns from a pre-determined sequence."""
 
-    def __init__(self, sequence) -> None:
+    def __init__(self, sequence: Sequence[int]) -> None:
         self.sequence = sequence
         self.counter = 0
 

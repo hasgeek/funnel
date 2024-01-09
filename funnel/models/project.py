@@ -20,6 +20,7 @@ from baseframe import __, localize_timezone
 from coaster.sqlalchemy import (
     DynamicAssociationProxy,
     LazyRoleSet,
+    ManagedState,
     StateManager,
     with_roles,
 )
@@ -494,7 +495,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     )
 
     @property
-    def rooms(self):
+    def rooms(self) -> list[VenueRoom]:
         return [room for venue in self.venues for room in venue.rooms]
 
     __table_args__ = (
@@ -652,7 +653,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         cfp_state.EXPIRED,
     )
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
         # Add the creator as editor and promoter
@@ -730,7 +731,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         message=__("The project has been withdrawn and is no longer listed"),
         type='success',
     )
-    def withdraw(self):
+    def withdraw(self) -> None:
         """Withdraw a project."""
 
     @property
@@ -865,7 +866,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
-    def cfp_start_at_localized(self):
+    def cfp_start_at_localized(self) -> datetime | None:
         return (
             localize_timezone(self.cfp_start_at, tz=self.timezone)
             if self.cfp_start_at
@@ -874,7 +875,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
-    def cfp_end_at_localized(self):
+    def cfp_end_at_localized(self) -> datetime | None:
         return (
             localize_timezone(self.cfp_end_at, tz=self.timezone)
             if self.cfp_end_at
@@ -883,7 +884,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
-    def start_at_localized(self):
+    def start_at_localized(self) -> datetime | None:
         """Return localized start_at timestamp."""
         return (
             localize_timezone(self.start_at, tz=self.timezone)
@@ -893,7 +894,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
-    def end_at_localized(self):
+    def end_at_localized(self) -> datetime | None:
         """Return localized end_at timestamp."""
         return localize_timezone(self.end_at, tz=self.timezone) if self.end_at else None
 
@@ -917,7 +918,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     ) -> Rsvp | None:
         ...
 
-    def rsvp_for(self, account: Account | None, create=False) -> Rsvp | None:
+    def rsvp_for(self, account: Account | None, create: bool = False) -> Rsvp | None:
         return Rsvp.get_for(self, account, create)
 
     def rsvps_with(self, state: RsvpStateEnum) -> Query[Rsvp]:
@@ -965,7 +966,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         return self.proposals.count() == 0
 
     @property
-    def proposals_all(self):
+    def proposals_all(self) -> Query[Proposal]:
         if self.subprojects:
             return Proposal.query.filter(
                 Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
@@ -973,7 +974,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         return self.proposals
 
     @property
-    def proposals_by_state(self):
+    def proposals_by_state(self) -> dict[ManagedState, list[Proposal]]:
         if self.subprojects:
             basequery = Proposal.query.filter(
                 Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
@@ -987,7 +988,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         )
 
     @property
-    def proposals_by_confirmation(self):
+    def proposals_by_confirmation(self) -> dict[str, list[Proposal]]:
         if self.subprojects:
             basequery = Proposal.query.filter(
                 Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
@@ -1482,7 +1483,7 @@ class ProjectRedirect(TimestampMixin, Model):
             f' → {self.project.account.urlname}/{self.project.name}>'
         )
 
-    def redirect_view_args(self):
+    def redirect_view_args(self) -> dict[str, str]:
         if self.project:
             return {'account': self.account.urlname, 'project': self.project.name}
         return {}

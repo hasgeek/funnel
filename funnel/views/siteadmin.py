@@ -442,7 +442,7 @@ class SiteadminView(ClassView):
         }
 
 
-def init_rq_dashboard():
+def init_rq_dashboard() -> None:
     """Register RQ Dashboard Blueprint if available for import."""
     if rq_dashboard is not None:
         rq_dashboard.blueprint.before_request(

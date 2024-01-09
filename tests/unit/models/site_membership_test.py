@@ -8,7 +8,7 @@ from funnel import models
 from ...conftest import scoped_session
 
 
-def invalidate_cache(user):
+def invalidate_cache(user: models.Account) -> None:
     """Remove cached properties."""
     for attr in (
         'is_site_admin',

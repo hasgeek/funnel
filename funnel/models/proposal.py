@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import datetime as datetime_type
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Any, Self
 
 from werkzeug.utils import cached_property
 
@@ -321,7 +321,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         'related': {'urls', 'uuid_b58', 'url_name_uuid_b58', 'title'},
     }
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
         # Assume self.created_by is set. Fail if not.
@@ -362,7 +362,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         message=__("This proposal has been withdrawn"),
         type='danger',
     )
-    def withdraw(self):
+    def withdraw(self) -> None:
         pass
 
     @with_roles(call={'creator'})  # skipcq: PTC-W0049
@@ -373,7 +373,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         message=__("This proposal has been submitted"),
         type='success',
     )
-    def submit(self):
+    def submit(self) -> None:
         pass
 
     # TODO: remove project_editor once ProposalMembership UI
@@ -386,7 +386,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         message=__("This proposal has been submitted"),
         type='danger',
     )
-    def undo_to_submitted(self):
+    def undo_to_submitted(self) -> None:
         pass
 
     @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
@@ -397,7 +397,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         message=__("This proposal has been confirmed"),
         type='success',
     )
-    def confirm(self):
+    def confirm(self) -> None:
         pass
 
     @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
@@ -408,7 +408,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         message=__("This proposal is no longer confirmed"),
         type='danger',
     )
-    def unconfirm(self):
+    def unconfirm(self) -> None:
         pass
 
     @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
@@ -419,7 +419,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         message=__("This proposal has been waitlisted"),
         type='primary',
     )
-    def waitlist(self):
+    def waitlist(self) -> None:
         pass
 
     @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
@@ -430,7 +430,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         message=__("This proposal has been rejected"),
         type='danger',
     )
-    def reject(self):
+    def reject(self) -> None:
         pass
 
     @with_roles(call={'creator'})  # skipcq: PTC-W0049
@@ -441,7 +441,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         message=__("This proposal has been cancelled"),
         type='danger',
     )
-    def cancel(self):
+    def cancel(self) -> None:
         pass
 
     @with_roles(call={'creator'})  # skipcq: PTC-W0049
@@ -452,7 +452,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         message=__("This proposal’s cancellation has been reversed"),
         type='success',
     )
-    def undo_cancel(self):
+    def undo_cancel(self) -> None:
         pass
 
     @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
@@ -463,7 +463,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         message=__("Awaiting details for this proposal"),
         type='primary',
     )
-    def awaiting_details(self):
+    def awaiting_details(self) -> None:
         pass
 
     @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
@@ -474,7 +474,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         message=__("This proposal has been put under evaluation"),
         type='success',
     )
-    def under_evaluation(self):
+    def under_evaluation(self) -> None:
         pass
 
     @with_roles(call={'creator'})  # skipcq: PTC-W0049
@@ -485,7 +485,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         message=__("This proposal has been deleted"),
         type='danger',
     )
-    def delete(self):
+    def delete(self) -> None:
         pass
 
     @property

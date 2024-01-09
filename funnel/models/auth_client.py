@@ -6,7 +6,7 @@ import urllib.parse
 from collections.abc import Collection, Sequence
 from datetime import datetime, timedelta
 from hashlib import blake2b, sha256
-from typing import Self, cast, overload
+from typing import Any, Self, cast, overload
 
 from sqlalchemy.orm import attribute_keyed_dict, load_only
 from sqlalchemy.orm.query import Query as QueryBaseClass
@@ -475,7 +475,7 @@ class AuthToken(ScopeMixin, BaseMixin[int, Account], Model):
         }
     }
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.token = make_buid()
         if self.effective_user:

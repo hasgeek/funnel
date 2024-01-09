@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from markdown_it import MarkdownIt
 from markdown_it.rules_core import StateCore
 from markdown_it.token import Token
@@ -42,6 +44,6 @@ def heading_anchors_fix(state: StateCore) -> None:
         prev_token = token
 
 
-def heading_anchors_fix_plugin(md: MarkdownIt, **opts) -> None:
+def heading_anchors_fix_plugin(md: MarkdownIt, **opts: Any) -> None:
     if 'anchor' in md.get_active_rules()['core']:
         md.core.ruler.after('anchor', 'heading_anchors_fix', heading_anchors_fix)

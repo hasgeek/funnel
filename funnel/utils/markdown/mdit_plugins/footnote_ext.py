@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import MutableMapping, Sequence
+from typing import Any
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
@@ -24,7 +25,7 @@ def caption(
     return output.replace('[', '').replace(']', '')
 
 
-def footnote_extend_plugin(md: MarkdownIt, **opts) -> None:
+def footnote_extend_plugin(md: MarkdownIt, **opts: Any) -> None:
     if 'footnote_ref' not in md.get_active_rules()['inline']:
         return
     md.add_render_rule('footnote_caption', caption)

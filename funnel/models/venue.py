@@ -184,7 +184,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     }
 
     @property
-    def scoped_name(self):
+    def scoped_name(self) -> str:
         return f'{self.parent.name}/{self.name}'
 
 

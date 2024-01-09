@@ -5,7 +5,7 @@ from __future__ import annotations
 import base64
 import os
 from collections.abc import Iterable, Sequence
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any, Self
 
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
@@ -36,15 +36,15 @@ __all__ = [
 ]
 
 
-def make_key():
+def make_key() -> str:
     return base64.urlsafe_b64encode(os.urandom(128)).decode('utf-8')
 
 
-def make_public_key():
+def make_public_key() -> str:
     return make_key()[:8]
 
 
-def make_private_key():
+def make_private_key() -> str:
     return make_key()[:8]
 
 
@@ -86,7 +86,7 @@ class GetTitleMixin(BaseScopedNameMixin):
         parent: Any,
         current_name: str | None = None,
         current_title: str | None = None,
-        **fields,
+        **fields: Any,
     ) -> Self:
         instance = cls.get(parent, current_name, current_title)
         if instance is not None:
@@ -308,8 +308,12 @@ class TicketParticipant(
         return roles
 
     @property
-    def avatar(self):
-        return self.participant.logo_url if self.participant else ''
+    def avatar(self) -> str:
+        return (
+            str(self.participant.logo_url)
+            if self.participant and self.participant.logo_url
+            else ''
+        )
 
     with_roles(avatar, read={'all'})
 
@@ -335,7 +339,7 @@ class TicketParticipant(
 
     @classmethod
     def upsert(
-        cls, current_project: Project, current_email: str, **fields
+        cls, current_project: Project, current_email: str, **fields: Any
     ) -> TicketParticipant:
         ticket_participant = cls.get(current_project, current_email)
         accountemail = AccountEmail.get(current_email)
@@ -488,7 +492,7 @@ class TicketClient(BaseMixin[int, Account], Model):
 
     __roles__ = {'all': {'call': {'url_for'}}}
 
-    def import_from_list(self, ticket_list):
+    def import_from_list(self, ticket_list: list[ExtTicketsDict]) -> None:
         """Batch upsert tickets and their associated ticket types and participants."""
         for ticket_dict in ticket_list:
             ticket_type = TicketType.upsert(
@@ -507,7 +511,7 @@ class TicketClient(BaseMixin[int, Account], Model):
             )
 
             ticket = SyncTicket.get(
-                self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no')
+                self, ticket_dict['order_no'], ticket_dict['ticket_no']
             )
             if ticket and (
                 ticket.ticket_participant != ticket_participant
@@ -520,8 +524,8 @@ class TicketClient(BaseMixin[int, Account], Model):
             if ticket_dict.get('status') == 'confirmed':
                 ticket = SyncTicket.upsert(
                     self,
-                    ticket_dict.get('order_no'),
-                    ticket_dict.get('ticket_no'),
+                    ticket_dict['order_no'],
+                    ticket_dict['ticket_no'],
                     ticket_participant=ticket_participant,
                     ticket_type=ticket_type,
                 )
@@ -555,15 +559,15 @@ class SyncTicket(BaseMixin[int, Account], Model):
     @classmethod
     def get(
         cls, ticket_client: TicketClient, order_no: str, ticket_no: str
-    ) -> SyncTicket | None:
+    ) -> Self | None:
         return cls.query.filter_by(
             ticket_client=ticket_client, order_no=order_no, ticket_no=ticket_no
         ).one_or_none()
 
     @classmethod
     def upsert(
-        cls, ticket_client: TicketClient, order_no: str, ticket_no: str, **fields
-    ) -> SyncTicket:
+        cls, ticket_client: TicketClient, order_no: str, ticket_no: str, **fields: Any
+    ) -> Self:
         """
         Update or insert ticket details.
 
@@ -591,3 +595,6 @@ class SyncTicket(BaseMixin[int, Account], Model):
 
 # Tail imports
 from .contact_exchange import ContactExchange
+
+if TYPE_CHECKING:
+    from ..extapi.typing import ExtTicketsDict

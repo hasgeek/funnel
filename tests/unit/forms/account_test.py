@@ -4,13 +4,13 @@
 from collections.abc import Generator
 from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
-from typing import ContextManager
+from typing import ContextManager, cast
 
 import pytest
 from flask import Flask
 from requests_mock import Mocker
 
-from baseframe.forms.validators import StopValidation
+from baseframe.forms import PasswordField, StopValidation
 
 from funnel import forms
 
@@ -85,15 +85,22 @@ def test_pwned_password_validator() -> None:
     """Test the pwned password validator."""
     # Validation success = no return value, no exception
     forms.pwned_password_validator(
-        None, SimpleNamespace(data='this is unlikely to be in the breach list')
+        None,
+        cast(
+            PasswordField,
+            SimpleNamespace(data='this is unlikely to be in the breach list'),
+        ),
     )
 
     with pytest.raises(StopValidation, match='times and is not safe'):
-        forms.pwned_password_validator(None, SimpleNamespace(data='123456'))
+        forms.pwned_password_validator(
+            None, cast(PasswordField, SimpleNamespace(data='123456'))
+        )
 
     with pytest.raises(StopValidation, match='times and is not safe'):
         forms.pwned_password_validator(
-            None, SimpleNamespace(data='correct horse battery staple')
+            None,
+            cast(PasswordField, SimpleNamespace(data='correct horse battery staple')),
         )
 
 
@@ -155,4 +162,6 @@ def test_mangled_response_pwned_password_validator(
     """Test that the validator successfully parses mangled output in the API."""
     requests_mock.get('https://api.pwnedpasswords.com/range/7C4A8', text=text)
     with expectation:
-        forms.pwned_password_validator(None, SimpleNamespace(data='123456'))
+        forms.pwned_password_validator(
+            None, cast(PasswordField, SimpleNamespace(data='123456'))
+        )

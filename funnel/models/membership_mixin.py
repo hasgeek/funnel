@@ -235,7 +235,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     )
 
     @cached_property
-    def record_type_enum(self):
+    def record_type_enum(self) -> MembershipRecordTypeEnum:
         return MembershipRecordTypeEnum(self.record_type)
 
     with_roles(record_type_enum, read={'member', 'editor'})
@@ -393,7 +393,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
         return new
 
     @with_roles(call={'editor'})
-    def amend_by(self, actor: Account):
+    def amend_by(self, actor: Account) -> AmendMembership[Self]:
         """Amend a membership in a `with` context."""
         return AmendMembership(self, actor)
 
@@ -459,7 +459,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
 
     with_roles(is_self_revoked, read={'member', 'editor'})
 
-    def copy_template(self, **kwargs) -> Self:
+    def copy_template(self, **kwargs: Any) -> Self:
         """Make a copy of self for customization."""
         return self.__class__(member=self.member, **kwargs)  # type: ignore[call-arg]
 
@@ -551,7 +551,7 @@ class ReorderMembershipMixin(ImmutableMembershipMixin, ReorderMixin):
             args.append(kwargs)
         return tuple(args)
 
-    def __init__(self: ReorderSubclassProtocol, **kwargs) -> None:
+    def __init__(self: ReorderSubclassProtocol, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         # Assign a default value to `seq`
         if self.seq is None:  # Will be None until first commit
@@ -686,7 +686,7 @@ class AmendMembership(Generic[MembershipType]):
         """Enter a `with` context."""
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(self, exc_type: Any, _exc_value: Any, _traceback: Any) -> None:
         """Exit a `with` context and replace the membership record."""
         if exc_type is None:
             object.__setattr__(

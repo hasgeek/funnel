@@ -116,7 +116,7 @@ def organizations_as_admin(
     owner: bool = False,
     limit: int | None = None,
     order_by_grant: bool = False,
-) -> list[RoleAccessProxy[Account]]:
+) -> list[RoleAccessProxy[AccountMembership]]:
     """Return organizations that the user is an admin of."""
     if owner:
         orgmems = obj.active_organization_owner_memberships
@@ -848,7 +848,7 @@ class AccountView(ClassView):
 
     @route('delete', methods=['GET', 'POST'], endpoint='account_delete')
     @requires_sudo
-    def delete(self):
+    def delete(self) -> ReturnView:
         """Delete user account."""
         # Perform sanity checks: can this user account be deleted?
         objection = current_auth.user.views.validate_account_delete()

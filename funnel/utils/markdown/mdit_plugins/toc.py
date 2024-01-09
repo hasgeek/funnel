@@ -15,7 +15,7 @@ from __future__ import annotations
 import re
 from collections.abc import MutableMapping, Sequence
 from functools import reduce
-from typing import TypedDict
+from typing import Any, TypedDict
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
@@ -189,7 +189,7 @@ def toc_item_to_html(item: TocItem, options: dict, md: MarkdownIt) -> str:
     return html
 
 
-def toc_plugin(md: MarkdownIt, **opts) -> None:
+def toc_plugin(md: MarkdownIt, **opts: Any) -> None:
     opts = {
         **defaults,
         **opts,

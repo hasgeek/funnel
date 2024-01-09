@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import Any, cast
 
 from flask import render_template, url_for
 from markupsafe import Markup, escape
@@ -176,7 +176,7 @@ class CommentNotification(RenderNotification):
             return 'comment'
         return self.commentset.parent_type
 
-    def document_comments_url(self, **kwargs) -> str:
+    def document_comments_url(self, **kwargs: Any) -> str:
         """URL to comments view on the document."""
         if (document_type := self.document_type) == 'project':
             return self.commentset.parent.url_for('comments', **kwargs)
@@ -265,7 +265,7 @@ class CommentNotification(RenderNotification):
             'notifications/comment_received_email.html.jinja2', view=self
         )
 
-    def sms(self):
+    def sms(self) -> SmsTemplate:
         url = shortlink(
             self.comment.url_for(_external=True, **self.tracking_tags('sms'))
         )

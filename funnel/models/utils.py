@@ -17,7 +17,7 @@ from .account import (
     AccountPhone,
     Anchor,
 )
-from .base import Model, db
+from .base import Model, db, sa
 from .phone_number import PHONE_LOOKUP_REGIONS
 from .typing import ModelIdProtocol
 
@@ -218,7 +218,7 @@ def do_migrate_instances(
     migrated_tables: set[str] = set()
     safe_to_remove_instance = True
 
-    def do_migrate_table(table):
+    def do_migrate_table(table: sa.Table) -> bool:
         target_columns = []
         for column in table.columns:
             for fkey in column.foreign_keys:

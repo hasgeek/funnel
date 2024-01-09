@@ -547,7 +547,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             extid.account = user
         else:
             # Register a new user
-            user = register_internal(None, userdata.fullname, None)
+            user = register_internal(None, userdata.fullname or '', None)
             extid.account = user
             if userdata.username:
                 if Account.is_available_name(userdata.username):
@@ -739,7 +739,7 @@ def hasjob_login(cookietest: bool = False) -> ReturnView:
 # @hasjobapp.route('/login/callback', endpoint='login_callback')
 @reload_for_cookies
 @requestargs('token')
-def hasjobapp_login_callback(token):
+def hasjobapp_login_callback(token: str) -> ReturnView:
     """Process callback from Hasjob to confirm a login attempt."""
     nonce = session.pop('login_nonce', None)
     if not nonce:
@@ -786,7 +786,7 @@ def hasjobapp_login_callback(token):
 
 # Retained for future hasjob integration
 # @hasjobapp.route('/logout', endpoint='logout')
-def hasjob_logout():
+def hasjob_logout() -> ReturnView:
     """Process a logout request in Hasjob."""
     # Revoke session and redirect to homepage. Don't bother to ask `app` to logout
     # as well since the session is revoked. `app` will notice and drop cookies on

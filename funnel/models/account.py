@@ -8,7 +8,16 @@ import hashlib
 import itertools
 from collections.abc import Iterable, Iterator, Sequence
 from datetime import datetime
-from typing import TYPE_CHECKING, ClassVar, Literal, Self, TypeAlias, cast, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Literal,
+    Self,
+    TypeAlias,
+    cast,
+    overload,
+)
 from uuid import UUID
 
 import phonenumbers
@@ -1067,7 +1076,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             return cast(AccountOldId, AccountOldId.get(self.uuid)).account
         return self
 
-    def _set_password(self, password: str | None):
+    def _set_password(self, password: str | None) -> None:
         """Set a password (write-only property)."""
         if password is None:
             self.pw_hash = None
@@ -1303,19 +1312,21 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     @with_roles(call={'owner'})
     def transport_for_webpush(
         self, context: Model | None = None
-    ):  # TODO  # pragma: no cover
+    ) -> None:  # TODO  # pragma: no cover
         """Return user's preferred webpush transport address within a context."""
         return None
 
     @with_roles(call={'owner'})
     def transport_for_telegram(
         self, context: Model | None = None
-    ):  # TODO  # pragma: no cover
+    ) -> None:  # TODO  # pragma: no cover
         """Return user's preferred Telegram transport address within a context."""
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_whatsapp(self, context: Model | None = None):
+    def transport_for_whatsapp(
+        self, context: Model | None = None
+    ) -> AccountPhone | None:
         """Return user's preferred WhatsApp transport address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.has_wa:
@@ -1395,20 +1406,20 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         ]
 
     @state.transition(state.ACTIVE, state.MERGED)
-    def mark_merged_into(self, other_account):
+    def mark_merged_into(self, other_account: Account) -> None:
         """Mark account as merged into another account."""
         db.session.add(AccountOldId(id=self.uuid, account=other_account))
 
     @state.transition(state.ACTIVE, state.SUSPENDED)
-    def mark_suspended(self):
+    def mark_suspended(self) -> None:
         """Mark account as suspended on support or moderator request."""
 
     @state.transition(state.SUSPENDED, state.ACTIVE)
-    def mark_active(self):
+    def mark_active(self) -> None:
         """Restore a suspended account to active state."""
 
     @state.transition(state.ACTIVE, state.DELETED)
-    def do_delete(self):
+    def do_delete(self) -> None:
         """Delete account."""
         # 0: Safety check
         if not self.is_safe_to_delete():
@@ -1797,7 +1808,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         return value
 
     @sa_orm.validates('logo_url', 'banner_image_url')
-    def _validate_nullable(self, key: str, value: str | None):
+    def _validate_nullable(self, key: str, value: str | None) -> str | None:
         """Convert blank values into None."""
         return value if value else None
 
@@ -1919,7 +1930,7 @@ class User(Account):
     __mapper_args__ = {'polymorphic_identity': 'U'}
     is_user_profile = True
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         if self.joined_at is None:
             self.joined_at = sa.func.utcnow()
@@ -1994,7 +2005,7 @@ class DuckTypeAccount(RoleMixin):
             return self.pickername
         return format(self.pickername, format_spec)
 
-    def url_for(self, *args, **kwargs) -> Literal['']:
+    def url_for(self, *args: Any, **kwargs: Any) -> Literal['']:
         """Return blank URL for anything to do with this user."""
         return ''
 
@@ -2013,7 +2024,7 @@ class Organization(Account):
     __mapper_args__ = {'polymorphic_identity': 'O'}
     is_organization_profile = True
 
-    def __init__(self, owner: User, **kwargs) -> None:
+    def __init__(self, owner: User, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         if self.joined_at is None:
             self.joined_at = sa.func.utcnow()
@@ -2136,7 +2147,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         'related': {'email', 'private', 'type'},
     }
 
-    def __init__(self, *, account: Account, **kwargs) -> None:
+    def __init__(self, *, account: Account, **kwargs: Any) -> None:
         email = kwargs.pop('email', None)
         if email:
             kwargs['email_address'] = EmailAddress.add_for(account, email)
@@ -2314,7 +2325,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
         'related': {'email', 'private', 'type'},
     }
 
-    def __init__(self, *, account: Account, email: str, **kwargs) -> None:
+    def __init__(self, *, account: Account, email: str, **kwargs: Any) -> None:
         kwargs['email_address'] = EmailAddress.add_for(account, email)
         super().__init__(account=account, **kwargs)
         self.blake2b = hashlib.blake2b(
@@ -2493,7 +2504,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
         'related': {'phone', 'private', 'type'},
     }
 
-    def __init__(self, *, account: Account, **kwargs) -> None:
+    def __init__(self, *, account: Account, **kwargs: Any) -> None:
         phone = kwargs.pop('phone', None)
         if phone:
             kwargs['phone_number'] = PhoneNumber.add_for(account, phone)

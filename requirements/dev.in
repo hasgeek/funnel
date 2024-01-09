@@ -30,10 +30,17 @@ reformat-gherkin
 ruff
 types-beautifulsoup4
 types-chevron
+types-Flask-Migrate
 types-geoip2
+types-greenlet
 types-lxml
 types-mock
+types-passlib
+types-Pillow
+types-pytest-lazy-fixture
 types-python-dateutil
 types-pytz
+types-PyYAML
 types-redis
 types-requests
+types-zxcvbn

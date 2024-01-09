@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from flask import abort, flash, request
 
 from baseframe import _, __
 from baseframe.forms import Form, render_delete_sqla, render_form, render_template
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.utils import getbool, make_name
 from coaster.views import (
     ModelView,
@@ -54,12 +57,12 @@ markdown_message = __(
 
 
 @Proposal.features('comment_new')
-def proposal_comment_new(obj):
+def proposal_comment_new(obj: Proposal) -> bool:
     return obj.current_roles.commenter
 
 
 @Project.features('reorder_proposals')
-def proposals_can_be_reordered(obj):
+def proposals_can_be_reordered(obj: Project) -> bool:
     return obj.current_roles.editor
 
 
@@ -408,7 +411,7 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
     @route('contacts.json', methods=['GET'])
     @requires_login
     @requires_roles({'project_editor'})
-    def contacts_json(self):
+    def contacts_json(self) -> dict[str, Any]:
         """Return the contact details of collaborators as JSON."""
         return {
             'title': self.obj.title,
@@ -452,7 +455,7 @@ class ProposalMembershipView(
     def post_init(self) -> None:
         self.account = self.obj.proposal.project.account
 
-    def collaborators(self):
+    def collaborators(self) -> list[RoleAccessProxy[ProposalMembership]]:
         return [
             _m.current_access(datasets=['primary', 'related'])
             for _m in self.obj.proposal.memberships

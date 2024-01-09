@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Generic, Optional, TypeVar
+from typing import Any, Generic, Optional, TypeVar
 
 import phonenumbers
 from flask import current_app, flash, render_template, request, session, url_for
@@ -108,7 +108,7 @@ class OtpSession(Generic[OptionalAccountType]):
     link_token: str | None = None
 
     # __new__ gets called before __init__ and can replace the class that is created
-    def __new__(cls, reason: str, **kwargs) -> OtpSession:  # pylint: disable=W0221
+    def __new__(cls, reason: str, **kwargs: Any) -> OtpSession:  # pylint: disable=W0221
         """Return a subclass that contains the appropriate methods for given reason."""
         if reason not in _reason_subclasses:
             raise TypeError(f"Unknown OtpSession reason {reason}")
@@ -119,7 +119,7 @@ class OtpSession(Generic[OptionalAccountType]):
     # __init_subclass__ gets called for ``class Subclass(OtpSession, reason='...'):``
     # and receives `reason` as a kwarg. However, declaring it in the method signature
     # upsets PyLint, so we pop it from kwargs.
-    def __init_subclass__(cls, *args, **kwargs) -> None:
+    def __init_subclass__(cls, *args: Any, **kwargs: Any) -> None:
         """Register a subclass for use by __new__."""
         reason = kwargs.pop('reason', None)
         if not reason:

@@ -132,7 +132,7 @@ class CapturedCalls(Protocol):
     sms: list[CapturedSms]
 
 
-def _signature_without_annotations(func) -> inspect.Signature:
+def _signature_without_annotations(func: Callable) -> inspect.Signature:
     """Generate a function signature without parameter type annotations."""
     sig = inspect.signature(func)
     return sig.replace(
@@ -202,7 +202,7 @@ def _prepare_subprocess(
             subject: str,
             to: list[Any],
             content: str,
-            attachments=None,
+            attachments: Any = None,
             from_email: Any | None = None,
             headers: dict | None = None,
             base_url: str | None = None,

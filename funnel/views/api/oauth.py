@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Collection, Iterable
-from typing import cast
+from typing import Any, cast
 
 from flask import (
     abort,
@@ -400,7 +400,7 @@ def oauth_make_token(
     return token
 
 
-def oauth_token_success(token: AuthToken, **params) -> ReturnView:
+def oauth_token_success(token: AuthToken, **params: Any) -> ReturnView:
     """Return an OAuth2 token after successful validation and token generation."""
     params['access_token'] = token.token
     params['token_type'] = token.token_type

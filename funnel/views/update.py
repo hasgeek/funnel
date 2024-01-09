@@ -79,8 +79,8 @@ class ProjectUpdatesView(ProjectViewBase):
 
 
 @Update.features('publish')
-def update_publishable(obj):
-    return obj.state.DRAFT and 'editor' in obj.roles_for(current_auth.user)
+def update_publishable(obj: Update) -> bool:
+    return bool(obj.state.DRAFT) and 'editor' in obj.roles_for(current_auth.user)
 
 
 @Update.views('project')

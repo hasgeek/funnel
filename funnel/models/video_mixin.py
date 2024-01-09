@@ -87,7 +87,7 @@ class VideoMixin:
         return None
 
     @video_url.setter
-    def video_url(self, value: str):
+    def video_url(self, value: str) -> None:
         if not value:
             self.video_source, self.video_id = None, None
         else:

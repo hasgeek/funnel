@@ -95,14 +95,14 @@ def test_reopen() -> None:
         pass
 
     class OriginalClass:
-        def spam(self):
+        def spam(self) -> str:
             return "spam"
 
     saved_reference = OriginalClass
 
     @mhelpers.reopen(OriginalClass)
     class ReopenedClass:
-        def eggs(self):
+        def eggs(self) -> str:
             return "eggs"
 
     # The decorator returns the original class with the decorated class's contents
@@ -138,7 +138,7 @@ def test_add_to_class() -> None:
     """Add to class adds new attributes to a class."""
 
     class ReferenceClass:
-        def spam(self):
+        def spam(self) -> str:
             return 'is_spam'
 
     assert ReferenceClass().spam() == 'is_spam'
@@ -146,7 +146,7 @@ def test_add_to_class() -> None:
 
     # New methods can be added
     @mhelpers.add_to_class(ReferenceClass)
-    def eggs(self):  # skipcq: PTC-W0065
+    def eggs(self: ReferenceClass) -> str:  # skipcq: PTC-W0065
         return 'is_eggs'
 
     assert hasattr(ReferenceClass, 'eggs')
@@ -157,7 +157,7 @@ def test_add_to_class() -> None:
     # New methods can have a custom name and can take any decorator valid in the class
     @mhelpers.add_to_class(ReferenceClass, 'spameggs')  # type: ignore[misc]
     @property
-    def spameggs_property(self) -> str:
+    def spameggs_property(self: ReferenceClass) -> str:
         return 'is_spameggs'
 
     assert hasattr(ReferenceClass, 'spameggs')
@@ -169,7 +169,7 @@ def test_add_to_class() -> None:
     with pytest.raises(AttributeError):
 
         @mhelpers.add_to_class(ReferenceClass, 'spameggs')
-        def new_foobar(self):  # skipcq: PTC-W0049
+        def new_foobar(self: ReferenceClass) -> None:  # skipcq: PTC-W0049
             """Cause an AttributeError in the decorator."""
 
 

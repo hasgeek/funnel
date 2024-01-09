@@ -41,7 +41,7 @@ def notify_session_revoked(session: LoginSession) -> None:
 
 
 @user_data_changed.connect
-def notify_user_data_changed(user: Account, changes) -> None:
+def notify_user_data_changed(user: Account, changes: list[str]) -> None:
     """Send notifications to trusted auth clients about relevant user data changes."""
     if user_changes_to_notify & set(changes):
         # We have changes that apps need to hear about
@@ -93,7 +93,7 @@ def notify_user_data_changed(user: Account, changes) -> None:
 
 @org_data_changed.connect
 def notify_org_data_changed(
-    org: Account, user: Account, changes, team: Team | None = None
+    org: Account, user: Account, changes: list[str], team: Team | None = None
 ) -> None:
     """
     Send notifications to trusted auth clients about org data changes.
@@ -118,7 +118,7 @@ def notify_org_data_changed(
             notify_user = user
         else:
             notify_user = users[0]  # First user available
-        if auth_client.trusted:
+        if auth_client.trusted and auth_client.notification_uri:
             send_auth_client_notice.queue(
                 auth_client.notification_uri,
                 data={
@@ -133,7 +133,7 @@ def notify_org_data_changed(
 
 
 @team_data_changed.connect
-def notify_team_data_changed(team: Team, user: Account, changes) -> None:
+def notify_team_data_changed(team: Team, user: Account, changes: list[str]) -> None:
     """Notify :func:`notify_org_data_changed` for changes to the team."""
     notify_org_data_changed(
         team.account, user=user, changes=['team-' + c for c in changes], team=team

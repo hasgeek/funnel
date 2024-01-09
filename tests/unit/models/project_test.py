@@ -12,7 +12,7 @@ from funnel import models
 from ...conftest import scoped_session
 
 
-def invalidate_cache(project):
+def invalidate_cache(project: models.Project) -> None:
     for attr in (
         'datelocation',
         'schedule_start_at_localized',

@@ -10,6 +10,7 @@ from sentry_sdk import capture_exception
 from baseframe import _
 
 from ..registry import LoginCallbackError, LoginProvider, LoginProviderData
+from ..typing import ReturnView
 
 __all__ = ['GoogleProvider']
 
@@ -17,7 +18,7 @@ __all__ = ['GoogleProvider']
 class GoogleProvider(LoginProvider):
     info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
 
-    def flow(self, callback_url: str):
+    def flow(self, callback_url: str) -> client.OAuth2WebServerFlow:
         return client.OAuth2WebServerFlow(
             client_id=self.key,
             client_secret=self.secret,
@@ -25,7 +26,7 @@ class GoogleProvider(LoginProvider):
             redirect_uri=callback_url,
         )
 
-    def do(self, callback_url: str):
+    def do(self, callback_url: str) -> ReturnView:
         session['oauth_callback'] = callback_url
         return redirect(self.flow(callback_url).step1_get_authorize_url())
 

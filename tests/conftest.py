@@ -570,7 +570,7 @@ def _app_events(
 ) -> Generator[None, None, None]:
     """Fixture to report Flask signals with a stack trace when debugging a test."""
 
-    def signal_handler(signal_name, *args, **kwargs):
+    def signal_handler(signal_name, *args: Any, **kwargs: Any):
         rich_console.print(f"[bold]Signal:[/] [yellow]{rich_escape(signal_name)}[/]")
         print_stack(2)  # Skip two stack frames from Blinker
 
@@ -1138,7 +1138,7 @@ def client(app: Flask, db_session: scoped_session) -> TestClient:
     client = TestClient(app, TestResponse, use_cookies=True)
     client_open = client.open
 
-    def commit_before_open(*args, **kwargs):
+    def commit_before_open(*args: Any, **kwargs: Any):
         db_session.commit()
         return client_open(*args, **kwargs)
 

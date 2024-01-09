@@ -26,7 +26,7 @@ from ..models import (
 )
 from ..serializers import token_serializer
 from ..transports import platform_transports
-from ..typing import ReturnRenderWith
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import (
     metarefresh_redirect,
     render_redirect,
@@ -181,7 +181,7 @@ class AccountNotificationView(ClassView):
         methods=['POST'],
         endpoint='notification_unsubscribe_auto',
     )
-    def unsubscribe_auto(self, token: str):
+    def unsubscribe_auto(self, token: str) -> ReturnView:
         """Implement RFC 8058 one-click auto unsubscribe for email transport."""
         # TODO: Merge this into the other handler. Unsubscribe first, then ask the user
         # if they'd like to resubscribe
@@ -244,7 +244,9 @@ class AccountNotificationView(ClassView):
         endpoint='notification_unsubscribe_do',
     )
     @requestargs(('cookietest', getbool))
-    def unsubscribe(self, token: str, token_type: str | None, cookietest: bool = False):
+    def unsubscribe(
+        self, token: str, token_type: str | None, cookietest: bool = False
+    ) -> ReturnView:
         """View for unsubscribing from a notification type or disabling a transport."""
         # This route strips the token from the URL before rendering the page, to avoid
         # leaking the token to web analytics software.

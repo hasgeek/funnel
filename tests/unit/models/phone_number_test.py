@@ -118,7 +118,7 @@ def phone_models(
 def refcount_data() -> Generator[set[models.PhoneNumber], None, None]:
     refcount_signal_fired: set[models.PhoneNumber] = set()
 
-    def refcount_signal_receiver(sender: models.PhoneNumber):
+    def refcount_signal_receiver(sender: models.PhoneNumber) -> None:
         refcount_signal_fired.add(sender)
 
     signals.phonenumber_refcount_dropping.connect(refcount_signal_receiver)

@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from hashlib import sha1
+from typing import Any
 
 import requests
 from flask import url_for
@@ -68,35 +69,39 @@ class PasswordStrengthValidator:
         " a mix of upper and lower case letters, numbers and symbols"
     )
 
-    def __init__(self, user_input_fields=(), message=None) -> None:
+    def __init__(
+        self, user_input_fields: Sequence[str] = (), message: str | None = None
+    ) -> None:
         self.user_input_fields = user_input_fields
         self.message = message or self.default_message
 
-    def __call__(self, form, field) -> None:
+    def __call__(self, form: forms.Form, field: forms.PasswordField) -> None:
         user_inputs = []
         for field_name in self.user_input_fields:
             user_inputs.append(getattr(form, field_name).data)
 
-        if hasattr(form, 'edit_user') and form.edit_user is not None:
-            if form.edit_user.username:
-                user_inputs.append(form.edit_user.username)
-            if form.edit_user.fullname:
-                user_inputs.append(form.edit_user.fullname)
+        if (edit_user := getattr(form, 'edit_user', None)) is not None:
+            if edit_user.username:
+                user_inputs.append(edit_user.username)
+            if edit_user.fullname:
+                user_inputs.append(edit_user.fullname)
 
-            for accountemail in form.edit_user.emails:
+            for accountemail in edit_user.emails:
                 user_inputs.append(str(accountemail))
-            for emailclaim in form.edit_user.emailclaims:
+            for emailclaim in edit_user.emailclaims:
                 user_inputs.append(str(emailclaim))
 
-            for accountphone in form.edit_user.phones:
+            for accountphone in edit_user.phones:
                 user_inputs.append(str(accountphone))
 
         tested_password = check_password_strength(
-            field.data, user_inputs=user_inputs if user_inputs else None
+            field.data or '', user_inputs=user_inputs if user_inputs else None
         )
         # Stick password strength into the form for logging in the view and possibly
         # rendering into UI
-        form.password_strength = tested_password.score
+        form.password_strength = (  # pyright: ignore[reportGeneralTypeIssues]
+            tested_password.score
+        )
         # No test failures? All good then
         if not tested_password.is_weak:
             return
@@ -110,8 +115,10 @@ class PasswordStrengthValidator:
         )
 
 
-def pwned_password_validator(_form, field) -> None:
+def pwned_password_validator(_form: Any, field: forms.PasswordField) -> None:
     """Validate password against the pwned password API."""
+    if field.data is None:
+        return
     phash = sha1(field.data.encode(), usedforsecurity=False).hexdigest().upper()
     prefix, suffix = phash[:5], phash[5:]
 

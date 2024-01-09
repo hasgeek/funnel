@@ -244,7 +244,7 @@ class Shortlink(NoIdMixin, Model):
 
     @name.inplace.comparator
     @classmethod
-    def _name_comparator(cls):
+    def _name_comparator(cls) -> ShortLinkToBigIntComparator:
         """Compare name to id in a SQL expression."""
         return ShortLinkToBigIntComparator(cls.id)
 

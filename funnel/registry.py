@@ -7,7 +7,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Collection
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, NoReturn, cast
+from typing import Any, cast
 
 from flask import Response, abort, jsonify, request
 from werkzeug.datastructures import MultiDict
@@ -16,7 +16,7 @@ from baseframe import _
 from baseframe.signals import exception_catchall
 
 from .models import AccountExternalId, AuthToken
-from .typing import ReturnResponse
+from .typing import ReturnResponse, ReturnView
 
 # Bearer token, as per
 # http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
@@ -235,7 +235,7 @@ class LoginProvider:
         secret: str,
         at_login: bool = True,
         icon: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         self.name = name
         self.title = title
@@ -246,7 +246,7 @@ class LoginProvider:
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def do(self, callback_url: str) -> NoReturn:
+    def do(self, callback_url: str) -> ReturnView:
         """Initiate a login with this login provider."""
         raise NotImplementedError
 

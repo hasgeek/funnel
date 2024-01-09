@@ -9,6 +9,7 @@ pytest-bdd
 pytest-cov
 pytest-dotenv
 pytest-env
+pytest-lazy-fixture
 pytest-playwright
 pytest-rerunfailures
 pytest-socket

@@ -35,7 +35,7 @@ from .schedule import schedule_data, session_list_data
 
 
 @Account.features('new_project')
-def feature_profile_new_project(obj):
+def feature_profile_new_project(obj: Account) -> bool:
     return (
         obj.is_organization_profile
         and obj.current_roles.admin
@@ -44,7 +44,7 @@ def feature_profile_new_project(obj):
 
 
 @Account.features('new_user_project')
-def feature_profile_new_user_project(obj: Account):
+def feature_profile_new_user_project(obj: Account) -> bool:
     return (
         obj.is_user_profile
         and obj.current_roles.admin
@@ -53,21 +53,21 @@ def feature_profile_new_user_project(obj: Account):
 
 
 @Account.features('make_public')
-def feature_profile_make_public(obj: Account):
+def feature_profile_make_public(obj: Account) -> bool:
     return obj.current_roles.admin and obj.make_profile_public.is_available
 
 
 @Account.features('make_private')
-def feature_profile_make_private(obj: Account):
+def feature_profile_make_private(obj: Account) -> bool:
     return obj.current_roles.admin and obj.make_profile_private.is_available
 
 
 @Account.features('is_private')
-def feature_profile_is_private(obj: Account):
+def feature_profile_is_private(obj: Account) -> bool:
     return not obj.current_roles.admin and not bool(obj.profile_state.ACTIVE_AND_PUBLIC)
 
 
-def template_switcher(templateargs):
+def template_switcher(templateargs: dict[str, Any]) -> str:
     template = templateargs.pop('template')
     return render_template(template, **templateargs)
 

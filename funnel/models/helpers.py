@@ -732,7 +732,7 @@ class MarkdownCompositeBase(MutableComposite):
         name: str,
         deferred: bool = False,
         deferred_group: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> tuple[sa_orm.Composite[_MC], Mapped[str], Mapped[str]]:
         """Create a composite column and backing individual columns."""
         col_text = sa_orm.mapped_column(
