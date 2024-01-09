@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 const { LoginPage } = require('../page/login');
-const { editor, admin } = require('../fixtures/user.json');
+const { owner, editor, admin } = require('../fixtures/user.json');
 
 test('Add sponsor to project', async ({ page }) => {
   let loginPage = new LoginPage(page);
-  await loginPage.login(`/${editor.owns_profile}/${editor.project}`, editor.username, editor.password);
+  await loginPage.login(`/${editor.owns_profile}/${editor.project}`, owner.username, owner.password);
 
   await page.getByTestId('site-editor-menu').locator('visible=true').click();
   await page.locator('.mui-dropdown__menu').locator('visible=true').waitFor(1000);

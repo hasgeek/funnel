@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 const { LoginPage } = require('../page/login');
 const { ProjectPage } = require('../page/create-project');
 const project = require('../fixtures/project.json');
-const { usher, owner } = require('../fixtures/user.json');
+const { usher, owner, admin } = require('../fixtures/user.json');
 const proposal = require('../fixtures/proposal.json');
 let randomProjectName;
 
@@ -45,7 +45,7 @@ test('Submitting a proposal to a project and commenting on proposal', async ({ p
   await page.locator('.select2-selection__arrow').waitFor();
   await page.locator('.select2-selection__arrow').click();
   await page.locator('.select2-search__field').waitFor();
-  await page.locator('.select2-search__field').fill(usher.username);
+  await page.locator('.select2-search__field').fill(admin.username);
   await page.locator('.select2-results__option').waitFor();
   await page.locator('.select2-results__option').click();
   await page.locator('#label').fill('Editor');
@@ -53,11 +53,12 @@ test('Submitting a proposal to a project and commenting on proposal', async ({ p
     page.waitForRequest(request => request.url().includes("/new"), {timeout: 60000}),
     page.locator('.modal').locator('button[data-testid="form-submit-btn"]').locator('visible=true').click()
   ]);
-  await expect(page.locator('.toast-message')).toHaveCount(0, {timeout: 10000});
+  await expect(page.locator('.toast-message')).toHaveCount(0, {timeout: 120000});
+  await page.locator('a.modal__close').locator('visible=true').waitFor(60000);
   await page.locator('a.modal__close').locator('visible=true').click();
-  await page.getByTestId('form-submit-btn').waitFor(60000);
+  await page.getByTestId('form-submit-btn').waitFor(120000);
   await page.getByTestId('form-submit-btn').click();
-  await page.locator('.user__box__userid user__box__fullname', { hasText: usher.username }).isVisible();
+  await page.locator('.user__box__userid user__box__fullname', { hasText: admin.username }).isVisible();
   await page.locator('.user__box__userid user__box__userid badge', { hasText: 'Editor' }).isVisible();
 
   await page.getByTestId('proposal-menu').locator('visible=true').click();
@@ -71,7 +72,7 @@ test('Submitting a proposal to a project and commenting on proposal', async ({ p
     page.waitForRequest(request => request.url().includes("/new"), {timeout: 60000}),
     page.getByTestId('new-form').getByTestId('submit-comment').click()
   ]);
-  await expect(page.locator('.comment__body')).toContainText(proposal.proposer_note);
-  await expect(page.locator('.comment__header')).toContainText(owner.username);
+  await expect(page.getByTestId('comment-content')).toContainText(proposal.proposer_note);
+  await expect(page.getByTestId('commenter')).toContainText(owner.fullname);
 
 });

@@ -19,5 +19,5 @@ function killserver() {
     rm /tmp/funnel-server.pid
 }
 trap killserver INT
-npx --prefix tests/cypress cypress run --browser chrome
+npx playwright test
 killserver

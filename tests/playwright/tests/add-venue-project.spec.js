@@ -2,12 +2,12 @@ import { test, expect } from '@playwright/test';
 
 const { LoginPage } = require('../page/login');
 const venues = require('../fixtures/venues.json');
-const { owner } = require('../fixtures/user.json');
+const { editor } = require('../fixtures/user.json');
 
 test('Add venue to project', async ({ page }) => {
   let loginPage;
   loginPage = new LoginPage(page);
-  await loginPage.login(`/${owner.owns_profile}/${owner.project}`, owner.username, owner.password);
+  await loginPage.login(`/${editor.owns_profile}/${editor.project}`, editor.username, editor.password);
 
   await page.getByTestId('project-menu').locator("visible=true").click();
   await page.getByTestId('settings').locator("visible=true").waitFor();

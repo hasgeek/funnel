@@ -37,6 +37,11 @@ def init_models():
         )
         db.session.add(owner.add_phone('+15062345678', primary=True))
 
+        org = Organization(
+            name='testcypressproject', title='testcypressproject', owner=owner
+        )
+        org.is_verified = True
+        org.make_profile_public()
         org1 = Organization(
             name='fifthelephant', title='Fifth elephant', owner=owner
         )
@@ -150,6 +155,7 @@ def init_models():
                 hguser,
                 newuser,
                 sm,
+                org,
                 org1,
                 org2,
                 org3,
