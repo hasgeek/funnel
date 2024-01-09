@@ -6,11 +6,12 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import Account, NewUpdateNotification, Update
+from ...models import Account, NewUpdateNotification, Update, Project
 from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
+from ..schedule import session_list_data, schedule_data
 
 
 class UpdateTemplate(TemplateVarMixin, SmsTemplate):
@@ -33,6 +34,7 @@ class RenderNewUpdateNotification(RenderNotification):
     """Notify crew and participants when the project has a new update."""
 
     update: Update
+    project: Project
     aliases = {'document': 'update'}
     emoji_prefix = "📰 "
     reason = __(
@@ -62,7 +64,19 @@ class RenderNewUpdateNotification(RenderNotification):
         )
 
     def email_content(self) -> str:
-        return render_template('notifications/update_new_email.html.jinja2', view=self)
+        scheduled_sessions_list = session_list_data(
+            self.project.scheduled_sessions, with_modal_url='view'
+        )
+        project = self.project.current_access(datasets=('primary', 'related'))
+        venues = [
+            venue.current_access(datasets=('without_parent', 'related'))
+            for venue in self.project.venues
+        ]
+        schedule = schedule_data(
+            self.project, with_slots=False, scheduled_sessions=scheduled_sessions_list
+        )
+        return render_template('notifications/update_new_email.html.jinja2', view=self, project=project,
+                               venues=venues, schedule=schedule)
 
     def sms(self) -> UpdateTemplate:
         return UpdateTemplate(

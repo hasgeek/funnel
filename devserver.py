@@ -35,7 +35,7 @@ if __name__ == '__main__':
         # Only start RQ worker within the reloader environment
         background_rq = BackgroundWorker(
             rq_background_worker,
-            mock_transports=bool(getbool(os.environ.get('MOCK_TRANSPORTS', True))),
+            mock_transports=bool(getbool(os.environ.get('MOCK_TRANSPORTS', False))),
         )
         background_rq.start()
 
