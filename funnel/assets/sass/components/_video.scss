@@ -14,6 +14,19 @@
     left: 50%;
   }
 
+  .video_txt--bottom {
+    text-align: center;
+    position: absolute;
+    bottom: $mui-grid-padding/2;
+    left: 0;
+    right: 0;
+    font-style: italic;
+  }
+
+  .no-access-img {
+    width: 60%;
+  }
+
   iframe {
     position: absolute;
     width: 100%;
