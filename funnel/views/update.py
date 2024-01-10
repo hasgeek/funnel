@@ -153,6 +153,13 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
             cancel_url=self.obj.url_for(),
         )
 
+    @route('pin', methods=['POST'])
+    @requires_roles({'editor'})
+    def pin(self) -> ReturnView:
+        self.obj.toggle_pin()
+        db.session.commit()
+        return render_redirect(self.obj.project.url_for('updates'))
+
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'editor'})
