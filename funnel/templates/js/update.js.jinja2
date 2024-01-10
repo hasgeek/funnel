@@ -24,7 +24,7 @@
                   <faicon :icon="'lock-alt'"></faicon>
                 </li>
                 <li v-if="update.is_pinned">
-                  <form id="pin-form" :action="update.urls.pin" method="post" style="display: inline;">                
+                  <form id="pin-form" :action="update.urls.pin" method="post" style="display: inline;">
                     <a href="#" onclick="this.parentNode.submit();"><faicon :icon="'thumbtack'" :baseline=false :css_class="'mui--align-middle'"></faicon></a>
                   </form>
                   <faicon :icon="'thumbtack'" :baseline=false :css_class="'mui--align-middle'"></faicon>
