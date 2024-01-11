@@ -2,6 +2,8 @@
 *.egg-info
 *.pyc
 .coverage
+coverage/
+coverage.xml
 .eslintcache
 .mypy_cache
 .pytest_cache
@@ -49,6 +51,7 @@ tests/unit/utils/markdown/data/output.html
 coverage/
 tests/playwright/test-results
 playwright-report
+tests/unit/utils/md/data/output.html
 
 # Instance files that should not be checked-in
 instance/development.py

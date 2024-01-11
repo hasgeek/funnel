@@ -152,7 +152,7 @@ class Rtable(Rn):
                     # If not renaming (new is None), use old name from `self.old`
                     rn.table_name = self.future_name or self.current_name
                     rn.old_table_name = self.current_name
-                    rn.symbol = symbol
+                    rn.symbol = symbol  # type: ignore[assignment]
 
     def upgrade(self) -> None:
         """Do the rename."""
@@ -588,13 +588,13 @@ renames = [
 ]
 
 
-def upgrade(engine_name='') -> None:
+def upgrade(engine_name: str = '') -> None:
     """Upgrade all databases."""
     # Do not modify. Edit `upgrade_` instead
     globals().get(f'upgrade_{engine_name}', lambda: None)()
 
 
-def downgrade(engine_name='') -> None:
+def downgrade(engine_name: str = '') -> None:
     """Downgrade all databases."""
     # Do not modify. Edit `downgrade_` instead
     globals().get(f'downgrade_{engine_name}', lambda: None)()
@@ -758,7 +758,7 @@ def upgrade_() -> None:
     # Insert organization data into account
     with console.status("Copying organization data into account table"):
         op.execute(
-            account.insert().from_select(  # type: ignore[arg-type]
+            account.insert().from_select(
                 [
                     'type',
                     'uuid',
@@ -827,7 +827,7 @@ def upgrade_() -> None:
             .where(profile.c.uuid == account.c.uuid, profile.c.reserved.is_(False))
         )
         op.execute(
-            account.insert().from_select(  # type: ignore[arg-type]
+            account.insert().from_select(
                 [
                     'type',
                     'uuid',
@@ -1428,11 +1428,7 @@ def downgrade_() -> None:
 
     # Delete all non-user rows from account
     with console.status("Dropping all non-user data from account table (slow!)"):
-        op.execute(
-            account.delete().where(  # type: ignore[arg-type]
-                account.c.type != AccountType.USER
-            )
-        )
+        op.execute(account.delete().where(account.c.type != AccountType.USER))
 
     with console.status("Dropping new columns and indexes on account"):
         op.drop_index(op.f('ix_account_name_lower'), table_name='account')

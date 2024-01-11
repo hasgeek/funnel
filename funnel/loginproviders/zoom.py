@@ -12,6 +12,7 @@ from sentry_sdk import capture_exception
 from baseframe import _
 
 from ..registry import LoginCallbackError, LoginProvider, LoginProviderData
+from ..typing import ReturnView
 
 __all__ = ['ZoomProvider']
 
@@ -22,7 +23,7 @@ class ZoomProvider(LoginProvider):
     token_url = 'https://zoom.us/oauth/token?grant_type=authorization_code'  # nosec
     user_info_url = 'https://api.zoom.us/v2/users/me'  # nosec
 
-    def do(self, callback_url):
+    def do(self, callback_url: str) -> ReturnView:
         session['oauth_callback'] = callback_url
         return redirect(
             furl(self.auth_url)

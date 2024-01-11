@@ -1,3 +1,4 @@
+{% from "forms.html.jinja2" import ajaxform %}
 {% from "macros.html.jinja2" import faicon, csrf_tag %}
 {%- from "js/json_form.js.jinja2" import json_form_template %}
 
@@ -22,6 +23,7 @@
   {{ json_form_template() }}
 </div>
 <script src="{{ manifest('rsvp_form_modal.js') }}" type="text/javascript"></script>
+{{ ajaxform('rsvp-form', request) }}
 <script type="text/javascript">
   $(function() {
     var jsonSchema = {{ json_schema|tojson }};

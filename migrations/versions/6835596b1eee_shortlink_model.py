@@ -16,17 +16,17 @@ branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `upgrade_` instead
     globals().get('upgrade_%s' % engine_name, lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `downgrade_` instead
     globals().get('downgrade_%s' % engine_name, lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     op.create_table(
         'shortlink',
         sa.Column('id', sa.BigInteger(), autoincrement=False, nullable=False),
@@ -41,6 +41,6 @@ def upgrade_():
     op.create_index(op.f('ix_shortlink_url'), 'shortlink', ['url'], unique=False)
 
 
-def downgrade_():
+def downgrade_() -> None:
     op.drop_index(op.f('ix_shortlink_url'), table_name='shortlink')
     op.drop_table('shortlink')

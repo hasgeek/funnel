@@ -3,16 +3,26 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Self
 from uuid import UUID
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, Mapped, Model, UuidMixin, backref, db, relationship, sa
 from .account import Account
+from .base import (
+    BaseMixin,
+    Mapped,
+    Model,
+    Query,
+    UuidMixin,
+    db,
+    relationship,
+    sa,
+    sa_orm,
+)
 from .comment import Comment
-from .helpers import reopen
 from .site_membership import SiteMembership
 
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
@@ -23,35 +33,32 @@ class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
     SPAM = (2, 'spam', __("Spam"))
 
 
-class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
+class CommentModeratorReport(UuidMixin, BaseMixin[UUID, Account], Model):
     __tablename__ = 'comment_moderator_report'
 
-    comment_id: Mapped[int] = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('comment.id'), nullable=False, index=True
+    comment_id: Mapped[int] = sa_orm.mapped_column(
+        sa.ForeignKey('comment.id'), default=None, nullable=False, index=True
     )
-    comment: Mapped[Comment] = relationship(
-        Comment,
-        foreign_keys=[comment_id],
-        backref=backref('moderator_reports', cascade='all', lazy='dynamic'),
+    comment: Mapped[Comment] = relationship(back_populates='moderator_reports')
+    reported_by_id: Mapped[int] = sa_orm.mapped_column(
+        sa.ForeignKey('account.id'), default=None, nullable=False, index=True
     )
-    reported_by_id: Mapped[int] = sa.orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False, index=True
-    )
-    reported_by: Mapped[Account] = relationship(
-        Account,
-        foreign_keys=[reported_by_id],
-        backref=backref('moderator_reports', cascade='all', lazy='dynamic'),
-    )
-    report_type: Mapped[int] = sa.orm.mapped_column(
+    reported_by: Mapped[Account] = relationship(back_populates='moderator_reports')
+    report_type: Mapped[int] = sa_orm.mapped_column(
         sa.SmallInteger,
-        StateManager.check_constraint('report_type', MODERATOR_REPORT_TYPE),
+        StateManager.check_constraint(
+            'report_type', MODERATOR_REPORT_TYPE, sa.SmallInteger
+        ),
         nullable=False,
         default=MODERATOR_REPORT_TYPE.SPAM,
     )
-    reported_at: Mapped[datetime] = sa.orm.mapped_column(
-        sa.TIMESTAMP(timezone=True), default=sa.func.utcnow(), nullable=False
+    reported_at: Mapped[datetime] = sa_orm.mapped_column(
+        sa.TIMESTAMP(timezone=True),
+        insert_default=sa.func.utcnow(),
+        default=None,
+        nullable=False,
     )
-    resolved_at: Mapped[datetime | None] = sa.orm.mapped_column(
+    resolved_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True, index=True
     )
 
@@ -67,12 +74,12 @@ class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
     }
 
     @classmethod
-    def get_one(cls, exclude_user=None):
+    def get_one(cls, exclude_user: Account | None = None) -> Self | None:
         reports = cls.get_all(exclude_user)
         return reports.order_by(sa.func.random()).first()
 
     @classmethod
-    def get_all(cls, exclude_user=None):
+    def get_all(cls, exclude_user: Account | None = None) -> Query[Self]:
         """
         Get all reports.
 
@@ -104,7 +111,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
         return report, created
 
     @property
-    def users_who_are_comment_moderators(self):
+    def users_who_are_comment_moderators(self) -> Query[Account]:
         return Account.query.join(
             SiteMembership, SiteMembership.member_id == Account.id
         ).filter(
@@ -113,17 +120,3 @@ class CommentModeratorReport(UuidMixin, BaseMixin[UUID], Model):
         )
 
     with_roles(users_who_are_comment_moderators, grants={'comment_moderator'})
-
-
-@reopen(Comment)
-class __Comment:
-    def is_reviewed_by(self, account: Account) -> bool:
-        return db.session.query(
-            db.session.query(CommentModeratorReport)
-            .filter(
-                CommentModeratorReport.comment == self,
-                CommentModeratorReport.resolved_at.is_(None),
-                CommentModeratorReport.reported_by == account,
-            )
-            .exists()
-        ).scalar()

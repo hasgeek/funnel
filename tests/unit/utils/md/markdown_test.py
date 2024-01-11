@@ -1,11 +1,11 @@
 """Tests for markdown parser."""
 
-import warnings
-
 import pytest
 from markupsafe import Markup
 
 from funnel.utils.markdown import MarkdownConfig
+
+from .conftest import MarkdownTestRegistry
 
 
 def test_markdown_none() -> None:
@@ -24,12 +24,13 @@ def test_markdown_blank() -> None:
 
 
 def test_markdown_cases(
-    md_testname: str, md_configname: str, markdown_test_registry
+    md_testname: str,
+    md_configname: str,
+    markdown_test_registry: type[MarkdownTestRegistry],
 ) -> None:
     case = markdown_test_registry.test_case(md_testname, md_configname)
     if case.expected_output is None:
-        warnings.warn(f'Expected output not generated for {case}', stacklevel=1)
-        pytest.skip(f'Expected output not generated for {case}')
+        pytest.fail(f'Expected output not known for {case}')
 
     assert case.expected_output == case.output
 
@@ -38,7 +39,9 @@ def test_markdown_cases(
 
 
 @pytest.mark.debug_markdown_output()
-def test_markdown_debug_output(pytestconfig, markdown_test_registry) -> None:
+def test_markdown_debug_output(
+    pytestconfig: pytest.Config, markdown_test_registry: type[MarkdownTestRegistry]
+) -> None:
     has_mark = pytestconfig.getoption('-m', default=None) == 'debug_markdown_output'
     if not has_mark:
         pytest.skip('Skipping update of debug output file for markdown test cases')

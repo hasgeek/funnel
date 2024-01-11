@@ -44,7 +44,7 @@ def upgrade() -> None:
 
     op.add_column('participant', sa.Column('uuid', sa.Uuid(), nullable=True))
     # migrate past participants
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(participant))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(participant))
     progress = get_progressbar("Participants", count)
     progress.start()
     items = conn.execute(sa.select(participant.c.id))

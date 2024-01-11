@@ -23,17 +23,17 @@ class COMMENTSET_STATE:  # noqa: N801
     COLLABORATORS = 4  # Only for editors/collaborators
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `upgrade_` instead
     globals().get('upgrade_%s' % engine_name, lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `downgrade_` instead
     globals().get('downgrade_%s' % engine_name, lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     op.add_column(
         'commentset',
         sa.Column(
@@ -49,14 +49,14 @@ def upgrade_():
     )
 
 
-def downgrade_():
+def downgrade_() -> None:
     op.drop_constraint('commentset_state_check', 'commentset', type_='check')
     op.drop_column('commentset', 'state')
 
 
-def upgrade_geoname():
+def upgrade_geoname() -> None:
     pass
 
 
-def downgrade_geoname():
+def downgrade_geoname() -> None:
     pass

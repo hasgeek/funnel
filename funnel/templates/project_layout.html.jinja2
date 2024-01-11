@@ -51,7 +51,7 @@
 
 {% macro project_header(project) %}
   {%- if project.livestream_urls %}
-    {% if (project.is_restricted_video and project.current_roles.participant) or not project.is_restricted_video %}
+    {% if (project.is_restricted_video and project.current_roles.account_member) or not project.is_restricted_video %}
       <div class="livestream-box project-banner__left" id="livestream">
         {% if project.livestream_urls|length >= 2 %}
         <ul class="mui-tabs__bar project-banner__box" role="tablist">
@@ -86,12 +86,15 @@
     {%- else %}
       <div class="project-banner__box project-banner__box--banner project-banner__left  subproject-page__hide">
         <div class="bg-primary-dark embed-video-wrapper">
-          <div class="video_txt">
-            <p class="video__thumbnail__icon">{{ faicon(icon='lock-alt', icon_size='headline', baseline=false) }}</p>
-            <p class="mui--text-title mui--text-light">{% trans -%}
-            The livestream is for members only. If you are a member, login with the
-            email address on your membership.
-            {%- endtrans %}</p>
+          <div class="embed-video-wrapper__restricted">
+            <img src="{{ url_for('static', filename='img/error-403.svg') }}" class="embed-video-wrapper__restricted__img" alt="{% trans %}Unavailable{% endtrans %}"/>
+            <div class="embed-video-wrapper__restricted__content">
+              <p class="embed-video-wrapper__restricted__content__text margin-bottom">{% trans -%}This livestream is restricted{%- endtrans %}</p>
+              <div class="register-block">{{ buy_button(project, false) }}</div>
+            </div>
+          </div>
+          <div class="embed-video-wrapper__bottom-note">
+            <p class="mui--text-caption mui--text-light text-italics zero-bottom-margin">{% trans -%}Already a member? Login with your membership email address{%- endtrans %}</p>
           </div>
         </div>
       </div>
@@ -125,7 +128,7 @@
           </a>
         {% endif %}
         <a href="{{ project.account.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline project-banner__profile-details__text" data-testid="profile-link">{{ project.account.title }}</a>
-        {% if project.features.subscription and project.current_roles.participant %}
+        {% if project.features.subscription and project.current_roles.account_member %}
           <span class="chip chip--bg-success project-banner__profile-details__badge text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span>
         {% elif project.features.subscription %}
           <span class="chip project-banner__profile-details__badge text-bold">{{ faicon(icon='lock-alt', baseline=true, css_class="fa-icon--right-margin") }}{% trans %}For members{% endtrans %}</span>
@@ -134,6 +137,21 @@
       <h1 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-dark nounderline" data-testid="project-page">{{ project.title }}</a></h1>
       <p class="mui--text-heading mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
     </div>
+  </div>
+{% endmacro %}
+
+{% macro buy_button(project, include_eyebrow_text=true) %}
+  <div class="register-block__content">
+    {% if include_eyebrow_text %}<span class="register-block__content__txt mui--text-light">{% trans %}Hybrid access (members only){% endtrans %}</span>{% endif %}
+    <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
+      {% if project.features.subscription %}
+        <span class="register-block__btn__txt" data-cy="buy-membership">{% trans %}Become a member{% endtrans %}</span>
+      {%- else %}
+        <span class="register-block__btn__txt" data-cy="buy-ticket">{% trans %}Get tickets{% endtrans %}</span>
+      {% endif %}
+      <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
+      <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
+    </button>
   </div>
 {% endmacro %}
 
@@ -167,7 +185,7 @@
         {%- if current_auth.is_anonymous %}
           <a class="mui-btn mui-btn--raised {% if project.features.show_tickets %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
         {% elif project.features.rsvp_unregistered -%}
-          {% if not project.features.follow_mode and not project.features.rsvp_for_members %}<span class="register-block__content__txt mui--text-light">{% trans %}This is a free event{% endtrans %}</span>{% endif %}
+          {% if not project.features.follow_mode and not project.features.rsvp_for_members %}<span class="register-block__content__txt mui--text-light">{% trans %}In-person access (free){% endtrans %}</span>{% endif %}
           <a id="rsvp-btn" class="mui-btn mui-btn--raised mui-btn--dark register-block__btn js-register-btn" href="{{ project.url_for('rsvp_modal') }}" rel="modal:open" role="button" aria-haspopup="true" data-testid="member-rsvp">
             <span class="register-block__btn__txt" data-testid="unregistered">{{ project.views.register_button_text() }}</span>
             <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt">{{ project.views.registration_text() }}</span>
@@ -186,17 +204,7 @@
     {% if project.current_roles.account_member %}
       <div class="register-block__content"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled" data-testid="project-member">{% trans %}You are a member{% endtrans %}</button></div>
     {% elif project.features.show_tickets %}
-      <div class="register-block__content">
-          <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
-            {% if project.features.subscription %}
-              <span class="register-block__btn__txt" data-testid="unregistered">{% trans %}Join{% endtrans %}</span>
-            {%- else %}
-              <span class="register-block__btn__txt" data-testid="unregistered">{% trans %}Get tickets{% endtrans %}</span>
-            {% endif %}
-            <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
-            <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
-          </button>
-      </div>
+      {{ buy_button(project) }}
     {%- endif %}
   </div>
 {% endmacro %}

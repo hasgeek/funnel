@@ -6,8 +6,11 @@ from datetime import datetime
 import pytest
 import requests
 from pytz import utc
+from requests_mock import Mocker
 
 from funnel import models
+
+from ...conftest import scoped_session
 
 
 def test_parse_video_url() -> None:
@@ -27,7 +30,9 @@ def test_parse_video_url() -> None:
     ) == ('googledrive', '1rwHdWYnF4asdhsnDwLECoqZQy4o')
 
 
-def test_youtube_video_delete(db_session, new_proposal) -> None:
+def test_youtube_video_delete(
+    db_session: scoped_session, new_proposal: models.Proposal
+) -> None:
     assert new_proposal.title == "Test Proposal"
 
     new_proposal.video_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
@@ -46,7 +51,7 @@ def test_youtube_video_delete(db_session, new_proposal) -> None:
 @pytest.mark.enable_socket()
 @pytest.mark.requires_config('app', 'youtube')
 @pytest.mark.usefixtures('app_context')
-def test_youtube(db_session, new_proposal) -> None:
+def test_youtube(db_session: scoped_session, new_proposal: models.Proposal) -> None:
     assert new_proposal.title == "Test Proposal"
 
     new_proposal.video_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
@@ -72,7 +77,9 @@ def test_youtube(db_session, new_proposal) -> None:
     )
 
 
-def test_vimeo_video_delete(db_session, new_proposal) -> None:
+def test_vimeo_video_delete(
+    db_session: scoped_session, new_proposal: models.Proposal
+) -> None:
     assert new_proposal.title == "Test Proposal"
 
     new_proposal.video_url = 'https://vimeo.com/336892869'
@@ -91,7 +98,7 @@ def test_vimeo_video_delete(db_session, new_proposal) -> None:
 @pytest.mark.enable_socket()
 @pytest.mark.requires_config('app', 'vimeo')
 @pytest.mark.usefixtures('app_context')
-def test_vimeo(db_session, new_proposal) -> None:
+def test_vimeo(db_session: scoped_session, new_proposal: models.Proposal) -> None:
     assert new_proposal.title == "Test Proposal"
 
     new_proposal.video_url = 'https://vimeo.com/336892869'
@@ -116,7 +123,11 @@ def test_vimeo(db_session, new_proposal) -> None:
 
 @pytest.mark.requires_config('app', 'vimeo')
 @pytest.mark.usefixtures('app_context')
-def test_vimeo_request_exception(caplog, requests_mock, new_proposal) -> None:
+def test_vimeo_request_exception(
+    caplog: pytest.LogCaptureFixture,
+    requests_mock: Mocker,
+    new_proposal: models.Proposal,
+) -> None:
     caplog.set_level(logging.WARNING)
     requests_mock.get(
         'https://api.vimeo.com/videos/336892869',
@@ -129,7 +140,11 @@ def test_vimeo_request_exception(caplog, requests_mock, new_proposal) -> None:
 
 @pytest.mark.usefixtures('app_context')
 @pytest.mark.mock_config('app', {'YOUTUBE_API_KEY': ''})
-def test_youtube_request_exception(caplog, requests_mock, new_proposal) -> None:
+def test_youtube_request_exception(
+    caplog: pytest.LogCaptureFixture,
+    requests_mock: Mocker,
+    new_proposal: models.Proposal,
+) -> None:
     caplog.set_level(logging.WARNING)
     requests_mock.get(
         'https://www.googleapis.com/youtube/v3/videos',

@@ -21,11 +21,11 @@ from markupsafe import Markup, escape
 
 from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
-from coaster.auth import current_auth
 from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import ClassView, get_next_url, render_with, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     AccountDeleteForm,
     AccountForm,
@@ -106,9 +106,8 @@ def user_locale(obj: Account) -> str:
 @Account.views('timezone')
 def user_timezone(obj: Account) -> str:
     """Human-friendly identifier for user's timezone, defaulting to timezone name."""
-    return timezone_identifiers.get(
-        str(obj.timezone) if obj.timezone else '', obj.timezone
-    )
+    timezone = str(u_tz) if (u_tz := obj.timezone) is not None else ''
+    return timezone_identifiers.get(timezone, timezone)
 
 
 @Account.views()
@@ -117,7 +116,7 @@ def organizations_as_admin(
     owner: bool = False,
     limit: int | None = None,
     order_by_grant: bool = False,
-) -> list[RoleAccessProxy]:
+) -> list[RoleAccessProxy[AccountMembership]]:
     """Return organizations that the user is an admin of."""
     if owner:
         orgmems = obj.active_organization_owner_memberships
@@ -139,7 +138,7 @@ def organizations_as_admin(
 @Account.views()
 def organizations_as_owner(
     obj: Account, limit: int | None = None, order_by_grant: bool = False
-) -> list[RoleAccessProxy]:
+) -> list[RoleAccessProxy[Account]]:
     """Return organizations that the user is an owner of."""
     return obj.views.organizations_as_admin(
         owner=True, limit=limit, order_by_grant=order_by_grant
@@ -171,6 +170,18 @@ def recent_organization_memberships(
         overflow=orgs[recent : recent + overflow],
         extra_count=max(0, obj.active_organization_admin_memberships.count() - recent),
     )
+
+
+@Account.views(cached_property=True)
+def organizations_as_member(obj: Account) -> list[RoleAccessProxy[Account]]:
+    """Return organizations that the user has a membership in."""
+    return [
+        acc.access_for(actor=obj, datasets=('primary', 'related'))
+        for acc in Account.query.filter(
+            Account.name_in(app.config['FEATURED_ACCOUNTS'])
+        ).all()
+        if 'member' in acc.roles_for(obj)
+    ]
 
 
 @Account.views('avatar_color_code', cached_property=True)
@@ -278,19 +289,14 @@ def login_session_service(obj: LoginSession) -> str | None:
     return None
 
 
-@route('/account')
+@route('/account', init_app=app)
 class AccountView(ClassView):
     """Account management views."""
 
     __decorators__ = [requires_login]
 
-    obj: Account
     current_section = 'account'  # needed for showing active tab
     SavedProjectForm = SavedProjectForm
-
-    def loader(self, **kwargs) -> Account:
-        """Return current user."""
-        return current_auth.user
 
     @route('', endpoint='account')
     @render_with('account.html.jinja2')
@@ -842,7 +848,7 @@ class AccountView(ClassView):
 
     @route('delete', methods=['GET', 'POST'], endpoint='account_delete')
     @requires_sudo
-    def delete(self):
+    def delete(self) -> ReturnView:
         """Delete user account."""
         # Perform sanity checks: can this user account be deleted?
         objection = current_auth.user.views.validate_account_delete()
@@ -868,9 +874,6 @@ class AccountView(ClassView):
             ajax=False,
             cancel_url=url_for('account'),
         )
-
-
-AccountView.init_app(app)
 
 
 # --- Compatibility routes -------------------------------------------------------------

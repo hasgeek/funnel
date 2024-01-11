@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from flask import Flask
+
 from baseframe import __
 
 from ..registry import login_registry
@@ -12,7 +14,7 @@ from .twitter import TwitterProvider
 from .zoom import ZoomProvider
 
 
-def init_app(app):
+def init_app(app: Flask) -> None:
     # Register some login providers
     if app.config.get('OAUTH_GOOGLE_KEY') and app.config.get('OAUTH_GOOGLE_SECRET'):
         login_registry['google'] = GoogleProvider(

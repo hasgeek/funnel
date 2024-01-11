@@ -71,7 +71,7 @@ def upgrade() -> None:
         sec_count = cast(
             int,
             conn.scalar(
-                sa.select(sa.func.count('*'))
+                sa.select(sa.func.count(sa.text('*')))
                 .select_from(section)
                 .where(section.c.project_id == proj.id)
             ),
@@ -236,7 +236,7 @@ def upgrade() -> None:
             duplicate_count = cast(
                 int,
                 conn.scalar(
-                    sa.select(sa.func.count('*'))
+                    sa.select(sa.func.count(sa.text('*')))
                     .select_from(label)
                     .where(label.c.name == st_name)
                     .where(label.c.project_id == proj.id)

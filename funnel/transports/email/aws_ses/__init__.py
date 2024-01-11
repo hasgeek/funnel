@@ -1,7 +1,34 @@
 """AWS SES email support."""
-# flake8: noqa
 
-from __future__ import annotations
+# --- Everything below this line is auto-generated using `make initpy` -----------------
 
-from .ses_messages import *
-from .sns_notifications import *
+from . import ses_messages, sns_notifications
+from .ses_messages import (
+    SesBounce,
+    SesComplaint,
+    SesDelivery,
+    SesDeliveryDelay,
+    SesEvent,
+    SesProcessorAbc,
+)
+from .sns_notifications import (
+    SnsNotificationType,
+    SnsValidator,
+    SnsValidatorChecks,
+    SnsValidatorError,
+)
+
+__all__ = [
+    "SesBounce",
+    "SesComplaint",
+    "SesDelivery",
+    "SesDeliveryDelay",
+    "SesEvent",
+    "SesProcessorAbc",
+    "SnsNotificationType",
+    "SnsValidator",
+    "SnsValidatorChecks",
+    "SnsValidatorError",
+    "ses_messages",
+    "sns_notifications",
+]

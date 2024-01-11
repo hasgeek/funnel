@@ -41,7 +41,7 @@ def upgrade() -> None:
 
     op.add_column('comment', sa.Column('uuid', sa.Uuid(), nullable=True))
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(comment))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(comment))
     progress = get_progressbar("Comments", count)
     progress.start()
     items = conn.execute(sa.select(comment.c.id))

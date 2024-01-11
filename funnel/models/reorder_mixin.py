@@ -2,42 +2,43 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-from typing import TYPE_CHECKING, ClassVar, TypeVar
-from uuid import UUID
+from typing import Any, Protocol, TypeVar
 
-from . import Mapped, QueryProperty, db, declarative_mixin, sa
+from .base import Mapped, db, declarative_mixin, sa, sa_orm
+from .typing import ModelIdProtocol
 
-__all__ = ['ReorderProtoMixin']
+__all__ = ['ReorderMixin']
 
 
 # Use of TypeVar for subclasses of ReorderMixin as defined in these mypy tickets:
 # https://github.com/python/mypy/issues/1212
 # https://github.com/python/mypy/issues/7191
-Reorderable = TypeVar('Reorderable', bound='ReorderProtoMixin')
+
+
+class ReorderSubclassProtocol(ModelIdProtocol, Protocol):
+    parent_id: Mapped[Any]
+    parent: Mapped[Any]
+    seq: Mapped[Any]
+
+    @property
+    def parent_scoped_reorder_query_filter(self) -> sa.ColumnElement[bool]:
+        ...
+
+    def reorder_item(self: Reorderable, other: Reorderable, before: bool) -> None:
+        ...
+
+
+Reorderable = TypeVar('Reorderable', bound='ReorderSubclassProtocol')
 
 
 @declarative_mixin
-class ReorderProtoMixin:
+class ReorderMixin:
     """Adds support for re-ordering sequences within a parent container."""
 
-    if TYPE_CHECKING:
-        #: Subclasses must have a created_at column
-        created_at: Mapped[datetime]
-        #: Subclass must have a primary key that is int or uuid
-        id: Mapped[int | UUID]  # noqa: A001
-        #: Subclass must declare a parent_id synonym to the parent model fkey column
-        parent_id: Mapped[int | UUID]
-        #: Subclass must declare a seq column or synonym, holding a sequence id. It
-        #: need not be unique, but reordering is meaningless when both items have the
-        #: same number
-        seq: Mapped[int]
-
-        #: Subclass must offer a SQLAlchemy query (this is standard from base classes)
-        query: ClassVar[QueryProperty]
-
     @property
-    def parent_scoped_reorder_query_filter(self: Reorderable) -> sa.ColumnElement[bool]:
+    def parent_scoped_reorder_query_filter(
+        self: ReorderSubclassProtocol,
+    ) -> sa.ColumnElement[bool]:
         """
         Return a query filter that includes a scope limitation to the parent.
 
@@ -81,14 +82,15 @@ class ReorderProtoMixin:
                 cls.seq >= min(self.seq, other.seq),
                 cls.seq <= max(self.seq, other.seq),
             )
+            .populate_existing()  # Force reload `.seq` into session cache
             .with_for_update(of=cls)  # Lock these rows to prevent a parallel update
-            .options(sa.orm.load_only(cls.id, cls.seq))
+            .options(sa_orm.load_only(cls.id_, cls.seq))
             .order_by(*order_columns)
             .all()
         )
 
         # Pop-off items that share a sequence number and don't need to be moved
-        while items_to_reorder[0].id != self.id:
+        while items_to_reorder[0].id_ != self.id_:
             items_to_reorder.pop(0)
 
         # Reordering! Move down the list (reversed if `before`), reassigning numbers.
@@ -100,14 +102,12 @@ class ReorderProtoMixin:
 
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
-        self.seq = (
-            sa.select(  # type: ignore[assignment]
-                sa.func.coalesce(sa.func.max(cls.seq) + 1, 1)
-            )
+        self.seq: Mapped[int] = (
+            sa.select(sa.func.coalesce(sa.func.max(cls.seq) + 1, 1))
             .where(self.parent_scoped_reorder_query_filter)
             .scalar_subquery()
         )
-        # Flush it so the db doesn't complain when there's a unique constraint
+        # Flush it so the db does not complain when there's a unique constraint
         db.session.flush()
         # Reassign all remaining sequence numbers
         for reorderable_item in items_to_reorder[1:]:  # Skip 0, which is self
@@ -116,7 +116,7 @@ class ReorderProtoMixin:
             # of SQLAlchemy 2.0.x. Should that behaviour change, a switch to
             # bulk_update_mappings will be required
             db.session.flush()
-            if reorderable_item.id == other.id:
+            if reorderable_item.id_ == other.id_:
                 # Don't bother reordering anything after `other`
                 break
         # Assign other's previous sequence number to self

@@ -446,7 +446,7 @@
   {%- endif %}
 {%- endmacro %}
 
-{% macro profilecard(account, snippet_html) %}
+{% macro profilecard(account, snippet_html, is_member) %}
   <div class="card profile-card">
     <div class="card__body">
       <div>
@@ -464,6 +464,9 @@
       <div class="markdown js-truncate mui--text-center mui--text-caption mui--text-light bottom-padding" data-truncate-lines="3">{{ account.tagline or account.description }}</div>
       {%- if snippet_html %}
         <p class="mui--text-body2 mui--text-light zero-top-margin search-snippets">{{ faicon(icon='search', css_class="search-icon", baseline=false) }} {{ snippet_html }}</p>
+      {% endif %}
+      {%- if is_member %}
+        <div class="mui--text-dark mui--text-subhead text-bold nounderline margin-auto"><span class="chip chip--bg-success text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span></div>
       {% endif %}
       <div class="profile-card__btn-wrapper">
         <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=account.published_project_count, count=account.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>

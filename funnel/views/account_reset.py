@@ -109,7 +109,7 @@ def reset() -> ReturnView:
 
 @app.route('/account/reset/<token>')
 @requestargs(('cookietest', getbool))
-def reset_with_token(token: str, cookietest=False) -> ReturnView:
+def reset_with_token(token: str, cookietest: bool = False) -> ReturnView:
     """Move token into session cookie and redirect to a token-free URL."""
     if not cookietest:
         session['reset_token'] = token

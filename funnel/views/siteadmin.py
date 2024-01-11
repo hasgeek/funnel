@@ -21,10 +21,10 @@ except ModuleNotFoundError:
 
 from baseframe import _
 from baseframe.forms import Form
-from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import ModeratorReportForm
 from ..models import (
     MODERATOR_REPORT_TYPE,
@@ -133,7 +133,7 @@ def requires_sysadmin(f: Callable[P, T]) -> Callable[P, T]:
     return wrapper
 
 
-@route('/siteadmin')
+@route('/siteadmin', init_app=app)
 class SiteadminView(ClassView):
     """Site administrator views."""
 
@@ -215,7 +215,7 @@ class SiteadminView(ClassView):
                     auth_client_login_session.c.login_session_id == LoginSession.id,
                     Account.state.ACTIVE,
                     auth_client_login_session.c.accessed_at
-                    >= sa.func.utcnow() - sa.func.cast(interval, INTERVAL),
+                    >= sa.func.utcnow() - sa.func.cast(sa.text(interval), INTERVAL),
                 )
                 .group_by(
                     auth_client_login_session.c.auth_client_id, LoginSession.account_id
@@ -310,16 +310,12 @@ class SiteadminView(ClassView):
             'comment_spam_form': Form(),
         }
 
-    @route(
-        'comments/markspam',
-        endpoint='siteadmin_comments_spam',
-        methods=['POST'],
-    )
+    @route('comments/markspam', endpoint='siteadmin_comments_spam', methods=['POST'])
     @requires_comment_moderator
     def markspam(self) -> ReturnResponse:
         """Mark comments as spam."""
         comment_spam_form = Form()
-        comment_spam_form.form_nonce.data = comment_spam_form.form_nonce.default()
+        comment_spam_form.form_nonce.data = comment_spam_form.form_nonce.get_default()
         # TODO: Create a CommentReportForm that has a QuerySelectMultiField on Comment.
         # Avoid request.form.getlist('comment_id') here
         if comment_spam_form.validate_on_submit():
@@ -363,7 +359,7 @@ class SiteadminView(ClassView):
             uuid_b58=report
         ).one_or_404()
 
-        if comment_report.comment.is_reviewed_by(current_auth.user):
+        if comment_report.comment.was_reviewed_by(current_auth.user):
             flash(_("You cannot review same comment twice"), 'error')
             return render_redirect(url_for('siteadmin_review_comments_random'))
 
@@ -389,7 +385,7 @@ class SiteadminView(ClassView):
             return render_redirect(url_for('siteadmin_review_comments_random'))
 
         report_form = ModeratorReportForm()
-        report_form.form_nonce.data = report_form.form_nonce.default()
+        report_form.form_nonce.data = report_form.form_nonce.get_default()
 
         if report_form.validate_on_submit():
             # get other reports for same comment
@@ -446,10 +442,7 @@ class SiteadminView(ClassView):
         }
 
 
-SiteadminView.init_app(app)
-
-
-def init_rq_dashboard():
+def init_rq_dashboard() -> None:
     """Register RQ Dashboard Blueprint if available for import."""
     if rq_dashboard is not None:
         rq_dashboard.blueprint.before_request(
