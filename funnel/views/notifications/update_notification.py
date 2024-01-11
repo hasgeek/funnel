@@ -11,7 +11,7 @@ from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
-from ..schedule import session_list_data, schedule_data
+from ..schedule import upcoming_schedule_data_with_room
 
 
 class UpdateTemplate(TemplateVarMixin, SmsTemplate):
@@ -64,19 +64,14 @@ class RenderNewUpdateNotification(RenderNotification):
         )
 
     def email_content(self) -> str:
-        scheduled_sessions_list = session_list_data(
-            self.project.scheduled_sessions, with_modal_url='view'
-        )
         project = self.project.current_access(datasets=('primary', 'related'))
         venues = [
             venue.current_access(datasets=('without_parent', 'related'))
             for venue in self.project.venues
         ]
-        schedule = schedule_data(
-            self.project, with_slots=False, scheduled_sessions=scheduled_sessions_list
-        )
+        schedules = upcoming_schedule_data_with_room(self.project)
         return render_template('notifications/update_new_email.html.jinja2', view=self, project=project,
-                               venues=venues, schedule=schedule)
+                               venues=venues, schedules=schedules)
 
     def sms(self) -> UpdateTemplate:
         return UpdateTemplate(
