@@ -17,17 +17,28 @@
         <div class="page-card__card">
           <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
             <div class="update__heading">
-              <ul class="bullet-separated-list--flex mui--text-light mui--text-body2 update__date" v-if="update.number">
+               <form v-if="iseditor" :id="'pin-form-' + update.uuid_b58" :action="update.urls.edit" method="post" style="display: inline;">
+                <input type="hidden" :value=getCsrfToken() name="csrf_token">
+                <input type="hidden" value="pin" name="form.id">
+                <input type="hidden" v-if="!update.is_pinned" name="is_pinned" value="true">
+                <input type="hidden" v-if="update.is_pinned" name="is_pinned" value="">
+              </form>
+              <ul class="bullet-separated-list--flex mui--text-light mui--text-body2" v-if="update.number">
                 <li><a class="text-uppercase mui--text-light nounderline" :href="update.urls.view">{{ gettext('Update') }} #{{ update.number }}</a></li>
                 <li v-if="age"><a class="mui--text-light nounderline" :href="update.urls.view">{{ age }}</a></li>
                 <li v-if="update.visibility_label == 'Restricted'">
                   <faicon :icon="'lock-alt'"></faicon>
                 </li>
                 <li v-if="update.is_pinned">
-                  <form id="pin-form" :action="update.urls.pin" method="post" style="display: inline;">
-                    <a href="#" onclick="this.parentNode.submit();"><faicon :icon="'thumbtack'" :baseline=false :css_class="'mui--align-middle'"></faicon></a>
-                  </form>
-                  <faicon :icon="'thumbtack'" :baseline=false :css_class="'mui--align-middle'"></faicon>
+                  <a v-if="iseditor" href="#" @click="handlePinEvent($event, `pin-form-${update.uuid_b58}`, update.urls.edit);">
+                    <faicon :icon="'thumbtack-solid'" :baseline=false :css_class="'mui--align-middle'"></faicon>
+                  </a>
+                  <faicon v-else :icon="'thumbtack-solid'" :baseline=false :css_class="'mui--align-middle'"></faicon>
+                </li>
+                <li v-if="!update.is_pinned && iseditor">
+                  <a href="#" @click="handlePinEvent($event, `pin-form-${update.uuid_b58}`, update.urls.edit);" class="update__heading__unpin">
+                    <faicon :icon="'thumbtack'" :baseline=false :css_class="'mui--align-middle'"></faicon>
+                  </a>
                 </li>
               </ul>
               <p v-else class="text-capitalize mui--text-light zero-bottom-margin">{{ gettext('Draft') }}</p>

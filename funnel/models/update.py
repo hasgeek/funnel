@@ -321,10 +321,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     def make_restricted(self) -> None:
         pass
 
-    @with_roles(call={'editor'})
-    def toggle_pin(self) -> None:
-        self.is_pinned = not self.is_pinned
-
     @property
     def is_restricted(self) -> bool:
         return bool(self.visibility_state.RESTRICTED)
