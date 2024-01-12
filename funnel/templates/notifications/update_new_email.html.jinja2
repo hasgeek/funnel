@@ -1,5 +1,5 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
-{%- from "notifications/macros_email.html.jinja2" import cta_button -%}
+{%- from "notifications/macros_email.html.jinja2" import cta_button, schedule_tables -%}
 {%- block content -%}
 
     <tr>
@@ -17,35 +17,10 @@
             {% trans update_body=view.update.body %}{{ update_body }}{% endtrans %}
         </td>
     </tr>
-    <tr>
-        {% for day, rooms in schedule.items() %}
-        <div class="schedule">
-            <h3 class="schedule__date collapsible__header mui--clearfix schedule__date--upcoming">
-                <span class="mui--pull-left">{{ day }}</span>
-            </h3>
-            {% for room, slots in rooms.items() %}
-            <table class="bg-accent schedule__table collapsible__body">
-                <tr class="schedule__row schedule__row--sticky">
-                    <th class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" style="minWidth: '100px'">Time</th>
-                    <th class="schedule__row__column schedule__row__column--header" style="width: 'calc(100% - '100px)'">{{ room }}</th>
-                </tr>
-                {% for slot, sessions in slots.itens() %}
-                    {% for session in sessions %}
-                        <tr>
-                            <td class="mui--text-body2 schedule__row__column__content__title__duration">{{ session.startTime }}–{{ session.endTime }}</td>
-                            <td class="schedule__row__column__content__title">
-                                {% if room.talk.title %}<p class="mui--text-body2 schedule__row__column__content__title__heading">{{ session.title }}</p>{% endif %}
-                                {% if room.talk.speaker %}<p class="mui--text-caption mui--text-light schedule__row__column__content__title__speaker">{{ session.speaker }}</p>{% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                {% endfor %}
-            </table>
-            {% endfor %}
-        </div>
-        {% endfor %}
-    </tr>
-    <br/>
+
+    {# Schedule : BEGIN #}
+    {{ schedule_tables(schedules) }}
+    {# Schedule: END #}
 
     {# Button : BEGIN #}
     {{ cta_button(view.update.url_for(_external=true, **view.tracking_tags()), gettext("Read on the website") )}}

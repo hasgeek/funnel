@@ -114,17 +114,19 @@ def schedule_data(
         schedule.append(daydata)
     return schedule
 
+
 def upcoming_schedule_data_with_room(project: Project) -> list[dict]:
     schedule = schedule_data(project)
     schedule_with_room = []
     for key, day in schedule:
-        if datetime.strptime(key,'%y-%m-%d') >= datetime.today():
-            daydata_with_room: dict[str, dict[str, Any]] = defaultdict(lambda:
-                                                                       defaultdict(Any))
+        if datetime.strptime(key, '%y-%m-%d') >= datetime.today():
+            daydata_with_room: dict[str, dict[str, list]] = defaultdict(
+                lambda: defaultdict(list)
+            )
             for slots in schedule[day]:
-                roomdata: dict[str, Any] = defaultdict(Any)
+                roomdata: dict[str, Any] = {'date': day, 'rooms': defaultdict(list)}
                 roomdata[slots.sessions.room_scoped_name].append(slots)
-                daydata_with_room[day]['room'].append(roomdata)
+                daydata_with_room[day]['rooms'].append(roomdata)
             schedule_with_room.append(daydata_with_room)
     return schedule_with_room
 

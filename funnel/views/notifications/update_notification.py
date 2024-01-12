@@ -6,12 +6,12 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import Account, NewUpdateNotification, Update, Project
+from ...models import Account, NewUpdateNotification, Project, Update
 from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
-from .mixins import TemplateVarMixin
 from ..schedule import upcoming_schedule_data_with_room
+from .mixins import TemplateVarMixin
 
 
 class UpdateTemplate(TemplateVarMixin, SmsTemplate):
@@ -64,14 +64,12 @@ class RenderNewUpdateNotification(RenderNotification):
         )
 
     def email_content(self) -> str:
-        project = self.project.current_access(datasets=('primary', 'related'))
-        venues = [
-            venue.current_access(datasets=('without_parent', 'related'))
-            for venue in self.project.venues
-        ]
         schedules = upcoming_schedule_data_with_room(self.project)
-        return render_template('notifications/update_new_email.html.jinja2', view=self, project=project,
-                               venues=venues, schedules=schedules)
+        return render_template(
+            'notifications/update_new_email.html.jinja2',
+            view=self,
+            schedules=schedules,
+        )
 
     def sms(self) -> UpdateTemplate:
         return UpdateTemplate(
