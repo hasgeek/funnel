@@ -25,6 +25,31 @@
     cursor: zoom-in;
   }
 
+  img[src*='#img-thumbnail'] {
+    width: 25%;
+    padding: 3rem 0 1rem;
+  }
+
+  img[src*='#img-postcard'] {
+    width: 50%;
+    padding: 3rem 0 1rem;
+  }
+
+  img[src*='#img-full_column'] {
+    width: 100%;
+    padding: 2rem 0 0;
+  }
+
+  img[src$='+align_left'] {
+    float: left;
+    padding-right: 2rem;
+  }
+
+  img[src$='+align_right'] {
+    float: right;
+    padding-left: 2rem;
+  }
+
   table {
     cursor: zoom-in;
     @extend .table;
