@@ -1,5 +1,5 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
-{%- from "notifications/macros_email.html.jinja2" import cta_button -%}
+{%- from "notifications/macros_email.html.jinja2" import cta_button, schedule_tables -%}
 {%- block content -%}
 
     <tr>
@@ -17,7 +17,10 @@
             {% trans update_body=view.update.body %}{{ update_body }}{% endtrans %}
         </td>
     </tr>
-    <br/>
+
+    {# Schedule : BEGIN #}
+    {{ schedule_tables(schedules) }}
+    {# Schedule: END #}
 
     {# Button : BEGIN #}
     {{ cta_button(view.update.url_for(_external=true, **view.tracking_tags()), gettext("Read on the website") )}}
