@@ -105,6 +105,10 @@
             opacity: 0.01 !important;
         }
 
+        p > img {
+            width: 100%;
+            padding: 2rem 0 1rem;
+        }
         /* What it does: Prevents Gmail from changing the text color in conversation threads. */
         .im {
             color: inherit !important;
@@ -197,30 +201,7 @@
             mso-line-height-rule: exactly;
             background-color: #f0f0f0;
         }
-        img[src*='#img-thumbnail'] {
-          width: 25%;
-          padding: 3rem 0 1rem;
-        }
 
-        img[src*='#img-postcard'] {
-          width: 50%;
-          padding: 3rem 0 1rem;
-        }
-
-        img[src*='#img-full_column'] {
-          width: 100%;
-          padding: 2rem 0 0;
-        }
-
-        img[src$='+align_left'] {
-          float: left;
-          padding-right: 2rem;
-        }
-
-        img[src$='+align_right'] {
-          float: right;
-          padding-left: 2rem;
-        }
         center {
             width: 100%;
             background-color: #f0f0f0;
@@ -317,6 +298,10 @@
         .line-separator {
             padding: 16px 0 4px;
             border-bottom:1px solid #c0ccda;
+        }
+        .line-separator-top {
+            padding: 16px 0 4px;
+            border-top:1px solid #c0ccda;
         }
         .footer{
             padding: 20px;
