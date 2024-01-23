@@ -462,16 +462,15 @@
       {%- if snippet_html %}
         <p class="mui--text-body2 mui--text-light zero-top-margin search-snippets">{{ faicon(icon='search', css_class="search-icon", baseline=false) }} {{ snippet_html }}</p>
       {% endif %}
-      {%- if account.membership_project %}
+      {%- if account.membership_project and not is_member %}
+        <div class="profile-card__btn-wrapper">
+          <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=account.published_project_count, count=account.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>
+          <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ account.url_for(_anchor='membership') }}" data-ga="Become a member(homepage)">{% trans %}Become a member{% endtrans %}</a>
+        </div>
+      {% else %}
         {%- if is_member %}
           <div class="mui--text-dark mui--text-subhead text-bold nounderline margin-auto"><span class="chip chip--bg-success text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span></div>
-        {% else %}
-          <div class="profile-card__btn-wrapper">
-            <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=account.published_project_count, count=account.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>
-            <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ account.url_for(hash='membership') }}" data-ga="Become a member(homepage)">{% trans %}Become a member{% endtrans %}</a>
-          </div>
         {% endif %}
-      {% else %}
         <div class="profile-card__btn-wrapper">
           <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=account.published_project_count, count=account.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>
           <a class="mui-btn mui-btn--dark mui-btn--raised full-width-btn" href="{{ account.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
