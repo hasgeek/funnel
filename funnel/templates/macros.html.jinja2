@@ -219,7 +219,7 @@
   </footer>
 {% endmacro %}
 
-{% macro video_thumbnail(session, project_heading=false) %}
+{% macro video_thumbnail(session) %}
   <div class="video">
     <a class="video__thumbnail {%- if not (session.views.video.thumbnail or session.banner_image_url.url) %} video__thumnail--novideo {%- endif %}" href="{%- if session.proposal %}{{ session.proposal.url_for() }}{%- else %}{{ session.url_for() }}{%- endif %}" data-ga="view session video">
       {%- if session.views.video.thumbnail %}
@@ -229,9 +229,6 @@
         <img src="{{ session.banner_image_url }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail" alt="{{ session.title }}"/>
       {%- endif %}
     </a>
-    {%- if project_heading %}
-      <p class="mui--text-title text-bold video__txt" data-cy="project-title">{{ session.project.title }}</p>
-    {%- endif %}
     <p class="mui--text-subhead text-bold video__txt" data-cy="title">{{ session.title }}</p>
     {%- if session.speaker %}<p class="mui--text-body2 mui--text-light video__txt">{{ session.speaker }}</p>{%- endif %}
     {%- if session.views.video %}
@@ -477,7 +474,7 @@
       {% else %}
         <div class="profile-card__btn-wrapper">
           <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=account.published_project_count, count=account.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>
-          <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ account.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
+          <a class="mui-btn mui-btn--dark mui-btn--raised full-width-btn" href="{{ account.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
         </div>
       {% endif %}
     </div>
