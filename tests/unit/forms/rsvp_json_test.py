@@ -2,6 +2,8 @@
 
 import json
 
+from flask import Flask
+
 from funnel import forms
 
 valid_schema = {
@@ -33,7 +35,7 @@ rsvp_excess_json = {
 }
 
 
-def test_valid_boxoffice_form(app) -> None:
+def test_valid_boxoffice_form(app: Flask) -> None:
     """Valid schema is accepted by the schema form validator."""
     with app.test_request_context(
         method='POST',
@@ -43,7 +45,7 @@ def test_valid_boxoffice_form(app) -> None:
         assert form.validate() is True
 
 
-def test_invalid_boxoffice_form(app) -> None:
+def test_invalid_boxoffice_form(app: Flask) -> None:
     """Invalid schema is rejected by the schema form validator."""
     with app.test_request_context(
         method='POST',
@@ -56,7 +58,7 @@ def test_invalid_boxoffice_form(app) -> None:
         assert form.errors == {'register_form_schema': ['Invalid JSON']}
 
 
-def test_valid_json_register_form(app) -> None:
+def test_valid_json_register_form(app: Flask) -> None:
     with app.test_request_context(
         method='POST',
         data={'form': '{"field_name":"Vetinari","has_checked":"on"}'},
@@ -65,7 +67,7 @@ def test_valid_json_register_form(app) -> None:
         assert form.validate() is True
 
 
-def test_invalid_json_register_form(app) -> None:
+def test_invalid_json_register_form(app: Flask) -> None:
     with app.test_request_context(
         method='POST',
         data={'form': 'This is an invalid json'},
@@ -76,7 +78,7 @@ def test_invalid_json_register_form(app) -> None:
         assert form.form.errors == ['Invalid JSON']
 
 
-def test_excess_json_register_form(app) -> None:
+def test_excess_json_register_form(app: Flask) -> None:
     with app.test_request_context(
         method='POST',
         data={'form': json.dumps(rsvp_excess_json)},

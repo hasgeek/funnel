@@ -10,6 +10,8 @@ from coaster.utils import newpin
 
 from funnel import models
 
+from ...conftest import LoginFixtureProtocol, TestClient
+
 PATCH_EMAIL_VALIDATOR = (
     'funnel.models.email_address.EmailAddress.is_valid_email_address'
 )
@@ -41,7 +43,10 @@ def get_wrong_otp(reference: str) -> str:
 
 
 def test_add_email_wrong_otp(
-    client, csrf_token, login, user_rincewind: models.User
+    client: TestClient,
+    csrf_token: str,
+    login: LoginFixtureProtocol,
+    user_rincewind: models.User,
 ) -> None:
     """Add a new email address with an OTP and confirm an incorrect OTP is rejected."""
     login.as_(user_rincewind)
@@ -65,7 +70,12 @@ def test_add_email_wrong_otp(
         assert 'OTP is incorrect' in rv2.data.decode()
 
 
-def test_add_email(client, csrf_token, login, user_rincewind: models.User) -> None:
+def test_add_email(
+    client: TestClient,
+    csrf_token: str,
+    login: LoginFixtureProtocol,
+    user_rincewind: models.User,
+) -> None:
     """Add a new email address with an OTP."""
     login.as_(user_rincewind)
     assert user_rincewind.emails == []
@@ -89,7 +99,11 @@ def test_add_email(client, csrf_token, login, user_rincewind: models.User) -> No
 
 
 def test_merge_with_email_otp(
-    client, csrf_token, login, useremail_rincewind, user_mort
+    client: TestClient,
+    csrf_token: str,
+    login: LoginFixtureProtocol,
+    useremail_rincewind: models.AccountEmail,
+    user_mort: models.User,
 ) -> None:
     """Providing a valid OTP for another user's email address causes a merge prompt."""
     login.as_(user_mort)
@@ -115,7 +129,10 @@ def test_merge_with_email_otp(
 
 
 def test_add_phone_wrong_otp(
-    client, csrf_token, login, user_rincewind: models.User
+    client: TestClient,
+    csrf_token: str,
+    login: LoginFixtureProtocol,
+    user_rincewind: models.User,
 ) -> None:
     """Add a new phone number with an OTP and confirm an incorrect OTP is rejected."""
     login.as_(user_rincewind)
@@ -138,7 +155,12 @@ def test_add_phone_wrong_otp(
     assert 'OTP is incorrect' in rv2.data.decode()
 
 
-def test_add_phone(client, csrf_token, login, user_rincewind: models.User) -> None:
+def test_add_phone(
+    client: TestClient,
+    csrf_token: str,
+    login: LoginFixtureProtocol,
+    user_rincewind: models.User,
+) -> None:
     """Add a new phone number with an OTP."""
     login.as_(user_rincewind)
     assert user_rincewind.phones == []
@@ -161,7 +183,11 @@ def test_add_phone(client, csrf_token, login, user_rincewind: models.User) -> No
 
 
 def test_merge_with_phone_otp(
-    client, csrf_token, login, userphone_rincewind, user_mort
+    client: TestClient,
+    csrf_token: str,
+    login: LoginFixtureProtocol,
+    userphone_rincewind: models.AccountPhone,
+    user_mort: models.User,
 ) -> None:
     """Providing a valid OTP for another user's phone number causes a merge prompt."""
     login.as_(user_mort)

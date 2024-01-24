@@ -16,17 +16,17 @@ branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `upgrade_` instead
     globals().get('upgrade_%s' % engine_name, lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `downgrade_` instead
     globals().get('downgrade_%s' % engine_name, lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     op.create_table(
         'proposal_sponsor_membership',
         sa.Column('granted_at', sa.TIMESTAMP(timezone=True), nullable=False),
@@ -74,7 +74,7 @@ def upgrade_():
     )
 
 
-def downgrade_():
+def downgrade_() -> None:
     op.drop_index(
         'ix_proposal_sponsor_membership_seq',
         table_name='proposal_sponsor_membership',
@@ -97,9 +97,9 @@ def downgrade_():
     op.drop_table('proposal_sponsor_membership')
 
 
-def upgrade_geoname():
+def upgrade_geoname() -> None:
     pass
 
 
-def downgrade_geoname():
+def downgrade_geoname() -> None:
     pass

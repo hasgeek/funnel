@@ -15,8 +15,18 @@ from sqlalchemy.ext.hybrid import Comparator
 
 from coaster.sqlalchemy import immutable, with_roles
 
-from . import Mapped, Model, NoIdMixin, UrlType, db, hybrid_property, relationship, sa
 from .account import Account
+from .base import (
+    Mapped,
+    Model,
+    NoIdMixin,
+    UrlType,
+    db,
+    hybrid_property,
+    relationship,
+    sa,
+    sa_orm,
+)
 from .helpers import profanity
 
 __all__ = ['Shortlink']
@@ -197,34 +207,34 @@ class Shortlink(NoIdMixin, Model):
     is_new = False
 
     # id of this shortlink, saved as a bigint (8 bytes)
-    id = with_roles(  # noqa: A003
+    id: Mapped[int] = with_roles(  # noqa: A003
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
         # handling collisions. This needs an "immutable after commit" handler
-        sa.orm.mapped_column(
+        sa_orm.mapped_column(
             sa.BigInteger, autoincrement=False, nullable=False, primary_key=True
         ),
         read={'all'},
     )
     #: URL target of this shortlink
-    url = with_roles(
-        immutable(sa.orm.mapped_column(UrlType, nullable=False, index=True)),
+    url: Mapped[furl] = with_roles(
+        immutable(sa_orm.mapped_column(UrlType, nullable=False, index=True)),
         read={'all'},
     )
     #: Id of account that created this shortlink (optional)
-    created_by_id: Mapped[int | None] = sa.orm.mapped_column(
-        sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
+    created_by_id: Mapped[int | None] = sa_orm.mapped_column(
+        sa.ForeignKey('account.id', ondelete='SET NULL'), default=None, nullable=True
     )
     #: Account that created this shortlink (optional)
-    created_by: Mapped[Account | None] = relationship(Account)
+    created_by: Mapped[Account | None] = relationship()
 
     #: Is this link enabled? If not, render 410 Gone
-    enabled = sa.orm.mapped_column(sa.Boolean, nullable=False, default=True)
+    enabled: Mapped[bool] = sa_orm.mapped_column(default=True)
 
     @hybrid_property
     def name(self) -> str:
         """Return string representation of id, for use in short URLs."""
         if self.id is None:
-            return ''
+            return ''  # type: ignore[unreachable]
         return bigint_to_name(self.id)
 
     @name.inplace.setter
@@ -234,19 +244,19 @@ class Shortlink(NoIdMixin, Model):
 
     @name.inplace.comparator
     @classmethod
-    def _name_comparator(cls):
+    def _name_comparator(cls) -> ShortLinkToBigIntComparator:
         """Compare name to id in a SQL expression."""
         return ShortLinkToBigIntComparator(cls.id)
 
     # --- Validators
 
-    @sa.orm.validates('id')
+    @sa_orm.validates('id')
     def _validate_id_not_zero(self, _key: str, value: int) -> int:
         if value == 0:
             raise ValueError("Id cannot be zero")
         return value
 
-    @sa.orm.validates('url')
+    @sa_orm.validates('url')
     def _validate_url(self, _key: str, value: str) -> str:
         value = str(normalize_url(value))
         # If URL hashes are added to the model, the value must be set here using
@@ -367,7 +377,7 @@ class Shortlink(NoIdMixin, Model):
         try:
             existing = db.session.query(
                 cls.query.filter(cls.name == name)
-                .options(sa.orm.load_only(cls.id))
+                .options(sa_orm.load_only(cls.id))
                 .exists()
             ).scalar()
             return not existing
@@ -387,7 +397,7 @@ class Shortlink(NoIdMixin, Model):
         except (ValueError, TypeError):
             return None
         obj = db.session.get(
-            cls, idv, options=[sa.orm.load_only(cls.id, cls.url, cls.enabled)]
+            cls, idv, options=[sa_orm.load_only(cls.id, cls.url, cls.enabled)]
         )
         if obj is not None and (ignore_enabled or obj.enabled):
             return obj

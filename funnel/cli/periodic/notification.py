@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import timedelta
 
 from ... import models
-from ...models import db, sa
+from ...models import db, sa, sa_orm
 from ...views.notification import dispatch_notification
 from . import periodic
 
@@ -27,7 +27,7 @@ def project_starting_alert() -> None:
     # the prior hour.
 
     # Any eager-loading columns and relationships should be deferred with
-    # sa.orm.defer(column) and sa.orm.noload(relationship). There are none as of this
+    # sa_orm.defer(column) and sa_orm.noload(relationship). There are none as of this
     # commit.
     for project in (
         models.Project.starting_at(
@@ -35,7 +35,7 @@ def project_starting_alert() -> None:
             timedelta(minutes=5),
             timedelta(minutes=60),
         )
-        .options(sa.orm.load_only(models.Project.uuid))
+        .options(sa_orm.load_only(models.Project.uuid))
         .all()
     ):
         dispatch_notification(

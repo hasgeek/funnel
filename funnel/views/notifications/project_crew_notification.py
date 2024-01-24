@@ -4,21 +4,24 @@ from __future__ import annotations
 
 from collections.abc import Callable, Collection
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from flask import render_template
 from markupsafe import Markup, escape
+from werkzeug.utils import cached_property
 
 from baseframe import _, __
 
 from ...models import (
     Account,
+    MembershipRecordTypeEnum,
+    Notification,
     NotificationRecipient,
-    NotificationType,
     Project,
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
     ProjectMembership,
+    sa,
 )
 from ...transports.sms import OneLineTemplate
 from ..helpers import shortlink
@@ -31,7 +34,7 @@ class DecisionFactorFields:
 
     is_member: bool | None = None
     for_actor: bool | None = None
-    rtypes: Collection[str] = ()
+    rtypes: Collection[MembershipRecordTypeEnum] = ()
     is_editor: bool | None = None
     is_promoter: bool | None = None
     is_usher: bool | None = None
@@ -46,7 +49,7 @@ class DecisionFactorFields:
         return (
             (self.is_member is None or self.is_member is is_member)
             and (self.for_actor is None or self.for_actor is for_actor)
-            and (not self.rtypes or membership.record_type_label.name in self.rtypes)
+            and (not self.rtypes or membership.record_type_enum in self.rtypes)
             and (self.is_editor is None or self.is_editor is membership.is_editor)
             and (self.is_promoter is None or self.is_promoter is membership.is_promoter)
             and (self.is_usher is None or self.is_usher is membership.is_usher)
@@ -77,7 +80,7 @@ class DecisionBranch(DecisionFactorFields, DecisionBranchBase):
 grant_amend_templates = DecisionBranch(
     factors=[
         DecisionBranch(
-            rtypes=['invite'],
+            rtypes=[MembershipRecordTypeEnum.INVITE],
             factors=[
                 DecisionBranch(
                     for_actor=False,
@@ -142,7 +145,7 @@ grant_amend_templates = DecisionBranch(
                                 "{actor} invited you to join the crew of {project}"
                             ),
                             is_member=True,
-                            rtypes=['invite'],
+                            rtypes=[MembershipRecordTypeEnum.INVITE],
                         ),
                     ],
                 ),
@@ -172,7 +175,7 @@ grant_amend_templates = DecisionBranch(
                             template=__(
                                 "You invited {user} to join the crew of {project}"
                             ),
-                            rtypes=['invite'],
+                            rtypes=[MembershipRecordTypeEnum.INVITE],
                             for_actor=True,
                         ),
                     ],
@@ -180,7 +183,7 @@ grant_amend_templates = DecisionBranch(
             ],
         ),
         DecisionBranch(
-            rtypes=['accept'],
+            rtypes=[MembershipRecordTypeEnum.ACCEPT],
             factors=[
                 DecisionBranch(
                     for_actor=False,
@@ -248,7 +251,7 @@ grant_amend_templates = DecisionBranch(
             ],
         ),
         DecisionBranch(
-            rtypes=['direct_add'],
+            rtypes=[MembershipRecordTypeEnum.DIRECT_ADD],
             factors=[
                 DecisionBranch(
                     for_actor=False,
@@ -344,7 +347,7 @@ grant_amend_templates = DecisionBranch(
                         ),
                         DecisionFactor(
                             template=__("You made {user} promoter of {project}"),
-                            rtypes=['direct_add'],
+                            rtypes=[MembershipRecordTypeEnum.DIRECT_ADD],
                             is_promoter=True,
                         ),
                         DecisionFactor(
@@ -377,7 +380,7 @@ grant_amend_templates = DecisionBranch(
             ],
         ),
         DecisionBranch(
-            rtypes=['amend'],
+            rtypes=[MembershipRecordTypeEnum.AMEND],
             factors=[
                 DecisionBranch(
                     for_actor=False,
@@ -530,7 +533,7 @@ grant_amend_templates = DecisionBranch(
                             template=__(
                                 "You changed your role to crew member of {project}"
                             ),
-                            rtypes=['amend'],
+                            rtypes=[MembershipRecordTypeEnum.AMEND],
                             is_self_granted=True,
                         ),
                     ],
@@ -667,7 +670,7 @@ class RenderShared:
 
     project: Project
     membership: ProjectMembership
-    notification: NotificationType
+    notification: Notification
     notification_recipient: NotificationRecipient
     #: Subclasses must specify a base template picker
     template_picker: DecisionBranch
@@ -771,19 +774,25 @@ class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
     aliases = {'document': 'project', 'fragment': 'membership'}
     hero_image = 'img/email/chars-v1/access-granted.png'
     email_heading = __("Crew membership granted!")
-    fragments_order_by = [ProjectMembership.granted_at.desc()]
     template_picker = grant_amend_templates
+
+    @cached_property
+    def fragments_order_by(self) -> list[sa.UnaryExpression]:
+        return [ProjectMembership.granted_at.desc()]
 
     def membership_actor(self, membership: ProjectMembership | None = None) -> Account:
         """Actual actor who granted (or edited) the membership, for the template."""
-        return (membership or self.membership).granted_by
+        actor = (membership or self.membership).granted_by
+        if TYPE_CHECKING:
+            assert actor is not None  # nosec B101
+        return actor
 
-    def web(self):
+    def web(self) -> str:
         return render_template(
             'notifications/project_crew_membership_granted_web.html.jinja2', view=self
         )
 
-    def email_content(self):
+    def email_content(self) -> str:
         return render_template(
             'notifications/project_crew_membership_granted_email.html.jinja2', view=self
         )

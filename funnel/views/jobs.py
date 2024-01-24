@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Callable
 from functools import wraps
-from typing_extensions import Protocol
+from typing import Any, Protocol, cast
 
 import requests
 from flask import g
@@ -43,7 +43,7 @@ class RqJobProtocol(Protocol[P, T_co]):
 
 
 def rqjob(
-    queue: str = 'funnel', **rqargs
+    queue: str = 'funnel', **rqargs: Any
 ) -> Callable[[Callable[P, T_co]], RqJobProtocol[P, T_co]]:
     """Decorate an RQ job with app context."""
 
@@ -53,7 +53,7 @@ def rqjob(
             with app_context():
                 return f(*args, **kwargs)
 
-        return rq.job(queue, **rqargs)(wrapper)
+        return cast(RqJobProtocol, rq.job(queue, **rqargs)(wrapper))
 
     return decorator
 
@@ -61,7 +61,7 @@ def rqjob(
 @rqjob()
 def import_tickets(ticket_client_id: int) -> None:
     """Import tickets from Boxoffice."""
-    ticket_client = TicketClient.query.get(ticket_client_id)
+    ticket_client = db.session.get(TicketClient, ticket_client_id)
     if ticket_client is not None:
         if ticket_client.name.lower() == 'explara':
             ticket_list = ExplaraAPI(
@@ -78,21 +78,17 @@ def import_tickets(ticket_client_id: int) -> None:
 
 @rqjob()
 def tag_locations(project_id: int) -> None:
-    """
-    Tag a project with geoname locations.
-
-    This function used to retrieve data from Hascore, which has been merged into Funnel
-    and is available directly as the GeoName model. This code continues to operate with
-    the legacy Hascore data structure, and is pending rewrite.
-    """
-    project = Project.query.get(project_id)
+    """Tag a project with geoname locations. This is legacy code pending a rewrite."""
+    project = db.session.get(Project, project_id)
+    if project is None:
+        return
     if not project.location:
         return
     results = GeoName.parse_locations(
         project.location, special=["Internet", "Online"], bias=['IN', 'US']
     )
-    geonames = defaultdict(dict)
-    tokens = []
+    geonames: dict[str, dict] = defaultdict(dict)
+    tokens: list[dict] = []
     for item in results:
         if 'geoname' in item:
             geoname = item['geoname'].as_dict(alternate_titles=False)
@@ -120,7 +116,7 @@ def tag_locations(project_id: int) -> None:
     project.parsed_location = {'tokens': tokens}
 
     for locdata in geonames.values():
-        loc = ProjectLocation.query.get((project_id, locdata['geonameid']))
+        loc = db.session.get(ProjectLocation, (project_id, locdata['geonameid']))
         if loc is None:
             loc = ProjectLocation(project=project, geonameid=locdata['geonameid'])
             db.session.add(loc)
@@ -134,7 +130,12 @@ def tag_locations(project_id: int) -> None:
 
 # TODO: Deprecate this method and the AuthClient notification system
 @rqjob()
-def send_auth_client_notice(url, params=None, data=None, method='POST'):
+def send_auth_client_notice(
+    url: str,
+    params: dict[str, Any] | None = None,
+    data: dict[str, Any] | None = None,
+    method: str = 'POST',
+) -> None:
     """Send notice to AuthClient when some data changes."""
     requests.request(method, url, params=params, data=data, timeout=30)
 

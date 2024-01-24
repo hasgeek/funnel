@@ -6,7 +6,7 @@ from flask import flash, request, url_for
 
 from baseframe import _, forms
 from baseframe.forms import Form, render_form
-from coaster.auth import current_auth
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import (
     ClassView,
     ModelView,
@@ -18,6 +18,7 @@ from coaster.views import (
 )
 
 from .. import app
+from ..auth import current_auth
 from ..forms import CommentForm, CommentsetSubscribeForm
 from ..models import (
     Account,
@@ -63,7 +64,7 @@ def update_proposal_commentset_membership(
 
 
 @Comment.views('url')
-def comment_url(obj):
+def comment_url(obj: Comment) -> str | None:
     url = None
     commentset_url = obj.commentset.views.url()
     if commentset_url is not None:
@@ -72,7 +73,7 @@ def comment_url(obj):
 
 
 @Commentset.views('json_comments')
-def commentset_json(obj):
+def commentset_json(obj: Commentset) -> list[RoleAccessProxy[Comment]]:
     toplevel_comments = obj.toplevel_comments.order_by(Comment.created_at.desc())
     return [
         comment.current_access(datasets=('json', 'related'))
@@ -82,7 +83,7 @@ def commentset_json(obj):
 
 
 @Commentset.views('url')
-def parent_comments_url(obj):
+def parent_comments_url(obj: Commentset) -> str | None:
     url = None  # project or proposal object
     if obj.project is not None:
         url = obj.project.url_for('comments', _external=True)
@@ -92,14 +93,14 @@ def parent_comments_url(obj):
 
 
 @Commentset.views('last_comment', cached_property=True)
-def last_comment(obj: Commentset) -> Comment | None:
+def last_comment(obj: Commentset) -> RoleAccessProxy[Comment] | None:
     comment = obj.last_comment
     if comment:
         return comment.current_access(datasets=('primary', 'related'))
     return None
 
 
-@route('/comments')
+@route('/comments', init_app=app)
 class AllCommentsView(ClassView):
     """View for index of commentsets."""
 
@@ -143,9 +144,6 @@ class AllCommentsView(ClassView):
         return result
 
 
-AllCommentsView.init_app(app)
-
-
 def do_post_comment(
     commentset: Commentset,
     actor: Account,
@@ -164,13 +162,11 @@ def do_post_comment(
     return comment
 
 
-@route('/comments/<commentset>')
-class CommentsetView(UrlForView, ModelView):
+@route('/comments/<commentset>', init_app=app)
+class CommentsetView(UrlForView, ModelView[Commentset]):
     """Views for commentset display within a host document."""
 
-    model = Commentset
     route_model_map = {'commentset': 'uuid_b58'}
-    obj: Commentset
 
     def loader(self, commentset: str) -> Commentset:
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
@@ -223,7 +219,7 @@ class CommentsetView(UrlForView, ModelView):
     @requires_login
     def subscribe(self) -> ReturnView:
         subscribe_form = CommentsetSubscribeForm()
-        subscribe_form.form_nonce.data = subscribe_form.form_nonce.default()
+        subscribe_form.form_nonce.data = subscribe_form.form_nonce.get_default()
         if subscribe_form.validate_on_submit():
             if subscribe_form.subscribe.data:
                 self.obj.add_subscriber(
@@ -269,38 +265,26 @@ class CommentsetView(UrlForView, ModelView):
         }, 422
 
 
-CommentsetView.init_app(app)
-
-
-@route('/comments/<commentset>/<comment>')
-class CommentView(UrlForView, ModelView):
+@route('/comments/<commentset>/<comment>', init_app=app)
+class CommentView(UrlForView, ModelView[Comment]):
     """Views for a single comment."""
 
-    model = Comment
     route_model_map = {'commentset': 'commentset.uuid_b58', 'comment': 'uuid_b58'}
-    obj: Comment
 
-    def loader(self, commentset: str, comment: str) -> Comment | Commentset:
-        comment = (
+    def load(self, commentset: str, comment: str) -> ReturnView | None:
+        obj = (
             Comment.query.join(Commentset)
             .filter(Commentset.uuid_b58 == commentset, Comment.uuid_b58 == comment)
             .one_or_none()
         )
-        if comment is None:
-            # if the comment doesn't exist or deleted, return the commentset,
-            # `after_loader()` will redirect to the commentset instead.
-            return Commentset.query.filter(
-                Commentset.uuid_b58 == commentset
-            ).one_or_404()
-        return comment
-
-    def after_loader(self) -> ReturnView | None:
-        if isinstance(self.obj, Commentset):
-            flash(
-                _("That comment could not be found. It may have been deleted"), 'error'
-            )
-            return render_redirect(self.obj.url_for())
-        return super().after_loader()
+        if obj is not None:
+            self.obj = obj
+            return None
+        commentset_obj = Commentset.query.filter(
+            Commentset.uuid_b58 == commentset
+        ).one_or_404()
+        flash(_("That comment could not be found. It may have been deleted"), 'error')
+        return render_redirect(commentset_obj.url_for())
 
     @route('')
     @requires_roles({'reader'})
@@ -446,6 +430,3 @@ class CommentView(UrlForView, ModelView):
             with_chrome=False,
         ).get_data(as_text=True)
         return {'status': 'ok', 'form': reportspamform_html}
-
-
-CommentView.init_app(app)

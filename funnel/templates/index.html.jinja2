@@ -76,7 +76,11 @@
           <ul class="grid projects flex-wrapper flex-wrapper--nowrap" role="list">
             {% for account in featured_accounts %}
               <li class="grid__col-12 grid-no-right-padding" role="listitem">
-                {{ profilecard(account) }}
+                {%- if account.current_roles.member %}
+                  {{ profilecard(account, snippet_html=false, is_member=true) }}
+                {%- else %}
+                  {{ profilecard(account) }}
+                {% endif %}
               </li>
             {%- endfor -%}
           </ul>

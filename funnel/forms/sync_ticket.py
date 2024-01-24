@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 
 from markupsafe import Markup
 
@@ -12,6 +13,7 @@ from ..models import (
     Account,
     AccountEmail,
     Project,
+    ProjectRsvpStateEnum,
     TicketClient,
     TicketEvent,
     TicketParticipant,
@@ -68,9 +70,10 @@ class ProjectBoxofficeForm(forms.Form):
         validators=[forms.validators.AllowedIf('org')],
         filters=[forms.filters.strip()],
     )
-    allow_rsvp = forms.BooleanField(
-        __("Allow free registrations"),
-        default=False,
+    rsvp_state = forms.RadioField(
+        __("Registrations"),
+        choices=[(int(member.value), member.title) for member in ProjectRsvpStateEnum],
+        default=int(ProjectRsvpStateEnum.NONE),
     )
     is_subscription = forms.BooleanField(
         __("Paid tickets are for a subscription"),
@@ -92,7 +95,7 @@ class ProjectBoxofficeForm(forms.Form):
         validators=[forms.validators.Optional(), validate_and_convert_json],
     )
 
-    def set_queries(self):
+    def __post_init__(self) -> None:
         """Set form schema description."""
         self.register_form_schema.description = Markup(
             '<p>{description}</p><pre><code>{schema}</code></pre>'
@@ -212,11 +215,11 @@ class TicketParticipantForm(forms.Form):
         validators=[forms.validators.DataRequired("Select at least one event")],
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.ticket_events.query = self.edit_parent.ticket_events
 
-    def validate(self, *args, **kwargs) -> bool:
+    def validate(self, *args: Any, **kwargs: Any) -> bool:
         """Validate form."""
         result = super().validate(*args, **kwargs)
         if self.email.data is None:

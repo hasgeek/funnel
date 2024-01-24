@@ -2,7 +2,7 @@
 
 {% for session in past_sessions %}
   <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-    {{ video_thumbnail(session, project_heading=true) }}
+    {{ video_thumbnail(session) }}
   </li>
 {%- else -%}
   <p class="mui--text-subhead mui--text-light margin-top left-padding">{% trans %}No past videos{% endtrans %}</p>

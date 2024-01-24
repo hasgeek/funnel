@@ -7,23 +7,26 @@ from typing import Any
 
 import pytest
 import sqlalchemy as sa
+import sqlalchemy.orm as sa_orm
 
 from funnel import models
 
+from ...conftest import SQLAlchemy, scoped_session
+
 
 @pytest.fixture(scope='session')
-def fixture_notification_type(database) -> Any:
+def fixture_notification_type(database: SQLAlchemy) -> Any:
     class MergeTestNotification(
         models.Notification[models.User, None], type='merge_test'
     ):
         """Test notification."""
 
-    database.configure_mappers()
+    sa_orm.configure_mappers()
     return MergeTestNotification
 
 
 @pytest.fixture()
-def fixtures(db_session):
+def fixtures(db_session: scoped_session) -> SimpleNamespace:
     # pylint: disable=possibly-unused-variable
     owner = models.User(
         username='owner',
@@ -50,7 +53,9 @@ def fixtures(db_session):
 
 
 @pytest.fixture()
-def notification(db_session, fixtures):
+def notification(
+    db_session: scoped_session, fixtures: SimpleNamespace
+) -> models.OrganizationAdminMembershipNotification:
     new_notification = models.OrganizationAdminMembershipNotification(
         document=fixtures.org, fragment=fixtures.membership
     )
@@ -60,7 +65,11 @@ def notification(db_session, fixtures):
 
 
 @pytest.fixture()
-def notification_recipient1(db_session, fixtures, notification):
+def notification_recipient1(
+    db_session: scoped_session,
+    fixtures: SimpleNamespace,
+    notification: models.OrganizationAdminMembershipNotification,
+) -> models.NotificationRecipient:
     nr = models.NotificationRecipient(
         eventid=notification.eventid,
         recipient_id=fixtures.user1.id,
@@ -73,7 +82,11 @@ def notification_recipient1(db_session, fixtures, notification):
 
 
 @pytest.fixture()
-def notification_recipient2(db_session, fixtures, notification):
+def notification_recipient2(
+    db_session: scoped_session,
+    fixtures: SimpleNamespace,
+    notification: models.OrganizationAdminMembershipNotification,
+) -> models.NotificationRecipient:
     nr = models.NotificationRecipient(
         eventid=notification.eventid,
         recipient_id=fixtures.user2.id,
@@ -86,7 +99,9 @@ def notification_recipient2(db_session, fixtures, notification):
 
 
 @pytest.fixture()
-def user1_main_preferences(db_session, fixtures):
+def user1_main_preferences(
+    db_session: scoped_session, fixtures: SimpleNamespace
+) -> models.NotificationPreferences:
     prefs = models.NotificationPreferences(notification_type='', account=fixtures.user1)
     db_session.add(prefs)
     db_session.commit()
@@ -94,7 +109,11 @@ def user1_main_preferences(db_session, fixtures):
 
 
 @pytest.fixture()
-def user1_test_preferences(db_session, fixtures, fixture_notification_type):
+def user1_test_preferences(
+    db_session: scoped_session,
+    fixtures: SimpleNamespace,
+    fixture_notification_type: Any,
+) -> models.NotificationPreferences:
     prefs = models.NotificationPreferences(
         notification_type='merge_test', account=fixtures.user1
     )
@@ -104,7 +123,9 @@ def user1_test_preferences(db_session, fixtures, fixture_notification_type):
 
 
 @pytest.fixture()
-def user2_main_preferences(db_session, fixtures):
+def user2_main_preferences(
+    db_session: scoped_session, fixtures: SimpleNamespace
+) -> models.NotificationPreferences:
     prefs = models.NotificationPreferences(notification_type='', account=fixtures.user2)
     db_session.add(prefs)
     db_session.commit()
@@ -112,7 +133,11 @@ def user2_main_preferences(db_session, fixtures):
 
 
 @pytest.fixture()
-def user2_test_preferences(db_session, fixtures, fixture_notification_type):
+def user2_test_preferences(
+    db_session: scoped_session,
+    fixtures: SimpleNamespace,
+    fixture_notification_type: Any,
+) -> models.NotificationPreferences:
     prefs = models.NotificationPreferences(
         notification_type='merge_test', account=fixtures.user2
     )
@@ -124,7 +149,9 @@ def user2_test_preferences(db_session, fixtures, fixture_notification_type):
 # --- Tests for UserNotification -------------------------------------------------------
 
 
-def test_merge_without_notifications(db_session, fixtures) -> None:
+def test_merge_without_notifications(
+    db_session: scoped_session, fixtures: SimpleNamespace
+) -> None:
     """Merge without any notifications works."""
     assert models.Notification.query.count() == 0
     assert models.NotificationRecipient.query.count() == 0
@@ -136,7 +163,9 @@ def test_merge_without_notifications(db_session, fixtures) -> None:
 
 
 def test_merge_with_user1_notifications(
-    db_session, fixtures, notification_recipient1
+    db_session: scoped_session,
+    fixtures: SimpleNamespace,
+    notification_recipient1: models.NotificationRecipient,
 ) -> None:
     """Merge without only user1 notifications works."""
     assert models.Notification.query.count() == 1
@@ -150,7 +179,9 @@ def test_merge_with_user1_notifications(
 
 
 def test_merge_with_user2_notifications(
-    db_session, fixtures, notification_recipient2
+    db_session: scoped_session,
+    fixtures: SimpleNamespace,
+    notification_recipient2: models.NotificationRecipient,
 ) -> None:
     """Merge without only user2 notifications gets it transferred to user1."""
     assert models.Notification.query.count() == 1
@@ -170,7 +201,10 @@ def test_merge_with_user2_notifications(
 
 
 def test_merge_with_dupe_notifications(
-    db_session, fixtures, notification_recipient1, notification_recipient2
+    db_session: scoped_session,
+    fixtures: SimpleNamespace,
+    notification_recipient1: models.NotificationRecipient,
+    notification_recipient2: models.NotificationRecipient,
 ) -> None:
     """Merge without dupe notifications gets one deleted."""
     assert models.Notification.query.count() == 1
@@ -188,7 +222,10 @@ def test_merge_with_dupe_notifications(
 
 
 def test_merge_with_user1_preferences(
-    db_session, fixtures, user1_main_preferences, user1_test_preferences
+    db_session: scoped_session,
+    fixtures: SimpleNamespace,
+    user1_main_preferences: models.NotificationPreferences,
+    user1_test_preferences: models.NotificationPreferences,
 ) -> None:
     """When preferences are only on the older user's account, nothing changes."""
     assert models.NotificationPreferences.query.count() == 2
@@ -201,7 +238,10 @@ def test_merge_with_user1_preferences(
 
 
 def test_merge_with_user2_preferences(
-    db_session, fixtures, user2_main_preferences, user2_test_preferences
+    db_session: scoped_session,
+    fixtures: SimpleNamespace,
+    user2_main_preferences: models.NotificationPreferences,
+    user2_test_preferences: models.NotificationPreferences,
 ) -> None:
     """When preferences are only on the newer user's account, they are transferred."""
     assert models.NotificationPreferences.query.count() == 2
@@ -214,12 +254,12 @@ def test_merge_with_user2_preferences(
 
 
 def test_merge_with_both_preferences(
-    db_session,
-    fixtures,
-    user1_main_preferences,
-    user1_test_preferences,
-    user2_main_preferences,
-    user2_test_preferences,
+    db_session: scoped_session,
+    fixtures: SimpleNamespace,
+    user1_main_preferences: models.NotificationPreferences,
+    user1_test_preferences: models.NotificationPreferences,
+    user2_main_preferences: models.NotificationPreferences,
+    user2_test_preferences: models.NotificationPreferences,
 ) -> None:
     """When preferences are for both users, the newer user's are deleted."""
     assert models.NotificationPreferences.query.count() == 4
@@ -234,11 +274,11 @@ def test_merge_with_both_preferences(
 
 
 def test_merge_with_mixed_preferences(
-    db_session,
-    fixtures,
-    user1_main_preferences,
-    user2_main_preferences,
-    user2_test_preferences,
+    db_session: scoped_session,
+    fixtures: SimpleNamespace,
+    user1_main_preferences: models.NotificationPreferences,
+    user2_main_preferences: models.NotificationPreferences,
+    user2_test_preferences: models.NotificationPreferences,
 ) -> None:
     """A mix of transfers and deletions can happen."""
     assert models.NotificationPreferences.query.count() == 3

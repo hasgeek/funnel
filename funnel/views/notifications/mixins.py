@@ -1,8 +1,7 @@
 """Notification helpers and mixins."""
 
 from collections.abc import Callable
-from typing import Generic, TypeVar, overload
-from typing_extensions import Self
+from typing import Generic, Self, TypeVar, overload
 
 import grapheme
 
@@ -10,7 +9,7 @@ from ...models import Account, Project
 
 _T = TypeVar('_T')  # Host type for SetVar
 _I = TypeVar('_I')  # Input type for SetVar's setter
-_O = TypeVar('_O')  # Output type for SetVar's setter
+_O = TypeVar('_O')  # Output type for SetVar's getter
 
 
 class SetVar(Generic[_T, _I, _O]):
@@ -48,7 +47,7 @@ class SetVar(Generic[_T, _I, _O]):
         try:
             return instance.__dict__[self.name]
         except KeyError:
-            raise AttributeError(self.name) from None
+            raise AttributeError(self.name, name=self.name, obj=instance) from None
 
     def __set__(self, instance: _T, value: _I) -> None:
         instance.__dict__[self.name] = self.fset(instance, value)
@@ -57,7 +56,7 @@ class SetVar(Generic[_T, _I, _O]):
         try:
             instance.__dict__.pop(self.name)
         except KeyError:
-            raise AttributeError(self.name) from None
+            raise AttributeError(self.name, name=self.name, obj=instance) from None
 
 
 class TemplateVarMixin:

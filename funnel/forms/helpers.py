@@ -9,9 +9,9 @@ from typing import Literal
 from flask import flash
 
 from baseframe import _, __, forms
-from coaster.auth import current_auth
 
 from .. import app
+from ..auth import current_auth
 from ..models import (
     Account,
     AccountEmailClaim,
@@ -40,7 +40,7 @@ MSG_PHONE_BLOCKED = __("This phone number has been blocked from use")
 class AccountSelectField(forms.AutocompleteField):
     """Render an autocomplete field for selecting an account."""
 
-    data: Account | None  # type: ignore[assignment]
+    data: Account | None  # type: ignore[assignment]  # FIXME
     widget = forms.Select2Widget()
     multiple = False
     widget_autocomplete = True
@@ -48,7 +48,7 @@ class AccountSelectField(forms.AutocompleteField):
     def _value(self) -> str:
         """Return value for HTML rendering."""
         if self.data is not None:
-            return self.data.name
+            return self.data.name or ''
         return ''
 
     def process_formdata(self, valuelist: Sequence[str]) -> None:
@@ -83,9 +83,7 @@ class EmailAddressAvailable:
 
     def __call__(self, form: forms.Form, field: forms.Field) -> None:
         # Get actor (from form, or current_auth.actor)
-        actor: User | None = None
-        if hasattr(form, 'edit_user'):
-            actor = form.edit_user
+        actor: User | None = getattr(form, 'edit_user', None)
         if actor is None:
             actor = current_auth.actor
 
@@ -174,9 +172,7 @@ class PhoneNumberAvailable:
 
     def __call__(self, form: forms.Form, field: forms.Field) -> None:
         # Get actor (from existing obj, or current_auth.actor)
-        actor: User | None = None
-        if hasattr(form, 'edit_user'):
-            actor = form.edit_user
+        actor: User | None = getattr(form, 'edit_user', None)
         if actor is None:
             actor = current_auth.actor
 
@@ -235,9 +231,7 @@ def image_url_validator() -> forms.validators.ValidUrl:
     """Customise ValidUrl for hosted image URL validation."""
     return forms.validators.ValidUrl(
         allowed_schemes=lambda: app.config.get('IMAGE_URL_SCHEMES', ('https',)),
-        allowed_domains=lambda: app.config.get(  # type: ignore[arg-type, return-value]
-            'IMAGE_URL_DOMAINS'
-        ),
+        allowed_domains=lambda: app.config.get('IMAGE_URL_DOMAINS'),
         message_schemes=__("A https:// URL is required"),
         message_domains=__("Images must be hosted at images.hasgeek.com"),
     )
@@ -282,6 +276,8 @@ def format_json(data: dict | str | None) -> str:
 
 def validate_and_convert_json(form: forms.Form, field: forms.Field) -> None:
     """Confirm form data is valid JSON, and store it back as a parsed dict."""
+    if field.data is None:
+        return
     try:
         field.data = json.loads(field.data)
     except ValueError:

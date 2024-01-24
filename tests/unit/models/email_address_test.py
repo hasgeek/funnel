@@ -7,9 +7,13 @@ from types import SimpleNamespace
 
 import pytest
 import sqlalchemy as sa
+import sqlalchemy.orm as sa_orm
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Mapped
 
-from funnel import models
+from funnel import models, signals
+
+from ...conftest import Flask, SQLAlchemy, scoped_session
 
 # This hash map should not be edited -- hashes are permanent
 hash_map = {
@@ -26,15 +30,15 @@ hash_map = {
 
 
 @pytest.fixture()
-def refcount_data(funnel) -> Generator:
-    refcount_signal_fired = set()
+def refcount_data() -> Generator[set[models.EmailAddress], None, None]:
+    refcount_signal_fired: set[models.EmailAddress] = set()
 
-    def refcount_signal_receiver(sender):
+    def refcount_signal_receiver(sender: models.EmailAddress) -> None:
         refcount_signal_fired.add(sender)
 
-    funnel.signals.emailaddress_refcount_dropping.connect(refcount_signal_receiver)
+    signals.emailaddress_refcount_dropping.connect(refcount_signal_receiver)
     yield refcount_signal_fired
-    funnel.signals.emailaddress_refcount_dropping.disconnect(refcount_signal_receiver)
+    signals.emailaddress_refcount_dropping.disconnect(refcount_signal_receiver)
 
 
 def test_email_normalized() -> None:
@@ -53,7 +57,7 @@ def test_email_normalized() -> None:
 
 
 def test_email_hash_stability() -> None:
-    """Safety test to ensure email_blakeb160_hash doesn't change spec."""
+    """Safety test to ensure email_blake2b160_hash doesn't change spec."""
     ehash = models.email_address.email_blake2b160_hash
     assert ehash('example@example.com') == hash_map['example@example.com']
     # email_hash explicitly uses the normalized form (but not the canonical form)
@@ -231,14 +235,16 @@ def test_email_address_is_blocked_flag() -> None:
         ea.is_blocked = True
 
 
-def test_email_address_can_commit(db_session) -> None:
+def test_email_address_can_commit(db_session: scoped_session) -> None:
     """An `EmailAddress` can be committed to db."""
     ea = models.EmailAddress('example@example.com')
     db_session.add(ea)
     db_session.commit()
 
 
-def test_email_address_conflict_integrity_error(db_session) -> None:
+def test_email_address_conflict_integrity_error(
+    db_session: scoped_session,
+) -> None:
     """A conflicting `EmailAddress` cannot be committed to db."""
     ea1 = models.EmailAddress('example@example.com')
     db_session.add(ea1)
@@ -256,7 +262,7 @@ def test_email_address_conflict_integrity_error(db_session) -> None:
         db_session.commit()
 
 
-def test_email_address_get(db_session) -> None:
+def test_email_address_get(db_session: scoped_session) -> None:
     """Email addresses can be loaded using EmailAddress.get."""
     ea1 = models.EmailAddress('example@example.com')
     ea2 = models.EmailAddress('example+extra@example.com')
@@ -294,7 +300,7 @@ def test_email_address_invalid_hash_raises_error() -> None:
         models.EmailAddress.get(email_hash='invalid')
 
 
-def test_email_address_get_canonical(db_session) -> None:
+def test_email_address_get_canonical(db_session: scoped_session) -> None:
     """EmailAddress.get_canonical returns all matching records."""
     ea1 = models.EmailAddress('example@example.com')
     ea2 = models.EmailAddress('example+extra@example.com')
@@ -407,7 +413,9 @@ def test_email_address_delivery_state() -> None:
 # 2. Remove table from metadata using Model.metadata.remove(cls.__table__)
 # 3. Remove all relationships to other classes (unsolved)
 @pytest.fixture(scope='session')
-def email_models(database, app) -> Generator:
+def email_models(
+    database: SQLAlchemy, app: Flask
+) -> Generator[SimpleNamespace, None, None]:
     class EmailUser(models.BaseMixin, models.Model):
         """Test model representing a user account."""
 
@@ -417,55 +425,59 @@ def email_models(database, app) -> Generator:
         """Test model connecting EmailUser to EmailAddress."""
 
         __tablename__ = 'test_email_link'
-        __email_optional__ = False
         __email_unique__ = True
         __email_for__ = 'emailuser'
         __email_is_exclusive__ = True
 
-        emailuser_id = sa.orm.mapped_column(
-            sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=False
+        emailuser_id: Mapped[int] = sa_orm.mapped_column(
+            sa.ForeignKey('test_email_user.id'), default=None, nullable=False
         )
-        emailuser = models.relationship(EmailUser)
+        emailuser: Mapped[EmailUser] = models.relationship()
 
-    class EmailDocument(models.EmailAddressMixin, models.BaseMixin, models.Model):
+    class EmailDocument(
+        models.OptionalEmailAddressMixin, models.BaseMixin, models.Model
+    ):
         """Test model unaffiliated to a user that has an email address attached."""
 
         __tablename__ = 'test_email_document'
 
-    class EmailLinkedDocument(models.EmailAddressMixin, models.BaseMixin, models.Model):
+    class EmailLinkedDocument(
+        models.OptionalEmailAddressMixin, models.BaseMixin, models.Model
+    ):
         """Test model that accepts an optional user and an optional email."""
 
         __tablename__ = 'test_email_linked_document'
         __email_for__ = 'emailuser'
 
-        emailuser_id = sa.orm.mapped_column(
-            sa.Integer, sa.ForeignKey('test_email_user.id'), nullable=True
+        emailuser_id: Mapped[int | None] = sa_orm.mapped_column(
+            sa.ForeignKey('test_email_user.id'), default=None, nullable=True
         )
-        emailuser = models.relationship(EmailUser)
+        emailuser: Mapped[EmailUser | None] = models.relationship()
 
-    new_models = [EmailUser, EmailLink, EmailDocument, EmailLinkedDocument]
+    new_models: list[type[models.ModelIdProtocol]] = [
+        EmailUser,
+        EmailLink,
+        EmailDocument,
+        EmailLinkedDocument,
+    ]
 
-    sa.orm.configure_mappers()
+    sa_orm.configure_mappers()
     # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
         database.metadata.create_all(
             bind=database.engine,
-            tables=[
-                model.__table__ for model in new_models  # type: ignore[attr-defined]
-            ],
+            tables=[model.__table__ for model in new_models],
         )
     yield SimpleNamespace(**{model.__name__: model for model in new_models})
     with app.app_context():
         database.metadata.drop_all(
             bind=database.engine,
-            tables=[
-                model.__table__ for model in new_models  # type: ignore[attr-defined]
-            ],
+            tables=[model.__table__ for model in new_models],
         )
 
 
 def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statements
-    email_models, db_session
+    email_models: SimpleNamespace, db_session: scoped_session
 ) -> None:
     """The EmailAddressMixin class adds safety checks for using an email address."""
     blocked_email = models.EmailAddress('blocked@example.com')
@@ -485,6 +497,7 @@ def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statem
     link1 = email_models.EmailLink(emailuser=user1, email='example@example.com')
     db_session.add(link1)
     ea1 = models.EmailAddress.get('example@example.com')
+    assert ea1 is not None
     assert link1.email == 'example@example.com'
     assert link1.email_address == ea1
     assert link1.transport_hash == ea1.transport_hash
@@ -494,6 +507,7 @@ def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statem
     link2 = email_models.EmailLink(emailuser=user2, email='other@example.com')
     db_session.add(link2)
     ea2 = models.EmailAddress.get('other@example.com')
+    assert ea2 is not None
     assert link2.email == 'other@example.com'
     assert link2.email_address == ea2
     assert link2.transport_hash == ea2.transport_hash
@@ -602,7 +616,11 @@ def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statem
     assert ea1.email == 'example@example.com'
 
 
-def test_email_address_refcount_drop(email_models, db_session, refcount_data) -> None:
+def test_email_address_refcount_drop(
+    email_models: SimpleNamespace,
+    db_session: scoped_session,
+    refcount_data: set[models.EmailAddress],
+) -> None:
     """Test that EmailAddress.refcount drop events are fired."""
     # The refcount changing signal handler will have received events for every email
     # address in this test. A request teardown processor can use this to determine
@@ -639,7 +657,9 @@ def test_email_address_refcount_drop(email_models, db_session, refcount_data) ->
     assert ea.refcount() == 0
 
 
-def test_email_address_validate_for(email_models, db_session) -> None:
+def test_email_address_validate_for(
+    email_models: SimpleNamespace, db_session: scoped_session
+) -> None:
     """EmailAddress.validate_for can be used to determine availability."""
     user1 = email_models.EmailUser()
     user2 = email_models.EmailUser()
@@ -711,7 +731,7 @@ def test_email_address_validate_for(email_models, db_session) -> None:
 
 
 def test_email_address_existing_but_unused_validate_for(
-    email_models, db_session
+    email_models: SimpleNamespace, db_session: scoped_session
 ) -> None:
     """An unused but existing email address should be available to claim."""
     user = email_models.EmailUser()
@@ -727,7 +747,9 @@ def test_email_address_existing_but_unused_validate_for(
 
 
 @pytest.mark.flaky(reruns=1)  # Re-run in case DNS times out
-def test_email_address_validate_for_check_dns(email_models, db_session) -> None:
+def test_email_address_validate_for_check_dns(
+    email_models: SimpleNamespace, db_session: scoped_session
+) -> None:
     """Validate_for with check_dns=True. Separate test as DNS lookup may fail."""
     user1 = email_models.EmailUser()
     user2 = email_models.EmailUser()

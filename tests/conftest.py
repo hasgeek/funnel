@@ -3,33 +3,59 @@
 
 from __future__ import annotations
 
+import os.path
 import re
 import time
-import typing as t
 import warnings
+from collections.abc import Callable, Generator
 from contextlib import ExitStack
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from difflib import unified_diff
+from dis import disassemble
+from functools import partial
+from inspect import stack as inspect_stack
+from io import StringIO
+from pprint import saferepr
+from textwrap import indent
 from types import MethodType, ModuleType, SimpleNamespace
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    NamedTuple,
+    Protocol,
+    cast,
+    get_type_hints,
+    runtime_checkable,
+)
 from unittest.mock import patch
 
-import flask_wtf.csrf
+import flask
 import pytest
 import sqlalchemy as sa
+import sqlalchemy.exc as sa_exc
+import sqlalchemy.orm as sa_orm
 import typeguard
-from flask import session
+from flask import Flask, session
+from flask.ctx import AppContext, RequestContext
+from flask.testing import FlaskClient
+from flask.wrappers import Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.session import Session as FsaSession
-from sqlalchemy.orm import Session as DatabaseSessionClass
+from flask_wtf.csrf import generate_csrf
+from lxml.html import FormElement, HtmlElement, fromstring  # nosec
+from rich.console import Console
+from rich.highlighter import RegexHighlighter, ReprHighlighter
+from rich.markup import escape as rich_escape
+from rich.syntax import Syntax
+from rich.text import Text
+from sqlalchemy import event
+from sqlalchemy.orm import Session as DatabaseSessionClass, scoped_session
+from werkzeug import run_simple
 
-if t.TYPE_CHECKING:
-    from flask import Flask
-    from flask.testing import FlaskClient, TestResponse
-    from rich.console import Console
-
+if TYPE_CHECKING:
     import funnel.models as funnel_models
-
+    from funnel.devtest import BackgroundWorker, CapturedCalls
 
 # --- Pytest config --------------------------------------------------------------------
 
@@ -46,21 +72,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     )
 
 
-@pytest.fixture()
-def chrome_options(chrome_options):
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--ignore-ssl-errors=yes')
-    chrome_options.add_argument('--ignore-certificate-errors')
-    return chrome_options
-
-
-@pytest.fixture()
-def firefox_options(firefox_options):
-    firefox_options.add_argument('--headless')
-    return firefox_options
-
-
-def pytest_collection_modifyitems(items: t.List[pytest.Function]) -> None:
+def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:
     """Sort tests to run lower level before higher level."""
     test_order = (
         'tests/unit/models',
@@ -79,12 +91,12 @@ def pytest_collection_modifyitems(items: t.List[pytest.Function]) -> None:
         'tests/features',
     )
 
-    def sort_key(item: pytest.Function) -> t.Tuple[int, str]:
+    def sort_key(item: pytest.Function) -> tuple[int, str]:
         # pytest.Function's base class pytest.Item reports the file containing the test
         # as item.location == (file_path, line_no, function_name). However, pytest-bdd
         # reports itself for file_path, so we can't use that and must extract the path
         # from the test module instead
-        module_file = item.module.__file__
+        module_file = item.module.__file__ if item.module is not None else ''
         for counter, path in enumerate(test_order):
             if path in module_file:
                 return (counter, module_file)
@@ -96,25 +108,38 @@ def pytest_collection_modifyitems(items: t.List[pytest.Function]) -> None:
 # Adapted from https://github.com/untitaker/pytest-fixture-typecheck
 def pytest_runtest_call(item: pytest.Function) -> None:
     try:
-        annotations = t.get_type_hints(
+        annotations = get_type_hints(
             item.obj,
             globalns=item.obj.__globals__,
-            localns={'Any': t.Any},  # pytest-bdd appears to insert an `Any` annotation
+            localns={'Any': Any},  # pytest-bdd appears to insert an `Any` annotation
         )
     except TypeError:
         # get_type_hints may fail on Python <3.10 because pytest-bdd appears to have
         # `dict[str, str]` as a type somewhere, and builtin type subscripting isn't
         # supported yet
-        warnings.warn(
-            f"Type annotations could not be retrieved for {item.obj!r}",
+        warnings.warn(  # noqa: B028
+            f"Type annotations could not be retrieved for {item.obj.__qualname__}",
             RuntimeWarning,
-            stacklevel=1,
         )
         return
+    except NameError as exc:
+        pytest.fail(
+            f"{item.obj.__qualname__} has an unknown annotation for {exc.name}."
+            " Is it imported within a TYPE_CHECKING test?"
+        )
 
     for attr, type_ in annotations.items():
         if attr in item.funcargs:
             typeguard.check_type(item.funcargs[attr], type_)
+
+
+# --- Playwright browser config --------------------------------------------------------
+
+
+@pytest.fixture(scope='session')
+def browser_context_args(browser_context_args: dict) -> dict:
+    """The test server uses HTTPS with a self-signed certificate, so no verify."""
+    return browser_context_args | {'ignore_https_errors': True}
 
 
 # --- Import fixtures ------------------------------------------------------------------
@@ -153,246 +178,252 @@ def funnel_devtest() -> ModuleType:
 # --- Fixtures -------------------------------------------------------------------------
 
 
-@pytest.fixture(scope='session')
-def response_with_forms() -> t.Any:  # Since the actual return type is defined within
-    from flask.wrappers import Response
-    from lxml.html import FormElement, HtmlElement, fromstring  # nosec
+_meta_refresh_content_re = re.compile(
+    r"""
+    \s*
+    (?P<timeout>\d+)      # Timeout
+    \s*
+    ;?                    # ; separator for optional URL
+    \s*
+    (?:URL\s*=\s*["']?)?  # Optional 'URL=' or 'URL="' prefix
+    (?P<url>.*?)          # Optional URL
+    (?:["']?\s*)          # Optional closing quote for URL
+    """,
+    re.ASCII | re.IGNORECASE | re.VERBOSE,
+)
 
-    # --- ResponseWithForms, to make form submission in the test client testing easier
-    # --- Adapted from the abandoned Flask-Fillin package
 
-    _meta_refresh_content_re = re.compile(
-        r"""
-        \s*
-        (?P<timeout>\d+)      # Timeout
-        \s*
-        ;?                    # ; separator for optional URL
-        \s*
-        (?:URL\s*=\s*["']?)?  # Optional 'URL=' or 'URL="' prefix
-        (?P<url>.*?)          # Optional URL
-        (?:["']?\s*)          # Optional closing quote for URL
-        """,
-        re.ASCII | re.IGNORECASE | re.VERBOSE,
-    )
+class MetaRefreshContent(NamedTuple):
+    """Timeout and optional URL in a Meta Refresh tag."""
 
-    class MetaRefreshContent(t.NamedTuple):
-        """Timeout and optional URL in a Meta Refresh tag."""
+    timeout: int
+    url: str | None = None
 
-        timeout: int
-        url: t.Optional[str] = None
 
-    class ResponseWithForms(Response):
+class TestResponse(Response):
+    """
+    Wrapper for the test client response that makes form submission easier.
+
+    Usage::
+
+        def test_mytest(client) -> None:
+            response = client.get('/page_with_forms')
+            form = response.form('login')
+            form.fields['username'] = 'my username'
+            form.fields['password'] = 'secret'
+            form.fields['remember'] = True
+            next_response = form.submit(client)
+    """
+
+    # Tell Pytest this class isn't a test
+    __test__ = False
+
+    if TYPE_CHECKING:
+        #: Type hint for the `text` cached_property available via
+        #: :class:`werkzeug.test.TestResponse`, which will be used to make a subclass
+        #: of this class in :class:`werkzeug.test.Client`
+        @property
+        def text(self) -> str:
+            ...
+
+    _parsed_html: HtmlElement | None = None
+
+    @property
+    def html(self) -> HtmlElement:
+        """Return the parsed HTML tree."""
+        if self._parsed_html is None:
+            self._parsed_html = fromstring(self.data)
+
+            # add click method to all links
+            def _click(
+                self: HtmlElement, client: TestClient, **kwargs: Any
+            ) -> TestResponse:
+                # `self` is the `a` element here
+                path = self.attrib['href']
+                return client.get(path, **kwargs)
+
+            for link in self._parsed_html.iter('a'):
+                link.click = MethodType(_click, link)  # type: ignore[attr-defined]
+
+            # add submit method to all forms
+            def _submit(
+                self: FormElement,
+                client: TestClient,
+                path: str | None = None,
+                **kwargs: Any,
+            ) -> TestResponse:
+                # `self` is the `form` element here
+                data = dict(self.form_values())
+                if 'data' in kwargs:
+                    data.update(kwargs['data'])
+                    del kwargs['data']
+                if path is None:
+                    path = self.action
+                if 'method' not in kwargs:
+                    kwargs['method'] = self.method
+                return client.open(path, data=data, **kwargs)
+
+            for form in self._parsed_html.forms:  # type: ignore[attr-defined]
+                form.submit = MethodType(_submit, form)  # type: ignore[attr-defined]
+        return self._parsed_html
+
+    @property
+    def forms(self) -> list[FormElement]:
         """
-        Wrapper for the test client response that makes form submission easier.
+        Return list of all forms in the document.
 
-        Usage::
-
-            def test_mytest(client) -> None:
-                response = client.get('/page_with_forms')
-                form = response.form('login')
-                form.fields['username'] = 'my username'
-                form.fields['password'] = 'secret'
-                form.fields['remember'] = True
-                next_response = form.submit(client)
+        Contains the LXML form type as documented at
+        http://lxml.de/lxmlhtml.html#forms with an additional `.submit(client)`
+        method to submit the form.
         """
+        return self.html.forms
 
-        _parsed_html: t.Optional[HtmlElement] = None
+    def form(
+        self, id_: str | None = None, name: str | None = None
+    ) -> FormElement | None:
+        """Return the first form matching given id or name in the document."""
+        if id_:
+            forms = cast(list[FormElement], self.html.cssselect(f'form#{id_}'))
+        elif name:
+            forms = cast(list[FormElement], self.html.cssselect(f'form[name={name}]'))
+        else:
+            forms = self.forms
+        if forms:
+            return forms[0]
+        return None
 
-        @property
-        def html(self) -> HtmlElement:
-            """Return the parsed HTML tree."""
-            if self._parsed_html is None:
-                self._parsed_html = fromstring(self.data)
+    def links(self, selector: str = 'a') -> list[HtmlElement]:
+        """Get all the links matching the given CSS selector."""
+        return self.html.cssselect(selector)
 
-                # add click method to all links
-                def _click(
-                    self: HtmlElement, client: FlaskClient, **kwargs: t.Any
-                ) -> TestResponse:
-                    # `self` is the `a` element here
-                    path = self.attrib['href']
-                    return client.get(path, **kwargs)
+    def link(self, selector: str = 'a') -> HtmlElement | None:
+        """Get first link matching the given CSS selector."""
+        links = self.links(selector)
+        if links:
+            return links[0]
+        return None
 
-                for link in self._parsed_html.iter('a'):
-                    link.click = MethodType(_click, link)  # type: ignore[attr-defined]
-
-                # add submit method to all forms
-                def _submit(
-                    self: FormElement,
-                    client: FlaskClient,
-                    path: t.Optional[str] = None,
-                    **kwargs: t.Any,
-                ) -> TestResponse:
-                    # `self` is the `form` element here
-                    data = dict(self.form_values())
-                    if 'data' in kwargs:
-                        data.update(kwargs['data'])
-                        del kwargs['data']
-                    if path is None:
-                        path = self.action
-                    if 'method' not in kwargs:
-                        kwargs['method'] = self.method
-                    return client.open(path, data=data, **kwargs)
-
-                for form in self._parsed_html.forms:  # type: ignore[attr-defined]
-                    form.submit = MethodType(_submit, form)
-            return self._parsed_html
-
-        @property
-        def forms(self) -> t.List[FormElement]:
-            """
-            Return list of all forms in the document.
-
-            Contains the LXML form type as documented at
-            http://lxml.de/lxmlhtml.html#forms with an additional `.submit(client)`
-            method to submit the form.
-            """
-            return self.html.forms
-
-        def form(
-            self, id_: t.Optional[str] = None, name: t.Optional[str] = None
-        ) -> t.Optional[FormElement]:
-            """Return the first form matching given id or name in the document."""
-            if id_:
-                forms = self.html.cssselect(f'form#{id_}')
-            elif name:
-                forms = self.html.cssselect(f'form[name={name}]')
-            else:
-                forms = self.forms
-            if forms:
-                return forms[0]
+    @property
+    def metarefresh(self) -> MetaRefreshContent | None:
+        """Get content of Meta Refresh tag if present."""
+        meta_elements = self.html.cssselect('meta[http-equiv="refresh"]')
+        if not meta_elements:
             return None
-
-        def links(self, selector: str = 'a') -> t.List[HtmlElement]:
-            """Get all the links matching the given CSS selector."""
-            return self.html.cssselect(selector)
-
-        def link(self, selector: str = 'a') -> t.Optional[HtmlElement]:
-            """Get first link matching the given CSS selector."""
-            links = self.links(selector)
-            if links:
-                return links[0]
+        content = meta_elements[0].attrib.get('content')
+        if content is None:
             return None
-
-        @property
-        def metarefresh(self) -> t.Optional[MetaRefreshContent]:
-            """Get content of Meta Refresh tag if present."""
-            meta_elements = self.html.cssselect('meta[http-equiv="refresh"]')
-            if not meta_elements:
-                return None
-            content = meta_elements[0].attrib.get('content')
-            if content is None:
-                return None
-            match = _meta_refresh_content_re.fullmatch(content)
-            if match is None:
-                return None
-            return MetaRefreshContent(int(match['timeout']), match['url'] or None)
-
-    return ResponseWithForms
+        match = _meta_refresh_content_re.fullmatch(content)
+        if match is None:
+            return None
+        return MetaRefreshContent(int(match['timeout']), match['url'] or None)
 
 
 @pytest.fixture(scope='session')
 def rich_console() -> Console:
-    """Provide a rich console for color output."""
-    from rich.console import Console
-
-    return Console()
+    """Provide a rich console for colour output."""
+    return Console(highlight=False)
 
 
-@pytest.fixture(scope='session')
-def colorama() -> t.Iterator[SimpleNamespace]:
-    """Provide the colorama print colorizer."""
-    from colorama import Back, Fore, Style, deinit, init
-
-    init()
-    yield SimpleNamespace(Fore=Fore, Back=Back, Style=Style)
-    deinit()
+@runtime_checkable
+class PrintStackProtocol(Protocol):
+    def __call__(self, skip: int = 0, limit: int | None = None) -> None:
+        ...
 
 
 @pytest.fixture(scope='session')
-def colorize_code(rich_console: Console) -> t.Callable[[str, t.Optional[str]], str]:
-    """Return colorized output for a string of code, for current terminal's colors."""
-
-    def no_colorize(code_string: str, lang: t.Optional[str] = 'python') -> str:
-        # Pygments is not available or terminal does not support colour output
-        return code_string
-
-    try:
-        from pygments import highlight
-        from pygments.formatters import (
-            Terminal256Formatter,
-            TerminalFormatter,
-            TerminalTrueColorFormatter,
-        )
-        from pygments.lexers import get_lexer_by_name, guess_lexer
-    except ModuleNotFoundError:
-        return no_colorize
-
-    if rich_console.color_system == 'truecolor':
-        formatter = TerminalTrueColorFormatter()
-    elif rich_console.color_system == '256':
-        formatter = Terminal256Formatter()
-    elif rich_console.color_system == 'standard':
-        formatter = TerminalFormatter()
-    else:
-        # color_system is `None` or `'windows'` or something unrecognised. No colours.
-        return no_colorize
-
-    def colorize(code_string: str, lang: t.Optional[str] = 'python') -> str:
-        if lang in (None, 'auto'):
-            lexer = guess_lexer(code_string)
-        else:
-            lexer = get_lexer_by_name(lang)
-        return highlight(code_string, lexer, formatter).rstrip()
-
-    return colorize
-
-
-@pytest.fixture(scope='session')
-def print_stack(pytestconfig, colorama, colorize_code) -> t.Callable[[int, int], None]:
+def print_stack(
+    pytestconfig: pytest.Config, rich_console: Console
+) -> PrintStackProtocol:
     """Print a stack trace up to an outbound call from within this repository."""
-    import os.path
-    from inspect import stack as inspect_stack
-
     boundary_path = str(pytestconfig.rootpath)
     if not boundary_path.endswith('/'):
         boundary_path += '/'
 
-    def func(skip: int = 0, indent: int = 2) -> None:
+    class PathHighlighter(RegexHighlighter):
+        highlights = [
+            r'^(?=(?:\.\./|\.venv/))(?P<blue>.*)',
+            r'^(?!(?:\.\./|\.venv/))(?P<green>.*)',
+            r'(?P<dim>.*/)(?P<bold>.+)',
+        ]
+
+    def func(skip: int = 0, limit: int | None = None) -> None:
         # Retrieve call stack, removing ourselves and as many frames as the caller wants
         # to skip
-        prefix = ' ' * indent
         stack = inspect_stack()[2 + skip :]
+        try:
+            path_highlighter = PathHighlighter()
+            lines: list[Text | Syntax] = []
+            # Reverse list to order from outermost to innermost, and remove outer frames
+            # that are outside our code
+            stack.reverse()
+            while stack and (
+                stack[0].filename.startswith(boundary_path + '.venv/')
+                or not stack[0].filename.startswith(boundary_path)
+            ):
+                stack.pop(0)
 
-        lines = []
-        # Reverse list to order from outermost to innermost, and remove outer frames
-        # that are outside our code
-        stack.reverse()
-        while stack and not stack[0].filename.startswith(boundary_path):
-            stack.pop(0)
+            # Find the first exit from our code and keep only that line and later to
+            # remove unnecessary context. "Our code" = anything that is within
+            # boundary_path but not in a top-level `.venv` folder
+            for index, frame_info in enumerate(stack):
+                if stack[0].filename.startswith(
+                    boundary_path + '.venv/'
+                ) or not frame_info.filename.startswith(boundary_path):
+                    stack = stack[index - 1 :]
+                    break
 
-        # Find the first exit from our code and keep only that line and later to
-        # remove unneccesary context
-        for index, fi in enumerate(stack):
-            if not fi.filename.startswith(boundary_path):
-                stack = stack[index - 1 :]
-                break
+            for frame_info in stack[:limit]:
+                text = Text.assemble(
+                    path_highlighter(
+                        Text(
+                            os.path.relpath(frame_info.filename, boundary_path),
+                            style='pygments.string',
+                        )
+                    ),
+                    (':', 'pygments.text'),
+                    (str(frame_info.lineno), 'pygments.number'),
+                    (' in ', 'dim'),
+                    (frame_info.function, 'pygments.function'),
+                    ('\t', 'pygments.text'),
+                    style='pygments.text',
+                )
+                lines.append(text)
+                if frame_info.code_context:
+                    lines.append(
+                        Syntax(
+                            '\n'.join(
+                                [
+                                    '    ' + line.strip()
+                                    for line in frame_info.code_context
+                                ]
+                            ),
+                            'python',
+                            background_color='default',
+                            word_wrap=True,
+                        )
+                    )
+                else:
+                    dis_file = StringIO()
+                    disassemble(
+                        frame_info.frame.f_code,
+                        lasti=frame_info.frame.f_lasti,
+                        file=dis_file,
+                    )
+                    lines.append(
+                        Syntax(
+                            indent(dis_file.getvalue().rstrip(), '    '),
+                            'python',  # Code is Python bytecode, but this seems to work
+                            background_color='default',
+                            word_wrap=True,
+                        )
+                    )
 
-        for fi in stack:
-            line_color = (
-                colorama.Fore.RED
-                if fi.filename.startswith(boundary_path)
-                else colorama.Fore.GREEN
-            )
-            code_line = '\n'.join(fi.code_context or []).strip()
-            lines.append(
-                f'{prefix}{line_color}'
-                f'{os.path.relpath(fi.filename)}:{fi.lineno}::{fi.function}'
-                f'\t{colorize_code(code_line)}'
-                f'{colorama.Style.RESET_ALL}'
-            )
-        del stack
+            if limit and limit < len(stack):
+                lines.append(Text.assemble((f'✂️ {len(stack)-limit} more…', 'dim')))
+        finally:
+            del stack
         # Now print the lines
-        print(*lines, sep='\n')  # noqa: T201
+        rich_console.print(*lines)
 
     return func
 
@@ -419,20 +450,20 @@ def unsubscribeapp(funnel) -> Flask:
 
 
 @pytest.fixture()
-def app_context(app) -> t.Iterator:
+def app_context(app: Flask) -> Generator[AppContext, None, None]:
     """Create an app context for the test."""
     with app.app_context() as ctx:
         yield ctx
 
 
 @pytest.fixture()
-def request_context(app) -> t.Iterator:
+def request_context(app: Flask) -> Generator[RequestContext, None, None]:
     """Create a request context with default values for the test."""
     with app.test_request_context() as ctx:
         yield ctx
 
 
-config_test_keys: t.Dict[str, t.Set[str]] = {
+config_test_keys: dict[str, set[str]] = {
     'recaptcha': {'RECAPTCHA_PUBLIC_KEY', 'RECAPTCHA_PRIVATE_KEY'},
     'twilio': {'SMS_TWILIO_SID', 'SMS_TWILIO_TOKEN'},
     'exotel': {'SMS_EXOTEL_SID', 'SMS_EXOTEL_TOKEN'},
@@ -459,11 +490,11 @@ _mock_config_syntax = (
 
 
 @pytest.fixture(autouse=True)
-def _mock_config(request: pytest.FixtureRequest) -> t.Iterator:
+def _mock_config(request: pytest.FixtureRequest) -> Generator[None, None, None]:
     """Mock app config (using ``mock_config`` mark)."""
 
     def backup_and_apply_config(
-        app_name: str, app_fixture: Flask, saved_config: dict, key: str, value: t.Any
+        app_name: str, app_fixture: Flask, saved_config: dict, key: str, value: Any
     ) -> None:
         if key in saved_config:
             pytest.fail(f"Duplicate mock for {app_name}.config[{key!r}]")
@@ -479,7 +510,7 @@ def _mock_config(request: pytest.FixtureRequest) -> t.Iterator:
             app_fixture.config[key] = value
 
     if request.node.get_closest_marker('mock_config'):
-        saved_app_config: t.Dict[str, t.Any] = {}
+        saved_app_config: dict[Flask, Any] = {}
         for mark in request.node.iter_markers('mock_config'):
             if len(mark.args) < 1:
                 pytest.fail(_mock_config_syntax)
@@ -534,17 +565,13 @@ def _requires_config(request: pytest.FixtureRequest) -> None:
 
 
 @pytest.fixture(scope='session')
-def _app_events(colorama, print_stack, app) -> t.Iterator:
+def _app_events(
+    rich_console: Console, print_stack: PrintStackProtocol, app: Flask
+) -> Generator[None, None, None]:
     """Fixture to report Flask signals with a stack trace when debugging a test."""
-    from functools import partial
 
-    import flask
-
-    def signal_handler(signal_name, *args, **kwargs):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}Signal:{colorama.Style.NORMAL}"
-            f" {colorama.Fore.YELLOW}{signal_name}{colorama.Style.RESET_ALL}"
-        )
+    def signal_handler(signal_name, *args: Any, **kwargs: Any):
+        rich_console.print(f"[bold]Signal:[/] [yellow]{rich_escape(signal_name)}[/]")
         print_stack(2)  # Skip two stack frames from Blinker
 
     request_started = partial(signal_handler, 'request_started')
@@ -572,7 +599,9 @@ def _app_events(colorama, print_stack, app) -> t.Iterator:
 
 
 @pytest.fixture()
-def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator:
+def _database_events(
+    models: ModuleType, rich_console: Console, print_stack: PrintStackProtocol
+) -> Generator[None, None, None]:
     """
     Fixture to report database session events for debugging a test.
 
@@ -582,102 +611,128 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
         def test_whatever() -> None:
             ...
     """
-    from pprint import saferepr
+    repr_highlighter = ReprHighlighter()
 
-    def safe_repr(entity):
+    def safe_repr(entity: Any) -> str:
         try:
             return saferepr(entity)
         except Exception:  # noqa: B902  # pylint: disable=broad-except
             if hasattr(entity, '__class__'):
-                return f'{entity.__class__.__qualname__}(class-repr-error)'
+                return f'<ReprError: class {entity.__class__.__qualname__}>'
+            if hasattr(entity, '__qualname__'):
+                return f'<ReprError: {entity.__qualname__}'
             if hasattr(entity, '__name__'):
-                return f'{entity.__name__}(repr-error)'
-            return 'repr-error'
+                return f'<ReprError: {entity.__name__}'
+            return '<ReprError>'
 
-    @sa.event.listens_for(models.Model, 'init', propagate=True)
-    def event_init(obj, args, kwargs):
+    @event.listens_for(models.Model, 'init', propagate=True)
+    def event_init(obj: funnel_models.Model, args, kwargs):
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
         rparams = f'{rargs, rkwargs}' if rargs else rkwargs
-        code = colorize_code(f"{obj.__class__.__qualname__}({rparams})")
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: new:{colorama.Style.NORMAL}" f" {code}"
+        code = f'{obj.__class__.__qualname__}({rparams})'
+        rich_console.print(
+            Text.assemble(('obj:', 'bold'), ' new: ', repr_highlighter(code))
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'transient_to_pending')
-    def event_transient_to_pending(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: transient to pending:{colorama.Style.NORMAL}"
-            f" {colorize_code(safe_repr(obj))}"
+    @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
+    def event_transient_to_pending(_session, obj: funnel_models.Model):
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' transient → pending: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'pending_to_transient')
-    def event_pending_to_transient(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: pending to transient:{colorama.Style.NORMAL}"
-            f" {colorize_code(safe_repr(obj))}"
+    @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
+    def event_pending_to_transient(_session, obj: funnel_models.Model):
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' pending → transient: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
-    def event_pending_to_persistent(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: pending to persistent:{colorama.Style.NORMAL}"
-            f" {colorize_code(safe_repr(obj))}"
+    @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
+    def event_pending_to_persistent(_session, obj: funnel_models.Model):
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' pending → persistent: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
-    def event_loaded_as_persistent(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: loaded as persistent:{colorama.Style.NORMAL}"
-            f" {safe_repr(obj)}"
+    @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
+    def event_loaded_as_persistent(_session, obj: funnel_models.Model):
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' loaded as persistent: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
-    def event_persistent_to_transient(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: persistent to transient:"
-            f"{colorama.Style.NORMAL} {safe_repr(obj)}"
+    @event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
+    def event_persistent_to_transient(_session, obj: funnel_models.Model):
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' persistent → transient: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
-    def event_persistent_to_deleted(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: persistent to deleted:{colorama.Style.NORMAL}"
-            f" {safe_repr(obj)}"
+    @event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
+    def event_persistent_to_deleted(_session, obj: funnel_models.Model):
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' persistent → deleted: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
-    def event_deleted_to_detached(_session, obj):
+    @event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
+    def event_deleted_to_detached(_session, obj: funnel_models.Model):
         i = sa.inspect(obj)
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: deleted to detached:{colorama.Style.NORMAL}"
-            f" {obj.__class__.__qualname__}/{i.identity}"
+        rich_console.print(
+            "[bold]obj:[/] deleted → detached:"
+            f" {rich_escape(obj.__class__.__qualname__)}/{i.identity}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
-    def event_persistent_to_detached(_session, obj):
+    @event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
+    def event_persistent_to_detached(_session, obj: funnel_models.Model):
         i = sa.inspect(obj)
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: persistent to detached:"
-            f"{colorama.Style.NORMAL} {obj.__class__.__qualname__}/{i.identity}"
+        rich_console.print(
+            "[bold]obj:[/] persistent → detached:"
+            f" {rich_escape(obj.__class__.__qualname__)}/{i.identity}"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
-    def event_detached_to_persistent(_session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: detached to persistent:"
-            f"{colorama.Style.NORMAL} {safe_repr(obj)}"
+    @event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
+    def event_detached_to_persistent(_session, obj: funnel_models.Model):
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' detached → persistent: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
-    def event_deleted_to_persistent(session, obj):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: deleted to persistent:{colorama.Style.NORMAL}"
-            f" {safe_repr(obj)}"
+    @event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
+    def event_deleted_to_persistent(session, obj: funnel_models.Model):
+        rich_console.print(
+            Text.assemble(
+                ('obj:', 'bold'),
+                ' deleted → persistent: ',
+                repr_highlighter(safe_repr(obj)),
+            )
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'do_orm_execute')
-    def event_do_orm_execute(orm_execute_state):
+    @event.listens_for(DatabaseSessionClass, 'do_orm_execute')
+    def event_do_orm_execute(orm_execute_state: sa_orm.ORMExecuteState):
         state_is = []
         if orm_execute_state.is_column_load:
             state_is.append("is_column_load")
@@ -696,147 +751,131 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
         class_name = (
             orm_execute_state.bind_mapper.class_.__qualname__
             if orm_execute_state.bind_mapper
-            else None
+            else '<unknown>'
         )
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}exec:{colorama.Style.NORMAL} {class_name}:"
-            f" {', '.join(state_is)}"
-        )
-
-    @sa.event.listens_for(DatabaseSessionClass, 'after_begin')
-    def event_after_begin(_session, transaction, _connection):
-        if transaction.nested:
-            if transaction.parent.nested:
-                print(  # noqa: T201
-                    f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL}"
-                    f" BEGIN (double nested)"
-                )
-            else:
-                print(  # noqa: T201
-                    f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL}"
-                    f" BEGIN (nested)"
-                )
-        else:
-            print(  # noqa: T201
-                f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} BEGIN (outer)"
+        rich_console.print(
+            Text.assemble(
+                ('exec: ', 'bold'),
+                ', '.join(state_is),
+                (' on ', 'dim'),
+                (class_name, 'repr.call'),
             )
-        print_stack()
-
-    @sa.event.listens_for(DatabaseSessionClass, 'after_commit')
-    def event_after_commit(session):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} COMMIT"
-            f" ({session.info!r})"
         )
 
-    @sa.event.listens_for(DatabaseSessionClass, 'after_flush')
-    def event_after_flush(session, _flush_context):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} FLUSH"
-            f" ({session.info})"
-        )
-
-    @sa.event.listens_for(DatabaseSessionClass, 'after_rollback')
-    def event_after_rollback(session):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} ROLLBACK"
-            f" ({session.info})"
-        )
-        print_stack()
-
-    @sa.event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
-    def event_after_soft_rollback(session, _previous_transaction):
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} SOFT ROLLBACK"
-            f" ({session.info})"
-        )
-        print_stack()
-
-    @sa.event.listens_for(DatabaseSessionClass, 'after_transaction_create')
-    def event_after_transaction_create(_session, transaction):
+    @event.listens_for(DatabaseSessionClass, 'after_begin')
+    def event_after_begin(
+        _session, transaction: sa_orm.SessionTransaction, _connection
+    ):
         if transaction.nested:
-            if transaction.parent.nested:
-                print(  # noqa: T201
-                    f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
-                    f" CREATE (savepoint)"
-                )
+            if transaction.parent and transaction.parent.nested:
+                rich_console.print("[bold]session:[/] BEGIN (double nested)")
             else:
-                print(  # noqa: T201
-                    f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
-                    f" CREATE (fixture)"
-                )
+                rich_console.print("[bold]session:[/] BEGIN (nested)")
         else:
-            print(  # noqa: T201
-                f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
-                f" CREATE (db)"
-            )
-        print_stack()
+            rich_console.print("[bold]session:[/] BEGIN (outer)")
+        print_stack(0, 5)
 
-    @sa.event.listens_for(DatabaseSessionClass, 'after_transaction_end')
-    def event_after_transaction_end(_session, transaction):
-        if transaction.nested:
-            if transaction.parent.nested:
-                print(  # noqa: T201
-                    f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
-                    f" (double nested)"
-                )
-            else:
-                print(  # noqa: T201
-                    f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
-                    f" (nested)"
-                )
-        else:
-            print(  # noqa: T201
-                f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
-                f" (outer)"
+    @event.listens_for(DatabaseSessionClass, 'after_commit')
+    def event_after_commit(session: DatabaseSessionClass):
+        rich_console.print(
+            Text.assemble(
+                ('session:', 'bold'), ' COMMIT ', repr_highlighter(repr(session.info))
             )
-        print_stack()
+        )
+
+    @event.listens_for(DatabaseSessionClass, 'after_flush')
+    def event_after_flush(session: DatabaseSessionClass, _flush_context):
+        rich_console.print(
+            Text.assemble(
+                ('session:', 'bold'), ' FLUSH ', repr_highlighter(repr(session.info))
+            )
+        )
+
+    @event.listens_for(DatabaseSessionClass, 'after_rollback')
+    def event_after_rollback(session: DatabaseSessionClass):
+        rich_console.print(
+            Text.assemble(
+                ('session:', 'bold'), ' ROLLBACK ', repr_highlighter(repr(session.info))
+            )
+        )
+        print_stack(0, 5)
+
+    @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
+    def event_after_soft_rollback(session: DatabaseSessionClass, _previous_transaction):
+        rich_console.print(
+            Text.assemble(
+                ('session:', 'bold'),
+                ' SOFT ROLLBACK ',
+                repr_highlighter(repr(session.info)),
+            )
+        )
+        print_stack(0, 5)
+
+    @event.listens_for(DatabaseSessionClass, 'after_transaction_create')
+    def event_after_transaction_create(
+        _session, transaction: sa_orm.SessionTransaction
+    ):
+        if transaction.nested:
+            if transaction.parent and transaction.parent.nested:
+                rich_console.print("[bold]transaction:[/] CREATE (savepoint)")
+            else:
+                rich_console.print("[bold]transaction:[/] CREATE (fixture)")
+        else:
+            rich_console.print("[bold]transaction:[/] CREATE (db)")
+        print_stack(0, 5)
+
+    @event.listens_for(DatabaseSessionClass, 'after_transaction_end')
+    def event_after_transaction_end(_session, transaction: sa_orm.SessionTransaction):
+        if transaction.nested:
+            if transaction.parent and transaction.parent.nested:
+                rich_console.print("[bold]transaction:[/] END (double nested)")
+            else:
+                rich_console.print("[bold]transaction:[/] END (nested)")
+        else:
+            rich_console.print("[bold]transaction:[/] END (outer)")
+        print_stack(0, 5)
 
     yield
 
-    sa.event.remove(models.Model, 'init', event_init)
-    sa.event.remove(
+    event.remove(models.Model, 'init', event_init)
+    event.remove(
         DatabaseSessionClass, 'transient_to_pending', event_transient_to_pending
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'pending_to_transient', event_pending_to_transient
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'pending_to_persistent', event_pending_to_persistent
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'loaded_as_persistent', event_loaded_as_persistent
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'persistent_to_transient', event_persistent_to_transient
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'persistent_to_deleted', event_persistent_to_deleted
     )
-    sa.event.remove(
-        DatabaseSessionClass, 'deleted_to_detached', event_deleted_to_detached
-    )
-    sa.event.remove(
+    event.remove(DatabaseSessionClass, 'deleted_to_detached', event_deleted_to_detached)
+    event.remove(
         DatabaseSessionClass, 'persistent_to_detached', event_persistent_to_detached
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'detached_to_persistent', event_detached_to_persistent
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'deleted_to_persistent', event_deleted_to_persistent
     )
-    sa.event.remove(DatabaseSessionClass, 'do_orm_execute', event_do_orm_execute)
-    sa.event.remove(DatabaseSessionClass, 'after_begin', event_after_begin)
-    sa.event.remove(DatabaseSessionClass, 'after_commit', event_after_commit)
-    sa.event.remove(DatabaseSessionClass, 'after_flush', event_after_flush)
-    sa.event.remove(DatabaseSessionClass, 'after_rollback', event_after_rollback)
-    sa.event.remove(
-        DatabaseSessionClass, 'after_soft_rollback', event_after_soft_rollback
-    )
-    sa.event.remove(
+    event.remove(DatabaseSessionClass, 'do_orm_execute', event_do_orm_execute)
+    event.remove(DatabaseSessionClass, 'after_begin', event_after_begin)
+    event.remove(DatabaseSessionClass, 'after_commit', event_after_commit)
+    event.remove(DatabaseSessionClass, 'after_flush', event_after_flush)
+    event.remove(DatabaseSessionClass, 'after_rollback', event_after_rollback)
+    event.remove(DatabaseSessionClass, 'after_soft_rollback', event_after_soft_rollback)
+    event.remove(
         DatabaseSessionClass, 'after_transaction_create', event_after_transaction_create
     )
-    sa.event.remove(
+    event.remove(
         DatabaseSessionClass, 'after_transaction_end', event_after_transaction_end
     )
 
@@ -845,8 +884,8 @@ def _truncate_all_tables(engine: sa.Engine) -> None:
     """Truncate all tables in the given database engine."""
     deadlock_retries = 0
     while True:
-        try:
-            with engine.begin() as transaction:
+        with engine.begin() as transaction:
+            try:
                 transaction.execute(
                     sa.text(
                         '''
@@ -863,34 +902,35 @@ def _truncate_all_tables(engine: sa.Engine) -> None:
                         END; $$'''
                     )
                 )
-            break
-        except sa.exc.OperationalError:
-            # The TRUNCATE TABLE call will occasionally have a deadlock when the
-            # background server process has not finalised the transaction. SQLAlchemy
-            # recasts :exc:`psycopg.errors.DeadlockDetected` as
-            # :exc:`sqlalchemy.exc.OperationalError`. Pytest will show as::
-            #
-            #     ERROR <filename> - sqlalchemy.exc.OperationalError:
-            #     (psycopg.errors.DeadlockDetected) deadlock detected
-            #     DETAIL: Process <pid1> waits for AccessExclusiveLock on relation
-            #     <rel1> of database <db>; blocked by process <pid2>. Process <pid2>
-            #     waits for AccessShareLock on relation <rel2> of database <db>;
-            #     blocked by process <pid1>.
-            #
-            # We overcome the deadlock by rolling back the transaction, sleeping a
-            # second and attempting to truncate again, retrying two more times. If the
-            # deadlock remains unresolved, we raise the error to pytest. We are not
-            # explicitly checking for OperationalError wrapping DeadlockDetected on the
-            # assumption that this retry is safe for all operational errors. Any new
-            # type of non-transient error will be reported by the final raise.
-            if (deadlock_retries := deadlock_retries + 1) > 3:
-                raise
-            transaction.rollback()
+                break
+            except sa_exc.OperationalError:
+                # The TRUNCATE TABLE call will occasionally have a deadlock when the
+                # background server process has not finalised the transaction.
+                # SQLAlchemy recasts :exc:`psycopg.errors.DeadlockDetected` as
+                # :exc:`sqlalchemy.exc.OperationalError`. Pytest will show as::
+                #
+                #     ERROR <filename> - sqlalchemy.exc.OperationalError:
+                #     (psycopg.errors.DeadlockDetected) deadlock detected
+                #     DETAIL: Process <pid1> waits for AccessExclusiveLock on relation
+                #     <rel1> of database <db>; blocked by process <pid2>. Process <pid2>
+                #     waits for AccessShareLock on relation <rel2> of database <db>;
+                #     blocked by process <pid1>.
+                #
+                # We overcome the deadlock by rolling back the transaction, sleeping a
+                # second and attempting to truncate again, retrying two more times. If
+                # the deadlock remains unresolved, we raise the error to pytest. We are
+                # not explicitly checking for OperationalError wrapping DeadlockDetected
+                # on the assumption that this retry is safe for all operational errors.
+                # Any new type of non-transient error will be reported by the final
+                # raise.
+                if (deadlock_retries := deadlock_retries + 1) > 3:
+                    raise
+                transaction.rollback()
             time.sleep(1)
 
 
 @pytest.fixture(scope='session')
-def database(funnel, models, request, app) -> SQLAlchemy:
+def database(funnel, models, request: pytest.FixtureRequest, app: Flask) -> SQLAlchemy:
     """Provide a database structure."""
     with app.app_context():
         models.db.create_all()
@@ -910,11 +950,11 @@ def database(funnel, models, request, app) -> SQLAlchemy:
 
 @pytest.fixture()
 def db_session_truncate(
-    funnel, app, database, app_context
-) -> t.Iterator[DatabaseSessionClass]:
+    funnel, app, database: SQLAlchemy, app_context
+) -> Generator[scoped_session, None, None]:
     """Empty the database after each use of the fixture."""
     yield database.session
-    sa.orm.close_all_sessions()
+    sa_orm.close_all_sessions()
 
     # Iterate through all database engines and empty their tables
     for engine in database.engines.values():
@@ -927,48 +967,54 @@ def db_session_truncate(
 @dataclass
 class BindConnectionTransaction:
     engine: sa.engine.Engine
-    connection: t.Any
-    transaction: t.Any
+    connection: Any
+    transaction: Any
 
 
 class BoundSession(FsaSession):
     def __init__(
         self,
         db: SQLAlchemy,
-        bindcts: t.Dict[t.Optional[str], BindConnectionTransaction],
-        **kwargs: t.Any,
+        bindcts: dict[str | None, BindConnectionTransaction],
+        **kwargs: Any,
     ) -> None:
         super().__init__(db, **kwargs)
         self.bindcts = bindcts
 
     def get_bind(
         self,
-        mapper: t.Optional[t.Any] = None,
-        clause: t.Optional[t.Any] = None,
-        bind: t.Optional[t.Union[sa.engine.Engine, sa.engine.Connection]] = None,
-        **kwargs: t.Any,
-    ) -> t.Union[sa.engine.Engine, sa.engine.Connection]:
+        mapper: Any | None = None,
+        clause: Any | None = None,
+        bind: sa.engine.Engine | sa.engine.Connection | None = None,
+        **kwargs: Any,
+    ) -> sa.engine.Engine | sa.engine.Connection:
         if bind is not None:
             return bind
         if mapper is not None:
-            mapper = sa.inspect(mapper)
-            table = mapper.local_table
-            bind_key = table.metadata.info.get('bind_key')
-            return self.bindcts[bind_key].connection
+            mapper_insp: sa_orm.Mapper = sa.inspect(mapper)
+            table = mapper_insp.local_table
+            if isinstance(table, sa.Table):
+                # This is always a table when using SQLAlchemy declarative with
+                # __table__ or __tablename__ in a model
+                bind_key = table.metadata.info.get('bind_key')
+                return self.bindcts[bind_key].connection
+            raise NotImplementedError(  # pragma: no cover
+                f"Unexpected mapper local_table type: {table!r}"
+            )
         if isinstance(clause, sa.Table):
-            bind_key = table.metadata.info.get('bind_key')
+            bind_key = clause.metadata.info.get('bind_key')
             return self.bindcts[bind_key].connection
         return self.bindcts[None].connection
 
 
 @pytest.fixture()
 def db_session_rollback(
-    funnel, app, database, app_context
-) -> t.Iterator[DatabaseSessionClass]:
+    funnel, app: Flask, database: SQLAlchemy, app_context: AppContext
+) -> Generator[scoped_session, None, None]:
     """Create a nested transaction for the test and rollback after."""
     original_session = database.session
 
-    bindcts: t.Dict[t.Optional[str], BindConnectionTransaction] = {}
+    bindcts: dict[str | None, BindConnectionTransaction] = {}
     for bind, engine in database.engines.items():
         connection = engine.connect()
         transaction = connection.begin()
@@ -1004,7 +1050,7 @@ db_session_implementations = {
 
 
 @pytest.fixture()
-def db_session(request) -> DatabaseSessionClass:
+def db_session(request: pytest.FixtureRequest) -> scoped_session:
     """
     Database session fixture.
 
@@ -1031,20 +1077,68 @@ def db_session(request) -> DatabaseSessionClass:
         db_session_implementations[
             'truncate'
             if request.node.get_closest_marker('dbcommit')
-            else request.config.getoption('--dbsession')
+            else cast(str, request.config.getoption('--dbsession'))
         ]
     )
 
 
-@pytest.fixture()
-def client(response_with_forms, app, db_session) -> FlaskClient:
-    """Provide a test client that commits the db session before any action."""
-    from flask.testing import FlaskClient
+class TestClient(FlaskClient):
+    """Dummy subclass used for corrected type hints as FlaskClient is not a Generic."""
 
-    client: FlaskClient = FlaskClient(app, response_with_forms, use_cookies=True)
+    # Tell Pytest this class isn't a test
+    __test__ = False
+
+    if TYPE_CHECKING:
+
+        def open(  # type: ignore[override]  # noqa: A001
+            self,
+            *args: Any,
+            buffered: bool = False,
+            follow_redirects: bool = False,
+            **kwargs: Any,
+        ) -> TestResponse:
+            ...
+
+        def get(self, *args: Any, **kw: Any) -> TestResponse:  # type: ignore[override]
+            ...
+
+        def post(self, *args: Any, **kw: Any) -> TestResponse:  # type: ignore[override]
+            ...
+
+        def put(self, *args: Any, **kw: Any) -> TestResponse:  # type: ignore[override]
+            ...
+
+        def delete(  # type: ignore[override]
+            self, *args: Any, **kw: Any
+        ) -> TestResponse:
+            ...
+
+        def patch(  # type: ignore[override]
+            self, *args: Any, **kw: Any
+        ) -> TestResponse:
+            ...
+
+        def options(  # type: ignore[override]
+            self, *args: Any, **kw: Any
+        ) -> TestResponse:
+            ...
+
+        def head(self, *args: Any, **kw: Any) -> TestResponse:  # type: ignore[override]
+            ...
+
+        def trace(  # type: ignore[override]
+            self, *args: Any, **kw: Any
+        ) -> TestResponse:
+            ...
+
+
+@pytest.fixture()
+def client(app: Flask, db_session: scoped_session) -> TestClient:
+    """Provide a test client that commits the db session before any action."""
+    client = TestClient(app, TestResponse, use_cookies=True)
     client_open = client.open
 
-    def commit_before_open(*args, **kwargs):
+    def commit_before_open(*args: Any, **kwargs: Any):
         db_session.commit()
         return client_open(*args, **kwargs)
 
@@ -1052,11 +1146,19 @@ def client(response_with_forms, app, db_session) -> FlaskClient:
     return client
 
 
-@pytest.fixture(scope='session')
-def live_server(funnel_devtest, app, database):
-    """Run application in a separate process."""
-    from werkzeug import run_simple
+@runtime_checkable
+class LiveServerProtocol(Protocol):
+    background_worker: BackgroundWorker
+    transport_calls: CapturedCalls
+    url: str
+    urls: list[str]
 
+
+@pytest.fixture(scope='session')
+def live_server(
+    funnel_devtest, app: Flask, database: SQLAlchemy
+) -> Generator[LiveServerProtocol, None, None]:
+    """Run application in a separate process."""
     # Use HTTPS for live server (set to False if required)
     use_https = True
     scheme = 'https' if use_https else 'http'
@@ -1094,23 +1196,26 @@ def live_server(funnel_devtest, app, database):
             probe_at=('127.0.0.1', port),
             mock_transports=True,
         ) as server:
-            yield SimpleNamespace(
-                background_worker=server,
-                transport_calls=server.calls,
-                url=f'{scheme}://{app.config["SERVER_NAME"]}/',
-                urls=[
-                    f'{scheme}://{m_app.config["SERVER_NAME"]}/'
-                    for m_app in funnel_devtest.devtest_app.apps_by_host.values()
-                ],
+            yield cast(
+                LiveServerProtocol,
+                SimpleNamespace(
+                    background_worker=server,
+                    transport_calls=server.calls,
+                    url=f'{scheme}://{app.config["SERVER_NAME"]}/',
+                    urls=[
+                        f'{scheme}://{m_app.config["SERVER_NAME"]}/'
+                        for m_app in funnel_devtest.devtest_app.apps_by_host.values()
+                    ],
+                ),
             )
 
 
 @pytest.fixture()
-def csrf_token(app, client) -> str:
+def csrf_token(app: Flask, client: TestClient) -> str:
     """Supply a CSRF token for use in form submissions."""
     field_name = app.config.get('WTF_CSRF_FIELD_NAME', 'csrf_token')
     with app.test_request_context():
-        token = flask_wtf.csrf.generate_csrf()
+        token = generate_csrf()
         assert field_name in session
         session_token = session[field_name]
     with client.session_transaction() as client_session:
@@ -1118,8 +1223,19 @@ def csrf_token(app, client) -> str:
     return token
 
 
+@runtime_checkable
+class LoginFixtureProtocol(Protocol):
+    def as_(self, user: funnel_models.User) -> None:
+        ...
+
+    def logout(self) -> None:
+        ...
+
+
 @pytest.fixture()
-def login(app, client, db_session) -> SimpleNamespace:
+def login(
+    app: Flask, client: TestClient, db_session: scoped_session
+) -> LoginFixtureProtocol:
     """Provide a login fixture."""
 
     def as_(user) -> None:
@@ -1134,11 +1250,11 @@ def login(app, client, db_session) -> SimpleNamespace:
 
     def logout() -> None:
         # TODO: Test this
-        client.delete_cookie(
-            client.server_name, 'lastuser', domain=app.config['LASTUSER_COOKIE_DOMAIN']
-        )
+        client.delete_cookie('lastuser', domain=app.config['LASTUSER_COOKIE_DOMAIN'])
 
-    return SimpleNamespace(as_=as_, logout=logout)
+    return SimpleNamespace(  # pyright: ignore[reportGeneralTypeIssues]
+        as_=as_, logout=logout
+    )
 
 
 # --- Sample data: users, organizations, projects, etc ---------------------------------
@@ -1151,8 +1267,16 @@ def login(app, client, db_session) -> SimpleNamespace:
 # --- Users
 
 
+@runtime_checkable
+class GetUserProtocol(Protocol):
+    usermap: dict[str, str]
+
+    def __call__(self, user: str) -> funnel_models.User:
+        ...
+
+
 @pytest.fixture()
-def getuser(request) -> t.Callable[[str], funnel_models.User]:
+def getuser(request: pytest.FixtureRequest) -> GetUserProtocol:
     """Get a user fixture by their name."""
     usermap = {
         "Twoflower": 'user_twoflower',
@@ -1190,12 +1314,14 @@ def getuser(request) -> t.Callable[[str], funnel_models.User]:
             pytest.fail(f"No user fixture named {user}")
         return request.getfixturevalue(usermap[user])
 
-    func.usermap = usermap  # Aid for tests
+    func = cast(GetUserProtocol, func)
+    # Aid for tests
+    func.usermap = usermap
     return func
 
 
 @pytest.fixture()
-def user_twoflower(models, db_session) -> funnel_models.User:
+def user_twoflower(models, db_session: scoped_session) -> funnel_models.User:
     """
     Twoflower is a tourist from the Agatean Empire who goes on adventures.
 
@@ -1209,7 +1335,7 @@ def user_twoflower(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_rincewind(models, db_session) -> funnel_models.User:
+def user_rincewind(models, db_session: scoped_session) -> funnel_models.User:
     """
     Rincewind is a wizard and a former member of Unseen University.
 
@@ -1222,7 +1348,7 @@ def user_rincewind(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_death(models, db_session) -> funnel_models.User:
+def user_death(models, db_session: scoped_session) -> funnel_models.User:
     """
     Death is the epoch user, present at the beginning and always having the last word.
 
@@ -1241,7 +1367,7 @@ def user_death(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_mort(models, db_session) -> funnel_models.User:
+def user_mort(models, db_session: scoped_session) -> funnel_models.User:
     """
     Mort is Death's apprentice, and a site admin in tests.
 
@@ -1257,7 +1383,7 @@ def user_mort(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_susan(models, db_session) -> funnel_models.User:
+def user_susan(models, db_session: scoped_session) -> funnel_models.User:
     """
     Susan Sto Helit (also written Sto-Helit) is Death's grand daughter.
 
@@ -1269,7 +1395,7 @@ def user_susan(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_lutze(models, db_session) -> funnel_models.User:
+def user_lutze(models, db_session: scoped_session) -> funnel_models.User:
     """
     Lu-Tze is a history monk and sweeper at the Monastery of Oi-Dong.
 
@@ -1281,7 +1407,7 @@ def user_lutze(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_ridcully(models, db_session) -> funnel_models.User:
+def user_ridcully(models, db_session: scoped_session) -> funnel_models.User:
     """
     Mustrum Ridcully, archchancellor of Unseen University.
 
@@ -1293,7 +1419,7 @@ def user_ridcully(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_librarian(models, db_session) -> funnel_models.User:
+def user_librarian(models, db_session: scoped_session) -> funnel_models.User:
     """
     Librarian of Unseen University, currently an orangutan.
 
@@ -1305,7 +1431,7 @@ def user_librarian(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_ponder_stibbons(models, db_session) -> funnel_models.User:
+def user_ponder_stibbons(models, db_session: scoped_session) -> funnel_models.User:
     """
     Ponder Stibbons, maintainer of Hex, the computer powered by an Anthill Inside.
 
@@ -1317,7 +1443,7 @@ def user_ponder_stibbons(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_vetinari(models, db_session) -> funnel_models.User:
+def user_vetinari(models, db_session: scoped_session) -> funnel_models.User:
     """
     Havelock Vetinari, patrician (aka dictator) of Ankh-Morpork.
 
@@ -1329,7 +1455,7 @@ def user_vetinari(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_vimes(models, db_session) -> funnel_models.User:
+def user_vimes(models, db_session: scoped_session) -> funnel_models.User:
     """
     Samuel Vimes, commander of the Ankh-Morpork City Watch.
 
@@ -1341,7 +1467,7 @@ def user_vimes(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_carrot(models, db_session) -> funnel_models.User:
+def user_carrot(models, db_session: scoped_session) -> funnel_models.User:
     """
     Carrot Ironfoundersson, captain of the Ankh-Morpork City Watch.
 
@@ -1353,7 +1479,7 @@ def user_carrot(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_angua(models, db_session) -> funnel_models.User:
+def user_angua(models, db_session: scoped_session) -> funnel_models.User:
     """
     Delphine Angua von Überwald, member of the Ankh-Morpork City Watch, and foreigner.
 
@@ -1371,7 +1497,7 @@ def user_angua(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_dibbler(models, db_session) -> funnel_models.User:
+def user_dibbler(models, db_session: scoped_session) -> funnel_models.User:
     """
     Cut Me Own Throat (or C.M.O.T) Dibbler, huckster who exploits small opportunities.
 
@@ -1383,7 +1509,7 @@ def user_dibbler(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_wolfgang(models, db_session) -> funnel_models.User:
+def user_wolfgang(models, db_session: scoped_session) -> funnel_models.User:
     """
     Wolfgang von Überwald, brother of Angua, violent shapeshifter.
 
@@ -1396,7 +1522,7 @@ def user_wolfgang(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def user_om(models, db_session) -> funnel_models.User:
+def user_om(models, db_session: scoped_session) -> funnel_models.User:
     """
     Great God Om of the theocracy of Omnia, who has lost his believers.
 
@@ -1412,7 +1538,9 @@ def user_om(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def org_ankhmorpork(models, db_session, user_vetinari) -> funnel_models.Organization:
+def org_ankhmorpork(
+    models, db_session: scoped_session, user_vetinari: funnel_models.User
+) -> funnel_models.Organization:
     """
     City of Ankh-Morpork, here representing the government rather than location.
 
@@ -1428,7 +1556,11 @@ def org_ankhmorpork(models, db_session, user_vetinari) -> funnel_models.Organiza
 
 @pytest.fixture()
 def org_uu(
-    models, db_session, user_ridcully, user_librarian, user_ponder_stibbons
+    models,
+    db_session: scoped_session,
+    user_ridcully: funnel_models.User,
+    user_librarian: funnel_models.User,
+    user_ponder_stibbons: funnel_models.User,
 ) -> funnel_models.Organization:
     """
     Unseen University is located in Ankh-Morpork.
@@ -1463,7 +1595,11 @@ def org_uu(
 
 @pytest.fixture()
 def org_citywatch(
-    models, db_session, user_vetinari, user_vimes, user_carrot
+    models,
+    db_session: scoped_session,
+    user_vetinari: funnel_models.User,
+    user_vimes: funnel_models.User,
+    user_carrot: funnel_models.User,
 ) -> funnel_models.Organization:
     """
     City Watch of Ankh-Morpork (a sub-organization).
@@ -1502,7 +1638,10 @@ def org_citywatch(
 
 @pytest.fixture()
 def project_expo2010(
-    models, db_session, org_ankhmorpork, user_vetinari
+    models,
+    db_session: scoped_session,
+    org_ankhmorpork: funnel_models.Organization,
+    user_vetinari: funnel_models.User,
 ) -> funnel_models.Project:
     """Ankh-Morpork hosts its 2010 expo."""
     db_session.flush()
@@ -1520,7 +1659,10 @@ def project_expo2010(
 
 @pytest.fixture()
 def project_expo2011(
-    models, db_session, org_ankhmorpork, user_vetinari
+    models,
+    db_session: scoped_session,
+    org_ankhmorpork: funnel_models.Organization,
+    user_vetinari: funnel_models.User,
 ) -> funnel_models.Project:
     """Ankh-Morpork hosts its 2011 expo."""
     db_session.flush()
@@ -1538,7 +1680,10 @@ def project_expo2011(
 
 @pytest.fixture()
 def project_ai1(
-    models, db_session, org_uu, user_ponder_stibbons
+    models,
+    db_session: scoped_session,
+    org_uu: funnel_models.Organization,
+    user_ponder_stibbons: funnel_models.User,
 ) -> funnel_models.Project:
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
@@ -1565,7 +1710,10 @@ def project_ai1(
 
 @pytest.fixture()
 def project_ai2(
-    models, db_session, org_uu, user_ponder_stibbons
+    models,
+    db_session: scoped_session,
+    org_uu: funnel_models.Organization,
+    user_ponder_stibbons: funnel_models.User,
 ) -> funnel_models.Project:
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
@@ -1590,7 +1738,9 @@ def project_ai2(
 
 
 @pytest.fixture()
-def client_hex(models, db_session, org_uu) -> funnel_models.Project:
+def client_hex(
+    models, db_session: scoped_session, org_uu: funnel_models.Organization
+) -> funnel_models.AuthClient:
     """
     Hex, supercomputer at Unseen University, powered by an Anthill Inside.
 
@@ -1608,40 +1758,48 @@ def client_hex(models, db_session, org_uu) -> funnel_models.Project:
     return auth_client
 
 
+@runtime_checkable
+class CredProtocol(Protocol):
+    cred: funnel_models.AuthClientCredential
+    secret: str
+
+
 @pytest.fixture()
-def client_hex_credential(models, db_session, client_hex) -> SimpleNamespace:
+def client_hex_credential(
+    models, db_session: scoped_session, client_hex: funnel_models.AuthClient
+) -> CredProtocol:
     cred, secret = models.AuthClientCredential.new(client_hex)
     db_session.add(cred)
-    return SimpleNamespace(cred=cred, secret=secret)
+    return cast(CredProtocol, SimpleNamespace(cred=cred, secret=secret))
 
 
 @pytest.fixture()
 def all_fixtures(  # pylint: disable=too-many-locals
-    db_session,
-    user_twoflower,
-    user_rincewind,
-    user_death,
-    user_mort,
-    user_susan,
-    user_lutze,
-    user_ridcully,
-    user_librarian,
-    user_ponder_stibbons,
-    user_vetinari,
-    user_vimes,
-    user_carrot,
-    user_angua,
-    user_dibbler,
-    user_wolfgang,
-    user_om,
-    org_ankhmorpork,
-    org_uu,
-    org_citywatch,
-    project_expo2010,
-    project_expo2011,
-    project_ai1,
-    project_ai2,
-    client_hex,
+    db_session: scoped_session,
+    user_twoflower: funnel_models.User,
+    user_rincewind: funnel_models.User,
+    user_death: funnel_models.User,
+    user_mort: funnel_models.User,
+    user_susan: funnel_models.User,
+    user_lutze: funnel_models.User,
+    user_ridcully: funnel_models.User,
+    user_librarian: funnel_models.User,
+    user_ponder_stibbons: funnel_models.User,
+    user_vetinari: funnel_models.User,
+    user_vimes: funnel_models.User,
+    user_carrot: funnel_models.User,
+    user_angua: funnel_models.User,
+    user_dibbler: funnel_models.User,
+    user_wolfgang: funnel_models.User,
+    user_om: funnel_models.User,
+    org_ankhmorpork: funnel_models.User,
+    org_uu: funnel_models.User,
+    org_citywatch: funnel_models.User,
+    project_expo2010: funnel_models.User,
+    project_expo2011: funnel_models.User,
+    project_ai1: funnel_models.User,
+    project_ai2: funnel_models.User,
+    client_hex: funnel_models.User,
 ) -> SimpleNamespace:
     """Return All Discworld fixtures at once."""
     db_session.commit()
@@ -1675,7 +1833,7 @@ TEST_DATA = {
 
 
 @pytest.fixture()
-def new_user(models, db_session) -> funnel_models.User:
+def new_user(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['testuser'])
     db_session.add(user)
     db_session.commit()
@@ -1683,7 +1841,7 @@ def new_user(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def new_user2(models, db_session) -> funnel_models.User:
+def new_user2(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['testuser2'])
     db_session.add(user)
     db_session.commit()
@@ -1691,7 +1849,7 @@ def new_user2(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def new_user_owner(models, db_session) -> funnel_models.User:
+def new_user_owner(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['test_org_owner'])
     db_session.add(user)
     db_session.commit()
@@ -1699,7 +1857,7 @@ def new_user_owner(models, db_session) -> funnel_models.User:
 
 
 @pytest.fixture()
-def new_user_admin(models, db_session) -> funnel_models.User:
+def new_user_admin(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['test_org_admin'])
     db_session.add(user)
     db_session.commit()
@@ -1708,7 +1866,10 @@ def new_user_admin(models, db_session) -> funnel_models.User:
 
 @pytest.fixture()
 def new_organization(
-    models, db_session, new_user_owner, new_user_admin
+    models,
+    db_session: scoped_session,
+    new_user_owner: funnel_models.User,
+    new_user_admin: funnel_models.User,
 ) -> funnel_models.Organization:
     org = models.Organization(owner=new_user_owner, title="Test org", name='test_org')
     db_session.add(org)
@@ -1725,7 +1886,12 @@ def new_organization(
 
 
 @pytest.fixture()
-def new_team(models, db_session, new_user, new_organization) -> funnel_models.Team:
+def new_team(
+    models,
+    db_session: scoped_session,
+    new_user: funnel_models.User,
+    new_organization: funnel_models.Organization,
+) -> funnel_models.Team:
     team = models.Team(title="Owners", account=new_organization)
     db_session.add(team)
     team.users.append(new_user)
@@ -1735,7 +1901,10 @@ def new_team(models, db_session, new_user, new_organization) -> funnel_models.Te
 
 @pytest.fixture()
 def new_project(
-    models, db_session, new_organization, new_user
+    models,
+    db_session: scoped_session,
+    new_organization: funnel_models.Organization,
+    new_user: funnel_models.User,
 ) -> funnel_models.Project:
     project = models.Project(
         account=new_organization,
@@ -1752,7 +1921,10 @@ def new_project(
 
 @pytest.fixture()
 def new_project2(
-    models, db_session, new_organization, new_user_owner
+    models,
+    db_session: scoped_session,
+    new_organization: funnel_models.Organization,
+    new_user_owner: funnel_models.User,
 ) -> funnel_models.Project:
     project = models.Project(
         account=new_organization,
@@ -1768,7 +1940,9 @@ def new_project2(
 
 
 @pytest.fixture()
-def new_main_label(models, db_session, new_project) -> funnel_models.Label:
+def new_main_label(
+    models, db_session: scoped_session, new_project: funnel_models.Project
+) -> funnel_models.Label:
     main_label_a = models.Label(
         title="Parent Label A", project=new_project, description="A test parent label"
     )
@@ -1786,7 +1960,9 @@ def new_main_label(models, db_session, new_project) -> funnel_models.Label:
 
 
 @pytest.fixture()
-def new_main_label_unrestricted(models, db_session, new_project) -> funnel_models.Label:
+def new_main_label_unrestricted(
+    models, db_session: scoped_session, new_project: funnel_models.Project
+) -> funnel_models.Label:
     main_label_b = models.Label(
         title="Parent Label B", project=new_project, description="A test parent label"
     )
@@ -1804,7 +1980,9 @@ def new_main_label_unrestricted(models, db_session, new_project) -> funnel_model
 
 
 @pytest.fixture()
-def new_label(models, db_session, new_project) -> funnel_models.Label:
+def new_label(
+    models, db_session: scoped_session, new_project: funnel_models.Project
+) -> funnel_models.Label:
     label_b = models.Label(title="Label B", icon_emoji="🔟", project=new_project)
     new_project.all_labels.append(label_b)
     db_session.add(label_b)
@@ -1813,7 +1991,12 @@ def new_label(models, db_session, new_project) -> funnel_models.Label:
 
 
 @pytest.fixture()
-def new_proposal(models, db_session, new_user, new_project) -> funnel_models.Proposal:
+def new_proposal(
+    models,
+    db_session: scoped_session,
+    new_user: funnel_models.User,
+    new_project: funnel_models.Project,
+) -> funnel_models.Proposal:
     proposal = models.Proposal(
         created_by=new_user,
         project=new_project,
@@ -1826,8 +2009,8 @@ def new_proposal(models, db_session, new_user, new_project) -> funnel_models.Pro
 
 
 @pytest.fixture()
-def fail_with_diff():
-    def func(left, right):
+def fail_with_diff() -> Callable[[str, str], None]:
+    def func(left: str, right: str) -> None:
         if left != right:
             difference = unified_diff(left.split('\n'), right.split('\n'))
             msg = []

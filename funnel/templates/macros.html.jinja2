@@ -1,6 +1,6 @@
 {%- set img_size = namespace() %}
 {%- set img_size.profile_banner = 1200 %}
-{%- set img_size.spotlight_banner = 700 %}
+{%- set img_size.spotlight_banner = 1200 %}
 {%- set img_size.card_banner = 400 %}
 {%- set img_size.card_banner_small = 100 %}
 {%- set img_size.profile_logo = 240 %}
@@ -219,7 +219,7 @@
   </footer>
 {% endmacro %}
 
-{% macro video_thumbnail(session, project_heading=false) %}
+{% macro video_thumbnail(session) %}
   <div class="video">
     <a class="video__thumbnail {%- if not (session.views.video.thumbnail or session.banner_image_url.url) %} video__thumnail--novideo {%- endif %}" href="{%- if session.proposal %}{{ session.proposal.url_for() }}{%- else %}{{ session.url_for() }}{%- endif %}" data-ga="view session video">
       {%- if session.views.video.thumbnail %}
@@ -229,9 +229,6 @@
         <img src="{{ session.banner_image_url }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail" alt="{{ session.title }}"/>
       {%- endif %}
     </a>
-    {%- if project_heading %}
-      <p class="mui--text-title text-bold video__txt" data-cy="project-title">{{ session.project.title }}</p>
-    {%- endif %}
     <p class="mui--text-subhead text-bold video__txt" data-cy="title">{{ session.title }}</p>
     {%- if session.speaker %}<p class="mui--text-body2 mui--text-light video__txt">{{ session.speaker }}</p>{%- endif %}
     {%- if session.views.video %}
@@ -446,7 +443,7 @@
   {%- endif %}
 {%- endmacro %}
 
-{% macro profilecard(account, snippet_html) %}
+{% macro profilecard(account, snippet_html, is_member) %}
   <div class="card profile-card">
     <div class="card__body">
       <div>
@@ -465,10 +462,20 @@
       {%- if snippet_html %}
         <p class="mui--text-body2 mui--text-light zero-top-margin search-snippets">{{ faicon(icon='search', css_class="search-icon", baseline=false) }} {{ snippet_html }}</p>
       {% endif %}
-      <div class="profile-card__btn-wrapper">
-        <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=account.published_project_count, count=account.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>
-        <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ account.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
-      </div>
+      {%- if account.membership_project and not is_member %}
+        <div class="profile-card__btn-wrapper">
+          <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=account.published_project_count, count=account.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>
+          <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ account.url_for(_anchor='membership') }}" data-ga="Become a member(homepage)">{% trans %}Become a member{% endtrans %}</a>
+        </div>
+      {% else %}
+        {%- if is_member %}
+          <div class="mui--text-dark mui--text-subhead text-bold nounderline margin-auto"><span class="chip chip--bg-success text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span></div>
+        {% endif %}
+        <div class="profile-card__btn-wrapper">
+          <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=account.published_project_count, count=account.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>
+          <a class="mui-btn mui-btn--dark mui-btn--raised full-width-btn" href="{{ account.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
+        </div>
+      {% endif %}
     </div>
   </div>
 {% endmacro %}

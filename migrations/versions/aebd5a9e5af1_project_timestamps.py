@@ -88,7 +88,7 @@ def upgrade() -> None:
 
     # Update project start_at/end_at timestamps where sessions exist
     conn = op.get_bind()
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(project))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(project))
     progress = get_progressbar("Projects", count)
     progress.start()
     project_ids = conn.execute(sa.select(project.c.id))

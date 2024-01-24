@@ -5,16 +5,16 @@ from __future__ import annotations
 from flask import abort
 
 from baseframe import forms
-from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
+from ..auth import current_auth
 from ..models import NotificationRecipient, db
 from ..typing import ReturnRenderWith
 from .login_session import requires_login
 
 
-@route('/updates')
+@route('/updates', init_app=app)
 class AllNotificationsView(ClassView):
     current_section = 'notifications'  # needed for showing active tab
 
@@ -23,7 +23,9 @@ class AllNotificationsView(ClassView):
     @requires_login
     @render_with('notification_feed.html.jinja2', json=True)
     @requestargs(('page', int), ('per_page', int))
-    def view(self, unread_only: bool, page=1, per_page=10) -> ReturnRenderWith:
+    def view(
+        self, unread_only: bool, page: int = 1, per_page: int = 10
+    ) -> ReturnRenderWith:
         pagination = NotificationRecipient.web_notifications_for(
             current_auth.user, unread_only
         ).paginate(page=page, per_page=per_page, max_per_page=100)
@@ -109,6 +111,3 @@ class AllNotificationsView(ClassView):
             db.session.commit()
             return {'status': 'ok', 'unread': self.unread_count()}
         return {'status': 'error', 'error': 'csrf'}, 400
-
-
-AllNotificationsView.init_app(app)

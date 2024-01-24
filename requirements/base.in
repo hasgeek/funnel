@@ -6,15 +6,12 @@ Babel
 base58
 bcrypt
 better_profanity!=0.7.0  # https://github.com/snguyenthanh/better_profanity/issues/19
-blinker
-boto3  # Required in Imgee not here, but has a pin on urllib3 version
 Brotli
 chevron
 click
 cryptography
 dataclasses-json
 Flask
-Flask-Assets2
 Flask-Babel
 Flask-Executor
 Flask-FlatPages
@@ -34,13 +31,14 @@ icalendar
 idna
 ijson
 itsdangerous
+lazy-loader
 linkify-it-py
 markdown-it-py
 mdit-py-plugins
-oauth2
 oauth2client
 passlib
 phonenumbers
+playwright  # Relocated from test.in because of greenlet version pin
 premailer
 progressbar2
 psycopg[binary]
@@ -48,7 +46,7 @@ pycountry
 pyIsEmail
 python-dateutil
 python-dotenv
-python-telegram-bot
+python-telegram-bot>=20.7
 pytz
 PyVimeo
 qrcode
@@ -56,15 +54,14 @@ requests
 rich
 rq
 rq-dashboard @ git+https://github.com/jace/rq-dashboard
-SQLAlchemy
 sqlalchemy-json
 SQLAlchemy-Utils
-toml
+SQLAlchemy[asyncio]
 tweepy
 twilio
 typing-extensions
 tzdata
-urllib3[socks]  # Not required here, but the [socks] extra shows up in test.txt
+urllib3[socks]  # Not direct dep; pip-audit complains of dupe urllib[socks] in test.txt
 user-agents
 werkzeug
 whitenoise

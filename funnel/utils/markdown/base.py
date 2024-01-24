@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
-from typing import Any, ClassVar, Literal, overload
-from typing_extensions import Self
+from typing import Any, ClassVar, Literal, Self, overload
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
@@ -54,7 +53,7 @@ class MarkdownPlugin:
     config: dict[str, Any] | None = None
 
     @classmethod
-    def register(cls, name: str, *args, **kwargs) -> Self:
+    def register(cls, name: str, *args: Any, **kwargs: Any) -> Self:
         """Create a new instance and add it to the registry."""
         if name in cls.registry:
             raise NameError(f"MarkdownPlugin {name} has already been registered")
@@ -104,7 +103,7 @@ class MarkdownConfig:
             raise TypeError(f"Unknown Markdown plugin {exc.args[0]}") from None
 
     @classmethod
-    def register(cls, name: str, *args, **kwargs) -> Self:
+    def register(cls, name: str, *args: Any, **kwargs: Any) -> Self:
         """Create a new instance and add it to the registry."""
         if name in cls.registry:
             raise NameError(f"MarkdownConfig {name} has already been registered")

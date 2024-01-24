@@ -14,6 +14,50 @@
     left: 50%;
   }
 
+  .embed-video-wrapper__restricted {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+
+    .embed-video-wrapper__restricted__img {
+      width: 60%;
+      max-width: 130px;
+    }
+
+    .embed-video-wrapper__restricted__content {
+      margin-left: $mui-grid-padding;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .embed-video-wrapper__restricted {
+      flex-direction: column;
+      .embed-video-wrapper__restricted__img {
+        max-width: 160px;
+      }
+      .embed-video-wrapper__restricted__content {
+        margin-left: 0;
+        margin-top: $mui-grid-padding;
+        .embed-video-wrapper__restricted__content__text {
+          font-size: 18px;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  .embed-video-wrapper__bottom-note {
+    text-align: center;
+    position: absolute;
+    bottom: $mui-grid-padding;
+    left: 0;
+    right: 0;
+    font-style: italic;
+  }
+
   iframe {
     position: absolute;
     width: 100%;

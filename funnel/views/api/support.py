@@ -52,7 +52,7 @@ def support_callerid(number: str) -> tuple[dict[str, Any], int]:
             'error_description': _("Unknown phone number"),
         }, 422
 
-    info = {
+    info: dict[str, Any] = {
         'number': phone_number.number,
         'created_at': phone_number.created_at,
         'active_at': phone_number.active_at,

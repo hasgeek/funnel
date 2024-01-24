@@ -11,11 +11,15 @@ from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 
+from ...conftest import scoped_session
+
 # TODO: Create a second parallel project and confirm they don't clash
 
 
 @pytest.fixture()
-def block_of_sessions(db_session, new_project) -> SimpleNamespace:
+def block_of_sessions(
+    db_session: scoped_session, new_project: models.Project
+) -> SimpleNamespace:
     # DocType HTML5's schedule, but using UTC to simplify testing
     # https://hasgeek.com/doctypehtml5/bangalore/schedule
     session1 = models.Session(
@@ -95,14 +99,16 @@ def block_of_sessions(db_session, new_project) -> SimpleNamespace:
     db_session.add_all(refresh_attrs)
     db_session.commit()
 
-    def refresh():
+    def refresh() -> None:
         for attr in refresh_attrs:
             db_session.add(attr)
 
     return SimpleNamespace(**locals())
 
 
-def find_projects(starting_times, within, gap) -> dict[datetime, list[models.Project]]:
+def find_projects(
+    starting_times: list[datetime], within: timedelta, gap: timedelta
+) -> dict[datetime, list[models.Project]]:
     # Keep the timestamps at which projects were found, plus the project. Criteria:
     # starts at `timestamp` + up to `within` period, with `gap` from prior sessions
     return {
@@ -115,7 +121,7 @@ def find_projects(starting_times, within, gap) -> dict[datetime, list[models.Pro
     }
 
 
-def test_project_starting_at(block_of_sessions) -> None:
+def test_project_starting_at(block_of_sessions: SimpleNamespace) -> None:
     """Test Project.starting_at finds projects by starting time accurately."""
     block_of_sessions.refresh()
 
@@ -182,7 +188,9 @@ def test_project_starting_at(block_of_sessions) -> None:
     }
 
 
-def test_long_session_fail(db_session, new_project) -> None:
+def test_long_session_fail(
+    db_session: scoped_session, new_project: models.Project
+) -> None:
     """Confirm sessions cannot exceed 24 hours."""
     # Less than 24 hours is fine:
     db_session.add(
@@ -292,9 +300,9 @@ project_session_dates = [
     ('project2_dates', 'session2_dates', 'expected2_session'), project_session_dates
 )
 def test_next_session_at_property(
-    db_session,
-    project_expo2010,
-    project_expo2011,
+    db_session: scoped_session,
+    project_expo2010: models.Project,
+    project_expo2011: models.Project,
     project_dates: tuple | None,
     session_dates: list[tuple],
     expected_session: int | None,

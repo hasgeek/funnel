@@ -250,7 +250,7 @@ def query_session(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) ->
 # --- Views ----------------------------------------------------------------------------
 
 
-@route('/')
+@route('/', init_app=app)
 class SitemapView(ClassView):
     @route('sitemap.xml')
     @xml_response
@@ -338,6 +338,3 @@ class SitemapView(ClassView):
         # Sort pages by lastmod, in descending order
         sitemap.sort(key=lambda page: page.lastmod, reverse=True)
         return render_template('sitemap.xml.jinja2', sitemap=sitemap)
-
-
-SitemapView.init_app(app)

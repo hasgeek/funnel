@@ -10,19 +10,19 @@ from coaster.views import ModelView, UrlForView, render_with, requires_roles, ro
 
 from .. import app
 from ..forms.venue import VenueForm, VenuePrimaryForm, VenueRoomForm
-from ..models import Project, Venue, VenueRoom, db
+from ..models import Account, Project, Venue, VenueRoom, db
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
-from .mixins import ProjectViewMixin, VenueRoomViewMixin, VenueViewMixin
+from .mixins import AccountCheckMixin, ProjectViewBase
 
 RESERVED_VENUE = ['new']
 RESERVED_VENUEROOM = ['new', 'edit', 'delete']
 
 
 @Project.views('venue')
-@route('/<account>/<project>/venues')
-class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
+@route('/<account>/<project>/venues', init_app=app)
+class ProjectVenueView(ProjectViewBase):
     @route('')
     @render_with('venues.html.jinja2')
     @requires_login
@@ -98,12 +98,28 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
         return render_redirect(self.obj.url_for('venues'))
 
 
-ProjectVenueView.init_app(app)
-
-
 @Venue.views('main')
-@route('/<account>/<project>/venues/<venue>')
-class VenueView(VenueViewMixin, UrlForView, ModelView):
+@route('/<account>/<project>/venues/<venue>', init_app=app)
+class VenueView(AccountCheckMixin, UrlForView, ModelView[Venue]):
+    route_model_map = {
+        'account': 'project.account.urlname',
+        'project': 'project.name',
+        'venue': 'name',
+    }
+
+    def loader(self, account: str, project: str, venue: str) -> Venue:
+        return (
+            Venue.query.join(Project)
+            .join(Account, Project.account)
+            .filter(
+                Account.name_is(account), Project.name == project, Venue.name == venue
+            )
+            .first_or_404()
+        )
+
+    def post_init(self) -> None:
+        self.account = self.obj.project.account
+
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
@@ -161,12 +177,35 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
         )
 
 
-VenueView.init_app(app)
+@route('/<account>/<project>/schedule/<venue>/<room>')
+class VenueRoomViewBase(AccountCheckMixin, UrlForView, ModelView[VenueRoom]):
+    route_model_map = {
+        'account': 'venue.project.account.urlname',
+        'project': 'venue.project.name',
+        'venue': 'venue.name',
+        'room': 'name',
+    }
+
+    def loader(self, account: str, project: str, venue: str, room: str) -> VenueRoom:
+        return (
+            VenueRoom.query.join(Venue)
+            .join(Project)
+            .join(Account, Project.account)
+            .filter(
+                Account.name_is(account),
+                Project.name == project,
+                Venue.name == venue,
+                VenueRoom.name == room,
+            )
+            .first_or_404()
+        )
+
+    def post_init(self) -> None:
+        self.account = self.obj.venue.project.account
 
 
 @VenueRoom.views('main')
-@route('/<account>/<project>/venues/<venue>/<room>')
-class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
+class VenueRoomView(VenueRoomViewBase):
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
