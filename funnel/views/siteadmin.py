@@ -161,6 +161,7 @@ class SiteadminView(ClassView):
         )
 
     @route('shortlink', endpoint='shortlink')
+    @requires_siteadmin
     def generate_shortlink(self) -> ReturnView:
         """Form to generate a custom shortlink."""
         return render_template('siteadmin_generate_shortlinks.html.jinja2')

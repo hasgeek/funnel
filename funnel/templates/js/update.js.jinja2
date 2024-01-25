@@ -8,7 +8,7 @@
         </ul>
       </div>
       <ul class="mui-list--unstyled zero-bottom-margin" v-if="updates.length">
-        <update :update="update" :iseditor="isEditor" :addreadmore="addReadMore" v-for="update in updates"></update>
+        <update :update="update" :iseditor="isEditor" :siteeditor="siteEditor" :addreadmore="addReadMore" v-for="update in updates"></update>
       </ul>
     </div>
 
@@ -32,7 +32,7 @@
             <div class="update__action-btn">
               <div class="mui-dropdown">
                 <a href="#" onclick="return false;" class="mui--text-subhead nounderline mui--text-light project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="button" aria-haspopup="true" aria-expanded="false" :aria-label="gettext('Share')"><faicon :icon="'share-alt'" :icon_size="'subhead'" :baseline=true></faicon></a>
-                <sharedropdown :url='update.urls.view' :title='update.title'></sharedropdown>
+                <sharedropdown :url='update.urls.view' :title='update.title' :siteeditor='siteeditor'></sharedropdown>
               </div>
               <a href="#" onclick="return false;" class="mui--text-subhead nounderline mui--text-light hg-link-btn mui--hide" :data-title="update.title" :data-url="update.urls.view + '?utm_source=webshare'"><faicon :icon="'share-alt'" :icon_size="'subhead'" :baseline=true></faicon></a>
               <div class="mui-dropdown mui-dropdown--update" v-if="iseditor">
