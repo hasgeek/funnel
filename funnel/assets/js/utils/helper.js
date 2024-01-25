@@ -149,7 +149,7 @@ const Utils = {
     }).catch(() => {
       throw new Error(window.Hasgeek.Config.errorMsg.serverError);
     });
-    if (response.ok) {
+    if (response && response.ok) {
       const json = await response.json();
       return json.shortlink;
     }

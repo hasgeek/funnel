@@ -20,51 +20,57 @@
       <div class="mui-form__controls">
         <div class="mui-textfield mui-textfield--float-label">
           <input id="id" class="field-campaign-id js-campaign-id js-inbox-change" type="text"/>
-          <label for="id">Campaign ID</label>
+          <label for="id">{% trans %}Campaign ID{% endtrans %}</label>
         </div>
+        <p class="mui-form__helptext">{% trans %}Ads campaign id{% endtrans %}</p>
       </div>
     </div>
     <div class="mui-form__fields">
       <div class="mui-form__controls">
         <div class="mui-textfield mui-textfield--float-label">
           <input id="source" class="field-campaign-source js-campaign-source js-inbox-change" type="text"/>
-          <label for="source">Campaign source</label>
+          <label for="source">{% trans %}Campaign source{% endtrans %}</label>
         </div>
+        <p class="mui-form__helptext">{% trans %}The referrer (e.g. google, linkedin, twitter, newsletter){% endtrans %}</p>
       </div>
     </div>
     <div class="mui-form__fields">
       <div class="mui-form__controls">
         <div class="mui-textfield mui-textfield--float-label">
           <input id="medium" class="field-campaign-medium js-campaign-medium js-inbox-change" type="text"/>
-          <label for="medium">Campaign medium</label>
+          <label for="medium">{% trans %}Campaign medium{% endtrans %}</label>
         </div>
+        <p class="mui-form__helptext">{% trans %}Marketing medium (e.g. banner, qr, email, social){% endtrans %}</p>
       </div>
     </div>
     <div class="mui-form__fields">
       <div class="mui-form__controls">
         <div class="mui-textfield mui-textfield--float-label">
           <input id="name" class="field-campaign-name js-campaign-name js-inbox-change" type="text"/>
-          <label for="name">Campaign name</label>
+          <label for="name">{% trans %}Campaign name{% endtrans %}</label>
         </div>
+        <p class="mui-form__helptext">{% trans %}Product or promo code (e.g. membership_2024){% endtrans %}</p>
       </div>
     </div>
     <div class="mui-form__fields">
       <div class="mui-form__controls">
         <div class="mui-textfield mui-textfield--float-label">
           <input id="term" class="field-campaign-term js-campaign-term js-inbox-change" type="text"/>
-          <label for="term">Campaign term</label>
+          <label for="term">{% trans %}Campaign term{% endtrans %}</label>
         </div>
+        <p class="mui-form__helptext">{% trans %}Paid Adword/keywords{% endtrans %}</p>
       </div>
     </div>
     <div class="mui-form__fields">
       <div class="mui-form__controls">
         <div class="mui-textfield mui-textfield--float-label">
           <input id="content" class="field-campaign-content js-campaign-content js-inbox-change" type="text"/>
-          <label for="content">Campaign content</label>
+          <label for="content">{% trans %}Campaign content{% endtrans %}</label>
         </div>
+        <p class="mui-form__helptext">{% trans %}Use to differentiate ads{% endtrans %}</p>
       </div>
     </div>
-    <button type="submit" class="mui-btn mui-btn--raised  mui-btn--primary" data-cy="form-submit-btn">{% trans %}Generate shortlink{% endtrans %}</button>
+    <button type="submit" class="mui-btn mui-btn--raised  mui-btn--primary" data-cy="form-submit-btn">{% trans %}Generate shortlink{% endtrans %}</button><span class="loading mui--hide"></span>
   </form>
 
   <div class="flex-wrapper flex-wrapper--center margin-bottom">
