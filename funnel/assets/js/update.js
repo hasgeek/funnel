@@ -6,7 +6,15 @@ import getTimeago from './utils/get_timeago';
 import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
 const Updates = {
-  init({ draft = '', updates = '', divElem, updateTemplate, isEditor, siteEditor, addReadMore }) {
+  init({
+    draft = '',
+    updates = '',
+    divElem,
+    updateTemplate,
+    isEditor,
+    siteEditor,
+    addReadMore,
+  }) {
     Vue.use(VS2);
 
     const updateUI = Vue.component('update', {
