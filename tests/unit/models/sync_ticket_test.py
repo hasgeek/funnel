@@ -1,4 +1,5 @@
 """Test for project ticket sync models."""
+
 # pylint: disable=attribute-defined-outside-init,redefined-outer-name
 
 from typing import TypedDict

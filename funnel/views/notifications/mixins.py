@@ -30,16 +30,13 @@ class SetVar(Generic[_T, _I, _O]):
             copy.__set_name__(owner, name)
 
     @overload
-    def __get__(self, instance: None, owner: type[_T]) -> Self:
-        ...
+    def __get__(self, instance: None, owner: type[_T]) -> Self: ...
 
     @overload
-    def __get__(self, instance: _T, owner: None = None) -> _O:
-        ...
+    def __get__(self, instance: _T, owner: None = None) -> _O: ...
 
     @overload
-    def __get__(self, instance: _T, owner: type[_T]) -> _O:
-        ...
+    def __get__(self, instance: _T, owner: type[_T]) -> _O: ...
 
     def __get__(self, instance: _T | None, owner: type[_T] | None = None) -> Self | _O:
         if instance is None:

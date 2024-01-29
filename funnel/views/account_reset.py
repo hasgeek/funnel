@@ -262,18 +262,20 @@ def reset_with_token_do() -> ReturnView:
         dispatch_notification(AccountPasswordNotification(document=user))
         return render_message(
             title=_("Password reset complete"),
-            message=_(
-                "Your password has been changed. You may now login with your new"
-                " password"
-            )
-            if session_count == 0
-            else ngettext(
-                "Your password has been changed. As a precaution, you have been logged"
-                " out of one other device. You may now login with your new password",
-                "Your password has been changed. As a precaution, you have been logged"
-                " out of %(num)d other devices. You may now login with your new"
-                " password",
-                session_count,
+            message=(
+                _(
+                    "Your password has been changed. You may now login with your new"
+                    " password"
+                )
+                if session_count == 0
+                else ngettext(
+                    "Your password has been changed. As a precaution, you have been logged"
+                    " out of one other device. You may now login with your new password",
+                    "Your password has been changed. As a precaution, you have been logged"
+                    " out of %(num)d other devices. You may now login with your new"
+                    " password",
+                    session_count,
+                )
             ),
         )
     # Form with id 'form-password-change' will have password strength meter on UI

@@ -405,11 +405,11 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
         return (
             deleted_account
             if self.state.DELETED
-            else removed_account
-            if self.state.SPAM
-            else unknown_account
-            if self._posted_by is None
-            else self._posted_by
+            else (
+                removed_account
+                if self.state.SPAM
+                else unknown_account if self._posted_by is None else self._posted_by
+            )
         )
 
     @posted_by.inplace.setter  # type: ignore[arg-type]
@@ -432,9 +432,7 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
         return (
             message_deleted
             if self.state.DELETED
-            else message_removed
-            if self.state.SPAM
-            else self._message
+            else message_removed if self.state.SPAM else self._message
         )
 
     @message.inplace.setter

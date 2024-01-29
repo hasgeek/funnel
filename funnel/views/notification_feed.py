@@ -37,17 +37,17 @@ class AllNotificationsView(ClassView):
                     'notification': nr.current_access(datasets=('primary', 'related')),
                     'html': nr.views.render.web(),
                     'document_type': nr.notification.document_type,
-                    'document': nr.document.current_access(
-                        datasets=('primary', 'related')
-                    )
-                    if nr.document
-                    else None,
+                    'document': (
+                        nr.document.current_access(datasets=('primary', 'related'))
+                        if nr.document
+                        else None
+                    ),
                     'fragment_type': nr.notification.fragment_type,
-                    'fragment': nr.fragment.current_access(
-                        datasets=('primary', 'related')
-                    )
-                    if nr.fragment
-                    else None,
+                    'fragment': (
+                        nr.fragment.current_access(datasets=('primary', 'related'))
+                        if nr.fragment
+                        else None
+                    ),
                 }
                 for nr in pagination.items
                 if nr.is_not_deleted(revoke=True)

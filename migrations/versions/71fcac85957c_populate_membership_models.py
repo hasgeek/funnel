@@ -213,11 +213,15 @@ def upgrade() -> None:
                         'granted_at': (
                             admin_dict[user_id]
                             if user_id in admin_dict
-                            else checkin_dict[user_id]
-                            if user_id in checkin_dict
-                            else review_dict[user_id]
-                            if user_id in review_dict
-                            else sa.func.now()
+                            else (
+                                checkin_dict[user_id]
+                                if user_id in checkin_dict
+                                else (
+                                    review_dict[user_id]
+                                    if user_id in review_dict
+                                    else sa.func.now()
+                                )
+                            )
                         ),
                         'record_type': MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
                         'created_at': sa.func.now(),

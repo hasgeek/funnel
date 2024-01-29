@@ -74,9 +74,15 @@ def find_elements(
             # pylint: disable=unsubscriptable-object,unsupported-assignment-operation
             text_content = reduce(
                 lambda acc, t: acc + t.content,
-                [tok for tok in token.children if tok.type in ('text', 'code_inline')]
-                if token.children
-                else [],
+                (
+                    [
+                        tok
+                        for tok in token.children
+                        if tok.type in ('text', 'code_inline')
+                    ]
+                    if token.children
+                    else []
+                ),
                 '',
             )
             current_heading['text'] = text_content

@@ -1,4 +1,5 @@
 """Tests for the login, logout and register views."""
+
 # pylint: disable=redefined-outer-name
 
 from collections.abc import Callable, Generator, Iterator
@@ -394,8 +395,9 @@ def test_invalid_otp_login(
 ) -> None:
     """Using an incorrect OTP causes a login failure."""
     with client:
-        with patch(PATCH_SMS_OTP_LOGIN, return_value=None, autospec=True), patch(
-            PATCH_EMAIL_OTP_LOGIN, return_value=None, autospec=True
+        with (
+            patch(PATCH_SMS_OTP_LOGIN, return_value=None, autospec=True),
+            patch(PATCH_EMAIL_OTP_LOGIN, return_value=None, autospec=True),
         ):
             rv1 = client.post(
                 '/login',

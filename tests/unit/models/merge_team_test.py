@@ -1,4 +1,5 @@
 """Tests for Team member merger when merging user accounts."""
+
 # pylint: disable=redefined-outer-name
 
 from datetime import timedelta

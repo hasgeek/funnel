@@ -471,18 +471,21 @@ class ProposalMembershipView(
         )
         del collaborator_form.user
         if collaborator_form.validate_on_submit():
-            with db.session.no_autoflush, membership.amend_by(
-                current_auth.user
-            ) as amendment:
+            with (
+                db.session.no_autoflush,
+                membership.amend_by(current_auth.user) as amendment,
+            ):
                 collaborator_form.populate_obj(amendment)
             db.session.commit()
             return {
                 'status': 'ok',
-                'message': _("{user}’s role has been updated").format(
-                    user=membership.member.pickername
-                )
-                if amendment.membership is not self.obj
-                else None,
+                'message': (
+                    _("{user}’s role has been updated").format(
+                        user=membership.member.pickername
+                    )
+                    if amendment.membership is not self.obj
+                    else None
+                ),
                 'html': render_template(
                     'collaborator_list.html.jinja2',
                     collaborators=self.collaborators(),

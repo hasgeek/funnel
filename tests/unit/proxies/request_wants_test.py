@@ -1,4 +1,5 @@
 """Tests for request_wants proxy."""
+
 # pylint: disable=import-error,redefined-outer-name
 
 

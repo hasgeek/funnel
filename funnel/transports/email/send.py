@@ -102,9 +102,11 @@ def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
         'reservationStatus': (
             'https://schema.org/ReservationConfirmed'
             if rsvp.state.YES
-            else 'https://schema.org/ReservationCancelled'
-            if rsvp.state.NO
-            else 'https://schema.org/ReservationPending'
+            else (
+                'https://schema.org/ReservationCancelled'
+                if rsvp.state.NO
+                else 'https://schema.org/ReservationPending'
+            )
         ),
         'underName': {
             '@type': 'Person',

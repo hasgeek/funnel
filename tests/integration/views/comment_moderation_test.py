@@ -1,4 +1,5 @@
 """Test comment moderation views."""
+
 # pylint: disable=too-many-locals
 
 import pytest

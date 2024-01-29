@@ -576,15 +576,15 @@ class AuthToken(ScopeMixin, BaseMixin[int, Account], Model):
 
     @overload
     @classmethod
-    def get_for(cls, auth_client: AuthClient, *, account: Account) -> AuthToken | None:
-        ...
+    def get_for(
+        cls, auth_client: AuthClient, *, account: Account
+    ) -> AuthToken | None: ...
 
     @overload
     @classmethod
     def get_for(
         cls, auth_client: AuthClient, *, login_session: LoginSession
-    ) -> AuthToken | None:
-        ...
+    ) -> AuthToken | None: ...
 
     @classmethod
     def get_for(

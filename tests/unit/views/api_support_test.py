@@ -1,4 +1,5 @@
 """Tests for support API views."""
+
 # pylint: disable=redefined-outer-name
 
 from __future__ import annotations

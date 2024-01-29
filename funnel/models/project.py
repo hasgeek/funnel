@@ -1,4 +1,5 @@
 """Project model."""
+
 # pylint: disable=unnecessary-lambda
 
 from __future__ import annotations
@@ -909,14 +910,12 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         return self.rsvps.join(Account).filter(Rsvp.state.YES, Account.state.ACTIVE)
 
     @overload
-    def rsvp_for(self, account: Account, create: Literal[True]) -> Rsvp:
-        ...
+    def rsvp_for(self, account: Account, create: Literal[True]) -> Rsvp: ...
 
     @overload
     def rsvp_for(
         self, account: Account | None, create: Literal[False] = False
-    ) -> Rsvp | None:
-        ...
+    ) -> Rsvp | None: ...
 
     def rsvp_for(self, account: Account | None, create: bool = False) -> Rsvp | None:
         return Rsvp.get_for(self, account, create)

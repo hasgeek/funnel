@@ -1,4 +1,5 @@
 """Test SMS templates."""
+
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
 from types import SimpleNamespace

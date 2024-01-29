@@ -1,6 +1,5 @@
 """Markdown preview view."""
 
-
 from flask import request
 
 from baseframe import _

@@ -42,18 +42,15 @@ class AccountAndAnchor(NamedTuple):
 
 
 @overload
-def getuser(name: str) -> Account | None:
-    ...
+def getuser(name: str) -> Account | None: ...
 
 
 @overload
-def getuser(name: str, anchor: Literal[False]) -> Account | None:
-    ...
+def getuser(name: str, anchor: Literal[False]) -> Account | None: ...
 
 
 @overload
-def getuser(name: str, anchor: Literal[True]) -> AccountAndAnchor:
-    ...
+def getuser(name: str, anchor: Literal[True]) -> AccountAndAnchor: ...
 
 
 def getuser(name: str, anchor: bool = False) -> Account | AccountAndAnchor | None:

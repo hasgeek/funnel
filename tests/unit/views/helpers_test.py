@@ -1,4 +1,5 @@
 """Tests for view helpers."""
+
 # pylint: disable=redefined-outer-name
 
 from base64 import urlsafe_b64decode

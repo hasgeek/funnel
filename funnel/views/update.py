@@ -168,15 +168,17 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
         return render_form(
             form=form,
             title=_("Confirm delete"),
-            message=_(
-                "Delete this draft update? This operation is permanent and cannot be"
-                " undone"
-            )
-            if self.obj.state.UNPUBLISHED
-            else _(
-                "Delete this update? This update’s number (#{number}) will be skipped"
-                " for the next update"
-            ).format(number=self.obj.number),
+            message=(
+                _(
+                    "Delete this draft update? This operation is permanent and cannot be"
+                    " undone"
+                )
+                if self.obj.state.UNPUBLISHED
+                else _(
+                    "Delete this update? This update’s number (#{number}) will be skipped"
+                    " for the next update"
+                ).format(number=self.obj.number)
+            ),
             submit=_("Delete"),
             cancel_url=self.obj.url_for(),
         )
