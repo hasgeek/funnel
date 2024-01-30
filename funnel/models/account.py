@@ -1861,7 +1861,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             self.listed_projects.filter(Project.state.PUBLISHED).order_by(None).count()
         )
 
-    @with_roles(grants_via={None: {'participant': 'member'}})
+    @with_roles(read={'all'}, grants_via={None: {'participant': 'member'}})
     @cached_property
     def membership_project(self) -> Project | None:
         """Return a project that has memberships flag enabled (temporary)."""

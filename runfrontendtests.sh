@@ -14,7 +14,6 @@ set +o allexport
 # Break on errors instead of continuing
 set -o errexit
 
-
 python -m tests.test_fixture_initdb
 flask run -p 3002 --no-reload --debugger 2>&1 1>/tmp/funnel-server.log & echo $! > /tmp/funnel-server.pid
 function killserver() {
