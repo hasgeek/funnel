@@ -78,9 +78,11 @@ def account_username_availability() -> ReturnView:
     # Allow user or source IP to check for up to 20 usernames every 10 minutes (600s)
     validate_rate_limit(
         'account_username-available',
-        current_auth.actor.uuid_b58
-        if current_auth.actor
-        else (request.remote_addr or 'unknown-ipaddr'),
+        (
+            current_auth.actor.uuid_b58
+            if current_auth.actor
+            else (request.remote_addr or 'unknown-ipaddr')
+        ),
         # 20 username candidates
         20,
         # per every 10 minutes (600s)

@@ -109,9 +109,11 @@ class PasswordStrengthValidator:
         raise forms.validators.StopValidation(
             tested_password.warning
             if tested_password.warning
-            else '\n'.join(tested_password.suggestions)
-            if tested_password.suggestions
-            else self.message
+            else (
+                '\n'.join(tested_password.suggestions)
+                if tested_password.suggestions
+                else self.message
+            )
         )
 
 

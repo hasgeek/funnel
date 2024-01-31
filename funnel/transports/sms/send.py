@@ -207,11 +207,11 @@ def send_via_twilio(
             from_=sender,
             to=phone_number.number,
             body=str(message),
-            status_callback=url_for(
-                'process_twilio_event', _external=True, _method='POST'
-            )
-            if callback
-            else None,
+            status_callback=(
+                url_for('process_twilio_event', _external=True, _method='POST')
+                if callback
+                else None
+            ),
         )
         phone_number.msg_sms_sent_at = sa.func.utcnow()
         return msg.sid

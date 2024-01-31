@@ -1,4 +1,5 @@
 """Tests for merging notifications with user account merger."""
+
 # pylint: disable=redefined-outer-name
 
 from datetime import timedelta

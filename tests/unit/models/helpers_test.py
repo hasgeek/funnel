@@ -1,4 +1,5 @@
 """Tests for model helpers."""
+
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
 from collections.abc import Callable, Generator

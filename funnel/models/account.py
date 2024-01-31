@@ -1,4 +1,5 @@
 """Account model with subtypes, and account-linked personal data models."""
+
 # pylint: disable=unnecessary-lambda,invalid-unary-operand-type
 # pyright: reportGeneralTypeIssues=false
 
@@ -417,41 +418,41 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         viewonly=True,
     )
 
-    noninvite_organization_admin_memberships: DynamicMapped[
-        AccountMembership
-    ] = relationship(
-        lazy='dynamic',
-        foreign_keys=lambda: AccountMembership.member_id,
-        primaryjoin=lambda: sa.and_(
-            sa_orm.remote(AccountMembership.member_id) == Account.id,
-            ~AccountMembership.is_invite,
-        ),
-        viewonly=True,
+    noninvite_organization_admin_memberships: DynamicMapped[AccountMembership] = (
+        relationship(
+            lazy='dynamic',
+            foreign_keys=lambda: AccountMembership.member_id,
+            primaryjoin=lambda: sa.and_(
+                sa_orm.remote(AccountMembership.member_id) == Account.id,
+                ~AccountMembership.is_invite,
+            ),
+            viewonly=True,
+        )
     )
 
-    active_organization_admin_memberships: DynamicMapped[
-        AccountMembership
-    ] = relationship(
-        lazy='dynamic',
-        foreign_keys=lambda: AccountMembership.member_id,
-        primaryjoin=lambda: sa.and_(
-            sa_orm.remote(AccountMembership.member_id) == Account.id,
-            AccountMembership.is_active,
-        ),
-        viewonly=True,
+    active_organization_admin_memberships: DynamicMapped[AccountMembership] = (
+        relationship(
+            lazy='dynamic',
+            foreign_keys=lambda: AccountMembership.member_id,
+            primaryjoin=lambda: sa.and_(
+                sa_orm.remote(AccountMembership.member_id) == Account.id,
+                AccountMembership.is_active,
+            ),
+            viewonly=True,
+        )
     )
 
-    active_organization_owner_memberships: DynamicMapped[
-        AccountMembership
-    ] = relationship(
-        lazy='dynamic',
-        foreign_keys=lambda: AccountMembership.member_id,
-        primaryjoin=lambda: sa.and_(
-            sa_orm.remote(AccountMembership.member_id) == Account.id,
-            AccountMembership.is_active,
-            AccountMembership.is_owner.is_(True),
-        ),
-        viewonly=True,
+    active_organization_owner_memberships: DynamicMapped[AccountMembership] = (
+        relationship(
+            lazy='dynamic',
+            foreign_keys=lambda: AccountMembership.member_id,
+            primaryjoin=lambda: sa.and_(
+                sa_orm.remote(AccountMembership.member_id) == Account.id,
+                AccountMembership.is_active,
+                AccountMembership.is_owner.is_(True),
+            ),
+            viewonly=True,
+        )
     )
 
     active_organization_invitations: DynamicMapped[AccountMembership] = relationship(
@@ -582,41 +583,41 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     )
 
     # This is used to determine if it is safe to purge the subject's database record
-    projects_as_crew_noninvite_memberships: DynamicMapped[
-        ProjectMembership
-    ] = relationship(
-        lazy='dynamic',
-        primaryjoin=lambda: sa.and_(
-            ProjectMembership.member_id == Account.id,
-            ~ProjectMembership.is_invite,
-        ),
-        viewonly=True,
+    projects_as_crew_noninvite_memberships: DynamicMapped[ProjectMembership] = (
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                ProjectMembership.member_id == Account.id,
+                ~ProjectMembership.is_invite,
+            ),
+            viewonly=True,
+        )
     )
-    projects_as_crew_active_memberships: DynamicMapped[
-        ProjectMembership
-    ] = relationship(
-        lazy='dynamic',
-        primaryjoin=lambda: sa.and_(
-            ProjectMembership.member_id == Account.id,
-            ProjectMembership.is_active,
-        ),
-        viewonly=True,
+    projects_as_crew_active_memberships: DynamicMapped[ProjectMembership] = (
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                ProjectMembership.member_id == Account.id,
+                ProjectMembership.is_active,
+            ),
+            viewonly=True,
+        )
     )
 
     projects_as_crew = DynamicAssociationProxy['Project'](
         'projects_as_crew_active_memberships', 'project'
     )
 
-    projects_as_editor_active_memberships: DynamicMapped[
-        ProjectMembership
-    ] = relationship(
-        lazy='dynamic',
-        primaryjoin=lambda: sa.and_(
-            ProjectMembership.member_id == Account.id,
-            ProjectMembership.is_active,
-            ProjectMembership.is_editor.is_(True),
-        ),
-        viewonly=True,
+    projects_as_editor_active_memberships: DynamicMapped[ProjectMembership] = (
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                ProjectMembership.member_id == Account.id,
+                ProjectMembership.is_active,
+                ProjectMembership.is_editor.is_(True),
+            ),
+            viewonly=True,
+        )
     )
 
     projects_as_editor = DynamicAssociationProxy['Project'](
@@ -785,16 +786,16 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         return self.active_site_membership is not None
 
     # sponsor_membership.py
-    noninvite_project_sponsor_memberships: DynamicMapped[
-        ProjectSponsorMembership
-    ] = relationship(
-        lazy='dynamic',
-        primaryjoin=lambda: sa.and_(
-            ProjectSponsorMembership.member_id == Account.id,
-            ~ProjectSponsorMembership.is_invite,
-        ),
-        order_by=lambda: ProjectSponsorMembership.granted_at.desc(),
-        viewonly=True,
+    noninvite_project_sponsor_memberships: DynamicMapped[ProjectSponsorMembership] = (
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                ProjectSponsorMembership.member_id == Account.id,
+                ~ProjectSponsorMembership.is_invite,
+            ),
+            order_by=lambda: ProjectSponsorMembership.granted_at.desc(),
+            viewonly=True,
+        )
     )
 
     project_sponsor_memberships: DynamicMapped[ProjectSponsorMembership] = relationship(
@@ -807,60 +808,60 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         viewonly=True,
     )
 
-    project_sponsor_membership_invites: DynamicMapped[
-        ProjectSponsorMembership
-    ] = with_roles(
-        relationship(
-            lazy='dynamic',
-            primaryjoin=lambda: sa.and_(
-                ProjectSponsorMembership.member_id == Account.id,
-                ProjectSponsorMembership.is_invite,
-                ProjectSponsorMembership.revoked_at.is_(None),
+    project_sponsor_membership_invites: DynamicMapped[ProjectSponsorMembership] = (
+        with_roles(
+            relationship(
+                lazy='dynamic',
+                primaryjoin=lambda: sa.and_(
+                    ProjectSponsorMembership.member_id == Account.id,
+                    ProjectSponsorMembership.is_invite,
+                    ProjectSponsorMembership.revoked_at.is_(None),
+                ),
+                order_by=lambda: ProjectSponsorMembership.granted_at.desc(),
+                viewonly=True,
             ),
-            order_by=lambda: ProjectSponsorMembership.granted_at.desc(),
-            viewonly=True,
-        ),
-        read={'admin'},
+            read={'admin'},
+        )
     )
 
-    noninvite_proposal_sponsor_memberships: DynamicMapped[
-        ProposalSponsorMembership
-    ] = relationship(
-        lazy='dynamic',
-        primaryjoin=lambda: sa.and_(
-            ProposalSponsorMembership.member_id == Account.id,
-            ~ProposalSponsorMembership.is_invite,
-        ),
-        order_by=lambda: ProposalSponsorMembership.granted_at.desc(),
-        viewonly=True,
-    )
-
-    proposal_sponsor_memberships: DynamicMapped[
-        ProposalSponsorMembership
-    ] = relationship(
-        lazy='dynamic',
-        primaryjoin=lambda: sa.and_(
-            ProposalSponsorMembership.member_id == Account.id,
-            ProposalSponsorMembership.is_active,
-        ),
-        order_by=lambda: ProposalSponsorMembership.granted_at.desc(),
-        viewonly=True,
-    )
-
-    proposal_sponsor_membership_invites: DynamicMapped[
-        ProposalSponsorMembership
-    ] = with_roles(
+    noninvite_proposal_sponsor_memberships: DynamicMapped[ProposalSponsorMembership] = (
         relationship(
             lazy='dynamic',
             primaryjoin=lambda: sa.and_(
                 ProposalSponsorMembership.member_id == Account.id,
-                ProposalSponsorMembership.is_invite,
-                ProposalSponsorMembership.revoked_at.is_(None),
+                ~ProposalSponsorMembership.is_invite,
             ),
             order_by=lambda: ProposalSponsorMembership.granted_at.desc(),
             viewonly=True,
-        ),
-        read={'admin'},
+        )
+    )
+
+    proposal_sponsor_memberships: DynamicMapped[ProposalSponsorMembership] = (
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                ProposalSponsorMembership.member_id == Account.id,
+                ProposalSponsorMembership.is_active,
+            ),
+            order_by=lambda: ProposalSponsorMembership.granted_at.desc(),
+            viewonly=True,
+        )
+    )
+
+    proposal_sponsor_membership_invites: DynamicMapped[ProposalSponsorMembership] = (
+        with_roles(
+            relationship(
+                lazy='dynamic',
+                primaryjoin=lambda: sa.and_(
+                    ProposalSponsorMembership.member_id == Account.id,
+                    ProposalSponsorMembership.is_invite,
+                    ProposalSponsorMembership.revoked_at.is_(None),
+                ),
+                order_by=lambda: ProposalSponsorMembership.granted_at.desc(),
+                viewonly=True,
+            ),
+            read={'admin'},
+        )
     )
 
     sponsored_projects = DynamicAssociationProxy['Project'](
@@ -1543,8 +1544,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         *,
         name: str,
         defercols: bool = False,
-    ) -> Account | None:
-        ...
+    ) -> Account | None: ...
 
     @overload
     @classmethod
@@ -1553,8 +1553,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         *,
         buid: str,
         defercols: bool = False,
-    ) -> Account | None:
-        ...
+    ) -> Account | None: ...
 
     @overload
     @classmethod
@@ -1563,8 +1562,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         *,
         userid: str,
         defercols: bool = False,
-    ) -> Account | None:
-        ...
+    ) -> Account | None: ...
 
     @classmethod
     def get(
@@ -2180,8 +2178,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
     def get(
         cls,
         email: str,
-    ) -> AccountEmail | None:
-        ...
+    ) -> AccountEmail | None: ...
 
     @overload
     @classmethod
@@ -2189,8 +2186,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         cls,
         *,
         blake2b160: bytes,
-    ) -> AccountEmail | None:
-        ...
+    ) -> AccountEmail | None: ...
 
     @overload
     @classmethod
@@ -2198,8 +2194,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         cls,
         *,
         email_hash: str,
-    ) -> AccountEmail | None:
-        ...
+    ) -> AccountEmail | None: ...
 
     @classmethod
     def get(
@@ -2230,8 +2225,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         account: Account,
         *,
         email: str,
-    ) -> AccountEmail | None:
-        ...
+    ) -> AccountEmail | None: ...
 
     @overload
     @classmethod
@@ -2240,8 +2234,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         account: Account,
         *,
         blake2b160: bytes,
-    ) -> AccountEmail | None:
-        ...
+    ) -> AccountEmail | None: ...
 
     @overload
     @classmethod
@@ -2250,8 +2243,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         account: Account,
         *,
         email_hash: str,
-    ) -> AccountEmail | None:
-        ...
+    ) -> AccountEmail | None: ...
 
     @classmethod
     def get_for(
@@ -2358,8 +2350,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
         account: Account,
         *,
         email: str,
-    ) -> AccountEmailClaim | None:
-        ...
+    ) -> AccountEmailClaim | None: ...
 
     @overload
     @classmethod
@@ -2368,8 +2359,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
         account: Account,
         *,
         blake2b160: bytes,
-    ) -> AccountEmailClaim | None:
-        ...
+    ) -> AccountEmailClaim | None: ...
 
     @overload
     @classmethod
@@ -2378,8 +2368,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
         account: Account,
         *,
         email_hash: str,
-    ) -> AccountEmailClaim | None:
-        ...
+    ) -> AccountEmailClaim | None: ...
 
     @classmethod
     def get_for(
@@ -2419,8 +2408,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
         verification_code: str,
         *,
         email: str,
-    ) -> AccountEmailClaim | None:
-        ...
+    ) -> AccountEmailClaim | None: ...
 
     @overload
     @classmethod
@@ -2429,8 +2417,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
         verification_code: str,
         *,
         blake2b160: bytes,
-    ) -> AccountEmailClaim | None:
-        ...
+    ) -> AccountEmailClaim | None: ...
 
     @overload
     @classmethod
@@ -2439,8 +2426,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
         verification_code: str,
         *,
         email_hash: str,
-    ) -> AccountEmailClaim | None:
-        ...
+    ) -> AccountEmailClaim | None: ...
 
     @classmethod
     def get_by(
@@ -2550,8 +2536,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
     def get(
         cls,
         phone: str,
-    ) -> AccountPhone | None:
-        ...
+    ) -> AccountPhone | None: ...
 
     @overload
     @classmethod
@@ -2559,8 +2544,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
         cls,
         *,
         blake2b160: bytes,
-    ) -> AccountPhone | None:
-        ...
+    ) -> AccountPhone | None: ...
 
     @overload
     @classmethod
@@ -2568,8 +2552,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
         cls,
         *,
         phone_hash: str,
-    ) -> AccountPhone | None:
-        ...
+    ) -> AccountPhone | None: ...
 
     @classmethod
     def get(
@@ -2603,8 +2586,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
         account: Account,
         *,
         phone: str,
-    ) -> AccountPhone | None:
-        ...
+    ) -> AccountPhone | None: ...
 
     @overload
     @classmethod
@@ -2613,8 +2595,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
         account: Account,
         *,
         blake2b160: bytes,
-    ) -> AccountPhone | None:
-        ...
+    ) -> AccountPhone | None: ...
 
     @overload
     @classmethod
@@ -2623,8 +2604,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
         account: Account,
         *,
         phone_hash: str,
-    ) -> AccountPhone | None:
-        ...
+    ) -> AccountPhone | None: ...
 
     @classmethod
     def get_for(
@@ -2743,8 +2723,7 @@ class AccountExternalId(BaseMixin[int, Account], Model):
         service: str,
         *,
         userid: str,
-    ) -> AccountExternalId | None:
-        ...
+    ) -> AccountExternalId | None: ...
 
     @overload
     @classmethod
@@ -2753,8 +2732,7 @@ class AccountExternalId(BaseMixin[int, Account], Model):
         service: str,
         *,
         username: str,
-    ) -> AccountExternalId | None:
-        ...
+    ) -> AccountExternalId | None: ...
 
     @classmethod
     def get(

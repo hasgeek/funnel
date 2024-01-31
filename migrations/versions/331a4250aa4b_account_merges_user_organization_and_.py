@@ -54,17 +54,20 @@ class Rn:
     #: New name
     future_name: str | None = None
     #: Symbol type
-    symbol: Literal[
-        # These symbols need a table
-        'column',
-        'constraint',
-        'trigger',
-        # These do not need a table
-        'table',
-        'index',
-        'function',
-        'sequence',
-    ] | None = None
+    symbol: (
+        Literal[
+            # These symbols need a table
+            'column',
+            'constraint',
+            'trigger',
+            # These do not need a table
+            'table',
+            'index',
+            'function',
+            'sequence',
+        ]
+        | None
+    ) = None
     #: Optional namespace (table for columns and constraints, not required for others)
     table_name: str | None = None
     #: Old table name (autoset by Rtable)
@@ -637,9 +640,10 @@ def upgrade_() -> None:
             rn.upgrade()
 
     # Add new columns and indexes to 'account' table
-    with console.status("Adding columns to account"), op.batch_alter_table(
-        'account'
-    ) as batch_op:
+    with (
+        console.status("Adding columns to account"),
+        op.batch_alter_table('account') as batch_op,
+    ):
         batch_op.alter_column('search_vector', nullable=True)
         batch_op.add_column(
             sa.Column(

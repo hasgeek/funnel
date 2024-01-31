@@ -452,18 +452,15 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
 
     @overload
     @classmethod
-    def get_filter(cls, *, email: str) -> sa.ColumnElement[bool] | None:
-        ...
+    def get_filter(cls, *, email: str) -> sa.ColumnElement[bool] | None: ...
 
     @overload
     @classmethod
-    def get_filter(cls, *, blake2b160: bytes) -> sa.ColumnElement[bool]:
-        ...
+    def get_filter(cls, *, blake2b160: bytes) -> sa.ColumnElement[bool]: ...
 
     @overload
     @classmethod
-    def get_filter(cls, *, email_hash: str) -> sa.ColumnElement[bool]:
-        ...
+    def get_filter(cls, *, email_hash: str) -> sa.ColumnElement[bool]: ...
 
     @overload
     @classmethod
@@ -473,8 +470,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
         email: str | None,
         blake2b160: bytes | None,
         email_hash: str | None,
-    ) -> sa.ColumnElement[bool] | None:
-        ...
+    ) -> sa.ColumnElement[bool] | None: ...
 
     @classmethod
     def get_filter(
@@ -506,8 +502,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
     def get(
         cls,
         email: str,
-    ) -> EmailAddress | None:
-        ...
+    ) -> EmailAddress | None: ...
 
     @overload
     @classmethod
@@ -515,8 +510,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
         cls,
         *,
         blake2b160: bytes,
-    ) -> EmailAddress | None:
-        ...
+    ) -> EmailAddress | None: ...
 
     @overload
     @classmethod
@@ -524,8 +518,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
         cls,
         *,
         email_hash: str,
-    ) -> EmailAddress | None:
-        ...
+    ) -> EmailAddress | None: ...
 
     @classmethod
     def get(
@@ -832,16 +825,13 @@ class EmailAddressMixin(OptionalEmailAddressMixin):
             ...
 
         @property  # type: ignore[override]
-        def email(self) -> str:
-            ...
+        def email(self) -> str: ...
 
         @email.setter
-        def email(self, __value: str) -> None:
-            ...
+        def email(self, __value: str) -> None: ...
 
         @property
-        def transport_hash(self) -> str:
-            ...
+        def transport_hash(self) -> str: ...
 
 
 auto_init_default(EmailAddress._delivery_state)  # pylint: disable=protected-access

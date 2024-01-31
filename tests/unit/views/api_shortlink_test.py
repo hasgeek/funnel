@@ -1,4 +1,5 @@
 """Test shortlink API views."""
+
 # pylint: disable=redefined-outer-name
 
 import pytest

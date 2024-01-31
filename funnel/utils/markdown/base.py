@@ -73,9 +73,9 @@ class MarkdownConfig:
     name: str | None = None
 
     #: Markdown-it preset configuration
-    preset: Literal[
-        'default', 'zero', 'commonmark', 'js-default', 'gfm-like'
-    ] = 'commonmark'
+    preset: Literal['default', 'zero', 'commonmark', 'js-default', 'gfm-like'] = (
+        'commonmark'
+    )
     #: Updated options against the preset
     options_update: Mapping | None = None
     #: Allow only inline rules (skips all block rules)?
@@ -112,12 +112,10 @@ class MarkdownConfig:
         return obj
 
     @overload
-    def render(self, text: None) -> None:
-        ...
+    def render(self, text: None) -> None: ...
 
     @overload
-    def render(self, text: str) -> Markup:
-        ...
+    def render(self, text: str) -> Markup: ...
 
     def render(self, text: str | None) -> Markup | None:
         """Parse and render Markdown using markdown-it-py with the selected config."""

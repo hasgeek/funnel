@@ -460,13 +460,11 @@ def requires_user_not_spammy(
 @overload
 def requires_login(
     __p: str,
-) -> Callable[[Callable[P, T]], Callable[P, T | ReturnResponse]]:
-    ...
+) -> Callable[[Callable[P, T]], Callable[P, T | ReturnResponse]]: ...
 
 
 @overload
-def requires_login(__p: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
-    ...
+def requires_login(__p: Callable[P, T]) -> Callable[P, T | ReturnResponse]: ...
 
 
 def requires_login(

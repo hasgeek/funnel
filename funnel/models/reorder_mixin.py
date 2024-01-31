@@ -21,11 +21,9 @@ class ReorderSubclassProtocol(ModelIdProtocol, Protocol):
     seq: Mapped[Any]
 
     @property
-    def parent_scoped_reorder_query_filter(self) -> sa.ColumnElement[bool]:
-        ...
+    def parent_scoped_reorder_query_filter(self) -> sa.ColumnElement[bool]: ...
 
-    def reorder_item(self: Reorderable, other: Reorderable, before: bool) -> None:
-        ...
+    def reorder_item(self: Reorderable, other: Reorderable, before: bool) -> None: ...
 
 
 Reorderable = TypeVar('Reorderable', bound='ReorderSubclassProtocol')

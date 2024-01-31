@@ -32,12 +32,10 @@ from .helpers import app_context
 class RqJobProtocol(Protocol[P, T_co]):
     """Protocol for an RQ job function."""
 
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T_co:
-        ...
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T_co: ...
 
     # TODO: Replace return type with job id type
-    def queue(self, *args: P.args, **kwargs: P.kwargs) -> None:
-        ...
+    def queue(self, *args: P.args, **kwargs: P.kwargs) -> None: ...
 
     # TODO: Add other methods and attrs (queue_name, schedule, cron, ...)
 

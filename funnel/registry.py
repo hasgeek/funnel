@@ -126,9 +126,9 @@ class ResourceRegistry(OrderedDict):
                     )
                     response.status_code = 500
                 # XXX: Let resources control how they return?
-                response.headers[
-                    'Cache-Control'
-                ] = 'no-cache, no-store, max-age=0, must-revalidate'
+                response.headers['Cache-Control'] = (
+                    'no-cache, no-store, max-age=0, must-revalidate'
+                )
                 response.headers['Pragma'] = 'no-cache'
                 return response
 

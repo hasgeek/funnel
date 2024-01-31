@@ -1,4 +1,5 @@
 """Test account registration."""
+
 # pylint: disable=redefined-outer-name
 
 import re

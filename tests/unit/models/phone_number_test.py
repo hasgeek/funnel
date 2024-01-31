@@ -1,4 +1,5 @@
 """Tests for PhoneNumber model."""
+
 # pylint: disable=redefined-outer-name
 
 from collections.abc import Generator

@@ -156,9 +156,11 @@ class UnsubscribeForm(forms.Form):
         self.types.choices = [
             (
                 ntype,
-                Markup(f'<strong>{nvalue.title}</strong> 👈')
-                if ntype == self.notification_type
-                else nvalue.title,
+                (
+                    Markup(f'<strong>{nvalue.title}</strong> 👈')
+                    if ntype == self.notification_type
+                    else nvalue.title
+                ),
             )
             for ntype, nvalue in notification_type_registry.items()
             if ntype in self.edit_obj.notification_preferences

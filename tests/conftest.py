@@ -1,4 +1,5 @@
 """Test configuration and fixtures."""
+
 # pylint: disable=import-outside-toplevel,redefined-outer-name
 
 from __future__ import annotations
@@ -223,8 +224,7 @@ class TestResponse(Response):
         #: :class:`werkzeug.test.TestResponse`, which will be used to make a subclass
         #: of this class in :class:`werkzeug.test.Client`
         @property
-        def text(self) -> str:
-            ...
+        def text(self) -> str: ...
 
     _parsed_html: HtmlElement | None = None
 
@@ -326,8 +326,7 @@ def rich_console() -> Console:
 
 @runtime_checkable
 class PrintStackProtocol(Protocol):
-    def __call__(self, skip: int = 0, limit: int | None = None) -> None:
-        ...
+    def __call__(self, skip: int = 0, limit: int | None = None) -> None: ...
 
 
 @pytest.fixture(scope='session')
@@ -1075,9 +1074,11 @@ def db_session(request: pytest.FixtureRequest) -> scoped_session:
     """
     return request.getfixturevalue(
         db_session_implementations[
-            'truncate'
-            if request.node.get_closest_marker('dbcommit')
-            else cast(str, request.config.getoption('--dbsession'))
+            (
+                'truncate'
+                if request.node.get_closest_marker('dbcommit')
+                else cast(str, request.config.getoption('--dbsession'))
+            )
         ]
     )
 
@@ -1096,8 +1097,7 @@ class TestClient(FlaskClient):
             buffered: bool = False,
             follow_redirects: bool = False,
             **kwargs: Any,
-        ) -> TestResponse:
-            ...
+        ) -> TestResponse: ...
 
         def get(self, *args: Any, **kw: Any) -> TestResponse:  # type: ignore[override]
             ...
@@ -1110,26 +1110,22 @@ class TestClient(FlaskClient):
 
         def delete(  # type: ignore[override]
             self, *args: Any, **kw: Any
-        ) -> TestResponse:
-            ...
+        ) -> TestResponse: ...
 
         def patch(  # type: ignore[override]
             self, *args: Any, **kw: Any
-        ) -> TestResponse:
-            ...
+        ) -> TestResponse: ...
 
         def options(  # type: ignore[override]
             self, *args: Any, **kw: Any
-        ) -> TestResponse:
-            ...
+        ) -> TestResponse: ...
 
         def head(self, *args: Any, **kw: Any) -> TestResponse:  # type: ignore[override]
             ...
 
         def trace(  # type: ignore[override]
             self, *args: Any, **kw: Any
-        ) -> TestResponse:
-            ...
+        ) -> TestResponse: ...
 
 
 @pytest.fixture()
@@ -1225,11 +1221,9 @@ def csrf_token(app: Flask, client: TestClient) -> str:
 
 @runtime_checkable
 class LoginFixtureProtocol(Protocol):
-    def as_(self, user: funnel_models.User) -> None:
-        ...
+    def as_(self, user: funnel_models.User) -> None: ...
 
-    def logout(self) -> None:
-        ...
+    def logout(self) -> None: ...
 
 
 @pytest.fixture()
@@ -1271,8 +1265,7 @@ def login(
 class GetUserProtocol(Protocol):
     usermap: dict[str, str]
 
-    def __call__(self, user: str) -> funnel_models.User:
-        ...
+    def __call__(self, user: str) -> funnel_models.User: ...
 
 
 @pytest.fixture()

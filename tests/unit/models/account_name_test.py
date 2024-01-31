@@ -1,6 +1,5 @@
 """Tests for Account name."""
 
-
 import pytest
 from sqlalchemy.exc import IntegrityError
 

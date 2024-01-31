@@ -570,9 +570,11 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
         return jsonify(
             status='ok',
             **{
-                k: v
-                if not isinstance(v, RoleMixin)
-                else v.current_access(datasets=('primary',))
+                k: (
+                    v
+                    if not isinstance(v, RoleMixin)
+                    else v.current_access(datasets=('primary',))
+                )
                 for k, v in kwargs.items()
             },
         )

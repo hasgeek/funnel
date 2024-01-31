@@ -402,13 +402,15 @@ class RenderShared:
                 f'{escape(self.organization.pickername)}</a>'
             ),
             actor=(
-                Markup(
-                    f'<a href="{escape(actor.absolute_url)}">'
-                    f'{escape(actor.pickername)}</a>'
+                (
+                    Markup(
+                        f'<a href="{escape(actor.absolute_url)}">'
+                        f'{escape(actor.pickername)}</a>'
+                    )
                 )
-            )
-            if actor
-            else _("(unknown)"),
+                if actor
+                else _("(unknown)")
+            ),
         )
 
     def email_subject(self) -> str:

@@ -171,9 +171,9 @@ class IndexView(ClassView):
         )
         return {
             'status': 'ok',
-            'next_page': pagination.page + 1
-            if pagination.page < pagination.pages
-            else '',
+            'next_page': (
+                pagination.page + 1 if pagination.page < pagination.pages else ''
+            ),
             'total_pages': pagination.pages,
             'past_projects': [
                 {

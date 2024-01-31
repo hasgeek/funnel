@@ -5,6 +5,7 @@ These tests verify the structure of the views, but don't actually test for wheth
 views are returning expected results (at this time). Proper search testing requires a
 corpus of searchable data in fixtures.
 """
+
 # pylint: disable=redefined-outer-name
 
 from types import SimpleNamespace

@@ -1,4 +1,5 @@
 """Tests for the ScopeMixin model mixin."""
+
 # pylint: disable=protected-access
 
 import pytest
