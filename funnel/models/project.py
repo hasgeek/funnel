@@ -534,6 +534,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
                 'urls',  # From UrlForMixin
                 'created_at',  # From TimestampMixin, used for vCal render timestamp
                 'updated_at',  # From TimestampMixin, used for vCal render timestamp
+                'subprojects',
             },
             'call': {
                 'features',  # From RegistryMixin
