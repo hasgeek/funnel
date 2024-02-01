@@ -12,7 +12,7 @@
       <div class="mui-form__controls">
         <div class="mui-textfield mui-textfield--float-label">
           <input id="title" class="field-url js-campaign-url js-inbox-change" {% if request.referrer %}value="{{ request.referrer }}"{%- endif -%} type="text"/>
-          <label for="title">Url</label>
+          <label for="title">{% trans %}Url{% endtrans %}</label>
         </div>
       </div>
     </div>
