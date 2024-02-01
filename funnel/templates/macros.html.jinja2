@@ -90,6 +90,9 @@
     <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://twitter.com/share?text={{ title|urlencode }}+(via+@hasgeek)&amp;url={{ url_twitter|urlencode }}" data-url="{{ url_twitter }}" data-via="hasgeek" data-text="{{ title }}" data-ga="Tweet" role="menuitem">{{ faicon(icon='twitter-square', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Twitter{% endtrans %}</a></li>
     <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://www.facebook.com/sharer.php?u={{ url_facebook|urlencode }}&amp;t={{ title|urlencode }}" data-href="{{ url_facebook }}" data-ga="Share on facebook" role="menuitem">{{ faicon(icon='facebook-square', baseline=true,css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Facebook{% endtrans %}</a></li>
     <li><a class="mui--text-body2" href="https://www.linkedin.com/shareArticle?mini=true&url={{ url_linkedin|urlencode }}&title={{ title|urlencode }}" data-ga="Share on linkedin" role="menuitem">{{ faicon(icon='linkedin', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}LinkedIn{% endtrans %}</a></li>
+    {% if current_auth.user and current_auth.user.is_site_editor %}
+      <li><a class="mui--text-body2" href="{{ url_for('shortlink') }}" role="menuitem">{{ faicon(icon='link', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Customize{% endtrans %}</a></li>
+    {%- endif %}
   </ul>
   {%- endwith %}
 {% endmacro %}
