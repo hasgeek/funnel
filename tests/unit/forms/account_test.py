@@ -1,4 +1,5 @@
 """Test account forms."""
+
 # pylint: disable=redefined-outer-name
 
 from collections.abc import Generator

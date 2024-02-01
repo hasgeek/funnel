@@ -1,6 +1,5 @@
 """Tests for UserExternalId model."""
 
-
 import pytest
 
 from coaster.sqlalchemy import StateTransitionError

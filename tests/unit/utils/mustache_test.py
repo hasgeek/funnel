@@ -1,4 +1,5 @@
 """Tests for Mustache templates on Markdown documents."""
+
 # pylint: disable=not-callable
 # mypy: disable-error-code=index
 

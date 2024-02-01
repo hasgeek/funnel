@@ -35,13 +35,11 @@ def blake2b160_hex(text: str) -> str:
 
 
 @overload
-def abort_null(text: str) -> str:
-    ...
+def abort_null(text: str) -> str: ...
 
 
 @overload
-def abort_null(text: None) -> None:
-    ...
+def abort_null(text: None) -> None: ...
 
 
 def abort_null(text: str | None) -> str | None:

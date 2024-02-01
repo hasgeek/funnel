@@ -1,4 +1,5 @@
 """Provide configuration for models and import all into a common `models` namespace."""
+
 # pyright: reportUnsupportedDunderAll=false
 
 # The second half of this file is dynamically generated. Run `make initpy` to

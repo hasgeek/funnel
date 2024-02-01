@@ -37,39 +37,32 @@ class ModelTimestampProtocol(ModelProtocol, Protocol):
 
 class ModelUrlProtocol(Protocol):
     @property
-    def absolute_url(self) -> str | None:
-        ...
+    def absolute_url(self) -> str | None: ...
 
-    def url_for(self, action: str = 'view', **kwargs: Any) -> str:
-        ...
+    def url_for(self, action: str = 'view', **kwargs: Any) -> str: ...
 
 
 class ModelRoleProtocol(Protocol):
     def roles_for(
         self, actor: Account | None = None, anchors: Sequence[Any] = ()
-    ) -> LazyRoleSet:
-        ...
+    ) -> LazyRoleSet: ...
 
     @property
-    def current_roles(self) -> InspectableSet[LazyRoleSet]:
-        ...
+    def current_roles(self) -> InspectableSet[LazyRoleSet]: ...
 
     @overload
     def actors_with(
         self, roles: Iterable[str], with_role: Literal[False] = False
-    ) -> Iterator[Account]:
-        ...
+    ) -> Iterator[Account]: ...
 
     @overload
     def actors_with(
         self, roles: Iterable[str], with_role: Literal[True]
-    ) -> Iterator[tuple[Account, str]]:
-        ...
+    ) -> Iterator[tuple[Account, str]]: ...
 
     def actors_with(
         self, roles: Iterable[str], with_role: bool = False
-    ) -> Iterator[Account | tuple[Account, str]]:
-        ...
+    ) -> Iterator[Account | tuple[Account, str]]: ...
 
 
 class ModelIdProtocol(
@@ -87,8 +80,7 @@ class ModelSearchProtocol(ModelUuidProtocol, Protocol):
     search_vector: Mapped[str]
 
     @property
-    def title(self) -> Mapped[str] | declared_attr[str]:
-        ...
+    def title(self) -> Mapped[str] | declared_attr[str]: ...
 
 
 # Tail imports

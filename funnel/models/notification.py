@@ -79,6 +79,7 @@ and :class:`UserNotification`:
 2. UserNotification has pkey ``(recipient_id, eventid)`` combined with a fkey to
     Notification using ``(eventid, notification_id)``
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable, Generator, Sequence

@@ -260,9 +260,11 @@ class RenderNotification:
                 'buid': self.notification_recipient.recipient.buid,
                 'notification_type': self.notification.type,
                 'transport': transport,
-                'hash': anchor.transport_hash
-                if (anchor := self.transport_for(transport)) is not None
-                else '',
+                'hash': (
+                    anchor.transport_hash
+                    if (anchor := self.transport_for(transport)) is not None
+                    else ''
+                ),
             }
         )
 
@@ -292,9 +294,11 @@ class RenderNotification:
                 'buid': self.notification_recipient.recipient.buid,
                 'notification_type': self.notification.type,
                 'transport': transport,
-                'hash': anchor.transport_hash
-                if (anchor := self.transport_for(transport)) is not None
-                else '',
+                'hash': (
+                    anchor.transport_hash
+                    if (anchor := self.transport_for(transport)) is not None
+                    else ''
+                ),
                 'eventid_b58': self.notification.eventid_b58,
                 'timestamp': datetime.utcnow(),  # Naive timestamp
             },
@@ -313,9 +317,11 @@ class RenderNotification:
         if self.notification.fragment_model is None:
             return []
         return [
-            self.notification.fragment_model.updated_at.desc()
-            if hasattr(self.notification.fragment_model, 'updated_at')
-            else self.notification.fragment_model.created_at.desc()
+            (
+                self.notification.fragment_model.updated_at.desc()
+                if hasattr(self.notification.fragment_model, 'updated_at')
+                else self.notification.fragment_model.created_at.desc()
+            )
         ]
 
     @property

@@ -1,4 +1,5 @@
 """Tests for EmailAddress model."""
+
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
 

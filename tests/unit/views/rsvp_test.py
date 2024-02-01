@@ -1,4 +1,5 @@
 """Test custom rsvp form views."""
+
 # pylint: disable=redefined-outer-name
 
 import datetime
