@@ -1,6 +1,5 @@
 """Test email transport functions."""
 
-
 import pytest
 from flask_mailman.message import sanitize_address
 

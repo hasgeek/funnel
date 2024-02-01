@@ -603,12 +603,12 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
-            self.obj.boxoffice_data[
-                'register_form_schema'
-            ] = form.register_form_schema.data
-            self.obj.boxoffice_data[
-                'register_button_txt'
-            ] = form.register_button_txt.data
+            self.obj.boxoffice_data['register_form_schema'] = (
+                form.register_form_schema.data
+            )
+            self.obj.boxoffice_data['register_button_txt'] = (
+                form.register_button_txt.data
+            )
             self.obj.boxoffice_data['has_membership'] = form.has_membership.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
@@ -748,13 +748,17 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                 _r.current_access(datasets=('without_parent', 'related', 'related'))
                 for _r in self.obj.rsvps_with(RsvpStateEnum.YES)
             ],
-            'rsvp_form_fields': [
-                field.get('name', '')
-                for field in self.obj.boxoffice_data['register_form_schema']['fields']
-            ]
-            if self.obj.boxoffice_data.get('register_form_schema', {})
-            and 'fields' in self.obj.boxoffice_data.get('register_form_schema', {})
-            else None,
+            'rsvp_form_fields': (
+                [
+                    field.get('name', '')
+                    for field in self.obj.boxoffice_data['register_form_schema'][
+                        'fields'
+                    ]
+                ]
+                if self.obj.boxoffice_data.get('register_form_schema', {})
+                and 'fields' in self.obj.boxoffice_data.get('register_form_schema', {})
+                else None
+            ),
         }
 
     def get_rsvp_state_csv(self, state: RsvpStateEnum) -> Response:

@@ -258,17 +258,13 @@ class GeoName(BaseNameMixin, GeonameModel):
             return (
                 self.admin1code.title
                 if self.admin1code
-                else self.admin1_ref.title
-                if self.admin1_ref
-                else ''
+                else self.admin1_ref.title if self.admin1_ref else ''
             ) or ''
         if self.has_admin2code:
             return (
                 self.admin2code.title
                 if self.admin2code
-                else self.admin2_ref.title
-                if self.admin2_ref
-                else ''
+                else self.admin2_ref.title if self.admin2_ref else ''
             ) or ''
         return self.ascii_title or self.title
 
@@ -426,15 +422,17 @@ class GeoName(BaseNameMixin, GeonameModel):
             'dem': self.dem,
             'timezone': self.timezone,
             'moddate': self.moddate.strftime('%Y-%m-%d') if self.moddate else None,
-            'related': {
-                k: v.as_dict(related=False, alternate_titles=False)
-                for (k, v) in self.related_geonames().items()
-            }
-            if related
-            else {},
-            'alternate_titles': [a.as_dict() for a in self.alternate_titles]
-            if alternate_titles
-            else [],
+            'related': (
+                {
+                    k: v.as_dict(related=False, alternate_titles=False)
+                    for (k, v) in self.related_geonames().items()
+                }
+                if related
+                else {}
+            ),
+            'alternate_titles': (
+                [a.as_dict() for a in self.alternate_titles] if alternate_titles else []
+            ),
         }
 
     @classmethod

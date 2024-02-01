@@ -386,14 +386,12 @@ class ProposalLabelProxyWrapper:
 
 class ProposalLabelProxy:
     @overload
-    def __get__(self, obj: None, cls: type[Proposal] | None = None) -> Self:
-        ...
+    def __get__(self, obj: None, cls: type[Proposal] | None = None) -> Self: ...
 
     @overload
     def __get__(
         self, obj: Proposal, cls: type[Proposal] | None = None
-    ) -> ProposalLabelProxyWrapper:
-        ...
+    ) -> ProposalLabelProxyWrapper: ...
 
     def __get__(
         self, obj: Proposal | None, cls: type[Proposal] | None = None

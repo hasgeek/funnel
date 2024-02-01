@@ -1,4 +1,5 @@
 """Tests for Notification and UserNotification models."""
+
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
 from __future__ import annotations

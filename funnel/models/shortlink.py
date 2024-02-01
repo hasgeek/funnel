@@ -279,8 +279,7 @@ class Shortlink(NoIdMixin, Model):
         shorter: bool = False,
         reuse: Literal[False] = False,
         actor: Account | None = None,
-    ) -> Shortlink:
-        ...
+    ) -> Shortlink: ...
 
     @overload
     @classmethod
@@ -292,8 +291,7 @@ class Shortlink(NoIdMixin, Model):
         shorter: bool = False,
         reuse: Literal[True] = True,
         actor: Account | None = None,
-    ) -> Shortlink:
-        ...
+    ) -> Shortlink: ...
 
     @classmethod
     def new(

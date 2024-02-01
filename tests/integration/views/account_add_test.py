@@ -1,4 +1,5 @@
 """Tests to add a new phone number or email address."""
+
 # pylint: disable=redefined-outer-name
 
 from unittest.mock import patch

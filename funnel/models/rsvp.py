@@ -189,22 +189,21 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
 
     @overload
     @classmethod
-    def get_for(cls, project: Project, account: Account, create: Literal[True]) -> Self:
-        ...
+    def get_for(
+        cls, project: Project, account: Account, create: Literal[True]
+    ) -> Self: ...
 
     @overload
     @classmethod
     def get_for(
         cls, project: Project, account: Account, create: Literal[False]
-    ) -> Self | None:
-        ...
+    ) -> Self | None: ...
 
     @overload
     @classmethod
     def get_for(
         cls, project: Project, account: Account | None, create: bool = False
-    ) -> Self | None:
-        ...
+    ) -> Self | None: ...
 
     @classmethod
     def get_for(
