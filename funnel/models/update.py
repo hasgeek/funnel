@@ -165,11 +165,15 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     )
 
     commentset_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('commentset.id'), default=None, nullable=False
+        sa.ForeignKey('commentset.id', ondelete='RESTRICT'), nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
         relationship(
-            uselist=False, lazy='joined', single_parent=True, back_populates='update'
+            uselist=False,
+            lazy='joined',
+            single_parent=True,
+            cascade='save-update, merge, delete, delete-orphan',
+            back_populates='update',
         ),
         read={'all'},
     )
@@ -301,7 +305,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
             # If it was never published, hard delete it
             db.session.delete(self)
         else:
-            # If not, then soft delete
+            # If published, then soft delete
             self.deleted_by = actor
             self.deleted_at = sa.func.utcnow()
 

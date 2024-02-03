@@ -171,10 +171,14 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
     )
 
     commentset_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('commentset.id'), default=None, nullable=False
+        sa.ForeignKey('commentset.id', ondelete='RESTRICT'), nullable=False
     )
     commentset: Mapped[Commentset] = relationship(
-        uselist=False, lazy='joined', single_parent=True, back_populates='proposal'
+        uselist=False,
+        lazy='joined',
+        single_parent=True,
+        cascade='save-update, merge, delete, delete-orphan',
+        back_populates='proposal',
     )
 
     body, body_text, body_html = MarkdownCompositeDocument.create(

@@ -115,7 +115,9 @@ class Commentset(UuidMixin, BaseMixin[int, Account], Model):
     )
 
     comments: DynamicMapped[Comment] = relationship(
-        lazy='dynamic', back_populates='commentset'
+        lazy='dynamic',
+        cascade='save-update, merge, delete, delete-orphan',
+        back_populates='commentset',
     )
     toplevel_comments: DynamicMapped[Comment] = relationship(
         lazy='dynamic',
@@ -307,7 +309,7 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
         grants={'author'},
     )
     commentset_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('commentset.id'), default=None, nullable=False
+        sa.ForeignKey('commentset.id', ondelete='CASCADE'), default=None, nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
         relationship(back_populates='comments'),
