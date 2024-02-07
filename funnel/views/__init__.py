@@ -1,4 +1,5 @@
 """All app views and view helpers."""
+
 # flake8: noqa
 
 from __future__ import annotations

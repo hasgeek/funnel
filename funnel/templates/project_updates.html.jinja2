@@ -45,6 +45,7 @@
         updateTemplate: '#update-template',
         isEditor: {{ project.features.post_update()|tojson }},
         addReadMore: true,
+        siteEditor:  {% if current_auth.user and current_auth.user.is_site_editor %} true{%- else -%} false {%- endif %},
       };
       window.Hasgeek.updatesInit(updateConfig);
     });

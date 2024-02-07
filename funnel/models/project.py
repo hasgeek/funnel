@@ -1,4 +1,5 @@
 """Project model."""
+
 # pylint: disable=unnecessary-lambda
 
 from __future__ import annotations
@@ -262,10 +263,13 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     )
 
     commentset_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('commentset.id'), default=None, nullable=False
+        sa.ForeignKey('commentset.id', ondelete='RESTRICT'), nullable=False
     )
     commentset: Mapped[Commentset] = relationship(
-        uselist=False, single_parent=True, back_populates='project'
+        uselist=False,
+        single_parent=True,
+        cascade='save-update, merge, delete, delete-orphan',
+        back_populates='project',
     )
 
     parent_project_id: Mapped[int | None] = sa_orm.mapped_column(
@@ -534,6 +538,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
                 'urls',  # From UrlForMixin
                 'created_at',  # From TimestampMixin, used for vCal render timestamp
                 'updated_at',  # From TimestampMixin, used for vCal render timestamp
+                'subprojects',
             },
             'call': {
                 'features',  # From RegistryMixin
@@ -909,14 +914,12 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         return self.rsvps.join(Account).filter(Rsvp.state.YES, Account.state.ACTIVE)
 
     @overload
-    def rsvp_for(self, account: Account, create: Literal[True]) -> Rsvp:
-        ...
+    def rsvp_for(self, account: Account, create: Literal[True]) -> Rsvp: ...
 
     @overload
     def rsvp_for(
         self, account: Account | None, create: Literal[False] = False
-    ) -> Rsvp | None:
-        ...
+    ) -> Rsvp | None: ...
 
     def rsvp_for(self, account: Account | None, create: bool = False) -> Rsvp | None:
         return Rsvp.get_for(self, account, create)

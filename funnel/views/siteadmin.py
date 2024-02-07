@@ -196,13 +196,13 @@ class SiteadminView(ClassView):
         client_users: dict[int, AuthClientUserReport] = {}
 
         for label, interval in (
-            ('hour', '1 hour'),
-            ('day', '1 day'),
-            ('week', '1 week'),
-            ('month', '1 month'),
-            ('quarter', '3 months'),
-            ('halfyear', '6 months'),
-            ('year', '1 year'),
+            ('hour', "'1 hour'"),
+            ('day', "'1 day'"),
+            ('week', "'1 week'"),
+            ('month', "'1 month'"),
+            ('quarter', "'3 months'"),
+            ('halfyear', "'6 months'"),
+            ('year', "'1 year'"),
         ):
             query_client_users = (
                 db.session.query(

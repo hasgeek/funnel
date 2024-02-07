@@ -1,4 +1,5 @@
 """Test Notification views."""
+
 # pylint: disable=redefined-outer-name
 
 from types import SimpleNamespace

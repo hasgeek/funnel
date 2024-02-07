@@ -51,8 +51,7 @@ class MembershipMixinProtocol(Protocol):
     _local_data_only: bool
     parent_id_column: ClassVar[str]
 
-    def replace(self, actor: Account, **data: Any) -> Self:
-        ...
+    def replace(self, actor: Account, **data: Any) -> Self: ...
 
 
 class FrozenAttributionSubclassProtocol(MembershipMixinProtocol, Protocol):
@@ -68,8 +67,7 @@ class ReorderSubclassProtocol(Protocol):
     @property
     def parent_scoped_reorder_query_filter(
         self: ReorderSubclassProtocol,
-    ) -> ColumnElement[bool]:
-        ...
+    ) -> ColumnElement[bool]: ...
 
 
 MembershipMixinType = TypeVar('MembershipMixinType', bound=MembershipMixinProtocol)

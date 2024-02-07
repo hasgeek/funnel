@@ -198,9 +198,11 @@ class ProjectNameForm(forms.Form):
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(
-                max=Project.__name_length__
-                if Project.__name_length__ is not None
-                else -1
+                max=(
+                    Project.__name_length__
+                    if Project.__name_length__ is not None
+                    else -1
+                )
             ),
             forms.validators.ValidName(
                 __(

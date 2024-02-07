@@ -166,10 +166,12 @@ def login() -> ReturnView:
             # password guessing.
             validate_rate_limit(
                 'login',
-                ('user/' + loginform.user.uuid_b58)
-                if loginform.user
-                else ('username/' + loginform.username.data),
-                1000,
+                (
+                    ('user/' + loginform.user.uuid_b58)
+                    if loginform.user
+                    else ('username/' + loginform.username.data)
+                ),
+                10,
                 3600,
             )
             if success:
@@ -534,10 +536,11 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             oauth_token_type=userdata.oauth_token_type,
             oauth_refresh_token=userdata.oauth_refresh_token,
             oauth_expires_in=userdata.oauth_expires_in,
-            oauth_expires_at=sa.func.utcnow()
-            + timedelta(seconds=userdata.oauth_expires_in)
-            if userdata.oauth_expires_in
-            else None,
+            oauth_expires_at=(
+                sa.func.utcnow() + timedelta(seconds=userdata.oauth_expires_in)
+                if userdata.oauth_expires_in
+                else None
+            ),
             last_used_at=sa.func.utcnow(),
         )
     if user is None:
@@ -639,9 +642,11 @@ def account_merge() -> ReturnView:
                     assert isinstance(new_user, User)  # nosec B101
                 login_internal(
                     new_user,
-                    login_service=current_auth.session.login_service
-                    if current_auth.session
-                    else None,
+                    login_service=(
+                        current_auth.session.login_service
+                        if current_auth.session
+                        else None
+                    ),
                 )
                 flash(_("Your accounts have been merged"), 'success')
                 session.pop('merge_buid', None)

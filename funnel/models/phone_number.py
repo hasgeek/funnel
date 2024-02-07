@@ -100,27 +100,23 @@ class PhoneNumberInUseError(PhoneNumberError):
 
 
 @overload
-def parse_phone_number(candidate: str) -> str | None:
-    ...
+def parse_phone_number(candidate: str) -> str | None: ...
 
 
 @overload
-def parse_phone_number(candidate: str, sms: Literal[False]) -> str | None:
-    ...
+def parse_phone_number(candidate: str, sms: Literal[False]) -> str | None: ...
 
 
 @overload
 def parse_phone_number(
     candidate: str, sms: Literal[False], parsed: Literal[True]
-) -> phonenumbers.PhoneNumber | None:
-    ...
+) -> phonenumbers.PhoneNumber | None: ...
 
 
 @overload
 def parse_phone_number(
     candidate: str, sms: bool | Literal[True]
-) -> str | Literal[False] | None:
-    ...
+) -> str | Literal[False] | None: ...
 
 
 @overload
@@ -128,8 +124,7 @@ def parse_phone_number(
     candidate: str,
     sms: bool | Literal[True],
     parsed: Literal[True],
-) -> phonenumbers.PhoneNumber | Literal[False] | None:
-    ...
+) -> phonenumbers.PhoneNumber | Literal[False] | None: ...
 
 
 @overload
@@ -137,8 +132,7 @@ def parse_phone_number(
     candidate: str,
     sms: bool | Literal[True],
     parsed: bool | Literal[False],
-) -> phonenumbers.PhoneNumber | Literal[False] | None:
-    ...
+) -> phonenumbers.PhoneNumber | Literal[False] | None: ...
 
 
 def parse_phone_number(
@@ -520,18 +514,15 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
     @classmethod
     def get_filter(
         cls, *, phone: str | phonenumbers.PhoneNumber
-    ) -> ColumnElement[bool]:
-        ...
+    ) -> ColumnElement[bool]: ...
 
     @overload
     @classmethod
-    def get_filter(cls, *, blake2b160: bytes) -> ColumnElement[bool]:
-        ...
+    def get_filter(cls, *, blake2b160: bytes) -> ColumnElement[bool]: ...
 
     @overload
     @classmethod
-    def get_filter(cls, *, phone_hash: str) -> ColumnElement[bool]:
-        ...
+    def get_filter(cls, *, phone_hash: str) -> ColumnElement[bool]: ...
 
     @overload
     @classmethod
@@ -541,8 +532,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
         phone: str | phonenumbers.PhoneNumber | None,
         blake2b160: bytes | None,
         phone_hash: str | None,
-    ) -> ColumnElement[bool]:
-        ...
+    ) -> ColumnElement[bool]: ...
 
     @classmethod
     def get_filter(
@@ -574,8 +564,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
         phone: str | phonenumbers.PhoneNumber,
         *,
         is_blocked: bool | None = None,
-    ) -> PhoneNumber | None:
-        ...
+    ) -> PhoneNumber | None: ...
 
     @overload
     @classmethod
@@ -584,8 +573,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
         *,
         blake2b160: bytes,
         is_blocked: bool | None = None,
-    ) -> PhoneNumber | None:
-        ...
+    ) -> PhoneNumber | None: ...
 
     @overload
     @classmethod
@@ -594,8 +582,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
         *,
         phone_hash: str,
         is_blocked: bool | None = None,
-    ) -> PhoneNumber | None:
-        ...
+    ) -> PhoneNumber | None: ...
 
     @classmethod
     def get(
@@ -855,16 +842,13 @@ class PhoneNumberMixin(OptionalPhoneNumberMixin):
             ...
 
         @property  # type: ignore[override]
-        def phone(self) -> str:
-            ...
+        def phone(self) -> str: ...
 
         @phone.setter
-        def phone(self, __value: str) -> None:
-            ...
+        def phone(self, __value: str) -> None: ...
 
         @property
-        def transport_hash(self) -> str:
-            ...
+        def transport_hash(self) -> str: ...
 
 
 def _clear_cached_properties(target: PhoneNumber) -> None:

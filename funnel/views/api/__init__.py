@@ -1,4 +1,5 @@
 """API views."""
+
 # flake8: noqa
 
 from . import (

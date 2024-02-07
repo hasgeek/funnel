@@ -1,4 +1,5 @@
 """Refresh commands."""
+
 from flask.cli import AppGroup
 
 from ... import app

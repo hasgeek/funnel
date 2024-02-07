@@ -1,6 +1,5 @@
 """API view for creating a shortlink to any content on the website."""
 
-
 from furl import furl
 
 from baseframe import _

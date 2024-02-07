@@ -115,7 +115,9 @@ class Commentset(UuidMixin, BaseMixin[int, Account], Model):
     )
 
     comments: DynamicMapped[Comment] = relationship(
-        lazy='dynamic', back_populates='commentset'
+        lazy='dynamic',
+        cascade='save-update, merge, delete, delete-orphan',
+        back_populates='commentset',
     )
     toplevel_comments: DynamicMapped[Comment] = relationship(
         lazy='dynamic',
@@ -307,7 +309,7 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
         grants={'author'},
     )
     commentset_id: Mapped[int] = sa_orm.mapped_column(
-        sa.ForeignKey('commentset.id'), default=None, nullable=False
+        sa.ForeignKey('commentset.id', ondelete='CASCADE'), default=None, nullable=False
     )
     commentset: Mapped[Commentset] = with_roles(
         relationship(back_populates='comments'),
@@ -405,11 +407,11 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
         return (
             deleted_account
             if self.state.DELETED
-            else removed_account
-            if self.state.SPAM
-            else unknown_account
-            if self._posted_by is None
-            else self._posted_by
+            else (
+                removed_account
+                if self.state.SPAM
+                else unknown_account if self._posted_by is None else self._posted_by
+            )
         )
 
     @posted_by.inplace.setter  # type: ignore[arg-type]
@@ -432,9 +434,7 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
         return (
             message_deleted
             if self.state.DELETED
-            else message_removed
-            if self.state.SPAM
-            else self._message
+            else message_removed if self.state.SPAM else self._message
         )
 
     @message.inplace.setter

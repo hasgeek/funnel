@@ -92,9 +92,11 @@ class MarkdownTestRegistry:
                         mdtext=test_data['markdown'],  # type: ignore[arg-type]
                         md_configname=md_configname,
                         config=config,
-                        expected_output=None
-                        if exp.get(md_configname, None) is None
-                        else Markup(exp.get(md_configname, None)),
+                        expected_output=(
+                            None
+                            if exp.get(md_configname, None) is None
+                            else Markup(exp.get(md_configname, None))
+                        ),
                     )
                     for md_configname, config in {
                         **{
