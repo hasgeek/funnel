@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from flask import abort, flash
+from flask import abort, flash, request
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -18,7 +18,7 @@ from coaster.views import (
 
 from .. import app
 from ..auth import current_auth
-from ..forms import SavedProjectForm, UpdateForm
+from ..forms import SavedProjectForm, UpdateForm, UpdatePinForm
 from ..models import Account, NewUpdateNotification, Project, Update, db
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
@@ -139,13 +139,27 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'editor'})
     def edit(self) -> ReturnView:
-        form = UpdateForm(obj=self.obj)
+        if request.form.get('form.id') == 'pin':
+            form = UpdatePinForm(obj=self.obj)
+        else:
+            form = UpdateForm(obj=self.obj)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
+            if request.form.get('form.id') == 'pin':
+                return {'status': 'ok', 'is_pinned': self.obj.is_pinned}
             flash(_("The update has been edited"), 'success')
             return render_redirect(self.obj.url_for())
-
+        if request.form.get('form.id') == 'pin':
+            return (
+                {
+                    'status': 'error',
+                    'error': 'pin_form_invalid',
+                    'error_description': _("This page timed out. Reload and try again"),
+                    'form_nonce': form.form_nonce.data,
+                },
+                400,
+            )
         return render_form(
             form=form,
             title=_("Edit update"),
