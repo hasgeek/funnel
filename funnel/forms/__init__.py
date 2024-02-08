@@ -130,7 +130,7 @@ from .sync_ticket import (
     TicketParticipantForm,
     TicketTypeForm,
 )
-from .update import UpdateForm
+from .update import UpdateForm, UpdatePinForm
 from .venue import VenueForm, VenuePrimaryForm, VenueRoomForm
 
 __all__ = [
@@ -214,6 +214,7 @@ __all__ = [
     "TicketTypeForm",
     "UnsubscribeForm",
     "UpdateForm",
+    "UpdatePinForm",
     "UserPermissionAssignForm",
     "UsernameAvailableForm",
     "VenueForm",

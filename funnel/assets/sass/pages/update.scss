@@ -36,6 +36,12 @@
   margin: $mui-grid-padding * 0.5 0;
   position: relative;
 
+  .update__heading {
+    .update__heading__unpin {
+      display: none;
+    }
+  }
+
   .update__content {
     display: inline-block;
     width: 100%;
@@ -44,6 +50,12 @@
 
   .update__content img {
     max-width: 100%;
+  }
+}
+
+.update:hover {
+  .update__heading__unpin {
+    display: inline-block;
   }
 }
 
