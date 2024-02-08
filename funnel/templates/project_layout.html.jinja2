@@ -145,7 +145,7 @@
 {% macro buy_button(project, include_eyebrow_text=true) %}
   <div class="register-block__content">
     {% if include_eyebrow_text %}<span class="register-block__content__txt mui--text-light">{% trans %}Hybrid access (members only){% endtrans %}</span>{% endif %}
-    <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
+    <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary" data-ga="Buy tickets">
       {% if project.features.subscription %}
         <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Become a member{% endtrans %}</span>
       {%- else %}
@@ -176,7 +176,7 @@
             <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
               {{ csrf_tag() }}
               <div class="mui--text-right">
-                <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="no" data-cy="cancel-rsvp">{% if project.features.follow_mode %}{% trans %}Stop following{% endtrans %}{% else %}{% trans %}Confirm cancellation{% endtrans %}{% endif %}</button>
+                <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="no" data-cy="cancel-rsvp" data-ga="cancel-rsvp">{% if project.features.follow_mode %}{% trans %}Stop following{% endtrans %}{% else %}{% trans %}Confirm cancellation{% endtrans %}{% endif %}</button>
               </div>
             </form>
           </div>
@@ -483,10 +483,10 @@
               <a id="submissions" class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'submissions' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for('view_proposals') }}" data-cy-navbar="submissions">{% trans %}Submissions{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
             {%- endif %}
             {%- if project.current_roles.editor or project.schedule_start_at or current_page == 'schedule' %}
-              <a id="schedule" class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'schedule' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for('schedule') }}" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+              <a id="schedule" class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'schedule' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for('schedule') }}" data-cy-navbar="schedule" data-ga="Schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
             {%- endif %}
             {% if project.has_sessions_with_video %}
-              <a id="videos" class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'videos' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for('session_videos') }}" data-cy-navbar="videos">{% trans %}Videos{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+              <a id="videos" class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'videos' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for('session_videos') }}" data-cy-navbar="videos" data-ga="Videos">{% trans %}Videos{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
             {%- endif %}
             <a id="crew" class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'crew' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for('crew') }}" data-cy-navbar="crew">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           </nav>
