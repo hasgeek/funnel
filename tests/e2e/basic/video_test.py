@@ -1,6 +1,9 @@
 """Test livestream urls."""
 
 from playwright.sync_api import Page, expect
+from funnel import models
+from ...conftest import scoped_session
+
 
 VETINARI_EMAIL = 'vetinari@example.org'
 VETINARI_PASSWORD = 've@pwd3289'  # nosec
@@ -14,7 +17,11 @@ def wait_until_recaptcha_loaded(page: Page) -> None:
 
 
 def test_login_add_livestream(
-    db_session, live_server, user_vetinari, project_expo2010, page: Page
+    db_session: scoped_session,
+    live_server,
+    user_vetinari,
+    project_expo2010: models.Project,
+    page: Page,
 ):
     user_vetinari.add_email(VETINARI_EMAIL)
     user_vetinari.password = VETINARI_PASSWORD

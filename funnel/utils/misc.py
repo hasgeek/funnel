@@ -35,13 +35,11 @@ def blake2b160_hex(text: str) -> str:
 
 
 @overload
-def abort_null(text: str) -> str:
-    ...
+def abort_null(text: str) -> str: ...
 
 
 @overload
-def abort_null(text: None) -> None:
-    ...
+def abort_null(text: None) -> None: ...
 
 
 def abort_null(text: str | None) -> str | None:
@@ -143,7 +141,7 @@ def extract_twitter_handle(handle: str) -> str | None:
     )
 
 
-def format_twitter_handle(handle: str) -> str:
+def format_twitter_handle(handle: str | None) -> str:
     """Format twitter handle as an @ mention."""
     return f"@{handle}" if handle else ""
 

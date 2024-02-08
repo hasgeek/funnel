@@ -1,4 +1,5 @@
 """Test Notification views."""
+
 # pylint: disable=redefined-outer-name
 
 from types import SimpleNamespace
@@ -12,9 +13,13 @@ from funnel import models
 from funnel.transports.sms import SmsTemplate
 from funnel.views.notifications.mixins import TemplateVarMixin
 
+from ...conftest import Flask, TestClient, scoped_session
+
 
 @pytest.fixture()
-def phone_vetinari(db_session, user_vetinari):
+def phone_vetinari(
+    db_session: scoped_session, user_vetinari: models.User
+) -> models.AccountPhone:
     """Add a phone number to user_vetinari."""
     accountphone = user_vetinari.add_phone('+12345678900')
     db_session.add(accountphone)
@@ -23,7 +28,9 @@ def phone_vetinari(db_session, user_vetinari):
 
 
 @pytest.fixture()
-def notification_prefs_vetinari(db_session, user_vetinari):
+def notification_prefs_vetinari(
+    db_session: scoped_session, user_vetinari: models.User
+) -> models.NotificationPreferences:
     """Add main notification preferences for user_vetinari."""
     prefs = models.NotificationPreferences(
         notification_type='',
@@ -40,7 +47,11 @@ def notification_prefs_vetinari(db_session, user_vetinari):
 
 
 @pytest.fixture()
-def project_update(db_session, user_vetinari, project_expo2010):
+def project_update(
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    project_expo2010: models.Project,
+) -> models.Update:
     """Create an update to add a notification for."""
     db_session.commit()
     update = models.Update(
@@ -57,7 +68,11 @@ def project_update(db_session, user_vetinari, project_expo2010):
 
 
 @pytest.fixture()
-def update_notification_recipient(db_session, user_vetinari, project_update):
+def update_notification_recipient(
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    project_update: models.Update,
+) -> models.NotificationRecipient:
     """Get a user notification for the update fixture."""
     notification = models.NewUpdateNotification(project_update)
     db_session.add(notification)
@@ -72,7 +87,8 @@ def update_notification_recipient(db_session, user_vetinari, project_update):
 
 
 def test_notification_recipient_is_user_vetinari(
-    update_notification_recipient, user_vetinari
+    update_notification_recipient: models.NotificationRecipient,
+    user_vetinari: models.User,
 ) -> None:
     """Confirm the test notification is for the test user fixture."""
     assert update_notification_recipient.recipient == user_vetinari
@@ -80,13 +96,15 @@ def test_notification_recipient_is_user_vetinari(
 
 @pytest.fixture()
 def unsubscribe_sms_short_url(
-    update_notification_recipient, phone_vetinari, notification_prefs_vetinari
-):
+    update_notification_recipient: models.NotificationRecipient,
+    phone_vetinari: models.AccountPhone,
+    notification_prefs_vetinari: models.NotificationPreferences,
+) -> str:
     """Get an unsubscribe URL for the SMS notification."""
     return update_notification_recipient.views.render.unsubscribe_short_url('sms')
 
 
-def test_unsubscribe_view_is_well_formatted(unsubscribe_sms_short_url) -> None:
+def test_unsubscribe_view_is_well_formatted(unsubscribe_sms_short_url: str) -> None:
     """Confirm the SMS unsubscribe URL is well formatted."""
     prefix = 'https://bye.test/'
     assert unsubscribe_sms_short_url.startswith(prefix)
@@ -94,7 +112,10 @@ def test_unsubscribe_view_is_well_formatted(unsubscribe_sms_short_url) -> None:
 
 
 def test_unsubscribe_sms_view(
-    app, client, unsubscribe_sms_short_url, user_vetinari
+    app: Flask,
+    client: TestClient,
+    unsubscribe_sms_short_url: str,
+    user_vetinari: models.User,
 ) -> None:
     """Confirm the unsubscribe URL renders a form."""
     unsub_url = url_for(
@@ -128,9 +149,10 @@ def test_unsubscribe_sms_view(
     # Assert the user has SMS notifications enabled, and the form agrees
     assert user_vetinari.main_notification_preferences.by_sms is True
     form = rv.form('form-unsubscribe-preferences')
+    assert form is not None
     assert form.fields['main'] == 'y'
-    form.fields['main'] = False
-    rv = form.submit(client)
+    form.fields['main'] = ''
+    rv = form.submit(client)  # type: ignore[attr-defined]
     # We'll now get an acknowledgement
     assert rv.status_code == 200
     # And the user's preferences will be turned off

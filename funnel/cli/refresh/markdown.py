@@ -9,16 +9,19 @@ import click
 import rich.progress
 
 from ... import models
-from ...models import MarkdownModelUnion, db, sa
+from ...models import db, sa_orm
 from . import refresh
 
-_M = TypeVar('_M', bound=MarkdownModelUnion)
+_M = TypeVar('_M', bound=models.ModelIdProtocol)
 
 
 class MarkdownModel(Generic[_M]):
     """Holding class for a model that has markdown fields with custom configuration."""
 
+    #: Dict of ``{MarkdownModel().name: MarkdownModel()}``
     registry: ClassVar[dict[str, MarkdownModel]] = {}
+    #: Dict of ``{config_name: MarkdownModel()}``, where the fields on the model using
+    #: that config are enumerated in :attr:`config_fields`
     config_registry: ClassVar[dict[str, set[MarkdownModel]]] = {}
 
     def __init__(self, model: type[_M], fields: set[str]) -> None:
@@ -54,13 +57,13 @@ class MarkdownModel(Generic[_M]):
             iter_total = 1
         else:
             load_columns = (
-                [self.model.id]
+                [self.model.id_]
                 + [getattr(self.model, f'{field}_text'.lstrip('_')) for field in fields]
                 + [getattr(self.model, f'{field}_html'.lstrip('_')) for field in fields]
             )
             iter_list = (
-                self.model.query.order_by(self.model.id)
-                .options(sa.orm.load_only(*load_columns))
+                self.model.query.order_by(self.model.id_)
+                .options(sa_orm.load_only(*load_columns))
                 .yield_per(10)
             )
             iter_total = self.model.query.count()

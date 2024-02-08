@@ -6,12 +6,20 @@ import getTimeago from './utils/get_timeago';
 import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
 const Updates = {
-  init({ draft = '', updates = '', divElem, updateTemplate, isEditor, addReadMore }) {
+  init({
+    draft = '',
+    updates = '',
+    divElem,
+    updateTemplate,
+    isEditor,
+    siteEditor,
+    addReadMore,
+  }) {
     Vue.use(VS2);
 
     const updateUI = Vue.component('update', {
       template: updateTemplate,
-      props: ['update', 'iseditor', 'addreadmore'],
+      props: ['update', 'iseditor', 'siteeditor', 'addreadmore'],
       data() {
         return {
           truncated: true,
@@ -70,6 +78,7 @@ const Updates = {
           draft: draft.length > 0 ? draft : '',
           updates: updates.length > 0 ? updates : '',
           isEditor,
+          siteEditor,
           headerHeight: '',
           addReadMore,
         };

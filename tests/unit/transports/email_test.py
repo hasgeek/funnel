@@ -1,6 +1,5 @@
 """Test email transport functions."""
 
-
 import pytest
 from flask_mailman.message import sanitize_address
 
@@ -57,6 +56,7 @@ def test_process_recipient() -> None:
 def test_send_email_blocked() -> None:
     """Confirm that send_email will raise an exception on a blocked email address."""
     ea = EmailAddress.add('blocked@example.com')
+    assert ea.email is not None
     EmailAddress.mark_blocked(ea.email)
     with pytest.raises(
         TransportRecipientError, match='This email address has been blocked'

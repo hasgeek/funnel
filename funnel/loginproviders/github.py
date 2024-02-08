@@ -10,6 +10,7 @@ from sentry_sdk import capture_exception
 from baseframe import _
 
 from ..registry import LoginCallbackError, LoginProvider, LoginProviderData
+from ..typing import ReturnView
 
 __all__ = ['GitHubProvider']
 
@@ -21,7 +22,7 @@ class GitHubProvider(LoginProvider):
     user_info_url = 'https://api.github.com/user'
     user_emails_url = 'https://api.github.com/user/emails'
 
-    def do(self, callback_url):
+    def do(self, callback_url: str) -> ReturnView:
         return redirect(
             furl(self.auth_url)
             .add(

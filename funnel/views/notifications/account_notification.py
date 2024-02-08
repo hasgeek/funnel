@@ -24,7 +24,7 @@ class RenderAccountPasswordNotification(RenderNotification):
     email_heading = __("Password updated!")
 
     @property
-    def actor(self):
+    def actor(self) -> Account:
         # This notification won't have an actor when dispatched from password reset.
         # i.e., self.notification.created_by is None. However, password reset is
         # presumably performed by the owner of the user account, i.e., self.document, so
@@ -32,15 +32,15 @@ class RenderAccountPasswordNotification(RenderNotification):
         # above).
         return self.user
 
-    def web(self):
+    def web(self) -> str:
         return render_template(
             'notifications/user_password_set_web.html.jinja2', view=self
         )
 
-    def email_subject(self):
+    def email_subject(self) -> str:
         return self.emoji_prefix + _("Your password has been updated")
 
-    def email_content(self):
+    def email_content(self) -> str:
         return render_template(
             'notifications/user_password_set_email.html.jinja2', view=self
         )

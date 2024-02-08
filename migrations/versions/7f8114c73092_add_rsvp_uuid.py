@@ -49,7 +49,7 @@ def upgrade() -> None:
     conn = op.get_bind()
     op.add_column('rsvp', sa.Column('uuid', sa.Uuid(), nullable=True))
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(rsvp))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(rsvp))
     progress = get_progressbar("Rsvps", count)
     progress.start()
 

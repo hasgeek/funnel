@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import TYPE_CHECKING
 
 from flask import render_template, request
 
 from baseframe import _
-from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
 from ..models import Account, Project, Proposal, SavedSession, Session, db
 from ..proxies import request_wants
@@ -22,11 +22,11 @@ from .mixins import AccountCheckMixin, ProjectViewBase
 from .schedule import schedule_data, session_data, session_list_data
 
 
-def rooms_list(project):
+def rooms_list(project: Project) -> list[tuple[str, str]]:
     if project.rooms:
         return [("", _("Select Room"))] + [
             (
-                room.id,
+                str(room.id),
                 f"{room.venue.title} – {room.title}",
             )
             for room in project.rooms
@@ -36,7 +36,7 @@ def rooms_list(project):
 
 def get_form_template(form: SessionForm) -> ReturnView:
     """Render Session form html."""
-    form.form_nonce.data = form.form_nonce.default()
+    form.form_nonce.data = form.form_nonce.get_default()
     form_template = render_template(
         'session_form.html.jinja2',
         form=form,
@@ -61,7 +61,7 @@ def session_edit(
     else:
         form = SessionForm()
         if proposal is not None:
-            form.description.data = proposal.body
+            form.description.data = str(proposal.body)
             form.speaker.data = proposal.first_user.fullname
             form.title.data = proposal.title
 
@@ -92,7 +92,8 @@ def session_edit(
             else:
                 db.session.add(session)
         db.session.commit()
-        session = cast(Session, session)  # Tell mypy session is not None
+        if TYPE_CHECKING:  # FIXME: Needed for Mypy in pre-commit only, unclear why
+            assert session is not None  # nosec B101
         session.project.update_schedule_timestamps()
         db.session.commit()
         if request_wants.html_in_json:
@@ -154,7 +155,7 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
         self.account = self.obj.project.account
 
     @property
-    def project_currently_saved(self):
+    def project_currently_saved(self) -> bool:
         return self.obj.project.is_saved_by(current_auth.user)
 
     @route('')
@@ -177,13 +178,13 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
                 datasets=('without_parent', 'related')
             ),
             from_date=(
-                self.obj.project.start_at_localized.isoformat()
-                if self.obj.project.start_at
+                start_at.isoformat()
+                if (start_at := self.obj.project.start_at_localized)
                 else None
             ),
             to_date=(
-                self.obj.project.end_at_localized.isoformat()
-                if self.obj.project.end_at
+                end_at.isoformat()
+                if (end_at := self.obj.project.end_at_localized)
                 else None
             ),
             active_session=session_data(self.obj, with_modal_url='view'),

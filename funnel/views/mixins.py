@@ -1,26 +1,27 @@
 """Mixins for model views."""
+
 # TODO: Move each mixin into the main file for each view, or into <model>_mixin.py
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from flask import abort, g, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
-from coaster.auth import current_auth
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, route
 
+from ..auth import current_auth
 from ..forms import SavedProjectForm
 from ..models import (
     Account,
     Draft,
+    ModelUuidProtocol,
     Project,
     ProjectRedirect,
     TicketEvent,
-    UuidModelUnion,
     db,
 )
 from ..typing import ReturnView
@@ -55,7 +56,7 @@ class ProjectViewBase(
     CsrfForm = forms.Form
     project: Project
 
-    def load(self, account: str, project: str, **_kwargs) -> ReturnView | None:
+    def load(self, account: str, project: str, **_kwargs: Any) -> ReturnView | None:
         obj = (
             Project.query.join(Account, Project.account)
             .filter(Account.name_is(account), Project.name == project)
@@ -85,7 +86,7 @@ class ProjectViewBase(
         self.account = project.account
 
     @property
-    def project_currently_saved(self):
+    def project_currently_saved(self) -> bool:
         return self.obj.is_saved_by(current_auth.user)
 
 
@@ -130,19 +131,22 @@ class TicketEventViewBase(AccountCheckMixin, UrlForView, ModelView[TicketEvent])
 
 
 class DraftViewProtoMixin:
+    # These must be Any to avoid conflict with subclasses
     model: Any
     obj: Any
 
-    def get_draft(self, obj: UuidModelUnion | None = None) -> Draft | None:
+    def get_draft(self, obj: ModelUuidProtocol | None = None) -> Draft | None:
         """
         Return the draft object for `obj`. Defaults to `self.obj`.
 
         `obj` is needed in case of multi-model views.
         """
         obj = obj if obj is not None else self.obj
-        return Draft.query.get((self.model.__tablename__, obj.uuid))
+        if TYPE_CHECKING:
+            assert obj is not None  # nosec B101
+        return db.session.get(Draft, (self.model.__tablename__, obj.uuid))
 
-    def delete_draft(self, obj=None):
+    def delete_draft(self, obj: ModelUuidProtocol | None = None) -> None:
         """Delete draft for `obj`, or `self.obj` if `obj` is `None`."""
         draft = self.get_draft(obj)
         if draft is not None:
@@ -151,7 +155,7 @@ class DraftViewProtoMixin:
             raise ValueError(_("There is no draft for the given object"))
 
     def get_draft_data(
-        self, obj: UuidModelUnion | None = None
+        self, obj: ModelUuidProtocol | None = None
     ) -> tuple[None, None] | tuple[UUID | None, dict]:
         """
         Return a tuple of draft data.
@@ -163,7 +167,7 @@ class DraftViewProtoMixin:
             return draft.revision, draft.formdata
         return None, None
 
-    def autosave_post(self, obj: UuidModelUnion | None = None) -> ReturnView:
+    def autosave_post(self, obj: ModelUuidProtocol | None = None) -> ReturnView:
         """Handle autosave POST requests."""
         obj = obj if obj is not None else self.obj
         if 'form.revision' not in request.form:
@@ -248,7 +252,7 @@ class DraftViewProtoMixin:
             return {
                 'status': 'ok',
                 'revision': draft.revision,
-                'form_nonce': form.form_nonce.default(),
+                'form_nonce': form.form_nonce.get_default(),
             }
         return (
             {

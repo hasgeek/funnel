@@ -31,12 +31,14 @@ icalendar
 idna
 ijson
 itsdangerous
+lazy-loader
 linkify-it-py
 markdown-it-py
 mdit-py-plugins
 oauth2client
 passlib
 phonenumbers
+playwright  # Relocated from test.in because of greenlet version pin
 premailer
 progressbar2
 psycopg[binary]
@@ -44,7 +46,7 @@ pycountry
 pyIsEmail
 python-dateutil
 python-dotenv
-python-telegram-bot
+python-telegram-bot>=20.7
 pytz
 PyVimeo
 qrcode
@@ -63,6 +65,5 @@ urllib3[socks]  # Not direct dep; pip-audit complains of dupe urllib[socks] in t
 user-agents
 werkzeug
 whitenoise
-wtforms-sqlalchemy @ git+https://github.com/jace/wtforms-sqlalchemy  # See /pull/1
 z-base-32
 zxcvbn

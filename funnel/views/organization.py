@@ -6,10 +6,10 @@ from flask import abort, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_message
-from coaster.auth import current_auth
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import OrganizationForm, TeamForm
 from ..models import Account, Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
@@ -60,6 +60,8 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView[Account]):
             if not obj.state.ACTIVE:
                 abort(410)
             self.obj = obj
+        else:
+            self.obj = None  # type: ignore[assignment]
 
     # The /new root URL is intentional
     @route('/new', methods=['GET', 'POST'], endpoint='new_organization')

@@ -21,11 +21,11 @@ from markupsafe import Markup, escape
 
 from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
-from coaster.auth import current_auth
 from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import ClassView, get_next_url, render_with, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     AccountDeleteForm,
     AccountForm,
@@ -106,9 +106,8 @@ def user_locale(obj: Account) -> str:
 @Account.views('timezone')
 def user_timezone(obj: Account) -> str:
     """Human-friendly identifier for user's timezone, defaulting to timezone name."""
-    return timezone_identifiers.get(
-        str(obj.timezone) if obj.timezone else '', obj.timezone
-    )
+    timezone = str(u_tz) if (u_tz := obj.timezone) is not None else ''
+    return timezone_identifiers.get(timezone, timezone)
 
 
 @Account.views()
@@ -117,7 +116,7 @@ def organizations_as_admin(
     owner: bool = False,
     limit: int | None = None,
     order_by_grant: bool = False,
-) -> list[RoleAccessProxy[Account]]:
+) -> list[RoleAccessProxy[AccountMembership]]:
     """Return organizations that the user is an admin of."""
     if owner:
         orgmems = obj.active_organization_owner_memberships
@@ -849,7 +848,7 @@ class AccountView(ClassView):
 
     @route('delete', methods=['GET', 'POST'], endpoint='account_delete')
     @requires_sudo
-    def delete(self):
+    def delete(self) -> ReturnView:
         """Delete user account."""
         # Perform sanity checks: can this user account be deleted?
         objection = current_auth.user.views.validate_account_delete()

@@ -43,7 +43,7 @@ def upgrade() -> None:
     conn = op.get_bind()
 
     op.add_column('proposal', sa.Column('uuid', sa.Uuid(), nullable=True))
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(proposal))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(proposal))
     progress = get_progressbar("Proposals", count)
     progress.start()
     items = conn.execute(sa.select(proposal.c.id))
@@ -57,7 +57,7 @@ def upgrade() -> None:
     op.create_unique_constraint('proposal_uuid_key', 'proposal', ['uuid'])
 
     op.add_column('session', sa.Column('uuid', sa.Uuid(), nullable=True))
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(session))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(session))
     progress = get_progressbar("Sessions", count)
     progress.start()
     items = conn.execute(sa.select(session.c.id))

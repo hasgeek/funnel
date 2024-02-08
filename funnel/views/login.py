@@ -22,11 +22,11 @@ from flask import (
 from baseframe import _, __, forms, statsd
 from baseframe.forms import render_message
 from baseframe.signals import exception_catchall
-from coaster.auth import current_auth
 from coaster.utils import getbool, utcnow
 from coaster.views import get_next_url, requestargs
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     LoginForm,
     LoginPasswordResetException,
@@ -44,6 +44,7 @@ from ..models import (
     AccountExternalId,
     AuthClientCredential,
     LoginSession,
+    User,
     db,
     getextid,
     merge_accounts,
@@ -100,7 +101,7 @@ def render_otp_form(
     form: OtpForm | RegisterOtpForm, cancel_url: str, action: str
 ) -> ReturnView:
     """Render OTP form."""
-    form.form_nonce.data = form.form_nonce.default()
+    form.form_nonce.data = form.form_nonce.get_default()
     return (
         render_template(
             'otpform.html.jinja2',
@@ -165,16 +166,18 @@ def login() -> ReturnView:
             # password guessing.
             validate_rate_limit(
                 'login',
-                ('user/' + loginform.user.uuid_b58)
-                if loginform.user
-                else ('username/' + loginform.username.data),
+                (
+                    ('user/' + loginform.user.uuid_b58)
+                    if loginform.user
+                    else ('username/' + loginform.username.data)
+                ),
                 10,
                 3600,
             )
             if success:
                 user = loginform.user
                 if TYPE_CHECKING:
-                    assert isinstance(user, Account)  # nosec
+                    assert isinstance(user, User)  # nosec B101
                 login_internal(user, login_service='password')
                 db.session.commit()
                 if loginform.weak_password:
@@ -278,7 +281,7 @@ def login() -> ReturnView:
                     # Register an account
                     user = register_internal(None, otp_form.fullname.data, None)
                     if TYPE_CHECKING:
-                        assert isinstance(user, Account)  # nosec
+                        assert isinstance(user, User)  # nosec B101
                     if otp_session.email:
                         db.session.add(user.add_email(otp_session.email, primary=True))
                     if otp_session.phone:
@@ -408,7 +411,8 @@ def account_logout() -> ReturnView:
 
     for field_errors in form.errors.values():
         for error in field_errors:
-            flash(error, 'error')
+            if error is not None:
+                flash(error, 'error')
     return render_redirect(url_for('account'))
 
 
@@ -456,7 +460,9 @@ def login_service_callback(service: str) -> ReturnView:
     return login_service_postcallback(service, userdata)
 
 
-def get_user_extid(service, userdata):
+def get_user_extid(
+    service: str, userdata: LoginProviderData
+) -> tuple[Account | None, AccountExternalId | None, AccountEmail | None]:
     """Retrieve user, extid and email from the given service and userdata."""
     provider = login_registry[service]
     extid = getextid(service=service, userid=userdata.userid)
@@ -530,10 +536,11 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             oauth_token_type=userdata.oauth_token_type,
             oauth_refresh_token=userdata.oauth_refresh_token,
             oauth_expires_in=userdata.oauth_expires_in,
-            oauth_expires_at=sa.func.utcnow()
-            + timedelta(seconds=userdata.oauth_expires_in)
-            if userdata.oauth_expires_in
-            else None,
+            oauth_expires_at=(
+                sa.func.utcnow() + timedelta(seconds=userdata.oauth_expires_in)
+                if userdata.oauth_expires_in
+                else None
+            ),
             last_used_at=sa.func.utcnow(),
         )
     if user is None:
@@ -543,7 +550,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             extid.account = user
         else:
             # Register a new user
-            user = register_internal(None, userdata.fullname, None)
+            user = register_internal(None, userdata.fullname or '', None)
             extid.account = user
             if userdata.username:
                 if Account.is_available_name(userdata.username):
@@ -587,6 +594,8 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
         user.fullname = userdata.fullname
 
     if not current_auth:  # If a user isn't already logged in, login now.
+        if TYPE_CHECKING:
+            assert isinstance(user, User)  # nosec B101
         login_internal(user, login_service=service)
         flash(
             _("You have logged in via {service}").format(
@@ -629,11 +638,15 @@ def account_merge() -> ReturnView:
         if 'merge' in request.form:
             new_user = merge_accounts(current_auth.user, other_user)
             if new_user is not None:
+                if TYPE_CHECKING:
+                    assert isinstance(new_user, User)  # nosec B101
                 login_internal(
                     new_user,
-                    login_service=current_auth.session.login_service
-                    if current_auth.session
-                    else None,
+                    login_service=(
+                        current_auth.session.login_service
+                        if current_auth.session
+                        else None
+                    ),
                 )
                 flash(_("Your accounts have been merged"), 'success')
                 session.pop('merge_buid', None)
@@ -731,7 +744,7 @@ def hasjob_login(cookietest: bool = False) -> ReturnView:
 # @hasjobapp.route('/login/callback', endpoint='login_callback')
 @reload_for_cookies
 @requestargs('token')
-def hasjobapp_login_callback(token):
+def hasjobapp_login_callback(token: str) -> ReturnView:
     """Process callback from Hasjob to confirm a login attempt."""
     nonce = session.pop('login_nonce', None)
     if not nonce:
@@ -759,6 +772,8 @@ def hasjobapp_login_callback(token):
     login_session = LoginSession.get(request_token['sessionid'])
     if login_session is not None:
         user = login_session.account
+        if TYPE_CHECKING:
+            assert isinstance(user, User)  # nosec B101
         login_internal(user, login_session)
         db.session.commit()
         flash(_("You are now logged in"), category='success')
@@ -776,7 +791,7 @@ def hasjobapp_login_callback(token):
 
 # Retained for future hasjob integration
 # @hasjobapp.route('/logout', endpoint='logout')
-def hasjob_logout():
+def hasjob_logout() -> ReturnView:
     """Process a logout request in Hasjob."""
     # Revoke session and redirect to homepage. Don't bother to ask `app` to logout
     # as well since the session is revoked. `app` will notice and drop cookies on

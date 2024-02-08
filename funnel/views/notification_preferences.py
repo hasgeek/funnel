@@ -9,11 +9,11 @@ from flask import abort, current_app, flash, redirect, request, session, url_for
 
 from baseframe import _, __
 from baseframe.forms import render_form, render_message
-from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import SetNotificationPreferenceForm, UnsubscribeForm, transport_labels
 from ..models import (
     Account,
@@ -26,7 +26,7 @@ from ..models import (
 )
 from ..serializers import token_serializer
 from ..transports import platform_transports
-from ..typing import ReturnRenderWith
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import (
     metarefresh_redirect,
     render_redirect,
@@ -181,7 +181,7 @@ class AccountNotificationView(ClassView):
         methods=['POST'],
         endpoint='notification_unsubscribe_auto',
     )
-    def unsubscribe_auto(self, token: str):
+    def unsubscribe_auto(self, token: str) -> ReturnView:
         """Implement RFC 8058 one-click auto unsubscribe for email transport."""
         # TODO: Merge this into the other handler. Unsubscribe first, then ask the user
         # if they'd like to resubscribe
@@ -244,7 +244,9 @@ class AccountNotificationView(ClassView):
         endpoint='notification_unsubscribe_do',
     )
     @requestargs(('cookietest', getbool))
-    def unsubscribe(self, token: str, token_type: str | None, cookietest: bool = False):
+    def unsubscribe(
+        self, token: str, token_type: str | None, cookietest: bool = False
+    ) -> ReturnView:
         """View for unsubscribing from a notification type or disabling a transport."""
         # This route strips the token from the URL before rendering the page, to avoid
         # leaking the token to web analytics software.
@@ -405,9 +407,7 @@ class AccountNotificationView(ClassView):
             else:
                 email_address.mark_active()
                 db.session.commit()
-        elif (
-            payload['transport'] in ('sms', 'whatsapp', 'signal') and 'hash' in payload
-        ):
+        elif payload['transport'] in ('sms', 'whatsapp') and 'hash' in payload:
             phone_number = PhoneNumber.get(phone_hash=payload['hash'])
             if phone_number is None:
                 current_app.logger.error(

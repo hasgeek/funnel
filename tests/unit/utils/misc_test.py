@@ -35,7 +35,7 @@ def test_mask_phone() -> None:
 
 
 def test_extract_twitter_handle() -> None:
-    """Test for extracing a Twitter handle from a URL or username."""
+    """Test for extracting a Twitter handle from a URL or username."""
     expected = 'shreyas_satish'
     assert (
         utils.extract_twitter_handle('https://twitter.com/shreyas_satish') == expected

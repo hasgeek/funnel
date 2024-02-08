@@ -3,17 +3,17 @@
 from __future__ import annotations
 
 from collections.abc import Container
-from typing import Any, Literal, cast
+from typing import Any, Literal
 
 from flask import abort, jsonify, render_template, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import __
-from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import jsonp, requestargs
 
 from ... import app
+from ...auth import current_auth
 from ...models import (
     Account,
     AuthClient,
@@ -100,7 +100,9 @@ def get_userinfo(
     return userinfo
 
 
-def resource_error(error, description=None, uri=None) -> Response:
+def resource_error(
+    error: str, description: str | None = None, uri: str | None = None
+) -> Response:
     """Return an error response."""
     params = {'status': 'error', 'error': error}
     if description:
@@ -109,9 +111,9 @@ def resource_error(error, description=None, uri=None) -> Response:
         params['error_uri'] = uri
 
     response = jsonify(params)
-    response.headers[
-        'Cache-Control'
-    ] = 'private, no-cache, no-store, max-age=0, must-revalidate'
+    response.headers['Cache-Control'] = (
+        'private, no-cache, no-store, max-age=0, must-revalidate'
+    )
     response.headers['Pragma'] = 'no-cache'
     response.status_code = 400
     return response
@@ -135,9 +137,9 @@ def api_result(
     else:
         response = jsonify(params)
     response.status_code = status_code
-    response.headers[
-        'Cache-Control'
-    ] = 'private, no-cache, no-store, max-age=0, must-revalidate'
+    response.headers['Cache-Control'] = (
+        'private, no-cache, no-store, max-age=0, must-revalidate'
+    )
     response.headers['Pragma'] = 'no-cache'
     return response
 
@@ -332,9 +334,11 @@ def user_autocomplete(q: str = '') -> ReturnView:
         # we may not have an authenticated user. Use the login_session's account in that
         # case
         'api_user_autocomplete',
-        current_auth.actor.uuid_b58
-        if current_auth.actor
-        else current_auth.session.account.uuid_b58,
+        (
+            current_auth.actor.uuid_b58
+            if current_auth.actor
+            else current_auth.session.account.uuid_b58
+        ),
         # Limit 20 attempts
         20,
         # Per half hour (60s * 30m = 1800s)
@@ -381,9 +385,11 @@ def profile_autocomplete(q: str = '') -> ReturnView:
         # we may not have an authenticated user. Use the login_session's account in that
         # case
         'api_profile_autocomplete',
-        current_auth.actor.uuid_b58
-        if current_auth.actor
-        else current_auth.session.account.uuid_b58,
+        (
+            current_auth.actor.uuid_b58
+            if current_auth.actor
+            else current_auth.session.account.uuid_b58
+        ),
         # Limit 20 attempts
         20,
         # Per half hour (60s * 30m = 1800s)
@@ -547,7 +553,7 @@ def resource_login_providers(
     response = {}
     for extid in authtoken.effective_user.externalids:
         if service is None or extid.service == service:
-            response[cast(str, extid.service)] = {
+            response[extid.service] = {
                 'userid': str(extid.userid),
                 'username': str(extid.username),
                 'oauth_token': str(extid.oauth_token),

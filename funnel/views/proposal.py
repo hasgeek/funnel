@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from flask import abort, flash, request
 
 from baseframe import _, __
 from baseframe.forms import Form, render_delete_sqla, render_form, render_template
-from coaster.auth import current_auth
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.utils import getbool, make_name
 from coaster.views import (
     ModelView,
@@ -19,6 +21,7 @@ from coaster.views import (
 )
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     ProposalFeaturedForm,
     ProposalForm,
@@ -38,6 +41,7 @@ from ..models import (
     ProposalSuuidRedirect,
     db,
     sa,
+    sa_orm,
 )
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
@@ -53,12 +57,12 @@ markdown_message = __(
 
 
 @Proposal.features('comment_new')
-def proposal_comment_new(obj):
+def proposal_comment_new(obj: Proposal) -> bool:
     return obj.current_roles.commenter
 
 
 @Project.features('reorder_proposals')
-def proposals_can_be_reordered(obj):
+def proposals_can_be_reordered(obj: Project) -> bool:
     return obj.current_roles.editor
 
 
@@ -71,9 +75,9 @@ class ProjectProposalView(ProjectViewBase):
     @route('sub/new', methods=['GET', 'POST'])
     @route('proposals/new', methods=['GET', 'POST'])
     @requires_login
-    @render_with('submission_form.html.jinja2')
     @requires_roles({'reader'})
     @requires_user_not_spammy()
+    @render_with('submission_form.html.jinja2')
     def new_proposal(self) -> ReturnRenderWith:
         # This along with the `reader` role makes it possible for
         # anyone to submit a proposal if the CFP is open.
@@ -114,12 +118,12 @@ class ProjectProposalView(ProjectViewBase):
         if Form().validate_on_submit():
             proposal: Proposal = (
                 Proposal.query.filter_by(uuid_b58=target)
-                .options(sa.orm.load_only(Proposal.id, Proposal.seq))
+                .options(sa_orm.load_only(Proposal.id, Proposal.seq))
                 .one_or_404()
             )
             other_proposal: Proposal = (
                 Proposal.query.filter_by(uuid_b58=other)
-                .options(sa.orm.load_only(Proposal.id, Proposal.seq))
+                .options(sa_orm.load_only(Proposal.id, Proposal.seq))
                 .one_or_404()
             )
             proposal.current_access().reorder_item(other_proposal, before)
@@ -407,7 +411,7 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
     @route('contacts.json', methods=['GET'])
     @requires_login
     @requires_roles({'project_editor'})
-    def contacts_json(self):
+    def contacts_json(self) -> dict[str, Any]:
         """Return the contact details of collaborators as JSON."""
         return {
             'title': self.obj.title,
@@ -451,7 +455,7 @@ class ProposalMembershipView(
     def post_init(self) -> None:
         self.account = self.obj.proposal.project.account
 
-    def collaborators(self):
+    def collaborators(self) -> list[RoleAccessProxy[ProposalMembership]]:
         return [
             _m.current_access(datasets=['primary', 'related'])
             for _m in self.obj.proposal.memberships
@@ -467,18 +471,21 @@ class ProposalMembershipView(
         )
         del collaborator_form.user
         if collaborator_form.validate_on_submit():
-            with db.session.no_autoflush, membership.amend_by(
-                current_auth.user
-            ) as amendment:
+            with (
+                db.session.no_autoflush,
+                membership.amend_by(current_auth.user) as amendment,
+            ):
                 collaborator_form.populate_obj(amendment)
             db.session.commit()
             return {
                 'status': 'ok',
-                'message': _("{user}’s role has been updated").format(
-                    user=membership.member.pickername
-                )
-                if amendment.membership is not self.obj
-                else None,
+                'message': (
+                    _("{user}’s role has been updated").format(
+                        user=membership.member.pickername
+                    )
+                    if amendment.membership is not self.obj
+                    else None
+                ),
                 'html': render_template(
                     'collaborator_list.html.jinja2',
                     collaborators=self.collaborators(),

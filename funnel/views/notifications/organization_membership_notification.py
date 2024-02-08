@@ -8,16 +8,19 @@ from typing import cast
 
 from flask import render_template
 from markupsafe import Markup, escape
+from werkzeug.utils import cached_property
 
 from baseframe import _, __
 
 from ...models import (
     Account,
     AccountMembership,
+    MembershipRecordTypeEnum,
+    Notification,
     NotificationRecipient,
-    NotificationType,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
+    sa,
 )
 from ...transports.sms import MessageTemplate
 from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotification
@@ -29,7 +32,7 @@ class DecisionFactorFields:
 
     is_member: bool | None = None
     for_actor: bool | None = None
-    rtypes: Collection[str] = ()
+    rtypes: Collection[MembershipRecordTypeEnum] = ()
     is_owner: bool | None = None
     is_actor: bool | None = None
 
@@ -43,7 +46,7 @@ class DecisionFactorFields:
         return (
             (self.is_member is None or self.is_member is is_member)
             and (self.for_actor is None or self.for_actor is for_actor)
-            and (not self.rtypes or membership.record_type_label.name in self.rtypes)
+            and (not self.rtypes or membership.record_type_enum in self.rtypes)
             and (self.is_owner is None or self.is_owner is membership.is_owner)
             and (self.is_actor is None or (self.is_actor is membership.is_self_granted))
         )
@@ -63,7 +66,7 @@ class DecisionBranch(DecisionFactorFields, DecisionBranchBase):
 grant_amend_templates = DecisionBranch(
     factors=[
         DecisionBranch(
-            rtypes=['invite'],
+            rtypes=[MembershipRecordTypeEnum.INVITE],
             factors=[
                 DecisionBranch(
                     for_actor=False,
@@ -121,7 +124,7 @@ grant_amend_templates = DecisionBranch(
             ],
         ),
         DecisionBranch(
-            rtypes=['direct_add'],
+            rtypes=[MembershipRecordTypeEnum.DIRECT_ADD],
             factors=[
                 DecisionBranch(
                     for_actor=False,
@@ -169,7 +172,7 @@ grant_amend_templates = DecisionBranch(
             ],
         ),
         DecisionBranch(
-            rtypes=['accept'],
+            rtypes=[MembershipRecordTypeEnum.ACCEPT],
             factors=[
                 DecisionBranch(
                     for_actor=False,
@@ -229,7 +232,7 @@ grant_amend_templates = DecisionBranch(
             ],
         ),
         DecisionBranch(
-            rtypes=['amend'],
+            rtypes=[MembershipRecordTypeEnum.AMEND],
             factors=[
                 DecisionBranch(
                     for_actor=False,
@@ -345,7 +348,7 @@ class RenderShared:
 
     organization: Account
     membership: AccountMembership
-    notification: NotificationType
+    notification: Notification
     notification_recipient: NotificationRecipient
     template_picker: DecisionBranch
 
@@ -399,13 +402,15 @@ class RenderShared:
                 f'{escape(self.organization.pickername)}</a>'
             ),
             actor=(
-                Markup(
-                    f'<a href="{escape(actor.absolute_url)}">'
-                    f'{escape(actor.pickername)}</a>'
+                (
+                    Markup(
+                        f'<a href="{escape(actor.absolute_url)}">'
+                        f'{escape(actor.pickername)}</a>'
+                    )
                 )
-            )
-            if actor
-            else _("(unknown)"),
+                if actor
+                else _("(unknown)")
+            ),
         )
 
     def email_subject(self) -> str:
@@ -439,7 +444,9 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     email_heading = __("Membership granted!")
     template_picker = grant_amend_templates
 
-    fragments_order_by = [AccountMembership.granted_at.desc()]
+    @cached_property
+    def fragments_order_by(self) -> list[sa.UnaryExpression]:
+        return [AccountMembership.granted_at.desc()]
 
     def membership_actor(
         self, membership: AccountMembership | None = None
@@ -472,7 +479,9 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     email_heading = __("Membership revoked")
     template_picker = revoke_templates
 
-    fragments_order_by = [AccountMembership.revoked_at.desc()]
+    @cached_property
+    def fragments_order_by(self) -> list[sa.UnaryExpression]:
+        return [AccountMembership.revoked_at.desc()]
 
     def membership_actor(
         self, membership: AccountMembership | None = None

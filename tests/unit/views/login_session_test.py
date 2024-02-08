@@ -1,7 +1,7 @@
 """Test login session helpers."""
 
 import pytest
-from flask import session
+from flask import Flask, session
 
 from funnel.views.login_session import save_session_next_url
 
@@ -19,7 +19,14 @@ from funnel.views.login_session import save_session_next_url
         ('POST', '/existing_next', '/new_next', False, '/existing_next'),  # Use saved
     ],
 )
-def test_save_session_next_url(app, existing, method, nextarg, saved, result) -> None:
+def test_save_session_next_url(
+    app: Flask,
+    existing: str | None,
+    method: str,
+    nextarg: str | None,
+    saved: bool,
+    result: str,
+) -> None:
     """Test if save_session_next_url() behaves appropriately."""
     if nextarg:
         test_url = f'/test_url?next={nextarg}'

@@ -1,21 +1,251 @@
 """Forms provide an interface between views and models, validating data before save."""
-# flake8: noqa
 
-from __future__ import annotations
+# --- Everything below this line is auto-generated using `make initpy` -----------------
 
-from .account import *
-from .auth_client import *
-from .comment import *
-from .helpers import *
-from .label import *
-from .login import *
-from .membership import *
-from .notification import *
-from .organization import *
-from .profile import *
-from .project import *
-from .proposal import *
-from .session import *
-from .sync_ticket import *
-from .update import *
-from .venue import *
+from . import (
+    account,
+    auth_client,
+    comment,
+    helpers,
+    label,
+    login,
+    membership,
+    notification,
+    organization,
+    profile,
+    project,
+    proposal,
+    session,
+    sync_ticket,
+    update,
+    venue,
+)
+from .account import (
+    AccountDeleteForm,
+    AccountForm,
+    EmailPrimaryForm,
+    ModeratorReportForm,
+    NewEmailAddressForm,
+    NewPhoneForm,
+    PasswordChangeForm,
+    PasswordCreateForm,
+    PasswordForm,
+    PasswordPolicyForm,
+    PasswordResetForm,
+    PasswordResetRequestForm,
+    PhonePrimaryForm,
+    UsernameAvailableForm,
+    pwned_password_validator,
+    supported_locales,
+    timezone_identifiers,
+)
+from .auth_client import (
+    AuthClientCredentialForm,
+    AuthClientForm,
+    AuthClientPermissionEditForm,
+    UserPermissionAssignForm,
+)
+from .comment import CommentForm, CommentsetSubscribeForm
+from .helpers import (
+    MSG_EMAIL_BLOCKED,
+    MSG_EMAIL_INVALID,
+    MSG_INCORRECT_OTP,
+    MSG_INCORRECT_PASSWORD,
+    MSG_NO_ACCOUNT,
+    MSG_NO_LOGIN_SESSION,
+    MSG_PHONE_BLOCKED,
+    MSG_PHONE_NO_SMS,
+    AccountSelectField,
+    EmailAddressAvailable,
+    PhoneNumberAvailable,
+    format_json,
+    image_url_validator,
+    nullable_json_filters,
+    nullable_strip_filters,
+    strip_filters,
+    tostr,
+    validate_and_convert_json,
+    video_url_list_validator,
+    video_url_validator,
+)
+from .label import LabelForm, LabelOptionForm
+from .login import (
+    EmailOtpForm,
+    LoginForm,
+    LoginPasswordResetException,
+    LoginPasswordWeakException,
+    LoginWithOtp,
+    LogoutForm,
+    OtpForm,
+    RegisterOtpForm,
+    RegisterWithOtp,
+)
+from .membership import (
+    OrganizationMembershipForm,
+    ProjectCrewMembershipForm,
+    ProjectCrewMembershipInviteForm,
+)
+from .notification import (
+    SetNotificationPreferenceForm,
+    UnsubscribeForm,
+    transport_labels,
+)
+from .organization import OrganizationForm, TeamForm
+from .profile import (
+    ProfileBannerForm,
+    ProfileForm,
+    ProfileLogoForm,
+    ProfileTransitionForm,
+)
+from .project import (
+    CfpForm,
+    ProjectBannerForm,
+    ProjectCfpTransitionForm,
+    ProjectFeaturedForm,
+    ProjectForm,
+    ProjectLivestreamForm,
+    ProjectNameForm,
+    ProjectRegisterForm,
+    ProjectSponsorForm,
+    ProjectTransitionForm,
+    RsvpTransitionForm,
+    SavedProjectForm,
+)
+from .proposal import (
+    ProposalFeaturedForm,
+    ProposalForm,
+    ProposalLabelsAdminForm,
+    ProposalLabelsForm,
+    ProposalMemberForm,
+    ProposalMoveForm,
+    ProposalTransitionForm,
+)
+from .session import SavedSessionForm, SessionForm
+from .sync_ticket import (
+    FORM_SCHEMA_PLACEHOLDER,
+    ProjectBoxofficeForm,
+    TicketClientForm,
+    TicketEventForm,
+    TicketParticipantBadgeForm,
+    TicketParticipantForm,
+    TicketTypeForm,
+)
+from .update import UpdateForm
+from .venue import VenueForm, VenuePrimaryForm, VenueRoomForm
+
+__all__ = [
+    "AccountDeleteForm",
+    "AccountForm",
+    "AccountSelectField",
+    "AuthClientCredentialForm",
+    "AuthClientForm",
+    "AuthClientPermissionEditForm",
+    "CfpForm",
+    "CommentForm",
+    "CommentsetSubscribeForm",
+    "EmailAddressAvailable",
+    "EmailOtpForm",
+    "EmailPrimaryForm",
+    "FORM_SCHEMA_PLACEHOLDER",
+    "LabelForm",
+    "LabelOptionForm",
+    "LoginForm",
+    "LoginPasswordResetException",
+    "LoginPasswordWeakException",
+    "LoginWithOtp",
+    "LogoutForm",
+    "MSG_EMAIL_BLOCKED",
+    "MSG_EMAIL_INVALID",
+    "MSG_INCORRECT_OTP",
+    "MSG_INCORRECT_PASSWORD",
+    "MSG_NO_ACCOUNT",
+    "MSG_NO_LOGIN_SESSION",
+    "MSG_PHONE_BLOCKED",
+    "MSG_PHONE_NO_SMS",
+    "ModeratorReportForm",
+    "NewEmailAddressForm",
+    "NewPhoneForm",
+    "OrganizationForm",
+    "OrganizationMembershipForm",
+    "OtpForm",
+    "PasswordChangeForm",
+    "PasswordCreateForm",
+    "PasswordForm",
+    "PasswordPolicyForm",
+    "PasswordResetForm",
+    "PasswordResetRequestForm",
+    "PhoneNumberAvailable",
+    "PhonePrimaryForm",
+    "ProfileBannerForm",
+    "ProfileForm",
+    "ProfileLogoForm",
+    "ProfileTransitionForm",
+    "ProjectBannerForm",
+    "ProjectBoxofficeForm",
+    "ProjectCfpTransitionForm",
+    "ProjectCrewMembershipForm",
+    "ProjectCrewMembershipInviteForm",
+    "ProjectFeaturedForm",
+    "ProjectForm",
+    "ProjectLivestreamForm",
+    "ProjectNameForm",
+    "ProjectRegisterForm",
+    "ProjectSponsorForm",
+    "ProjectTransitionForm",
+    "ProposalFeaturedForm",
+    "ProposalForm",
+    "ProposalLabelsAdminForm",
+    "ProposalLabelsForm",
+    "ProposalMemberForm",
+    "ProposalMoveForm",
+    "ProposalTransitionForm",
+    "RegisterOtpForm",
+    "RegisterWithOtp",
+    "RsvpTransitionForm",
+    "SavedProjectForm",
+    "SavedSessionForm",
+    "SessionForm",
+    "SetNotificationPreferenceForm",
+    "TeamForm",
+    "TicketClientForm",
+    "TicketEventForm",
+    "TicketParticipantBadgeForm",
+    "TicketParticipantForm",
+    "TicketTypeForm",
+    "UnsubscribeForm",
+    "UpdateForm",
+    "UserPermissionAssignForm",
+    "UsernameAvailableForm",
+    "VenueForm",
+    "VenuePrimaryForm",
+    "VenueRoomForm",
+    "account",
+    "auth_client",
+    "comment",
+    "format_json",
+    "helpers",
+    "image_url_validator",
+    "label",
+    "login",
+    "membership",
+    "notification",
+    "nullable_json_filters",
+    "nullable_strip_filters",
+    "organization",
+    "profile",
+    "project",
+    "proposal",
+    "pwned_password_validator",
+    "session",
+    "strip_filters",
+    "supported_locales",
+    "sync_ticket",
+    "timezone_identifiers",
+    "tostr",
+    "transport_labels",
+    "update",
+    "validate_and_convert_json",
+    "venue",
+    "video_url_list_validator",
+    "video_url_validator",
+]

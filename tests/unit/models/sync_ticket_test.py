@@ -1,20 +1,32 @@
 """Test for project ticket sync models."""
+
 # pylint: disable=attribute-defined-outside-init,redefined-outer-name
+
+from typing import TypedDict
 
 import pytest
 
 from coaster.utils import uuid_b58
 
 from funnel import models
+from funnel.extapi.typing import ExtTicketsDict
+
+from ...conftest import Flask, scoped_session
 
 # --- Fixture data
 
-event_ticket_types = [
+
+class TicketEventTypeDict(TypedDict):
+    title: str
+    ticket_types: list[str]
+
+
+event_ticket_types: list[TicketEventTypeDict] = [
     {'title': 'SpaceCon', 'ticket_types': ['Conference', 'Combo']},
     {'title': 'SpaceCon workshop', 'ticket_types': ['Workshop', 'Combo']},
 ]
 
-ticket_list = [
+ticket_list: list[ExtTicketsDict] = [
     {
         'fullname': f'participant{str(1)}',
         'email': f'participant{str(1)}@gmail.com',
@@ -56,7 +68,7 @@ ticket_list = [
     },
 ]
 
-ticket_list2 = [
+ticket_list2: list[ExtTicketsDict] = [
     {
         'fullname': f'participant{str(1)}',
         'email': f'participant{str(1)}@gmail.com',
@@ -98,7 +110,7 @@ ticket_list2 = [
     },
 ]
 
-ticket_list3 = [
+ticket_list3: list[ExtTicketsDict] = [
     {
         'fullname': f'participant{str(1)}',
         'email': f'participant{str(1)}@gmail.com',
@@ -143,15 +155,17 @@ ticket_list3 = [
 # --- Tests and helpers
 
 
-def bulk_upsert(project, ticket_event_list):
+def bulk_upsert(
+    project: models.Project, ticket_event_list: list[TicketEventTypeDict]
+) -> None:
     for ticket_event_dict in ticket_event_list:
         ticket_event = models.TicketEvent.upsert(
             project,
-            current_title=ticket_event_dict.get('title'),
-            title=ticket_event_dict.get('title'),
+            current_title=ticket_event_dict['title'],
+            title=ticket_event_dict['title'],
             project=project,
         )
-        for ticket_type_title in ticket_event_dict.get('ticket_types'):
+        for ticket_type_title in ticket_event_dict['ticket_types']:
             ticket_type = models.TicketType.upsert(
                 project,
                 current_name=None,
@@ -165,7 +179,12 @@ def bulk_upsert(project, ticket_event_list):
 @pytest.mark.usefixtures('db_session')
 class TestEventModels:
     @pytest.fixture(autouse=True)
-    def _fixture_setup(self, request, db_session, app):
+    def _fixture_setup(
+        self,
+        request: pytest.FixtureRequest,
+        db_session: scoped_session,
+        app: Flask,
+    ) -> None:
         self.db_session = db_session
         self.ctx = app.test_request_context()
         self.ctx.push()
@@ -212,7 +231,7 @@ class TestEventModels:
         self.session = self.db_session
 
         @request.addfinalizer
-        def tearDown():  # skipcq: PTC-W0065
+        def tearDown() -> None:  # skipcq: PTC-W0065
             self.ctx.pop()
 
     def test_import_from_list(self) -> None:
@@ -221,15 +240,15 @@ class TestEventModels:
         p1 = models.TicketParticipant.query.filter_by(
             email_address=models.EmailAddress.get('participant1@gmail.com'),
             project=self.project,
-        ).one_or_none()
+        ).one()
         p2 = models.TicketParticipant.query.filter_by(
             email_address=models.EmailAddress.get('participant2@gmail.com'),
             project=self.project,
-        ).one_or_none()
+        ).one()
         p3 = models.TicketParticipant.query.filter_by(
             email_address=models.EmailAddress.get('participant3@gmail.com'),
             project=self.project,
-        ).one_or_none()
+        ).one()
         assert models.SyncTicket.query.count() == 3
         assert models.TicketParticipant.query.count() == 3
         assert len(p1.ticket_events) == 2
@@ -247,7 +266,7 @@ class TestEventModels:
         p4 = models.TicketParticipant.query.filter_by(
             email_address=models.EmailAddress.get('participant4@gmail.com'),
             project=self.project,
-        ).one_or_none()
+        ).one()
         assert len(p1.ticket_events) == 2
         assert len(p2.ticket_events) == 0
         assert len(p3.ticket_events) == 0

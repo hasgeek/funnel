@@ -6,7 +6,6 @@ from flask import abort, flash
 
 from baseframe import _, forms
 from baseframe.forms import render_form
-from coaster.auth import current_auth
 from coaster.utils import make_name
 from coaster.views import (
     ModelView,
@@ -18,6 +17,7 @@ from coaster.views import (
 )
 
 from .. import app
+from ..auth import current_auth
 from ..forms import SavedProjectForm, UpdateForm
 from ..models import Account, NewUpdateNotification, Project, Update, db
 from ..typing import ReturnRenderWith, ReturnView
@@ -79,8 +79,8 @@ class ProjectUpdatesView(ProjectViewBase):
 
 
 @Update.features('publish')
-def update_publishable(obj):
-    return obj.state.DRAFT and 'editor' in obj.roles_for(current_auth.user)
+def update_publishable(obj: Update) -> bool:
+    return bool(obj.state.DRAFT) and 'editor' in obj.roles_for(current_auth.user)
 
 
 @Update.views('project')
@@ -168,15 +168,17 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
         return render_form(
             form=form,
             title=_("Confirm delete"),
-            message=_(
-                "Delete this draft update? This operation is permanent and cannot be"
-                " undone"
-            )
-            if self.obj.state.UNPUBLISHED
-            else _(
-                "Delete this update? This update’s number (#{number}) will be skipped"
-                " for the next update"
-            ).format(number=self.obj.number),
+            message=(
+                _(
+                    "Delete this draft update? This operation is permanent and cannot be"
+                    " undone"
+                )
+                if self.obj.state.UNPUBLISHED
+                else _(
+                    "Delete this update? This update’s number (#{number}) will be skipped"
+                    " for the next update"
+                ).format(number=self.obj.number)
+            ),
             submit=_("Delete"),
             cancel_url=self.obj.url_for(),
         )

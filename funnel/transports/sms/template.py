@@ -206,11 +206,13 @@ class SmsTemplate:
             '_plaintext',
             # vformat only needs __getitem__, so ignore mypy's warning about arg type.
             # The expected type is Mapping[str, Any]
-            Formatter().vformat(  # type: ignore[call-overload]
-                self.plaintext_template, (), self
-            )
-            if self.plaintext_template
-            else '',
+            (
+                Formatter().vformat(  # type: ignore[call-overload]
+                    self.plaintext_template, (), self
+                )
+                if self.plaintext_template
+                else ''
+            ),
         )
         self.truncate()
         object.__setattr__(

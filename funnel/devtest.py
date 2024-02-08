@@ -1,5 +1,7 @@
 """Support for development and testing environments."""
 
+# pyright: reportGeneralTypeIssues=false
+
 from __future__ import annotations
 
 import atexit
@@ -13,11 +15,11 @@ import time
 import weakref
 from collections.abc import Callable, Iterable
 from secrets import token_urlsafe
-from typing import Any, NamedTuple, Protocol
+from typing import Any, NamedTuple, Protocol, cast
 
 from flask import Flask
 
-from . import app as main_app, shortlinkapp, transports, unsubscribeapp
+from . import all_apps, app as main_app, transports
 from .models import db
 from .typing import ReturnView
 
@@ -29,7 +31,7 @@ __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
 # Pytest `live_server` fixture used for end-to-end tests. Fork on macOS is not
 # compatible with the Objective C framework. If you have a framework Python build and
 # experience crashes, try setting the environment variable
-# OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+# `OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`
 mpcontext = multiprocessing.get_context('fork')
 
 # --- Development and testing app multiplexer ------------------------------------------
@@ -99,7 +101,7 @@ class AppByHostWsgi:
         return use_app(environ, start_response)
 
 
-devtest_app = AppByHostWsgi(main_app, shortlinkapp, unsubscribeapp)
+devtest_app = AppByHostWsgi(*all_apps)
 
 # --- Background worker ----------------------------------------------------------------
 
@@ -131,7 +133,7 @@ class CapturedCalls(Protocol):
     sms: list[CapturedSms]
 
 
-def _signature_without_annotations(func) -> inspect.Signature:
+def _signature_without_annotations(func: Callable) -> inspect.Signature:
     """Generate a function signature without parameter type annotations."""
     sig = inspect.signature(func)
     return sig.replace(
@@ -142,7 +144,7 @@ def _signature_without_annotations(func) -> inspect.Signature:
     )
 
 
-def install_mock(func: Callable, mock: Callable) -> None:
+def install_mock(func: Any, mock: Any) -> None:
     """
     Patch all existing references to :attr:`func` with :attr:`mock`.
 
@@ -160,9 +162,9 @@ def install_mock(func: Callable, mock: Callable) -> None:
     # Use weakref to dereference func from local namespace
     func = weakref.ref(func)
     gc.collect()
-    refs = gc.get_referrers(func())  # type: ignore[misc]
+    refs = gc.get_referrers(func())
     # Recover func from the weakref so we can do an `is` match in referrers
-    func = func()  # type: ignore[misc]
+    func = func()
     for ref in refs:
         if isinstance(ref, dict):
             # We have a namespace dict. Iterate through contents to find the reference
@@ -170,6 +172,10 @@ def install_mock(func: Callable, mock: Callable) -> None:
             for key, value in ref.items():
                 if value is func:
                     ref[key] = mock
+        else:
+            raise RuntimeError(
+                f"Can't patch {func.__qualname__} in unknown reference type {ref!r}"
+            )
 
 
 def _prepare_subprocess(
@@ -197,7 +203,7 @@ def _prepare_subprocess(
             subject: str,
             to: list[Any],
             content: str,
-            attachments=None,
+            attachments: Any = None,
             from_email: Any | None = None,
             headers: dict | None = None,
             base_url: str | None = None,
@@ -267,9 +273,9 @@ class BackgroundWorker:
         self.mock_transports = mock_transports
 
         manager = mpcontext.Manager()
-        self.calls: CapturedCalls = manager.Namespace()
-        self.calls.email = manager.list()
-        self.calls.sms = manager.list()
+        self.calls = cast(CapturedCalls, manager.Namespace())
+        self.calls.email = cast(list[CapturedEmail], manager.list())
+        self.calls.sms = cast(list[CapturedSms], manager.list())
 
     def start(self) -> None:
         """Start worker in a separate process."""
@@ -307,7 +313,7 @@ class BackgroundWorker:
                 raise RuntimeError(f"Server exited with code {self._process.exitcode}")
 
     def _is_ready(self) -> bool:
-        """Probe for readyness with a socket connection."""
+        """Probe for readiness with a socket connection."""
         if not self.probe_at:
             return False
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -1,14 +1,16 @@
 """Tests for Account name."""
 
-from typing import Literal
-
 import pytest
 from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 
+from ...conftest import scoped_session
 
-def test_is_available_name(db_session, user_rincewind) -> None:
+
+def test_is_available_name(
+    db_session: scoped_session, user_rincewind: models.User
+) -> None:
     """Names are only available if valid and unused."""
     assert models.Account.is_available_name('invalid-name') is False
     # Rincewind has an account (nee profile) in default 'auto' status (not public, not
@@ -22,9 +24,7 @@ def test_is_available_name(db_session, user_rincewind) -> None:
 
 @pytest.mark.usefixtures('user_rincewind', 'org_uu')
 @pytest.mark.parametrize('model', ['A', 'U', 'O', 'P'])
-def test_validate_name_candidate(
-    db_session, model: Literal['A', 'U', 'O', 'P']
-) -> None:
+def test_validate_name_candidate(db_session: scoped_session, model: str) -> None:
     """The name validator returns error codes as expected."""
     modelref: dict[str, type[models.Account]] = {
         'A': models.Account,
@@ -49,7 +49,7 @@ def test_validate_name_candidate(
     assert cls.validate_name_candidate('UU') == 'org'
 
 
-def test_reserved_name(db_session) -> None:
+def test_reserved_name(db_session: scoped_session) -> None:
     """Names can be reserved, with no user or organization."""
     reserved_name = models.Placeholder(name='reserved_name')
     db_session.add(reserved_name)
@@ -66,7 +66,7 @@ def test_reserved_name(db_session) -> None:
     assert retrieved_name is reserved_name
 
 
-def test_unassigned_name(db_session) -> None:
+def test_unassigned_name(db_session: scoped_session) -> None:
     """Names must be assigned to a user or organization if not reserved."""
     unassigned_name = models.Account(name='unassigned')
     db_session.add(unassigned_name)
@@ -74,7 +74,9 @@ def test_unassigned_name(db_session) -> None:
         db_session.commit()
 
 
-def test_double_assigned_name(db_session, user_rincewind) -> None:
+def test_double_assigned_name(
+    db_session: scoped_session, user_rincewind: models.User
+) -> None:
     """Names cannot be assigned to a user and an organization simultaneously."""
     user = models.User(username="double_assigned", fullname="User")
     org = models.Organization(
@@ -85,7 +87,9 @@ def test_double_assigned_name(db_session, user_rincewind) -> None:
         db_session.commit()
 
 
-def test_cant_remove_username(db_session, user_twoflower) -> None:
+def test_cant_remove_username(
+    db_session: scoped_session, user_twoflower: models.User
+) -> None:
     """A user's username can be set or renamed but not removed."""
     assert user_twoflower.username is None
     user_twoflower.username = 'username'
@@ -102,23 +106,27 @@ def test_cant_remove_username(db_session, user_twoflower) -> None:
 
     # Can't be an invalid value
     with pytest.raises(ValueError, match='Account name must be a string'):
-        user_twoflower.username = []
+        user_twoflower.username = []  # type: ignore[assignment]
 
     with pytest.raises(ValueError, match='Account name must be a string'):
-        user_twoflower.username = False
+        user_twoflower.username = False  # type: ignore[assignment]
 
     with pytest.raises(ValueError, match='Account name must be a string'):
-        user_twoflower.username = True
+        user_twoflower.username = True  # type: ignore[assignment]
 
 
-def test_cant_remove_orgname(db_session, org_uu) -> None:
+def test_cant_remove_orgname(
+    db_session: scoped_session, org_uu: models.Organization
+) -> None:
     """An org's name can be renamed but not removed."""
     assert org_uu.name == 'UU'
     org_uu.name = 'unseen'
     assert org_uu.name == 'unseen'
 
 
-def test_name_transfer(db_session, user_mort, user_rincewind) -> None:
+def test_name_transfer(
+    db_session: scoped_session, user_mort: models.User, user_rincewind: models.User
+) -> None:
     """Merging user accounts will transfer the name."""
     assert user_mort.username is None
     assert user_rincewind.username == 'rincewind'
@@ -129,7 +137,7 @@ def test_name_transfer(db_session, user_mort, user_rincewind) -> None:
     assert user_rincewind.username is None
 
 
-def test_urlname(user_twoflower, user_rincewind) -> None:
+def test_urlname(user_twoflower: models.User, user_rincewind: models.User) -> None:
     """An Account has a URL name even if there's no name."""
     assert user_twoflower.name is None
     assert user_rincewind.name == 'rincewind'

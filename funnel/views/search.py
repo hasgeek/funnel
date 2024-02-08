@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from html import unescape as html_unescape
-from typing import Any, TypedDict, TypeVar, cast
+from typing import Any, ClassVar, Generic, TypedDict, TypeVar
 from urllib.parse import quote as urlquote
 
 from flask import request, url_for
@@ -12,6 +12,7 @@ from markupsafe import Markup
 from sqlalchemy.sql import expression
 
 from baseframe import __
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import ClassView, render_with, requestargs, requires_roles, route
 
 from .. import app, executor
@@ -19,15 +20,16 @@ from ..models import (
     Account,
     Comment,
     Commentset,
+    ModelSearchProtocol,
     Project,
     Proposal,
     ProposalMembership,
     Query,
-    SearchModelUnion,
     Session,
     Update,
     db,
     sa,
+    sa_orm,
     visual_field_delimiter,
 )
 from ..typing import ReturnRenderWith
@@ -38,6 +40,7 @@ from .mixins import AccountViewBase, ProjectViewBase
 # --- Definitions ----------------------------------------------------------------------
 
 _Q = TypeVar('_Q', bound=Query)
+_ST = TypeVar('_ST', bound=ModelSearchProtocol)
 
 
 # PostgreSQL ts_headline markers
@@ -60,19 +63,19 @@ html_whitespace_re = re.compile(r'\s+', re.ASCII)
 # --- Search provider types ------------------------------------------------------------
 
 
-class SearchProvider:
+class SearchProvider(Generic[_ST]):
     """Base class for search providers."""
 
     #: Label to use in UI
     label: str
     #: Model to query against
-    model: type[SearchModelUnion]
+    model: type[_ST]
     #: Does this model have a title column?
-    has_title: bool = True
+    has_title: ClassVar[bool] = True
 
     @property
     def regconfig(self) -> str:
-        """Return PostgreSQL regconfig language, defaulting to English."""
+        """Return PostgreSQL `regconfig` language, defaulting to English."""
         return self.model.search_vector.type.options.get('regconfig', 'english')
 
     @property
@@ -82,7 +85,7 @@ class SearchProvider:
         # That makes this return value incorrect, but here we ignore the error as
         # class:`CommentSearch` explicitly overrides :meth:`hltitle_column`, and that is
         # the only place this property is accessed
-        return self.model.title  # type: ignore[return-value]
+        return self.model.title  # type: ignore[return-value]  # FIXME
 
     @property
     def hltext(self) -> sa.ColumnElement[str]:
@@ -97,7 +100,7 @@ class SearchProvider:
             *(getattr(self.model, c) for c in self.model.search_vector.type.columns),
         )
 
-    def hltitle_column(self, tsquery: sa.Function) -> sa.ColumnElement[str]:
+    def hltitle_column(self, tsquery: sa.Function) -> sa.ColumnElement:
         """Return a column expression for title with search terms highlighted."""
         return sa.func.ts_headline(
             self.regconfig,
@@ -144,10 +147,10 @@ class SearchProvider:
 
     def all_count(self, tsquery: sa.Function) -> int:
         """Return count of results for :meth:`all_query`."""
-        return self.all_query(tsquery).options(sa.orm.load_only(self.model.id)).count()
+        return self.all_query(tsquery).options(sa_orm.load_only(self.model.id_)).count()
 
 
-class SearchInAccountProvider(SearchProvider):
+class SearchInAccountProvider(SearchProvider[_ST]):
     """Base class for search providers that support searching in an account."""
 
     def account_query(self, tsquery: sa.Function, account: Account) -> Query:
@@ -158,12 +161,12 @@ class SearchInAccountProvider(SearchProvider):
         """Return count of results for :meth:`account_query`."""
         return (
             self.account_query(tsquery, account)
-            .options(sa.orm.load_only(self.model.id))
+            .options(sa_orm.load_only(self.model.id_))
             .count()
         )
 
 
-class SearchInProjectProvider(SearchInAccountProvider):
+class SearchInProjectProvider(SearchInAccountProvider[_ST]):
     """Base class for search providers that support searching in a project."""
 
     def project_query(self, tsquery: sa.Function, project: Project) -> Query:
@@ -174,7 +177,7 @@ class SearchInProjectProvider(SearchInAccountProvider):
         """Return count of results for :meth:`project_query`."""
         return (
             self.project_query(tsquery, project)
-            .options(sa.orm.load_only(self.model.id))
+            .options(sa_orm.load_only(self.model.id_))
             .count()
         )
 
@@ -229,7 +232,7 @@ class ProjectSearch(SearchInAccountProvider):
     def all_count(self, tsquery: sa.Function) -> int:
         """Return count of matching projects across the entire site."""
         return (
-            db.session.query(sa.func.count('*'))
+            db.session.query(sa.func.count(sa.text('*')))
             .select_from(Project)
             .join(Account, Project.account)
             .filter(
@@ -506,7 +509,7 @@ class CommentSearch(SearchInProjectProvider):
     model = Comment
     has_title = False  # Comments don't have titles
 
-    def hltitle_column(self, tsquery: sa.Function):
+    def hltitle_column(self, tsquery: sa.Function) -> sa.ColumnElement:
         """Comments don't have titles, so return a null expression here."""
         return expression.null()
 
@@ -738,6 +741,26 @@ def search_counts(
     return results
 
 
+class SearchResultsItemDict(TypedDict):
+    title: str | None
+    title_html: str | None
+    url: str
+    snippet_html: str
+    obj: RoleAccessProxy
+
+
+class SearchResultsDict(TypedDict):
+    items: list[SearchResultsItemDict]
+    has_next: bool
+    has_prev: bool
+    page: int
+    per_page: int
+    pages: int
+    next_num: int | None
+    prev_num: int | None
+    count: int | None
+
+
 # @cache.memoize(timeout=300)
 def search_results(
     tsquery: sa.Function,
@@ -746,7 +769,7 @@ def search_results(
     per_page: int = 20,
     account: Account | None = None,
     project: Project | None = None,
-):
+) -> SearchResultsDict:
     """Return search results."""
     # Pick up model data for the given type string
     sp = search_providers[stype]
@@ -763,13 +786,10 @@ def search_results(
         query = sp.all_query(tsquery)
 
     # Add the three additional columns to the query and paginate results
-    query = cast(
-        Query,
-        query.add_columns(
-            sp.hltitle_column(tsquery),
-            sp.hlsnippet_column(tsquery),
-            sp.matched_text_column(tsquery),
-        ),
+    query = query.add_columns(
+        sp.hltitle_column(tsquery),
+        sp.hlsnippet_column(tsquery),
+        sp.matched_text_column(tsquery),
     )
     pagination = query.paginate(page=page, per_page=per_page, max_per_page=100)
 

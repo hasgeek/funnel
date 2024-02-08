@@ -127,7 +127,9 @@ class IndexView(ClassView):
         featured_account_sort_key = {
             _n.lower(): _i for _i, _n in enumerate(app.config['FEATURED_ACCOUNTS'])
         }
-        featured_accounts.sort(key=lambda a: featured_account_sort_key[a.name.lower()])
+        featured_accounts.sort(
+            key=lambda a: featured_account_sort_key[(a.name or a.title).lower()]
+        )
 
         return {
             'all_projects': [
@@ -169,9 +171,9 @@ class IndexView(ClassView):
         )
         return {
             'status': 'ok',
-            'next_page': pagination.page + 1
-            if pagination.page < pagination.pages
-            else '',
+            'next_page': (
+                pagination.page + 1 if pagination.page < pagination.pages else ''
+            ),
             'total_pages': pagination.pages,
             'past_projects': [
                 {
