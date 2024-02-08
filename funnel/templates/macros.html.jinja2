@@ -74,9 +74,9 @@
         <a class="mui--text-light" href="{{ url_for('login', next=request.path) }}" data-ga="Login to save project" aria-label="{% trans %}Login to save this project{% endtrans %}">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class="mui--text-light") }}</a>
       {%- else %}
         <input type="hidden" name="save" value=""/>
-        <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-ga="Save this project" onclick="this.form.save.value=this.value" data-cy="bookmark" aria-label="{% trans %}Save this project{% endtrans %}">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class="mui--text-light") }}
+        <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-ga="Save this project" onclick="this.form.save.value=this.value" data-cy="bookmark" aria-label="{% trans %}Save this project{% endtrans %}" data-ga="bookmark">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class="mui--text-light") }}
         </button>
-        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-ga="Unsave this project" onclick="this.form.save.value=this.value" data-cy="bookmarked" aria-label="{% trans %}Unsave this project{% endtrans %}">{{ faicon(icon='bookmark-solid', baseline=true, icon_size=iconsize, css_class="bookmarked") }}</button>
+        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-ga="Unsave this project" onclick="this.form.save.value=this.value" data-cy="bookmarked" aria-label="{% trans %}Unsave this project{% endtrans %}" data-ga="unsave project">{{ faicon(icon='bookmark-solid', baseline=true, icon_size=iconsize, css_class="bookmarked") }}</button>
       {%- endif %}
     </div>
   </form>
@@ -440,7 +440,7 @@
 {%- macro add_submission_btn(project) %}
   {%- if project.state.PUBLISHED %}
     <div class="project-details__box__content--lesspadding propose js-cfp-status {% if not project.cfp_state.OPEN -%} mui--hide {%- endif %}">
-      <a class="mui-btn mui-btn--accent mui-btn--raised display-block" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
+      <a class="mui-btn mui-btn--accent mui-btn--raised display-block" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session" data-ga="Make a submission">{% trans %}Make a submission{% endtrans %}</a>
       {% if project.cfp_end_at_localized -%}<p class="mui--text-body2 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>{% endif %}
     </div>
   {%- endif %}
@@ -467,7 +467,7 @@
       {% endif %}
       {%- if account.membership_project and not is_member %}
         <div class="profile-card__btn-wrapper">
-          <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=account.published_project_count, count=account.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>
+          <p class="mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=account.published_project_count, count=account.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>
           <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ account.url_for(_anchor='membership') }}" data-ga="Become a member(homepage)">{% trans %}Become a member{% endtrans %}</a>
         </div>
       {% else %}
@@ -476,7 +476,7 @@
         {% endif %}
         <div class="profile-card__btn-wrapper">
           <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=account.published_project_count, count=account.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>
-          <a class="mui-btn mui-btn--dark mui-btn--raised full-width-btn" href="{{ account.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
+          <a class="mui-btn mui-btn--dark mui-btn--raised full-width-btn" href="{{ account.url_for() }} " data-ga="Explore account(homepage)">{% trans %}Explore{% endtrans %}</a>
         </div>
       {% endif %}
     </div>

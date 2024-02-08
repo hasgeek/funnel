@@ -8,6 +8,15 @@ const Analytics = {
         value,
       });
     }
+    if (typeof window._paq !== 'undefined') {
+      let _paq = window._paq;
+      gtag('event', category, {
+        event_category: action,
+        event_label: label,
+        value,
+      });
+      _paq.push(['trackEvent', category, action, label, value]);
+    }
   },
   init() {
     // Send click events to Google analytics

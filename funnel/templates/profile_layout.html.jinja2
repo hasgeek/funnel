@@ -43,10 +43,10 @@
                 {% endif %}
                 <div>
                   {%- if featured_project.livestream_urls %}
-                    <a class="mui-btn mui-btn--primary mui-btn--raised" aria-label="{% trans %}Watch livestream{% endtrans %}" href="{{ featured_project.url_for() }}">{% trans %}Livestream{% endtrans %}</a>
+                    <a class="mui-btn mui-btn--primary mui-btn--raised" aria-label="{% trans %}Watch livestream{% endtrans %}" href="{{ featured_project.url_for() }}" data-ga="Watch livestream">{% trans %}Livestream{% endtrans %}</a>
                   {%- endif %}
                   {%- if current_sessions.sessions|length > 0 %}
-                    <a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ featured_project.url_for('schedule') }}">{% trans %}Schedule{% endtrans %}</a>
+                    <a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ featured_project.url_for('schedule') }}" data-ga="Live schedule">{% trans %}Schedule{% endtrans %}</a>
                   {%- endif %}
                 </div>
               </div>
@@ -75,14 +75,14 @@
             <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
               <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
                 <div class="flex-wrapper flex-wrapper--center">
-                    <a href="{{ featured_project.account.absolute_url }}" class="profile-avatar margin-right" data-ga="View account">
+                    <a href="{{ featured_project.account.absolute_url }}" class="profile-avatar margin-right" data-ga="View spotlight account">
                     {%- if featured_project.account.logo_url.url %}
                       <img src="{{ featured_project.account.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.account.title }}"/>
                     {% else %}
                       <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.account.title }}"/>
                     {% endif %}
                     </a>
-                    <a href="{{ featured_project.account.absolute_url }}" class="profile-avatar-title mui--text-subhead text-bold mui--text-dark nounderline" data-ga="View account">{{ featured_project.account.title }}</a>
+                    <a href="{{ featured_project.account.absolute_url }}" class="profile-avatar-title mui--text-subhead text-bold mui--text-dark nounderline" data-ga="View spotlight account">{{ featured_project.account.title }}</a>
                   </a>
                 </div>
                 {%- if not current_auth.is_anonymous %}
@@ -93,7 +93,7 @@
               <h3 class="mui--text-headline text-bold" data-cy="spotlight-project"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline">{{ featured_project.title }}</a></h3>
               <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
               <div class="bottom-padding mui--text-light mui--hidden-lg mui--hidden-xl">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
-              <a href="{{ featured_project.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
+              <a href="{{ featured_project.url_for() }}" class="mui--text-body2 text-uppercase nounderline" data-ga="View spotlight project">{% trans %}Learn more{% endtrans %}</a>
             </div>
             <div class="grid__col-md-1 grid__col-lg-1 mui--hidden-xs mui--hidden-sm mui--hidden-md">
             </div>
@@ -116,7 +116,7 @@
                   {% endif %}
                 </div>
                 <div class="card__image-wrapper {% if not featured_project.bg_image.url %}card__image-wrapper--default{% endif %}">
-                  <a href="{{ featured_project.url_for() }}" data-cy-title="{{ featured_project.title }}" data-ga="View featured project">
+                  <a href="{{ featured_project.url_for() }}" data-cy-title="{{ featured_project.title }}" data-ga="View spotlight project">
                   {% if featured_project.bg_image.url %}
                     <img class="card__image js-lazyload-img" data-src="{{ featured_project.bg_image.resize(img_size.card_banner) }}" alt="{{ featured_project.title }}"/>
                     <noscript>

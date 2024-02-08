@@ -188,7 +188,7 @@
                   <div class="membership-container__btn-wrapper"><button class="mui-btn mui-btn--accent mui-btn--small zero-bottom-margin zero-top-margin mui--is-disabled display-block">{% trans %}You are a member{% endtrans %}</button></div>
                 {% elif membership_project.features.show_tickets %}
                   <div class="membership-container__btn-wrapper">
-                    <button class="js-open-ticket-widget mui-btn mui-btn--primary price-btn zero-bottom-margin zero-top-margin display-block">
+                    <button class="js-open-ticket-widget mui-btn mui-btn--primary price-btn zero-bottom-margin zero-top-margin display-block" data-ga="Become a member">
                       <span class="price-btn__txt" data-cy="unregistered">{% trans %}Become a member{% endtrans %}</span>
                       <span class="price-btn__txt price-btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
                       <span class="price-btn__txt price-btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
