@@ -1,9 +1,10 @@
 """Test livestream urls."""
 
 from playwright.sync_api import Page, expect
-from funnel import models
-from ...conftest import scoped_session
 
+from funnel import models
+
+from ...conftest import scoped_session
 
 VETINARI_EMAIL = 'vetinari@example.org'
 VETINARI_PASSWORD = 've@pwd3289'  # nosec
