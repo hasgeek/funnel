@@ -90,7 +90,9 @@
             <img src="{{ url_for('static', filename='img/error-403.svg') }}" class="embed-video-wrapper__restricted__img" alt="{% trans %}Unavailable{% endtrans %}"/>
             <div class="embed-video-wrapper__restricted__content">
               <p class="embed-video-wrapper__restricted__content__text margin-bottom">{% trans -%}This livestream is restricted{%- endtrans %}</p>
-              <div class="register-block">{{ buy_button(project, false) }}</div>
+              {% if project.features.show_tickets %}
+                <div class="register-block">{{ buy_button(project, false) }}</div>
+              {%- endif %}
             </div>
           </div>
           <div class="embed-video-wrapper__bottom-note">
@@ -242,9 +244,6 @@
           </li>
           <li>
             <a class="mui--text-subhead" href="{{ project.url_for('add_sponsor') }}" rel="modal:open" aria-label="{% trans %}Add sponsor{% endtrans %}" data-ga="Add sponsor" data-cy="add-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='box-dollar', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Add sponsor{% endtrans %}</span></a>
-          </li>
-          <li>
-            <a class="mui--text-subhead" href="{{ url_for('shortlink') }}" role="link">{{ faicon(icon='link', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Customize shortlink{% endtrans %}</span></a>
           </li>
         </ul>
       </div>

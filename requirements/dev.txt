@@ -14,9 +14,9 @@
     #   baseframe
 astroid==3.0.2
     # via pylint
-bandit==1.7.6
+bandit==1.7.7
     # via -r requirements/dev.in
-black==23.12.1
+black==24.1.1
     # via -r requirements/dev.in
 build==1.0.3
     # via pip-tools
@@ -28,7 +28,7 @@ colorama==0.4.6
     # via djlint
 cssbeautifier==1.14.11
     # via djlint
-dill==0.3.7
+dill==0.3.8
     # via pylint
 distlib==0.3.8
     # via virtualenv
@@ -57,7 +57,7 @@ flake8-assertive==2.1.0
     # via -r requirements/dev.in
 flake8-blind-except==0.2.1
     # via -r requirements/dev.in
-flake8-bugbear==23.12.2
+flake8-bugbear==24.1.17
     # via -r requirements/dev.in
 flake8-builtins==2.2.0
     # via -r requirements/dev.in
@@ -81,10 +81,6 @@ flask-debugtoolbar==0.14.1
     # via -r requirements/dev.in
 gherkin-official==24.0.0
     # via reformat-gherkin
-gitdb==4.0.11
-    # via gitpython
-gitpython==3.1.40
-    # via bandit
 html-tag-names==0.1.2
     # via djlint
 html-void-elements==0.1.0
@@ -126,7 +122,7 @@ pip-compile-multi==2.6.3
     # via -r requirements/dev.in
 pip-tools==7.3.0
     # via pip-compile-multi
-platformdirs==4.1.0
+platformdirs==4.2.0
     # via
     #   black
     #   pylint
@@ -151,10 +147,8 @@ pyupgrade==3.15.0
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
-ruff==0.1.11
+ruff==0.2.0
     # via -r requirements/dev.in
-smmap==5.0.1
-    # via gitdb
 snowballstemmer==2.2.0
     # via pydocstyle
 stevedore==5.1.0
@@ -187,19 +181,19 @@ types-mock==5.1.0.20240106
     # via -r requirements/dev.in
 types-passlib==1.7.7.20240106
     # via -r requirements/dev.in
-types-pillow==10.1.0.20240106
+types-pillow==10.2.0.20240125
     # via -r requirements/dev.in
-types-pyopenssl==23.3.0.20240106
+types-pyopenssl==24.0.0.20240130
     # via types-redis
 types-pytest-lazy-fixture==0.6.3.4
     # via -r requirements/dev.in
-types-pytz==2023.3.1.1
+types-pytz==2023.4.0.20240130
     # via -r requirements/dev.in
 types-pyyaml==6.0.12.12
     # via -r requirements/dev.in
 types-redis==4.6.0.20240106
     # via -r requirements/dev.in
-types-requests==2.31.0.20240106
+types-requests==2.31.0.20240125
     # via -r requirements/dev.in
 types-zxcvbn==4.4.1.20240106
     # via -r requirements/dev.in

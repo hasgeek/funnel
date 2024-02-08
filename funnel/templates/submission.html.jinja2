@@ -238,7 +238,7 @@
       {% if proposal.session and proposal.session.views.video or proposal.views.video or proposal.current_roles.editor %}
         <div class="details__box mui-tabs__bar">
           {% if proposal.session and proposal.session.views.video %}
-            {%- if not proposal.session.is_restricted_video or proposal.session.current_roles.project_participant %}
+            {%- if not proposal.session.is_restricted_video or proposal.session.current_roles.project_participant or proposal.project.current_roles.account_member %}
               <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}"
                   id="pane-justified-{{ seq }}">
                 <div class="details__box__video bg-primary-dark embed-video-wrapper"
@@ -298,7 +298,7 @@
             {% with seq_pane = 1 %}
               {% if proposal.session and proposal.session.views.video and proposal.session.views.video.url %}
                 <div class="gallery__thumbnail tabs__item {% if seq == 2 %}mui--is-active{%- endif -%}">
-                  {% if proposal.session.is_restricted_video and not proposal.session.current_roles.project_participant %}
+                  {% if proposal.session.is_restricted_video and not proposal.session.current_roles.project_participant or proposal.project.current_roles.account_member %}
                     <div class="display-inlineblock">
                       <img src="{{ proposal.session.views.video.thumbnail }}"
                             class="img-responsive"
