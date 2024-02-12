@@ -143,7 +143,6 @@
     {% endif %}
 
     {{ featured_section(featured_project) }}
-    {{ upcoming_section(upcoming_projects) }}
 
     {% if membership_project %}
       <div class="projects-wrapper">
@@ -210,6 +209,7 @@
       </div>
     {% endif %}
 
+    {{ upcoming_section(upcoming_projects) }}
     {{ open_cfp_section(open_cfp_projects) }}
     {{ all_projects_section(all_projects) }}
     {{ past_featured_session_videos(profile) }}
