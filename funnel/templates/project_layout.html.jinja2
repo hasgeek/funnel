@@ -144,7 +144,9 @@
 
 {% macro buy_button(project, include_eyebrow_text=true) %}
   <div class="register-block__content">
-    {% if include_eyebrow_text %}<span class="register-block__content__txt mui--text-light">{% trans %}Hybrid access (members only){% endtrans %}</span>{% endif %}
+    {% if include_eyebrow_text %}
+      <span class="register-block__content__txt mui--text-light">{{ project.views.buy_button_eyebrow_text() }}</span>
+    {% endif %}
     <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
       {% if project.features.subscription %}
         <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Become a member{% endtrans %}</span>

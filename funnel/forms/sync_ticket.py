@@ -88,6 +88,11 @@ class ProjectBoxofficeForm(forms.Form):
         filters=[forms.filters.strip()],
         description=__("Optional – Use with care to replace the button text"),
     )
+    buy_btn_eyebrow_txt = forms.StringField(
+        __("Buy button eyebrow text"),
+        filters=[forms.filters.strip()],
+        description=__("Optional – This text appears above the buy button"),
+    )
     register_form_schema = forms.StylesheetField(
         __("Registration form"),
         description=__("Optional – Specify fields as JSON (limited support)"),
