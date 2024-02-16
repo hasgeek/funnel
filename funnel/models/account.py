@@ -122,7 +122,7 @@ class PROFILE_STATE(LabeledEnum):  # noqa: N801
     PRIVATE = (3, 'private', __("Private"))
 
     NOT_PUBLIC = {AUTO, PRIVATE}
-    NOT_PRIVATE = {AUTO, PUBLIC}
+    NOT_PRIVATE = {PUBLIC}
 
 
 class ZBase32Comparator(Comparator[str]):  # pylint: disable=abstract-method
