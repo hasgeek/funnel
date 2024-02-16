@@ -1118,10 +1118,16 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     def add_email(
         self,
         email: str,
-        primary: bool = False,
+        primary: bool | None = None,
         private: bool = False,
     ) -> AccountEmail:
-        """Add an email address (assumed to be verified)."""
+        """
+        Add an email address (assumed to be verified).
+
+        :param email: Email address as a string
+        :param primary: Mark this email address as primary (default: auto-assign)
+        :param private: Mark as private (currently unused)
+        """
         accountemail = AccountEmail(account=self, email=email, private=private)
         accountemail = failsafe_add(
             db.session,
@@ -1129,7 +1135,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             account=self,
             email_address=accountemail.email_address,
         )
-        if primary:
+        if (primary is None and self.primary_email is None) or primary is True:
             self.primary_email = accountemail
         return accountemail
         # FIXME: This should remove competing instances of AccountEmailClaim
@@ -1172,10 +1178,16 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     def add_phone(
         self,
         phone: str,
-        primary: bool = False,
+        primary: bool | None = None,
         private: bool = False,
     ) -> AccountPhone:
-        """Add a phone number (assumed to be verified)."""
+        """
+        Add a phone number (assumed to be verified).
+
+        :param phone: Phone number as a string
+        :param primary: Mark this phone number as primary (default: auto-assign)
+        :param private: Mark as private (currently unused)
+        """
         accountphone = AccountPhone(account=self, phone=phone, private=private)
         accountphone = failsafe_add(
             db.session,
@@ -1183,7 +1195,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             account=self,
             phone_number=accountphone.phone_number,
         )
-        if primary:
+        if (primary is None and self.primary_phone is None) or primary is True:
             self.primary_phone = accountphone
         return accountphone
 

@@ -81,7 +81,7 @@ def test_user_organization_owned(
 def test_user_email(db_session: scoped_session, user_twoflower: models.User) -> None:
     """Add and retrieve an email address."""
     assert user_twoflower.email == ''
-    accountemail = user_twoflower.add_email('twoflower@example.org')
+    accountemail = user_twoflower.add_email('twoflower@example.org', primary=False)
     assert isinstance(accountemail, models.AccountEmail)
     db_session.commit()
     assert accountemail.primary is False
@@ -153,7 +153,7 @@ def test_user_del_email(
 def test_user_phone(db_session: scoped_session, user_twoflower: models.User) -> None:
     """Test to retrieve AccountPhone property phone."""
     assert user_twoflower.phone == ''
-    accountphone = user_twoflower.add_phone('+12345678900')
+    accountphone = user_twoflower.add_phone('+12345678900', primary=False)
     assert isinstance(accountphone, models.AccountPhone)
     db_session.commit()
     assert accountphone.primary is False
@@ -220,6 +220,18 @@ def test_user_del_phone(
     assert len(user_twoflower.phones) == 0
     assert user_twoflower.primary_phone is None
     assert user_twoflower.phone == ''
+
+
+def test_phone_auto_primary(
+    db_session: scoped_session, user_rincewind: models.User
+) -> None:
+    """Adding a phone without an existing primary automatically makes this primary."""
+    accphone1 = user_rincewind.add_phone('+12345678900', primary=False)
+    assert user_rincewind.primary_phone is None
+    assert set(user_rincewind.phones) == {accphone1}
+    accphone2 = user_rincewind.add_phone('+12345678901')  # Automatic primary
+    assert user_rincewind.primary_phone == accphone2
+    assert set(user_rincewind.phones) == {accphone1, accphone2}
 
 
 def test_user_autocomplete(
@@ -355,10 +367,24 @@ def test_user_add_email(
     assert useremail2.primary is False
 
 
-def test_make_email_primary(user_rincewind: models.User) -> None:
+def test_email_auto_primary(
+    db_session: scoped_session, user_rincewind: models.User
+) -> None:
+    """Adding an email without an existing primary automatically makes this primary."""
+    accemail1 = user_rincewind.add_email('rincewind@example.org', primary=False)
+    assert user_rincewind.primary_email is None
+    assert set(user_rincewind.emails) == {accemail1}
+    accemail2 = user_rincewind.add_email('rincewind@example.com')  # Automatic primary
+    assert user_rincewind.primary_email == accemail2
+    assert set(user_rincewind.emails) == {accemail1, accemail2}
+
+
+def test_make_email_primary(
+    db_session: scoped_session, user_rincewind: models.User
+) -> None:
     """Test to make an email primary for a user."""
     email = 'rincewind@example.org'
-    accountemail = user_rincewind.add_email(email)
+    accountemail = user_rincewind.add_email(email, primary=False)
     assert accountemail.email == email
     assert accountemail.primary is False
     assert user_rincewind.primary_email is None
