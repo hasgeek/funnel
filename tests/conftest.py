@@ -278,7 +278,7 @@ class TestResponse(Response):
                     kwargs['method'] = self.method
                 return client.open(path, data=data, **kwargs)
 
-            for form in self._parsed_html.forms:  # type: ignore[attr-defined]
+            for form in self._parsed_html.forms:
                 form.submit = MethodType(_submit, form)  # type: ignore[attr-defined]
         return self._parsed_html
 

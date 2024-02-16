@@ -706,10 +706,13 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
                 db.session.add(recipient)
                 yield recipient
 
-    # Make :attr:`type_` available under the name `type`, but declare this at the very
-    # end of the class to avoid conflicts with the Python `type` global that is
-    # used for type-hinting
-    type: Mapped[str] = sa_orm.synonym('type_')  # noqa: A003
+
+# Make :attr:`type_` available under the name `type`, but declare this outside the class
+# (a) to avoid conflicts with the Python `type` global that is used for type-hinting,
+# and (b) because SQLAlchemy >= 2.0.26 attempts to resolve annotations using the
+# class-local namespace, which overrides the global `type` (as of this commit):
+# https://github.com/sqlalchemy/sqlalchemy/commit/153f287b9949462ec29d66fc9b329d0144a6ca7c
+Notification.type = sa_orm.synonym('type_')
 
 
 class PreviewNotification(NotificationType):
@@ -760,7 +763,7 @@ class NotificationRecipientProtoMixin:
     @cached_property
     def notification_type(self) -> str:
         """Return the notification type identifier."""
-        return self.notification.type
+        return self.notification.type_
 
     with_roles(notification_type, read={'owner'})
 
@@ -1080,7 +1083,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
                 # Same user
                 NotificationRecipient.recipient_id == self.recipient_id,
                 # Same type of notification
-                Notification.type == self.notification.type,
+                Notification.type_ == self.notification.type_,
                 # Same document
                 Notification.document_uuid == self.notification.document_uuid,
                 # Same reason for receiving notification as earlier instance (same role)
@@ -1120,7 +1123,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
                     # Not ourselves
                     NotificationRecipient.eventid != self.eventid,
                     # Same type of notification
-                    Notification.type == self.notification.type,
+                    Notification.type_ == self.notification.type_,
                     # Same document
                     Notification.document_uuid == self.notification.document_uuid,
                     # Same role as earlier notification,
@@ -1171,7 +1174,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
     ) -> Query[Self]:
         """Return web notifications for a user, optionally returning unread-only."""
         query = cls.query.join(Notification).filter(
-            Notification.type.in_(notification_web_types),
+            Notification.type_.in_(notification_web_types),
             cls.recipient == user,
             cls.revoked_at.is_(None),
         )
@@ -1185,7 +1188,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
         return (
             NotificationRecipient.query.join(Notification)
             .filter(
-                Notification.type.in_(notification_web_types),
+                Notification.type_.in_(notification_web_types),
                 NotificationRecipient.recipient == user,
                 NotificationRecipient.read_at.is_(None),
                 NotificationRecipient.revoked_at.is_(None),
