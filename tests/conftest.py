@@ -134,6 +134,21 @@ def pytest_runtest_call(item: pytest.Function) -> None:
             typeguard.check_type(item.funcargs[attr], type_)
 
 
+def pytest_runtest_logreport(report: pytest.TestReport):
+    """Add line numbers to log report, for easier discovery in code editors."""
+    # Report location of test (failing line number if available, else test location)
+    filename, line_no, domain = report.location
+    if report.longrepr is not None:
+        if (
+            repr_traceback := getattr(report.longrepr, 'reprtraceback', None)
+        ) is not None:
+            if (
+                repr_file_loc := repr_traceback.reprentries[0].reprfileloc
+            ).path == filename:
+                line_no = repr_file_loc.lineno
+    report.nodeid = f'{filename}:{line_no}::{domain}'
+
+
 # --- Playwright browser config --------------------------------------------------------
 
 
@@ -1271,6 +1286,7 @@ class GetUserProtocol(Protocol):
 @pytest.fixture()
 def getuser(request: pytest.FixtureRequest) -> GetUserProtocol:
     """Get a user fixture by their name."""
+    # spell-checker: disable
     usermap = {
         "Twoflower": 'user_twoflower',
         "Rincewind": 'user_rincewind',
@@ -1301,6 +1317,7 @@ def getuser(request: pytest.FixtureRequest) -> GetUserProtocol:
         "Wolfgang": 'user_wolfgang',
         "Om": 'user_om',
     }
+    # spell-checker: enable
 
     def func(user: str) -> funnel_models.User:
         if user not in usermap:

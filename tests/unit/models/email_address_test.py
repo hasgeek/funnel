@@ -2,7 +2,6 @@
 
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
-
 from collections.abc import Generator
 from types import SimpleNamespace
 

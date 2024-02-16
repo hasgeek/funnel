@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import warnings
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, overload
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, overload
 
 import base58
 import phonenumbers
@@ -564,7 +564,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
         phone: str | phonenumbers.PhoneNumber,
         *,
         is_blocked: bool | None = None,
-    ) -> PhoneNumber | None: ...
+    ) -> Self | None: ...
 
     @overload
     @classmethod
@@ -573,7 +573,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
         *,
         blake2b160: bytes,
         is_blocked: bool | None = None,
-    ) -> PhoneNumber | None: ...
+    ) -> Self | None: ...
 
     @overload
     @classmethod
@@ -582,7 +582,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
         *,
         phone_hash: str,
         is_blocked: bool | None = None,
-    ) -> PhoneNumber | None: ...
+    ) -> Self | None: ...
 
     @classmethod
     def get(
@@ -592,7 +592,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
         blake2b160: bytes | None = None,
         phone_hash: str | None = None,
         is_blocked: bool | None = None,
-    ) -> PhoneNumber | None:
+    ) -> Self | None:
         """
         Get an :class:`PhoneNumber` instance by normalized phone number or its hash.
 
@@ -614,7 +614,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
         return query.one_or_none()
 
     @classmethod
-    def add(cls, phone: str | phonenumbers.PhoneNumber) -> PhoneNumber:
+    def add(cls, phone: str | phonenumbers.PhoneNumber) -> Self:
         """
         Create a new :class:`PhoneNumber` after normalization and validation.
 
@@ -634,7 +634,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
             if not existing.number:
                 existing.number = number
             return existing
-        new_phone = PhoneNumber(number, _pre_validated_formatted=True)
+        new_phone = cls(number, _pre_validated_formatted=True)
         db.session.add(new_phone)
         return new_phone
 
@@ -643,7 +643,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
         cls,
         owner: Account | None,
         phone: str | phonenumbers.PhoneNumber,
-    ) -> PhoneNumber:
+    ) -> Self:
         """
         Create a new :class:`PhoneNumber` after validation.
 
@@ -662,7 +662,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
             # No exclusive lock found? Let it be used then
             existing.number = number  # In case it was nulled earlier
             return existing
-        new_phone = PhoneNumber(number, _pre_validated_formatted=True)
+        new_phone = cls(number, _pre_validated_formatted=True)
         db.session.add(new_phone)
         return new_phone
 
@@ -711,13 +711,17 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
 
     @classmethod
     def get_numbers(cls, prefix: str, remove: bool = True) -> set[str]:
-        """Get all numbers with the given prefix as a Python set."""
+        """
+        Get all numbers with the given prefix as a Python set.
+
+        :param remove: Remove prefix from the results
+        """
         query = (
             cls.query.filter(cls.number.startswith(prefix))
             .options(sa_orm.load_only(cls.number))
             .yield_per(1000)
         )
-        # This query only has results where `.number` is not None, so we type checkers
+        # This query only has results where `.number` is not None, so type checkers
         # have to be told to ignore the possibility of a null:
         if remove:
             skip = len(prefix)
