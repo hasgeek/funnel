@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown, useravatar, add_submission_btn, img_size %}
+{%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown, useravatar, add_submission_btn, img_size, projectcard %}
 {% block title %}{{ project.title }}{% endblock title %}
 {% block description %}{{ project.tagline }}{% endblock description %}
 {% block twitter_card %}summary_large_image{% endblock twitter_card %}
@@ -291,32 +291,31 @@
     <div class="project-section">
       <div class="about bg-primary" id="about">
         <div class="markdown">{{ project.description }}</div>
-        {%- if project.subprojects %}
-          <hr class="mui-divider" />
-          <h3 class="mui--text-left">{% trans %}Related events{% endtrans %}</h3>
-          <ul class="grid grid-no-left-padding grid-no-right-padding">
-            {% for subproject in project.subprojects %}
-              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6">
-                <a href="{{ subproject.url_for() }}" class="clickable-card card" aria-label="{{ subproject.title }}" data-ga="View subproject">
-                  <div class="card__header">
-                    <div class="card__header__title">
-                      <h4 class="card__title__heading">{{ subproject.title }}</h4>
-                      <p class="card__title__heading">{{ subproject.datelocation }}</p>
-                    </div>
-                  </div>
-                  {% if subproject.tagline %}
-                    <div class="card__body">
-                      <p>{{ subproject.tagline }}</p>
-                    </div>
-                  {% endif %}
-                </a>
-              </li>
-            {%- endfor -%}
-          </ul>
-        {%- endif %}
       </div>
     </div>
   </div>
+  {%- if project.subprojects or project.parent_project %}
+    <div>
+      <h3 class="mui--text-left">{% trans %}Related events{% endtrans %}</h3>
+      {%- if project.subprojects %}
+      <ul class="grid grid-no-left-padding grid-no-right-padding">
+        {% for subproject in project.subprojects|selectattr("published_at") %}
+          <li class="grid__col-12 grid__col-sm-12 grid__col-lg-6">
+            {{ projectcard(subproject, calendarwidget_compact=false) }}
+          </li>
+        {%- endfor -%}
+      </ul>
+      {%- endif %}
+      {%- if project.parent_project %}
+        <div class="grid grid-no-left-padding grid-no-right-padding">
+          <div class="grid__col-12 grid__col-sm-12 grid__col-lg-6">
+            {{ projectcard(project.parent_project, calendarwidget_compact=false) }}
+          </div>
+        </div>
+      {%- endif %}
+    </div>
+  {%- endif %}
+
 {% endmacro %}
 
 {% macro project_details(project) %}

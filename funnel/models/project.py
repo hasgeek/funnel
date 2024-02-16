@@ -281,7 +281,9 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     parent_project: Mapped[Project | None] = relationship(
         remote_side='Project.id', back_populates='subprojects'
     )
-    subprojects: Mapped[list[Project]] = relationship(back_populates='parent_project')
+    subprojects: Mapped[list[Project]] = relationship(
+        back_populates='parent_project', order_by=lambda: Project.order_by_date().desc()
+    )
 
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or account admins.
@@ -539,6 +541,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
                 'created_at',  # From TimestampMixin, used for vCal render timestamp
                 'updated_at',  # From TimestampMixin, used for vCal render timestamp
                 'subprojects',
+                'parent_project',
             },
             'call': {
                 'features',  # From RegistryMixin
