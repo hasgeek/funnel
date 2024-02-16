@@ -115,7 +115,6 @@ required_plugins = [
   'pytest-cov',
   'pytest-dotenv',
   'pytest-env',
-  'pytest-lazy-fixture',
   'pytest-rerunfailures',
   'pytest-socket',
   'requests-mock',
