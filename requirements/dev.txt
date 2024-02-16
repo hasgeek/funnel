@@ -12,11 +12,11 @@
     # via
     #   -r requirements/base.in
     #   baseframe
-astroid==3.0.2
+astroid==3.0.3
     # via pylint
 bandit==1.7.7
     # via -r requirements/dev.in
-black==24.1.1
+black==24.2.0
     # via -r requirements/dev.in
 build==1.0.3
     # via pip-tools
@@ -26,7 +26,7 @@ cfgv==3.4.0
     # via pre-commit
 colorama==0.4.6
     # via djlint
-cssbeautifier==1.14.11
+cssbeautifier==1.15.0
     # via djlint
 dill==0.3.8
     # via pylint
@@ -34,7 +34,7 @@ distlib==0.3.8
     # via virtualenv
 djlint==1.34.1
     # via -r requirements/dev.in
-editorconfig==0.12.3
+editorconfig==0.12.4
     # via
     #   cssbeautifier
     #   jsbeautifier
@@ -57,7 +57,7 @@ flake8-assertive==2.1.0
     # via -r requirements/dev.in
 flake8-blind-except==0.2.1
     # via -r requirements/dev.in
-flake8-bugbear==24.1.17
+flake8-bugbear==24.2.6
     # via -r requirements/dev.in
 flake8-builtins==2.2.0
     # via -r requirements/dev.in
@@ -85,14 +85,14 @@ html-tag-names==0.1.2
     # via djlint
 html-void-elements==0.1.0
     # via djlint
-identify==2.5.33
+identify==2.5.34
     # via pre-commit
 isort==5.13.2
     # via
     #   -r requirements/dev.in
     #   flake8-isort
     #   pylint
-jsbeautifier==1.14.11
+jsbeautifier==1.15.0
     # via
     #   cssbeautifier
     #   djlint
@@ -129,7 +129,7 @@ platformdirs==4.2.0
     #   virtualenv
 po2json==0.2.2
     # via -r requirements/dev.in
-pre-commit==3.6.0
+pre-commit==3.6.1
     # via -r requirements/dev.in
 pycodestyle==2.11.1
     # via
@@ -147,7 +147,7 @@ pyupgrade==3.15.0
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
-ruff==0.2.0
+ruff==0.2.1
     # via -r requirements/dev.in
 snowballstemmer==2.2.0
     # via pydocstyle
@@ -163,7 +163,7 @@ types-beautifulsoup4==4.12.0.20240106
     #   types-lxml
 types-chevron==0.14.2.20240106
     # via -r requirements/dev.in
-types-flask-migrate==4.0.0.7
+types-flask-migrate==4.0.0.20240205
     # via -r requirements/dev.in
 types-geoip2==3.0.0
     # via -r requirements/dev.in
@@ -173,7 +173,7 @@ types-html5lib==1.1.11.20240106
     # via types-beautifulsoup4
 types-ipaddress==1.0.8
     # via types-maxminddb
-types-lxml==2023.10.21
+types-lxml==2024.2.9
     # via -r requirements/dev.in
 types-maxminddb==1.5.0
     # via types-geoip2
@@ -181,13 +181,13 @@ types-mock==5.1.0.20240106
     # via -r requirements/dev.in
 types-passlib==1.7.7.20240106
     # via -r requirements/dev.in
-types-pillow==10.2.0.20240125
+types-pillow==10.2.0.20240213
     # via -r requirements/dev.in
 types-pyopenssl==24.0.0.20240130
     # via types-redis
 types-pytest-lazy-fixture==0.6.3.4
     # via -r requirements/dev.in
-types-pytz==2023.4.0.20240130
+types-pytz==2024.1.0.20240203
     # via -r requirements/dev.in
 types-pyyaml==6.0.12.12
     # via -r requirements/dev.in
