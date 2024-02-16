@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown, useravatar, add_submission_btn, img_size, projectcard %}
+{%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown, useravatar, add_submission_btn, img_size %}
 {% block title %}{{ project.title }}{% endblock title %}
 {% block description %}{{ project.tagline }}{% endblock description %}
 {% block twitter_card %}summary_large_image{% endblock twitter_card %}
@@ -296,28 +296,6 @@
       </div>
     </div>
   </div>
-  {%- if project.subprojects or project.parent_project %}
-    <div>
-      <h3 class="mui--text-left">{% trans %}Related events{% endtrans %}</h3>
-      {%- if project.subprojects %}
-      <ul class="grid grid-no-left-padding grid-no-right-padding">
-        {% for subproject in project.subprojects|selectattr("published_at") %}
-          <li class="grid__col-12 grid__col-sm-12 grid__col-lg-6">
-            {{ projectcard(subproject, calendarwidget_compact=false) }}
-          </li>
-        {%- endfor -%}
-      </ul>
-      {%- endif %}
-      {%- if project.parent_project %}
-        <div class="grid grid-no-left-padding grid-no-right-padding">
-          <div class="grid__col-12 grid__col-sm-12 grid__col-lg-6">
-            {{ projectcard(project.parent_project, calendarwidget_compact=false) }}
-          </div>
-        </div>
-      {%- endif %}
-    </div>
-  {%- endif %}
-
 {% endmacro %}
 
 {% macro project_details(project) %}
