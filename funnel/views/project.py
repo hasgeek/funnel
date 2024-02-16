@@ -274,6 +274,16 @@ def project_register_button_text(obj: Project) -> str:
     return _("Register")
 
 
+@Project.views('buy_button_eyebrow_text')
+def project_buy_button_eyebrow_text(obj: Project) -> str:
+    custom_text = (
+        obj.boxoffice_data.get('buy_btn_eyebrow_txt') if obj.boxoffice_data else None
+    )
+    if not custom_text:
+        custom_text = _("Hybrid access (members only)")
+    return custom_text
+
+
 @Account.views('project_new')
 @route('/<account>', init_app=app)
 class AccountProjectView(AccountViewBase):
@@ -594,6 +604,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                 is_subscription=boxoffice_data.get('is_subscription', True),
                 register_form_schema=boxoffice_data.get('register_form_schema'),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
+                buy_btn_eyebrow_txt=boxoffice_data.get('buy_btn_eyebrow_txt', ''),
                 has_membership=boxoffice_data.get('has_membership', False),
             ),
             model=Project,
@@ -608,6 +619,9 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             )
             self.obj.boxoffice_data['register_button_txt'] = (
                 form.register_button_txt.data
+            )
+            self.obj.boxoffice_data['buy_btn_eyebrow_txt'] = (
+                form.buy_btn_eyebrow_txt.data
             )
             self.obj.boxoffice_data['has_membership'] = form.has_membership.data
             db.session.commit()
