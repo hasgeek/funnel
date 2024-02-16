@@ -277,7 +277,7 @@ class NotificationType(Generic[_D, _F], Protocol):
     preference_context: ClassVar[Any]
     for_private_recipient: bool
 
-    type: str  # noqa: A003
+    type_: str
     eventid: UUID
     id: UUID  # noqa: A003
     eventid_b58: str
@@ -436,7 +436,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
             'fragment_type',
             'document',
             'fragment',
-            'type',
+            'type_',
             'user',
         },
         'related': {
@@ -446,7 +446,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
             'fragment_type',
             'document',
             'fragment',
-            'type',
+            'type_',
         },
     }
 
@@ -740,7 +740,7 @@ class PreviewNotification(NotificationType):
         self.id = uuid4()
         self.eventid_b58 = uuid_to_base58(self.eventid)
         self.cls = cls
-        self.type = cls.cls_type
+        self.type_ = cls.cls_type
         self.for_private_recipient = cls.for_private_recipient
         self.document = document
         self.document_uuid = document.uuid
