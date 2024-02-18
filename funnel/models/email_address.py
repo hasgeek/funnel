@@ -502,7 +502,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
     def get(
         cls,
         email: str,
-    ) -> EmailAddress | None: ...
+    ) -> Self | None: ...
 
     @overload
     @classmethod
@@ -510,7 +510,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
         cls,
         *,
         blake2b160: bytes,
-    ) -> EmailAddress | None: ...
+    ) -> Self | None: ...
 
     @overload
     @classmethod
@@ -518,7 +518,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
         cls,
         *,
         email_hash: str,
-    ) -> EmailAddress | None: ...
+    ) -> Self | None: ...
 
     @classmethod
     def get(
@@ -527,7 +527,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
         *,
         blake2b160: bytes | None = None,
         email_hash: str | None = None,
-    ) -> EmailAddress | None:
+    ) -> Self | None:
         """
         Get an :class:`EmailAddress` instance by email address or its hash.
 
@@ -557,7 +557,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
         return query
 
     @classmethod
-    def _get_existing(cls, email: str) -> EmailAddress | None:
+    def _get_existing(cls, email: str) -> Self | None:
         """
         Get an existing :class:`EmailAddress` instance.
 
@@ -567,10 +567,10 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
             return None
         if cls.get_canonical(email, is_blocked=True).notempty():
             raise EmailAddressBlockedError("Email address is blocked")
-        return EmailAddress.get(email)
+        return cls.get(email)
 
     @classmethod
-    def add(cls, email: str) -> EmailAddress:
+    def add(cls, email: str) -> Self:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -586,12 +586,12 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
             if not existing.email:
                 existing.email = email
             return existing
-        new_email = EmailAddress(email)
+        new_email = cls(email)
         db.session.add(new_email)
         return new_email
 
     @classmethod
-    def add_for(cls, owner: Account | None, email: str) -> EmailAddress:
+    def add_for(cls, owner: Account | None, email: str) -> Self:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -605,7 +605,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
             # No exclusive lock found? Let it be used then
             existing.email = email
             return existing
-        new_email = EmailAddress(email)
+        new_email = cls(email)
         db.session.add(new_email)
         return new_email
 

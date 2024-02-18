@@ -49,7 +49,7 @@ __all__ = [
 @NotificationFor.views('render', cached_property=True)
 def render_notification_recipient(obj: NotificationRecipient) -> RenderNotification:
     """Render web notifications for the user."""
-    return Notification.renderers[obj.notification.type](obj)
+    return Notification.renderers[obj.notification.type_](obj)
 
 
 @dataclass
@@ -225,10 +225,10 @@ class RenderNotification:
             if self.notification.for_private_recipient:
                 # Do not include a timestamp when it's a private notification, as that
                 # can be used to identify the event
-                campaign = self.notification.type
+                campaign = self.notification.type_
             else:
                 campaign = (
-                    f'{self.notification.type}'
+                    f'{self.notification.type_}'
                     f'-{self.notification.created_at.strftime("%Y%m%d-%H%M")}'
                 )
         return {
@@ -258,7 +258,7 @@ class RenderNotification:
             # https://github.com/pylint-dev/pylint/issues/8486
             {
                 'buid': self.notification_recipient.recipient.buid,
-                'notification_type': self.notification.type,
+                'notification_type': self.notification.type_,
                 'transport': transport,
                 'hash': (
                     anchor.transport_hash
@@ -292,7 +292,7 @@ class RenderNotification:
             # https://github.com/pylint-dev/pylint/issues/8486
             {
                 'buid': self.notification_recipient.recipient.buid,
-                'notification_type': self.notification.type,
+                'notification_type': self.notification.type_,
                 'transport': transport,
                 'hash': (
                     anchor.transport_hash
@@ -499,7 +499,7 @@ def dispatch_notification(*notifications: Notification) -> None:
     )
     for notification in notifications:
         statsd.incr(
-            'notification.dispatch', tags={'notification_type': notification.type}
+            'notification.dispatch', tags={'notification_type': notification.type_}
         )
 
 
@@ -570,7 +570,7 @@ def dispatch_transport_email(
                     str(notification_recipient.notification.title),
                     # pylint: disable=consider-using-f-string
                     '{type}-notification.{domain}'.format(
-                        type=notification_recipient.notification.type,
+                        type=notification_recipient.notification.type_,
                         domain=app.config['DEFAULT_DOMAIN'],
                     ),
                     # pylint: enable=consider-using-f-string
@@ -651,7 +651,7 @@ def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -
                 statsd.incr(
                     'notification.recipient',
                     count=len(notification_recipient_ids),
-                    tags={'notification_type': notification.type},
+                    tags={'notification_type': notification.type_},
                 )
                 # Continue to the next batch
 

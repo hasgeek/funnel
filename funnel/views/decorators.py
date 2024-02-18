@@ -6,6 +6,7 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from functools import wraps
 from hashlib import blake2b
+from typing import Any
 
 from flask import Response, make_response, request, url_for
 
@@ -113,8 +114,13 @@ def etag_cache_for_user(
             # 2. Get existing data from cache. There may be multiple copies of data,
             # for each distinct request_hash. Look for the one matching our request_hash
 
-            cache_data: dict | None = cache.get(cache_key)
-            response_data = None
+            cache_data: dict[str, Any] | None = cache.get(cache_key)
+            response_data: bytes | None = None
+            status_code: int | None = None
+            etag: str | None = None
+            content_encoding: str | None = None
+            content_type: str | None = None
+            last_modified: datetime | None = None
             if cache_data:
                 rhash_data = cache_data.get(request_hash, {})
                 try:
@@ -170,8 +176,10 @@ def etag_cache_for_user(
                     cache_data,
                     timeout=timeout,
                 )
-            response.set_etag(etag)
-            response.last_modified = last_modified
+            if etag is not None:
+                response.set_etag(etag)
+            if last_modified is not None:
+                response.last_modified = last_modified
             response.cache_control.max_age = max_age
             response.expires = (
                 response.last_modified or datetime.utcnow()

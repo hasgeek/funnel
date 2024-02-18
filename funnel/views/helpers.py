@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from hashlib import blake2b
 from importlib import resources
 from os import urandom
-from typing import Any, ContextManager
+from typing import Any, ContextManager, Literal
 from urllib.parse import quote, unquote, urljoin, urlsplit
 
 import brotli
@@ -479,34 +479,40 @@ def delete_cached_token(token: str) -> bool:
     return cache.delete(TEXT_TOKEN_PREFIX + token)
 
 
-def compress(data: bytes, algorithm: str) -> bytes:
+# `compress` and `decompress` are typed to accept ``| str`` because `compress_response`
+# calls with an `str` type, not a literal string
+
+
+def compress(data: bytes, algorithm: Literal['br', 'gzip', 'deflate'] | str) -> bytes:
     """
     Compress data using Gzip, Deflate or Brotli.
 
-    :param algorithm: One of ``gzip``, ``deflate`` or ``br``
+    :param algorithm: One of ``br``, ``gzip`` or ``deflate``
     """
-    if algorithm == 'gzip':
-        return gzip.compress(data)
-    if algorithm == 'deflate':
-        return zlib.compress(data)
-    if algorithm == 'br':
-        return brotli.compress(data)
-    raise ValueError("Unknown compression algorithm")
+    match algorithm:
+        case 'gzip':
+            return gzip.compress(data)
+        case 'deflate':
+            return zlib.compress(data)
+        case 'br':
+            return brotli.compress(data)
+    raise ValueError(f"Unknown compression algorithm: {algorithm}")
 
 
-def decompress(data: bytes, algorithm: str) -> bytes:
+def decompress(data: bytes, algorithm: Literal['br', 'gzip', 'deflate'] | str) -> bytes:
     """
     Uncompress data using Gzip, Deflate or Brotli.
 
-    :param algorithm: One of ``gzip``, ``deflate`` or ``br``
+    :param algorithm: One of ``br``, ``gzip`` or ``deflate``
     """
-    if algorithm == 'gzip':
-        return gzip.decompress(data)
-    if algorithm == 'deflate':
-        return zlib.decompress(data)
-    if algorithm == 'br':
-        return brotli.decompress(data)
-    raise ValueError("Unknown compression algorithm")
+    match algorithm:
+        case 'gzip':
+            return gzip.decompress(data)
+        case 'deflate':
+            return zlib.decompress(data)
+        case 'br':
+            return brotli.decompress(data)
+    raise ValueError(f"Unknown compression algorithm: {algorithm}")
 
 
 def compress_response(response: BaseResponse) -> None:
@@ -517,7 +523,8 @@ def compress_response(response: BaseResponse) -> None:
     :func:`~funnel.views.decorators.etag_cache_for_user`.
     """
     if (  # pylint: disable=too-many-boolean-expressions
-        response.content_length is not None
+        not response.direct_passthrough
+        and response.content_length is not None
         and response.content_length > 500
         and 200 <= response.status_code < 300
         and 'Content-Encoding' not in response.headers
@@ -525,10 +532,7 @@ def compress_response(response: BaseResponse) -> None:
         and (
             response.mimetype.startswith('text/')
             or response.mimetype
-            in (
-                'application/json',
-                'application/javascript',
-            )
+            in ('application/json', 'application/javascript', 'application/x.html+json')
         )
     ):
         algorithm = request.accept_encodings.best_match(('br', 'gzip', 'deflate'))
@@ -563,7 +567,14 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
 
 
 def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]:
-    """Render a HTML fragment in a JSON wrapper, for use with ``@render_with``."""
+    """
+    Render a HTML fragment in a JSON wrapper, for use with ``@render_with``.
+
+    ::
+
+        @render_with(html_in_json('template.html.jinja2'))
+        def my_view(...) -> ReturnRenderWith: ...
+    """
 
     def render_json_with_status(kwargs: dict[str, Any]) -> ReturnResponse:
         """Render plain JSON."""

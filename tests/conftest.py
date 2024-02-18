@@ -134,6 +134,27 @@ def pytest_runtest_call(item: pytest.Function) -> None:
             typeguard.check_type(item.funcargs[attr], type_)
 
 
+def pytest_runtest_logreport(report: pytest.TestReport):
+    """Add line numbers to log report, for easier discovery in code editors."""
+    # Report location of test (failing line number if available, else test location)
+    filename, line_no, domain = report.location
+    if report.longrepr is not None:
+        if (
+            repr_traceback := getattr(report.longrepr, 'reprtraceback', None)
+        ) is not None:
+            if (
+                repr_file_loc := repr_traceback.reprentries[0].reprfileloc
+            ).path == filename:
+                line_no = repr_file_loc.lineno
+    if report.nodeid.startswith(filename):
+        # Only insert a line number if the existing nodeid refers to the same filename.
+        # Needed for pytest-bdd, which constructs tests and refers the filename that
+        # imported the scenario. This file will not have the actual test function, so
+        # no line number reference is possible; the `filename` in the report will refer
+        # to pytest-bdd internals
+        report.nodeid = f'{filename}:{line_no}::{domain}'
+
+
 # --- Playwright browser config --------------------------------------------------------
 
 
@@ -263,7 +284,7 @@ class TestResponse(Response):
                     kwargs['method'] = self.method
                 return client.open(path, data=data, **kwargs)
 
-            for form in self._parsed_html.forms:  # type: ignore[attr-defined]
+            for form in self._parsed_html.forms:
                 form.submit = MethodType(_submit, form)  # type: ignore[attr-defined]
         return self._parsed_html
 
@@ -1271,6 +1292,7 @@ class GetUserProtocol(Protocol):
 @pytest.fixture()
 def getuser(request: pytest.FixtureRequest) -> GetUserProtocol:
     """Get a user fixture by their name."""
+    # spell-checker: disable
     usermap = {
         "Twoflower": 'user_twoflower',
         "Rincewind": 'user_rincewind',
@@ -1301,6 +1323,7 @@ def getuser(request: pytest.FixtureRequest) -> GetUserProtocol:
         "Wolfgang": 'user_wolfgang',
         "Om": 'user_om',
     }
+    # spell-checker: enable
 
     def func(user: str) -> funnel_models.User:
         if user not in usermap:
