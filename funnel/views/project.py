@@ -19,6 +19,7 @@ from .. import app
 from ..auth import current_auth
 from ..forms import (
     CfpForm,
+    ProjectAssignParentForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
@@ -28,7 +29,6 @@ from ..forms import (
     ProjectNameForm,
     ProjectRegisterForm,
     ProjectTransitionForm,
-    ProjectAssignParentForm
 )
 from ..models import (
     Account,
@@ -939,7 +939,9 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     @requires_login
     @requires_roles({'editor'})
     def assign_parent_project(self) -> ReturnView:
-        form = ProjectAssignParentForm(target=self.obj.parent_project, user=current_auth.user)
+        form = ProjectAssignParentForm(
+            target=self.obj.parent_project, user=current_auth.user
+        )
         if form.validate_on_submit():
             target_project = form.target.data
             if target_project:
@@ -954,4 +956,6 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                 self.obj.parent_project = None
             db.session.commit()
             return render_redirect(self.obj.url_for())
-        return render_form(form=form, title=_("Assign a parent project"), submit=_("Assign"))
+        return render_form(
+            form=form, title=_("Assign a parent project"), submit=_("Assign")
+        )
