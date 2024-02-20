@@ -395,18 +395,19 @@ class ProjectRegisterForm(forms.Form):
                     )
                 )
 
+
 @Project.forms('assign_parent')
 class ProjectAssignParentForm(forms.Form):
     """Form to assign a parent project to the project."""
 
-    __expects__ = ('user', )
+    __expects__ = ('user',)
     user: Account
 
     target = QuerySelectField(
         __("Assign a parent project"),
         description=__("Assign a parent project to this project"),
         validators=[forms.validators.Optional()],
-        get_label=lambda s: '%s: %s' % (s.account.title, s.title) if s else '',
+        get_label=lambda s: '{}: {}'.format(s.account.title, s.title) if s else '',
         allow_blank=True,
     )
 
