@@ -110,6 +110,7 @@ from .project import (
     ProjectTransitionForm,
     RsvpTransitionForm,
     SavedProjectForm,
+    ProjectAssignParentForm,
 )
 from .proposal import (
     ProposalFeaturedForm,

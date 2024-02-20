@@ -28,6 +28,7 @@ from ..forms import (
     ProjectNameForm,
     ProjectRegisterForm,
     ProjectTransitionForm,
+    ProjectAssignParentForm
 )
 from ..models import (
     Account,
@@ -933,3 +934,24 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                 'message': _("This project is no longer featured"),
             }
         return render_redirect(get_next_url(referrer=True))
+
+    @route('assign_parent_project', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def assign_parent_project(self) -> ReturnView:
+        form = ProjectAssignParentForm(obj=self.obj.parent_project, user=current_auth.user)
+        if form.validate_on_submit():
+            target_project = form.target.data
+            if target_project:
+                self.obj.parent_project = target_project
+                flash(
+                    _("{project} has been assigned as parent").format(
+                        project=target_project.title
+                    ),
+                    'success',
+                )
+            else:
+                self.obj.parent_project = None
+            db.session.commit()
+            return render_redirect(self.obj.url_for())
+        return render_form(form=form, title=_("Assign a parent project"), submit=_("Assign"))
