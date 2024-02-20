@@ -939,7 +939,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     @requires_login
     @requires_roles({'editor'})
     def assign_parent_project(self) -> ReturnView:
-        form = ProjectAssignParentForm(obj=self.obj.parent_project, user=current_auth.user)
+        form = ProjectAssignParentForm(target=self.obj.parent_project, user=current_auth.user)
         if form.validate_on_submit():
             target_project = form.target.data
             if target_project:

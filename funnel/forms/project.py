@@ -408,6 +408,7 @@ class ProjectAssignParentForm(forms.Form):
         validators=[forms.validators.Optional()],
         get_label=lambda s: '%s: %s' % (s.account.title, s.title) if s else '',
         allow_blank=True,
+        blank_text='None',
     )
 
     def __post_init__(self) -> None:
