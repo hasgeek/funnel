@@ -32,6 +32,7 @@ __all__ = [
     'RsvpTransitionForm',
     'SavedProjectForm',
     'ProjectRegisterForm',
+    'ProjectAssignParentForm',
 ]
 
 double_quote_re = re.compile(r'["“”]')
