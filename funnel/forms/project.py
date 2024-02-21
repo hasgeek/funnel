@@ -407,7 +407,7 @@ class ProjectAssignParentForm(forms.Form):
         __("Assign a parent project"),
         description=__("Assign a parent project to this project"),
         validators=[forms.validators.Optional()],
-        get_label=lambda s: '{}: {}'.format(s.account.title, s.title) if s else '',
+        get_label=lambda s: f'{s.account.title}: {s.title}' if s else '',
         allow_blank=True,
         blank_text='None',
     )
