@@ -99,6 +99,7 @@ from .profile import (
 )
 from .project import (
     CfpForm,
+    ProjectAssignParentForm,
     ProjectBannerForm,
     ProjectCfpTransitionForm,
     ProjectFeaturedForm,
@@ -180,6 +181,7 @@ __all__ = [
     "ProfileForm",
     "ProfileLogoForm",
     "ProfileTransitionForm",
+    "ProjectAssignParentForm",
     "ProjectBannerForm",
     "ProjectBoxofficeForm",
     "ProjectCfpTransitionForm",
