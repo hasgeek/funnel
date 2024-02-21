@@ -940,20 +940,10 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     @requires_roles({'editor'})
     def assign_parent_project(self) -> ReturnView:
         form = ProjectAssignParentForm(
-            target=self.obj.parent_project, user=current_auth.user
+            obj=self.obj, user=current_auth.user
         )
         if form.validate_on_submit():
-            target_project = form.target.data
-            if target_project:
-                self.obj.parent_project = target_project
-                flash(
-                    _("{project} has been assigned as parent").format(
-                        project=target_project.title
-                    ),
-                    'success',
-                )
-            else:
-                self.obj.parent_project = None
+            form.populate_obj(self.obj)
             db.session.commit()
             return render_redirect(self.obj.url_for())
         return render_form(

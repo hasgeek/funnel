@@ -403,7 +403,7 @@ class ProjectAssignParentForm(forms.Form):
     __expects__ = ('user',)
     user: Account
 
-    target = QuerySelectField(
+    parent_project = QuerySelectField(
         __("Assign a parent project"),
         description=__("Assign a parent project to this project"),
         validators=[forms.validators.Optional()],
@@ -414,4 +414,4 @@ class ProjectAssignParentForm(forms.Form):
 
     def __post_init__(self) -> None:
         """Prepare form for use."""
-        self.target.query = self.user.projects_as_editor
+        self.parent_project.query = self.user.projects_as_editor
