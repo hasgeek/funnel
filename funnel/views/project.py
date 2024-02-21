@@ -939,9 +939,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     @requires_login
     @requires_roles({'editor'})
     def assign_parent_project(self) -> ReturnView:
-        form = ProjectAssignParentForm(
-            obj=self.obj, user=current_auth.user
-        )
+        form = ProjectAssignParentForm(obj=self.obj, user=current_auth.user)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
