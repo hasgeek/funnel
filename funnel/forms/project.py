@@ -406,7 +406,9 @@ class ProjectAssignParentForm(forms.Form):
 
     parent_project = QuerySelectField(
         __("Assign a parent project"),
-        description=__("Assign a parent project to this project"),
+        description=__(
+            "This is to group related projects. Parent and subprojects will"
+            " appear under related events"),
         validators=[forms.validators.Optional()],
         get_label=lambda s: f'{s.account.title}: {s.title}' if s else '',
         allow_blank=True,
