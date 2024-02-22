@@ -6,7 +6,7 @@ import re
 from typing import cast
 
 from baseframe import _, __, forms
-from baseframe.forms.sqlalchemy import AvailableName
+from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from coaster.utils import sorted_timezones, utcnow
 
 from ..models import Account, Project, Rsvp, SavedProject
@@ -32,6 +32,7 @@ __all__ = [
     'RsvpTransitionForm',
     'SavedProjectForm',
     'ProjectRegisterForm',
+    'ProjectAssignParentForm',
 ]
 
 double_quote_re = re.compile(r'["“”]')
@@ -394,3 +395,27 @@ class ProjectRegisterForm(forms.Form):
                         fields=', '.join(invalid_keys)
                     )
                 )
+
+
+@Project.forms('assign_parent')
+class ProjectAssignParentForm(forms.Form):
+    """Form to assign a parent project to the project."""
+
+    __expects__ = ('user',)
+    user: Account
+
+    parent_project = QuerySelectField(
+        __("Assign a parent project"),
+        description=__(
+            "This is to group related projects. Parent and subprojects will"
+            " appear under related events"
+        ),
+        validators=[forms.validators.Optional()],
+        get_label=lambda s: f'{s.account.title}: {s.title}' if s else '',
+        allow_blank=True,
+        blank_text='None',
+    )
+
+    def __post_init__(self) -> None:
+        """Prepare form for use."""
+        self.parent_project.query = self.user.projects_as_editor

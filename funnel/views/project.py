@@ -19,6 +19,7 @@ from .. import app
 from ..auth import current_auth
 from ..forms import (
     CfpForm,
+    ProjectAssignParentForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
@@ -933,3 +934,16 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                 'message': _("This project is no longer featured"),
             }
         return render_redirect(get_next_url(referrer=True))
+
+    @route('assign_parent_project', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def assign_parent_project(self) -> ReturnView:
+        form = ProjectAssignParentForm(obj=self.obj, user=current_auth.user)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            return render_redirect(self.obj.url_for())
+        return render_form(
+            form=form, title=_("Assign a parent project"), submit=_("Assign")
+        )
