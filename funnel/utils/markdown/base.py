@@ -63,11 +63,13 @@ class MarkdownPlugin:
     config: dict[str, Any] | None = None
 
     @classmethod
-    def register(cls, name: str, *args: Any, **kwargs: Any) -> Self:
+    def register(
+        cls, name: str, func: Callable, config: dict[str, Any] | None = None
+    ) -> Self:
         """Create a new instance and add it to the registry."""
         if name in cls.registry:
             raise NameError(f"MarkdownPlugin {name} has already been registered")
-        obj = cls(name, *args, **kwargs)
+        obj = cls(name, func, config)
         cls.registry[name] = obj
         return obj
 
