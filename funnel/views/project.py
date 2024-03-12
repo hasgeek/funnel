@@ -844,15 +844,12 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                     db.session.commit()
             # Send new form nonce
             return {'status': 'ok', 'form_nonce': form.form_nonce.data}
-        return (
-            {
-                'status': 'error',
-                'error': 'project_save_form_invalid',
-                'error_description': _("This page timed out. Reload and try again"),
-                'form_nonce': form.form_nonce.data,
-            },
-            400,
-        )
+        return {
+            'status': 'error',
+            'error': 'project_save_form_invalid',
+            'error_description': _("This page timed out. Reload and try again"),
+            'form_nonce': form.form_nonce.data,
+        }, 400
 
     @route('admin', methods=['GET', 'POST'])
     @render_with('project_admin.html.jinja2')

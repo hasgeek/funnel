@@ -286,7 +286,7 @@ def localize_date(
 
 def get_scheme_netloc(uri: str) -> tuple[str, str]:
     parsed_uri = urlsplit(uri)
-    return (parsed_uri.scheme, parsed_uri.netloc)
+    return parsed_uri.scheme, parsed_uri.netloc
 
 
 def autoset_timezone_and_locale() -> None:
@@ -325,21 +325,21 @@ def progressive_rate_limit_validator(
     # prev_token will be None on the first call to the validator. Count the first
     # call, but don't retain the previous token
     if prev_token is None:
-        return (True, False)
+        return True, False
 
     # User is typing, so current token is previous token plus extra chars. Don't
     # count this as a new call, and keep the longer current token as the reference
     if token.startswith(prev_token):
-        return (False, False)
+        return False, False
 
     # User is backspacing (current < previous), so keep the previous token as the
     # reference in case they retype the deleted characters
     if prev_token.startswith(token):
-        return (False, True)
+        return False, True
 
     # Current token is differing from previous token, meaning this is a new query.
     # Increment the counter, discard previous token and use current token as ref
-    return (True, False)
+    return True, False
 
 
 def validate_rate_limit(

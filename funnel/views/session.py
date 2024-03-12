@@ -262,13 +262,8 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
                     db.session.delete(session_save)
                     db.session.commit()
             return {'status': 'ok'}, 201 if created else 200
-        return (
-            {
-                'status': 'error',
-                'error': 'session_save_form_invalid',
-                'error_description': _(
-                    "Something went wrong, please reload and try again"
-                ),
-            },
-            400,
-        )
+        return {
+            'status': 'error',
+            'error': 'session_save_form_invalid',
+            'error_description': _("Something went wrong, please reload and try again"),
+        }, 400

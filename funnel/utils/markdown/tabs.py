@@ -223,7 +223,7 @@ class TabsManager:
             i += 1
         if i >= len(tab_tokens):
             return None
-        return (start, start + i)
+        return start, start + i
 
     def index(self, start: int | None = None) -> TabNode | None:
         if start is not None:

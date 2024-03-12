@@ -690,13 +690,11 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     @property
     def public_proposal_memberships(self) -> Query[ProposalMembership]:
         """Query for all proposal memberships to proposals that are public."""
+        # TODO: Include proposal state filter (pending proposal workflow fix)
         return (
             self.proposal_memberships.join(Proposal, ProposalMembership.proposal)
             .join(Project, Proposal.project)
-            .filter(
-                ProposalMembership.is_uncredited.is_(False),
-                # TODO: Include proposal state filter (pending proposal workflow fix)
-            )
+            .filter(ProposalMembership.is_uncredited.is_(False))
         )
 
     public_proposals = DynamicAssociationProxy['Proposal'](

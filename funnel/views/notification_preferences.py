@@ -155,26 +155,21 @@ class AccountNotificationView(ClassView):
                 is_new = False
             prefs.set_transport(form.transport.data, form.enabled.data)
             db.session.commit()
-            return (
-                {
-                    'status': 'ok',
-                    'notification_type': prefs.notification_type,
-                    'preferences': {
-                        transport: prefs.by_transport(transport)
-                        for transport in platform_transports
-                    },
-                    'message': form.status_message(),
+            return {
+                'status': 'ok',
+                'notification_type': prefs.notification_type,
+                'preferences': {
+                    transport: prefs.by_transport(transport)
+                    for transport in platform_transports
                 },
-                201 if is_new else 200,
-            )
-        return (
-            {
-                'status': 'error',
-                'error': 'csrf',
-                'error_description': form.status_message(),
-            },
-            400,
-        )
+                'message': form.status_message(),
+            }, (201 if is_new else 200)
+
+        return {
+            'status': 'error',
+            'error': 'csrf',
+            'error_description': form.status_message(),
+        }, 400
 
     @route(
         'unsubscribe/<token>',
