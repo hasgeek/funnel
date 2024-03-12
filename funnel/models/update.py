@@ -359,9 +359,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         if self.visibility_state.PUBLIC or self.current_roles.project_editor:
             return False
         if self.visibility_state.PARTICIPANTS:
-            return self.current_roles.project_participant
+            return not self.current_roles.project_participant
         if self.visibility_state.MEMBERS:
-            return self.current_roles.account_member
+            return not self.current_roles.account_member
         raise RuntimeError("Unknown visibility state")  # pragma: no cover
 
     with_roles(is_currently_restricted, read={'all'})
