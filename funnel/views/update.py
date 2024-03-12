@@ -143,6 +143,9 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
             form = UpdatePinForm(obj=self.obj)
         else:
             form = UpdateForm(obj=self.obj)
+            if self.obj.state.PUBLISHED:
+                # Don't allow visibility change in a published update
+                del form.visibility
         if form.validate_on_submit():
             form.populate_obj(self.obj.current_access())
             db.session.commit()

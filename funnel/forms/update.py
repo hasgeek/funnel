@@ -25,6 +25,7 @@ class UpdateForm(forms.Form):
     )
     visibility = forms.RadioField(
         __("Who gets this update?"),
+        description=__("This can’t be changed after publishing the update"),
         default=VISIBILITY_STATE[VISIBILITY_STATE.PUBLIC].name,
         choices=[
             (

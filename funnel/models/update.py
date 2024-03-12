@@ -49,8 +49,8 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
 class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     __tablename__ = 'update'
 
-    # XXX: Why is this a state? There's no state change in the product design -- it's
-    # more of a permanent subtype identifier
+    # FIXME: Why is this a state? There's no state change in the product design.
+    # It's a permanent subtype identifier
     _visibility_state: Mapped[int] = sa_orm.mapped_column(
         'visibility_state',
         sa.SmallInteger,
