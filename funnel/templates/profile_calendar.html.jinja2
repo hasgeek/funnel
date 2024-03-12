@@ -1,0 +1,157 @@
+{% extends "profile_layout.html.jinja2" %}
+{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, useravatar, proposal_card %}
+
+{%- block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/profile.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/profile_calendar.css') }}" />
+  <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+       "@type" : "WebSite",
+       "name" : {{ config['SITE_TITLE']|tojson }},
+       "url" : {{ url_for('index', _external=true)|tojson }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ url_for('search', _external=true) }}?q={query}",
+        "query-input": "required name=query"
+      }
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Organization",
+      "name" : {{ profile.title|tojson }},
+      {%- if profile.banner_image_url.url %}
+      "logo" : {{ profile.banner_image_url.url|tojson }},
+      {%- elif profile.logo_url.url %}
+      "logo" : {{ profile.logo_url.url|tojson }},
+      {% endif %}
+      "url" : {{ profile.url_for(_external=true)|tojson }}
+    }
+  </script>
+{%- endblock pageheaders %}
+
+{% block bodyattrs %}class="bg-primary mobile-header"{% endblock bodyattrs %}
+
+{% block contenthead %}
+{% endblock contenthead %}
+
+{% block baseheadline %}
+  {{ profile_header(profile, class="mui--hidden-xs mui--hidden-sm", current_page="calendar", title=_("Calendar")) }}
+{% endblock baseheadline %}
+
+{% block basecontent %}
+  <div class="bg-accent">
+    <div class="projects-wrapper">
+        <div class="mui-container">
+          <div class="grid">
+            <div class="grid__col-12">
+              <div class="flex-wrapper flex-wrapper--baseline">
+                {% raw %}
+                  <div id="calendar" class="calendar-container" v-cloak>
+                    <div class="flex-wrapper flex-wrapper--baseline">
+                      <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--dark" @click="prev"><faicon :icon="'chevron-left'" :baseline=false></faicon></button>
+                      <span class="mui--text-title text-bold"> {{ date }} </span>
+                      <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--dark" @click="next"><faicon :icon="'chevron-right'" :baseline=false></faicon></button>
+                      <div class="filter">
+                        <a href="#" onclick="return false;" @click="toggleFilterMenu" class="mui--text-title mui--text-light" aria-label="Filter calendar" role="button" aria-haspopup="true" aria-expanded="false"><faicon :icon="'filter'" :baseline=false></faicon></a>
+                        <div class="filter-menu" v-if="showFilter">
+                          <form v-on:submit.prevent="applyFilter">
+                            <p class="mui--text-subtitle text-bold margin-bottom">{{ gettext('Format') }}</p>
+                            <div class="mui-form__controls">
+                              <div class="mui-textfield">
+                                <ul class="zero-bottom-margin mui-list--unstyled" id="duration">
+                                  <li>
+                                    <input type="radio" id="weekly" name="view" value="weekly" v-model="calendarView"> <label for="weekly">{{ gettext('Weekly') }}</label>
+                                  </li>
+                                  <li>
+                                    <input checked type="radio" id="monthly" name="view" value="monthly" v-model="calendarView"> <label for="monthly">{{ gettext('Monthly') }}</label>
+                                  </li>
+                                  <li>
+                                    <input type="radio" id="yearly" name="view" value="yearly" v-model="calendarView"> <label for="yearly">{{ gettext('Yearly') }}</label>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+
+                            <p class="mui--text-subtitle text-bold top-padding margin-bottom">{{ gettext('Access') }}</p>
+                            <div id="field-member-events" class="mui-form__fields">
+                              <div class="mui-form__controls">
+                                <div class="mui-textfield">
+                                  <ul class="zero-bottom-margin mui-list--unstyled" id="access">
+                                    <li>
+                                      <input type="radio" id="member" name="access" value="member" v-model="access"> <label for="member">{{ gettext('Member only') }}</label>
+                                    </li>
+                                    <li>
+                                      <input type="radio" id="free" name="access" value="free" v-model="access"> <label for="free">{{ gettext('Free') }}</label>
+                                    </li>
+                                    <li>
+                                      <input checked type="radio" id="both" name="access" value="both" v-model="access"> <label for="both">{{ gettext('Both') }}</label>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </div>
+                            </div>
+
+                            <p class="mui--text-subtitle text-bold top-padding margin-bottom">{{ gettext('Proposal Submissions') }}</p>
+                            <div id="field-member-events" class="mui-form__fields">
+                              <div class="mui-form__controls">
+                                <div class="mui-checkbox">
+                                  <label>
+                                    <input type="checkbox"  id="cfp-state" name="cfp" v-model="cfp"> {{ gettext('Accepting') }}
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+<!--                             <div id="field-free-events" class="mui-form__fields">
+                              <div class="mui-form__controls">
+                                <div class="mui-checkbox">
+                                  <label>
+                                    <input type="checkbox" id="free_events" name="free_events" v-model="closed"> {{ gettext('Closed') }}
+                                  </label>
+                                </div>
+                              </div>
+                            </div> -->
+                            <button type="submit" class="mui-btn mui-btn--small mui-btn--primary">Apply</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div v-if="filteredEvents">
+                      <table class="proposal-list-table mui-table">
+                        <tbody>
+                          <tr v-for="event in filteredEvents">
+                            <td class="card page-card__card">
+                              <div class="card__body">
+                                <p class="mui--text-subhead text-bold margin-bottom">
+                                  <a :href="event.url" class="mui--text-dark">{{ event.title }}</a>
+                                </p>
+                                <p class="mui--text-dark mui--text-light margin-bottom"><faicon :icon="'calendar-alt'" :baseline=true></faicon> {{ propertyVal(event, 'date') }} <faicon :icon="'clock'" :baseline=true :css_class="'margin-left'"></faicon> {{ propertyVal(event, 'time') }}</p>
+                                <div class="margin-bottom">
+                                  <span class="badge text-bold" v-if="propertyVal(event, 'cfp_open')">Accepting proposals</span><span class="badge badge-success text-bold" v-if="propertyVal(event, 'member_access')">Member access</span><span class="badge badge-dark text-bold" v-else>Free</span>
+                                </div>
+                                <p class="mui--text-caption mui--text-light"><faicon :icon="'map-marker-alt'" :baseline=false></faicon>{{ propertyVal(event, 'venue') }}</p>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <full-calendar ref="fullCalendar" :options="calendarOptions"><full-calendar/>
+                  </div>
+                {% endraw %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock basecontent %}
+
+{% block innerscripts %}
+  <script src="{{ manifest('profile_calendar.js') }}" type="text/javascript"></script>
+{% endblock innerscripts %}
