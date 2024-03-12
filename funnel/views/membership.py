@@ -77,20 +77,17 @@ class OrganizationMembersView(AccountViewBase):
             if membership_form.validate_on_submit():
                 if not membership_form.user.data.has_verified_contact_info:
                     # users without verified contact information cannot be members
-                    return (
-                        {
-                            'status': 'error',
-                            'error_description': _(
-                                "This user does not have any verified contact"
-                                " information. If you are able to contact them, please"
-                                " ask them to verify their email address or phone"
-                                " number"
-                            ),
-                            'errors': membership_form.errors,
-                            'form_nonce': membership_form.form_nonce.data,
-                        },
-                        422,
-                    )
+                    return {
+                        'status': 'error',
+                        'error_description': _(
+                            "This user does not have any verified contact"
+                            " information. If you are able to contact them, please"
+                            " ask them to verify their email address or phone"
+                            " number"
+                        ),
+                        'errors': membership_form.errors,
+                        'form_nonce': membership_form.form_nonce.data,
+                    }, 422
 
                 previous_membership = (
                     AccountMembership.query.filter(AccountMembership.is_active)
@@ -101,15 +98,13 @@ class OrganizationMembersView(AccountViewBase):
                     .one_or_none()
                 )
                 if previous_membership is not None:
-                    return (
-                        {
-                            'status': 'error',
-                            'error_description': _("This user is already an admin"),
-                            'errors': membership_form.errors,
-                            'form_nonce': membership_form.form_nonce.data,
-                        },
-                        422,
-                    )
+                    return {
+                        'status': 'error',
+                        'error_description': _("This user is already an admin"),
+                        'errors': membership_form.errors,
+                        'form_nonce': membership_form.form_nonce.data,
+                    }, 422
+
                 new_membership = AccountMembership(
                     account=self.obj, granted_by=current_auth.user
                 )
@@ -132,15 +127,12 @@ class OrganizationMembersView(AccountViewBase):
                         for membership in self.obj.active_admin_memberships
                     ],
                 }, 201
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("The new admin could not be added"),
-                    'errors': membership_form.errors,
-                    'form_nonce': membership_form.form_nonce.data,
-                },
-                422,
-            )
+            return {
+                'status': 'error',
+                'error_description': _("The new admin could not be added"),
+                'errors': membership_form.errors,
+                'form_nonce': membership_form.form_nonce.data,
+            }, 422
 
         membership_form_html = render_form(
             form=membership_form,

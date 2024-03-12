@@ -411,17 +411,15 @@ class CommentView(UrlForView, ModelView[Comment]):
                 _("There was an issue reporting this comment. Try again?"),
                 'error',
             )
-            return (
-                {
-                    'status': 'error',
-                    'error': 'report_spam_error',
-                    'error_description': _(
-                        "There was an issue reporting this comment. Try again?"
-                    ),
-                    'error_details': csrf_form.errors,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error': 'report_spam_error',
+                'error_description': _(
+                    "There was an issue reporting this comment. Try again?"
+                ),
+                'error_details': csrf_form.errors,
+            }, 400
+
         reportspamform_html = render_form(
             form=csrf_form,
             title=_("Do you want to mark this comment as spam?"),
