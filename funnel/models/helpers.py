@@ -638,7 +638,7 @@ class MarkdownCompositeBase(MutableComposite):
 
     def __composite_values__(self) -> tuple[str | None, str | None]:
         """Return composite values for SQLAlchemy."""
-        return (self._text, self._html)
+        return self._text, self._html
 
     # Return a string representation of the text (see class decorator)
     def __str__(self) -> str:
@@ -706,7 +706,7 @@ class MarkdownCompositeBase(MutableComposite):
     def __getstate__(self) -> tuple[str | None, str | None]:
         """Get state for pickling."""
         # Return state for pickling
-        return (self._text, self._html)
+        return self._text, self._html
 
     def __setstate__(self, state: tuple[str | None, str | None]) -> None:
         """Set state from pickle."""

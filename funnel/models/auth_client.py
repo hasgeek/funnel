@@ -327,10 +327,8 @@ class AuthClientCredential(BaseMixin[int, Account], Model):
         if not candidate:
             return False
         if self.secret_hash.startswith('blake2b$32$'):
-            return (
-                self.secret_hash
-                == 'blake2b$32$'
-                + blake2b(candidate.encode(), digest_size=32).hexdigest()
+            return self.secret_hash == (
+                'blake2b$32$' + blake2b(candidate.encode(), digest_size=32).hexdigest()
             )
         # Older credentials, before the switch to Blake2b:
         if self.secret_hash.startswith('sha256$'):

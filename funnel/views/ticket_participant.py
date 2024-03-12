@@ -382,10 +382,11 @@ class TicketEventParticipantCheckinView(ClassView):
         )
         attendee = TicketEventParticipant.get(ticket_event, ticket_participant.uuid_b58)
         if attendee is None:
-            return (
-                {'error': 'not_found', 'error_description': _("Attendee not found")},
-                404,
-            )
+            return {
+                'error': 'not_found',
+                'error_description': _("Attendee not found"),
+            }, 404
+
         attendee.checked_in = bool(checked_in)
         db.session.commit()
         return {'attendee': {'fullname': ticket_participant.fullname}}

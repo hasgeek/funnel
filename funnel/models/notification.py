@@ -574,7 +574,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     @property
     def identity(self) -> tuple[UUID, UUID]:
         """Primary key of this object."""
-        return (self.eventid, self.id)
+        return self.eventid, self.id
 
     @hybrid_property
     def eventid_b58(self) -> str:
@@ -936,7 +936,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
     @property
     def identity(self) -> tuple[int, UUID]:
         """Primary key of this object."""
-        return (self.recipient_id, self.eventid)
+        return self.recipient_id, self.eventid
 
     @hybrid_property
     def eventid_b58(self) -> str:

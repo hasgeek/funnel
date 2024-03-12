@@ -30,7 +30,10 @@ def geo_get_by_name(
             ),
         }
         if geoname
-        else {'status': 'error', 'error': 'not_found'}
+        else {
+            'status': 'error',
+            'error': 'not_found',
+        }
     )
 
 
