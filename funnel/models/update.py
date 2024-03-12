@@ -31,7 +31,7 @@ from .helpers import (
 )
 from .project import Project
 
-__all__ = ['Update']
+__all__ = ['Update', 'VISIBILITY_STATE']
 
 
 class UPDATE_STATE(LabeledEnum):  # noqa: N801
@@ -42,12 +42,15 @@ class UPDATE_STATE(LabeledEnum):  # noqa: N801
 
 class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
     PUBLIC = (1, 'public', __("Public"))
-    RESTRICTED = (2, 'restricted', __("Restricted"))
+    PARTICIPANTS = (2, 'participants', __("Participants"))
+    MEMBERS = (3, 'members', __("Members"))
 
 
 class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     __tablename__ = 'update'
 
+    # XXX: Why is this a state? There's no state change in the product design -- it's
+    # more of a permanent subtype identifier
     _visibility_state: Mapped[int] = sa_orm.mapped_column(
         'visibility_state',
         sa.SmallInteger,
@@ -94,21 +97,21 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         grants_via={
             None: {
                 'editor': {'editor', 'project_editor'},
-                'participant': {'reader', 'project_participant'},
-                'crew': {'reader', 'project_crew'},
+                'participant': {'project_participant'},
+                'crew': {'project_crew'},
             }
         },
     )
     parent: Mapped[Project] = sa_orm.synonym('project')
 
-    # Relationship to project that exists only when the Update is not restricted, for
-    # the purpose of inheriting the account_participant role. We do this because
-    # RoleMixin does not have a mechanism for conditional grant of roles. A relationship
-    # marked as `grants_via` will always grant the role unconditionally, so the only
-    # control at the moment is to make the relationship itself conditional. The affected
-    # mechanism is not `roles_for` but `actors_with`, which is currently not meant to be
-    # redefined in a subclass
-    _project_when_unrestricted: Mapped[Project] = with_roles(
+    # Relationships to project that exist only when the Update has specific visibility
+    # states, for the purpose of inheriting the `reader` role. We do this
+    # because RoleMixin does not have a mechanism for conditional grant of roles. A
+    # relationship marked as `grants_via` will always grant the role unconditionally, so
+    # the only control at the moment is to make the relationship itself conditional. The
+    # affected mechanism is not `roles_for` but `actors_with`, which is currently not
+    # meant to be redefined in a subclass
+    _project_when_public: Mapped[Project] = with_roles(
         relationship(
             viewonly=True,
             uselist=False,
@@ -116,7 +119,34 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
                 project_id == Project.id, _visibility_state == VISIBILITY_STATE.PUBLIC
             ),
         ),
-        grants_via={None: {'account_participant': 'account_participant'}},
+        grants_via={
+            None: {
+                'account_participant': 'reader',
+                'project_participant': 'reader',
+                'account_member': 'reader',
+            }
+        },
+    )
+    _project_when_participants_only: Mapped[Project] = with_roles(
+        relationship(
+            viewonly=True,
+            uselist=False,
+            primaryjoin=sa.and_(
+                project_id == Project.id,
+                _visibility_state == VISIBILITY_STATE.PARTICIPANTS,
+            ),
+        ),
+        grants_via={None: {'project_participant': 'reader'}},
+    )
+    _project_when_members_only: Mapped[Project] = with_roles(
+        relationship(
+            viewonly=True,
+            uselist=False,
+            primaryjoin=sa.and_(
+                project_id == Project.id, _visibility_state == VISIBILITY_STATE.MEMBERS
+            ),
+        ),
+        grants_via={None: {'account_member': 'reader'}},
     )
 
     body, body_text, body_html = MarkdownCompositeDocument.create(
@@ -128,10 +158,10 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         sa_orm.mapped_column(default=None), read={'all'}
     )
 
-    #: Like pinned tweets. You can keep posting updates,
-    #: but might want to pin an update from a week ago.
+    #: Like pinned tweets. You can keep posting updates, but might want to pin an
+    #: update from a week ago
     is_pinned: Mapped[bool] = with_roles(
-        sa_orm.mapped_column(default=False), read={'all'}
+        sa_orm.mapped_column(default=False), read={'all'}, write={'editor'}
     )
 
     published_by_id: Mapped[int | None] = sa_orm.mapped_column(
@@ -198,7 +228,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
             'read': {'name', 'title', 'urls'},
             'call': {'features', 'visibility_state', 'state', 'url_for'},
         },
+        'editor': {'write': {'title', 'body'}, 'read': {'body'}},
         'reader': {'read': {'body'}},
+        'project_crew': {'read': {'body'}},
     }
 
     __datasets__ = {
@@ -213,10 +245,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
             'edited_at',
             'created_by',
             'is_pinned',
-            'is_restricted',
             'is_currently_restricted',
-            'visibility_label',
-            'state_label',
+            'visibility',
             'urls',
             'uuid_b58',
         },
@@ -231,10 +261,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
             'edited_at',
             'created_by',
             'is_pinned',
-            'is_restricted',
             'is_currently_restricted',
-            'visibility_label',
-            'state_label',
+            'visibility',
             'urls',
             'uuid_b58',
         },
@@ -250,16 +278,26 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         return f'<Update "{self.title}" {self.uuid_b58}>'
 
     @property
-    def visibility_label(self) -> str:
-        return self.visibility_state.label.title
+    def visibility(self) -> str:
+        """Return visibility state name."""
+        return self.visibility_state.label.name
 
-    with_roles(visibility_label, read={'all'})
+    @visibility.setter
+    def visibility(self, value: str) -> None:
+        """Set visibility state (interim until visibility as state is resolved)."""
+        # FIXME: Move to using an Enum so we don't reproduce the enumeration here
+        match value:
+            case 'public':
+                vstate = VISIBILITY_STATE.PUBLIC
+            case 'participants':
+                vstate = VISIBILITY_STATE.PARTICIPANTS
+            case 'members':
+                vstate = VISIBILITY_STATE.MEMBERS
+            case _:
+                raise ValueError("Unknown visibility state")
+        self._visibility_state = vstate  # type: ignore[assignment]
 
-    @property
-    def state_label(self) -> str:
-        return self.state.label.title
-
-    with_roles(state_label, read={'all'})
+    with_roles(visibility, read={'all'}, write={'editor'})
 
     state.add_conditional_state(
         'UNPUBLISHED',
@@ -315,32 +353,16 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         self.deleted_by = None
         self.deleted_at = None
 
-    @with_roles(call={'editor'})
-    @visibility_state.transition(visibility_state.RESTRICTED, visibility_state.PUBLIC)
-    def make_public(self) -> None:
-        pass
-
-    @with_roles(call={'editor'})
-    @visibility_state.transition(visibility_state.PUBLIC, visibility_state.RESTRICTED)
-    def make_restricted(self) -> None:
-        pass
-
-    @property
-    def is_restricted(self) -> bool:
-        return bool(self.visibility_state.RESTRICTED)
-
-    @is_restricted.setter
-    def is_restricted(self, value: bool) -> None:
-        if value and self.visibility_state.PUBLIC:
-            self.make_restricted()
-        elif not value and self.visibility_state.RESTRICTED:
-            self.make_public()
-
-    with_roles(is_restricted, read={'all'})
-
     @property
     def is_currently_restricted(self) -> bool:
-        return self.is_restricted and not self.current_roles.reader
+        """Check if this update is not available for the current user."""
+        if self.visibility_state.PUBLIC or self.current_roles.project_editor:
+            return False
+        if self.visibility_state.PARTICIPANTS:
+            return self.current_roles.project_participant
+        if self.visibility_state.MEMBERS:
+            return self.current_roles.account_member
+        raise RuntimeError("Unknown visibility state")  # pragma: no cover
 
     with_roles(is_currently_restricted, read={'all'})
 
@@ -348,10 +370,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         self, actor: Account | None = None, anchors: Sequence = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
-        if not self.visibility_state.RESTRICTED:
-            # Everyone gets reader role when the post is not restricted.
-            # If it is, 'reader' must be mapped from 'participant' in the project,
-            # specified above in the grants_via annotation on project.
+        if self.visibility_state.PUBLIC:
+            # Everyone gets 'reader' role when the update is public.
+            # TODO: Acquire it from the project instead
             roles.add('reader')
 
         return roles

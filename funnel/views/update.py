@@ -144,7 +144,7 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
         else:
             form = UpdateForm(obj=self.obj)
         if form.validate_on_submit():
-            form.populate_obj(self.obj)
+            form.populate_obj(self.obj.current_access())
             db.session.commit()
             if request.form.get('form.id') == 'pin':
                 return {'status': 'ok', 'is_pinned': self.obj.is_pinned}

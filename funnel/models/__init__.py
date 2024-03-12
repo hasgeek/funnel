@@ -170,6 +170,7 @@ __all__ = [
     "UrlType",
     "User",
     "UuidMixin",
+    "VISIBILITY_STATE",
     "Venue",
     "VenueRoom",
     "VideoError",

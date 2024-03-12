@@ -228,7 +228,7 @@ from .typing import (
     ModelUrlProtocol,
     ModelUuidProtocol,
 )
-from .update import Update
+from .update import VISIBILITY_STATE, Update
 from .utils import (
     AccountAndAnchor,
     IncompleteUserMigrationError,
@@ -394,6 +394,7 @@ __all__ = [
     "UrlType",
     "User",
     "UuidMixin",
+    "VISIBILITY_STATE",
     "Venue",
     "VenueRoom",
     "VideoError",
