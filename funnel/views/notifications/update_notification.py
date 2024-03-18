@@ -28,6 +28,23 @@ class UpdateTemplate(TemplateVarMixin, SmsTemplate):
     url: str
 
 
+class UpdateProjectTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for Updates"""
+
+    registered_template = (
+        "There is an update in {#var#} / {#var#}. Details here: {#var#}"
+        "\n\nhttps://bye.li to stop -Hasgeek"
+    )
+    template = (
+        "There is an update in {account} / {project}. Details here: {url}"
+        "\n\nhttps://bye.li to stop -Hasgeek"
+    )
+    plaintext_template = "There is an update in {account} / {project}: {url}"
+    message_priority = SmsPriority.NORMAL
+
+    url: str
+
+
 @NewUpdateNotification.renderer
 class RenderNewUpdateNotification(RenderNotification):
     """Notify crew and participants when the project has a new update."""
