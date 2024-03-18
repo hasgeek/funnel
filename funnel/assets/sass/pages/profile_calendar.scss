@@ -3,6 +3,7 @@
 .calendar-container {
   width: 100%;
   min-height: 300px;
+  padding-top: 32px;
 }
 
 .fc-header-toolbar {
@@ -10,8 +11,7 @@
 }
 
 .fc {
-  margin: 40px auto;
-  height: 100%;
+  margin: 20px auto;
   width: 100%;
   max-width: 100%;
 
@@ -21,10 +21,15 @@
 
   .fc-daygrid-day-number {
     margin: auto;
-     color: $mui-text-dark;
+    color: $mui-text-dark;
   }
+
+  --fc-border-color: #fff;
 }
 
+.fc-view-harness {
+  height: 428px !important;
+}
 
 .filter-menu {
   position: absolute;
@@ -32,7 +37,7 @@
   background-color: $mui-bg-color-primary;
   z-index: 1000;
   box-shadow:
-        0 0 2px rgba(0, 0, 0, 0.12),
-        0 2px 2px rgba(0, 0, 0, 0.2);
+    0 0 2px rgba(0, 0, 0, 0.12),
+    0 2px 2px rgba(0, 0, 0, 0.2);
   border-radius: 0 16px 16px 16px;
 }
