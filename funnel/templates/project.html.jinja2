@@ -6,7 +6,7 @@
   {%- from "project_layout.html.jinja2" import pinned_update, project_about with context %}
 {% endif %}
 {% block titleblock %}{% block title %}{{ project.title }}{%- endblock title %}{%- endblock titleblock %}
-{%- from "macros.html.jinja2" import proposal_card, video_thumbnail %}
+{%- from "macros.html.jinja2" import proposal_card, video_thumbnail, projectcard %}
 
 {%- block pageheaders %}
   {%- if project.start_at %}
@@ -174,6 +174,28 @@
           <div id="venue-map" class="project-section__map" data-label="{{ project.primary_venue.title|striptags }}" data-markerlat="{{ project.primary_venue.latitude }}" data-markerlng="{{ project.primary_venue.longitude }}"><h2>{% trans %}Loading…{% endtrans %}</h2></div>
         {%- endif %}
       </div>
+    </div>
+  {%- endif %}
+
+  {%- if project.subprojects or project.parent_project %}
+    <div>
+      <h3 class="mui--text-left left-padding">{% trans %}Related events{% endtrans %}</h3>
+      {%- if project.subprojects %}
+      <ul class="grid">
+        {% for subproject in project.subprojects|selectattr("published_at") %}
+          <li class="grid__col-12 grid__col-sm-12 grid__col-lg-6">
+            {{ projectcard(subproject, calendarwidget_compact=false) }}
+          </li>
+        {%- endfor -%}
+      </ul>
+      {%- endif %}
+      {%- if project.parent_project %}
+        <div class="grid">
+          <div class="grid__col-12 grid__col-sm-12 grid__col-lg-6">
+            {{ projectcard(project.parent_project, calendarwidget_compact=false) }}
+          </div>
+        </div>
+      {%- endif %}
     </div>
   {%- endif %}
 {% endblock left_col %}

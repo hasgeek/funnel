@@ -1,4 +1,5 @@
 """Tests for view helpers."""
+
 # pylint: disable=redefined-outer-name
 
 from base64 import urlsafe_b64decode
@@ -16,7 +17,7 @@ import funnel.views.helpers as vhelpers
 
 
 @pytest.fixture()
-def testapp():
+def testapp() -> Flask:
     """Create a test app with an `index` view."""
     new_app = Flask(__name__)
 
@@ -41,7 +42,17 @@ class MockUrandom:
         return value
 
 
-def test_app_url_for(app, testapp) -> None:
+def test_valid_timezones_remap() -> None:
+    """Confirm valid_timezones has correct mappings for canary timezones."""
+    assert '' not in vhelpers.valid_timezones
+    assert None not in vhelpers.valid_timezones
+    assert 'asia/kolkata' in vhelpers.valid_timezones
+    assert 'asia/calcutta' in vhelpers.valid_timezones
+    assert vhelpers.valid_timezones['asia/kolkata'] == 'Asia/Kolkata'
+    assert vhelpers.valid_timezones['asia/calcutta'] == 'Asia/Kolkata'
+
+
+def test_app_url_for(app: Flask, testapp: Flask) -> None:
     """Test that app_url_for works cross-app and in-app."""
     # App context is not necessary to use app_url_for
     url = vhelpers.app_url_for(app, 'index')
@@ -76,7 +87,7 @@ def test_app_url_for(app, testapp) -> None:
         assert change_password_url2 == change_password_url
 
 
-def test_validate_is_app_url(app) -> None:
+def test_validate_is_app_url(app: Flask) -> None:
     """Local URL validator compares a URL against the URL map."""
     with app.test_request_context():
         assert vhelpers.validate_is_app_url('/full/url/required') is False

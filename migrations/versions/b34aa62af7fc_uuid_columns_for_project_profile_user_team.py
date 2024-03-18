@@ -65,7 +65,7 @@ def upgrade() -> None:
 
     # --- Project
     op.add_column('project', sa.Column('uuid', sa.Uuid(), nullable=True))
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(project))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(project))
     progress = get_progressbar("Projects", count)
     progress.start()
     items = conn.execute(sa.select(project.c.id))
@@ -80,7 +80,7 @@ def upgrade() -> None:
 
     # --- Profile
     op.add_column('profile', sa.Column('uuid', sa.Uuid(), nullable=True))
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(profile))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(profile))
     progress = get_progressbar("Profiles", count)
     progress.start()
     items = conn.execute(sa.select(profile.c.id, profile.c.userid))
@@ -99,7 +99,7 @@ def upgrade() -> None:
 
     # --- Team
     op.add_column('team', sa.Column('uuid', sa.Uuid(), nullable=True))
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(team))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()
     items = conn.execute(sa.select(team.c.id, team.c.userid))
@@ -118,7 +118,7 @@ def upgrade() -> None:
 
     # --- User
     op.add_column('user', sa.Column('uuid', sa.Uuid(), nullable=True))
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(user))
     progress = get_progressbar("Users", count)
     progress.start()
     items = conn.execute(sa.select(user.c.id, user.c.userid))
@@ -142,7 +142,7 @@ def downgrade() -> None:
     # --- User
     op.add_column('user', sa.Column('userid', sa.String(22), nullable=True))
     op.create_unique_constraint('user_userid_key', 'user', ['userid'])
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(user))
     progress = get_progressbar("Users", count)
     progress.start()
     items = conn.execute(sa.select(user.c.id, user.c.uuid))
@@ -161,7 +161,7 @@ def downgrade() -> None:
     # --- Team
     op.add_column('team', sa.Column('userid', sa.String(22), nullable=True))
     op.create_unique_constraint('team_userid_key', 'team', ['userid'])
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(team))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()
     items = conn.execute(sa.select(team.c.id, team.c.uuid))
@@ -180,7 +180,7 @@ def downgrade() -> None:
     # --- Profile
     op.add_column('profile', sa.Column('userid', sa.String(22), nullable=True))
     op.create_unique_constraint('profile_userid_key', 'profile', ['userid'])
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(profile))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(profile))
     progress = get_progressbar("Profiles", count)
     progress.start()
     items = conn.execute(sa.select(profile.c.id, profile.c.uuid))

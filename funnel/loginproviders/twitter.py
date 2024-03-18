@@ -13,6 +13,7 @@ from ..registry import (
     LoginProvider,
     LoginProviderData,
 )
+from ..typing import ReturnView
 
 __all__ = ['TwitterProvider']
 
@@ -20,13 +21,13 @@ __all__ = ['TwitterProvider']
 class TwitterProvider(LoginProvider):
     at_username = True
 
-    def do(self, callback_url):
+    def do(self, callback_url: str) -> ReturnView:
         auth = tweepy.OAuthHandler(self.key, self.secret, callback_url)
 
         try:
             redirect_url = auth.get_authorization_url()
             return redirect(redirect_url)
-        except tweepy.errors.TweepyException as exc:
+        except tweepy.TweepyException as exc:
             raise LoginInitError(
                 _("Twitter had a temporary problem. Try again?")
             ) from exc
@@ -54,7 +55,7 @@ class TwitterProvider(LoginProvider):
             twuser = api.verify_credentials(
                 include_entities='false', skip_status='true', include_email='true'
             )
-        except tweepy.errors.TweepyException as exc:
+        except tweepy.TweepyException as exc:
             raise LoginCallbackError(
                 _("Twitter had an intermittent problem. Try again?")
             ) from exc

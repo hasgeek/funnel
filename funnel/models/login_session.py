@@ -2,23 +2,23 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Any
 
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
-from . import (
+from .account import Account
+from .base import (
     BaseMixin,
     DynamicMapped,
     Mapped,
     Model,
     UuidMixin,
-    backref,
     relationship,
     sa,
+    sa_orm,
 )
-from .account import Account
-from .helpers import reopen
 
 __all__ = [
     'LoginSession',
@@ -33,6 +33,10 @@ __all__ = [
 
 class LoginSessionError(Exception):
     """Base exception for user session errors."""
+
+    def __init__(self, login_session: LoginSession, *args: Any) -> None:
+        self.login_session = login_session
+        super().__init__(login_session, *args)
 
 
 class LoginSessionExpiredError(LoginSessionError):
@@ -83,36 +87,50 @@ auth_client_login_session = sa.Table(
 )
 
 
-class LoginSession(UuidMixin, BaseMixin, Model):
+class LoginSession(UuidMixin, BaseMixin[int, Account], Model):
     __tablename__ = 'login_session'
 
-    account_id: Mapped[int] = sa.orm.mapped_column(
-        sa.ForeignKey('account.id'), nullable=False
+    account_id: Mapped[int] = sa_orm.mapped_column(
+        sa.ForeignKey('account.id'), default=None, nullable=False
     )
-    account: Mapped[Account] = relationship(
-        Account,
-        backref=backref('all_login_sessions', cascade='all', lazy='dynamic'),
-    )
+    account: Mapped[Account] = relationship(back_populates='all_login_sessions')
 
     #: User's last known IP address
-    ipaddr = sa.orm.mapped_column(sa.String(45), nullable=False)
+    ipaddr: Mapped[str] = sa_orm.mapped_column(sa.String(45), nullable=False)
     #: City geonameid from IP address
-    geonameid_city = sa.orm.mapped_column(sa.Integer, nullable=True)
+    geonameid_city: Mapped[int | None] = sa_orm.mapped_column()
     #: State/subdivision geonameid from IP address
-    geonameid_subdivision = sa.orm.mapped_column(sa.Integer, nullable=True)
+    geonameid_subdivision: Mapped[int | None] = sa_orm.mapped_column()
     #: Country geonameid from IP address
-    geonameid_country = sa.orm.mapped_column(sa.Integer, nullable=True)
+    geonameid_country: Mapped[int | None] = sa_orm.mapped_column()
     #: User's network, from IP address
-    geoip_asn = sa.orm.mapped_column(sa.Integer, nullable=True)
+    geoip_asn: Mapped[int | None] = sa_orm.mapped_column()
     #: User agent
-    user_agent = sa.orm.mapped_column(sa.UnicodeText, nullable=False)
+    user_agent: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
     #: The login service that was used to make this session
-    login_service = sa.orm.mapped_column(sa.Unicode, nullable=True)
+    login_service: Mapped[str | None] = sa_orm.mapped_column()
 
-    accessed_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=False)
-    revoked_at = sa.orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True)
-    sudo_enabled_at = sa.orm.mapped_column(
-        sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
+    accessed_at: Mapped[datetime] = sa_orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=False
+    )
+    revoked_at: Mapped[datetime | None] = sa_orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
+    sudo_enabled_at: Mapped[datetime] = sa_orm.mapped_column(
+        sa.TIMESTAMP(timezone=True),
+        nullable=False,
+        insert_default=sa.func.utcnow(),
+        default=None,
+    )
+
+    # --- Backrefs
+    auth_clients: DynamicMapped[AuthClient] = relationship(
+        lazy='dynamic',
+        secondary=auth_client_login_session,
+        back_populates='login_sessions',
+    )
+    authtokens: DynamicMapped[AuthToken] = relationship(
+        lazy='dynamic', back_populates='login_session'
     )
 
     def __repr__(self) -> str:
@@ -175,16 +193,6 @@ class LoginSession(UuidMixin, BaseMixin, Model):
         return login_session
 
 
-@reopen(Account)
-class __Account:
-    active_login_sessions: DynamicMapped[LoginSession] = relationship(
-        LoginSession,
-        lazy='dynamic',
-        primaryjoin=sa.and_(
-            LoginSession.account_id == Account.id,
-            LoginSession.accessed_at > sa.func.utcnow() - LOGIN_SESSION_VALIDITY_PERIOD,
-            LoginSession.revoked_at.is_(None),
-        ),
-        order_by=LoginSession.accessed_at.desc(),
-        viewonly=True,
-    )
+# Tail imports
+if TYPE_CHECKING:
+    from .auth_client import AuthClient, AuthToken

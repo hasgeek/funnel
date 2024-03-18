@@ -56,6 +56,7 @@ user_data_changed = app_signals.signal('user-data-changed')
 org_data_changed = app_signals.signal('org-data-changed')
 team_data_changed = app_signals.signal('team-data-changed')
 session_revoked = app_signals.signal('session-revoked')
+project_data_change = app_signals.signal('project-data-change')
 
 # Commentset role change signals (sends user, document)
 project_role_change = app_signals.signal('project_role_change')

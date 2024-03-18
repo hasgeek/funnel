@@ -1,17 +1,27 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
+import toastr from 'toastr';
 import Utils from './utils/helper';
 import ScrollHelper from './utils/scrollhelper';
 import getTimeago from './utils/get_timeago';
 import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
+import Form from './utils/formhelper';
 
 const Updates = {
-  init({ draft = '', updates = '', divElem, updateTemplate, isEditor, addReadMore }) {
+  init({
+    draft = '',
+    updates = '',
+    divElem,
+    updateTemplate,
+    isEditor,
+    siteEditor,
+    addReadMore,
+  }) {
     Vue.use(VS2);
 
     const updateUI = Vue.component('update', {
       template: updateTemplate,
-      props: ['update', 'iseditor', 'addreadmore'],
+      props: ['update', 'iseditor', 'siteeditor', 'addreadmore'],
       data() {
         return {
           truncated: true,
@@ -36,6 +46,23 @@ const Updates = {
           event.preventDefault();
           this.setReadMore = action;
           this.truncated = action;
+        },
+        getCsrfToken() {
+          return $('meta[name="csrf-token"]').attr('content');
+        },
+        handlePinEvent(event, formId, postUrl) {
+          event.preventDefault();
+          const onSuccess = (response) => {
+            this.update.is_pinned = !this.update.is_pinned;
+            Form.updateFormNonce(response);
+          };
+
+          const onError = (error) => {
+            const errorMsg = Form.handleAjaxError(error);
+            toastr.error(errorMsg);
+          };
+
+          Form.ajaxFormSubmit(formId, postUrl, onSuccess, onError, {});
         },
       },
       computed: {
@@ -70,6 +97,7 @@ const Updates = {
           draft: draft.length > 0 ? draft : '',
           updates: updates.length > 0 ? updates : '',
           isEditor,
+          siteEditor,
           headerHeight: '',
           addReadMore,
         };

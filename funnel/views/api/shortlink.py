@@ -1,14 +1,13 @@
 """API view for creating a shortlink to any content on the website."""
 
-
 from furl import furl
 
 from baseframe import _
-from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import requestform
 
 from ... import app, shortlinkapp
+from ...auth import current_auth
 from ...models import Shortlink, db
 from ..helpers import app_url_for, validate_is_app_url
 

@@ -11,6 +11,8 @@ from coaster.utils import utcnow
 
 from funnel.views import sitemap
 
+from ...conftest import TestClient
+
 
 def test_string_changefreq() -> None:
     """The ChangeFreq enum can be cast to and compared with str."""
@@ -209,7 +211,7 @@ def test_changefreq_for_age() -> None:
 
 
 @pytest.mark.dbcommit()
-def test_sitemap(client) -> None:
+def test_sitemap(client: TestClient) -> None:
     """Test sitemap endpoints (caveat: no content checks)."""
     expected_content_type = 'application/xml; charset=utf-8'
 

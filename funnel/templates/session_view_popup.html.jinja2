@@ -30,7 +30,7 @@
 
 <div class="modal__body">
   {% if session.views.video and session.views.video.url %}
-    {%- if not session.is_restricted_video or session.current_roles.project_participant %}
+    {%- if not session.is_restricted_video or session.current_roles.project_participant or session.project.current_roles.account_member %}
       <div class="details">
         <div class="details__box details__box--left">
           <div class="details__box__video bg-primary-dark embed-video-wrapper" data-cy="session-video">

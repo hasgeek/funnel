@@ -63,7 +63,9 @@ def downgrade() -> None:
         sa.Column('blake2b', postgresql.BYTEA(), autoincrement=False, nullable=True),
     )
     # Recalculate blake2b hashes
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email_claim))
+    count = conn.scalar(
+        sa.select(sa.func.count(sa.text('*'))).select_from(user_email_claim)
+    )
     progress = get_progressbar("Email claims", count)
     progress.start()
     items = conn.execute(

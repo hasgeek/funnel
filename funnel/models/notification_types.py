@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from baseframe import __
 
 from .account import Account
@@ -151,7 +149,7 @@ class ProposalSubmittedNotification(
 
 class ProjectStartingNotification(
     DocumentHasAccount,
-    Notification[Project, Optional[Session]],
+    Notification[Project, Session | None],
     type='project_starting',
 ):
     """Notification of a session about to start."""
@@ -261,7 +259,7 @@ class RegistrationReceivedNotification(
 
 
 class OrganizationAdminMembershipNotification(
-    DocumentHasAccount,
+    DocumentIsAccount,
     Notification[Account, AccountMembership],
     type='organization_membership_granted',
 ):
@@ -276,7 +274,7 @@ class OrganizationAdminMembershipNotification(
 
 
 class OrganizationAdminMembershipRevokedNotification(
-    DocumentHasAccount,
+    DocumentIsAccount,
     Notification[Account, AccountMembership],
     type='organization_membership_revoked',
     shadows=OrganizationAdminMembershipNotification,

@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from flask import current_app, json, redirect, render_template, request
 from werkzeug.exceptions import HTTPException, MethodNotAllowed, NotFound
 from werkzeug.routing import RequestRedirect
+from werkzeug.wrappers import Response
 
 from .. import app
 from ..models import db
@@ -27,7 +30,7 @@ def handle_error(exc: HTTPException) -> ReturnView:
     """Render all errors with a custom template."""
     db.session.rollback()
     json_response = request_wants.json or request.path.startswith('/api/')
-    response = exc.get_response()
+    response = cast(Response, exc.get_response())
     if json_response:
         response.data = json.dumps(
             {

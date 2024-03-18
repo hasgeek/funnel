@@ -6,7 +6,7 @@ from baseframe import __, forms
 
 from ..models import Update
 
-__all__ = ['UpdateForm']
+__all__ = ['UpdateForm', 'UpdatePinForm']
 
 
 @Update.forms('main')
@@ -28,4 +28,13 @@ class UpdateForm(forms.Form):
     )
     is_restricted = forms.BooleanField(
         __("Limit access to current participants only"), default=False
+    )
+
+
+@Update.forms('pin')
+class UpdatePinForm(forms.Form):
+    """Pin an update in a project."""
+
+    is_pinned = forms.BooleanField(
+        __("Pin this update above other updates"), default=False
     )

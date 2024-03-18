@@ -1,4 +1,5 @@
 """Test comment moderation views."""
+
 # pylint: disable=too-many-locals
 
 import pytest
@@ -7,18 +8,20 @@ from werkzeug.datastructures import MultiDict
 
 from funnel import models
 
+from ...conftest import LoginFixtureProtocol, TestClient, scoped_session
+
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_same(
-    client,
-    db_session,
-    login,
-    new_user,
-    new_user2,
-    new_user_admin,
-    new_user_owner,
-    new_project,
-    csrf_token,
+    client: TestClient,
+    db_session: scoped_session,
+    login: LoginFixtureProtocol,
+    new_user: models.User,
+    new_user2: models.User,
+    new_user_admin: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
+    csrf_token: str,
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
@@ -56,7 +59,7 @@ def test_comment_report_same(
         db_session.commit()
     report1_id = report1.id
 
-    assert comment.is_reviewed_by(new_user_admin)
+    assert comment.was_reviewed_by(new_user_admin)
 
     login.as_(new_user)
 
@@ -86,15 +89,15 @@ def test_comment_report_same(
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_opposing(
-    client,
-    db_session,
-    login,
-    new_user,
-    new_user2,
-    new_user_admin,
-    new_user_owner,
-    new_project,
-    csrf_token,
+    client: TestClient,
+    db_session: scoped_session,
+    login: LoginFixtureProtocol,
+    new_user: models.User,
+    new_user2: models.User,
+    new_user_admin: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
+    csrf_token: str,
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
@@ -149,7 +152,7 @@ def test_comment_report_opposing(
     assert bool(comment2_refetched.state.SPAM) is False
     assert bool(comment2_refetched.state.PUBLIC) is True
     # a new report will be created
-    assert comment2_refetched.is_reviewed_by(new_user)
+    assert comment2_refetched.was_reviewed_by(new_user)
     assert (
         models.CommentModeratorReport.query.filter_by(
             comment=comment2_refetched,
@@ -162,15 +165,15 @@ def test_comment_report_opposing(
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_majority_spam(
-    client,
-    db_session,
-    login,
-    new_user,
-    new_user2,
-    new_user_admin,
-    new_user_owner,
-    new_project,
-    csrf_token,
+    client: TestClient,
+    db_session: scoped_session,
+    login: LoginFixtureProtocol,
+    new_user: models.User,
+    new_user2: models.User,
+    new_user_admin: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
+    csrf_token: str,
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
@@ -251,15 +254,15 @@ def test_comment_report_majority_spam(
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_majority_ok(
-    client,
-    db_session,
-    login,
-    new_user,
-    new_user2,
-    new_user_admin,
-    new_user_owner,
-    new_project,
-    csrf_token,
+    client: TestClient,
+    db_session: scoped_session,
+    login: LoginFixtureProtocol,
+    new_user: models.User,
+    new_user2: models.User,
+    new_user_admin: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
+    csrf_token: str,
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(

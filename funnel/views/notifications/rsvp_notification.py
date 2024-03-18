@@ -108,23 +108,19 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
     datetime_format = "EEE, dd MMM yyyy, hh:mm a"
     datetime_format_sms = "EEE, dd MMM, hh:mm a"
 
-    def web(self):
+    def web(self) -> str:
         return render_template('notifications/rsvp_yes_web.html.jinja2', view=self)
 
-    def email_subject(self):
+    def email_subject(self) -> str:
         return self.emoji_prefix + _("Registration confirmation for {project}").format(
             project=self.rsvp.project.joined_title
         )
 
-    def email_content(self):
+    def email_content(self) -> str:
         return render_template(
             'notifications/rsvp_yes_email.html.jinja2',
             view=self,
-            jsonld=email.jsonld_view_action(
-                self.rsvp.project.joined_title,
-                self.rsvp.project.url_for(_external=True),
-                _("View project"),
-            ),
+            jsonld=email.jsonld_event_reservation(self.rsvp),
         )
 
     def sms(

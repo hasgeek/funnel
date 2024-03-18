@@ -1,3 +1,4 @@
+@use 'sass:math';
 @import '../base/variable';
 @import '../components/draggablebox';
 @import '../components/collapsible';
@@ -43,7 +44,7 @@
 
           .schedule__row__column__content__description {
             clear: both;
-            padding-top: $mui-grid-padding/4;
+            padding-top: math.div($mui-grid-padding, 4);
             padding-bottom: $mui-grid-padding;
             word-break: break-word;
 
@@ -62,7 +63,7 @@
             h5 {
               font-size: 12px;
               margin-top: 0;
-              margin-bottom: $mui-grid-padding/4;
+              margin-bottom: math.div($mui-grid-padding, 4);
             }
           }
 
@@ -109,8 +110,8 @@
     .schedule__row--sticky {
       display: flex;
       overflow-x: auto;
-      position: sticky;
       position: -webkit-sticky;
+      position: sticky;
       top: 0; // header height in home page
       order: 1;
       z-index: 2;
@@ -131,7 +132,7 @@
         min-height: 50px;
         min-width: 60%;
         width: 100% !important;
-        padding: $mui-grid-padding/2;
+        padding: math.div($mui-grid-padding, 2);
       }
 
       .schedule__row__column--header.js-tab-active {

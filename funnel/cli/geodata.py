@@ -167,7 +167,7 @@ def load_country_info(filename: str) -> None:
         GeoCountryInfo.query.all()  # Load everything into session cache
         for item in countryinfo:
             if item.geonameid:
-                ci = GeoCountryInfo.query.get(int(item.geonameid))
+                ci = db.session.get(GeoCountryInfo, int(item.geonameid))
                 if ci is None:
                     ci = GeoCountryInfo(geonameid=int(item.geonameid))
                     db.session.add(ci)
@@ -276,7 +276,7 @@ def load_geonames(filename: str) -> None:
 
     for item in rich.progress.track(geonames):
         if item.geonameid:
-            gn = GeoName.query.get(int(item.geonameid))
+            gn = db.session.get(GeoName, int(item.geonameid))
             if gn is None:
                 gn = GeoName(geonameid=int(item.geonameid))
                 db.session.add(gn)
@@ -335,7 +335,7 @@ def load_alt_names(filename: str) -> None:
 
     for item in rich.progress.track(altnames):
         if item.geonameid:
-            rec = GeoAltName.query.get(int(item.id))
+            rec = db.session.get(GeoAltName, int(item.id))
             if rec is None:
                 rec = GeoAltName(id=int(item.id))
                 db.session.add(rec)
@@ -368,7 +368,7 @@ def load_admin1_codes(filename: str) -> None:
     GeoAdmin1Code.query.all()  # Load all data into session cache for faster lookup
     for item in rich.progress.track(admincodes):
         if item.geonameid:
-            rec = GeoAdmin1Code.query.get(item.geonameid)
+            rec = db.session.get(GeoAdmin1Code, item.geonameid)
             if rec is None:
                 rec = GeoAdmin1Code(geonameid=int(item.geonameid))
                 db.session.add(rec)
@@ -397,7 +397,7 @@ def load_admin2_codes(filename: str) -> None:
     GeoAdmin2Code.query.all()  # Load all data into session cache for faster lookup
     for item in rich.progress.track(admincodes):
         if item.geonameid:
-            rec = GeoAdmin2Code.query.get(item.geonameid)
+            rec = db.session.get(GeoAdmin2Code, item.geonameid)
             if rec is None:
                 rec = GeoAdmin2Code(geonameid=int(item.geonameid))
                 db.session.add(rec)

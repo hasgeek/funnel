@@ -9,7 +9,7 @@ from datetime import datetime
 from email.utils import formataddr
 from functools import wraps
 from itertools import islice
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar, Literal, cast
 from uuid import UUID, uuid4
 
 from flask import url_for
@@ -17,21 +17,23 @@ from flask_babel import force_locale
 from werkzeug.utils import cached_property
 
 from baseframe import __, statsd
-from coaster.auth import current_auth
+from coaster.sqlalchemy import RoleAccessProxy
 
 from .. import app
+from ..auth import current_auth
 from ..models import (
     Account,
     AccountEmail,
     AccountPhone,
+    ModelUuidProtocol,
     Notification,
     NotificationFor,
     NotificationRecipient,
     db,
+    sa,
 )
 from ..serializers import token_serializer
 from ..transports import TransportError, email, platform_transports, sms
-from ..transports.sms import SmsTemplate
 from .helpers import make_cached_token
 from .jobs import rqjob
 
@@ -47,7 +49,7 @@ __all__ = [
 @NotificationFor.views('render', cached_property=True)
 def render_notification_recipient(obj: NotificationRecipient) -> RenderNotification:
     """Render web notifications for the user."""
-    return Notification.renderers[obj.notification.type](obj)
+    return Notification.renderers[obj.notification.type_](obj)
 
 
 @dataclass
@@ -55,7 +57,7 @@ class DecisionFactorBase:
     """
     Base class for a decision factor in picking from one of many templates.
 
-    Subclasses must implemnt :meth:`is_match`.
+    Subclasses must implement :meth:`is_match`.
     """
 
     #: Subclasses must implement an is_match method
@@ -68,8 +70,8 @@ class DecisionFactorBase:
 
     # Additional criteria must be defined in subclasses
 
-    def match(self, obj: Any, **kwargs) -> DecisionFactorBase | None:
-        """If the parameters matche the defined criteria, return self."""
+    def match(self, obj: Any, **kwargs: Any) -> DecisionFactorBase | None:
+        """If the parameters match the defined criteria, return self."""
         return self if self.is_match(obj, **kwargs) else None
 
 
@@ -109,7 +111,7 @@ class DecisionBranchBase:
                         f"expected {expected_value}, got {factor_value} in {factor}"
                     )
 
-    def match(self, obj: Any, **kwargs) -> DecisionFactorBase | None:
+    def match(self, obj: Any, **kwargs: Any) -> DecisionFactorBase | None:
         """Find a matching decision factor, recursing through other branches."""
         if self.is_match(obj, **kwargs):
             for factor in self.factors:
@@ -156,7 +158,7 @@ class RenderNotification:
         "You are receiving this because you have an account at hasgeek.com"
     )
 
-    #: Copies of reason per transport that can be overriden by subclasses using either
+    #: Copies of reason per transport that can be overridden by subclasses using either
     #: a property or an attribute
     @property
     def reason_for(self) -> str:
@@ -223,10 +225,10 @@ class RenderNotification:
             if self.notification.for_private_recipient:
                 # Do not include a timestamp when it's a private notification, as that
                 # can be used to identify the event
-                campaign = self.notification.type
+                campaign = self.notification.type_
             else:
                 campaign = (
-                    f'{self.notification.type}'
+                    f'{self.notification.type_}'
                     f'-{self.notification.created_at.strftime("%Y%m%d-%H%M")}'
                 )
         return {
@@ -235,7 +237,7 @@ class RenderNotification:
             'utm_source': source,
         }
 
-    def unsubscribe_token(self, transport):
+    def unsubscribe_token(self, transport: str) -> str:
         """
         Return a token suitable for use in an unsubscribe link.
 
@@ -252,15 +254,21 @@ class RenderNotification:
         # This payload is consumed by :meth:`AccountNotificationView.unsubscribe`
         # in `views/notification_preferences.py`
         return token_serializer().dumps(
+            # pylint: disable=used-before-assignment
+            # https://github.com/pylint-dev/pylint/issues/8486
             {
                 'buid': self.notification_recipient.recipient.buid,
-                'notification_type': self.notification.type,
+                'notification_type': self.notification.type_,
                 'transport': transport,
-                'hash': self.transport_for(transport).transport_hash,
+                'hash': (
+                    anchor.transport_hash
+                    if (anchor := self.transport_for(transport)) is not None
+                    else ''
+                ),
             }
         )
 
-    def unsubscribe_url(self, transport):
+    def unsubscribe_url(self, transport: str) -> str:
         """Return an unsubscribe URL."""
         return url_for(
             'notification_unsubscribe',
@@ -270,21 +278,27 @@ class RenderNotification:
         )
 
     @cached_property
-    def unsubscribe_url_email(self):
+    def unsubscribe_url_email(self) -> str:
         return self.unsubscribe_url('email')
 
-    def unsubscribe_short_url(self, transport='sms'):
+    def unsubscribe_short_url(self, transport: str = 'sms') -> str:
         """Return a short but temporary unsubscribe URL (for SMS)."""
         # Eventid is included here because SMS links can't have utm_* tags.
         # However, the current implementation of the unsubscribe handler doesn't
         # use this, and can't add utm_* tags to the URL as it only examines the token
         # after cleaning up the URL, so there are no more redirects left.
         token = make_cached_token(
+            # pylint: disable=used-before-assignment
+            # https://github.com/pylint-dev/pylint/issues/8486
             {
                 'buid': self.notification_recipient.recipient.buid,
-                'notification_type': self.notification.type,
+                'notification_type': self.notification.type_,
                 'transport': transport,
-                'hash': self.transport_for(transport).transport_hash,
+                'hash': (
+                    anchor.transport_hash
+                    if (anchor := self.transport_for(transport)) is not None
+                    else ''
+                ),
                 'eventid_b58': self.notification.eventid_b58,
                 'timestamp': datetime.utcnow(),  # Naive timestamp
             },
@@ -298,29 +312,34 @@ class RenderNotification:
         return url_for('notification_unsubscribe_short', token=token, _external=True)
 
     @cached_property
-    def fragments_order_by(self):
+    def fragments_order_by(self) -> list[sa.UnaryExpression]:
         """Provide a list of order_by columns for loading fragments."""
+        if self.notification.fragment_model is None:
+            return []
         return [
-            self.notification.fragment_model.updated_at.desc()
-            if hasattr(self.notification.fragment_model, 'updated_at')
-            else self.notification.fragment_model.created_at.desc()
+            (
+                self.notification.fragment_model.updated_at.desc()
+                if hasattr(self.notification.fragment_model, 'updated_at')
+                else self.notification.fragment_model.created_at.desc()
+            )
         ]
 
     @property
-    def fragments_query_options(self):
+    def fragments_query_options(self) -> Sequence:
         """Provide a list of SQLAlchemy options for loading fragments."""
         return []
 
     @cached_property
-    def fragments(self):
-        if not self.notification.fragment_model:
+    def fragments(
+        self,
+    ) -> list[RoleAccessProxy[ModelUuidProtocol]]:  # type: ignore[type-var]  # FIXME
+        query = self.notification_recipient.rolledup_fragments()
+        if query is None:
             return []
 
-        query = self.notification_recipient.rolledup_fragments().order_by(
-            *self.fragments_order_by
-        )
-        if self.fragments_query_options:
-            query = query.options(*self.fragments_query_options)
+        query = query.order_by(*self.fragments_order_by)
+        if query_options := self.fragments_query_options:
+            query = query.options(*query_options)
 
         return [
             _f.access_for(actor=self.notification_recipient.recipient)
@@ -341,7 +360,7 @@ class RenderNotification:
 
     @property
     def actor(self) -> Account | None:
-        """Actor that prompted this notification. May be overriden."""
+        """Actor that prompted this notification. May be overridden."""
         return self.notification.created_by
 
     def web(self) -> str:
@@ -355,7 +374,7 @@ class RenderNotification:
     @property
     def email_base_url(self) -> str:
         """Base URL for relative links in email."""
-        return self.notification.role_provider_obj.absolute_url
+        return cast(str, self.notification.role_provider_obj.absolute_url)
 
     def email_subject(self) -> str:
         """
@@ -385,7 +404,13 @@ class RenderNotification:
             return f"{self.notification.preference_context.title} (via Hasgeek)"
         return "Hasgeek"
 
-    def sms(self) -> SmsTemplate:
+    def sms_with_unsubscribe(self) -> sms.SmsTemplate:
+        """Add an unsubscribe link to the SMS message."""
+        msg = self.sms()
+        msg.unsubscribe_url = self.unsubscribe_short_url('sms')
+        return msg
+
+    def sms(self) -> sms.SmsTemplate:
         """
         Render a short text message. Templates must use a single line with a link.
 
@@ -396,12 +421,6 @@ class RenderNotification:
     def text(self) -> str:
         """Render a short plain text notification using the SMS template."""
         return self.sms().text
-
-    def sms_with_unsubscribe(self) -> SmsTemplate:
-        """Add an unsubscribe link to the SMS message."""
-        msg = self.sms()
-        msg.unsubscribe_url = self.unsubscribe_short_url('sms')
-        return msg
 
     def webpush(self) -> str:
         """
@@ -480,7 +499,7 @@ def dispatch_notification(*notifications: Notification) -> None:
     )
     for notification in notifications:
         statsd.incr(
-            'notification.dispatch', tags={'notification_type': notification.type}
+            'notification.dispatch', tags={'notification_type': notification.type_}
         )
 
 
@@ -496,7 +515,7 @@ def transport_worker_wrapper(
     def inner(notification_recipient_ids: Sequence[tuple[int, UUID]]) -> None:
         """Convert a notification id into an object for worker to process."""
         queue = [
-            NotificationRecipient.query.get(identity)
+            db.session.get(NotificationRecipient, identity)
             for identity in notification_recipient_ids
         ]
         for notification_recipient in queue:
@@ -551,16 +570,16 @@ def dispatch_transport_email(
                     str(notification_recipient.notification.title),
                     # pylint: disable=consider-using-f-string
                     '{type}-notification.{domain}'.format(
-                        type=notification_recipient.notification.type,
+                        type=notification_recipient.notification.type_,
                         domain=app.config['DEFAULT_DOMAIN'],
                     ),
                     # pylint: enable=consider-using-f-string
                 )
             ),
-            'List-Help': f'<{url_for("notification_preferences")}>',
+            'List-Help': f'<{url_for("notification_preferences", _external=True)}>',
             'List-Unsubscribe': f'<{view.unsubscribe_url_email}>',
             'List-Unsubscribe-Post': 'One-Click',
-            'List-Archive': f'<{url_for("notifications")}>',
+            'List-Archive': f'<{url_for("notifications", _external=True)}>',
         },
         base_url=view.email_base_url,
     )
@@ -586,8 +605,13 @@ def dispatch_transport_sms(
         # the worker may be delayed and the user may have changed their preference.
         notification_recipient.messageid_sms = 'cancelled'
         return
+    try:
+        message = view.sms_with_unsubscribe()
+    except NotImplementedError:
+        notification_recipient.messageid_sms = 'not-implemented'
+        return
     notification_recipient.messageid_sms = sms.send_sms(
-        str(view.transport_for('sms')), view.sms_with_unsubscribe()
+        str(view.transport_for('sms')), message
     )
     statsd.incr(
         'notification.transport',
@@ -609,15 +633,16 @@ DISPATCH_BATCH_SIZE = 10
 @rqjob()
 def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -> None:
     """Process :class:`Notification` into batches of :class:`UserNotification`."""
-    notifications = [Notification.query.get((eventid, nid)) for nid in notification_ids]
+    notifications = [
+        db.session.get(Notification, (eventid, nid)) for nid in notification_ids
+    ]
 
     # Dispatch, creating batches of DISPATCH_BATCH_SIZE each
     for notification in notifications:
         if notification is not None:
             generator = notification.dispatch()
             # TODO: Use walrus operator := after we move off Python 3.7
-            batch = tuple(islice(generator, DISPATCH_BATCH_SIZE))
-            while batch:
+            while batch := tuple(islice(generator, DISPATCH_BATCH_SIZE)):
                 db.session.commit()
                 notification_recipient_ids = [
                     notification_recipient.identity for notification_recipient in batch
@@ -626,10 +651,9 @@ def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -
                 statsd.incr(
                     'notification.recipient',
                     count=len(notification_recipient_ids),
-                    tags={'notification_type': notification.type},
+                    tags={'notification_type': notification.type_},
                 )
                 # Continue to the next batch
-                batch = tuple(islice(generator, DISPATCH_BATCH_SIZE))
 
 
 @rqjob()
@@ -637,8 +661,9 @@ def dispatch_notification_recipients_job(
     notification_recipient_ids: Sequence[tuple[int, UUID]]
 ) -> None:
     """Process notifications for users and enqueue transport delivery."""
+    # TODO: Can this be a single query instead of a loop of queries?
     queue = [
-        NotificationRecipient.query.get(identity)
+        db.session.get(NotificationRecipient, identity)
         for identity in notification_recipient_ids
     ]
     transport_batch: dict[str, list[tuple[int, UUID]]] = defaultdict(list)

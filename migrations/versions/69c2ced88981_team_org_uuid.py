@@ -46,7 +46,7 @@ def upgrade() -> None:
     conn = op.get_bind()
 
     op.add_column('team', sa.Column('org_uuid', sa.Uuid(), nullable=True))
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(team))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()
     items = conn.execute(sa.select(team.c.id, team.c.orgid))
@@ -70,7 +70,7 @@ def downgrade() -> None:
     op.add_column(
         'team', sa.Column('orgid', sa.String(22), autoincrement=False, nullable=True)
     )
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(team))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()
     items = conn.execute(sa.select(team.c.id, team.c.org_uuid))

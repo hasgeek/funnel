@@ -52,7 +52,7 @@ def support_callerid(number: str) -> tuple[dict[str, Any], int]:
             'error_description': _("Unknown phone number"),
         }, 422
 
-    info = {
+    info: dict[str, Any] = {
         'number': phone_number.number,
         'created_at': phone_number.created_at,
         'active_at': phone_number.active_at,
@@ -61,8 +61,9 @@ def support_callerid(number: str) -> tuple[dict[str, Any], int]:
     if phone_number.used_in_account_phone:
         user_phone = phone_number.used_in_account_phone[0]
         info['account'] = {
-            'title': user_phone.account.fullname,
-            'name': user_phone.account.username,
+            'title': user_phone.account.title,
+            'name': user_phone.account.name,
+            'url': user_phone.account.absolute_url,
         }
     return {'status': 'ok', 'result': info}, 200
     # TODO: Check in TicketParticipant.phone

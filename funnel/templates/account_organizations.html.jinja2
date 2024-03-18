@@ -30,7 +30,7 @@
             {% for orgmem in current_auth.user.views.organizations_as_admin() %}
               <li class="flex-wrapper bottom-padding">
                 <div>
-                  <a href="{{ orgmem.account.profile_url }}"
+                  <a href="{{ orgmem.account.absolute_url }}"
                    class="nounderline">
                     <span class="profile-avatar profile-avatar--bigger margin-right">
                       {%- if orgmem.account.logo_url.url %}
@@ -44,7 +44,7 @@
                   </a>
                 </div>
                 <div>
-                  <a href="{{ orgmem.account.profile_url }}"
+                  <a href="{{ orgmem.account.absolute_url }}"
                    class="nounderline display-block margin-bottom">
                     <p class="profile-avatar-title mui--text-dark mui--text-subhead text-bold">
                       {{ orgmem.account.title }}

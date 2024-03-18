@@ -9,20 +9,20 @@ from flask import abort, flash, render_template, request
 from baseframe import _
 from baseframe.forms import Form
 from baseframe.forms.auto import ConfirmDeleteForm
-from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, requestform, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import ProjectSponsorForm
-from ..models import Account, Project, ProjectSponsorMembership, db, sa
+from ..models import Account, Project, ProjectSponsorMembership, db, sa_orm
 from ..typing import ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_site_editor
-from .mixins import ProjectViewMixin
+from .mixins import ProjectViewBase
 
 
-def edit_sponsor_form(obj):
+def edit_sponsor_form(obj: ProjectSponsorMembership) -> ProjectSponsorForm:
     """Customise ProjectSponsorForm to remove member field."""
     form = ProjectSponsorForm(obj=obj)
     del form.member
@@ -30,10 +30,8 @@ def edit_sponsor_form(obj):
 
 
 @Project.views('sponsors')
-@route('/<account>/<project>/sponsors/')
-class ProjectSponsorLandingView(
-    ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
-):
+@route('/<account>/<project>/sponsors/', init_app=app)
+class ProjectSponsorLandingView(ProjectViewBase):
     __decorators__ = [requires_login, requires_site_editor]
 
     @route('add', methods=['POST', 'GET'])
@@ -50,17 +48,15 @@ class ProjectSponsorLandingView(
                     ProjectSponsorMembership.member == form.member.data,
                 ).one_or_none()
                 if existing_sponsorship is not None:
-                    return (
-                        {
-                            'status': 'error',
-                            'error_description': _(
-                                "{sponsor} is already a sponsor"
-                            ).format(sponsor=form.member.data.pickername),
-                            'errors': form.errors,
-                            'form_nonce': form.form_nonce.data,
-                        },
-                        400,
-                    )
+                    return {
+                        'status': 'error',
+                        'error_description': _("{sponsor} is already a sponsor").format(
+                            sponsor=form.member.data.pickername
+                        ),
+                        'errors': form.errors,
+                        'form_nonce': form.form_nonce.data,
+                    }, 400
+
                 sponsor_membership = ProjectSponsorMembership(
                     project=self.obj,
                     granted_by=current_auth.user,
@@ -70,15 +66,13 @@ class ProjectSponsorLandingView(
                 db.session.commit()
                 flash(_("Sponsor has been added"), 'info')
                 return render_redirect(self.obj.url_for())
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("Sponsor could not be added"),
-                    'errors': form.errors,
-                    'form_nonce': form.form_nonce.data,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error_description': _("Sponsor could not be added"),
+                'errors': form.errors,
+                'form_nonce': form.form_nonce.data,
+            }, 400
+
         return render_template(
             'project_sponsor_popup.html.jinja2',
             project=self.obj,
@@ -96,7 +90,7 @@ class ProjectSponsorLandingView(
             sponsor: ProjectSponsorMembership = (
                 ProjectSponsorMembership.query.filter_by(uuid_b58=target)
                 .options(
-                    sa.orm.load_only(
+                    sa_orm.load_only(
                         ProjectSponsorMembership.id, ProjectSponsorMembership.seq
                     )
                 )
@@ -105,7 +99,7 @@ class ProjectSponsorLandingView(
             other_sponsor: ProjectSponsorMembership = (
                 ProjectSponsorMembership.query.filter_by(uuid_b58=other)
                 .options(
-                    sa.orm.load_only(
+                    sa_orm.load_only(
                         ProjectSponsorMembership.id, ProjectSponsorMembership.seq
                     )
                 )
@@ -117,14 +111,12 @@ class ProjectSponsorLandingView(
         return {'status': 'error', 'error': 'csrf'}, 422
 
 
-ProjectSponsorLandingView.init_app(app)
-
-
 @ProjectSponsorMembership.views('main')
-@route('/<account>/<project>/sponsors/<sponsorship>')
-class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>/<project>/sponsors/<sponsorship>', init_app=app)
+class ProjectSponsorView(
+    UrlChangeCheck, UrlForView, ModelView[ProjectSponsorMembership]
+):
     __decorators__ = [requires_login, requires_site_editor]
-    model = ProjectSponsorMembership
     route_model_map = {
         'account': 'project.account.urlname',
         'project': 'project.name',
@@ -132,13 +124,10 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
     }
 
     def loader(
-        self,
-        account: str,  # skipcq: PYL-W0613
-        project: str,  # skipcq: PYL-W0613
-        sponsorship: str | None = None,
+        self, sponsorship: str | None = None, **_kwargs: str
     ) -> ProjectSponsorMembership:
         obj = (
-            self.model.query.join(Project)
+            ProjectSponsorMembership.query.join(Project)
             .join(Account, Project.account)
             .filter(self.model.uuid_b58 == sponsorship)
             .one_or_404()
@@ -160,15 +149,13 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
                     return render_redirect(self.obj.project.url_for())
 
             else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_description': _("Sponsor could not be edited"),
-                        'errors': form.errors,
-                        'form_nonce': form.form_nonce.data,
-                    },
-                    400,
-                )
+                return {
+                    'status': 'error',
+                    'error_description': _("Sponsor could not be edited"),
+                    'errors': form.errors,
+                    'form_nonce': form.form_nonce.data,
+                }, 400
+
         return render_template(
             'project_sponsor_popup.html.jinja2',
             project=self.obj.project,
@@ -188,15 +175,12 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
                 flash(_("Sponsor has been removed"), 'info')
                 return render_redirect(self.obj.project.url_for())
 
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("Sponsor could not be removed"),
-                    'errors': form.errors,
-                    'form_nonce': form.form_nonce.data,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error_description': _("Sponsor could not be removed"),
+                'errors': form.errors,
+                'form_nonce': form.form_nonce.data,
+            }, 400
 
         return render_template(
             'project_sponsor_popup.html.jinja2',
@@ -209,6 +193,3 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             ref_id='remove_sponsor',
             remove=True,
         )
-
-
-ProjectSponsorView.init_app(app)

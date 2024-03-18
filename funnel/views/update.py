@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from flask import abort, flash
+from flask import abort, flash, request
 
 from baseframe import _, forms
 from baseframe.forms import render_form
-from coaster.auth import current_auth
 from coaster.utils import make_name
 from coaster.views import (
     ModelView,
@@ -18,19 +17,20 @@ from coaster.views import (
 )
 
 from .. import app
-from ..forms import SavedProjectForm, UpdateForm
+from ..auth import current_auth
+from ..forms import SavedProjectForm, UpdateForm, UpdatePinForm
 from ..models import Account, NewUpdateNotification, Project, Update, db
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import AccountCheckMixin
 from .notification import dispatch_notification
-from .project import ProjectViewMixin
+from .project import ProjectViewBase
 
 
 @Project.views('updates')
-@route('/<account>/<project>/updates')
-class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>/<project>/updates', init_app=app)
+class ProjectUpdatesView(ProjectViewBase):
     @route('', methods=['GET'])
     @render_with(html_in_json('project_updates.html.jinja2'))
     @requires_roles({'reader'})
@@ -78,37 +78,33 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
         )
 
 
-ProjectUpdatesView.init_app(app)
-
-
 @Update.features('publish')
-def update_publishable(obj):
-    return obj.state.DRAFT and 'editor' in obj.roles_for(current_auth.user)
+def update_publishable(obj: Update) -> bool:
+    return bool(obj.state.DRAFT) and 'editor' in obj.roles_for(current_auth.user)
 
 
 @Update.views('project')
-@route('/<account>/<project>/updates/<update>')
-class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
-    model = Update
+@route('/<account>/<project>/updates/<update>', init_app=app)
+class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update]):
     route_model_map = {
         'account': 'project.account.urlname',
         'project': 'project.name',
         'update': 'url_name_uuid_b58',
     }
-    obj: Update
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, account: str, project: str, update: str) -> Update:
-        return (
+    def load(self, account: str, project: str, update: str) -> ReturnView | None:
+        self.obj = (
             Update.query.join(Project)
             .join(Account, Project.account)
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
-
-    def after_loader(self) -> ReturnView | None:
-        self.account = self.obj.project.account
+        self.post_init()
         return super().after_loader()
+
+    def post_init(self) -> None:
+        self.account = self.obj.project.account
 
     @route('', methods=['GET'])
     @render_with('update_details.html.jinja2')
@@ -143,13 +139,24 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'editor'})
     def edit(self) -> ReturnView:
-        form = UpdateForm(obj=self.obj)
+        if request.form.get('form.id') == 'pin':
+            form = UpdatePinForm(obj=self.obj)
+        else:
+            form = UpdateForm(obj=self.obj)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
+            if request.form.get('form.id') == 'pin':
+                return {'status': 'ok', 'is_pinned': self.obj.is_pinned}
             flash(_("The update has been edited"), 'success')
             return render_redirect(self.obj.url_for())
-
+        if request.form.get('form.id') == 'pin':
+            return {
+                'status': 'error',
+                'error': 'pin_form_invalid',
+                'error_description': _("This page timed out. Reload and try again"),
+                'form_nonce': form.form_nonce.data,
+            }, 422
         return render_form(
             form=form,
             title=_("Edit update"),
@@ -172,18 +179,17 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         return render_form(
             form=form,
             title=_("Confirm delete"),
-            message=_(
-                "Delete this draft update? This operation is permanent and cannot be"
-                " undone"
-            )
-            if self.obj.state.UNPUBLISHED
-            else _(
-                "Delete this update? This update’s number (#{number}) will be skipped"
-                " for the next update"
-            ).format(number=self.obj.number),
+            message=(
+                _(
+                    "Delete this draft update? This operation is permanent and cannot"
+                    " be undone"
+                )
+                if self.obj.state.UNPUBLISHED
+                else _(
+                    "Delete this update? This update’s number (#{number}) will be"
+                    " skipped for the next update"
+                ).format(number=self.obj.number)
+            ),
             submit=_("Delete"),
             cancel_url=self.obj.url_for(),
         )
-
-
-UpdateView.init_app(app)

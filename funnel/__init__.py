@@ -26,14 +26,14 @@ from ._version import __version__
 
 #: Main app for hasgeek.com
 app = Flask(__name__, instance_relative_config=True)
-app.name = 'funnel'
+app.name = 'funnel'  # pyright: ignore[reportGeneralTypeIssues]
 app.config['SITE_TITLE'] = __("Hasgeek")
-#: Shortlink app at has.gy
+#: Short link app at has.gy
 shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True)
-shortlinkapp.name = 'shortlink'
+shortlinkapp.name = 'shortlink'  # pyright: ignore[reportGeneralTypeIssues]
 #: Unsubscribe app at bye.li
 unsubscribeapp = Flask(__name__, static_folder=None, instance_relative_config=True)
-unsubscribeapp.name = 'unsubscribe'
+unsubscribeapp.name = 'unsubscribe'  # pyright: ignore[reportGeneralTypeIssues]
 
 all_apps = [app, shortlinkapp, unsubscribeapp]
 
@@ -79,7 +79,7 @@ from . import (  # isort:skip  # noqa: F401  # pylint: disable=wrong-import-posi
     views,
     cli,
 )
-from .models import db, sa  # isort:skip  # pylint: disable=wrong-import-position
+from .models import db, sa_orm  # isort:skip
 
 # --- Configuration---------------------------------------------------------------------
 
@@ -89,11 +89,8 @@ from .models import db, sa  # isort:skip  # pylint: disable=wrong-import-positio
 # present, it is loaded in debug and testing modes only
 for each_app in all_apps:
     coaster.app.init_app(
-        each_app, ['py', 'env'], env_prefix=['FLASK', f'APP_{each_app.name.upper()}']
+        each_app, ['env'], env_prefix=['FLASK', f'APP_{each_app.name.upper()}']
     )
-
-# Legacy additional config for the main app (pending deprecation)
-coaster.app.load_config_from_file(app, 'hasgeekapp.py')
 
 # Force specific config settings, overriding deployment config
 shortlinkapp.config['SERVER_NAME'] = app.config['SHORTLINK_DOMAIN']
@@ -147,7 +144,12 @@ executor.init_app(app)
 geoip.geoip.init_app(app)
 
 # Baseframe is required for apps with UI ('funnel' theme is registered above)
-baseframe.init_app(app, requires=['funnel'], theme='funnel', error_handlers=False)
+baseframe.init_app(
+    app,
+    requires=['funnel'],
+    theme='funnel',  # type: ignore[arg-type]  # FIXME
+    error_handlers=False,
+)
 
 # Initialize available login providers from app config
 loginproviders.init_app(app)
@@ -160,7 +162,7 @@ if not app.config.get('FEATURED_ACCOUNTS'):
 transports.init()
 
 # Register JS and CSS assets on both apps
-app.assets.register(  # type: ignore[attr-defined]
+app.assets.register(  # type: ignore[attr-defined]  # FIXME
     'js_fullcalendar',
     Bundle(
         assets.require(
@@ -176,7 +178,7 @@ app.assets.register(  # type: ignore[attr-defined]
         filters='rjsmin',
     ),
 )
-app.assets.register(  # type: ignore[attr-defined]
+app.assets.register(  # type: ignore[attr-defined]  # FIXME
     'css_fullcalendar',
     Bundle(
         assets.require('jquery.fullcalendar.css', 'spectrum.css'),
@@ -184,7 +186,7 @@ app.assets.register(  # type: ignore[attr-defined]
         filters='cssmin',
     ),
 )
-app.assets.register(  # type: ignore[attr-defined]
+app.assets.register(  # type: ignore[attr-defined]  # FIXME
     'js_schedules',
     Bundle(
         assets.require('schedules.js'),
@@ -195,17 +197,14 @@ app.assets.register(  # type: ignore[attr-defined]
 
 views.siteadmin.init_rq_dashboard()
 
-# --- Serve static files with Whitenoise -----------------------------------------------
+# --- Serve static files with WhiteNoise -----------------------------------------------
 
-app.wsgi_app = WhiteNoise(  # type: ignore[method-assign]
-    app.wsgi_app, root=app.static_folder, prefix=app.static_url_path
-)
-app.wsgi_app.add_files(  # type: ignore[attr-defined]
-    baseframe.static_folder, prefix=baseframe.static_url_path
-)
+_wn = WhiteNoise(app.wsgi_app, root=app.static_folder, prefix=app.static_url_path)
+_wn.add_files(baseframe.static_folder, prefix=baseframe.static_url_path)
+app.wsgi_app = _wn  # type: ignore[method-assign]
 
 # --- Init SQLAlchemy mappers ----------------------------------------------------------
 
 # Database model loading (from Funnel or extensions) is complete.
 # Configure database mappers now, before the process is forked for workers.
-sa.orm.configure_mappers()
+sa_orm.configure_mappers()

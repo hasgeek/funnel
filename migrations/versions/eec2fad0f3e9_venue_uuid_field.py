@@ -40,7 +40,7 @@ def upgrade() -> None:
     conn = op.get_bind()
 
     op.add_column('venue', sa.Column('uuid', sa.Uuid(), nullable=True))
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(venue))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(venue))
     progress = get_progressbar("Venues", count)
     progress.start()
     items = conn.execute(sa.select(venue.c.id))

@@ -5,7 +5,7 @@ from __future__ import annotations
 import smtplib
 from dataclasses import dataclass
 from email.utils import formataddr, getaddresses, make_msgid, parseaddr
-from typing import Optional, Union
+from typing import Union
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -17,54 +17,116 @@ from werkzeug.datastructures import Headers
 from baseframe import _, statsd
 
 from ... import app
-from ...models import Account, EmailAddress, EmailAddressBlockedError
+from ...models import Account, EmailAddress, EmailAddressBlockedError, Rsvp
 from ..exc import TransportRecipientError
 
 __all__ = [
     'EmailAttachment',
     'jsonld_confirm_action',
+    'jsonld_event_reservation',
     'jsonld_view_action',
     'process_recipient',
     'send_email',
 ]
 
 # Email recipient type
-EmailRecipient = Union[Account, tuple[Optional[str], str], str]
+EmailRecipient = Union[Account, tuple[str | None, str], str]
 
 
 @dataclass
 class EmailAttachment:
     """An email attachment. Must have content, filename and mimetype."""
 
-    content: str
+    content: bytes
     filename: str
     mimetype: str
 
 
 def jsonld_view_action(description: str, url: str, title: str) -> dict[str, object]:
+    """Schema.org JSON-LD markup for an email view action."""
     return {
-        "@context": "http://schema.org",
-        "@type": "EmailMessage",
-        "description": description,
-        "potentialAction": {"@type": "ViewAction", "name": title, "url": url},
-        "publisher": {
-            "@type": "Organization",
-            "name": current_app.config['SITE_TITLE'],
-            "url": 'https://' + current_app.config['DEFAULT_DOMAIN'] + '/',
+        '@context': 'https://schema.org',
+        '@type': 'EmailMessage',
+        'description': description,
+        'potentialAction': {'@type': 'ViewAction', 'name': title, 'url': url},
+        'publisher': {
+            '@type': 'Organization',
+            'name': current_app.config['SITE_TITLE'],
+            'url': 'https://' + current_app.config['DEFAULT_DOMAIN'] + '/',
         },
     }
 
 
 def jsonld_confirm_action(description: str, url: str, title: str) -> dict[str, object]:
+    """Schema.org JSON-LD markup for an email confirmation action."""
     return {
-        "@context": "http://schema.org",
-        "@type": "EmailMessage",
-        "description": description,
-        "potentialAction": {
-            "@type": "ConfirmAction",
-            "name": title,
-            "handler": {"@type": "HttpActionHandler", "url": url},
+        '@context': 'https://schema.org',
+        '@type': 'EmailMessage',
+        'description': description,
+        'potentialAction': {
+            '@type': 'ConfirmAction',
+            'name': title,
+            'handler': {'@type': 'HttpActionHandler', 'url': url},
         },
+    }
+
+
+def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
+    """Schema.org JSON-LD markup for an event reservation."""
+    location: str | dict[str, object]
+    venue = rsvp.project.primary_venue
+    if venue is not None:
+        location = {
+            '@type': 'Place',
+            'name': venue.title,
+        }
+        if venue.address1:
+            postal_address = {
+                '@type': 'PostalAddress',
+                'streetAddress': venue.address1,
+                'addressLocality': venue.city,
+                'addressRegion': venue.state,
+                'postalCode': venue.postcode,
+                'addressCountry': venue.country,
+            }
+            location['address'] = postal_address
+    else:
+        location = {
+            "@type": "VirtualLocation",
+            "url": rsvp.project.absolute_url,
+        }
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'EventReservation',
+        'reservationNumber': rsvp.uuid_b58,
+        'reservationStatus': (
+            'https://schema.org/ReservationConfirmed'
+            if rsvp.state.YES
+            else (
+                'https://schema.org/ReservationCancelled'
+                if rsvp.state.NO
+                else 'https://schema.org/ReservationPending'
+            )
+        ),
+        'underName': {
+            '@type': 'Person',
+            'name': rsvp.participant.fullname,
+        },
+        'reservationFor': {
+            '@type': 'Event',
+            'name': rsvp.project.joined_title,
+            'url': rsvp.project.absolute_url,
+            'startDate': rsvp.project.start_at,
+            'location': location,
+            'performer': {
+                '@type': 'Organization',
+                'name': rsvp.project.account.title,
+                'image': rsvp.project.account.logo_url,
+            },
+        },
+        'modifyReservationUrl': rsvp.project.absolute_url,
+        'modifiedTime': rsvp.updated_at,
+        'numSeats': '1',
     }
 
 

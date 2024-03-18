@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import re
+from typing import cast
 
 from baseframe import _, __, forms
-from baseframe.forms.sqlalchemy import AvailableName
+from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from coaster.utils import sorted_timezones, utcnow
 
 from ..models import Account, Project, Rsvp, SavedProject
@@ -31,6 +32,7 @@ __all__ = [
     'RsvpTransitionForm',
     'SavedProjectForm',
     'ProjectRegisterForm',
+    'ProjectAssignParentForm',
 ]
 
 double_quote_re = re.compile(r'["“”]')
@@ -125,7 +127,7 @@ class ProjectForm(forms.Form):
                 __("Quotes are not necessary in the location name")
             )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         self.bg_image.profile = self.account.name or self.account.buid
         if self.edit_obj is not None and self.edit_obj.schedule_start_at:
             # Don't allow user to directly manipulate timestamps when it's done via
@@ -185,7 +187,7 @@ class ProjectNameForm(forms.Form):
     """Form to change the URL name of a project."""
 
     # TODO: Add validators for `account` and unique name here instead of delegating to
-    # the view. Also add `set_queries` method to change ``name.prefix``
+    # the view. Also add `__post_init__` method to change ``name.prefix``
 
     name = forms.AnnotatedTextField(
         __("Custom URL"),
@@ -196,7 +198,13 @@ class ProjectNameForm(forms.Form):
         ),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=Project.__name_length__),
+            forms.validators.Length(
+                max=(
+                    Project.__name_length__
+                    if Project.__name_length__ is not None
+                    else -1
+                )
+            ),
             forms.validators.ValidName(
                 __(
                     "This URL contains unsupported characters. It can contain lowercase"
@@ -231,7 +239,7 @@ class ProjectBannerForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.bg_image.widget_type = 'modal'
         self.bg_image.profile = self.account.name or self.account.buid
@@ -275,7 +283,7 @@ class ProjectTransitionForm(forms.Form):
         __("Status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.transition.choices = list(self.edit_obj.state.transitions().items())
 
@@ -344,7 +352,7 @@ class RsvpTransitionForm(forms.Form):
         __("Status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         # Usually you need to use an instance's state.transitions to find
         # all the valid transitions for the current state of the instance.
@@ -353,7 +361,7 @@ class RsvpTransitionForm(forms.Form):
         # options in the form even without an Rsvp instance.
         self.transition.choices = [
             (transition_name, getattr(Rsvp, transition_name))
-            for transition_name in Rsvp.state.statemanager.transitions
+            for transition_name in Rsvp.state.transitions
         ]
 
 
@@ -371,12 +379,14 @@ class ProjectRegisterForm(forms.Form):
     )
 
     def validate_form(self, field: forms.Field) -> None:
+        if not self.form.data:
+            return
         if self.form.data and not self.schema:
             raise forms.validators.StopValidation(
                 _("This registration is not expecting any form fields")
             )
         if self.schema:
-            form_keys = set(self.form.data.keys())
+            form_keys = set(cast(dict, self.form.data).keys())
             schema_keys = {i['name'] for i in self.schema['fields']}
             if not form_keys.issubset(schema_keys):
                 invalid_keys = form_keys.difference(schema_keys)
@@ -385,3 +395,27 @@ class ProjectRegisterForm(forms.Form):
                         fields=', '.join(invalid_keys)
                     )
                 )
+
+
+@Project.forms('assign_parent')
+class ProjectAssignParentForm(forms.Form):
+    """Form to assign a parent project to the project."""
+
+    __expects__ = ('user',)
+    user: Account
+
+    parent_project = QuerySelectField(
+        __("Assign a parent project"),
+        description=__(
+            "This is to group related projects. Parent and subprojects will"
+            " appear under related events"
+        ),
+        validators=[forms.validators.Optional()],
+        get_label=lambda s: f'{s.account.title}: {s.title}' if s else '',
+        allow_blank=True,
+        blank_text='None',
+    )
+
+    def __post_init__(self) -> None:
+        """Prepare form for use."""
+        self.parent_project.query = self.user.projects_as_editor

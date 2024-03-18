@@ -5,9 +5,14 @@ from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 
+from ...conftest import scoped_session
+
 
 def test_project_crew_membership(
-    db_session, new_user, new_user_owner, new_project
+    db_session: scoped_session,
+    new_user: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
 ) -> None:
     """Test that project crew members get their roles from ProjectCrewMembership."""
     # new_user is account admin
@@ -38,7 +43,7 @@ def test_project_crew_membership(
     assert 'editor' in new_project.roles_for(new_user_owner)
     assert new_membership.is_active
     assert new_membership in new_project.active_crew_memberships
-    assert new_membership.record_type == models.MEMBERSHIP_RECORD_TYPE.DIRECT_ADD
+    assert new_membership.record_type == models.MembershipRecordTypeEnum.DIRECT_ADD
 
     # only one membership can be active for a user at a time.
     # so adding a new membership without revoking the previous one
@@ -57,6 +62,7 @@ def test_project_crew_membership(
         .filter_by(project=new_project, user=new_user)
         .first()
     )
+    assert previous_membership2 is not None
     previous_membership2.revoke(actor=new_user_owner)
     db_session.commit()
 
@@ -85,7 +91,7 @@ def test_project_crew_membership(
     assert 'editor' in new_project.roles_for(new_user)
     assert 'promoter' not in new_project.roles_for(new_user)
     assert 'usher' not in new_project.roles_for(new_user)
-    assert new_membership3.record_type == models.MEMBERSHIP_RECORD_TYPE.AMEND
+    assert new_membership3.record_type == models.MembershipRecordTypeEnum.AMEND
 
     # replace() can replace a single role as well, rest stays as they were
     new_membership4 = new_membership3.replace(actor=new_user_owner, is_usher=True)
@@ -100,7 +106,7 @@ def test_project_crew_membership(
         'editor',
         'usher',
     }
-    assert new_membership4.record_type == models.MEMBERSHIP_RECORD_TYPE.AMEND
+    assert new_membership4.record_type == models.MembershipRecordTypeEnum.AMEND
 
     # can't replace with an unknown role
     with pytest.raises(AttributeError):
@@ -108,7 +114,11 @@ def test_project_crew_membership(
 
 
 def test_project_roles_lazy_eval(
-    db_session, new_user, new_user_owner, new_organization, new_project2
+    db_session: scoped_session,
+    new_user: models.User,
+    new_user_owner: models.User,
+    new_organization: models.Organization,
+    new_project2: models.Project,
 ) -> None:
     """Test that the lazy roles evaluator picks up membership-based roles."""
     assert 'admin' in new_organization.roles_for(new_user_owner)
@@ -119,8 +129,12 @@ def test_project_roles_lazy_eval(
 
 
 def test_membership_amend(
-    db_session, user_vetinari, user_ridcully, project_expo2010, org_ankhmorpork
-):
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    user_ridcully: models.User,
+    project_expo2010: models.Project,
+    org_ankhmorpork: models.Organization,
+) -> None:
     ridcully_admin = models.AccountMembership(
         member=user_ridcully, account=org_ankhmorpork, granted_by=user_vetinari
     )

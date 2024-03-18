@@ -1,12 +1,16 @@
 """Test custom rsvp form views."""
+
 # pylint: disable=redefined-outer-name
 
 import datetime
 
 import pytest
+from flask import Flask
 from werkzeug.datastructures import MultiDict
 
 from funnel import models
+
+from ...conftest import LoginFixtureProtocol, TestClient
 
 valid_schema = {
     'fields': [
@@ -80,9 +84,9 @@ def project_expo2010(project_expo2010: models.Project) -> models.Project:
 
 # Organizer side testing
 def test_valid_registration_form_schema(
-    app,
-    client,
-    login,
+    app: Flask,
+    client: TestClient,
+    login: LoginFixtureProtocol,
     csrf_token: str,
     user_vetinari: models.User,
     project_expo2010: models.Project,
@@ -96,7 +100,7 @@ def test_valid_registration_form_schema(
             {
                 'org': '',
                 'item_collection_id': '',
-                'allow_rsvp': True,
+                'rsvp_state': int(models.ProjectRsvpStateEnum.ALL),
                 'is_subscription': False,
                 'register_button_txt': 'Follow',
                 'register_form_schema': app.json.dumps(valid_schema),
@@ -108,8 +112,8 @@ def test_valid_registration_form_schema(
 
 
 def test_invalid_registration_form_schema(
-    client,
-    login,
+    client: TestClient,
+    login: LoginFixtureProtocol,
     csrf_token: str,
     user_vetinari: models.User,
     project_expo2010: models.Project,
@@ -130,9 +134,9 @@ def test_invalid_registration_form_schema(
 
 
 def test_valid_json_register(
-    app,
-    client,
-    login,
+    app: Flask,
+    client: TestClient,
+    login: LoginFixtureProtocol,
     csrf_token: str,
     user_twoflower: models.User,
     project_expo2010: models.Project,
@@ -151,13 +155,15 @@ def test_valid_json_register(
         headers={'Content-Type': 'application/json'},
     )
     assert rv.status_code == 303
-    assert project_expo2010.rsvp_for(user_twoflower).form == valid_json_rsvp
+    rsvp = project_expo2010.rsvp_for(user_twoflower)
+    assert rsvp is not None
+    assert rsvp.form == valid_json_rsvp
 
 
 def test_valid_encoded_json_register(
-    app,
-    client,
-    login,
+    app: Flask,
+    client: TestClient,
+    login: LoginFixtureProtocol,
     csrf_token: str,
     user_twoflower: models.User,
     project_expo2010: models.Project,
@@ -173,11 +179,16 @@ def test_valid_encoded_json_register(
         },
     )
     assert rv.status_code == 303
-    assert project_expo2010.rsvp_for(user_twoflower).form == valid_json_rsvp
+    rsvp = project_expo2010.rsvp_for(user_twoflower)
+    assert rsvp is not None
+    assert rsvp.form == valid_json_rsvp
 
 
 def test_invalid_json_register(
-    client, login, user_twoflower: models.User, project_expo2010: models.Project
+    client: TestClient,
+    login: LoginFixtureProtocol,
+    user_twoflower: models.User,
+    project_expo2010: models.Project,
 ) -> None:
     """If a registration form is not JSON, it is rejected."""
     login.as_(user_twoflower)

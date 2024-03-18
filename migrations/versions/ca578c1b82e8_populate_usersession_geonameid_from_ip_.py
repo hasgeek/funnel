@@ -72,7 +72,7 @@ def upgrade() -> None:
         if geoip_city is not None or geoip_asn is not None:
             conn = op.get_bind()
             count = conn.scalar(
-                sa.select(sa.func.count('*'))
+                sa.select(sa.func.count(sa.text('*')))
                 .select_from(user_session)
                 .where(
                     sa.or_(
