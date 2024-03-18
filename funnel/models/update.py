@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable
 from datetime import datetime
 from typing import Any, Self
 
 from baseframe import __
-from coaster.sqlalchemy import LazyRoleSet, StateManager, auto_init_default, with_roles
+from coaster.sqlalchemy import StateManager, auto_init_default, role_check, with_roles
 from coaster.utils import LabeledEnum
 
 from .account import Account
@@ -98,56 +98,12 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
             None: {
                 'editor': {'editor', 'project_editor'},
                 'participant': {'project_participant'},
-                'crew': {'project_crew'},
+                'crew': {'project_crew', 'reader'},
+                'account_member': {'account_member'},
             }
         },
     )
     parent: Mapped[Project] = sa_orm.synonym('project')
-
-    # Relationships to project that exist only when the Update has specific visibility
-    # states, for the purpose of inheriting the `reader` role. We do this
-    # because RoleMixin does not have a mechanism for conditional grant of roles. A
-    # relationship marked as `grants_via` will always grant the role unconditionally, so
-    # the only control at the moment is to make the relationship itself conditional. The
-    # affected mechanism is not `roles_for` but `actors_with`, which is currently not
-    # meant to be redefined in a subclass
-    _project_when_public: Mapped[Project] = with_roles(
-        relationship(
-            viewonly=True,
-            uselist=False,
-            primaryjoin=sa.and_(
-                project_id == Project.id, _visibility_state == VISIBILITY_STATE.PUBLIC
-            ),
-        ),
-        grants_via={
-            None: {
-                'account_participant': 'reader',
-                'project_participant': 'reader',
-                'account_member': 'reader',
-            }
-        },
-    )
-    _project_when_participants_only: Mapped[Project] = with_roles(
-        relationship(
-            viewonly=True,
-            uselist=False,
-            primaryjoin=sa.and_(
-                project_id == Project.id,
-                _visibility_state == VISIBILITY_STATE.PARTICIPANTS,
-            ),
-        ),
-        grants_via={None: {'project_participant': 'reader'}},
-    )
-    _project_when_members_only: Mapped[Project] = with_roles(
-        relationship(
-            viewonly=True,
-            uselist=False,
-            primaryjoin=sa.and_(
-                project_id == Project.id, _visibility_state == VISIBILITY_STATE.MEMBERS
-            ),
-        ),
-        grants_via={None: {'account_member': 'reader'}},
-    )
 
     body, body_text, body_html = MarkdownCompositeDocument.create(
         'body', nullable=False
@@ -183,11 +139,11 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     )
     deleted_by: Mapped[Account | None] = with_roles(
         relationship(back_populates='deleted_updates', foreign_keys=[deleted_by_id]),
-        read={'reader'},
+        read={'reader', 'recipient'},
     )
     deleted_at: Mapped[datetime | None] = with_roles(
         sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
-        read={'reader'},
+        read={'reader', 'recipient'},
     )
 
     edited_at: Mapped[datetime | None] = with_roles(
@@ -228,9 +184,10 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
             'read': {'name', 'title', 'urls'},
             'call': {'features', 'visibility_state', 'state', 'url_for'},
         },
-        'editor': {'write': {'title', 'body'}, 'read': {'body'}},
-        'reader': {'read': {'body'}},
         'project_crew': {'read': {'body'}},
+        'editor': {'write': {'title', 'body'}, 'read': {'body'}},
+        'reader': {'read': {'body'}},  # For views
+        'recipient': {'read': {'body'}},  # For notifications
     }
 
     __datasets__ = {
@@ -276,6 +233,30 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     def __repr__(self) -> str:
         """Represent :class:`Update` as a string."""
         return f'<Update "{self.title}" {self.uuid_b58}>'
+
+    @role_check('reader', 'recipient')
+    def has_reader_role(self, actor: Account) -> bool:
+        """Check if the given actor is a reader based on the Update's visibility."""
+        if self.visibility_state.PUBLIC:
+            return True
+        project_roles = self.project.roles_for(actor)
+        if self.visibility_state.PARTICIPANTS:
+            return 'participant' in project_roles
+        return 'account_member' in project_roles
+
+    @has_reader_role.iterable
+    def _(self) -> Iterable[Account]:
+        """Iterate through accounts that are readers or recipients."""
+        if self.visibility_state.PUBLIC:
+            # Return all members and followers of project, plus participants
+            return self.actors_with({'account_participant'})
+        if self.visibility_state.PARTICIPANTS:
+            # Return all project participants
+            return self.actors_with({'project_participant'})
+        if self.visibility_state.MEMBERS:
+            # Return all account members
+            return self.actors_with({'account_member'})
+        raise RuntimeError("Unknown visibility state")
 
     @property
     def visibility(self) -> str:
@@ -356,26 +337,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     @property
     def is_currently_restricted(self) -> bool:
         """Check if this update is not available for the current user."""
-        if self.visibility_state.PUBLIC or self.current_roles.project_editor:
-            return False
-        if self.visibility_state.PARTICIPANTS:
-            return not self.current_roles.project_participant
-        if self.visibility_state.MEMBERS:
-            return not self.current_roles.account_member
-        raise RuntimeError("Unknown visibility state")  # pragma: no cover
+        return not self.current_roles.reader
 
     with_roles(is_currently_restricted, read={'all'})
-
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        if self.visibility_state.PUBLIC:
-            # Everyone gets 'reader' role when the update is public.
-            # TODO: Acquire it from the project instead
-            roles.add('reader')
-
-        return roles
 
     @classmethod
     def all_published_public(cls) -> Query[Self]:

@@ -122,7 +122,7 @@ class NewUpdateNotification(
         "Typically contains critical information such as video conference links"
     )
 
-    roles = ['project_crew', 'reader']
+    roles = ['project_crew', 'recipient']
     exclude_actor = False  # Send to everyone including the actor
 
 
