@@ -112,6 +112,7 @@ def rincewind_participant(
     user_rincewind: models.User,
 ) -> models.Rsvp:
     rsvp = models.Rsvp(project=project_expo2010, participant=user_rincewind)
+    db_session.add(rsvp)
     rsvp.rsvp_yes()
     return rsvp
 
@@ -198,13 +199,19 @@ def test_public_update_grants_reader_role_to_all(
 def test_participant_update_grants_reader_role_to_participants(
     db_session: scoped_session,
     user_vetinari: models.User,
-    user_twoflower: models.User,
     user_ridcully: models.User,
     user_vimes: models.User,
+    user_rincewind: models.User,
+    user_twoflower: models.User,
     participant_update: models.Update,
 ) -> None:
     """A participant update grants 'reader' role to participants only."""
     participant_update.publish(user_vetinari)
     db_session.commit()
-    # Reader role is granted to participants but not anyone else
-    # TODO
+    # Reader role is granted to participants (and crew) but not anyone else
+    assert 'reader' in participant_update.roles_for(user_vetinari)  # Crew
+    assert 'reader' in participant_update.roles_for(user_ridcully)  # Crew
+    assert 'reader' in participant_update.roles_for(user_rincewind)  # Participant
+    assert 'reader' not in participant_update.roles_for(user_vimes)  # Admin/member
+    assert 'reader' not in participant_update.roles_for(user_twoflower)  # Unrelated
+    assert 'reader' not in participant_update.roles_for(None)  # Anonymous
