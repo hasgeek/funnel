@@ -237,6 +237,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     @role_check('reader', 'recipient')
     def has_reader_role(self, actor: Account) -> bool:
         """Check if the given actor is a reader based on the Update's visibility."""
+        if not self.state.PUBLISHED:
+            # Update must be published to allow anyone to read
+            return False
         if self.visibility_state.PUBLIC:
             return True
         project_roles = self.project.roles_for(actor)
@@ -247,6 +250,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     @has_reader_role.iterable
     def _(self) -> Iterable[Account]:
         """Iterate through accounts that are readers or recipients."""
+        if not self.state.PUBLISHED:
+            # If the update isn't published, return an empty iterable
+            return ()
         if self.visibility_state.PUBLIC:
             # Return all members and followers of project, plus participants
             return self.actors_with({'account_participant'})
