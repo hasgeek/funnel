@@ -10,6 +10,8 @@ from funnel import models
 
 from ...conftest import scoped_session
 
+# --- Fixtures -------------------------------------------------------------------------
+
 
 @pytest.fixture()
 def public_update(
@@ -65,45 +67,71 @@ def member_update(
     return update
 
 
-@pytest.mark.parametrize(
-    ('update1', 'update2', 'update3'),
-    permutations(['public_update', 'participant_update', 'member_update']),
-)
-def test_update_numbering_by_publish_order(
-    request: pytest.FixtureRequest,
+@pytest.fixture()
+def vimes_admin(
+    db_session: scoped_session,
+    org_ankhmorpork: models.Organization,
+    user_vetinari: models.User,
+    user_vimes: models.User,
+) -> models.AccountMembership:
+    """Org admin membership for user Vimes."""
+    membership = models.AccountMembership(
+        account=org_ankhmorpork,
+        member=user_vimes,
+        is_owner=False,
+        granted_by=user_vetinari,
+    )
+    db_session.add(membership)
+    return membership
+
+
+@pytest.fixture()
+def ridcully_editor(
     db_session: scoped_session,
     user_vetinari: models.User,
-    update1: str,
-    update2: str,
-    update3: str,
-) -> None:
-    """Updates are numbered by publish order."""
-    obj1: models.Update = request.getfixturevalue(update1)
-    obj2: models.Update = request.getfixturevalue(update2)
-    obj3: models.Update = request.getfixturevalue(update3)
-    assert obj1.number is None
-    assert obj2.number is None
-    assert obj3.number is None
-    obj1.publish(user_vetinari)
-    obj2.publish(user_vetinari)
-    obj3.publish(user_vetinari)
-    db_session.commit()
-    assert obj1.number == 1
-    assert obj2.number == 2
-    assert obj3.number == 3
+    user_ridcully: models.User,
+    project_expo2010: models.Project,
+) -> models.ProjectMembership:
+    """Project editor membership for Ridcully."""
+    membership = models.ProjectMembership(
+        project=project_expo2010,
+        member=user_ridcully,
+        is_editor=True,
+        is_promoter=False,
+        is_usher=False,
+        granted_by=user_vetinari,
+    )
+    db_session.add(membership)
+    return membership
+
+
+@pytest.fixture()
+def rincewind_participant(
+    db_session: scoped_session,
+    project_expo2010: models.Project,
+    user_rincewind: models.User,
+) -> models.Rsvp:
+    rsvp = models.Rsvp(project=project_expo2010, participant=user_rincewind)
+    rsvp.rsvp_yes()
+    return rsvp
+
+
+# --- Tests ----------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
     ('update1', 'update2', 'update3'),
     permutations(['public_update', 'participant_update', 'member_update']),
 )
-def test_update_numbering_publish_after_delete(
+@pytest.mark.parametrize('delete', [True, False])
+def test_update_numbering(
     request: pytest.FixtureRequest,
     db_session: scoped_session,
     user_vetinari: models.User,
     update1: str,
     update2: str,
     update3: str,
+    delete: bool,
 ) -> None:
     """Update numbers are incremental even if a previous update was deleted."""
     for number, fixture_name in enumerate([update1, update2, update3], 1):
@@ -111,29 +139,72 @@ def test_update_numbering_publish_after_delete(
         obj.publish(user_vetinari)
         db_session.commit()
         assert obj.number == number
-        obj.delete(user_vetinari)
-        db_session.commit()
+        if delete:
+            obj.delete(user_vetinari)
+            db_session.commit()
 
 
-def public_update_grants_reader_role_to_all(
+@pytest.mark.parametrize(
+    'update_fixture', ['public_update', 'participant_update', 'member_update']
+)
+@pytest.mark.usefixtures('vimes_admin', 'ridcully_editor', 'rincewind_participant')
+def test_draft_update_is_not_accessible(
+    request: pytest.FixtureRequest,
+    user_vetinari: models.User,
+    user_ridcully: models.User,
+    user_vimes: models.User,
+    user_rincewind: models.User,
+    user_twoflower: models.User,
+    update_fixture: str,
+) -> None:
+    """A draft or deleted update is not accessible to anyone except project crew."""
+    update: models.Update = request.getfixturevalue(update_fixture)
+    assert update.state.DRAFT
+    assert not update.state.PUBLISHED
+    # The project editor gets 'reader' role courtesy of being a crew member
+    assert 'reader' in update.roles_for(user_vetinari)
+    assert 'reader' in update.roles_for(user_ridcully)
+    # Any other user does not as the update is still a draft
+    assert 'reader' not in update.roles_for(user_vimes)
+    assert 'reader' not in update.roles_for(user_rincewind)
+    assert 'reader' not in update.roles_for(user_twoflower)
+    assert 'reader' not in update.roles_for(None)
+
+
+@pytest.mark.usefixtures('vimes_admin', 'ridcully_editor', 'rincewind_participant')
+def test_public_update_grants_reader_role_to_all(
     db_session: scoped_session,
     user_vetinari: models.User,
+    user_vimes: models.User,
+    user_ridcully: models.User,
+    user_rincewind: models.User,
     user_twoflower: models.User,
     public_update: models.Update,
 ) -> None:
     """A public update grants 'reader' role to all after it is published."""
-    assert public_update.state.DRAFT
-    assert not public_update.state.PUBLISHED
-    # The project editor gets 'reader' role courtesy of being a crew member
-    assert 'reader' in public_update.roles_for(user_vetinari)
-    # Any other user does not as the update is still a draft
-    assert 'reader' not in public_update.roles_for(user_twoflower)
-    # Publishing the update changes these grants
     public_update.publish(user_vetinari)
     db_session.commit()
-    assert not public_update.state.DRAFT
     assert public_update.state.PUBLISHED
-    # Reader role is now granted to all users
-    assert 'reader' in public_update.roles_for(user_vetinari)
+    # Reader role is granted to all users (with or without specific roles; even anon)
+    assert 'reader' in public_update.roles_for(user_twoflower)
+    assert 'reader' in public_update.roles_for(user_vimes)
+    assert 'reader' in public_update.roles_for(user_ridcully)
+    assert 'reader' in public_update.roles_for(user_rincewind)
     assert 'reader' in public_update.roles_for(user_twoflower)
     assert 'reader' in public_update.roles_for(None)
+
+
+@pytest.mark.usefixtures('vimes_admin', 'ridcully_editor', 'rincewind_participant')
+def test_participant_update_grants_reader_role_to_participants(
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    user_twoflower: models.User,
+    user_ridcully: models.User,
+    user_vimes: models.User,
+    participant_update: models.Update,
+) -> None:
+    """A participant update grants 'reader' role to participants only."""
+    participant_update.publish(user_vetinari)
+    db_session.commit()
+    # Reader role is granted to participants but not anyone else
+    # TODO

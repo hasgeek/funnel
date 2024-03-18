@@ -235,7 +235,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         return f'<Update "{self.title}" {self.uuid_b58}>'
 
     @role_check('reader', 'recipient')
-    def has_reader_role(self, actor: Account) -> bool:
+    def has_reader_role(self, actor: Account | None) -> bool:
         """Check if the given actor is a reader based on the Update's visibility."""
         if not self.state.PUBLISHED:
             # Update must be published to allow anyone to read
