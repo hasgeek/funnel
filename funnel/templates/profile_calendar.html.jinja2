@@ -2,6 +2,7 @@
 {%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, useravatar, proposal_card %}
 
 {%- block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/index.css') }}" />
   <link rel="stylesheet" type="text/css" href="{{ manifest('css/profile.css') }}" />
   <link rel="stylesheet" type="text/css" href="{{ manifest('css/profile_calendar.css') }}" />
   <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
@@ -47,23 +48,26 @@
     <div class="projects-wrapper">
       <div class="mui-container project-page__content">
           {% raw %}
-              <div id="calendar" class="calendar-container" v-cloak>
-              <div class="grid">
-                <div class="grid__col-sm-6 grid__col-md-7 grid__col-lg-8">
+            <div id="calendar" class="calendar-container" v-cloak>
+              <div class="grid calendar_mobile">
+                <div class="grid__col-12">
+                  <h2 class="mui--text-headline text-bold project-headline">Upcoming</h2>
+                </div>
+                <div class="grid__col-sm-6 grid__col-md-7 grid__col-lg-8 proposal_list">
                   <div v-if="filteredEvents">
-                    <table class="proposal-list-table mui-table">
+                    <table class="proposal-list-table mui-table card page-card">
                       <tbody>
                         <tr v-for="event in filteredEvents">
-                          <td class="card page-card">
+                          <td>
                             <div class="card__body">
                               <p class="mui--text-subhead text-bold margin-bottom">
                                 <a :href="event.url" class="mui--text-dark">{{ event.title }}</a>
                               </p>
-                              <p class="mui--text-dark mui--text-light margin-bottom"><faicon :icon="'calendar-alt'" :baseline=true></faicon> {{ propertyVal(event, 'date') }} <faicon :icon="'clock'" :baseline=true :css_class="'margin-left'"></faicon> {{ propertyVal(event, 'time') }}</p>
+                              <p class="mui--text-dark mui--text-light margin-bottom"><faicon :icon="'calendar-alt'" :baseline=true></faicon> {{ event.date }} <faicon :icon="'clock'" :baseline=true :css_class="'margin-left'"></faicon> {{ event.time }}</p>
                               <div class="margin-bottom">
-                                <span class="badge text-bold" v-if="propertyVal(event, 'cfp_open')">Accepting proposals</span><span class="badge badge-success text-bold" v-if="propertyVal(event, 'member_access')">Member access</span><span class="badge badge-dark text-bold" v-else>Free</span>
+                                <span class="badge text-bold" v-if="event.cfp_open">Accepting proposals</span><span class="badge badge-success text-bold" v-if="event.member_access">Member access</span><span class="badge badge-dark text-bold" v-else>Free</span>
                               </div>
-                              <p class="mui--text-caption mui--text-light"><faicon :icon="'map-marker-alt'" :baseline=false></faicon>{{ propertyVal(event, 'venue') }}</p>
+                              <p class="mui--text-caption mui--text-light proposal_venue"><faicon :icon="'map-marker-alt'" :baseline=false></faicon>{{ event.venue }}</p>
                             </div>
                           </td>
                         </tr>
@@ -71,11 +75,12 @@
                     </table>
                   </div>
                 </div>
-                <div class="grid__col-sm-6 grid__col-md-5 grid__col-lg-4">
+                <div class="grid__col-sm-6 grid__col-md-5 grid__col-lg-4
+                calendar_mobile_container">
                   <div class="page-card">
                   <div class="flex-wrapper flex-wrapper--baseline">
                     <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--dark" @click="prev"><faicon :icon="'chevron-left'" :baseline=false></faicon></button>
-                    <span class="mui--text-title text-bold"> {{ date }} </span>
+                    <span class="fc-text-caption text-bold"> {{ date }} </span>
                     <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--dark" @click="next"><faicon :icon="'chevron-right'" :baseline=false></faicon></button>
                     <div class="filter">
                       <a href="#" onclick="return false;" @click="toggleFilterMenu" class="mui--text-title mui--text-light" aria-label="Filter calendar" role="button" aria-haspopup="true" aria-expanded="false"><faicon :icon="'filter'" :baseline=false></faicon></a>
@@ -85,9 +90,6 @@
                           <div class="mui-form__controls">
                             <div class="mui-textfield">
                               <ul class="zero-bottom-margin mui-list--unstyled" id="duration">
-                                <li>
-                                  <input type="radio" id="weekly" name="view" value="weekly" v-model="calendarView"> <label for="weekly">{{ gettext('Weekly') }}</label>
-                                </li>
                                 <li>
                                   <input checked type="radio" id="monthly" name="view" value="monthly" v-model="calendarView"> <label for="monthly">{{ gettext('Monthly') }}</label>
                                 </li>
@@ -127,7 +129,7 @@
                               </div>
                             </div>
                           </div>
-  <!--                      <div id="field-free-events" class="mui-form__fields">
+<!--                      <div id="field-free-events" class="mui-form__fields">
                             <div class="mui-form__controls">
                               <div class="mui-checkbox">
                                 <label>
@@ -142,10 +144,10 @@
                     </div>
                   </div>
                   <full-calendar ref="fullCalendar" :options="calendarOptions" />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           {% endraw %}
         </div>
       </div>
