@@ -532,7 +532,10 @@
           widgetElem: "#boxoffice-widget",
           org: {{ project.boxoffice_data.org|tojson }},
           itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
-          itemCollectionTitle: {{ project.title|tojson }}
+          itemCollectionTitle: {{ project.title|tojson }},
+          userFullname: '{{current_auth.user.fullname }}',
+          userEmail: '{{ current_auth.user.email }}',
+          userPhone: '{{ current_auth.user.phone }}',
         };
       {%- endif %}
       {% if current_auth.user and current_auth.user.is_site_editor %}

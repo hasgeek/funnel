@@ -16,6 +16,9 @@ const Ticketing = {
     org,
     itemCollectionId,
     itemCollectionTitle,
+    userFullname,
+    userEmail,
+    userPhone,
   }) {
     let url;
 
@@ -75,6 +78,9 @@ const Ticketing = {
           itemCollection: itemCollectionId,
           menu: itemCollectionId,
           paymentDesc: itemCollectionTitle,
+          user_name: userFullname,
+          user_email: userEmail,
+          user_phone: userPhone,
         });
       },
       false
