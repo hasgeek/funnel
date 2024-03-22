@@ -96,10 +96,12 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         datasets={'primary'},
         grants_via={
             None: {
+                'reader': {'project_reader'},  # Project reader is NOT update reader
                 'editor': {'editor', 'project_editor'},
                 'participant': {'project_participant'},
+                'account_follower': {'account_follower'},
+                'member_participant': {'member_participant'},
                 'crew': {'project_crew', 'reader'},
-                'account_member': {'account_member'},
             }
         },
     )
@@ -109,13 +111,12 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         'body', nullable=False
     )
 
-    #: Update number, for Project updates, assigned when the update is published
+    #: Update serial number, only assigned when the update is published
     number: Mapped[int | None] = with_roles(
         sa_orm.mapped_column(default=None), read={'all'}
     )
 
-    #: Like pinned tweets. You can keep posting updates, but might want to pin an
-    #: update from a week ago
+    #: Pin an update above future updates
     is_pinned: Mapped[bool] = with_roles(
         sa_orm.mapped_column(default=False), read={'all'}, write={'editor'}
     )
@@ -139,11 +140,11 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     )
     deleted_by: Mapped[Account | None] = with_roles(
         relationship(back_populates='deleted_updates', foreign_keys=[deleted_by_id]),
-        read={'reader', 'recipient'},
+        read={'reader'},
     )
     deleted_at: Mapped[datetime | None] = with_roles(
         sa_orm.mapped_column(sa.TIMESTAMP(timezone=True), nullable=True),
-        read={'reader', 'recipient'},
+        read={'reader'},
     )
 
     edited_at: Mapped[datetime | None] = with_roles(
@@ -171,6 +172,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
             'body_text',
             weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
             regconfig='english',
+            # FIXME: Search preview will give partial access to Update.body even if the
+            # user does not have the necessary 'reader' role
             hltext=lambda: sa.func.concat_ws(
                 visual_field_delimiter, Update.title, Update.body_html
             ),
@@ -186,8 +189,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         },
         'project_crew': {'read': {'body'}},
         'editor': {'write': {'title', 'body'}, 'read': {'body'}},
-        'reader': {'read': {'body'}},  # For views
-        'recipient': {'read': {'body'}},  # For notifications
+        'reader': {'read': {'body'}},
+        'recipient': {},  # Only used for notifications; does not grant any read access
     }
 
     __datasets__ = {
@@ -234,35 +237,67 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         """Represent :class:`Update` as a string."""
         return f'<Update "{self.title}" {self.uuid_b58}>'
 
-    @role_check('reader', 'recipient')
+    @role_check('reader')
     def has_reader_role(self, actor: Account | None) -> bool:
         """Check if the given actor is a reader based on the Update's visibility."""
         if not self.state.PUBLISHED:
-            # Update must be published to allow anyone to read
+            # Update must be published to allow anyone other than crew to read
             return False
         if self.visibility_state.PUBLIC:
             return True
         project_roles = self.project.roles_for(actor)
         if self.visibility_state.PARTICIPANTS:
             return 'participant' in project_roles
-        return 'account_member' in project_roles
+        if self.visibility_state.MEMBERS:
+            return 'member_participant' in project_roles
 
-    @has_reader_role.iterable
+        raise RuntimeError("This update has an unexpected state")
+
+    # 'reader' is a non-enumerated role, like `all`, `auth` and `anon`
+
+    @role_check('recipient')
+    def has_recipient_role(self, actor: Account | None) -> bool:
+        """Check if the given actor is an intended notification recipient."""
+        if actor is None or not self.state.PUBLISHED:
+            return False
+        roles = self.roles_for(actor)
+        if 'project_crew' in roles:
+            # Crew members are always recipients of updates
+            return True
+        if self.visibility_state.PUBLIC:
+            return roles.has_any({'project_participant', 'account_follower'})
+        if self.visibility_state.PARTICIPANTS:
+            return 'project_participant' in roles
+        if self.visibility_state.MEMBERS:
+            return 'member_participant' in roles
+
+        raise RuntimeError("This update has an unexpected state")
+
+    @has_recipient_role.iterable
     def _(self) -> Iterable[Account]:
-        """Iterate through accounts that are readers or recipients."""
+        """Iterate through accounts that should receive a notification."""
         if not self.state.PUBLISHED:
             # If the update isn't published, return an empty iterable
             return ()
         if self.visibility_state.PUBLIC:
-            # Return all members and followers of project, plus participants
-            return self.actors_with({'account_participant'})
+            # Return all project crew and participants, plus members and followers of
+            # the host account
+            return self.actors_with(
+                {
+                    'project_crew',
+                    'project_participant',
+                    'account_member',
+                    'account_follower',
+                }
+            )
         if self.visibility_state.PARTICIPANTS:
-            # Return all project participants
-            return self.actors_with({'project_participant'})
+            # Return project crew and participants only
+            return self.actors_with({'project_crew', 'project_participant'})
         if self.visibility_state.MEMBERS:
-            # Return all account members
-            return self.actors_with({'account_member'})
-        raise RuntimeError("Unknown visibility state")
+            # Return project participants who are also account members
+            return self.actors_with({'project_crew', 'member_participant'})
+
+        raise RuntimeError("This update has an unexpected state")
 
     @property
     def visibility(self) -> str:
@@ -336,7 +371,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
 
     @with_roles(call={'editor'})
     @state.transition(state.DELETED, state.DRAFT)
-    def undo_delete(self) -> None:
+    def undelete(self) -> None:
         self.deleted_by = None
         self.deleted_at = None
 

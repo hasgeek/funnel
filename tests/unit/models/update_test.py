@@ -120,6 +120,13 @@ def rincewind_participant(
 # --- Tests ----------------------------------------------------------------------------
 
 
+def test_update_recipient_gets_no_access() -> None:
+    """Update has a 'recipient' role that grants no access whatsoever."""
+    assert 'recipient' in models.Update.__roles__
+    for key in ('read', 'write', 'call'):
+        assert not models.Update.__roles__['recipient'].get(key)
+
+
 @pytest.mark.parametrize(
     ('update1', 'update2', 'update3'),
     permutations(['public_update', 'participant_update', 'member_update']),

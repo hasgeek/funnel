@@ -6,7 +6,7 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import Account, NewUpdateNotification, Update
+from ...models import Account, ProjectUpdateNotification, Update
 from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -29,7 +29,7 @@ class UpdateTemplate(TemplateVarMixin, SmsTemplate):
 
 
 class UpdateProjectTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for Updates"""
+    """DLT registered template for Updates."""
 
     registered_template = (
         "There is an update in {#var#} / {#var#}. Details here: {#var#}"
@@ -45,7 +45,7 @@ class UpdateProjectTemplate(TemplateVarMixin, SmsTemplate):
     url: str
 
 
-@NewUpdateNotification.renderer
+@ProjectUpdateNotification.renderer
 class RenderNewUpdateNotification(RenderNotification):
     """Notify crew and participants when the project has a new update."""
 

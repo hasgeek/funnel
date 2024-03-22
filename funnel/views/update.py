@@ -19,7 +19,7 @@ from coaster.views import (
 from .. import app
 from ..auth import current_auth
 from ..forms import SavedProjectForm, UpdateForm, UpdatePinForm
-from ..models import Account, NewUpdateNotification, Project, Update, db
+from ..models import Account, Project, ProjectUpdateNotification, Update, db
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
@@ -30,7 +30,7 @@ from .project import ProjectViewBase
 
 @Project.views('updates')
 @route('/<account>/<project>/updates', init_app=app)
-class ProjectUpdatesView(ProjectViewBase):
+class ProjectUpdateView(ProjectViewBase):
     @route('', methods=['GET'])
     @render_with(html_in_json('project_updates.html.jinja2'))
     @requires_roles({'reader'})
@@ -128,7 +128,11 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
             db.session.commit()
             flash(_("The update has been published"), 'success')
             if first_publishing:
-                dispatch_notification(NewUpdateNotification(document=self.obj))
+                dispatch_notification(
+                    ProjectUpdateNotification(
+                        document=self.obj.project, fragment=self.obj
+                    )
+                )
         else:
             flash(
                 _("There was an error publishing this update. Reload and try again"),

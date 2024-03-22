@@ -1267,9 +1267,7 @@ def login(
         # TODO: Test this
         client.delete_cookie('lastuser', domain=app.config['LASTUSER_COOKIE_DOMAIN'])
 
-    return SimpleNamespace(  # pyright: ignore[reportGeneralTypeIssues]
-        as_=as_, logout=logout
-    )
+    return SimpleNamespace(as_=as_, logout=logout)  # pyright: ignore[reportReturnType]
 
 
 # --- Sample data: users, organizations, projects, etc ---------------------------------

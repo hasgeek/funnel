@@ -74,7 +74,9 @@ def update_notification_recipient(
     project_update: models.Update,
 ) -> models.NotificationRecipient:
     """Get a user notification for the update fixture."""
-    notification = models.NewUpdateNotification(project_update)
+    notification = models.ProjectUpdateNotification(
+        document=project_update.project, fragment=project_update
+    )
     db_session.add(notification)
     db_session.commit()
 

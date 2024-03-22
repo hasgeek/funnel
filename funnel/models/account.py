@@ -1394,7 +1394,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         return None
 
     @property
-    def _self_is_owner_and_admin_of_self(self) -> Account | None:
+    def _self_is_owner_of_self(self) -> Account | None:
         """
         Return self in a user account.
 
@@ -1403,7 +1403,10 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         """
         return self if self.is_user_profile else None
 
-    with_roles(_self_is_owner_and_admin_of_self, grants={'owner', 'admin', 'member'})
+    with_roles(
+        _self_is_owner_of_self,
+        grants={'follower', 'member', 'admin', 'owner'},
+    )
 
     def organizations_as_owner_ids(self) -> list[int]:
         """

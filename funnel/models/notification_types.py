@@ -18,7 +18,7 @@ from .update import Update
 
 __all__ = [
     'AccountPasswordNotification',
-    'NewUpdateNotification',
+    'ProjectUpdateNotification',
     'CommentReportReceivedNotification',
     'CommentReplyNotification',
     'NewCommentNotification',
@@ -111,10 +111,10 @@ class RegistrationCancellationNotification(
     allow_web = False
 
 
-class NewUpdateNotification(
-    DocumentHasProject, Notification[Update, None], type='update_new'
+class ProjectUpdateNotification(
+    DocumentHasAccount, Notification[Project, Update], type='project_update'
 ):
-    """Notifications of new updates."""
+    """Notification of a new update in a project."""
 
     category = notification_categories.participant
     title = __("When a project posts an update")

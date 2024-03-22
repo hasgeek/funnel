@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from datetime import datetime, timedelta
 from enum import ReprEnum
 from typing import TYPE_CHECKING, Any, Literal, Self, cast, overload
@@ -23,6 +23,7 @@ from coaster.sqlalchemy import (
     LazyRoleSet,
     ManagedState,
     StateManager,
+    role_check,
     with_roles,
 )
 from coaster.utils import LabeledEnum, buid, utcnow
@@ -102,11 +103,12 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     account: Mapped[Account] = with_roles(
         relationship(foreign_keys=[account_id], back_populates='projects'),
         read={'all'},
-        # If account grants an 'admin' role, make it 'account_admin' here
+        # Remap account roles for use in project
         grants_via={
             None: {
+                'owner': 'account_owner',
                 'admin': 'account_admin',
-                'follower': 'account_participant',
+                'follower': 'account_follower',
                 'member': 'account_member',
             }
         },
@@ -686,6 +688,29 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
             return self.joined_title
         return format(self.joined_title, format_spec)
 
+    @role_check('member_participant')
+    def has_member_participant_role(self, actor: Account | None) -> bool:
+        """Confirm if the actor is both a participant and an account member."""
+        if actor is None:
+            return False
+        roles = self.roles_for(actor)
+        if 'participant' in roles and 'account_member' in roles:
+            return True
+        return False
+
+    @has_member_participant_role.iterable
+    def _(self) -> Iterable[Account]:
+        """All participants who are also account members."""
+        # TODO: This iterable causes a loop of SQL queries. It will be far more efficient to SQL
+        # JOIN the data sources once they are single-table sources. Rsvp needs to merge
+        # into ProjectMembership, and AccountMembership needs to replace the hacky
+        # "membership project" data source.
+        return (
+            account
+            for account in self.actors_with({'participant'})
+            if 'account_member' in self.roles_for(account)
+        )
+
     @with_roles(call={'editor'})
     @cfp_state.transition(
         cfp_state.OPENABLE,
@@ -928,21 +953,19 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         return Rsvp.get_for(self, account, create)
 
     def rsvps_with(self, state: RsvpStateEnum) -> Query[Rsvp]:
+        # pylint: disable=protected-access
         return self.rsvps.join(Account).filter(
-            Account.state.ACTIVE,
-            Rsvp._state == state,  # pylint: disable=protected-access
+            Account.state.ACTIVE, Rsvp._state == state
         )
 
     def rsvp_counts(self) -> dict[str, int]:
+        # pylint: disable=protected-access
         return {
             row[0]: row[1]
-            for row in db.session.query(
-                Rsvp._state,  # pylint: disable=protected-access
-                sa.func.count(Rsvp._state),  # pylint: disable=protected-access
-            )
+            for row in db.session.query(Rsvp._state, sa.func.count(Rsvp._state))
             .join(Account)
             .filter(Account.state.ACTIVE, Rsvp.project == self)
-            .group_by(Rsvp._state)  # pylint: disable=protected-access
+            .group_by(Rsvp._state)
             .all()
         }
 
