@@ -14,9 +14,9 @@ const Ticketing = {
     boxofficeUrl,
     widgetElem,
     org,
-    itemCollectionId,
-    itemCollectionTitle,
-    userFullname,
+    menuId,
+    menuTitle,
+    userName,
     userEmail,
     userPhone,
   }) {
@@ -75,10 +75,10 @@ const Ticketing = {
       () => {
         window.Boxoffice.init({
           org,
-          itemCollection: itemCollectionId,
-          menu: itemCollectionId,
-          paymentDesc: itemCollectionTitle,
-          user_name: userFullname,
+          itemCollection: menuId,
+          menu: menuId,
+          paymentDesc: menuTitle,
+          user_name: userName,
           user_email: userEmail,
           user_phone: userPhone,
         });

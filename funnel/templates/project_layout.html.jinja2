@@ -531,9 +531,9 @@
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
           org: {{ project.boxoffice_data.org|tojson }},
-          itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
-          itemCollectionTitle: {{ project.title|tojson }},
-          userFullname: '{{current_auth.user.fullname }}',
+          menuId: {{ project.boxoffice_data.item_collection_id|tojson }},
+          menuTitle: {{ project.title|tojson }},
+          userName: {{current_auth.user.fullname|tojson }},
           userEmail: '{{ current_auth.user.email }}',
           userPhone: '{{ current_auth.user.phone }}',
         };
