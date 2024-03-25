@@ -19,19 +19,19 @@ Feature: Post a public update
     Then the update is sent to everyone who signed up for the 2011 edition
     And the update is sent to everyone who signed up for a past edition
 
-  Scenario: Vimes posts a public notice about the venue and facilities. 
+  Scenario: Vimes posts a public notice about the venue and facilities.
     And Vimes is also an editor of the 2011 expo project
     Given that Vimes has drafted an update about the venue, parking and check-in procedure
     And Vimes has published the update
     Then the update is sent to everyone who signed up for the 2011 edition
     And the update is sent to everyone who signed up for a past edition
 
-  Scenario: Vimes posts a public notice about the speakers of 2011 expo.      
+  Scenario: Vimes posts a public notice about the speakers of 2011 expo.
     Given that Vimes has drafted an update in this project for the public announcement
     And Vimes has added links for each speaker's talk.
     Then the update is sent to everyone who signed up for the 2011 edition
     And the update is sent to everyone who signed up for a past edition
-    And Twoflower is redirected to the descriptions each time he clicks on the talk links 
+    And Twoflower is redirected to the descriptions each time he clicks on the talk links
 
   Scenario: Vimes posts a public notice about the schedule for 2011 expo.
     Given that Vimes has drafted an update in this project for the public announcement
