@@ -106,12 +106,12 @@
           org: {{ featured_project.boxoffice_data.org|tojson }},
           menuId: {{ featured_project.boxoffice_data.item_collection_id|tojson }},
           menuTitle: {{ featured_project.title|tojson }}
-          {% if current_auth.user -%}
+          {%- if current_auth.user -%}
           ,
           userName: {{current_auth.user.fullname|tojson }},
           userEmail: {{ current_auth.user.email|tojson }},
           userPhone: {{ current_auth.user.phone|tojson }}
-          {% endif -%}
+          {%- endif -%}
         };
       {%- endif %}
       window.Hasgeek.homeInit('.markdown', tickets);

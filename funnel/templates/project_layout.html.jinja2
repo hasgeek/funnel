@@ -533,12 +533,12 @@
           org: {{ project.boxoffice_data.org|tojson }},
           menuId: {{ project.boxoffice_data.item_collection_id|tojson }},
           menuTitle: {{ project.title|tojson }}
-          {% if current_auth.user -%}
+          {%- if current_auth.user -%}
           ,
           userName: {{current_auth.user.fullname|tojson }},
           userEmail: {{ current_auth.user.email|tojson }},
           userPhone: {{ current_auth.user.phone|tojson }}
-          {% endif -%}
+          {%- endif -%}
         };
       {%- endif %}
       {% if current_auth.user and current_auth.user.is_site_editor %}
