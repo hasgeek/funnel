@@ -6,7 +6,7 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import Account, ProjectUpdateNotification, Update
+from ...models import Account, Project, ProjectUpdateNotification, Update
 from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -46,11 +46,12 @@ class UpdateProjectTemplate(TemplateVarMixin, SmsTemplate):
 
 
 @ProjectUpdateNotification.renderer
-class RenderNewUpdateNotification(RenderNotification):
+class RenderProjectUpdateNotification(RenderNotification):
     """Notify crew and participants when the project has a new update."""
 
+    project: Project
     update: Update
-    aliases = {'document': 'update'}
+    aliases = {'document': 'project', 'fragment': 'update'}
     emoji_prefix = "📰 "
     reason = __(
         "You are receiving this because you have registered for this or related"
@@ -69,7 +70,9 @@ class RenderNewUpdateNotification(RenderNotification):
         return self.update.created_by
 
     def web(self) -> str:
-        return render_template('notifications/update_new_web.html.jinja2', view=self)
+        return render_template(
+            'notifications/project_update_web.html.jinja2', view=self
+        )
 
     def email_subject(self) -> str:
         return self.emoji_prefix + _("{update} ({project})").format(
@@ -77,7 +80,9 @@ class RenderNewUpdateNotification(RenderNotification):
         )
 
     def email_content(self) -> str:
-        return render_template('notifications/update_new_email.html.jinja2', view=self)
+        return render_template(
+            'notifications/project_update_email.html.jinja2', view=self
+        )
 
     def sms(self) -> UpdateTemplate:
         return UpdateTemplate(

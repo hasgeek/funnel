@@ -50,7 +50,7 @@ How it works:
     now queues a third series of background workers, for each of the supported
     transports if at least one recipient in that batch wants to use that transport.
 
-6. A separate render view class named RenderNewUpdateNotification contains methods named
+6. A separate render view class named RenderNotification contains methods named
     like `web`, `email`, `sms` and others. These are expected to return a rendered
     message. The `web` render is used for the notification feed page on the website.
 
