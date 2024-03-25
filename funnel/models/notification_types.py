@@ -131,6 +131,10 @@ class ProjectUpdateNotification(
 
     @property
     def roles(self) -> list[str]:
+        """Target roles based on Update visibility state."""
+        # TODO: Use match/case matching here. If states use a Python Enum, Mypy will
+        # do an exhaustiveness check, so the closing RuntimeError is not needed.
+        # https://github.com/python/mypy/issues/6366
         visibility = self.fragment.visibility_state
         if visibility.PUBLIC:
             return ['project_crew', 'project_participant', 'account_follower']

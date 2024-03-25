@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from datetime import datetime, timedelta
 from enum import ReprEnum
 from typing import TYPE_CHECKING, Any, Literal, Self, cast, overload
@@ -20,7 +20,6 @@ from werkzeug.utils import cached_property
 from baseframe import __, localize_timezone
 from coaster.sqlalchemy import (
     DynamicAssociationProxy,
-    LazyRoleSet,
     ManagedState,
     StateManager,
     role_check,
@@ -982,13 +981,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         self.start_at = self.schedule_start_at
         self.end_at = self.schedule_end_at
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
-        roles.add('reader')
-        return roles
+    @role_check('reader')
+    def has_reader_role(self, _actor: Account | None) -> bool:
+        """Unconditionally grant reader role (for now)."""
+        return True
 
     def is_safe_to_delete(self) -> bool:
         """Return True if project has no proposals."""

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import itertools
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Iterable, Iterator
 from datetime import datetime
 from typing import (
     TYPE_CHECKING,
@@ -35,13 +35,13 @@ from zbase32 import decode as zbase32_decode, encode as zbase32_encode
 from baseframe import __
 from coaster.sqlalchemy import (
     DynamicAssociationProxy,
-    LazyRoleSet,
     RoleMixin,
     StateManager,
     add_primary_relationship,
     auto_init_default,
     failsafe_add,
     immutable,
+    role_check,
     with_roles,
 )
 from coaster.utils import LabeledEnum, newsecret, require_one_of, utcnow
@@ -925,6 +925,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         'polymorphic_on': type_,
         # When querying the Account model, cast automatically to all subclasses
         'with_polymorphic': '*',
+        # Store a version id in this column to prevent edits to obsolete data
         'version_id_col': revisionid,
     }
 
@@ -1043,14 +1044,10 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
 
     with_roles(pickername, read={'all'})
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        """Identify roles for the given actor."""
-        roles = super().roles_for(actor, anchors)
-        if self.profile_state.ACTIVE_AND_PUBLIC:
-            roles.add('reader')
-        return roles
+    @role_check('reader')
+    def has_reader_role(self, actor: Account | None) -> bool:
+        """Grant 'reader' role to all if the profile state is active and public."""
+        return bool(self.profile_state.ACTIVE_AND_PUBLIC)
 
     @cached_property
     def verified_contact_count(self) -> int:

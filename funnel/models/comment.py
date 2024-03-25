@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from werkzeug.utils import cached_property
 
 from baseframe import _, __
-from coaster.sqlalchemy import LazyRoleSet, RoleAccessProxy, StateManager, with_roles
+from coaster.sqlalchemy import (
+    LazyRoleSet,
+    RoleAccessProxy,
+    StateManager,
+    role_check,
+    with_roles,
+)
 from coaster.utils import LabeledEnum
 
 from .account import (
@@ -204,14 +209,12 @@ class Commentset(UuidMixin, BaseMixin[int, Account], Model):
 
     with_roles(last_comment, read={'all'}, datasets={'primary'})
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        parent_roles = self.parent.roles_for(actor, anchors)
-        if 'participant' in parent_roles or 'commenter' in parent_roles:
-            roles.add('parent_participant')
-        return roles
+    @role_check('parent_participant')
+    def has_parent_participant_role(self, actor: Account | None) -> bool:
+        """Confirm if the actor is a participant in the parent object."""
+        return (parent := self.parent) is not None and parent.roles_for(actor).has_any(
+            {'participant', 'commenter'}
+        )
 
     @with_roles(call={'all'})
     @state.requires(state.NOT_DISABLED)
@@ -521,12 +524,10 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
             CommentModeratorReport.reported_by == account,
         ).notempty()
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        roles.add('reader')
-        return roles
+    @role_check('reader')
+    def has_reader_role(self, _actor: Account | None) -> bool:
+        """Everyone is always a reader (for now)."""
+        return True
 
 
 add_search_trigger(Comment, 'search_vector')
