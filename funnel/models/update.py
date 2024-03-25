@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from datetime import datetime
 from typing import Any, Self
 
@@ -190,7 +189,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         'project_crew': {'read': {'body'}},
         'editor': {'write': {'title', 'body'}, 'read': {'body'}},
         'reader': {'read': {'body'}},
-        'recipient': {},  # Only used for notifications; does not grant any read access
     }
 
     __datasets__ = {
@@ -249,55 +247,11 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         if self.visibility_state.PARTICIPANTS:
             return 'participant' in project_roles
         if self.visibility_state.MEMBERS:
-            return 'member_participant' in project_roles
+            return 'account_member' in project_roles
 
         raise RuntimeError("This update has an unexpected state")
 
     # 'reader' is a non-enumerated role, like `all`, `auth` and `anon`
-
-    @role_check('recipient')
-    def has_recipient_role(self, actor: Account | None) -> bool:
-        """Check if the given actor is an intended notification recipient."""
-        if actor is None or not self.state.PUBLISHED:
-            return False
-        roles = self.roles_for(actor)
-        if 'project_crew' in roles:
-            # Crew members are always recipients of updates
-            return True
-        if self.visibility_state.PUBLIC:
-            return roles.has_any({'project_participant', 'account_follower'})
-        if self.visibility_state.PARTICIPANTS:
-            return 'project_participant' in roles
-        if self.visibility_state.MEMBERS:
-            return 'member_participant' in roles
-
-        raise RuntimeError("This update has an unexpected state")
-
-    @has_recipient_role.iterable
-    def _(self) -> Iterable[Account]:
-        """Iterate through accounts that should receive a notification."""
-        if not self.state.PUBLISHED:
-            # If the update isn't published, return an empty iterable
-            return ()
-        if self.visibility_state.PUBLIC:
-            # Return all project crew and participants, plus members and followers of
-            # the host account
-            return self.actors_with(
-                {
-                    'project_crew',
-                    'project_participant',
-                    'account_member',
-                    'account_follower',
-                }
-            )
-        if self.visibility_state.PARTICIPANTS:
-            # Return project crew and participants only
-            return self.actors_with({'project_crew', 'project_participant'})
-        if self.visibility_state.MEMBERS:
-            # Return project participants who are also account members
-            return self.actors_with({'project_crew', 'member_participant'})
-
-        raise RuntimeError("This update has an unexpected state")
 
     @property
     def visibility(self) -> str:

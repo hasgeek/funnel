@@ -283,7 +283,7 @@ class NotificationType(Generic[_D, _F], Protocol):
     eventid_b58: str
     document: _D
     document_uuid: UUID
-    fragment: _F | None
+    fragment: _F
     fragment_uuid: UUID | None
     created_at: datetime
     created_by_id: int | None
@@ -350,13 +350,16 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     document_type: ClassVar[str]
 
     #: Fragment model, optional for subclasses
-    fragment_model: ClassVar[type[ModelUuidProtocol] | None] = None
+    fragment_model: ClassVar[type[ModelUuidProtocol] | None]
     #: SQL table name for fragment type, auto-populated from the fragment model
     fragment_type: ClassVar[str | None]
 
     #: Roles to send notifications to. Roles must be in order of priority for situations
-    #: where a user has more than one role on the document.
-    roles: ClassVar[Sequence[str]] = []
+    #: where a user has more than one role on the document. The notification can
+    #: customize target roles based on the document or fragment's properties
+    @property
+    def roles(self) -> Sequence[str]:
+        return []
 
     #: Exclude triggering actor from receiving notifications? Subclasses may override
     exclude_actor: ClassVar[bool] = False
@@ -609,7 +612,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
         )
 
     @cached_property
-    def fragment(self) -> _F | None:
+    def fragment(self) -> _F:
         """
         Retrieve the fragment within a document referenced by this Notification, if any.
 
@@ -620,7 +623,8 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
             return cast(
                 _F, self.fragment_model.query.filter_by(uuid=self.fragment_uuid).one()
             )
-        return None
+        # TypeVar _F may be typed `None` in a subclass, but we can't type it so here
+        return None  # type: ignore[return-value]
 
     @classmethod
     def renderer(cls, view: type[T]) -> type[T]:

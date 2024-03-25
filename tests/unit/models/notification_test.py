@@ -1,6 +1,7 @@
 """Tests for Notification and UserNotification models."""
 
 # pylint: disable=possibly-unused-variable,redefined-outer-name
+# pyright: reportAssignmentType=false
 
 from __future__ import annotations
 
@@ -226,7 +227,7 @@ def test_update_notification_structure(
     update: models.Update,
     db_session: scoped_session,
 ) -> None:
-    """Test whether a NewUpdateNotification has the appropriate structure."""
+    """Test whether a TestNewUpdateNotification has the appropriate structure."""
     project_fixtures.refresh()
     notification = notification_types.TestNewUpdateNotification(update)
     db_session.add(notification)
@@ -253,7 +254,7 @@ def test_update_notification_structure(
     # A second call to dispatch() will yield nothing
     assert not list(notification.dispatch())
 
-    # Notifications are issued strictly in the order specified in cls.roles
+    # Notifications are issued strictly in the order specified in notification.roles
     role_order: list[str] = []
     for nr in notification_recipients:
         if nr.role in role_order:

@@ -1,5 +1,10 @@
 """Notification types."""
 
+# Pyright complains that a property in the base class (for `roles`) has become a
+# classvar in the subclass. Mypy does not. Silence Pyright here
+
+# pyright: reportAssignmentType=false
+
 from __future__ import annotations
 
 from baseframe import __
@@ -122,8 +127,19 @@ class ProjectUpdateNotification(
         "Typically contains critical information such as video conference links"
     )
 
-    roles = ['project_crew', 'recipient']
     exclude_actor = False  # Send to everyone including the actor
+
+    @property
+    def roles(self) -> list[str]:
+        visibility = self.fragment.visibility_state
+        if visibility.PUBLIC:
+            return ['project_crew', 'project_participant', 'account_follower']
+        if visibility.PARTICIPANTS:
+            return ['project_crew', 'project_participant']
+        if visibility.MEMBERS:
+            return ['project_crew', 'project_participant', 'account_member']
+
+        raise RuntimeError("Unknown update visibility state")
 
 
 class ProposalSubmittedNotification(

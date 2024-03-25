@@ -75,7 +75,7 @@ def notification_recipient1(
         eventid=notification.eventid,
         recipient_id=fixtures.user1.id,
         notification_id=notification.id,
-        role=models.OrganizationAdminMembershipNotification.roles[-1],
+        role=notification.roles[-1],
     )
     db_session.add(nr)
     db_session.commit()
@@ -92,7 +92,7 @@ def notification_recipient2(
         eventid=notification.eventid,
         recipient_id=fixtures.user2.id,
         notification_id=notification.id,
-        role=models.OrganizationAdminMembershipNotification.roles[-1],
+        role=notification.roles[-1],
     )
     db_session.add(nr)
     db_session.commit()
