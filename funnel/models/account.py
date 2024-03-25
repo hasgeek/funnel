@@ -2169,6 +2169,8 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         """Email address as a string."""
         return self.email or ''
 
+    __json__ = __str__
+
     @property
     def primary(self) -> bool:
         """Check whether this email address is the user's primary."""
@@ -2513,6 +2515,8 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
     def __str__(self) -> str:
         """Return phone number as a string."""
         return self.phone or ''
+
+    __json__ = __str__
 
     @cached_property
     def parsed(self) -> phonenumbers.PhoneNumber | None:
