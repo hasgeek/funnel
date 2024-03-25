@@ -48,17 +48,15 @@ class ProjectSponsorLandingView(ProjectViewBase):
                     ProjectSponsorMembership.member == form.member.data,
                 ).one_or_none()
                 if existing_sponsorship is not None:
-                    return (
-                        {
-                            'status': 'error',
-                            'error_description': _(
-                                "{sponsor} is already a sponsor"
-                            ).format(sponsor=form.member.data.pickername),
-                            'errors': form.errors,
-                            'form_nonce': form.form_nonce.data,
-                        },
-                        400,
-                    )
+                    return {
+                        'status': 'error',
+                        'error_description': _("{sponsor} is already a sponsor").format(
+                            sponsor=form.member.data.pickername
+                        ),
+                        'errors': form.errors,
+                        'form_nonce': form.form_nonce.data,
+                    }, 400
+
                 sponsor_membership = ProjectSponsorMembership(
                     project=self.obj,
                     granted_by=current_auth.user,
@@ -68,15 +66,13 @@ class ProjectSponsorLandingView(ProjectViewBase):
                 db.session.commit()
                 flash(_("Sponsor has been added"), 'info')
                 return render_redirect(self.obj.url_for())
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("Sponsor could not be added"),
-                    'errors': form.errors,
-                    'form_nonce': form.form_nonce.data,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error_description': _("Sponsor could not be added"),
+                'errors': form.errors,
+                'form_nonce': form.form_nonce.data,
+            }, 400
+
         return render_template(
             'project_sponsor_popup.html.jinja2',
             project=self.obj,
@@ -153,15 +149,13 @@ class ProjectSponsorView(
                     return render_redirect(self.obj.project.url_for())
 
             else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_description': _("Sponsor could not be edited"),
-                        'errors': form.errors,
-                        'form_nonce': form.form_nonce.data,
-                    },
-                    400,
-                )
+                return {
+                    'status': 'error',
+                    'error_description': _("Sponsor could not be edited"),
+                    'errors': form.errors,
+                    'form_nonce': form.form_nonce.data,
+                }, 400
+
         return render_template(
             'project_sponsor_popup.html.jinja2',
             project=self.obj.project,
@@ -181,15 +175,12 @@ class ProjectSponsorView(
                 flash(_("Sponsor has been removed"), 'info')
                 return render_redirect(self.obj.project.url_for())
 
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("Sponsor could not be removed"),
-                    'errors': form.errors,
-                    'form_nonce': form.form_nonce.data,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error_description': _("Sponsor could not be removed"),
+                'errors': form.errors,
+                'form_nonce': form.form_nonce.data,
+            }, 400
 
         return render_template(
             'project_sponsor_popup.html.jinja2',

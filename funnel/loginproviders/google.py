@@ -55,6 +55,7 @@ class GoogleProvider(LoginProvider):
                 },
             ).json()
         except (
+            TimeoutError,
             client.FlowExchangeError,
             requests.exceptions.RequestException,
             requests.exceptions.JSONDecodeError,

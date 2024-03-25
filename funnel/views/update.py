@@ -151,15 +151,12 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
             flash(_("The update has been edited"), 'success')
             return render_redirect(self.obj.url_for())
         if request.form.get('form.id') == 'pin':
-            return (
-                {
-                    'status': 'error',
-                    'error': 'pin_form_invalid',
-                    'error_description': _("This page timed out. Reload and try again"),
-                    'form_nonce': form.form_nonce.data,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error': 'pin_form_invalid',
+                'error_description': _("This page timed out. Reload and try again"),
+                'form_nonce': form.form_nonce.data,
+            }, 422
         return render_form(
             form=form,
             title=_("Edit update"),
@@ -184,13 +181,13 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
             title=_("Confirm delete"),
             message=(
                 _(
-                    "Delete this draft update? This operation is permanent and cannot be"
-                    " undone"
+                    "Delete this draft update? This operation is permanent and cannot"
+                    " be undone"
                 )
                 if self.obj.state.UNPUBLISHED
                 else _(
-                    "Delete this update? This update’s number (#{number}) will be skipped"
-                    " for the next update"
+                    "Delete this update? This update’s number (#{number}) will be"
+                    " skipped for the next update"
                 ).format(number=self.obj.number)
             ),
             submit=_("Delete"),

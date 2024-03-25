@@ -690,13 +690,11 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     @property
     def public_proposal_memberships(self) -> Query[ProposalMembership]:
         """Query for all proposal memberships to proposals that are public."""
+        # TODO: Include proposal state filter (pending proposal workflow fix)
         return (
             self.proposal_memberships.join(Proposal, ProposalMembership.proposal)
             .join(Project, Proposal.project)
-            .filter(
-                ProposalMembership.is_uncredited.is_(False),
-                # TODO: Include proposal state filter (pending proposal workflow fix)
-            )
+            .filter(ProposalMembership.is_uncredited.is_(False))
         )
 
     public_proposals = DynamicAssociationProxy['Proposal'](
@@ -2171,6 +2169,8 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         """Email address as a string."""
         return self.email or ''
 
+    __json__ = __str__
+
     @property
     def primary(self) -> bool:
         """Check whether this email address is the user's primary."""
@@ -2515,6 +2515,8 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
     def __str__(self) -> str:
         """Return phone number as a string."""
         return self.phone or ''
+
+    __json__ = __str__
 
     @cached_property
     def parsed(self) -> phonenumbers.PhoneNumber | None:

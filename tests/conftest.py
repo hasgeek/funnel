@@ -100,8 +100,8 @@ def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:
         module_file = item.module.__file__ if item.module is not None else ''
         for counter, path in enumerate(test_order):
             if path in module_file:
-                return (counter, module_file)
-        return (-1, module_file)
+                return counter, module_file
+        return -1, module_file
 
     items.sort(key=sort_key)
 

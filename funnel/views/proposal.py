@@ -261,15 +261,13 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
                         ],
                     ),
                 }, 201
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("Pick a user to be added"),
-                    'errors': collaborator_form.errors,
-                    'form_nonce': collaborator_form.form_nonce.data,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error_description': _("Pick a user to be added"),
+                'errors': collaborator_form.errors,
+                'form_nonce': collaborator_form.form_nonce.data,
+            }, 400
+
         return render_form(
             form=collaborator_form,
             title='',
@@ -378,10 +376,11 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
                 'status': 'ok',
                 'message': _("This submission is no longer featured"),
             }
-        return (
-            {'status': 'error', 'error': 'validation', 'errors': featured_form.errors},
-            422,
-        )
+        return {
+            'status': 'error',
+            'error': 'validation',
+            'errors': featured_form.errors,
+        }, 422
 
     @route('schedule', methods=['GET', 'POST'])
     @requires_login

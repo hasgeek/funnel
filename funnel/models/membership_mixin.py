@@ -158,7 +158,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
         """Legacy alias for member in this membership record."""
         return sa_orm.synonym('member')
 
-    __table_args__: tuple  # pyright: ignore[reportGeneralTypeIssues]
+    __table_args__: tuple  # pyright: ignore[reportRedeclaration]
 
     @declared_attr.directive  # type: ignore[no-redef]
     @classmethod
@@ -524,7 +524,7 @@ class ReorderMembershipMixin(ImmutableMembershipMixin, ReorderMixin):
     #: on `seq` being mutable in a future iteration.
     seq: Mapped[int] = sa_orm.mapped_column(nullable=False)
 
-    __table_args__: tuple  # pyright: ignore[reportGeneralTypeIssues]
+    __table_args__: tuple  # pyright: ignore[reportRedeclaration]
 
     @declared_attr.directive  # type: ignore[no-redef]
     @classmethod

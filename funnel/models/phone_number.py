@@ -820,11 +820,8 @@ class OptionalPhoneNumberMixin:
     @property
     def transport_hash(self) -> str | None:
         """Phone hash using the compatibility name for notifications framework."""
-        return (
-            self.phone_number.phone_hash
-            if self.phone_number  # pylint: disable=using-constant-test
-            else None
-        )
+        # pylint: disable=using-constant-test
+        return self.phone_number.phone_hash if self.phone_number else None
 
 
 @declarative_mixin
