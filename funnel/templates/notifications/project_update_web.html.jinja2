@@ -1,14 +1,40 @@
 {% extends "notifications/layout_web.html.jinja2" %}
+
 {% block content %}
-  <p>
-    {%- trans actor=view.actor.pickername, project=view.update.project.joined_title, project_url=view.update.project.url_for() -%}
-      {{ actor }} posted an update in <a href="{{ project_url }}">{{ project }}</a>:
-    {%- endtrans %}
-  </p>
-  <h2 class="mui--text-headline text-bold">
-    <a class="mui--text-dark" href="{{ view.update.url_for() }}">{{ view.update.title }}</a>
-  </h2>
-  <div class="update__content mui--text-light markdown">
-    {{ view.update.body }}
-  </div>
+  {% if view.is_rollup %}
+    <p>
+      {%- trans project=view.update.project.joined_title, project_url=view.update.project.url_for() -%}
+        Updates in <a href="{{ project_url }}">{{ project }}</a>:
+      {%- endtrans %}
+    </p>
+    <ol class="list--aligned">
+      {%- for update in view.fragments %}
+        <li>
+          {%- trans url=update.url_for(), title=update.title, age=update.datetime|age -%}
+            <a href="{{ url }}">{{ title }}</a> ({{ age }})
+          {%- endtrans -%}
+        </li>
+      {%- endfor %}
+    </ol>
+  {% else %}
+    <p>
+      {%- trans actor=view.actor.pickername, project=view.update.project.joined_title, project_url=view.update.project.url_for() -%}
+        {{ actor }} posted an update in <a href="{{ project_url }}">{{ project }}</a>:
+      {%- endtrans %}
+    </p>
+    <h2 class="mui--text-headline text-bold">
+      <a class="mui--text-dark" href="{{ view.update.url_for() }}">{{ view.update.title }}</a>
+    </h2>
+    <div class="update__content mui--text-light markdown">
+      {{ view.update.body }}
+    </div>
+  {% endif %}
 {% endblock content %}
+
+{%- block avatar %}
+  {%- if view.is_rollup -%}
+    {{ useravatar(view.project.account) }}
+  {%- else -%}
+    {{ useravatar(view.actor) }}
+  {%- endif -%}
+{%- endblock avatar %}

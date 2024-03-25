@@ -33,12 +33,12 @@ class UpdateForm(forms.Form):
                 __("Public; account followers will be notified"),
             ),
             (
-                VISIBILITY_STATE[VISIBILITY_STATE.PARTICIPANTS].name,
-                __("Only project participants"),
-            ),
-            (
                 VISIBILITY_STATE[VISIBILITY_STATE.MEMBERS].name,
                 __("Only account members"),
+            ),
+            (
+                VISIBILITY_STATE[VISIBILITY_STATE.PARTICIPANTS].name,
+                __("Only project participants"),
             ),
         ],
     )
