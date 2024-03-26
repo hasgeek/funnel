@@ -181,7 +181,7 @@ class ProjectStartingNotification(
         " in-person session"
     )
 
-    roles = ['project_crew', 'project_participant']
+    dispatch_roles = ['project_crew', 'project_participant']
     # This is a notification triggered without an actor
 
 
