@@ -14,8 +14,11 @@ const Ticketing = {
     boxofficeUrl,
     widgetElem,
     org,
-    itemCollectionId,
-    itemCollectionTitle,
+    menuId,
+    menuTitle,
+    userName,
+    userEmail,
+    userPhone,
   }) {
     let url;
 
@@ -72,9 +75,11 @@ const Ticketing = {
       () => {
         window.Boxoffice.init({
           org,
-          itemCollection: itemCollectionId,
-          menu: itemCollectionId,
-          paymentDesc: itemCollectionTitle,
+          menu: menuId,
+          paymentDesc: menuTitle,
+          user_name: userName,
+          user_email: userEmail,
+          user_phone: userPhone,
         });
       },
       false
