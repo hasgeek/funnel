@@ -194,7 +194,7 @@ def test_getuser_anchor(
     )
     assert models.getuser('mort@example.net', True) == (user_mort, user_mort.email)
 
-    # Retrival by email claim only works when there is no verified email address
+    # Retrieval by email claim only works when there is no verified email address
     assert models.getuser('twoflower@example.org', True) != (
         user_wolfgang,
         user_wolfgang.emailclaims[0],

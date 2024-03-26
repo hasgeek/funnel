@@ -136,7 +136,7 @@ initpy-loginproviders:
 initpy-transports:
 	# Do not auto-gen funnel/transports/__init__.py, only sub-packages
 	mkinit --inplace --relative --black funnel/transports/email
-	mkinit --inplace --relative --black  funnel/transports/sms
+	mkinit --inplace --relative --black funnel/transports/sms
 	isort funnel/transports/*/__init__.py
 	black funnel/transports/*/__init__.py
 
