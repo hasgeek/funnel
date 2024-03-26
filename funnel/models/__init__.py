@@ -130,6 +130,7 @@ __all__ = [
     "ProjectRsvpStateEnum",
     "ProjectSponsorMembership",
     "ProjectStartingNotification",
+    "ProjectTomorrowNotification",
     "Proposal",
     "ProposalLabelProxy",
     "ProposalLabelProxyWrapper",

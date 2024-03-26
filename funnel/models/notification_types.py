@@ -155,8 +155,11 @@ class ProjectStartingNotification(
     """Notification of a session about to start."""
 
     category = notification_categories.participant
-    title = __("When a project I’ve registered for is about to start")
-    description = __("You will be notified 5-10 minutes before the starting time")
+    title = __("When a session is starting soon")
+    description = __(
+        "You will be notified shortly before an online session, or a day before an"
+        " in-person session"
+    )
 
     roles = ['project_crew', 'project_participant']
     # This is a notification triggered without an actor
@@ -164,7 +167,7 @@ class ProjectStartingNotification(
 
 class ProjectTomorrowNotification(
     DocumentHasAccount,
-    Notification[Project, Optional[Session]],
+    Notification[Project, Session | None],
     type='project_tomorrow',
     shadows=ProjectStartingNotification,
 ):

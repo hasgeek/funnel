@@ -112,7 +112,7 @@ class RenderProjectStartingNotification(RenderNotification):
             'notifications/project_starting_email.html.jinja2', view=self
         )
 
-    def sms(self) -> ProjectStartingTemplate:
+    def sms(self) -> SmsTemplate:
         return ProjectStartingTemplate(
             project=self.project,
             url=shortlink(
@@ -126,7 +126,7 @@ class RenderProjectStartingNotification(RenderNotification):
 class RenderProjectTomorrowNotification(RenderProjectStartingNotification):
     """Renderer for previous-day notice of an in-person session."""
 
-    email_heading = __("In-person event tomorrow!")
+    email_heading = __("In-person session tomorrow!")
 
     def web(self) -> str:
         return render_template(
@@ -148,9 +148,7 @@ class RenderProjectTomorrowNotification(RenderProjectStartingNotification):
             'notifications/project_tomorrow_email.html.jinja2', view=self
         )
 
-    def sms(  # type: ignore[override]
-        self,
-    ) -> ProjectStartingTomorrowVenueTemplate | ProjectStartingTomorrowLocationTemplate:
+    def sms(self) -> SmsTemplate:
         venue = self.project.primary_venue
         if venue is not None:
             return ProjectStartingTomorrowVenueTemplate(
