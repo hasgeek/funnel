@@ -21,7 +21,7 @@ from .helpers import MarkdownCompositeBasic
 from .project import Project
 from .project_membership import project_child_role_map, project_child_role_set
 
-__all__ = ['Venue', 'VenueRoom']
+__all__ = ['Venue', 'VenueRoom', 'project_venue_primary_table']
 
 
 class Venue(UuidMixin, BaseScopedNameMixin[int, Account], CoordinatesMixin, Model):
@@ -188,7 +188,9 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         return f'{self.parent.name}/{self.name}'
 
 
-add_primary_relationship(Project, 'primary_venue', Venue, 'project', 'project_id')
+project_venue_primary_table = add_primary_relationship(
+    Project, 'primary_venue', Venue, 'project', 'project_id'
+)
 with_roles(Project.primary_venue, read={'all'}, datasets={'primary', 'without_parent'})
 
 

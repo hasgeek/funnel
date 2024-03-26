@@ -177,6 +177,7 @@ from .notification_types import (
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
     ProjectStartingNotification,
+    ProjectTomorrowNotification,
     ProjectUpdateNotification,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
@@ -236,7 +237,7 @@ from .utils import (
     getuser,
     merge_accounts,
 )
-from .venue import Venue, VenueRoom
+from .venue import Venue, VenueRoom, project_venue_primary_table
 from .video_mixin import VideoError, VideoMixin, parse_video_url
 
 __all__ = [
@@ -353,6 +354,7 @@ __all__ = [
     "ProjectRsvpStateEnum",
     "ProjectSponsorMembership",
     "ProjectStartingNotification",
+    "ProjectTomorrowNotification",
     "ProjectUpdateNotification",
     "Proposal",
     "ProposalLabelProxy",
@@ -444,6 +446,7 @@ __all__ = [
     "project_child_role_map",
     "project_child_role_set",
     "project_membership",
+    "project_venue_primary_table",
     "proposal",
     "proposal_membership",
     "quote_autocomplete_like",

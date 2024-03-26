@@ -12,7 +12,7 @@ from . import periodic
 
 @periodic.command('project_starting_alert')
 def project_starting_alert() -> None:
-    """Send notifications for projects that are about to start schedule (5m)."""
+    """Send alerts for sessions that are about to start (5m)."""
     # Rollback to the most recent 5 minute interval, to account for startup delay
     # for periodic job processes.
     use_now = db.session.query(
@@ -25,10 +25,6 @@ def project_starting_alert() -> None:
     # Find all projects that have a session starting between 10 and 15 minutes from
     # use_now, and where the same project did not have a session ending within
     # the prior hour.
-
-    # Any eager-loading columns and relationships should be deferred with
-    # sa_orm.defer(column) and sa_orm.noload(relationship). There are none as of this
-    # commit.
     for project in (
         models.Project.starting_at(
             use_now + timedelta(minutes=10),
@@ -42,5 +38,25 @@ def project_starting_alert() -> None:
             models.ProjectStartingNotification(
                 document=project,
                 fragment=project.next_session_from(use_now + timedelta(minutes=10)),
+            )
+        )
+
+    # Find all projects with a venue that have a session starting 24 hours from now
+    for project in (
+        models.Project.starting_at(
+            use_now + timedelta(hours=24), timedelta(minutes=10), timedelta(minutes=60)
+        )
+        .filter(
+            models.Venue.query.filter(
+                models.Venue.project_id == models.Project.id
+            ).exists()
+        )
+        .options(sa.orm.load_only(models.Project.uuid))
+        .all()
+    ):
+        dispatch_notification(
+            models.ProjectTomorrowNotification(
+                document=project,
+                fragment=project.next_session_from(use_now + timedelta(hours=24)),
             )
         )
