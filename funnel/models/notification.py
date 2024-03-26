@@ -344,12 +344,12 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     #: another type (auto-populated from subclass's `shadow=` parameter)
     pref_type: ClassVar[str] = ''
 
-    #: Document model, must be specified in subclasses
+    #: Document model, auto-populated from generic arg to Notification base class
     document_model: ClassVar[type[ModelUuidProtocol]]
     #: SQL table name for document type, auto-populated from the document model
     document_type: ClassVar[str]
 
-    #: Fragment model, optional for subclasses
+    #: Fragment model, auto-populated from generic arg to Notification base class
     fragment_model: ClassVar[type[ModelUuidProtocol] | None]
     #: SQL table name for fragment type, auto-populated from the fragment model
     fragment_type: ClassVar[str | None]
@@ -358,7 +358,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     #: where a user has more than one role on the document. The notification can
     #: customize target roles based on the document or fragment's properties
     @property
-    def roles(self) -> Sequence[str]:
+    def dispatch_roles(self) -> Sequence[str]:
         return []
 
     #: Exclude triggering actor from receiving notifications? Subclasses may override
@@ -619,7 +619,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
         This assumes the underlying object won't disappear, as there is no SQL foreign
         key constraint enforcing a link.
         """
-        if self.fragment_uuid and self.fragment_model:
+        if self.fragment_model is not None and self.fragment_uuid is not None:
             return cast(
                 _F, self.fragment_model.query.filter_by(uuid=self.fragment_uuid).one()
             )
@@ -671,7 +671,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
         should override this method.
         """
         for account, role in self.role_provider_obj.actors_with(
-            self.roles, with_role=True
+            self.dispatch_roles, with_role=True
         ):
             # If this notification requires that it not be sent to the actor that
             # triggered the notification, don't notify them. For example, a user who
@@ -709,14 +709,6 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
                 )
                 db.session.add(recipient)
                 yield recipient
-
-
-# Make :attr:`type_` available under the name `type`, but declare this outside the class
-# (a) to avoid conflicts with the Python `type` global that is used for type-hinting,
-# and (b) because SQLAlchemy >= 2.0.26 attempts to resolve annotations using the
-# class-local namespace, which overrides the global `type` (as of this commit):
-# https://github.com/sqlalchemy/sqlalchemy/commit/153f287b9949462ec29d66fc9b329d0144a6ca7c
-Notification.type = sa_orm.synonym('type_')
 
 
 class PreviewNotification(NotificationType):
@@ -1246,7 +1238,7 @@ class NotificationFor(NotificationRecipientProtoMixin):
         """User's primary matching role for this notification."""
         if self.document and self.recipient:
             roles = self.document.roles_for(self.recipient)
-            for role in self.notification.roles:
+            for role in self.notification.dispatch_roles:
                 if role in roles:
                     return role
         return None
@@ -1282,8 +1274,9 @@ class NotificationPreferences(BaseMixin[int, Account], Model):
         grants={'owner'},
     )
 
-    # Notification type, corresponding to Notification.type (a class attribute there)
-    # notification_type = '' holds the veto switch to disable a transport entirely
+    # Notification type, corresponding to `Notification.cls_type` (a class attribute
+    # there). `notification_type = ''` holds the veto switch to disable a transport
+    # entirely
     notification_type: Mapped[str] = immutable(sa_orm.mapped_column())
 
     by_email: Mapped[bool] = with_roles(sa_orm.mapped_column(), rw={'owner'})

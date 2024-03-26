@@ -37,7 +37,7 @@ def notification_types(database: SQLAlchemy) -> SimpleNamespace:
         category = models.notification_categories.participant
         description = "When a project posts an update"
 
-        roles = ['project_crew', 'project_participant']
+        dispatch_roles = ['project_crew', 'project_participant']
 
     class TestEditedUpdateNotification(
         ProjectIsParent,
@@ -47,7 +47,7 @@ def notification_types(database: SQLAlchemy) -> SimpleNamespace:
     ):
         """Notifications of edited updates (test edition)."""
 
-        roles = ['project_crew', 'project_participant']
+        dispatch_roles = ['project_crew', 'project_participant']
 
     class TestProposalReceivedNotification(
         ProjectIsParent,
@@ -58,7 +58,7 @@ def notification_types(database: SQLAlchemy) -> SimpleNamespace:
 
         category = models.notification_categories.project_crew
         description = "When my project receives a new proposal"
-        roles = ['project_editor']
+        dispatch_roles = ['project_editor']
 
     sa_orm.configure_mappers()
     return SimpleNamespace(**locals())
@@ -229,14 +229,16 @@ def test_update_notification_structure(
 ) -> None:
     """Test whether a TestNewUpdateNotification has the appropriate structure."""
     project_fixtures.refresh()
-    notification = notification_types.TestNewUpdateNotification(update)
+    notification: models.Notification = notification_types.TestNewUpdateNotification(
+        update
+    )
     db_session.add(notification)
     db_session.commit()
 
-    assert notification.type == 'update_new_test'
+    assert notification.type_ == 'update_new_test'
     assert notification.document == update
     assert notification.fragment is None
-    assert notification.roles == ['project_crew', 'project_participant']
+    assert notification.dispatch_roles == ['project_crew', 'project_participant']
     assert notification.preference_context == project_fixtures.org
 
     load_notification = models.Notification.query.first()
@@ -254,7 +256,8 @@ def test_update_notification_structure(
     # A second call to dispatch() will yield nothing
     assert not list(notification.dispatch())
 
-    # Notifications are issued strictly in the order specified in notification.roles
+    # Notifications are issued strictly in the order specified in
+    # notification.dispatch_roles
     role_order: list[str] = []
     for nr in notification_recipients:
         if nr.role in role_order:
@@ -265,7 +268,7 @@ def test_update_notification_structure(
     assert role_order == ['project_crew', 'project_participant']
 
     # Notifications are correctly assigned by priority of role
-    role_users: dict[str, set[models.User]] = {}
+    role_users: dict[str, set[models.Account]] = {}
     for nr in notification_recipients:
         role_users.setdefault(nr.role, set()).add(nr.recipient)
 
