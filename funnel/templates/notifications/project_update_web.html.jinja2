@@ -10,7 +10,7 @@
     <ol class="list--aligned">
       {%- for update in view.fragments %}
         <li>
-          {%- trans url=update.url_for(), title=update.title, age=update.datetime|age -%}
+          {%- trans url=update.url_for(), title=update.title, age=update.published_at|age -%}
             <a href="{{ url }}">{{ title }}</a> ({{ age }})
           {%- endtrans -%}
         </li>
