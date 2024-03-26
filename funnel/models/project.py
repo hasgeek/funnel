@@ -702,10 +702,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     @has_member_participant_role.iterable
     def _(self) -> Iterable[Account]:
         """All participants who are also account members."""
-        # TODO: This iterable causes a loop of SQL queries. It will be far more efficient to SQL
-        # JOIN the data sources once they are single-table sources. Rsvp needs to merge
-        # into ProjectMembership, and AccountMembership needs to replace the hacky
-        # "membership project" data source.
+        # TODO: This iterable causes a loop of SQL queries. It will be far more
+        # efficient to SQL JOIN the data sources once they are single-table sources.
+        # Rsvp needs to merge into ProjectMembership, and AccountMembership needs to
+        # replace the hacky "membership project" data source.
         return (
             account
             for account in self.actors_with({'participant'})
