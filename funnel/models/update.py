@@ -99,6 +99,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
                 'editor': {'editor', 'project_editor'},
                 'participant': {'project_participant'},
                 'account_follower': {'account_follower'},
+                'account_member': {'account_member'},
                 'member_participant': {'member_participant'},
                 'crew': {'project_crew', 'reader'},
             }
