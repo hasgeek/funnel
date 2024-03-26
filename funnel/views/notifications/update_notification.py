@@ -13,33 +13,35 @@ from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
 
 
-class UpdateTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for Updates."""
+class UpdateMergedTitleTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for updates when the project has a merged title."""
 
     registered_template = (
         'There is an update in {#var#}: {#var#}\n\nhttps://bye.li to stop -Hasgeek'
     )
     template = (
-        "There is an update in {account}: {url}\n\nhttps://bye.li to stop -Hasgeek"
+        "There is an update in {project}: {url}\n\nhttps://bye.li to stop -Hasgeek"
     )
-    plaintext_template = "There is an update in {account}: {url}"
+    plaintext_template = "There is an update in {project}: {url}"
     message_priority = SmsPriority.NORMAL
 
     url: str
 
 
-class UpdateProjectTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for Updates."""
+class UpdateSplitTitleTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for updates when the project has a split title."""
 
     registered_template = (
         "There is an update in {#var#} / {#var#}. Details here: {#var#}"
         "\n\nhttps://bye.li to stop -Hasgeek"
     )
     template = (
-        "There is an update in {account} / {project}. Details here: {url}"
+        "There is an update in {account_title} / {project_title}. Details here: {url}"
         "\n\nhttps://bye.li to stop -Hasgeek"
     )
-    plaintext_template = "There is an update in {account} / {project}: {url}"
+    plaintext_template = (
+        "There is an update in {account_title} / {project_title}: {url}"
+    )
     message_priority = SmsPriority.NORMAL
 
     url: str
@@ -84,9 +86,18 @@ class RenderProjectUpdateNotification(RenderNotification):
             'notifications/project_update_email.html.jinja2', view=self
         )
 
-    def sms(self) -> UpdateTemplate:
-        return UpdateTemplate(
-            account=self.update.project.account,
+    def sms(self) -> UpdateMergedTitleTemplate | UpdateSplitTitleTemplate:
+        if len(self.update.project.title_parts) == 1:
+            return UpdateMergedTitleTemplate(
+                project=self.update.project,
+                url=shortlink(
+                    self.update.url_for(_external=True, **self.tracking_tags('sms')),
+                    shorter=True,
+                ),
+            )
+        return UpdateSplitTitleTemplate(
+            project_title=self.update.project,
+            account_title=self.update.project.account,
             url=shortlink(
                 self.update.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,

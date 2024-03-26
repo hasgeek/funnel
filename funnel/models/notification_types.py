@@ -122,7 +122,7 @@ class ProjectUpdateNotification(
     """Notification of a new update in a project."""
 
     category = notification_categories.participant
-    title = __("When a project posts an update")
+    title = __("When a project has an update")
     description = __(
         "Typically contains critical information such as video conference links"
     )

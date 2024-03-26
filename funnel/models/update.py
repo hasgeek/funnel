@@ -244,11 +244,11 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
             return False
         if self.visibility_state.PUBLIC:
             return True
-        project_roles = self.project.roles_for(actor)
+        roles = self.roles_for(actor)
         if self.visibility_state.PARTICIPANTS:
-            return 'participant' in project_roles
+            return 'project_participant' in roles
         if self.visibility_state.MEMBERS:
-            return 'account_member' in project_roles
+            return 'account_member' in roles
 
         raise RuntimeError("This update has an unexpected state")
 

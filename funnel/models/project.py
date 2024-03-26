@@ -791,7 +791,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     with_roles(title_suffix, read={'all'})
 
     @property
-    def title_parts(self) -> list[str]:
+    def title_parts(self) -> tuple[str] | tuple[str, str]:
         """
         Return the hierarchy of titles of this project.
 
@@ -804,9 +804,9 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         """
         if self.short_title == self.title:
             # Project title does not derive from account title, so use both
-            return [self.account.title, self.title]
+            return (self.account.title, self.title)
         # Project title extends account title, so account title is not needed
-        return [self.title]
+        return (self.title,)
 
     with_roles(title_parts, read={'all'})
 

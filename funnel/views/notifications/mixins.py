@@ -73,11 +73,29 @@ class TemplateVarMixin:
         return title[:index] + '…'
 
     @SetVar
+    def project_title(self, project: Project) -> str:
+        """Set project title, truncated to fit the length limit."""
+        title = project.title
+        if len(title) <= self.var_max_length:
+            return title
+        index = grapheme.safe_split_index(title, self.var_max_length - 1)
+        return title[:index] + '…'
+
+    @SetVar
     def account(self, account: Account) -> str:
         """Set account's display name, truncated to fit."""
         pickername = account.pickername
         if len(pickername) <= self.var_max_length:
             return pickername
+        title = account.title
+        if len(title) <= self.var_max_length:
+            return title
+        index = grapheme.safe_split_index(title, self.var_max_length - 1)
+        return title[:index] + '…'
+
+    @SetVar
+    def account_title(self, account: Account) -> str:
+        """Set account's title, truncated to fit."""
         title = account.title
         if len(title) <= self.var_max_length:
             return title
