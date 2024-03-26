@@ -35,13 +35,13 @@ from zbase32 import decode as zbase32_decode, encode as zbase32_encode
 from baseframe import __
 from coaster.sqlalchemy import (
     DynamicAssociationProxy,
-    LazyRoleSet,
     RoleMixin,
     StateManager,
     add_primary_relationship,
     auto_init_default,
     failsafe_add,
     immutable,
+    role_check,
     with_roles,
 )
 from coaster.utils import LabeledEnum, newsecret, require_one_of, utcnow
@@ -281,9 +281,6 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         ImgeeType, sa.CheckConstraint("banner_image_url <> ''"), nullable=True
     )
 
-    # These two flags are read-only. There is no provision for writing to them within
-    # the app:
-
     #: Protected accounts cannot be deleted
     is_protected: Mapped[bool] = with_roles(
         immutable(sa_orm.mapped_column(default=False)),
@@ -380,17 +377,20 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             order_by=lambda: AccountMembership.granted_at.asc(),
             viewonly=True,
         ),
-        grants_via={'member': {'admin', 'owner'}},
+        grants_via={'member': {'admin', 'member'}},
     )
 
-    active_owner_memberships: DynamicMapped[AccountMembership] = relationship(
-        lazy='dynamic',
-        primaryjoin=lambda: sa.and_(
-            sa_orm.remote(AccountMembership.account_id) == Account.id,
-            AccountMembership.is_active,
-            AccountMembership.is_owner.is_(True),
+    active_owner_memberships: DynamicMapped[AccountMembership] = with_roles(
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                sa_orm.remote(AccountMembership.account_id) == Account.id,
+                AccountMembership.is_active,
+                AccountMembership.is_owner.is_(True),
+            ),
+            viewonly=True,
         ),
-        viewonly=True,
+        grants_via={'member': {'owner', 'admin', 'member'}},
     )
 
     active_invitations: DynamicMapped[AccountMembership] = relationship(
@@ -925,6 +925,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         'polymorphic_on': type_,
         # When querying the Account model, cast automatically to all subclasses
         'with_polymorphic': '*',
+        # Store a version id in this column to prevent edits to obsolete data
         'version_id_col': revisionid,
     }
 
@@ -1043,14 +1044,12 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
 
     with_roles(pickername, read={'all'})
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        """Identify roles for the given actor."""
-        roles = super().roles_for(actor, anchors)
-        if self.profile_state.ACTIVE_AND_PUBLIC:
-            roles.add('reader')
-        return roles
+    @role_check('reader')
+    def has_reader_role(
+        self, _actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Grant 'reader' role to all if the profile state is active and public."""
+        return bool(self.profile_state.ACTIVE_AND_PUBLIC)
 
     @cached_property
     def verified_contact_count(self) -> int:
@@ -1394,16 +1393,19 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         return None
 
     @property
-    def _self_is_owner_and_admin_of_self(self) -> Account:
+    def _self_is_owner_of_self(self) -> Account | None:
         """
-        Return self.
+        Return self in a user account.
 
         Helper method for :meth:`roles_for` and :meth:`actors_with` to assert that the
         user is owner and admin of their own account.
         """
-        return self
+        return self if self.is_user_profile else None
 
-    with_roles(_self_is_owner_and_admin_of_self, grants={'owner', 'admin'})
+    with_roles(
+        _self_is_owner_of_self,
+        grants={'follower', 'member', 'admin', 'owner'},
+    )
 
     def organizations_as_owner_ids(self) -> list[int]:
         """
@@ -2678,10 +2680,8 @@ class AccountExternalId(BaseMixin[int, Account], Model):
     # FIXME: change to sa.Unicode
     service: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
     #: Unique user id as per external service, used for identifying related accounts
-    # FIXME: change to sa.Unicode
-    userid: Mapped[str] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=False
-    )  # Unique id (or obsolete OpenID)
+    # FIXME: change to sa.Unicode (uses UnicodeText for obsolete OpenID support)
+    userid: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
     #: Optional public-facing username on the external service
     # FIXME: change to sa.Unicode. LinkedIn once used full URLs
     username: Mapped[str | None] = sa_orm.mapped_column(sa.UnicodeText, nullable=True)

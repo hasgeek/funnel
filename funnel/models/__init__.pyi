@@ -172,13 +172,13 @@ from .notification_types import (
     CommentReplyNotification,
     CommentReportReceivedNotification,
     NewCommentNotification,
-    NewUpdateNotification,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
     ProjectStartingNotification,
     ProjectTomorrowNotification,
+    ProjectUpdateNotification,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
     RegistrationCancellationNotification,
@@ -229,7 +229,7 @@ from .typing import (
     ModelUrlProtocol,
     ModelUuidProtocol,
 )
-from .update import Update
+from .update import VISIBILITY_STATE, Update
 from .utils import (
     AccountAndAnchor,
     IncompleteUserMigrationError,
@@ -323,7 +323,6 @@ __all__ = [
     "ModelUrlProtocol",
     "ModelUuidProtocol",
     "NewCommentNotification",
-    "NewUpdateNotification",
     "NoIdMixin",
     "Notification",
     "NotificationFor",
@@ -356,6 +355,7 @@ __all__ = [
     "ProjectSponsorMembership",
     "ProjectStartingNotification",
     "ProjectTomorrowNotification",
+    "ProjectUpdateNotification",
     "Proposal",
     "ProposalLabelProxy",
     "ProposalLabelProxyWrapper",
@@ -396,6 +396,7 @@ __all__ = [
     "UrlType",
     "User",
     "UuidMixin",
+    "VISIBILITY_STATE",
     "Venue",
     "VenueRoom",
     "VideoError",

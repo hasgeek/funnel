@@ -15,13 +15,11 @@ __all__ = ['AccountMembership']
 
 class AccountMembership(ImmutableMembershipMixin, Model):
     """
-    An account can be a member of another account as an owner, admin or follower.
+    An account can be an owner, admin, member or follower of another account.
 
-    Owners can manage other administrators.
+    Owners can manage other owners, admins and members, but not followers.
 
-    TODO: This model may introduce non-admin memberships in a future iteration by
-    replacing :attr:`is_owner` with :attr:`member_level` or distinct role flags as in
-    :class:`ProjectMembership`.
+    TODO: Distinct flags for is_member, is_follower and is_admin.
     """
 
     __tablename__ = 'account_membership'
@@ -76,7 +74,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
         'related': {'urls', 'uuid_b58', 'offered_roles', 'is_owner'},
     }
 
-    #: Organization that this membership is being granted on
+    #: Account that this membership is being granted on
     account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'),
         default=None,
@@ -96,7 +94,10 @@ class AccountMembership(ImmutableMembershipMixin, Model):
     @cached_property
     def offered_roles(self) -> set[str]:
         """Roles offered by this membership record."""
-        roles = {'admin'}
+        # TODO: is_member and is_admin will be distinct flags in the future, with the
+        # base role set to `follower` only. is_owner will remain, but if it's set, then
+        # is_admin must also be set (enforced with a check constraint)
+        roles = {'follower', 'member', 'admin'}
         if self.is_owner:
             roles.add('owner')
         return roles

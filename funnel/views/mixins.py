@@ -130,6 +130,7 @@ class TicketEventViewBase(AccountCheckMixin, UrlForView, ModelView[TicketEvent])
         self.account = self.obj.project.account
 
 
+# FIXME: Make this a generic like ModelView
 class DraftViewProtoMixin:
     # These must be Any to avoid conflict with subclasses
     model: Any
@@ -160,7 +161,7 @@ class DraftViewProtoMixin:
         """
         Return a tuple of draft data.
 
-        Contains the current draft revision and the formdata needed to initialize forms.
+        Contains the current draft revision and the data needed to initialize forms.
         """
         draft = self.get_draft(obj)
         if draft is not None:

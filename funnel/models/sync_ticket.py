@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import base64
 import os
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Self
 
-from coaster.sqlalchemy import LazyRoleSet, with_roles
+from coaster.sqlalchemy import with_roles
 
 from .account import Account, AccountEmail
 from .base import (
@@ -258,8 +258,8 @@ class TicketParticipant(
     participant_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), default=None, nullable=True
     )
-    participant: Mapped[Account | None] = relationship(
-        back_populates='ticket_participants'
+    participant: Mapped[Account | None] = with_roles(
+        relationship(back_populates='ticket_participants'), grants={'member'}
     )
     project_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('project.id'), default=None, nullable=False
@@ -270,8 +270,9 @@ class TicketParticipant(
         grants_via={None: project_child_role_map},
     )
 
-    scanned_contacts: Mapped[ContactExchange] = relationship(
-        passive_deletes=True, back_populates='ticket_participant'
+    scanned_contacts: Mapped[ContactExchange] = with_roles(
+        relationship(passive_deletes=True, back_populates='ticket_participant'),
+        grants_via={'account': {'scanner'}},
     )
 
     ticket_events: Mapped[list[TicketEvent]] = relationship(
@@ -294,18 +295,6 @@ class TicketParticipant(
         'member': {'read': {'email'}},
         'scanner': {'read': {'email'}},
     }
-
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        if actor is not None:
-            if actor == self.participant:
-                roles.add('member')
-            cx = db.session.get(ContactExchange, (actor.id, self.id))
-            if cx is not None:
-                roles.add('scanner')
-        return roles
 
     @property
     def avatar(self) -> str:
