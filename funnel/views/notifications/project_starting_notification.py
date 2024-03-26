@@ -51,6 +51,7 @@ class ProjectStartingTomorrowVenueTemplate(TemplateVarMixin, SmsTemplate):
         'Reminder: {account} has an in-person event tomorrow at {venue}.'
         ' Details here: {url}'
     )
+    message_priority = SmsPriority.NORMAL
 
     url: str
 
@@ -70,6 +71,7 @@ class ProjectStartingTomorrowLocationTemplate(TemplateVarMixin, SmsTemplate):
         'Reminder: {account} has an in-person event tomorrow in {location}.'
         ' Details here: {url}'
     )
+    message_priority = SmsPriority.NORMAL
 
     location: str
     url: str

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import timedelta
 
 from ... import models
 from ...models import db, sa, sa_orm
@@ -12,7 +12,7 @@ from . import periodic
 
 @periodic.command('project_starting_alert')
 def project_starting_alert() -> None:
-    """Send notifications for projects that are about to start schedule (5m)."""
+    """Send alerts for sessions that are about to start (5m)."""
     # Rollback to the most recent 5 minute interval, to account for startup delay
     # for periodic job processes.
     use_now = db.session.query(
@@ -48,22 +48,25 @@ def project_starting_alert() -> None:
 
 @periodic.command('project_starting_tomorrow_alert')
 def project_starting_tomorrow_alert() -> None:
-    """Send notifications for projects starting the next day."""
-    today = date.today()
-    tomorrow = today + timedelta(days=1)
-    start_time = datetime.combine(tomorrow, datetime.min.time())
-
-    db.session.query(
+    """Send a 24 hour advance notice for in-person sessions (5m)."""
+    # Rollback to the most recent 5 minute interval, to account for startup delay
+    # for periodic job processes.
+    use_now = db.session.query(
         sa.func.date_trunc('hour', sa.func.utcnow())
         + sa.cast(sa.func.date_part('minute', sa.func.utcnow()), sa.Integer)
         / 5
         * timedelta(minutes=5)
     ).scalar()
 
-    # Find all projects that have a session starting the next day
+    # Find all projects with a venue that have a session starting in 24 hours
     for project in (
         models.Project.starting_at(
-            start_time, timedelta(hours=24), timedelta(minutes=10)
+            use_now + timedelta(hours=24), timedelta(minutes=10), timedelta(minutes=60)
+        )
+        .filter(
+            models.Venue.query.filter(
+                models.Venue.project_id == models.Project.id
+            ).exists()
         )
         .options(sa.orm.load_only(models.Project.uuid))
         .all()
@@ -71,6 +74,6 @@ def project_starting_tomorrow_alert() -> None:
         dispatch_notification(
             models.ProjectTomorrowNotification(
                 document=project,
-                fragment=project.next_session_from(start_time),
+                fragment=project.next_session_from(use_now + timedelta(hours=24)),
             )
         )

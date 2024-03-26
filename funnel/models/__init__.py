@@ -220,6 +220,7 @@ __all__ = [
     "project_child_role_map",
     "project_child_role_set",
     "project_membership",
+    "project_venue_primary_table",
     "proposal",
     "proposal_membership",
     "quote_autocomplete_like",
