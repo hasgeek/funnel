@@ -71,7 +71,8 @@ def project_fixtures(
     """Provide users, one org and one project, for tests on them."""
     user_owner = models.User(username='user_owner', fullname="User Owner")
     user_owner.add_email('owner@example.com')
-
+    user_admin = models.User(username='user_admin', fullname="User Admin")
+    user_admin.add_email('admin@example.com')
     user_editor = models.User(username='user_editor', fullname="User Editor")
     user_editor.add_email('editor@example.com')
     user_editor_phone = models.AccountPhone(account=user_editor, phone='+12345678900')
@@ -90,10 +91,17 @@ def project_fixtures(
     org = models.Organization(
         name='notifications_org', title="Organization", owner=user_owner
     )
-
+    admin_membership = models.AccountMembership(
+        account=org,
+        member=user_admin,
+        is_owner=False,
+        granted_by=user_owner,
+    )
     db_session.add_all(
         [
+            admin_membership,
             user_owner,
+            user_admin,
             user_editor,
             user_editor_phone,
             user_participant,
@@ -197,6 +205,10 @@ def test_update_roles(project_fixtures: SimpleNamespace, update: models.Update) 
     assert 'project_editor' in owner_roles
     assert 'project_crew' in owner_roles
     assert 'project_participant' in owner_roles
+    assert 'account_member' in owner_roles
+
+    admin_roles = update.roles_for(project_fixtures.user_admin)
+    assert 'account_member' in admin_roles
 
     editor_roles = update.roles_for(project_fixtures.user_editor)
     assert 'project_editor' in editor_roles

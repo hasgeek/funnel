@@ -215,3 +215,19 @@ def test_participant_update_grants_reader_role_to_participants(
     assert 'reader' not in participant_update.roles_for(user_vimes)  # Admin/member
     assert 'reader' not in participant_update.roles_for(user_twoflower)  # Unrelated
     assert 'reader' not in participant_update.roles_for(None)  # Anonymous
+
+
+@pytest.mark.usefixtures('vimes_admin', 'ridcully_editor', 'rincewind_participant')
+def test_member_update_grants_reader_role_to_members_only(
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    user_vimes: models.User,
+    member_update: models.Update,
+) -> None:
+    """A member update grants 'reader' role to project members only."""
+    member_update.publish(user_vetinari)
+    db_session.commit()
+    assert set(member_update.actors_with({'account_member'})) == {
+        user_vetinari,
+        user_vimes,
+    }
