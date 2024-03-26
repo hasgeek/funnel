@@ -33,6 +33,10 @@ update = sa.table(
     sa.column('uuid', sa.Uuid()),
     sa.column('project_id', sa.Integer()),
 )
+notification_preferences = sa.table(
+    'notification_preferences',
+    sa.column('notification_type'),
+)
 
 
 def upgrade(engine_name: str = '') -> None:
@@ -64,12 +68,22 @@ def upgrade_() -> None:
             update.c.project_id == project.c.id,
         )
     )
+    op.execute(
+        notification_preferences.update()
+        .values(notification_type='project_update')
+        .where(notification_preferences.c.notification_type == 'update_new')
+    )
 
 
 def downgrade_() -> None:
     """Downgrade default database."""
     # Restore old notification type name, move update UUID from fragment to document,
     # and set fragment to None
+    op.execute(
+        notification_preferences.update()
+        .values(notification_type='update_new')
+        .where(notification_preferences.c.notification_type == 'project_update')
+    )
     op.execute(
         notification.update()
         .values(
