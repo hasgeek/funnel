@@ -2301,7 +2301,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         if new_account.primary_email is None:
             new_account.primary_email = primary_email
         old_account.primary_email = None
-        return [cls.__table__.name, user_email_primary_table.name]
+        return [cls.__table__.name, account_email_primary_table.name]
 
 
 class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
@@ -2661,7 +2661,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
         if new_account.primary_phone is None:
             new_account.primary_phone = primary_phone
         old_account.primary_phone = None
-        return [cls.__table__.name, user_phone_primary_table.name]
+        return [cls.__table__.name, account_phone_primary_table.name]
 
 
 class AccountExternalId(BaseMixin[int, Account], Model):
@@ -2772,10 +2772,10 @@ class AccountExternalId(BaseMixin[int, Account], Model):
         return cls.query.filter_by(**{param: value, 'service': service}).one_or_none()
 
 
-user_email_primary_table = add_primary_relationship(
+account_email_primary_table = add_primary_relationship(
     Account, 'primary_email', AccountEmail, 'account', 'account_id'
 )
-user_phone_primary_table = add_primary_relationship(
+account_phone_primary_table = add_primary_relationship(
     Account, 'primary_phone', AccountPhone, 'account', 'account_id'
 )
 

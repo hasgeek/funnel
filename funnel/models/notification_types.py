@@ -34,6 +34,7 @@ __all__ = [
     'RegistrationCancellationNotification',
     'RegistrationConfirmationNotification',
     'ProjectStartingNotification',
+    'ProjectTomorrowNotification',
     'OrganizationAdminMembershipNotification',
     'OrganizationAdminMembershipRevokedNotification',
 ]
@@ -174,8 +175,23 @@ class ProjectStartingNotification(
     """Notification of a session about to start."""
 
     category = notification_categories.participant
-    title = __("When a project I’ve registered for is about to start")
-    description = __("You will be notified 5-10 minutes before the starting time")
+    title = __("When a session is starting soon")
+    description = __(
+        "You will be notified shortly before an online session, or a day before an"
+        " in-person session"
+    )
+
+    dispatch_roles = ['project_crew', 'project_participant']
+    # This is a notification triggered without an actor
+
+
+class ProjectTomorrowNotification(
+    DocumentHasAccount,
+    Notification[Project, Session | None],
+    type='project_tomorrow',
+    shadows=ProjectStartingNotification,
+):
+    """Notification of an in-person session the next day."""
 
     dispatch_roles = ['project_crew', 'project_participant']
     # This is a notification triggered without an actor
