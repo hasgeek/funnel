@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import itertools
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Sequence
 from datetime import datetime
 from typing import (
     TYPE_CHECKING,
@@ -1045,7 +1045,9 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     with_roles(pickername, read={'all'})
 
     @role_check('reader')
-    def has_reader_role(self, actor: Account | None) -> bool:
+    def has_reader_role(
+        self, _actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
         """Grant 'reader' role to all if the profile state is active and public."""
         return bool(self.profile_state.ACTIVE_AND_PUBLIC)
 

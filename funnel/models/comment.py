@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
@@ -210,7 +211,9 @@ class Commentset(UuidMixin, BaseMixin[int, Account], Model):
     with_roles(last_comment, read={'all'}, datasets={'primary'})
 
     @role_check('parent_participant')
-    def has_parent_participant_role(self, actor: Account | None) -> bool:
+    def has_parent_participant_role(
+        self, actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
         """Confirm if the actor is a participant in the parent object."""
         return (parent := self.parent) is not None and parent.roles_for(actor).has_any(
             {'participant', 'commenter'}
@@ -525,7 +528,9 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
         ).notempty()
 
     @role_check('reader')
-    def has_reader_role(self, _actor: Account | None) -> bool:
+    def has_reader_role(
+        self, _actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
         """Everyone is always a reader (for now)."""
         return True
 

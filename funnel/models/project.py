@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from datetime import datetime, timedelta
 from enum import ReprEnum
 from typing import TYPE_CHECKING, Any, Literal, Self, cast, overload
@@ -688,7 +688,9 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         return format(self.joined_title, format_spec)
 
     @role_check('member_participant')
-    def has_member_participant_role(self, actor: Account | None) -> bool:
+    def has_member_participant_role(
+        self, actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
         """Confirm if the actor is both a participant and an account member."""
         if actor is None:
             return False
@@ -982,7 +984,9 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         self.end_at = self.schedule_end_at
 
     @role_check('reader')
-    def has_reader_role(self, _actor: Account | None) -> bool:
+    def has_reader_role(
+        self, _actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
         """Unconditionally grant reader role (for now)."""
         return True
 

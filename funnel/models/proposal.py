@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import datetime as datetime_type
 from typing import TYPE_CHECKING, Any, Self
 
@@ -539,12 +540,16 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
     sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
 
     @role_check('reader')
-    def has_reader_role(self, actor: Account | None) -> bool:
+    def has_reader_role(
+        self, _actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
         """Grant reader role if the proposal is not a draft."""
         return not self.state.DRAFT
 
     @role_check('commenter')
-    def has_commenter_role(self, actor: Account | None) -> bool:
+    def has_commenter_role(
+        self, actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
         """Grant 'commenter' role to any participant or submitter."""
         return self.roles_for(actor).has_any(('project_participant', 'submitter'))
 

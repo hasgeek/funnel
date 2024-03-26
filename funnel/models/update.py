@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import datetime
 from typing import Any, Self
 
@@ -237,7 +238,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         return f'<Update "{self.title}" {self.uuid_b58}>'
 
     @role_check('reader')
-    def has_reader_role(self, actor: Account | None) -> bool:
+    def has_reader_role(
+        self, actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
         """Check if the given actor is a reader based on the Update's visibility."""
         if not self.state.PUBLISHED:
             # Update must be published to allow anyone other than crew to read
