@@ -35,7 +35,7 @@ exclude-deps = [
   "gunicorn",        # Not imported, used as server
   "linkify-it-py",   # Optional dep for markdown-it-py
   "psycopg",         # Optional dep for SQLAlchemy
-  "python-dateutil", # Creosote fails to recignise the import
+  "python-dateutil", # Creosote fails to recognise the import
   "rq-dashboard",    # Creosote fails to recognise the import
   "tzdata",          # Resource-only dep, no code to import
   "urllib3",         # Unused but required to silence a pip-audit warning
