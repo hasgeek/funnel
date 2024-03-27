@@ -249,7 +249,10 @@ def given_vetinari_made_ridcully_admin_of_org(
     org_ankhmorpork: models.Organization,
 ) -> models.AccountMembership:
     ridcully_admin = models.AccountMembership(
-        member=user_ridcully, account=org_ankhmorpork, granted_by=user_vetinari
+        member=user_ridcully,
+        account=org_ankhmorpork,
+        granted_by=user_vetinari,
+        is_admin=True,
     )
     db_session.add(ridcully_admin)
     db_session.commit()

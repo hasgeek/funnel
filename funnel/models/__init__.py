@@ -45,6 +45,7 @@ __all__ = [
     "CommentReportReceivedNotification",
     "Commentset",
     "CommentsetMembership",
+    "Community",
     "ContactExchange",
     "CoordinatesMixin",
     "Draft",

@@ -1592,7 +1592,7 @@ def org_uu(
         models.AccountMembership(
             account=org,
             member=user_librarian,
-            is_owner=False,
+            is_admin=True,
             granted_by=user_ridcully,
         )
     )
@@ -1600,7 +1600,7 @@ def org_uu(
         models.AccountMembership(
             account=org,
             member=user_ponder_stibbons,
-            is_owner=False,
+            is_admin=True,
             granted_by=user_ridcully,
         )
     )
@@ -1639,7 +1639,7 @@ def org_citywatch(
     )
     db_session.add(
         models.AccountMembership(
-            account=org, member=user_carrot, is_owner=False, granted_by=user_vimes
+            account=org, member=user_carrot, is_admin=True, granted_by=user_vimes
         )
     )
     return org
@@ -1891,7 +1891,7 @@ def new_organization(
     admin_membership = models.AccountMembership(
         account=org,
         member=new_user_admin,
-        is_owner=False,
+        is_admin=True,
         granted_by=new_user_owner,
     )
     db_session.add(admin_membership)

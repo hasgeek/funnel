@@ -24,7 +24,7 @@ def given_vimes_admin(
         member=user_vimes,
         account=org_ankhmorpork,
         granted_by=user_vetinari,
-        is_owner=False,
+        is_admin=True,
     )
     db_session.add(vimes_admin)
     assert 'admin' in org_ankhmorpork.roles_for(user_vimes)
@@ -52,6 +52,7 @@ def when_vetinari_adds_ridcully(
         account=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=is_owner,
+        is_admin=True,
     )
     db_session.add(ridcully_admin)
     db_session.commit()
@@ -126,6 +127,7 @@ def when_vetinari_invites_ridcully(
         account=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=is_owner,
+        is_admin=True,
         record_type=MembershipRecordTypeEnum.INVITE,
     )
     db_session.add(ridcully_admin)
@@ -166,6 +168,7 @@ def given_riduclly_admin(
         account=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=is_owner,
+        is_admin=True,
     )
     db_session.add(ridcully_admin)
     db_session.commit()

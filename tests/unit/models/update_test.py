@@ -78,7 +78,7 @@ def vimes_admin(
     membership = models.AccountMembership(
         account=org_ankhmorpork,
         member=user_vimes,
-        is_owner=False,
+        is_admin=True,
         granted_by=user_vetinari,
     )
     db_session.add(membership)

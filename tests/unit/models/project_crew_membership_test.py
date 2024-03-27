@@ -136,7 +136,10 @@ def test_membership_amend(
     org_ankhmorpork: models.Organization,
 ) -> None:
     ridcully_admin = models.AccountMembership(
-        member=user_ridcully, account=org_ankhmorpork, granted_by=user_vetinari
+        member=user_ridcully,
+        account=org_ankhmorpork,
+        granted_by=user_vetinari,
+        is_admin=True,
     )
     db_session.add(ridcully_admin)
     ridcully_member = models.ProjectMembership(
