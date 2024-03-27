@@ -92,7 +92,7 @@ class MembershipRecordTypeEnum(IntTitle, ReprEnum):
     AMEND = 4, __("Amend")
     #: A migrate record says this used to be some other form of membership and has been
     #: created due to a technical change in the product
-    # Forthcoming: MIGRATE = 5, __("Migrate")
+    MIGRATE = 5, __("Migrate")
 
 
 # --- Exceptions -----------------------------------------------------------------------
@@ -308,6 +308,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
         return self.record_type == MembershipRecordTypeEnum.AMEND
 
     with_roles(is_amendment, read={'member', 'editor'})
+
+    @hybrid_property
+    def is_migrated(self) -> bool:
+        """Test if membership record is migrated data."""
+        return self.record_type == MembershipRecordTypeEnum.MIGRATE
+
+    with_roles(is_migrated, read={'member', 'editor'})
 
     def __repr__(self) -> str:
         # pylint: disable=using-constant-test
