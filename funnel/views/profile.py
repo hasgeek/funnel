@@ -6,9 +6,8 @@ from typing import Any
 
 from flask import abort, current_app, flash, render_template, request
 
-from baseframe import _
+from baseframe import _, forms
 from baseframe.filters import date_filter
-from baseframe import forms
 from baseframe.forms import render_form
 from coaster.views import (
     UrlChangeCheck,
