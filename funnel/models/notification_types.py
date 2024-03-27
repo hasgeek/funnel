@@ -79,7 +79,7 @@ class AccountPasswordNotification(
 
     category = notification_categories.account
     title = __("When my account password changes")
-    description = __("For your safety, in case this was not authorized")
+    description = __("For your attention, in case this was not authorized")
 
     exclude_actor = False
     dispatch_roles = ['owner']
@@ -110,7 +110,7 @@ class RegistrationConfirmationNotification(
     """Notification confirming registration to a project."""
 
     category = notification_categories.participant
-    title = __("When I register for a project")
+    title = __("When I register for a session")
     description = __("This will prompt a calendar entry in Gmail and other apps")
 
     dispatch_roles = ['owner']
@@ -138,7 +138,7 @@ class ProjectUpdateNotification(
     """Notification of a new update in a project."""
 
     category = notification_categories.participant
-    title = __("When a project has an update")
+    title = __("When there is an update")
     description = __(
         "Typically contains critical information such as video conference links"
     )
