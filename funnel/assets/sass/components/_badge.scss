@@ -1,0 +1,69 @@
+.badge {
+  position: relative;
+  color: $mui-text-hyperlink;
+  min-width: $mui-grid-padding;
+  line-height: $mui-grid-padding;
+  min-height: $mui-grid-padding;
+  text-align: center;
+  display: inline-block;
+  background-color: transparentize($mui-primary-color, 0.85);
+  border-radius: 2px;
+  padding: 0 $mui-grid-padding * 0.5;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.badge--round {
+  border-radius: 50%;
+  width: 25px;
+  line-height: 25px;
+  padding: 0;
+}
+
+.badge--round-smaller {
+  width: 16px;
+  line-height: 16px;
+}
+
+.badge--tab {
+  margin-right: $mui-grid-padding * 0.25;
+  margin-left: $mui-grid-padding * 0.25;
+  border-radius: 16px;
+  padding: 0 4px;
+  width: auto;
+  line-height: inherit;
+  background: $mui-bg-color-primary;
+  border: 1px solid $mui-bg-color-dark;
+  background: $mui-bg-color-primary;
+}
+
+.badge-accent {
+  background-color: $mui-bg-color-accent;
+  color: $mui-text-dark;
+}
+
+.badge-light {
+  background-color: $mui-bg-color-dark;
+  color: $mui-text-dark;
+}
+
+.badge-dark {
+  background-color: $mui-bg-color-dark;
+  color: $mui-text-dark;
+}
+
+.badge-danger {
+  background-color: $mui-danger-color;
+  color: mui-color('white');
+}
+
+.badge-success {
+  background-color: $mui-success-color;
+  border-color: transparentize($mui-text-success, 0.8);
+  color: $mui-text-success;
+}
+
+.badge + .badge {
+  margin-left: $mui-btn-spacing-horizontal;
+}

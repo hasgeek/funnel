@@ -246,6 +246,11 @@
     border: 1px solid transparentize($mui-primary-color, 0.8);
   }
 
+  .tabs__item--active .badge--tab {
+    border: 1px solid transparent;
+    background: transparentize($mui-primary-color, 0.85);
+  }
+
   .tabs__item-control {
     position: fixed;
     z-index: 1000;
@@ -271,52 +276,6 @@
 /* Hide scrollbar for Chrome, Safari and Opera */
 .tabs::-webkit-scrollbar {
   display: none;
-}
-
-.badge {
-  position: relative;
-  color: $mui-text-hyperlink;
-  min-width: $mui-grid-padding;
-  line-height: $mui-grid-padding;
-  min-height: $mui-grid-padding;
-  text-align: center;
-  display: inline-block;
-  background-color: transparentize($mui-primary-color, 0.85);
-  border-radius: 2px;
-  padding: 0 $mui-grid-padding * 0.5;
-  font-size: 10px;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-.badge--round {
-  border-radius: 50%;
-  width: 25px;
-  line-height: 25px;
-  padding: 0;
-}
-
-.badge--round-smaller {
-  width: 16px;
-  line-height: 16px;
-}
-
-.badge--tab {
-  margin-right: $mui-grid-padding * 0.25;
-  margin-left: $mui-grid-padding * 0.25;
-  border-radius: 16px;
-  padding: 0 4px;
-  width: auto;
-  line-height: inherit;
-  background: $mui-bg-color-primary;
-  border: 1px solid $mui-bg-color-dark;
-  background: $mui-bg-color-primary;
-}
-
-.tabs__item--active .badge--tab,
-.badge--primary {
-  border: 1px solid transparent;
-  background: transparentize($mui-primary-color, 0.85);
 }
 
 .md-tabset {
