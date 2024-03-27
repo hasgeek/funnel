@@ -130,7 +130,7 @@ class AuthClientCredentialForm(forms.Form):
     )
 
 
-def permission_validator(form: forms.Form, field: forms.Field) -> None:
+def permission_validator(_form: forms.Form, field: forms.Field) -> None:
     """Validate permission strings to be appropriately named."""
     permlist = field.data.split()
     for perm in permlist:
