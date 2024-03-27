@@ -27,16 +27,16 @@ __all__ = [
     'CommentReportReceivedNotification',
     'CommentReplyNotification',
     'NewCommentNotification',
-    'ProjectCrewMembershipNotification',
-    'ProjectCrewMembershipRevokedNotification',
+    'ProjectCrewNotification',
+    'ProjectCrewRevokedNotification',
     'ProposalReceivedNotification',
     'ProposalSubmittedNotification',
     'RegistrationCancellationNotification',
     'RegistrationConfirmationNotification',
     'ProjectStartingNotification',
     'ProjectTomorrowNotification',
-    'AccountMembershipNotification',
-    'AccountMembershipRevokedNotification',
+    'AccountAdminNotification',
+    'AccountAdminRevokedNotification',
 ]
 
 # --- Protocol and Mixin classes -------------------------------------------------------
@@ -90,6 +90,8 @@ class FollowerNotification(
     DocumentIsAccount, Notification[Account, AccountMembership], type='follower'
 ):
     """Notification of a new follower."""
+
+    active = False
 
     category = notification_categories.account
     title = __("When I have a new follower")
@@ -238,10 +240,10 @@ class CommentReplyNotification(Notification[Comment, Comment], type='comment_rep
 # --- Project crew notifications -------------------------------------------------------
 
 
-class ProjectCrewMembershipNotification(
+class ProjectCrewNotification(
     DocumentHasAccount,
     Notification[Project, ProjectMembership],
-    type='project_membership_granted',
+    type='project_crew',
 ):
     """Notification of being granted crew membership (including role changes)."""
 
@@ -253,11 +255,11 @@ class ProjectCrewMembershipNotification(
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
-class ProjectCrewMembershipRevokedNotification(
+class ProjectCrewRevokedNotification(
     DocumentHasAccount,
     Notification[Project, ProjectMembership],
-    type='project_membership_revoked',
-    shadows=ProjectCrewMembershipNotification,
+    type='project_crew_revoked',
+    shadows=ProjectCrewNotification,
 ):
     """Notification of being removed from crew membership (including role changes)."""
 
@@ -294,10 +296,10 @@ class RegistrationReceivedNotification(
 # --- Account admin notifications ------------------------------------------------------
 
 
-class AccountMembershipNotification(
+class AccountAdminNotification(
     DocumentIsAccount,
     Notification[Account, AccountMembership],
-    type='account_membership_granted',
+    type='account_admin',
 ):
     """Notification of being granted admin membership (including role changes)."""
 
@@ -310,11 +312,11 @@ class AccountMembershipNotification(
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
-class AccountMembershipRevokedNotification(
+class AccountAdminRevokedNotification(
     DocumentIsAccount,
     Notification[Account, AccountMembership],
-    type='account_membership_revoked',
-    shadows=AccountMembershipNotification,
+    type='account_admin_revoked',
+    shadows=AccountAdminNotification,
 ):
     """Notification of admin membership being revoked."""
 

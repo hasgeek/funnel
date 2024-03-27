@@ -7,7 +7,7 @@ from funnel.models.membership_mixin import MembershipRecordTypeEnum
 
 from ....conftest import GetUserProtocol, scoped_session
 
-scenarios('notifications/account_membership_notification.feature')
+scenarios('notifications/account_admin_notification.feature')
 
 
 @given(
@@ -87,7 +87,7 @@ def then_user_gets_notification(
     ridcully_admin: models.AccountMembership,
 ) -> None:
     preview = models.PreviewNotification(
-        models.AccountMembershipNotification,
+        models.AccountAdminNotification,
         document=ridcully_admin.account,
         fragment=ridcully_admin,
         user=ridcully_admin.granted_by,
@@ -220,7 +220,7 @@ def then_notification_recipient_removal(
     ridcully_admin: models.AccountMembership,
 ) -> None:
     preview = models.PreviewNotification(
-        models.AccountMembershipRevokedNotification,
+        models.AccountAdminRevokedNotification,
         document=ridcully_admin.account,
         fragment=ridcully_admin,
         user=ridcully_admin.revoked_by,

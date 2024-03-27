@@ -108,7 +108,7 @@ def then_user_gets_notification(
     ridcully_member: models.ProjectMembership,
 ) -> None:
     preview = models.PreviewNotification(
-        models.ProjectCrewMembershipNotification,
+        models.ProjectCrewNotification,
         document=ridcully_member.project,
         fragment=ridcully_member,
         user=ridcully_member.granted_by,
@@ -325,7 +325,7 @@ def then_notification_recipient_removal(
     ridcully_member: models.ProjectMembership,
 ) -> None:
     preview = models.PreviewNotification(
-        models.ProjectCrewMembershipRevokedNotification,
+        models.ProjectCrewRevokedNotification,
         document=ridcully_member.project,
         fragment=ridcully_member,
         user=ridcully_member.revoked_by,

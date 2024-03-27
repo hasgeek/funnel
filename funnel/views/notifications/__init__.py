@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from . import (
-    account_membership_notification,
+    account_admin_notification,
     account_notification,
     comment_notification,
     project_crew_notification,

@@ -24,13 +24,13 @@ from ..forms import (
 )
 from ..models import (
     Account,
+    AccountAdminNotification,
+    AccountAdminRevokedNotification,
     AccountMembership,
-    AccountMembershipNotification,
-    AccountMembershipRevokedNotification,
     MembershipRevokedError,
     Project,
-    ProjectCrewMembershipNotification,
-    ProjectCrewMembershipRevokedNotification,
+    ProjectCrewNotification,
+    ProjectCrewRevokedNotification,
     ProjectMembership,
     User,
     db,
@@ -112,7 +112,7 @@ class OrganizationMembersView(AccountViewBase):
                 db.session.add(new_membership)
                 db.session.commit()
                 dispatch_notification(
-                    AccountMembershipNotification(
+                    AccountAdminNotification(
                         document=new_membership.account,
                         fragment=new_membership,
                     )
@@ -195,7 +195,7 @@ class OrganizationMembershipView(
                 if new_membership != previous_membership:
                     db.session.commit()
                     dispatch_notification(
-                        AccountMembershipNotification(
+                        AccountAdminNotification(
                             document=new_membership.account,
                             fragment=new_membership,
                         )
@@ -258,7 +258,7 @@ class OrganizationMembershipView(
                     if new_membership != previous_membership:
                         db.session.commit()
                         dispatch_notification(
-                            AccountMembershipRevokedNotification(
+                            AccountAdminRevokedNotification(
                                 document=previous_membership.account,
                                 fragment=previous_membership,
                             )
@@ -352,9 +352,7 @@ class ProjectMembershipView(ProjectViewBase):
                     self.obj, actor=current_auth.user, user=new_membership.member
                 )
                 dispatch_notification(
-                    ProjectCrewMembershipNotification(
-                        document=self.obj, fragment=new_membership
-                    )
+                    ProjectCrewNotification(document=self.obj, fragment=new_membership)
                 )
                 return {
                     'status': 'ok',
@@ -491,7 +489,7 @@ class ProjectCrewMembershipView(ProjectCrewMembershipBase):
                         self.obj.project, actor=current_auth.user, user=self.obj.member
                     )
                     dispatch_notification(
-                        ProjectCrewMembershipNotification(
+                        ProjectCrewNotification(
                             document=self.obj.project, fragment=new_membership
                         )
                     )
@@ -536,7 +534,7 @@ class ProjectCrewMembershipView(ProjectCrewMembershipBase):
                         self.obj.project, actor=current_auth.user, user=self.obj.member
                     )
                     dispatch_notification(
-                        ProjectCrewMembershipRevokedNotification(
+                        ProjectCrewRevokedNotification(
                             document=previous_membership.project,
                             fragment=previous_membership,
                         )
