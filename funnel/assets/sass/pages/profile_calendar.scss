@@ -40,13 +40,6 @@
     color: $mui-text-light;
   }
 
-  .fc-daygrid-day-events {
-    margin-top: -$mui-grid-padding/4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
   .fc-daygrid-dot-event {
     justify-content: center;
     margin: 0 !important;
@@ -70,6 +63,11 @@
 .fc-event-time,
 .fc-event-title {
   display: none;
+}
+
+.fc-popover-body .fc-event-time,
+.fc-popover-body .fc-event-title {
+  display: block;
 }
 
 table.proposal-list-table tr {
