@@ -691,7 +691,7 @@ class AmendMembership(Generic[MembershipType]):
             )
         self._new[attr] = value
 
-    def __enter__(self) -> AmendMembership:
+    def __enter__(self) -> Self:
         """Enter a `with` context."""
         return self
 

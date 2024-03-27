@@ -35,8 +35,8 @@ __all__ = [
     'RegistrationConfirmationNotification',
     'ProjectStartingNotification',
     'ProjectTomorrowNotification',
-    'OrganizationAdminMembershipNotification',
-    'OrganizationAdminMembershipRevokedNotification',
+    'AccountMembershipNotification',
+    'AccountMembershipRevokedNotification',
 ]
 
 # --- Protocol and Mixin classes -------------------------------------------------------
@@ -281,10 +281,10 @@ class RegistrationReceivedNotification(
 # --- Organization admin notifications -------------------------------------------------
 
 
-class OrganizationAdminMembershipNotification(
+class AccountMembershipNotification(
     DocumentIsAccount,
     Notification[Account, AccountMembership],
-    type='organization_membership_granted',
+    type='account_membership_granted',
 ):
     """Notification of being granted admin membership (including role changes)."""
 
@@ -292,18 +292,20 @@ class OrganizationAdminMembershipNotification(
     title = __("When account admins change")
     description = __("Account admins control all projects under the account")
 
+    # Notify the affected individual and all account admins
     dispatch_roles = ['member', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
-class OrganizationAdminMembershipRevokedNotification(
+class AccountMembershipRevokedNotification(
     DocumentIsAccount,
     Notification[Account, AccountMembership],
-    type='organization_membership_revoked',
-    shadows=OrganizationAdminMembershipNotification,
+    type='account_membership_revoked',
+    shadows=AccountMembershipNotification,
 ):
-    """Notification of being granted admin membership (including role changes)."""
+    """Notification of admin membership being revoked."""
 
+    # Notify the affected individual and all account admins
     dispatch_roles = ['member', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 

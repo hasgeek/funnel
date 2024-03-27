@@ -25,9 +25,9 @@ from ..forms import (
 from ..models import (
     Account,
     AccountMembership,
+    AccountMembershipNotification,
+    AccountMembershipRevokedNotification,
     MembershipRevokedError,
-    OrganizationAdminMembershipNotification,
-    OrganizationAdminMembershipRevokedNotification,
     Project,
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
@@ -54,7 +54,7 @@ class OrganizationMembersView(AccountViewBase):
         return super().after_loader()
 
     @route('', methods=['GET', 'POST'])
-    @render_with('organization_membership.html.jinja2')
+    @render_with('account_admins.html.jinja2')
     @requires_roles({'reader', 'admin'})
     def members(self) -> ReturnRenderWith:
         """Render a list of organization admin members."""
@@ -112,7 +112,7 @@ class OrganizationMembersView(AccountViewBase):
                 db.session.add(new_membership)
                 db.session.commit()
                 dispatch_notification(
-                    OrganizationAdminMembershipNotification(
+                    AccountMembershipNotification(
                         document=new_membership.account,
                         fragment=new_membership,
                     )
@@ -195,7 +195,7 @@ class OrganizationMembershipView(
                 if new_membership != previous_membership:
                     db.session.commit()
                     dispatch_notification(
-                        OrganizationAdminMembershipNotification(
+                        AccountMembershipNotification(
                             document=new_membership.account,
                             fragment=new_membership,
                         )
@@ -258,7 +258,7 @@ class OrganizationMembershipView(
                     if new_membership != previous_membership:
                         db.session.commit()
                         dispatch_notification(
-                            OrganizationAdminMembershipRevokedNotification(
+                            AccountMembershipRevokedNotification(
                                 document=previous_membership.account,
                                 fragment=previous_membership,
                             )

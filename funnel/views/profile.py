@@ -303,7 +303,10 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                     db.session.commit()
                     # TODO: Dispatch notification for new follower
                     return {'status': 'ok', 'following': True}, 201
-                # If actor is already following, nothing to do here
+                # If actor is already following, maybe confirm a MIGRATE record
+                new_membership = existing_membership.replace(actor=current_auth.user)
+                if new_membership != existing_membership:
+                    db.session.commit()
                 return {'status': 'ok', 'following': True}, 200
             # Unfollow
             if existing_membership:

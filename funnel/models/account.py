@@ -376,7 +376,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
                 sa_orm.remote(AccountMembership.account_id) == Account.id,
                 AccountMembership.is_active,
             ),
-            order_by=lambda: AccountMembership.granted_at.asc(),
+            order_by=lambda: AccountMembership.granted_at.desc(),
             viewonly=True,
         ),
         read={'reader'},
