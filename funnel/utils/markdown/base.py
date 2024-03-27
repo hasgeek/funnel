@@ -1,5 +1,11 @@
 """Markdown parser and config profiles."""
 
+# The `mdit_py_plugins` package does not use `__all__` to explicitly export symbols, so
+# Pyright complains that we're not importing from the correct locations. We are using
+# the documented API, so we must silence Pyright here:
+
+# pyright: reportPrivateImportUsage=false
+
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping
@@ -8,12 +14,16 @@ from typing import Any, ClassVar, Literal, Self, overload
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
-from mdit_py_plugins import anchors, container, deflist, footnote, tasklists
+from mdit_py_plugins.anchors import anchors_plugin
+from mdit_py_plugins.container import container_plugin
+from mdit_py_plugins.deflist import deflist_plugin
+from mdit_py_plugins.footnote import footnote_plugin
+from mdit_py_plugins.tasklists import tasklists_plugin
 
 from coaster.utils import make_name
 from coaster.utils.text import normalize_spaces_multiline
 
-from .mdit_plugins import (  # toc_plugin,
+from .mdit_plugins import (
     abbr_plugin,
     block_code_extend_plugin,
     del_plugin,
@@ -53,11 +63,13 @@ class MarkdownPlugin:
     config: dict[str, Any] | None = None
 
     @classmethod
-    def register(cls, name: str, *args: Any, **kwargs: Any) -> Self:
+    def register(
+        cls, name: str, func: Callable, config: dict[str, Any] | None = None
+    ) -> Self:
         """Create a new instance and add it to the registry."""
         if name in cls.registry:
             raise NameError(f"MarkdownPlugin {name} has already been registered")
-        obj = cls(name, *args, **kwargs)
+        obj = cls(name, func, config)
         cls.registry[name] = obj
         return obj
 
@@ -155,11 +167,11 @@ class MarkdownConfig:
 
 
 MarkdownPlugin.register('abbr', abbr_plugin)
-MarkdownPlugin.register('deflists', deflist.deflist_plugin)
-MarkdownPlugin.register('footnote', footnote.footnote_plugin)
+MarkdownPlugin.register('deflists', deflist_plugin)
+MarkdownPlugin.register('footnote', footnote_plugin)
 MarkdownPlugin.register(
     'heading_anchors',
-    anchors.anchors_plugin,
+    anchors_plugin,
     {
         'min_level': 1,
         'max_level': 6,
@@ -177,7 +189,7 @@ MarkdownPlugin.register('heading_anchors_fix', heading_anchors_fix_plugin)
 
 MarkdownPlugin.register(
     'tasklists',
-    tasklists.tasklists_plugin,
+    tasklists_plugin,
     {'enabled': True, 'label': True, 'label_after': False},
 )
 MarkdownPlugin.register('ins', ins_plugin)
@@ -188,7 +200,7 @@ MarkdownPlugin.register('mark', mark_plugin)
 
 MarkdownPlugin.register(
     'tab_container',
-    container.container_plugin,
+    container_plugin,
     {'name': 'tab', 'marker': ':', 'render': render_tab},
 )
 MarkdownPlugin.register('markmap', embeds_plugin, {'name': 'markmap'})
