@@ -104,8 +104,14 @@
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
           org: {{ featured_project.boxoffice_data.org|tojson }},
-          itemCollectionId: {{ featured_project.boxoffice_data.item_collection_id|tojson }},
-          itemCollectionTitle: {{ featured_project.title|tojson }}
+          menuId: {{ featured_project.boxoffice_data.item_collection_id|tojson }},
+          menuTitle: {{ featured_project.title|tojson }}
+          {%- if current_auth.user -%}
+          ,
+          userName: {{current_auth.user.fullname|tojson }},
+          userEmail: {{ current_auth.user.email|tojson }},
+          userPhone: {{ current_auth.user.phone|tojson }}
+          {%- endif -%}
         };
       {%- endif %}
       window.Hasgeek.homeInit('.markdown', tickets);

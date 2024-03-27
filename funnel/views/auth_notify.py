@@ -29,7 +29,7 @@ def notify_session_revoked(session: LoginSession) -> None:
     for auth_client in session.auth_clients:
         if auth_client.trusted and auth_client.notification_uri:
             send_auth_client_notice.queue(
-                auth_client.notification_uri,
+                str(auth_client.notification_uri),
                 data={
                     'userid': session.account.buid,  # XXX: Deprecated parameter
                     'buid': session.account.buid,
@@ -81,7 +81,7 @@ def notify_user_data_changed(user: Account, changes: list[str]) -> None:
                             notify_changes.append(change)
                 if notify_changes:
                     send_auth_client_notice.queue(
-                        token.auth_client.notification_uri,
+                        str(token.auth_client.notification_uri),
                         data={
                             'userid': user.buid,  # XXX: Deprecated parameter
                             'buid': user.buid,
@@ -120,7 +120,7 @@ def notify_org_data_changed(
             notify_user = users[0]  # First user available
         if auth_client.trusted and auth_client.notification_uri:
             send_auth_client_notice.queue(
-                auth_client.notification_uri,
+                str(auth_client.notification_uri),
                 data={
                     'userid': notify_user.buid,  # XXX: Deprecated parameter
                     'buid': notify_user.buid,

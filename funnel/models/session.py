@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Self
 
+from furl import furl
 from werkzeug.utils import cached_property
 
 from baseframe import localize_timezone
@@ -73,7 +74,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin[int, Account], VideoMixin, Model)
     is_break: Mapped[bool] = sa_orm.mapped_column(default=False)
     featured: Mapped[bool] = sa_orm.mapped_column(default=False)
     is_restricted_video: Mapped[bool] = sa_orm.mapped_column(default=False)
-    banner_image_url: Mapped[str | None] = sa_orm.mapped_column(
+    banner_image_url: Mapped[furl | None] = sa_orm.mapped_column(
         ImgeeType, nullable=True
     )
 
@@ -217,7 +218,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin[int, Account], VideoMixin, Model)
     @classmethod
     def _scheduled_expression(cls) -> sa.ColumnElement[bool]:
         """Return SQL Expression."""
-        return (cls.start_at.is_not(None)) & (cls.end_at.is_not(None))
+        return cls.start_at.is_not(None) & cls.end_at.is_not(None)
 
     @cached_property
     def start_at_localized(self) -> datetime | None:

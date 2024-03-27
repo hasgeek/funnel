@@ -130,6 +130,7 @@ class TicketEventViewBase(AccountCheckMixin, UrlForView, ModelView[TicketEvent])
         self.account = self.obj.project.account
 
 
+# FIXME: Make this a generic like ModelView
 class DraftViewProtoMixin:
     # These must be Any to avoid conflict with subclasses
     model: Any
@@ -160,7 +161,7 @@ class DraftViewProtoMixin:
         """
         Return a tuple of draft data.
 
-        Contains the current draft revision and the formdata needed to initialize forms.
+        Contains the current draft revision and the data needed to initialize forms.
         """
         draft = self.get_draft(obj)
         if draft is not None:
@@ -173,14 +174,11 @@ class DraftViewProtoMixin:
         if 'form.revision' not in request.form:
             # as form.autosave is true, the form should have `form.revision` field even
             # if it's empty
-            return (
-                {
-                    'status': 'error',
-                    'error': 'form_missing_revision_field',
-                    'error_description': _("Form must contain a revision ID"),
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error': 'form_missing_revision_field',
+                'error_description': _("Form must contain a revision ID"),
+            }, 400
 
         # CSRF check
         form = forms.Form()
@@ -196,17 +194,15 @@ class DraftViewProtoMixin:
             if draft is None and client_revision:
                 # The form contains a revision ID but no draft exists.
                 # Somebody is making autosave requests with an invalid draft ID.
-                return (
-                    {
-                        'status': 'error',
-                        'error': 'invalid_or_expired_revision',
-                        'error_description': _(
-                            "Invalid revision ID or the existing changes have been"
-                            " submitted already. Please reload"
-                        ),
-                    },
-                    400,
-                )
+                return {
+                    'status': 'error',
+                    'error': 'invalid_or_expired_revision',
+                    'error_description': _(
+                        "Invalid revision ID or the existing changes have been"
+                        " submitted already. Please reload"
+                    ),
+                }, 400
+
             if draft is not None:
                 if client_revision is None or (
                     client_revision is not None
@@ -214,17 +210,15 @@ class DraftViewProtoMixin:
                 ):
                     # draft exists, but the form did not send a revision ID,
                     # OR revision ID sent by client does not match the last revision ID
-                    return (
-                        {
-                            'status': 'error',
-                            'error': 'missing_or_invalid_revision',
-                            'error_description': _(
-                                "There have been changes to this draft since you last"
-                                " edited it. Please reload"
-                            ),
-                        },
-                        400,
-                    )
+                    return {
+                        'status': 'error',
+                        'error': 'missing_or_invalid_revision',
+                        'error_description': _(
+                            "There have been changes to this draft since you last"
+                            " edited it. Please reload"
+                        ),
+                    }, 400
+
                 if (
                     client_revision is not None
                     and str(draft.revision) == client_revision
@@ -254,11 +248,8 @@ class DraftViewProtoMixin:
                 'revision': draft.revision,
                 'form_nonce': form.form_nonce.get_default(),
             }
-        return (
-            {
-                'status': 'error',
-                'error': 'invalid_csrf',
-                'error_description': _("Invalid CSRF token"),
-            },
-            400,
-        )
+        return {
+            'status': 'error',
+            'error': 'invalid_csrf',
+            'error_description': _("Invalid CSRF token"),
+        }, 400

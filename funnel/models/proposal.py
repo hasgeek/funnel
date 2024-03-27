@@ -12,8 +12,8 @@ from baseframe import __
 from baseframe.filters import preview
 from coaster.sqlalchemy import (
     DynamicAssociationProxy,
-    LazyRoleSet,
     StateManager,
+    role_check,
     with_roles,
 )
 from coaster.utils import LabeledEnum
@@ -539,21 +539,19 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
 
     sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        if self.state.DRAFT:
-            if 'reader' in roles:
-                # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
-                roles.remove('reader')
-        else:
-            roles.add('reader')
+    @role_check('reader')
+    def has_reader_role(
+        self, _actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Grant reader role if the proposal is not a draft."""
+        return not self.state.DRAFT
 
-        if roles.has_any(('project_participant', 'submitter')):
-            roles.add('commenter')
-
-        return roles
+    @role_check('commenter')
+    def has_commenter_role(
+        self, actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Grant 'commenter' role to any participant or submitter."""
+        return self.roles_for(actor).has_any(('project_participant', 'submitter'))
 
     @classmethod
     def all_public(cls) -> Query[Self]:

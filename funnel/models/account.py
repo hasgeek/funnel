@@ -35,13 +35,13 @@ from zbase32 import decode as zbase32_decode, encode as zbase32_encode
 from baseframe import __
 from coaster.sqlalchemy import (
     DynamicAssociationProxy,
-    LazyRoleSet,
     RoleMixin,
     StateManager,
     add_primary_relationship,
     auto_init_default,
     failsafe_add,
     immutable,
+    role_check,
     with_roles,
 )
 from coaster.utils import LabeledEnum, newsecret, require_one_of, utcnow
@@ -281,9 +281,6 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         ImgeeType, sa.CheckConstraint("banner_image_url <> ''"), nullable=True
     )
 
-    # These two flags are read-only. There is no provision for writing to them within
-    # the app:
-
     #: Protected accounts cannot be deleted
     is_protected: Mapped[bool] = with_roles(
         immutable(sa_orm.mapped_column(default=False)),
@@ -380,17 +377,20 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             order_by=lambda: AccountMembership.granted_at.asc(),
             viewonly=True,
         ),
-        grants_via={'member': {'admin', 'owner'}},
+        grants_via={'member': {'admin', 'member'}},
     )
 
-    active_owner_memberships: DynamicMapped[AccountMembership] = relationship(
-        lazy='dynamic',
-        primaryjoin=lambda: sa.and_(
-            sa_orm.remote(AccountMembership.account_id) == Account.id,
-            AccountMembership.is_active,
-            AccountMembership.is_owner.is_(True),
+    active_owner_memberships: DynamicMapped[AccountMembership] = with_roles(
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                sa_orm.remote(AccountMembership.account_id) == Account.id,
+                AccountMembership.is_active,
+                AccountMembership.is_owner.is_(True),
+            ),
+            viewonly=True,
         ),
-        viewonly=True,
+        grants_via={'member': {'owner', 'admin', 'member'}},
     )
 
     active_invitations: DynamicMapped[AccountMembership] = relationship(
@@ -690,13 +690,11 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     @property
     def public_proposal_memberships(self) -> Query[ProposalMembership]:
         """Query for all proposal memberships to proposals that are public."""
+        # TODO: Include proposal state filter (pending proposal workflow fix)
         return (
             self.proposal_memberships.join(Proposal, ProposalMembership.proposal)
             .join(Project, Proposal.project)
-            .filter(
-                ProposalMembership.is_uncredited.is_(False),
-                # TODO: Include proposal state filter (pending proposal workflow fix)
-            )
+            .filter(ProposalMembership.is_uncredited.is_(False))
         )
 
     public_proposals = DynamicAssociationProxy['Proposal'](
@@ -927,6 +925,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         'polymorphic_on': type_,
         # When querying the Account model, cast automatically to all subclasses
         'with_polymorphic': '*',
+        # Store a version id in this column to prevent edits to obsolete data
         'version_id_col': revisionid,
     }
 
@@ -1045,14 +1044,12 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
 
     with_roles(pickername, read={'all'})
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        """Identify roles for the given actor."""
-        roles = super().roles_for(actor, anchors)
-        if self.profile_state.ACTIVE_AND_PUBLIC:
-            roles.add('reader')
-        return roles
+    @role_check('reader')
+    def has_reader_role(
+        self, _actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Grant 'reader' role to all if the profile state is active and public."""
+        return bool(self.profile_state.ACTIVE_AND_PUBLIC)
 
     @cached_property
     def verified_contact_count(self) -> int:
@@ -1396,16 +1393,19 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         return None
 
     @property
-    def _self_is_owner_and_admin_of_self(self) -> Account:
+    def _self_is_owner_of_self(self) -> Account | None:
         """
-        Return self.
+        Return self in a user account.
 
         Helper method for :meth:`roles_for` and :meth:`actors_with` to assert that the
         user is owner and admin of their own account.
         """
-        return self
+        return self if self.is_user_profile else None
 
-    with_roles(_self_is_owner_and_admin_of_self, grants={'owner', 'admin'})
+    with_roles(
+        _self_is_owner_of_self,
+        grants={'follower', 'member', 'admin', 'owner'},
+    )
 
     def organizations_as_owner_ids(self) -> list[int]:
         """
@@ -2171,6 +2171,8 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         """Email address as a string."""
         return self.email or ''
 
+    __json__ = __str__
+
     @property
     def primary(self) -> bool:
         """Check whether this email address is the user's primary."""
@@ -2299,7 +2301,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         if new_account.primary_email is None:
             new_account.primary_email = primary_email
         old_account.primary_email = None
-        return [cls.__table__.name, user_email_primary_table.name]
+        return [cls.__table__.name, account_email_primary_table.name]
 
 
 class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
@@ -2516,6 +2518,8 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
         """Return phone number as a string."""
         return self.phone or ''
 
+    __json__ = __str__
+
     @cached_property
     def parsed(self) -> phonenumbers.PhoneNumber | None:
         """Return parsed phone number using libphonenumber."""
@@ -2657,7 +2661,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
         if new_account.primary_phone is None:
             new_account.primary_phone = primary_phone
         old_account.primary_phone = None
-        return [cls.__table__.name, user_phone_primary_table.name]
+        return [cls.__table__.name, account_phone_primary_table.name]
 
 
 class AccountExternalId(BaseMixin[int, Account], Model):
@@ -2673,35 +2677,24 @@ class AccountExternalId(BaseMixin[int, Account], Model):
     account: Mapped[Account] = relationship(back_populates='externalids')
     user: Mapped[Account] = sa_orm.synonym('account')
     #: Identity of the external service (in app's login provider registry)
-    # FIXME: change to sa.Unicode
-    service: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
+    service: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
     #: Unique user id as per external service, used for identifying related accounts
-    # FIXME: change to sa.Unicode
-    userid: Mapped[str] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=False
-    )  # Unique id (or obsolete OpenID)
+    userid: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
     #: Optional public-facing username on the external service
-    # FIXME: change to sa.Unicode. LinkedIn once used full URLs
-    username: Mapped[str | None] = sa_orm.mapped_column(sa.UnicodeText, nullable=True)
+    username: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
     #: OAuth or OAuth2 access token
-    # FIXME: change to sa.Unicode
-    oauth_token: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
-    )
+    oauth_token: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
     #: Optional token secret (not used in OAuth2, used by Twitter with OAuth1a)
-    # FIXME: change to sa.Unicode
     oauth_token_secret: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
+        sa.Unicode, nullable=True
     )
     #: OAuth token type (typically 'bearer')
-    # FIXME: change to sa.Unicode
     oauth_token_type: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
+        sa.Unicode, nullable=True
     )
     #: OAuth2 refresh token
-    # FIXME: change to sa.Unicode
     oauth_refresh_token: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
+        sa.Unicode, nullable=True
     )
     #: OAuth2 token expiry in seconds, as sent by service provider
     oauth_expires_in: Mapped[int | None] = sa_orm.mapped_column()
@@ -2770,10 +2763,10 @@ class AccountExternalId(BaseMixin[int, Account], Model):
         return cls.query.filter_by(**{param: value, 'service': service}).one_or_none()
 
 
-user_email_primary_table = add_primary_relationship(
+account_email_primary_table = add_primary_relationship(
     Account, 'primary_email', AccountEmail, 'account', 'account_id'
 )
-user_phone_primary_table = add_primary_relationship(
+account_phone_primary_table = add_primary_relationship(
     Account, 'primary_phone', AccountPhone, 'account', 'account_id'
 )
 

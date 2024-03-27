@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Any, Self
 
 from baseframe import __
-from coaster.sqlalchemy import LazyRoleSet, StateManager, auto_init_default, with_roles
+from coaster.sqlalchemy import StateManager, auto_init_default, role_check, with_roles
 from coaster.utils import LabeledEnum
 
 from .account import Account
@@ -31,7 +31,7 @@ from .helpers import (
 )
 from .project import Project
 
-__all__ = ['Update']
+__all__ = ['Update', 'VISIBILITY_STATE']
 
 
 class UPDATE_STATE(LabeledEnum):  # noqa: N801
@@ -42,12 +42,15 @@ class UPDATE_STATE(LabeledEnum):  # noqa: N801
 
 class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
     PUBLIC = (1, 'public', __("Public"))
-    RESTRICTED = (2, 'restricted', __("Restricted"))
+    PARTICIPANTS = (2, 'participants', __("Participants"))
+    MEMBERS = (3, 'members', __("Members"))
 
 
 class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     __tablename__ = 'update'
 
+    # FIXME: Why is this a state? There's no state change in the product design.
+    # It's a permanent subtype identifier
     _visibility_state: Mapped[int] = sa_orm.mapped_column(
         'visibility_state',
         sa.SmallInteger,
@@ -93,45 +96,30 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         datasets={'primary'},
         grants_via={
             None: {
+                'reader': {'project_reader'},  # Project reader is NOT update reader
                 'editor': {'editor', 'project_editor'},
-                'participant': {'reader', 'project_participant'},
-                'crew': {'reader', 'project_crew'},
+                'participant': {'project_participant'},
+                'account_follower': {'account_follower'},
+                'account_member': {'account_member'},
+                'member_participant': {'member_participant'},
+                'crew': {'project_crew', 'reader'},
             }
         },
     )
     parent: Mapped[Project] = sa_orm.synonym('project')
 
-    # Relationship to project that exists only when the Update is not restricted, for
-    # the purpose of inheriting the account_participant role. We do this because
-    # RoleMixin does not have a mechanism for conditional grant of roles. A relationship
-    # marked as `grants_via` will always grant the role unconditionally, so the only
-    # control at the moment is to make the relationship itself conditional. The affected
-    # mechanism is not `roles_for` but `actors_with`, which is currently not meant to be
-    # redefined in a subclass
-    _project_when_unrestricted: Mapped[Project] = with_roles(
-        relationship(
-            viewonly=True,
-            uselist=False,
-            primaryjoin=sa.and_(
-                project_id == Project.id, _visibility_state == VISIBILITY_STATE.PUBLIC
-            ),
-        ),
-        grants_via={None: {'account_participant': 'account_participant'}},
-    )
-
     body, body_text, body_html = MarkdownCompositeDocument.create(
         'body', nullable=False
     )
 
-    #: Update number, for Project updates, assigned when the update is published
+    #: Update serial number, only assigned when the update is published
     number: Mapped[int | None] = with_roles(
         sa_orm.mapped_column(default=None), read={'all'}
     )
 
-    #: Like pinned tweets. You can keep posting updates,
-    #: but might want to pin an update from a week ago.
+    #: Pin an update above future updates
     is_pinned: Mapped[bool] = with_roles(
-        sa_orm.mapped_column(default=False), read={'all'}
+        sa_orm.mapped_column(default=False), read={'all'}, write={'editor'}
     )
 
     published_by_id: Mapped[int | None] = sa_orm.mapped_column(
@@ -185,6 +173,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
             'body_text',
             weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
             regconfig='english',
+            # FIXME: Search preview will give partial access to Update.body even if the
+            # user does not have the necessary 'reader' role
             hltext=lambda: sa.func.concat_ws(
                 visual_field_delimiter, Update.title, Update.body_html
             ),
@@ -198,6 +188,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
             'read': {'name', 'title', 'urls'},
             'call': {'features', 'visibility_state', 'state', 'url_for'},
         },
+        'project_crew': {'read': {'body'}},
+        'editor': {'write': {'title', 'body'}, 'read': {'body'}},
         'reader': {'read': {'body'}},
     }
 
@@ -213,10 +205,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
             'edited_at',
             'created_by',
             'is_pinned',
-            'is_restricted',
             'is_currently_restricted',
-            'visibility_label',
-            'state_label',
+            'visibility',
             'urls',
             'uuid_b58',
         },
@@ -231,10 +221,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
             'edited_at',
             'created_by',
             'is_pinned',
-            'is_restricted',
             'is_currently_restricted',
-            'visibility_label',
-            'state_label',
+            'visibility',
             'urls',
             'uuid_b58',
         },
@@ -249,17 +237,47 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         """Represent :class:`Update` as a string."""
         return f'<Update "{self.title}" {self.uuid_b58}>'
 
+    @role_check('reader')
+    def has_reader_role(
+        self, actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Check if the given actor is a reader based on the Update's visibility."""
+        if not self.state.PUBLISHED:
+            # Update must be published to allow anyone other than crew to read
+            return False
+        if self.visibility_state.PUBLIC:
+            return True
+        roles = self.roles_for(actor)
+        if self.visibility_state.PARTICIPANTS:
+            return 'project_participant' in roles
+        if self.visibility_state.MEMBERS:
+            return 'account_member' in roles
+
+        raise RuntimeError("This update has an unexpected state")
+
+    # 'reader' is a non-enumerated role, like `all`, `auth` and `anon`
+
     @property
-    def visibility_label(self) -> str:
-        return self.visibility_state.label.title
+    def visibility(self) -> str:
+        """Return visibility state name."""
+        return self.visibility_state.label.name
 
-    with_roles(visibility_label, read={'all'})
+    @visibility.setter
+    def visibility(self, value: str) -> None:
+        """Set visibility state (interim until visibility as state is resolved)."""
+        # FIXME: Move to using an Enum so we don't reproduce the enumeration here
+        match value:
+            case 'public':
+                vstate = VISIBILITY_STATE.PUBLIC
+            case 'participants':
+                vstate = VISIBILITY_STATE.PARTICIPANTS
+            case 'members':
+                vstate = VISIBILITY_STATE.MEMBERS
+            case _:
+                raise ValueError("Unknown visibility state")
+        self._visibility_state = vstate  # type: ignore[assignment]
 
-    @property
-    def state_label(self) -> str:
-        return self.state.label.title
-
-    with_roles(state_label, read={'all'})
+    with_roles(visibility, read={'all'}, write={'editor'})
 
     state.add_conditional_state(
         'UNPUBLISHED',
@@ -311,50 +329,16 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
 
     @with_roles(call={'editor'})
     @state.transition(state.DELETED, state.DRAFT)
-    def undo_delete(self) -> None:
+    def undelete(self) -> None:
         self.deleted_by = None
         self.deleted_at = None
 
-    @with_roles(call={'editor'})
-    @visibility_state.transition(visibility_state.RESTRICTED, visibility_state.PUBLIC)
-    def make_public(self) -> None:
-        pass
-
-    @with_roles(call={'editor'})
-    @visibility_state.transition(visibility_state.PUBLIC, visibility_state.RESTRICTED)
-    def make_restricted(self) -> None:
-        pass
-
-    @property
-    def is_restricted(self) -> bool:
-        return bool(self.visibility_state.RESTRICTED)
-
-    @is_restricted.setter
-    def is_restricted(self, value: bool) -> None:
-        if value and self.visibility_state.PUBLIC:
-            self.make_restricted()
-        elif not value and self.visibility_state.RESTRICTED:
-            self.make_public()
-
-    with_roles(is_restricted, read={'all'})
-
     @property
     def is_currently_restricted(self) -> bool:
-        return self.is_restricted and not self.current_roles.reader
+        """Check if this update is not available for the current user."""
+        return not self.current_roles.reader
 
     with_roles(is_currently_restricted, read={'all'})
-
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        if not self.visibility_state.RESTRICTED:
-            # Everyone gets reader role when the post is not restricted.
-            # If it is, 'reader' must be mapped from 'participant' in the project,
-            # specified above in the grants_via annotation on project.
-            roles.add('reader')
-
-        return roles
 
     @classmethod
     def all_published_public(cls) -> Query[Self]:

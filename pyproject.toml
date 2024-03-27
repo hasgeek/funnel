@@ -29,15 +29,16 @@ venvs = [".venv"]
 paths = ["funnel", "tests", "migrations/versions"]
 deps-file = "requirements/base.in"
 exclude-deps = [
-  "argon2-cffi",   # Optional dep for passlib
-  "bcrypt",        # Optional dep for passlib
-  "greenlet",      # Optional dep for SQLAlchemy's asyncio support
-  "gunicorn",      # Not imported, used as server
-  "linkify-it-py", # Optional dep for markdown-it-py
-  "psycopg",       # Optional dep for SQLAlchemy
-  "rq-dashboard",  # Creosote fails to recognise the import
-  "tzdata",        # Resource-only dep, no code to import
-  "urllib3",       # Unused but required to silence a pip-audit warning
+  "argon2-cffi",     # Optional dep for passlib
+  "bcrypt",          # Optional dep for passlib
+  "greenlet",        # Optional dep for SQLAlchemy's asyncio support
+  "gunicorn",        # Not imported, used as server
+  "linkify-it-py",   # Optional dep for markdown-it-py
+  "psycopg",         # Optional dep for SQLAlchemy
+  "python-dateutil", # Creosote fails to recognise the import
+  "rq-dashboard",    # Creosote fails to recognise the import
+  "tzdata",          # Resource-only dep, no code to import
+  "urllib3",         # Unused but required to silence a pip-audit warning
 ]
 
 [tool.djlint]
