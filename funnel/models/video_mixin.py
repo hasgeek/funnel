@@ -75,10 +75,8 @@ def make_video_url(video_source: str, video_id: str) -> str:
 
 @declarative_mixin
 class VideoMixin:
-    video_id: Mapped[str | None] = sa_orm.mapped_column(sa.UnicodeText, nullable=True)
-    video_source: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
-    )
+    video_id: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
+    video_source: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
 
     @property
     def video_url(self) -> str | None:

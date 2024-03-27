@@ -244,7 +244,7 @@ class SmsMessage(PhoneNumberMixin, BaseMixin[int, Account], Model):
     phone_number_reference_is_active: bool = False
 
     transactionid: Mapped[str | None] = immutable(
-        sa_orm.mapped_column(sa.UnicodeText, unique=True, nullable=True)
+        sa_orm.mapped_column(sa.Unicode, unique=True, nullable=True)
     )
     # The message itself
     message: Mapped[str] = immutable(
@@ -257,9 +257,7 @@ class SmsMessage(PhoneNumberMixin, BaseMixin[int, Account], Model):
     status_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
-    fail_reason: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
-    )
+    fail_reason: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
 
     def __init__(self, **kwargs: Any) -> None:
         phone = kwargs.pop('phone', None)

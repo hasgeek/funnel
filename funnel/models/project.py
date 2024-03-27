@@ -297,7 +297,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
     livestream_urls: Mapped[list[str] | None] = with_roles(
         sa_orm.mapped_column(
-            sa.ARRAY(sa.UnicodeText, dimensions=1),
+            sa.ARRAY(sa.Unicode, dimensions=1),
             nullable=True,  # For legacy data
             server_default=sa.text("'{}'::text[]"),
             default=None,

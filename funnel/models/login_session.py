@@ -106,7 +106,7 @@ class LoginSession(UuidMixin, BaseMixin[int, Account], Model):
     #: User's network, from IP address
     geoip_asn: Mapped[int | None] = sa_orm.mapped_column()
     #: User agent
-    user_agent: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
+    user_agent: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
     #: The login service that was used to make this session
     login_service: Mapped[str | None] = sa_orm.mapped_column()
 

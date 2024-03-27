@@ -54,7 +54,7 @@ class ScopeMixin:
     def _scope(cls) -> Mapped[str]:
         """Database column for storing scopes as a space-separated string."""
         return sa_orm.mapped_column(
-            'scope', sa.UnicodeText, nullable=cls.__scope_null_allowed__
+            'scope', sa.Unicode, nullable=cls.__scope_null_allowed__
         )
 
     @property
@@ -117,7 +117,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin[int, Account], Model):
     )
     #: Website
     website: Mapped[str] = with_roles(
-        sa_orm.mapped_column(sa.UnicodeText, nullable=False),  # FIXME: Use UrlType
+        sa_orm.mapped_column(sa.Unicode, nullable=False),  # FIXME: Use UrlType
         read={'all'},
         write={'owner'},
     )
@@ -127,7 +127,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin[int, Account], Model):
     )
     #: Back-end notification URI (TODO: deprecated, needs better architecture)
     notification_uri: Mapped[str | None] = with_roles(  # FIXME: Use UrlType
-        sa_orm.mapped_column(sa.UnicodeText, nullable=True, default=''), rw={'owner'}
+        sa_orm.mapped_column(sa.Unicode, nullable=True, default=''), rw={'owner'}
     )
     #: Active flag
     active: Mapped[bool] = sa_orm.mapped_column(default=True)
@@ -389,7 +389,7 @@ class AuthCode(ScopeMixin, BaseMixin[int, Account], Model):
     code: Mapped[str] = sa_orm.mapped_column(
         sa.String(44), insert_default=newsecret, default=None, nullable=False
     )
-    redirect_uri: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
+    redirect_uri: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
     used: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     def is_valid(self) -> bool:
@@ -656,7 +656,7 @@ class AuthClientPermissions(BaseMixin[int, Account], Model):
     )
     #: The permissions as a string of tokens
     access_permissions: Mapped[str] = sa_orm.mapped_column(
-        'permissions', sa.UnicodeText, default='', nullable=False
+        'permissions', sa.Unicode, default='', nullable=False
     )
 
     # Only one assignment per account and client
@@ -732,7 +732,7 @@ class AuthClientTeamPermissions(BaseMixin[int, Account], Model):
     )
     #: The permissions as a string of tokens
     access_permissions: Mapped[str] = sa_orm.mapped_column(
-        'permissions', sa.UnicodeText, default='', nullable=False
+        'permissions', sa.Unicode, default='', nullable=False
     )
 
     # Only one assignment per team and client

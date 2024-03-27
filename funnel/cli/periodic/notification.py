@@ -51,7 +51,7 @@ def project_starting_alert() -> None:
                 models.Venue.project_id == models.Project.id
             ).exists()
         )
-        .options(sa.orm.load_only(models.Project.uuid))
+        .options(sa_orm.load_only(models.Project.uuid))
         .all()
     ):
         dispatch_notification(
