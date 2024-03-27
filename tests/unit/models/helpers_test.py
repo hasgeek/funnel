@@ -1,15 +1,25 @@
 """Tests for model helpers."""
+
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
+from collections.abc import Callable, Generator
 from types import SimpleNamespace
+from typing import LiteralString, cast
 
 import pytest
 import sqlalchemy as sa
-from flask_babel import lazy_gettext
+import sqlalchemy.orm as sa_orm
+from flask_babel import lazy_gettext as lazy_gettext_base
+from furl import furl
 from sqlalchemy.exc import StatementError
+from sqlalchemy.orm import Mapped
 
 import funnel.models.helpers as mhelpers
 from funnel import models
+
+from ...conftest import Flask, SQLAlchemy, scoped_session
+
+lazy_gettext = cast(Callable[[LiteralString], str], lazy_gettext_base)
 
 
 def test_valid_name() -> None:
@@ -40,40 +50,40 @@ def test_valid_name() -> None:
     assert mhelpers.valid_name('-Ab') is False
 
 
-def test_valid_username() -> None:
+def test_valid_account_name() -> None:
     """Usernames contain letters, numbers and non-terminal hyphens."""
-    assert mhelpers.valid_username('example person') is False
-    assert mhelpers.valid_username('example-person') is False
-    assert mhelpers.valid_username('exampleperson') is True
+    assert mhelpers.valid_account_name('example person') is False
+    assert mhelpers.valid_account_name('example-person') is False
+    assert mhelpers.valid_account_name('exampleperson') is True
     assert mhelpers.valid_name('example1person') is True
     assert mhelpers.valid_name('1exampleperson') is True
     assert mhelpers.valid_name('exampleperson1') is True
-    assert mhelpers.valid_username('example_person') is True
-    assert mhelpers.valid_username('a') is True
-    assert mhelpers.valid_username('a-') is False
-    assert mhelpers.valid_username('ab-') is False
-    assert mhelpers.valid_username('a_') is True
-    assert mhelpers.valid_username('ab_') is True
-    assert mhelpers.valid_username('-a') is False
-    assert mhelpers.valid_username('-ab') is False
-    assert mhelpers.valid_username('_a') is False
-    assert mhelpers.valid_username('_ab') is False
-    assert mhelpers.valid_username('Example Person') is False
-    assert mhelpers.valid_username('Example-Person') is False
-    assert mhelpers.valid_username('ExamplePerson') is True
-    assert mhelpers.valid_username('Example1Person') is True
-    assert mhelpers.valid_username('1ExamplePerson') is True
-    assert mhelpers.valid_username('ExamplePerson1') is True
-    assert mhelpers.valid_username('Example_Person') is True
-    assert mhelpers.valid_username('A') is True
-    assert mhelpers.valid_username('A-') is False
-    assert mhelpers.valid_username('Ab-') is False
-    assert mhelpers.valid_username('A_') is True
-    assert mhelpers.valid_username('Ab_') is True
-    assert mhelpers.valid_username('-A') is False
-    assert mhelpers.valid_username('-Ab') is False
-    assert mhelpers.valid_username('_A') is False
-    assert mhelpers.valid_username('_Ab') is False
+    assert mhelpers.valid_account_name('example_person') is True
+    assert mhelpers.valid_account_name('a') is True
+    assert mhelpers.valid_account_name('a-') is False
+    assert mhelpers.valid_account_name('ab-') is False
+    assert mhelpers.valid_account_name('a_') is True
+    assert mhelpers.valid_account_name('ab_') is True
+    assert mhelpers.valid_account_name('-a') is False
+    assert mhelpers.valid_account_name('-ab') is False
+    assert mhelpers.valid_account_name('_a') is False
+    assert mhelpers.valid_account_name('_ab') is False
+    assert mhelpers.valid_account_name('Example Person') is False
+    assert mhelpers.valid_account_name('Example-Person') is False
+    assert mhelpers.valid_account_name('ExamplePerson') is True
+    assert mhelpers.valid_account_name('Example1Person') is True
+    assert mhelpers.valid_account_name('1ExamplePerson') is True
+    assert mhelpers.valid_account_name('ExamplePerson1') is True
+    assert mhelpers.valid_account_name('Example_Person') is True
+    assert mhelpers.valid_account_name('A') is True
+    assert mhelpers.valid_account_name('A-') is False
+    assert mhelpers.valid_account_name('Ab-') is False
+    assert mhelpers.valid_account_name('A_') is True
+    assert mhelpers.valid_account_name('Ab_') is True
+    assert mhelpers.valid_account_name('-A') is False
+    assert mhelpers.valid_account_name('-Ab') is False
+    assert mhelpers.valid_account_name('_A') is False
+    assert mhelpers.valid_account_name('_Ab') is False
 
 
 def test_reopen() -> None:
@@ -86,14 +96,14 @@ def test_reopen() -> None:
         pass
 
     class OriginalClass:
-        def spam(self):
+        def spam(self) -> str:
             return "spam"
 
     saved_reference = OriginalClass
 
     @mhelpers.reopen(OriginalClass)
     class ReopenedClass:
-        def eggs(self):
+        def eggs(self) -> str:
             return "eggs"
 
     # The decorator returns the original class with the decorated class's contents
@@ -118,7 +128,7 @@ def test_reopen() -> None:
 
     # The decorator will refuse to process classes that affect the original's attributes
     # (__slots__, __getattribute__, __get/set/delattr__)
-    with pytest.raises(TypeError, match='contains unsupported __attributes__'):
+    with pytest.raises(TypeError, match='contains unsupported __dunder__'):
 
         @mhelpers.reopen(OriginalClass)
         class HasSlots:  # pylint: disable=unused-variable
@@ -129,7 +139,7 @@ def test_add_to_class() -> None:
     """Add to class adds new attributes to a class."""
 
     class ReferenceClass:
-        def spam(self):
+        def spam(self) -> str:
             return 'is_spam'
 
     assert ReferenceClass().spam() == 'is_spam'
@@ -137,7 +147,7 @@ def test_add_to_class() -> None:
 
     # New methods can be added
     @mhelpers.add_to_class(ReferenceClass)
-    def eggs(self):  # skipcq: PTC-W0065
+    def eggs(self: ReferenceClass) -> str:  # skipcq: PTC-W0065
         return 'is_eggs'
 
     assert hasattr(ReferenceClass, 'eggs')
@@ -148,35 +158,51 @@ def test_add_to_class() -> None:
     # New methods can have a custom name and can take any decorator valid in the class
     @mhelpers.add_to_class(ReferenceClass, 'spameggs')  # type: ignore[misc]
     @property
-    def spameggs_property(self) -> str:
+    def spameggs_property(self: ReferenceClass) -> str:
         return 'is_spameggs'
 
     assert hasattr(ReferenceClass, 'spameggs')
     assert not hasattr(ReferenceClass, 'spameggs_property')
-    assert ReferenceClass.spameggs is spameggs_property
+    assert ReferenceClass.spameggs is spameggs_property  # pyright: ignore
     assert ReferenceClass().spameggs == 'is_spameggs'  # type: ignore[attr-defined]
 
     # Existing attributes cannot be replaced
     with pytest.raises(AttributeError):
 
         @mhelpers.add_to_class(ReferenceClass, 'spameggs')
-        def new_foobar(self):  # skipcq: PTC-W0049
+        def new_foobar(self: ReferenceClass) -> None:  # skipcq: PTC-W0049
             """Cause an AttributeError in the decorator."""
 
 
 @pytest.fixture(scope='session')
-def image_models(database, app):
+def image_models(
+    database: SQLAlchemy, app: Flask
+) -> Generator[SimpleNamespace, None, None]:
     class MyImageModel(models.Model):
         __tablename__ = 'test_my_image_model'
-        id = sa.orm.mapped_column(sa.Integer, primary_key=True)  # noqa: A003
-        image_url = sa.orm.mapped_column(models.ImgeeType)
+        id: Mapped[int] = sa_orm.mapped_column(  # noqa: A003
+            sa.Integer, primary_key=True
+        )
+        image_url: Mapped[furl] = sa_orm.mapped_column(models.ImgeeType)
 
+    new_models = [MyImageModel]
+
+    sa_orm.configure_mappers()
+    # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
-        database.create_all()
-    return SimpleNamespace(**locals())
+        database.metadata.create_all(
+            bind=database.engine,
+            tables=[model.__table__ for model in new_models],
+        )
+    yield SimpleNamespace(**{model.__name__: model for model in new_models})
+    with app.app_context():
+        database.metadata.drop_all(
+            bind=database.engine,
+            tables=[model.__table__ for model in new_models],
+        )
 
 
-def test_imgeetype(db_session, image_models) -> None:
+def test_imgeetype(db_session: scoped_session, image_models: SimpleNamespace) -> None:
     valid_url = "https://images.example.com/embed/file/randomimagehash"
     valid_url_with_resize = (
         "https://images.example.com/embed/file/randomimagehash?size=120x100"
@@ -248,9 +274,15 @@ def test_imgeetype(db_session, image_models) -> None:
         ('lu_tz', True, r'%lu\_tz%'),
         ('ab[c]_%d', False, r'abc\_\%d%'),
         ('ab[c]_%d', True, r'%abc\_\%d%'),
+        ('\\', False, r'\\%'),
+        ('\\', True, r'%\\%'),
+        ('ab\\cd', False, r'ab\\cd%'),
+        ('ab\\cd', True, r'%ab\\cd%'),
+        ('\\%', False, r'\\\%%'),
+        ('\\%', True, r'%\\\%%'),
     ],
 )
-def test_quote_autocomplete_like(prefix, midway, query) -> None:
+def test_quote_autocomplete_like(prefix: str, midway: bool, query: str) -> None:
     """Test that the LIKE-based autocomplete helper function escapes correctly."""
     assert mhelpers.quote_autocomplete_like(prefix, midway) == query
 
@@ -263,7 +295,9 @@ def test_quote_autocomplete_like(prefix, midway, query) -> None:
         ('am', "'am':*"),  # No stemming (would have been invalid ':*' otherwise)
     ],
 )
-def test_quote_autocomplete_tsquery(db_session, prefix, tsquery) -> None:
+def test_quote_autocomplete_tsquery(
+    db_session: scoped_session, prefix: str, tsquery: str
+) -> None:
     assert (
         db_session.query(mhelpers.quote_autocomplete_tsquery(prefix)).scalar()
         == tsquery
@@ -271,7 +305,7 @@ def test_quote_autocomplete_tsquery(db_session, prefix, tsquery) -> None:
 
 
 def test_message_composite() -> None:
-    """Test mhelpers.MessageComposite has similar properties to MarkdownComposite."""
+    """Test MessageComposite has similar properties to MarkdownComposite."""
     text1 = mhelpers.MessageComposite("Text1")
     assert text1.text == "Text1"
     assert text1.html == "<p>Text1</p>"

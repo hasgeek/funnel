@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Set, Tuple, TypeVar, Union
-from typing_extensions import ParamSpec, TypeAlias
+from typing import ParamSpec, TypeAlias, TypeVar
 
 from flask.typing import ResponseReturnValue
 from werkzeug.wrappers import Response  # Base class for Flask Response
@@ -33,7 +32,7 @@ P = ParamSpec('P')
 ReturnView: TypeAlias = ResponseReturnValue
 
 #: Return type of the `migrate_user` and `migrate_profile` methods
-OptionalMigratedTables: TypeAlias = Optional[Union[List[str], Tuple[str], Set[str]]]
+OptionalMigratedTables: TypeAlias = list[str] | tuple[str] | set[str] | None
 
 #: Return type for Response objects
 ReturnResponse: TypeAlias = Response

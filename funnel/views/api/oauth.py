@@ -2,29 +2,37 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, cast
+from collections.abc import Collection, Iterable
+from typing import Any, cast
 
-from flask import get_flashed_messages, jsonify, redirect, render_template, request
+from flask import (
+    abort,
+    get_flashed_messages,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+)
 
 from baseframe import _, forms
-from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.utils import newsecret
 
 from ... import app
+from ...auth import current_auth
 from ...models import (
+    Account,
     AuthClient,
     AuthClientCredential,
     AuthCode,
     AuthToken,
-    User,
-    UserSession,
+    LoginSession,
     db,
     getuser,
 )
 from ...registry import resource_registry
 from ...typing import ReturnView
-from ...utils import abort_null, make_redirect_url
+from ...utils import make_redirect_url
 from ..login_session import reload_for_cookies, requires_client_login, requires_login
 from .resource import get_userinfo
 
@@ -33,7 +41,7 @@ class ScopeError(Exception):
     """Requested scope is invalid or beyond access level."""
 
 
-def verifyscope(scope: Iterable, auth_client: AuthClient) -> List[str]:
+def verifyscope(scope: Iterable, auth_client: AuthClient) -> list[str]:
     """Verify if requested scope is valid for this client."""
     internal_resources = []  # Names of internal resources
 
@@ -82,8 +90,8 @@ def oauth_make_auth_code(
     Caller must commit the database session for this to work.
     """
     authcode = AuthCode(
-        user=current_auth.user,
-        user_session=current_auth.session,
+        account=current_auth.user,
+        login_session=current_auth.session,
         auth_client=auth_client,
         scope=scope,
         redirect_uri=redirect_uri[:1024],
@@ -108,8 +116,8 @@ def oauth_auth_success(
     auth_client: AuthClient,
     redirect_uri: str,
     state: str,
-    code: Optional[str],
-    token: Optional[AuthToken] = None,
+    code: str | None,
+    token: AuthToken | None = None,
 ) -> ReturnView:
     """Commit session and redirect to OAuth redirect URI."""
     clear_flashed_messages()
@@ -148,8 +156,8 @@ def oauth_auth_error(
     redirect_uri: str,
     state: str,
     error: str,
-    error_description: Optional[str] = None,
-    error_uri: Optional[str] = None,
+    error_description: str | None = None,
+    error_uri: str | None = None,
 ) -> ReturnView:
     """Return to auth client indicating that auth request resulted in an error."""
     params = {'error': error}
@@ -177,8 +185,8 @@ def oauth_authorize() -> ReturnView:
     form = forms.Form()
 
     response_type = request.args.get('response_type')
-    client_id = cast(Optional[str], request.args.get('client_id'))
-    redirect_uri = cast(Optional[str], request.args.get('redirect_uri'))
+    client_id = request.args.get('client_id')
+    redirect_uri = request.args.get('redirect_uri')
     scope = cast(str, request.args.get('scope', '')).split(' ')
     state = cast(str, request.args.get('state', ''))
 
@@ -195,7 +203,11 @@ def oauth_authorize() -> ReturnView:
 
     # Validation 1.2.1: Is the client active?
     if not auth_client.active:
-        return oauth_auth_error(auth_client.redirect_uri, state, 'unauthorized_client')
+        if auth_client.redirect_uri:
+            return oauth_auth_error(
+                auth_client.redirect_uri, state, 'unauthorized_client'
+            )
+        abort(422)
 
     # Validation 1.3: Cross-check redirect_uri
     if not redirect_uri:
@@ -206,7 +218,7 @@ def oauth_authorize() -> ReturnView:
         redirect_uri
     ):
         return oauth_auth_error(
-            auth_client.redirect_uri,
+            redirect_uri,
             state,
             'invalid_request',
             _("Redirect URI hostname doesn't match"),
@@ -215,7 +227,7 @@ def oauth_authorize() -> ReturnView:
     # Validation 1.4: AuthClient allows access for this user
     if not auth_client.allow_access_for(current_auth.user):
         return oauth_auth_error(
-            auth_client.redirect_uri,
+            redirect_uri,
             state,
             'invalid_scope',
             _("You do not have access to this application"),
@@ -330,7 +342,7 @@ def oauth_authorize() -> ReturnView:
 
 
 def oauth_token_error(
-    error: str, error_description: Optional[str] = None, error_uri: Optional[str] = None
+    error: str, error_description: str | None = None, error_uri: str | None = None
 ) -> ReturnView:
     """Return an error status when validating an OAuth2 token request."""
     params = {'error': error}
@@ -346,14 +358,14 @@ def oauth_token_error(
 
 
 def oauth_make_token(
-    user: Optional[User],
+    user: Account | None,
     auth_client: AuthClient,
-    scope: Iterable,
-    user_session: Optional[UserSession] = None,
+    scope: Collection[str],
+    login_session: LoginSession | None = None,
 ) -> AuthToken:
     """Make an OAuth2 token for the given user, client, scope and optional session."""
     # Look for an existing token
-    token = auth_client.authtoken_for(user, user_session)
+    token = auth_client.authtoken_for(user, login_session)
 
     # If token exists, add to the existing scope
     if token is not None:
@@ -363,35 +375,32 @@ def oauth_make_token(
         if auth_client.confidential:
             if user is None:
                 raise ValueError("User not provided")
-            token = AuthToken(  # nosec
-                user=user, auth_client=auth_client, scope=scope, token_type='bearer'
+            token = AuthToken(  # nosec B106
+                account=user, auth_client=auth_client, scope=scope, token_type='bearer'
             )
-            token = cast(
-                AuthToken,
-                failsafe_add(db.session, token, user=user, auth_client=auth_client),
+            token = failsafe_add(
+                db.session, token, account=user, auth_client=auth_client
             )
-        elif user_session is not None:
-            token = AuthToken(  # nosec
-                user_session=user_session,
+
+        elif login_session is not None:
+            token = AuthToken(  # nosec B106
+                login_session=login_session,
                 auth_client=auth_client,
                 scope=scope,
                 token_type='bearer',
             )
-            token = cast(
-                AuthToken,
-                failsafe_add(
-                    db.session,
-                    token,
-                    user_session=user_session,
-                    auth_client=auth_client,
-                ),
+            token = failsafe_add(
+                db.session,
+                token,
+                login_session=login_session,
+                auth_client=auth_client,
             )
         else:
-            raise ValueError("user_session not provided")
+            raise ValueError("login_session not provided")
     return token
 
 
-def oauth_token_success(token: AuthToken, **params) -> ReturnView:
+def oauth_token_success(token: AuthToken, **params: Any) -> ReturnView:
     """Return an OAuth2 token after successful validation and token generation."""
     params['access_token'] = token.token
     params['token_type'] = token.token_type
@@ -414,21 +423,18 @@ def oauth_token_success(token: AuthToken, **params) -> ReturnView:
 def oauth_token() -> ReturnView:
     """Provide token endpoint for OAuth2 server."""
     # Always required parameters
-    grant_type = cast(Optional[str], abort_null(request.form.get('grant_type')))
+    grant_type = request.form.get('grant_type')
     auth_client = current_auth.auth_client  # Provided by @requires_client_login
-    scope = abort_null(request.form.get('scope', '')).split(' ')
+    scope = request.form.get('scope', '').split(' ')
     # if grant_type == 'authorization_code' (POST)
-    code = cast(Optional[str], abort_null(request.form.get('code')))
-    redirect_uri = cast(Optional[str], abort_null(request.form.get('redirect_uri')))
+    code = request.form.get('code')
+    redirect_uri = request.form.get('redirect_uri')
     # if grant_type == 'password' (POST)
-    username = cast(Optional[str], abort_null(request.form.get('username')))
-    password = cast(Optional[str], abort_null(request.form.get('password')))
+    username = request.form.get('username')
+    password = request.form.get('password')
     # if grant_type == 'client_credentials'
-    buid = cast(
-        Optional[str],
-        # XXX: Deprecated userid parameter
-        abort_null(request.form.get('buid') or request.form.get('userid')),
-    )
+    # XXX: Deprecated userid parameter
+    buid = request.form.get('buid') or request.form.get('userid')
 
     # Validations 1: Required parameters
     if not grant_type:
@@ -449,7 +455,7 @@ def oauth_token() -> ReturnView:
 
         if buid:
             if auth_client.trusted:
-                user = User.get(buid=buid)
+                user = Account.get(buid=buid)
                 if user is not None:
                     # This client is trusted and can receive a user access token.
                     # However, don't grant it the scope it wants as the user's
@@ -482,27 +488,27 @@ def oauth_token() -> ReturnView:
             db.session.delete(authcode)
             db.session.commit()
             return oauth_token_error('invalid_grant', _("Expired auth code"))
-        # Validations 3.1: scope in authcode
+        # Validations 3.1: scope in auth code
         if not scope or scope[0] == '':
             return oauth_token_error('invalid_scope', _("Scope is blank"))
         if not set(scope).issubset(set(authcode.scope)):
             return oauth_token_error('invalid_scope', _("Scope expanded"))
-        # Scope not exceeded. Use whatever the authcode allows
+        # Scope not exceeded. Use whatever the auth code allows
         scope = list(authcode.scope)
         if redirect_uri != authcode.redirect_uri:
             return oauth_token_error('invalid_client', _("redirect_uri does not match"))
 
         token = oauth_make_token(
-            user=authcode.user, auth_client=auth_client, scope=scope
+            user=authcode.account, auth_client=auth_client, scope=scope
         )
         db.session.delete(authcode)
         return oauth_token_success(
             token,
             userinfo=get_userinfo(
-                user=authcode.user,
+                user=authcode.account,
                 auth_client=auth_client,
                 scope=token.effective_scope,
-                user_session=authcode.user_session,
+                login_session=authcode.login_session,
             ),
         )
 

@@ -20,7 +20,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_session_start_at'), 'session', ['start_at'], unique=False)
     op.create_index(op.f('ix_session_end_at'), 'session', ['end_at'], unique=False)
     op.execute(
-        sa.DDL(
+        sa.text(
             'ALTER TABLE session RENAME CONSTRAINT session_start_end_check '
             'TO session_start_at_end_at_check'
         )
@@ -29,7 +29,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.execute(
-        sa.DDL(
+        sa.text(
             'ALTER TABLE session RENAME CONSTRAINT session_start_at_end_at_check '
             'TO session_start_end_check'
         )

@@ -6,7 +6,7 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import Project, ProjectPublishedNotification
+from ...models import Account, Project, ProjectPublishedNotification
 from ...transports.sms import SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -21,13 +21,13 @@ class ProjectPublishedTemplate(TemplateVarMixin, SmsTemplate):
         " {#var#}. Details here: {#var#}\n\nhttps://bye.li to stop -Hasgeek"
     )
     template = (
-        "{profile}, whose event you previously registered for, has just announced"
+        "{account}, whose event you previously registered for, has just announced"
         " {project}. Details here: {url}\n\nhttps://bye.li to stop -Hasgeek"
     )
-    plaintext_template = "{profile} has published a new project: {url}"
+    plaintext_template = "{account} has published a new project: {url}"
 
     url: str
-    profile: str
+    account: Account
 
 
 @ProjectPublishedNotification.renderer
@@ -44,14 +44,14 @@ class RenderProjectPublishedNotification(RenderNotification):
 
     @property
     def actor(self):
-        return self.project.user
+        return self.project.created_by
 
     def web(self):
         return render_template('notifications/update_new_web.html.jinja2', view=self)
 
     def email_subject(self):
-        return self.emoji_prefix + _("{update} ({project})").format(
-            update=self.project.title, project=self.project.joined_title
+        return self.emoji_prefix + _("{title} ({project})").format(
+            title=self.project.title, project=self.project.joined_title
         )
 
     def email_content(self):
@@ -61,10 +61,10 @@ class RenderProjectPublishedNotification(RenderNotification):
 
     def sms(self) -> ProjectPublishedTemplate:
         return ProjectPublishedTemplate(
-            profile=self.project.profile,
+            profile=self.project.account,
             project=self.project,
             url=shortlink(
-                self.update.url_for(_external=True, **self.tracking_tags('sms')),
+                self.project.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,
             ),
         )

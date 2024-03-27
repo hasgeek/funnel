@@ -8,8 +8,8 @@
     {%- if user.emails %}
       <li><span class="text-bold">{% trans %}Email addresses:{% endtrans %}</span>
         <ul>
-          {%- for useremail in user.emails %}
-            <li>{{ useremail.email }}</li>
+          {%- for accemail in user.emails %}
+            <li>{{ accemail.email }}</li>
           {%- endfor %}
         </ul>
       </li>

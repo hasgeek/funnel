@@ -17,7 +17,7 @@ from coaster.views import requestargs
 
 from .. import app
 from ..forms import OtpForm, PasswordCreateForm, PasswordResetRequestForm
-from ..models import AccountPasswordNotification, User, db
+from ..models import Account, AccountPasswordNotification, db
 from ..registry import login_registry
 from ..serializers import token_serializer
 from ..typing import ReturnView
@@ -55,7 +55,7 @@ def reset() -> ReturnView:
         user = form.user
         anchor = form.anchor
         if TYPE_CHECKING:
-            assert isinstance(user, User)  # nosec
+            assert isinstance(user, Account)  # nosec
         if not anchor:
             # User has no phone or email. Maybe they logged in via Twitter
             # and set a local username and password, but no email. Could happen
@@ -109,7 +109,7 @@ def reset() -> ReturnView:
 
 @app.route('/account/reset/<token>')
 @requestargs(('cookietest', getbool))
-def reset_with_token(token: str, cookietest=False) -> ReturnView:
+def reset_with_token(token: str, cookietest: bool = False) -> ReturnView:
     """Move token into session cookie and redirect to a token-free URL."""
     if not cookietest:
         session['reset_token'] = token
@@ -219,7 +219,7 @@ def reset_with_token_do() -> ReturnView:
         return render_redirect(url_for('reset'))
 
     # 3. We have a token and it's not expired. Is there a user?
-    user = User.get(buid=token['buid'])
+    user = Account.get(buid=token['buid'])
     if user is None:
         # If the user has disappeared, it's likely because this is a dev instance and
         # the local database has been dropped -- or a future scenario in which db entry
@@ -254,26 +254,28 @@ def reset_with_token_do() -> ReturnView:
         user.password = form.password.data
         session.pop('reset_token', None)
         # Invalidate all of the user's active sessions
-        user_sessions = user.active_user_sessions.all()
-        session_count = len(user_sessions)
-        for user_session in user_sessions:
-            user_session.revoke()
+        login_sessions = user.active_login_sessions.all()
+        session_count = len(login_sessions)
+        for login_session in login_sessions:
+            login_session.revoke()
         db.session.commit()
         dispatch_notification(AccountPasswordNotification(document=user))
         return render_message(
             title=_("Password reset complete"),
-            message=_(
-                "Your password has been changed. You may now login with your new"
-                " password"
-            )
-            if session_count == 0
-            else ngettext(
-                "Your password has been changed. As a precaution, you have been logged"
-                " out of one other device. You may now login with your new password",
-                "Your password has been changed. As a precaution, you have been logged"
-                " out of %(num)d other devices. You may now login with your new"
-                " password",
-                session_count,
+            message=(
+                _(
+                    "Your password has been changed. You may now login with your new"
+                    " password"
+                )
+                if session_count == 0
+                else ngettext(
+                    "Your password has been changed. As a precaution, you have been logged"
+                    " out of one other device. You may now login with your new password",
+                    "Your password has been changed. As a precaution, you have been logged"
+                    " out of %(num)d other devices. You may now login with your new"
+                    " password",
+                    session_count,
+                )
             ),
         )
     # Form with id 'form-password-change' will have password strength meter on UI

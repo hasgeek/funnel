@@ -2,24 +2,33 @@
 
 from __future__ import annotations
 
-from typing import Dict, Optional, Tuple, Union, cast, overload
-from typing_extensions import Literal
+from dataclasses import dataclass
+from enum import ReprEnum
+from typing import TYPE_CHECKING, Any, Literal, Self, overload
 
 from flask import current_app
-from werkzeug.utils import cached_property
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
-from coaster.utils import LabeledEnum
+from coaster.utils import DataclassFromType, LabeledEnum
 
-from ..typing import OptionalMigratedTables
-from . import Mapped, Model, NoIdMixin, UuidMixin, db, relationship, sa, types
-from .helpers import reopen
+from . import types
+from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
+from .base import (
+    Mapped,
+    Model,
+    NoIdMixin,
+    UuidMixin,
+    db,
+    declared_attr,
+    relationship,
+    sa,
+    sa_orm,
+)
 from .project import Project
 from .project_membership import project_child_role_map
-from .user import User, UserEmail, UserEmailClaim, UserPhone
 
-__all__ = ['Rsvp', 'RSVP_STATUS']
+__all__ = ['RSVP_STATUS', 'RsvpStateEnum', 'Rsvp']
 
 
 class RSVP_STATUS(LabeledEnum):  # noqa: N801
@@ -31,49 +40,63 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
     AWAITING = ('A', 'awaiting', __("Awaiting"))
 
 
+@dataclass(frozen=True)
+class _RsvpOptions(DataclassFromType, str):
+    """RSVP options."""
+
+    # The empty default is required for Mypy's enum plugin's `Enum.__call__` analysis
+    response: str = ''
+    label: str = ''
+
+
+class RsvpStateEnum(_RsvpOptions, ReprEnum):
+    YES = 'Y', __("Yes"), __("Going")
+    NO = 'N', __("No"), __("Not going")
+    MAYBE = 'M', __("Maybe"), __("Maybe")
+    AWAITING = 'A', __("Invite"), __("Awaiting")
+
+
 class Rsvp(UuidMixin, NoIdMixin, Model):
     __tablename__ = 'rsvp'
-    __allow_unmapped__ = True
-    project_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
+    project_id: Mapped[int] = sa_orm.mapped_column(
+        sa.ForeignKey('project.id'), default=None, nullable=False, primary_key=True
     )
-    project = with_roles(
-        relationship(
-            Project, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
-        ),
+    project: Mapped[Project] = with_roles(
+        relationship(back_populates='rsvps'),
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
         datasets={'primary'},
     )
-    user_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=False, primary_key=True
+    participant_id: Mapped[int] = sa_orm.mapped_column(
+        sa.ForeignKey('account.id'), default=None, nullable=False, primary_key=True
     )
-    user = with_roles(
-        relationship(
-            User, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
-        ),
+    participant: Mapped[Account] = with_roles(
+        relationship(back_populates='rsvps'),
         read={'owner', 'project_promoter'},
         grants={'owner'},
         datasets={'primary', 'without_parent'},
     )
-    form: Mapped[Optional[types.jsonb]] = with_roles(
-        sa.orm.mapped_column(),
+    form: Mapped[types.jsonb | None] = with_roles(
+        sa_orm.mapped_column(),
         rw={'owner'},
         read={'project_promoter'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    _state = sa.orm.mapped_column(
+    _state: Mapped[str] = sa_orm.mapped_column(
         'state',
         sa.CHAR(1),
-        StateManager.check_constraint('state', RSVP_STATUS),
-        default=RSVP_STATUS.AWAITING,
+        StateManager.check_constraint('state', RsvpStateEnum, sa.CHAR(1)),
+        default=RsvpStateEnum.AWAITING,
         nullable=False,
     )
     state = with_roles(
-        StateManager('_state', RSVP_STATUS, doc="RSVP answer"),
+        StateManager['Rsvp']('_state', RSVP_STATUS, doc="RSVP answer"),
         call={'owner', 'project_promoter'},
     )
+
+    if TYPE_CHECKING:
+        id_: declared_attr[Any]  # Fake entry for compatibility with ModelUuidProtocol
 
     __roles__ = {
         'owner': {'read': {'created_at', 'updated_at'}},
@@ -81,7 +104,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
     }
 
     @property
-    def response(self):
+    def response(self) -> str:
         """Return RSVP response as a raw value."""
         return self._state
 
@@ -99,7 +122,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         message=__("Your response has been saved"),
         type='primary',
     )
-    def rsvp_yes(self):
+    def rsvp_yes(self) -> None:
         pass
 
     @with_roles(call={'owner'})
@@ -110,7 +133,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         message=__("Your response has been saved"),
         type='dark',
     )
-    def rsvp_no(self):
+    def rsvp_no(self) -> None:
         pass
 
     @with_roles(call={'owner'})
@@ -121,131 +144,75 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         message=__("Your response has been saved"),
         type='accent',
     )
-    def rsvp_maybe(self):
+    def rsvp_maybe(self) -> None:
         pass
 
     @with_roles(call={'owner', 'project_promoter'})
-    def user_email(self) -> Optional[UserEmail]:
-        """User's preferred email address for this registration."""
-        return self.user.transport_for_email(self.project.profile)
+    def participant_email(self) -> AccountEmail | None:
+        """Participant's preferred email address for this registration."""
+        return self.participant.transport_for_email(self.project.account)
 
     @with_roles(call={'owner', 'project_promoter'})
-    def user_phone(self) -> Optional[UserEmail]:
-        """User's preferred phone number for this registration."""
-        return self.user.transport_for_sms(self.project.profile)
+    def participant_phone(self) -> AccountPhone | None:
+        """Participant's preferred phone number for this registration."""
+        return self.participant.transport_for_sms(self.project.account)
 
     @with_roles(call={'owner', 'project_promoter'})
     def best_contact(
         self,
-    ) -> Tuple[Union[UserEmail, UserEmailClaim, UserPhone, None], str]:
-        email = self.user_email()
+    ) -> tuple[AccountEmail | AccountEmailClaim | AccountPhone | None, str]:
+        email = self.participant_email()
         if email:
             return email, 'e'
-        phone = self.user_phone()
+        phone = self.participant_phone()
         if phone:
             return phone, 'p'
-        if self.user.emailclaims:
-            return self.user.emailclaims[0], 'ec'
+        if self.participant.emailclaims:
+            return self.participant.emailclaims[0], 'ec'
         return None, ''
 
     @classmethod
-    def migrate_user(  # type: ignore[return]
-        cls, old_user: User, new_user: User
-    ) -> OptionalMigratedTables:
-        """Migrate one user account to another when merging user accounts."""
-        project_ids = {rsvp.project_id for rsvp in new_user.rsvps}
-        for rsvp in old_user.rsvps:
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
+        """Migrate one account's data to another when merging accounts."""
+        project_ids = {rsvp.project_id for rsvp in new_account.rsvps}
+        for rsvp in old_account.rsvps:
             if rsvp.project_id not in project_ids:
-                rsvp.user = new_user
+                rsvp.participant = new_account
             else:
                 current_app.logger.warning(
                     "Discarding conflicting RSVP (%s) from %r on %r",
                     rsvp._state,  # pylint: disable=protected-access
-                    old_user,
+                    old_account,
                     rsvp.project,
                 )
                 db.session.delete(rsvp)
 
     @overload
     @classmethod
-    def get_for(cls, project: Project, user: User, create: Literal[True]) -> Rsvp:
-        ...
+    def get_for(
+        cls, project: Project, account: Account, create: Literal[True]
+    ) -> Self: ...
 
     @overload
     @classmethod
     def get_for(
-        cls, project: Project, user: User, create: Literal[False]
-    ) -> Optional[Rsvp]:
-        ...
+        cls, project: Project, account: Account, create: Literal[False]
+    ) -> Self | None: ...
 
     @overload
     @classmethod
     def get_for(
-        cls, project: Project, user: Optional[User], create=False
-    ) -> Optional[Rsvp]:
-        ...
+        cls, project: Project, account: Account | None, create: bool = False
+    ) -> Self | None: ...
 
     @classmethod
     def get_for(
-        cls, project: Project, user: Optional[User], create=False
-    ) -> Optional[Rsvp]:
-        if user is not None:
-            result = cls.query.get((project.id, user.id))
+        cls, project: Project, account: Account | None, create: bool = False
+    ) -> Self | None:
+        if account is not None:
+            result = db.session.get(cls, (project.id, account.id))
             if not result and create:
-                result = cls(project=project, user=user)
+                result = cls(project=project, participant=account)
                 db.session.add(result)
             return result
         return None
-
-
-@reopen(Project)
-class __Project:
-    @property
-    def active_rsvps(self):
-        return self.rsvps.join(User).filter(Rsvp.state.YES, User.state.ACTIVE)
-
-    with_roles(
-        active_rsvps, grants_via={Rsvp.user: {'participant', 'project_participant'}}
-    )
-
-    @overload
-    def rsvp_for(self, user: User, create: Literal[True]) -> Rsvp:
-        ...
-
-    @overload
-    def rsvp_for(self, user: Optional[User], create: Literal[False]) -> Optional[Rsvp]:
-        ...
-
-    def rsvp_for(self, user: Optional[User], create=False) -> Optional[Rsvp]:
-        return Rsvp.get_for(cast(Project, self), user, create)
-
-    def rsvps_with(self, status: str):
-        return (
-            cast(Project, self)
-            .rsvps.join(User)
-            .filter(
-                User.state.ACTIVE,
-                Rsvp._state == status,  # pylint: disable=protected-access
-            )
-        )
-
-    def rsvp_counts(self) -> Dict[str, int]:
-        return dict(
-            db.session.query(
-                Rsvp._state,  # pylint: disable=protected-access
-                sa.func.count(Rsvp._state),  # pylint: disable=protected-access
-            )
-            .join(User)
-            .filter(User.state.ACTIVE, Rsvp.project == self)
-            .group_by(Rsvp._state)  # pylint: disable=protected-access
-            .all()
-        )
-
-    @cached_property
-    def rsvp_count_going(self) -> int:
-        return (
-            cast(Project, self)
-            .rsvps.join(User)
-            .filter(User.state.ACTIVE, Rsvp.state.YES)
-            .count()
-        )

@@ -5,7 +5,7 @@ from __future__ import annotations
 import io
 import urllib.parse
 from hashlib import blake2b
-from typing import List, Optional, Union, overload
+from typing import overload
 
 import phonenumbers
 import qrcode
@@ -35,16 +35,14 @@ def blake2b160_hex(text: str) -> str:
 
 
 @overload
-def abort_null(text: str) -> str:
-    ...
+def abort_null(text: str) -> str: ...
 
 
 @overload
-def abort_null(text: None) -> None:
-    ...
+def abort_null(text: None) -> None: ...
 
 
-def abort_null(text: Optional[str]) -> Optional[str]:
+def abort_null(text: str | None) -> str | None:
     """
     Abort request if text contains null characters.
 
@@ -56,7 +54,7 @@ def abort_null(text: Optional[str]) -> Optional[str]:
 
 
 def make_redirect_url(
-    url: str, use_fragment: bool = False, **params: Optional[Union[str, int]]
+    url: str, use_fragment: bool = False, **params: str | int | None
 ) -> str:
     """
     Make an OAuth2 redirect URL.
@@ -111,7 +109,7 @@ def mask_phone(phone: str) -> str:
     return f'{prefix}{middle}{suffix}'
 
 
-def extract_twitter_handle(handle: str) -> Optional[str]:
+def extract_twitter_handle(handle: str) -> str | None:
     """
     Extract a twitter handle from a user input.
 
@@ -143,12 +141,12 @@ def extract_twitter_handle(handle: str) -> Optional[str]:
     )
 
 
-def format_twitter_handle(handle: str) -> str:
+def format_twitter_handle(handle: str | None) -> str:
     """Format twitter handle as an @ mention."""
     return f"@{handle}" if handle else ""
 
 
-def split_name(fullname: str) -> List:
+def split_name(fullname: str) -> list:
     """
     Split a given fullname into a first name and remaining names.
 

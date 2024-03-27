@@ -3,31 +3,30 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Optional
 
 import itsdangerous
 from flask import abort, current_app, flash, redirect, request, session, url_for
 
 from baseframe import _, __
 from baseframe.forms import render_form, render_message
-from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import SetNotificationPreferenceForm, UnsubscribeForm, transport_labels
 from ..models import (
+    Account,
     EmailAddress,
     NotificationPreferences,
     PhoneNumber,
-    User,
     db,
     notification_categories,
     notification_type_registry,
 )
 from ..serializers import token_serializer
 from ..transports import platform_transports
-from ..typing import ReturnRenderWith
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import (
     metarefresh_redirect,
     render_redirect,
@@ -53,7 +52,7 @@ unsubscribe_link_invalid = __(
 )
 
 
-@route('/account/notifications')
+@route('/account/notifications', init_app=app)
 class AccountNotificationView(ClassView):
     """Views for notification settings (under account settings)."""
 
@@ -84,7 +83,7 @@ class AccountNotificationView(ClassView):
             if ncls.category.priority_id in preferences:
                 if ntype not in user_preferences:
                     user_preferences[ntype] = NotificationPreferences(
-                        notification_type=ntype, user=current_auth.user
+                        notification_type=ntype, account=current_auth.user
                     )
                     commit_new_preferences = True
                 preferences[ncls.category.priority_id]['types'].append(
@@ -144,7 +143,7 @@ class AccountNotificationView(ClassView):
                 not in current_auth.user.notification_preferences
             ):
                 prefs = NotificationPreferences(
-                    user=current_auth.user,
+                    account=current_auth.user,
                     notification_type=form.notification_type.data,
                 )
                 db.session.add(prefs)
@@ -156,33 +155,28 @@ class AccountNotificationView(ClassView):
                 is_new = False
             prefs.set_transport(form.transport.data, form.enabled.data)
             db.session.commit()
-            return (
-                {
-                    'status': 'ok',
-                    'notification_type': prefs.notification_type,
-                    'preferences': {
-                        transport: prefs.by_transport(transport)
-                        for transport in platform_transports
-                    },
-                    'message': form.status_message(),
+            return {
+                'status': 'ok',
+                'notification_type': prefs.notification_type,
+                'preferences': {
+                    transport: prefs.by_transport(transport)
+                    for transport in platform_transports
                 },
-                201 if is_new else 200,
-            )
-        return (
-            {
-                'status': 'error',
-                'error': 'csrf',
-                'error_description': form.status_message(),
-            },
-            400,
-        )
+                'message': form.status_message(),
+            }, (201 if is_new else 200)
+
+        return {
+            'status': 'error',
+            'error': 'csrf',
+            'error_description': form.status_message(),
+        }, 400
 
     @route(
         'unsubscribe/<token>',
         methods=['POST'],
         endpoint='notification_unsubscribe_auto',
     )
-    def unsubscribe_auto(self, token: str):
+    def unsubscribe_auto(self, token: str) -> ReturnView:
         """Implement RFC 8058 one-click auto unsubscribe for email transport."""
         # TODO: Merge this into the other handler. Unsubscribe first, then ask the user
         # if they'd like to resubscribe
@@ -198,7 +192,7 @@ class AccountNotificationView(ClassView):
             flash(unsubscribe_link_invalid, 'error')
             return render_redirect(url_for('notification_preferences'))
 
-        user = User.get(buid=payload['buid'])
+        user = Account.get(buid=payload['buid'])
         if user is None:
             current_app.logger.error(
                 "Auto unsubscribe view cannot find user with buid %s", payload['buid']
@@ -246,8 +240,8 @@ class AccountNotificationView(ClassView):
     )
     @requestargs(('cookietest', getbool))
     def unsubscribe(
-        self, token: str, token_type: Optional[str], cookietest: bool = False
-    ):
+        self, token: str, token_type: str | None, cookietest: bool = False
+    ) -> ReturnView:
         """View for unsubscribing from a notification type or disabling a transport."""
         # This route strips the token from the URL before rendering the page, to avoid
         # leaking the token to web analytics software.
@@ -389,7 +383,7 @@ class AccountNotificationView(ClassView):
 
         # Step 6. Load the user. The contents of `payload` are defined in
         # :meth:`NotificationView.unsubscribe_token` above
-        user = User.get(buid=payload['buid'])
+        user = Account.get(buid=payload['buid'])
         if user is None:
             current_app.logger.error(
                 "Unsubscribe view cannot find user with buid %s", payload['buid']
@@ -408,9 +402,7 @@ class AccountNotificationView(ClassView):
             else:
                 email_address.mark_active()
                 db.session.commit()
-        elif (
-            payload['transport'] in ('sms', 'whatsapp', 'signal') and 'hash' in payload
-        ):
+        elif payload['transport'] in ('sms', 'whatsapp') and 'hash' in payload:
             phone_number = PhoneNumber.get(phone_hash=payload['hash'])
             if phone_number is None:
                 current_app.logger.error(
@@ -451,6 +443,3 @@ class AccountNotificationView(ClassView):
             ajax=False,
             template='account_formlayout.html.jinja2',
         )
-
-
-AccountNotificationView.init_app(app)

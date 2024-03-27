@@ -4,6 +4,9 @@
 {%- block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ manifest('css/index.css') }}" />
   <link rel="stylesheet" type="text/css" href="{{ manifest('css/profile.css') }}" />
+  {% if featured_project and featured_project.schedule_start_at -%}
+    <link rel="stylesheet" type="text/css" href="{{ manifest('css/schedule.css') }}"/>
+  {%- endif %}
   <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
   <script type="application/ld+json">
     {
@@ -45,7 +48,7 @@
 {% block basecontent %}
   <div class="bg-accent">
     {%- if profile.is_organization_profile %}
-      {%- with people = profile.organization.views.people_and_teams() %}
+      {%- with people = profile.views.people_and_teams() %}
         {%- if people %}
           <div class="mui-container">
             <div class="page-content">
@@ -140,9 +143,18 @@
     {% endif %}
 
     {{ featured_section(featured_project) }}
-    {{ upcoming_section(upcoming_projects) }}
+
+    {% if profile.current_roles.member %}
+      {{ upcoming_section(upcoming_projects) }}
+      {{ membership_section(membership_project, profile) }}
+    {% else %}
+      {{ membership_section(membership_project, profile) }}
+      {{ upcoming_section(upcoming_projects) }}
+    {% endif %}
+
     {{ open_cfp_section(open_cfp_projects) }}
     {{ all_projects_section(all_projects) }}
+    {{ past_featured_session_videos(profile) }}
 
     {% if sponsored_projects %}
       <div class="projects-wrapper">
@@ -194,21 +206,27 @@
   </div>
 {% endblock basecontent %}
 
-{% block footerscripts %}
+{% block innerscripts %}
   <script src="{{ manifest('index.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var tickets;
-      {% if featured_project and featured_project.features.tickets() -%}
+      {% if membership_project and membership_project.features.show_tickets -%}
         tickets = {
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
-          org: {{ featured_project.boxoffice_data.org|tojson }},
-          itemCollectionId: {{ featured_project.boxoffice_data.item_collection_id|tojson }},
-          itemCollectionTitle: {{ featured_project.title|tojson }}
+          org: {{ membership_project.boxoffice_data.org|tojson }},
+          menuId: {{ membership_project.boxoffice_data.item_collection_id|tojson }},
+          menuTitle: {{ membership_project.title|tojson }}
+          {%- if current_auth.user -%}
+          ,
+          userName: {{current_auth.user.fullname|tojson }},
+          userEmail: {{ current_auth.user.email|tojson }},
+          userPhone: {{ current_auth.user.phone|tojson }}
+          {%- endif -%}
         };
       {%- endif %}
       window.Hasgeek.homeInit('.markdown', tickets);
     });
   </script>
-{% endblock footerscripts %}
+{% endblock innerscripts %}

@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import logging
-import os.path
 from datetime import timedelta
 from email.utils import parseaddr
 
-import geoip2.database
 import phonenumbers
 from flask import Flask
 from flask_babel import get_locale
@@ -28,14 +26,14 @@ from ._version import __version__
 
 #: Main app for hasgeek.com
 app = Flask(__name__, instance_relative_config=True)
-app.name = 'funnel'
+app.name = 'funnel'  # pyright: ignore[reportAttributeAccessIssue]
 app.config['SITE_TITLE'] = __("Hasgeek")
-#: Shortlink app at has.gy
+#: Short link app at has.gy
 shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True)
-shortlinkapp.name = 'shortlink'
+shortlinkapp.name = 'shortlink'  # pyright: ignore[reportAttributeAccessIssue]
 #: Unsubscribe app at bye.li
 unsubscribeapp = Flask(__name__, static_folder=None, instance_relative_config=True)
-unsubscribeapp.name = 'unsubscribe'
+unsubscribeapp.name = 'unsubscribe'  # pyright: ignore[reportAttributeAccessIssue]
 
 all_apps = [app, shortlinkapp, unsubscribeapp]
 
@@ -71,16 +69,17 @@ assets['schedules.js'][version] = 'js/schedules.js'
 # --- Import rest of the app -----------------------------------------------------------
 
 from . import (  # isort:skip  # noqa: F401  # pylint: disable=wrong-import-position
-    models,
-    signals,
-    forms,
+    geoip,
+    proxies,
     loginproviders,
+    signals,
+    models,
     transports,
+    forms,
     views,
     cli,
-    proxies,
 )
-from .models import db, sa  # isort:skip  # pylint: disable=wrong-import-position
+from .models import db, sa_orm  # isort:skip
 
 # --- Configuration---------------------------------------------------------------------
 
@@ -88,14 +87,10 @@ from .models import db, sa  # isort:skip  # pylint: disable=wrong-import-positio
 # overridden with values from the environment. Python config is pending deprecation
 # All supported config values are listed in ``sample.env``. If an ``.env`` file is
 # present, it is loaded in debug and testing modes only
-coaster.app.init_app(app, ['py', 'env'], env_prefix=['FLASK', 'APP_FUNNEL'])
-coaster.app.init_app(shortlinkapp, ['py', 'env'], env_prefix=['FLASK', 'APP_SHORTLINK'])
-coaster.app.init_app(
-    unsubscribeapp, ['py', 'env'], env_prefix=['FLASK', 'APP_UNSUBSCRIBE']
-)
-
-# Legacy additional config for the main app (pending deprecation)
-coaster.app.load_config_from_file(app, 'hasgeekapp.py')
+for each_app in all_apps:
+    coaster.app.init_app(
+        each_app, ['env'], env_prefix=['FLASK', f'APP_{each_app.name.upper()}']
+    )
 
 # Force specific config settings, overriding deployment config
 shortlinkapp.config['SERVER_NAME'] = app.config['SHORTLINK_DOMAIN']
@@ -138,44 +133,36 @@ app.jinja_env.globals['get_locale'] = get_locale
 # API it borrows from the Flask-Login extension
 app.login_manager = views.login_session.LoginManager()  # type: ignore[attr-defined]
 
+app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['markdown.extensions.nl2br']
+app.config['FLATPAGES_EXTENSION'] = '.md'
 # These extensions are only required in the main app
 migrate = Migrate(app, db)
 pages.init_app(app)
 redis_store.init_app(app)
 rq.init_app(app)
 executor.init_app(app)
-baseframe.init_app(app, requires=['funnel'], theme='funnel', error_handlers=False)
+geoip.geoip.init_app(app)
 
+# Baseframe is required for apps with UI ('funnel' theme is registered above)
+baseframe.init_app(
+    app,
+    requires=['funnel'],
+    theme='funnel',  # type: ignore[arg-type]  # FIXME
+    error_handlers=False,
+)
+
+# Initialize available login providers from app config
 loginproviders.init_app(app)
 
 # Ensure FEATURED_ACCOUNTS is a list, not None
 if not app.config.get('FEATURED_ACCOUNTS'):
     app.config['FEATURED_ACCOUNTS'] = []
 
-# Load GeoIP2 databases
-app.geoip_city = None
-app.geoip_asn = None
-if 'GEOIP_DB_CITY' in app.config:
-    if not os.path.exists(app.config['GEOIP_DB_CITY']):
-        app.logger.warning(
-            "GeoIP city database missing at %s", app.config['GEOIP_DB_CITY']
-        )
-    else:
-        app.geoip_city = geoip2.database.Reader(app.config['GEOIP_DB_CITY'])
-
-if 'GEOIP_DB_ASN' in app.config:
-    if not os.path.exists(app.config['GEOIP_DB_ASN']):
-        app.logger.warning(
-            "GeoIP ASN database missing at %s", app.config['GEOIP_DB_ASN']
-        )
-    else:
-        app.geoip_asn = geoip2.database.Reader(app.config['GEOIP_DB_ASN'])
-
 # Turn on supported notification transports
 transports.init()
 
 # Register JS and CSS assets on both apps
-app.assets.register(  # type: ignore[attr-defined]
+app.assets.register(  # type: ignore[attr-defined]  # FIXME
     'js_fullcalendar',
     Bundle(
         assets.require(
@@ -191,7 +178,7 @@ app.assets.register(  # type: ignore[attr-defined]
         filters='rjsmin',
     ),
 )
-app.assets.register(
+app.assets.register(  # type: ignore[attr-defined]  # FIXME
     'css_fullcalendar',
     Bundle(
         assets.require('jquery.fullcalendar.css', 'spectrum.css'),
@@ -199,7 +186,7 @@ app.assets.register(
         filters='cssmin',
     ),
 )
-app.assets.register(
+app.assets.register(  # type: ignore[attr-defined]  # FIXME
     'js_schedules',
     Bundle(
         assets.require('schedules.js'),
@@ -210,17 +197,14 @@ app.assets.register(
 
 views.siteadmin.init_rq_dashboard()
 
-# --- Serve static files with Whitenoise -----------------------------------------------
+# --- Serve static files with WhiteNoise -----------------------------------------------
 
-app.wsgi_app = WhiteNoise(  # type: ignore[method-assign]
-    app.wsgi_app, root=app.static_folder, prefix=app.static_url_path
-)
-app.wsgi_app.add_files(  # type: ignore[attr-defined]
-    baseframe.static_folder, prefix=baseframe.static_url_path
-)
+_wn = WhiteNoise(app.wsgi_app, root=app.static_folder, prefix=app.static_url_path)
+_wn.add_files(baseframe.static_folder, prefix=baseframe.static_url_path)
+app.wsgi_app = _wn  # type: ignore[method-assign]
 
 # --- Init SQLAlchemy mappers ----------------------------------------------------------
 
 # Database model loading (from Funnel or extensions) is complete.
 # Configure database mappers now, before the process is forked for workers.
-sa.orm.configure_mappers()
+sa_orm.configure_mappers()

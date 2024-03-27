@@ -7,7 +7,6 @@ Create Date: 2020-06-11 08:01:40.108228
 """
 
 import hashlib
-from typing import Optional, Tuple, Union
 
 import idna
 import progressbar.widgets
@@ -20,8 +19,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = 'ae075a249493'
 down_revision = '9333436765cd'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 # --- Tables ---------------------------------------------------------------------------
@@ -168,7 +167,7 @@ def upgrade() -> None:
         'user_email', sa.Column('email_address_id', sa.Integer(), nullable=True)
     )
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(user_email))
     progress = get_progressbar("Emails", count)
     progress.start()
     items = conn.execute(
@@ -195,7 +194,7 @@ def upgrade() -> None:
                     .values(created_at=item.created_at)
                 )
         else:
-            ea_id = conn.execute(
+            ea_id = conn.scalar(
                 email_address.insert()
                 .values(
                     created_at=item.created_at,
@@ -211,7 +210,7 @@ def upgrade() -> None:
                     is_blocked=False,
                 )
                 .returning(email_address.c.id)
-            ).fetchone()[0]
+            )
 
         conn.execute(
             user_email.update()
@@ -260,7 +259,9 @@ def upgrade() -> None:
         ondelete='SET NULL',
     )
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email_claim))
+    count = conn.scalar(
+        sa.select(sa.func.count(sa.text('*'))).select_from(user_email_claim)
+    )
     progress = get_progressbar("Email claims", count)
     progress.start()
     items = conn.execute(
@@ -287,7 +288,7 @@ def upgrade() -> None:
                     .values(created_at=item.created_at)
                 )
         else:
-            ea_id = conn.execute(
+            ea_id = conn.scalar(
                 email_address.insert()
                 .values(
                     created_at=item.created_at,
@@ -303,7 +304,7 @@ def upgrade() -> None:
                     is_blocked=False,
                 )
                 .returning(email_address.c.id)
-            ).fetchone()[0]
+            )
         conn.execute(
             user_email_claim.update()
             .where(user_email_claim.c.id == item.id)
@@ -349,7 +350,7 @@ def upgrade() -> None:
     )
 
     count = conn.scalar(
-        sa.select(sa.func.count('*'))
+        sa.select(sa.func.count(sa.text('*')))
         .select_from(proposal)
         .where(proposal.c.email.is_not(None))
     )
@@ -376,7 +377,7 @@ def upgrade() -> None:
                     .values(created_at=item.created_at)
                 )
         else:
-            ea_id = conn.execute(
+            ea_id = conn.scalar(
                 email_address.insert()
                 .values(
                     created_at=item.created_at,
@@ -392,7 +393,7 @@ def upgrade() -> None:
                     is_blocked=False,
                 )
                 .returning(email_address.c.id)
-            ).fetchone()[0]
+            )
         conn.execute(
             proposal.update()
             .where(proposal.c.id == item.id)
@@ -414,7 +415,7 @@ def downgrade() -> None:
     )
 
     count = conn.scalar(
-        sa.select(sa.func.count('*'))
+        sa.select(sa.func.count(sa.text('*')))
         .select_from(proposal)
         .where(proposal.c.email_address_id.is_not(None))
     )
@@ -450,7 +451,9 @@ def downgrade() -> None:
         sa.Column('email', sa.VARCHAR(length=254), autoincrement=False, nullable=True),
     )
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email_claim))
+    count = conn.scalar(
+        sa.select(sa.func.count(sa.text('*'))).select_from(user_email_claim)
+    )
     progress = get_progressbar("Email claims", count)
     progress.start()
     items = conn.execute(
@@ -520,7 +523,7 @@ def downgrade() -> None:
         sa.Column('blake2b', postgresql.BYTEA(), autoincrement=False, nullable=True),
     )
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(user_email))
     progress = get_progressbar("Emails", count)
     progress.start()
     items = conn.execute(
@@ -558,5 +561,5 @@ def downgrade() -> None:
     op.drop_column('user_email', 'email_address_id')
 
     # --- Drop imported contents and restart sequence ----------------------------------
-    op.execute(email_address.delete())
+    op.get_bind().execute(email_address.delete())
     op.execute(sa.text('ALTER SEQUENCE email_address_id_seq RESTART'))

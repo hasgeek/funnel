@@ -1,8 +1,8 @@
-"""̌Comment noficiations."""
+"""Comment notifications."""
 
 from __future__ import annotations
 
-from typing import List, Optional, Union
+from typing import Any, cast
 
 from flask import render_template, url_for
 from markupsafe import Markup, escape
@@ -11,22 +11,24 @@ from werkzeug.utils import cached_property
 from baseframe import _, __
 
 from ...models import (
+    Account,
     Comment,
     CommentModeratorReport,
     CommentReplyNotification,
     CommentReportReceivedNotification,
-    DuckTypeUser,
+    Commentset,
     NewCommentNotification,
-    User,
+    Project,
+    Proposal,
 )
-from ...transports.sms import OneLineTemplate, SmsTemplate
+from ...transports.sms import OneLineTemplate, SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
 
 
 class CommentReplyTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for RSVP without a next session."""
+    """DLT registered template for a reply to a comment."""
 
     registered_template = (
         '{#var#} has replied to your comment: {#var#}'
@@ -37,13 +39,13 @@ class CommentReplyTemplate(TemplateVarMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop -Hasgeek'
     )
     plaintext_template = '{actor} has replied to your comment: {url}'
+    message_priority = SmsPriority.NORMAL
 
-    actor: str
     url: str
 
 
 class CommentProposalTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for RSVP without a next session."""
+    """DLT registered template for a comment on a proposal."""
 
     registered_template = (
         '{#var#} commented on your submission: {#var#}'
@@ -54,13 +56,13 @@ class CommentProposalTemplate(TemplateVarMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop -Hasgeek'
     )
     plaintext_template = '{actor} commented on your submission: {url}'
+    message_priority = SmsPriority.NORMAL
 
-    actor: str
     url: str
 
 
 class CommentProjectTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for RSVP without a next session."""
+    """DLT registered template for a comment on a project."""
 
     registered_template = (
         '{#var#} commented on a project you are in: {#var#}'
@@ -71,8 +73,8 @@ class CommentProjectTemplate(TemplateVarMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop -Hasgeek'
     )
     plaintext_template = '{actor} commented on a project you are in: {url}'
+    message_priority = SmsPriority.NORMAL
 
-    actor: str
     url: str
 
 
@@ -121,82 +123,125 @@ class RenderCommentReportReceivedNotification(RenderNotification):
 class CommentNotification(RenderNotification):
     """Render comment notifications for various document types."""
 
+    document: Commentset | Comment
     comment: Comment
     aliases = {'fragment': 'comment'}
     emoji_prefix = "💬 "
     hero_image = 'img/email/chars-v1/comment.png'
     email_heading = __("New comment!")
 
+    @cached_property
+    def commentset(self) -> Commentset:
+        if isinstance(self.document, Commentset):
+            return self.document
+        return self.document.commentset
+
     @property
-    def actor(self) -> Union[User, DuckTypeUser]:
+    def actor(self) -> Account:
         """Actor who commented."""
-        return self.comment.user
+        return cast(Account, self.comment.posted_by)
 
     @cached_property
-    def commenters(self) -> List[User]:
+    def commenters(self) -> list[Account]:
         """List of unique users from across rolled-up comments. Could be singular."""
         # A set comprehension would have been simpler, but RoleAccessProxy isn't
-        # hashable. Else: ``return {_c.user for _c in self.fragments}``
-        user_ids = set()
-        users = []
+        # hashable. Else: ``return {_c.posted_by for _c in self.fragments}``
+        # TODO: Reconfirm above as RoleAccessProxy has changed to be more transparent
+        posted_by_ids = set()
+        comment_posters = []
         for comment in self.fragments:  # pylint: disable=not-an-iterable
-            if comment.user.uuid not in user_ids:
-                users.append(comment.user)
-                user_ids.add(comment.user.uuid)
-        return users
+            if comment.posted_by.uuid not in posted_by_ids:
+                comment_posters.append(comment.posted_by)
+                posted_by_ids.add(comment.posted_by.uuid)
+        return comment_posters
+
+    @property
+    def project(self) -> Project | None:
+        if (document_type := self.document_type) == 'project':
+            return self.commentset.project
+        if document_type == 'proposal':
+            return self.commentset.proposal.project  # type: ignore[union-attr]
+        return None
+
+    @property
+    def proposal(self) -> Proposal | None:
+        if self.document_type == 'proposal':
+            return self.commentset.proposal
+        return None
 
     @property
     def document_type(self) -> str:
         """Return type of document this comment is on ('comment' for replies)."""
         if self.notification.document_type == 'comment':
             return 'comment'
-        return self.document.parent_type
+        return self.commentset.parent_type
 
-    def document_comments_url(self, **kwargs) -> str:
+    def document_comments_url(self, **kwargs: Any) -> str:
         """URL to comments view on the document."""
-        if self.document_type == 'project':
-            return self.document.parent.url_for('comments', **kwargs)
-        if self.document_type == 'proposal':
-            return self.document.parent.url_for('view', **kwargs) + '#comments'
+        if (document_type := self.document_type) == 'project':
+            return self.commentset.parent.url_for('comments', **kwargs)
+        if document_type == 'proposal':
+            return self.commentset.parent.url_for('view', **kwargs) + '#comments'
         return self.document.url_for('view', **kwargs)
 
-    def activity_template_standalone(self, comment: Optional[Comment] = None) -> str:
+    def activity_template_standalone(self, comment: Comment | None = None) -> str:
         """Activity template for standalone use, such as email subject."""
         if comment is None:
             comment = self.comment
-        if self.document_type == 'comment':
-            return _("{actor} replied to your comment")
-        if self.document_type == 'project':
-            return _("{actor} commented on a project you are in")
-        if self.document_type == 'proposal':
-            return _("{actor} commented on your submission")
+        if (document_type := self.document_type) == 'comment':
+            return _("{actor} replied to your comment in {project}")
+        if document_type == 'project':
+            return _("{actor} commented in {project}")
+        if document_type == 'proposal':
+            return _("{actor} commented on {proposal}")
         # Unknown document type
         return _("{actor} replied to you")
 
-    def activity_template_inline(self, comment: Optional[Comment] = None) -> str:
+    def activity_template_inline(self, comment: Comment | None = None) -> str:
         """Activity template for inline use with other content, like SMS with URL."""
         if comment is None:
             comment = self.comment
-        if self.document_type == 'comment':
-            return _("{actor} replied to your comment:")
-        if self.document_type == 'project':
-            return _("{actor} commented on a project you are in:")
-        if self.document_type == 'proposal':
-            return _("{actor} commented on your submission:")
+        if (document_type := self.document_type) == 'comment':
+            return _("{actor} replied to your comment in {project}:")
+        if document_type == 'project':
+            return _("{actor} commented in {project}:")
+        if document_type == 'proposal':
+            return _("{actor} commented on {proposal}:")
         # Unknown document type
         return _("{actor} replied to you:")
 
-    def activity_html(self, comment: Optional[Comment] = None) -> str:
+    def activity_html(self, comment: Comment | None = None) -> str:
         """Activity template rendered into HTML, for use in web and email templates."""
         if comment is None:
             comment = self.comment
-        return Markup(self.activity_template_inline(comment)).format(
-            actor=Markup(
-                f'<a href="{escape(self.actor.profile_url)}">'
-                f'{escape(self.actor.pickername)}</a>'
+
+        actor_markup = Markup(
+            f'<a href="{escape(self.actor.absolute_url)}">'
+            f'{escape(self.actor.pickername)}</a>'
+        )
+        project = self.project
+        project_markup = (
+            Markup(
+                f'<a href="{escape(project.absolute_url)}">'
+                f'{escape(project.joined_title)}</a>'
             )
-            if self.actor.profile_url
-            else escape(self.actor.pickername),
+            if project is not None
+            else Markup('')
+        )
+        proposal = self.proposal
+        proposal_markup = (
+            Markup(
+                f'<a href="{escape(proposal.absolute_url)}">'
+                f'{escape(proposal.title)}</a>'
+            )
+            if proposal is not None
+            else Markup('')
+        )
+
+        return Markup(self.activity_template_inline(comment)).format(
+            actor=actor_markup,
+            project=project_markup,
+            proposal=proposal_markup,
         )
 
     def web(self) -> str:
@@ -207,8 +252,12 @@ class CommentNotification(RenderNotification):
         )
 
     def email_subject(self) -> str:
+        project = self.project
+        proposal = self.proposal
         return self.emoji_prefix + self.activity_template_standalone().format(
-            actor=self.actor.pickername
+            actor=self.actor.pickername,
+            project=project.joined_title if project else '',
+            proposal=proposal.title if proposal else '',
         )
 
     def email_content(self) -> str:
@@ -216,7 +265,7 @@ class CommentNotification(RenderNotification):
             'notifications/comment_received_email.html.jinja2', view=self
         )
 
-    def sms(self):
+    def sms(self) -> SmsTemplate:
         url = shortlink(
             self.comment.url_for(_external=True, **self.tracking_tags('sms'))
         )

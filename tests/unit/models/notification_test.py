@@ -1,29 +1,31 @@
 """Tests for Notification and UserNotification models."""
+
 # pylint: disable=possibly-unused-variable,redefined-outer-name
+# pyright: reportAssignmentType=false
 
 from __future__ import annotations
 
 from types import SimpleNamespace
-from typing import Dict, List, Set
 
 import pytest
+import sqlalchemy.orm as sa_orm
 from sqlalchemy.exc import IntegrityError
 
 from funnel import models
 
+from ...conftest import SQLAlchemy, scoped_session
+
 pytestmark = pytest.mark.filterwarnings(
-    "ignore:Object of type <UserEmail> not in session"
+    "ignore:Object of type <AccountEmail> not in session"
 )
 
 
 @pytest.fixture(scope='session')
-def notification_types(database) -> SimpleNamespace:
+def notification_types(database: SQLAlchemy) -> SimpleNamespace:
     class ProjectIsParent:
-        document: models.UuidModelUnion
-
         @property
-        def preference_context(self) -> models.Profile:
-            return self.document.project.profile
+        def preference_context(self) -> models.Account:
+            return self.document.project.account  # type: ignore[attr-defined]
 
     class TestNewUpdateNotification(
         ProjectIsParent,
@@ -35,7 +37,7 @@ def notification_types(database) -> SimpleNamespace:
         category = models.notification_categories.participant
         description = "When a project posts an update"
 
-        roles = ['project_crew', 'project_participant']
+        dispatch_roles = ['project_crew', 'project_participant']
 
     class TestEditedUpdateNotification(
         ProjectIsParent,
@@ -45,7 +47,7 @@ def notification_types(database) -> SimpleNamespace:
     ):
         """Notifications of edited updates (test edition)."""
 
-        roles = ['project_crew', 'project_participant']
+        dispatch_roles = ['project_crew', 'project_participant']
 
     class TestProposalReceivedNotification(
         ProjectIsParent,
@@ -56,21 +58,24 @@ def notification_types(database) -> SimpleNamespace:
 
         category = models.notification_categories.project_crew
         description = "When my project receives a new proposal"
-        roles = ['project_editor']
+        dispatch_roles = ['project_editor']
 
-    database.configure_mappers()
+    sa_orm.configure_mappers()
     return SimpleNamespace(**locals())
 
 
 @pytest.fixture()
-def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many-locals
+def project_fixtures(
+    db_session: scoped_session,
+) -> SimpleNamespace:  # pylint: disable=too-many-locals
     """Provide users, one org and one project, for tests on them."""
     user_owner = models.User(username='user_owner', fullname="User Owner")
     user_owner.add_email('owner@example.com')
-
+    user_admin = models.User(username='user_admin', fullname="User Admin")
+    user_admin.add_email('admin@example.com')
     user_editor = models.User(username='user_editor', fullname="User Editor")
     user_editor.add_email('editor@example.com')
-    user_editor_phone = models.UserPhone(user=user_editor, phone='+12345678900')
+    user_editor_phone = models.AccountPhone(account=user_editor, phone='+12345678900')
 
     user_participant = models.User(
         username='user_participant', title="User Participant"
@@ -86,10 +91,17 @@ def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many
     org = models.Organization(
         name='notifications_org', title="Organization", owner=user_owner
     )
-
+    admin_membership = models.AccountMembership(
+        account=org,
+        member=user_admin,
+        is_owner=False,
+        granted_by=user_owner,
+    )
     db_session.add_all(
         [
+            admin_membership,
             user_owner,
+            user_admin,
             user_editor,
             user_editor_phone,
             user_participant,
@@ -98,23 +110,22 @@ def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many
         ]
     )
     db_session.commit()
-    profile = org.profile
     project = models.Project(
-        profile=profile,
-        user=user_owner,
+        account=org,
+        created_by=user_owner,
         title="Notifications project",
         tagline="Test notification delivery",
     )
     db_session.add(project)
     db_session.add(
-        models.ProjectCrewMembership(project=project, user=user_editor, is_editor=True)
+        models.ProjectMembership(project=project, member=user_editor, is_editor=True)
     )
-    rsvp_y = models.Rsvp(project=project, user=user_participant)
+    rsvp_y = models.Rsvp(project=project, participant=user_participant)
     rsvp_y.rsvp_yes()
-    rsvp_n = models.Rsvp(project=project, user=user_cancelled_participant)
+    rsvp_n = models.Rsvp(project=project, participant=user_cancelled_participant)
     rsvp_n.rsvp_yes()
     rsvp_n.rsvp_no()
-    rsvp_suspended = models.Rsvp(project=project, user=user_suspended)
+    rsvp_suspended = models.Rsvp(project=project, participant=user_suspended)
     rsvp_suspended.rsvp_yes()
     user_suspended.mark_suspended()
     db_session.add_all([rsvp_y, rsvp_n, rsvp_suspended])
@@ -124,14 +135,14 @@ def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many
         attr for attr in locals().values() if isinstance(attr, models.Model)
     ]
 
-    def refresh():
+    def refresh() -> None:
         for attr in refresh_attrs:
             db_session.add(attr)
 
     return SimpleNamespace(**locals())
 
 
-def test_project_roles(project_fixtures) -> None:
+def test_project_roles(project_fixtures: SimpleNamespace) -> None:
     """Test that the fixtures have roles set up correctly."""
     owner_roles = project_fixtures.project.roles_for(project_fixtures.user_owner)
     assert 'editor' in owner_roles
@@ -171,11 +182,13 @@ def test_project_roles(project_fixtures) -> None:
 
 
 @pytest.fixture()
-def update(project_fixtures, db_session) -> models.Update:
+def update(
+    project_fixtures: SimpleNamespace, db_session: scoped_session
+) -> models.Update:
     """Publish an update as a fixture."""
     new_update = models.Update(
         project=project_fixtures.project,
-        user=project_fixtures.user_editor,
+        created_by=project_fixtures.user_editor,
         title="New update",
         body="New update body",
     )
@@ -186,12 +199,16 @@ def update(project_fixtures, db_session) -> models.Update:
     return new_update
 
 
-def test_update_roles(project_fixtures, update) -> None:
+def test_update_roles(project_fixtures: SimpleNamespace, update: models.Update) -> None:
     """Test whether Update grants the project_* roles to users."""
     owner_roles = update.roles_for(project_fixtures.user_owner)
     assert 'project_editor' in owner_roles
     assert 'project_crew' in owner_roles
     assert 'project_participant' in owner_roles
+    assert 'account_member' in owner_roles
+
+    admin_roles = update.roles_for(project_fixtures.user_admin)
+    assert 'account_member' in admin_roles
 
     editor_roles = update.roles_for(project_fixtures.user_editor)
     assert 'project_editor' in editor_roles
@@ -217,19 +234,24 @@ def test_update_roles(project_fixtures, update) -> None:
 
 
 def test_update_notification_structure(
-    notification_types, project_fixtures, update, db_session
+    notification_types: SimpleNamespace,
+    project_fixtures: SimpleNamespace,
+    update: models.Update,
+    db_session: scoped_session,
 ) -> None:
-    """Test whether a NewUpdateNotification has the appropriate structure."""
+    """Test whether a TestNewUpdateNotification has the appropriate structure."""
     project_fixtures.refresh()
-    notification = notification_types.TestNewUpdateNotification(update)
+    notification: models.Notification = notification_types.TestNewUpdateNotification(
+        update
+    )
     db_session.add(notification)
     db_session.commit()
 
-    assert notification.type == 'update_new_test'
+    assert notification.type_ == 'update_new_test'
     assert notification.document == update
     assert notification.fragment is None
-    assert notification.roles == ['project_crew', 'project_participant']
-    assert notification.preference_context == project_fixtures.org.profile
+    assert notification.dispatch_roles == ['project_crew', 'project_participant']
+    assert notification.preference_context == project_fixtures.org
 
     load_notification = models.Notification.query.first()
     assert isinstance(load_notification, models.Notification)
@@ -239,38 +261,41 @@ def test_update_notification_structure(
     )
     assert load_notification == notification
 
-    # Extract all the user notifications and confirm they're correctly assigned
-    user_notifications = list(notification.dispatch())
+    # Extract all the notification recipients and confirm they're correctly assigned
+    notification_recipients = list(notification.dispatch())
     # We got user assignees
-    assert user_notifications
+    assert notification_recipients
     # A second call to dispatch() will yield nothing
     assert not list(notification.dispatch())
 
-    # Notifications are issued strictly in the order specified in cls.roles
-    role_order: List[str] = []
-    for un in user_notifications:
-        if un.role in role_order:
-            assert role_order[-1] == un.role
+    # Notifications are issued strictly in the order specified in
+    # notification.dispatch_roles
+    role_order: list[str] = []
+    for nr in notification_recipients:
+        if nr.role in role_order:
+            assert role_order[-1] == nr.role
         else:
-            role_order.append(un.role)
+            role_order.append(nr.role)
 
     assert role_order == ['project_crew', 'project_participant']
 
     # Notifications are correctly assigned by priority of role
-    role_users: Dict[str, Set[models.User]] = {}
-    for un in user_notifications:
-        role_users.setdefault(un.role, set()).add(un.user)
+    role_users: dict[str, set[models.Account]] = {}
+    for nr in notification_recipients:
+        role_users.setdefault(nr.role, set()).add(nr.recipient)
 
     assert role_users == {
         'project_crew': {project_fixtures.user_owner, project_fixtures.user_editor},
         'project_participant': {project_fixtures.user_participant},
     }
-    all_recipients = {un.user for un in user_notifications}
+    all_recipients = {nr.recipient for nr in notification_recipients}
     assert project_fixtures.user_cancelled_participant not in all_recipients
     assert project_fixtures.user_bystander not in all_recipients
 
 
-def test_user_notification_preferences(notification_types, db_session) -> None:
+def test_account_notification_preferences(
+    notification_types: SimpleNamespace, db_session: scoped_session
+) -> None:
     """Test that users have a notification_preferences dict."""
     nt = notification_types  # Short var for keeping lines within 88 columns below
     user = models.User(fullname="User")
@@ -279,13 +304,13 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
     assert user.notification_preferences == {}
     np = models.NotificationPreferences(
         notification_type=nt.TestNewUpdateNotification.pref_type,
-        user=user,
+        account=user,
     )
     db_session.add(np)
     db_session.commit()
     assert set(user.notification_preferences.keys()) == {'update_new_test'}
     assert user.notification_preferences['update_new_test'] == np
-    assert user.notification_preferences['update_new_test'].user == user
+    assert user.notification_preferences['update_new_test'].account == user
     assert (
         user.notification_preferences['update_new_test'].type_cls
         == nt.TestNewUpdateNotification
@@ -294,7 +319,7 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
     # There cannot be two sets of preferences for the same notification type
     db_session.add(
         models.NotificationPreferences(
-            notification_type=nt.TestNewUpdateNotification.pref_type, user=user
+            notification_type=nt.TestNewUpdateNotification.pref_type, account=user
         )
     )
     with pytest.raises(IntegrityError):
@@ -303,13 +328,13 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
 
     # Preferences cannot be set for invalid types
     with pytest.raises(ValueError, match='Invalid notification_type'):
-        models.NotificationPreferences(notification_type='invalid', user=user)
+        models.NotificationPreferences(notification_type='invalid', account=user)
     db_session.rollback()
 
     # Preferences can be set for other notification types though
     np2 = models.NotificationPreferences(
         notification_type=nt.TestProposalReceivedNotification.pref_type,
-        user=user,
+        account=user,
     )
     db_session.add(np2)
     db_session.commit()
@@ -319,7 +344,7 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
     }
 
 
-def test_notification_metadata(notification_types) -> None:
+def test_notification_metadata(notification_types: SimpleNamespace) -> None:
     """Test that notification classes have appropriate cls_type and pref_type values."""
     assert notification_types.TestNewUpdateNotification.cls_type == 'update_new_test'
     assert notification_types.TestNewUpdateNotification.pref_type == 'update_new_test'
@@ -337,7 +362,10 @@ def test_notification_metadata(notification_types) -> None:
 
 
 def test_notification_preferences(
-    notification_types, project_fixtures, update, db_session
+    notification_types: SimpleNamespace,
+    project_fixtures: SimpleNamespace,
+    update: models.Update,
+    db_session: scoped_session,
 ) -> None:
     """Test whether user preferences are correctly accessed."""
     # Rather than dispatching, we'll hardcode UserNotification for each test user

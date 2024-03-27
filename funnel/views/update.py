@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
-from flask import abort, flash
+from flask import abort, flash, request
 
 from baseframe import _, forms
 from baseframe.forms import render_form
-from coaster.auth import current_auth
 from coaster.utils import make_name
 from coaster.views import (
     ModelView,
@@ -20,19 +17,20 @@ from coaster.views import (
 )
 
 from .. import app
-from ..forms import SavedProjectForm, UpdateForm
-from ..models import NewUpdateNotification, Profile, Project, Update, db
+from ..auth import current_auth
+from ..forms import SavedProjectForm, UpdateForm, UpdatePinForm
+from ..models import Account, Project, ProjectUpdateNotification, Update, db
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
-from .mixins import ProfileCheckMixin
+from .mixins import AccountCheckMixin
 from .notification import dispatch_notification
-from .project import ProjectViewMixin
+from .project import ProjectViewBase
 
 
 @Project.views('updates')
-@route('/<profile>/<project>/updates')
-class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>/<project>/updates', init_app=app)
+class ProjectUpdateView(ProjectViewBase):
     @route('', methods=['GET'])
     @render_with(html_in_json('project_updates.html.jinja2'))
     @requires_roles({'reader'})
@@ -65,7 +63,7 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
         form = UpdateForm()
 
         if form.validate_on_submit():
-            update = Update(user=current_auth.user, project=self.obj)
+            update = Update(created_by=current_auth.user, project=self.obj)
             form.populate_obj(update)
             update.name = make_name(update.title)
             db.session.add(update)
@@ -80,37 +78,33 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
         )
 
 
-ProjectUpdatesView.init_app(app)
-
-
 @Update.features('publish')
-def update_publishable(obj):
-    return obj.state.DRAFT and 'editor' in obj.roles_for(current_auth.user)
+def update_publishable(obj: Update) -> bool:
+    return bool(obj.state.DRAFT) and 'editor' in obj.roles_for(current_auth.user)
 
 
 @Update.views('project')
-@route('/<profile>/<project>/updates/<update>')
-class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
-    model = Update
+@route('/<account>/<project>/updates/<update>', init_app=app)
+class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update]):
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'update': 'url_name_uuid_b58',
     }
-    obj: Update
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, profile: str, project: str, update: str) -> Update:
-        return (
+    def load(self, account: str, project: str, update: str) -> ReturnView | None:
+        self.obj = (
             Update.query.join(Project)
-            .join(Profile, Project.profile_id == Profile.id)
+            .join(Account, Project.account)
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
-
-    def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+        self.post_init()
         return super().after_loader()
+
+    def post_init(self) -> None:
+        self.account = self.obj.project.account
 
     @route('', methods=['GET'])
     @render_with('update_details.html.jinja2')
@@ -134,7 +128,11 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             db.session.commit()
             flash(_("The update has been published"), 'success')
             if first_publishing:
-                dispatch_notification(NewUpdateNotification(document=self.obj))
+                dispatch_notification(
+                    ProjectUpdateNotification(
+                        document=self.obj.project, fragment=self.obj
+                    )
+                )
         else:
             flash(
                 _("There was an error publishing this update. Reload and try again"),
@@ -145,13 +143,27 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'editor'})
     def edit(self) -> ReturnView:
-        form = UpdateForm(obj=self.obj)
+        if request.form.get('form.id') == 'pin':
+            form = UpdatePinForm(obj=self.obj)
+        else:
+            form = UpdateForm(obj=self.obj)
+            if self.obj.state.PUBLISHED:
+                # Don't allow visibility change in a published update
+                del form.visibility
         if form.validate_on_submit():
-            form.populate_obj(self.obj)
+            form.populate_obj(self.obj.current_access())
             db.session.commit()
+            if request.form.get('form.id') == 'pin':
+                return {'status': 'ok', 'is_pinned': self.obj.is_pinned}
             flash(_("The update has been edited"), 'success')
             return render_redirect(self.obj.url_for())
-
+        if request.form.get('form.id') == 'pin':
+            return {
+                'status': 'error',
+                'error': 'pin_form_invalid',
+                'error_description': _("This page timed out. Reload and try again"),
+                'form_nonce': form.form_nonce.data,
+            }, 422
         return render_form(
             form=form,
             title=_("Edit update"),
@@ -174,18 +186,17 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         return render_form(
             form=form,
             title=_("Confirm delete"),
-            message=_(
-                "Delete this draft update? This operation is permanent and cannot be"
-                " undone"
-            )
-            if self.obj.state.UNPUBLISHED
-            else _(
-                "Delete this update? This update’s number (#{number}) will be skipped"
-                " for the next update"
-            ).format(number=self.obj.number),
+            message=(
+                _(
+                    "Delete this draft update? This operation is permanent and cannot"
+                    " be undone"
+                )
+                if self.obj.state.UNPUBLISHED
+                else _(
+                    "Delete this update? This update’s number (#{number}) will be"
+                    " skipped for the next update"
+                ).format(number=self.obj.number)
+            ),
             submit=_("Delete"),
             cancel_url=self.obj.url_for(),
         )
-
-
-UpdateView.init_app(app)

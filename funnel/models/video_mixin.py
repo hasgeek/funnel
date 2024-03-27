@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
-
 from furl import furl
 
-from . import declarative_mixin, sa
+from .base import Mapped, declarative_mixin, sa, sa_orm
 
 __all__ = ['VideoMixin', 'VideoError', 'parse_video_url']
 
@@ -15,9 +13,10 @@ class VideoError(Exception):
     """A video could not be processed (base exception)."""
 
 
-def parse_video_url(video_url: str) -> Tuple[str, str]:
+def parse_video_url(video_url: str) -> tuple[str, str]:
+    video_id: str | None
+    video_id = video_url
     video_source = 'raw'
-    video_id: Optional[str] = video_url
 
     parsed = furl(video_url)
     if not parsed.host:
@@ -76,24 +75,24 @@ def make_video_url(video_source: str, video_id: str) -> str:
 
 @declarative_mixin
 class VideoMixin:
-    video_id = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
-    video_source = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
+    video_id: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
+    video_source: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
 
     @property
-    def video_url(self) -> Optional[str]:
+    def video_url(self) -> str | None:
         if self.video_source and self.video_id:
             return make_video_url(self.video_source, self.video_id)
         return None
 
     @video_url.setter
-    def video_url(self, value: str):
+    def video_url(self, value: str) -> None:
         if not value:
             self.video_source, self.video_id = None, None
         else:
             self.video_source, self.video_id = parse_video_url(value)
 
     @property
-    def embeddable_video_url(self) -> Optional[str]:
+    def embeddable_video_url(self) -> str | None:
         if self.video_source:
             if self.video_source == 'youtube':
                 return (

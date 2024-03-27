@@ -2,20 +2,16 @@
 -e file:./build/dependencies/coaster
 alembic
 argon2-cffi
-asgiref
 Babel
 base58
 bcrypt
 better_profanity!=0.7.0  # https://github.com/snguyenthanh/better_profanity/issues/19
-blinker
-boto3  # Required in Imgee not here, but has a pin on urllib3 version
 Brotli
 chevron
 click
 cryptography
 dataclasses-json
-Flask<2.3  # Flask 2.3 drops Python 3.7 support ahead of schedule
-Flask-Assets
+Flask
 Flask-Babel
 Flask-Executor
 Flask-FlatPages
@@ -28,46 +24,46 @@ Flask-WTF
 furl
 geoip2
 grapheme
-greenlet
+gunicorn
 html2text
 httpx[http2]
 icalendar
 idna
+ijson
 itsdangerous
+lazy-loader
 linkify-it-py
 markdown-it-py
-mdit-py-plugins<0.4.0  # 0.4.0 drops Python 3.7 support
-oauth2
+mdit-py-plugins
 oauth2client
 passlib
 phonenumbers
+playwright  # Relocated from test.in because of greenlet version pin
 premailer
 progressbar2
 psycopg[binary]
 pycountry
 pyIsEmail
 python-dateutil
-python-dotenv<1.0  # 1.0 drops Python 3.7 support
-python-telegram-bot
-python-utils<3.6.0  # Not ours; needed by progressbar2, but latest drops Python 3.7
+python-dotenv
+python-telegram-bot>=20.7
 pytz
 PyVimeo
 qrcode
-regex<2023.3.22  # Not our requirement; this version drops Python 3.7 support
 requests
 rich
 rq
-git+https://github.com/jace/rq-dashboard#egg=rq-dashboard==0.6.0
-SQLAlchemy
+rq-dashboard @ git+https://github.com/jace/rq-dashboard
 sqlalchemy-json
 SQLAlchemy-Utils
-toml
+SQLAlchemy[asyncio]
 tweepy
 twilio
 typing-extensions
-urllib3[socks]  # Not our requirement; removing this will cause a pip-audit dupe error
+tzdata
+urllib3[socks]  # Not direct dep; pip-audit complains of dupe urllib[socks] in test.txt
 user-agents
-uwsgi
-werkzeug<2.3  # Werkzeug 2.3 drops Python 3.7 support ahead of schedule
+werkzeug
 whitenoise
+z-base-32
 zxcvbn

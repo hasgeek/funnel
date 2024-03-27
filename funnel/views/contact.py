@@ -3,26 +3,27 @@
 from __future__ import annotations
 
 import csv
+from collections.abc import Iterable
 from datetime import datetime, timedelta
 from io import StringIO
-from typing import Dict, Optional
 
 from flask import Response, current_app, render_template, request
+from pytz import BaseTzInfo
 from sqlalchemy.exc import IntegrityError
 
 from baseframe import _
-from coaster.auth import current_auth
 from coaster.utils import getbool, make_name, midnight_to_utc, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
-from ..models import ContactExchange, Project, TicketParticipant, db, sa
+from ..auth import current_auth
+from ..models import ContactExchange, Project, TicketParticipant, db, sa_orm
 from ..typing import ReturnRenderWith, ReturnView
-from ..utils import abort_null, format_twitter_handle
+from ..utils import format_twitter_handle
 from .login_session import requires_login
 
 
-def contact_details(ticket_participant: TicketParticipant) -> Dict[str, Optional[str]]:
+def contact_details(ticket_participant: TicketParticipant) -> dict[str, str | None]:
     return {
         'fullname': ticket_participant.fullname,
         'company': ticket_participant.company,
@@ -32,14 +33,14 @@ def contact_details(ticket_participant: TicketParticipant) -> Dict[str, Optional
     }
 
 
-@route('/account/contacts')
+@route('/account/contacts', init_app=app)
 class ContactView(ClassView):
     current_section = 'account'
 
-    def get_project(self, uuid_b58):
+    def get_project(self, uuid_b58: str) -> Project:
         return (
             Project.query.filter_by(uuid_b58=uuid_b58)
-            .options(sa.orm.load_only(Project.id, Project.uuid, Project.title))
+            .options(sa_orm.load_only(Project.id, Project.uuid, Project.title))
             .one_or_404()
         )
 
@@ -48,14 +49,16 @@ class ContactView(ClassView):
     @render_with('contacts.html.jinja2')
     def contacts(self) -> ReturnRenderWith:
         """Return contacts grouped by project and date."""
-        archived = getbool(request.args.get('archived'))
+        archived = getbool(request.args.get('archived')) or False
         return {
             'contacts': ContactExchange.grouped_counts_for(
                 current_auth.user, archived=archived
             )
         }
 
-    def contacts_to_csv(self, contacts, timezone, filename):
+    def contacts_to_csv(
+        self, contacts: Iterable[ContactExchange], timezone: BaseTzInfo, filename: str
+    ) -> Response:
         """Return a CSV of given contacts."""
         outfile = StringIO(newline='')
         out = csv.writer(outfile)
@@ -105,7 +108,7 @@ class ContactView(ClassView):
     @requires_login
     def project_date_csv(self, uuid_b58: str, datestr: str) -> ReturnView:
         """Return contacts for a given project and date in CSV format."""
-        archived = getbool(request.args.get('archived'))
+        archived = getbool(request.args.get('archived')) or False
         project = self.get_project(uuid_b58)
         date = datetime.strptime(datestr, '%Y-%m-%d').date()
 
@@ -122,7 +125,7 @@ class ContactView(ClassView):
     @requires_login
     def project_csv(self, uuid_b58: str) -> ReturnView:
         """Return contacts for a given project in CSV format."""
-        archived = getbool(request.args.get('archived'))
+        archived = getbool(request.args.get('archived')) or False
         project = self.get_project(uuid_b58)
 
         contacts = ContactExchange.contacts_for_project(
@@ -142,7 +145,7 @@ class ContactView(ClassView):
 
     @route('scan/connect', endpoint='scan_connect', methods=['POST'])
     @requires_login
-    @requestargs(('puk', abort_null), ('key', abort_null))
+    @requestargs('puk', 'key')
     def connect(self, puk: str, key: str) -> ReturnView:
         """Verify a badge scan and create a contact."""
         ticket_participant = TicketParticipant.query.filter_by(puk=puk, key=key).first()
@@ -169,7 +172,7 @@ class ContactView(ClassView):
 
             try:
                 contact_exchange = ContactExchange(
-                    user=current_auth.actor, ticket_participant=ticket_participant
+                    account=current_auth.actor, ticket_participant=ticket_participant
                 )
                 db.session.add(contact_exchange)
                 db.session.commit()
@@ -183,6 +186,3 @@ class ContactView(ClassView):
             'error': '403',
             'message': _("Unauthorized contact exchange"),
         }, 403
-
-
-ContactView.init_app(app)

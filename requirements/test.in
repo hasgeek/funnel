@@ -1,22 +1,19 @@
 -r base.in
 beautifulsoup4
-colorama
 coverage
 coveralls
 lxml
-Pygments
 pytest
 pytest-asyncio
 pytest-bdd
 pytest-cov
 pytest-dotenv
 pytest-env
+pytest-playwright
 pytest-rerunfailures
-pytest-selenium>=4.0.1
 pytest-socket
 requests-mock
 respx
-selenium<4.10  # Selenium 4.10.0 breaks pytest-selenium 4.0.1
 sttable
 tomlkit
 typeguard

@@ -6,29 +6,27 @@ Create Date: 2021-06-13 06:08:28.858610
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '6835596b1eee'
 down_revision = 'cad24ab35cc2'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `upgrade_` instead
     globals().get('upgrade_%s' % engine_name, lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `downgrade_` instead
     globals().get('downgrade_%s' % engine_name, lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     op.create_table(
         'shortlink',
         sa.Column('id', sa.BigInteger(), autoincrement=False, nullable=False),
@@ -43,6 +41,6 @@ def upgrade_():
     op.create_index(op.f('ix_shortlink_url'), 'shortlink', ['url'], unique=False)
 
 
-def downgrade_():
+def downgrade_() -> None:
     op.drop_index(op.f('ix_shortlink_url'), table_name='shortlink')
     op.drop_table('shortlink')

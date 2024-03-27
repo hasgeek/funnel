@@ -6,16 +6,14 @@ Create Date: 2021-08-15 22:43:02.921034
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '99e99507a595'
 down_revision = '294362dc7e49'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 class COMMENTSET_STATE:  # noqa: N801
@@ -25,17 +23,17 @@ class COMMENTSET_STATE:  # noqa: N801
     COLLABORATORS = 4  # Only for editors/collaborators
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `upgrade_` instead
     globals().get('upgrade_%s' % engine_name, lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `downgrade_` instead
     globals().get('downgrade_%s' % engine_name, lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     op.add_column(
         'commentset',
         sa.Column(
@@ -51,14 +49,14 @@ def upgrade_():
     )
 
 
-def downgrade_():
+def downgrade_() -> None:
     op.drop_constraint('commentset_state_check', 'commentset', type_='check')
     op.drop_column('commentset', 'state')
 
 
-def upgrade_geoname():
+def upgrade_geoname() -> None:
     pass
 
 
-def downgrade_geoname():
+def downgrade_geoname() -> None:
     pass

@@ -18,7 +18,7 @@
 
 {%- block avatar -%}
   {%- if view.is_rollup -%}
-    {{ useravatar(view.membership.project.profile) }}
+    {{ useravatar(view.membership.project.account) }}
   {%- else -%}
     {{ useravatar(view.actor) }}
   {%- endif -%}

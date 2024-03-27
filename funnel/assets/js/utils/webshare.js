@@ -1,4 +1,3 @@
-/* global gettext */
 import toastr from 'toastr';
 import Utils from './helper';
 
@@ -43,37 +42,17 @@ const WebShare = {
       $('body').on('click', '.js-copy-link', function clickCopyLink(event) {
         event.preventDefault();
         const linkElem = this;
-        const copyLink = () => {
-          const url = $(linkElem).find('.js-copy-url').first().text();
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(url).then(
-              () => toastr.success(gettext('Link copied')),
-              () => toastr.success(gettext('Could not copy link'))
-            );
-          } else {
-            const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNodeContents($(linkElem).find('.js-copy-url')[0]);
-            selection.removeAllRanges();
-            selection.addRange(range);
-            if (document.execCommand('copy')) {
-              toastr.success(gettext('Link copied'));
-            } else {
-              toastr.success(gettext('Could not copy link'));
-            }
-            selection.removeAllRanges();
-          }
-        };
         if ($(linkElem).attr('data-shortlink')) {
-          copyLink();
+          Utils.copyToClipboard('.js-copy-url');
         } else {
           Utils.fetchShortUrl($(linkElem).find('.js-copy-url').first().html())
             .then((shortlink) => {
               $(linkElem).find('.js-copy-url').text(shortlink);
               $(linkElem).attr('data-shortlink', true);
+              Utils.copyToClipboard('.js-copy-url');
             })
-            .finally(() => {
-              copyLink();
+            .catch((errMsg) => {
+              toastr.error(errMsg);
             });
         }
       });

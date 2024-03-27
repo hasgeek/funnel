@@ -1,13 +1,31 @@
 """Test account views."""
 
 from types import SimpleNamespace
+from typing import cast
 
 import pytest
 
+from funnel import models
 from funnel.views.account import user_agent_details
 
+from ...conftest import TestClient
 
-def test_username_available(db_session, client, user_rincewind, csrf_token) -> None:
+
+def test_account_always_has_profile_url(
+    user_twoflower: models.User, user_rincewind: models.User
+) -> None:
+    """An account without a username will still have an absolute URL for a profile."""
+    assert user_twoflower.username is None
+    assert user_twoflower.absolute_url is not None
+    assert user_rincewind.username is not None
+    assert user_rincewind.absolute_url is not None
+
+
+def test_username_available(
+    client: TestClient,
+    user_rincewind: models.User,
+    csrf_token: str,
+) -> None:
     """Test the username availability endpoint."""
     endpoint = '/api/1/account/username_available'
 
@@ -40,7 +58,7 @@ def test_username_available(db_session, client, user_rincewind, csrf_token) -> N
         'error_description': "This username has been taken",
     }
 
-    # Misformatted usernames will render an explanatory error
+    # Mis-formatted usernames will render an explanatory error
     rv = client.post(
         endpoint,
         data={'username': 'this is invalid', 'csrf_token': csrf_token},
@@ -52,51 +70,6 @@ def test_username_available(db_session, client, user_rincewind, csrf_token) -> N
         'error_description': "Usernames can only have alphabets, numbers and"
         " underscores",
     }
-
-
-# Sample password that will pass zxcvbn's complexity validation, but will be flagged
-# by the pwned password validator
-PWNED_PASSWORD = "thisisone1"  # nosec
-
-
-@pytest.mark.enable_socket()
-def test_pwned_password(client, csrf_token, login, user_rincewind) -> None:
-    """Pwned password validator will block attempt to use a compromised password."""
-    login.as_(user_rincewind)
-    rv = client.post(
-        'account/password',
-        data={
-            'username': user_rincewind.username,
-            'form.id': 'password-change',
-            'password': PWNED_PASSWORD,
-            'confirm_password': PWNED_PASSWORD,
-            'csrf_token': csrf_token,
-        },
-    )
-    assert rv.status_code == 200
-    assert "This password was found in breached password lists" in rv.data.decode()
-
-
-def test_pwned_password_mock_endpoint_down(
-    requests_mock, client, csrf_token, login, user_rincewind
-) -> None:
-    """If the pwned password API is not available, the password is allowed."""
-    requests_mock.get('https://api.pwnedpasswords.com/range/1F074', status_code=404)
-    login.as_(user_rincewind)
-
-    rv = client.post(
-        'account/password',
-        data={
-            'username': user_rincewind.username,
-            'form.id': 'password-change',
-            'password': PWNED_PASSWORD,
-            'confirm_password': PWNED_PASSWORD,
-            'csrf_token': csrf_token,
-        },
-    )
-
-    assert rv.status_code == 303
-    assert rv.location == '/account'
 
 
 @pytest.mark.parametrize(
@@ -161,7 +134,10 @@ def test_pwned_password_mock_endpoint_down(
             'Mozilla/5.0 (iPhone; CPU iPhone OS 15_6_1 like Mac OS X)'
             ' AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0'
             ' EdgiOS/100.1185.50 Mobile/15E148 Safari/605.1.15',
-            {'browser': 'Mobile Safari 15.0', 'os_device': 'Apple iPhone (iOS 15.6.1)'},
+            {
+                'browser': 'Edge Mobile 100.1185.50',
+                'os_device': 'Apple iPhone (iOS 15.6.1)',
+            },
         ),
         (
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64; Xbox; Xbox One)'
@@ -187,5 +163,10 @@ def test_pwned_password_mock_endpoint_down(
         ),
     ],
 )
-def test_user_agent_details(user_agent, output) -> None:
-    assert user_agent_details(SimpleNamespace(user_agent=user_agent)) == output
+def test_user_agent_details(user_agent: str, output: dict) -> None:
+    assert (
+        user_agent_details(
+            cast(models.LoginSession, SimpleNamespace(user_agent=user_agent))
+        )
+        == output
+    )

@@ -6,8 +6,6 @@ Create Date: 2020-06-19 12:30:25.891325
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 
@@ -16,8 +14,8 @@ from coaster.sqlalchemy import UrlType
 # revision identifiers, used by Alembic.
 revision = 'b6d0edac3e20'
 down_revision = 'e3b3ccbca3b9'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 def upgrade() -> None:

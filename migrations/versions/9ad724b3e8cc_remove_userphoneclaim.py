@@ -6,8 +6,6 @@ Create Date: 2022-07-08 11:01:32.223788
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
@@ -15,29 +13,29 @@ from sqlalchemy.dialects import postgresql
 # revision identifiers, used by Alembic.
 revision = '9ad724b3e8cc'
 down_revision = '0fae06340346'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name: str = '') -> None:
     """Upgrade all databases."""
     # Do not modify. Edit `upgrade_` instead
     globals().get(f'upgrade_{engine_name}', lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name: str = '') -> None:
     """Downgrade all databases."""
     # Do not modify. Edit `downgrade_` instead
     globals().get(f'downgrade_{engine_name}', lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     """Remove UserPhoneClaim model."""
     op.drop_index('ix_user_phone_claim_phone', table_name='user_phone_claim')
     op.drop_table('user_phone_claim')
 
 
-def downgrade_():
+def downgrade_() -> None:
     """Restore UserPhoneClaim model."""
     op.create_table(
         'user_phone_claim',

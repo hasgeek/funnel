@@ -3,7 +3,6 @@ process.traceDeprecation = true;
 const webpack = require('webpack');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const path = require('path');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { InjectManifest } = require('workbox-webpack-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -56,6 +55,7 @@ module.exports = {
     labels_form: path.resolve(__dirname, 'funnel/assets/js/labels_form.js'),
     cfp_form: path.resolve(__dirname, 'funnel/assets/js/cfp_form.js'),
     rsvp_form_modal: path.resolve(__dirname, 'funnel/assets/js/rsvp_form_modal.js'),
+    shortlink_form: path.resolve(__dirname, 'funnel/assets/js/shortlink_form.js'),
     app_css: path.resolve(__dirname, 'funnel/assets/sass/app.scss'),
     form_css: path.resolve(__dirname, 'funnel/assets/sass/form.scss'),
     index_css: path.resolve(__dirname, 'funnel/assets/sass/pages/index.scss'),
@@ -142,9 +142,6 @@ module.exports = {
     }),
     new webpack.DefinePlugin({
       'process.env': { NODE_ENV: JSON.stringify(nodeEnv) },
-    }),
-    new CleanWebpackPlugin({
-      root: path.join(__dirname, 'funnel/static'),
     }),
     new WebpackManifestPlugin({
       fileName: path.join(__dirname, 'funnel/static/build/manifest.json'),

@@ -1,4 +1,5 @@
 """Tests for support API views."""
+
 # pylint: disable=redefined-outer-name
 
 from __future__ import annotations
@@ -7,9 +8,10 @@ import secrets
 
 import pytest
 from flask import Flask, url_for
-from flask.testing import FlaskClient
 
 from funnel import models
+
+from ...conftest import TestClient
 
 VALID_PHONE = '+918123456789'
 VALID_PHONE_UNPREFIXED = '8123456789'
@@ -24,13 +26,13 @@ def mock_api_key() -> str:
 
 
 @pytest.fixture()
-def user_twoflower_phone(user_twoflower: models.User) -> models.UserPhone:
+def user_twoflower_phone(user_twoflower: models.User) -> models.AccountPhone:
     """User phone fixture."""
     return user_twoflower.add_phone(VALID_PHONE_INTL)
 
 
 @pytest.fixture()
-def user_rincewind_phone(user_rincewind: models.User) -> models.UserPhone:
+def user_rincewind_phone(user_rincewind: models.User) -> models.AccountPhone:
     """User phone fixture."""
     return user_rincewind.add_phone(VALID_PHONE)
 
@@ -42,7 +44,7 @@ def unaffiliated_phone_number() -> models.PhoneNumber:
 
 
 @pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': ...})
-def test_api_key_not_configured(app: Flask, client: FlaskClient) -> None:
+def test_api_key_not_configured(app: Flask, client: TestClient) -> None:
     """Server must be configured with an API key."""
     app.config.pop('INTERNAL_SUPPORT_API_KEY', None)
     rv = client.post(url_for('support_callerid'), data={'number': VALID_PHONE})
@@ -50,7 +52,7 @@ def test_api_key_not_configured(app: Flask, client: FlaskClient) -> None:
 
 
 @pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': mock_api_key})
-def test_api_key_mismatch(client: FlaskClient) -> None:
+def test_api_key_mismatch(client: TestClient) -> None:
     """Client must supply the correct API key."""
     rv = client.post(
         url_for('support_callerid'),
@@ -63,7 +65,7 @@ def test_api_key_mismatch(client: FlaskClient) -> None:
 @pytest.mark.mock_config('app', {'INTERNAL_SUPPORT_API_KEY': mock_api_key})
 def test_valid_phone_unaffiliated(
     app: Flask,
-    client: FlaskClient,
+    client: TestClient,
     unaffiliated_phone_number: models.PhoneNumber,
 ) -> None:
     """Test phone number not affiliated with a user account."""
@@ -86,8 +88,8 @@ def test_valid_phone_unaffiliated(
 )
 def test_valid_phone_affiliated(
     app: Flask,
-    client: FlaskClient,
-    user_rincewind_phone: models.UserPhone,
+    client: TestClient,
+    user_rincewind_phone: models.AccountPhone,
     number: str,
 ) -> None:
     """Test phone number affiliated with a user account."""
@@ -102,8 +104,9 @@ def test_valid_phone_affiliated(
     assert isinstance(data['result'], dict)
     assert data['result']['number'] == VALID_PHONE
     assert data['result']['account'] == {
-        'title': user_rincewind_phone.user.fullname,
-        'name': user_rincewind_phone.user.username,
+        'title': user_rincewind_phone.account.fullname,
+        'name': user_rincewind_phone.account.username,
+        'url': user_rincewind_phone.account.absolute_url,
     }
 
 
@@ -111,8 +114,8 @@ def test_valid_phone_affiliated(
 @pytest.mark.parametrize('number', [VALID_PHONE_INTL, VALID_PHONE_INTL_ZEROPREFIXED])
 def test_valid_phone_intl(
     app: Flask,
-    client: FlaskClient,
-    user_twoflower_phone: models.UserPhone,
+    client: TestClient,
+    user_twoflower_phone: models.AccountPhone,
     number: str,
 ) -> None:
     """Test phone number affiliated with a user account."""
@@ -127,6 +130,7 @@ def test_valid_phone_intl(
     assert isinstance(data['result'], dict)
     assert data['result']['number'] == VALID_PHONE_INTL
     assert data['result']['account'] == {
-        'title': user_twoflower_phone.user.fullname,
-        'name': user_twoflower_phone.user.username,
+        'title': user_twoflower_phone.account.fullname,
+        'name': user_twoflower_phone.account.username,
+        'url': user_twoflower_phone.account.absolute_url,
     }

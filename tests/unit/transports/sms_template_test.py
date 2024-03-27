@@ -1,7 +1,9 @@
 """Test SMS templates."""
+
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import pytest
 from flask import Flask
@@ -199,6 +201,7 @@ def test_subclass_config(app: Flask, msgt: SimpleNamespace) -> None:
     assert MySubMessage.registered_templateid == 'qwerty'
 
 
+@patch.object(sms.SmsTemplate, 'registered_entityid', None)
 def test_init_app(app: Flask, msgt: SimpleNamespace) -> None:
     assert sms.SmsTemplate.registered_entityid is None
     assert msgt.MyMessage.registered_entityid is None

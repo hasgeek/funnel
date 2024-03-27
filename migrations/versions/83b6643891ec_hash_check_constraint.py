@@ -6,24 +6,22 @@ Create Date: 2023-01-20 01:16:50.246175
 
 """
 
-from typing import Optional, Tuple, Union
-
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '83b6643891ec'
 down_revision: str = '63c44675b6cd'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade(engine_name='') -> None:
+def upgrade(engine_name: str = '') -> None:
     """Upgrade all databases."""
     # Do not modify. Edit `upgrade_` instead
     globals().get(f'upgrade_{engine_name}', lambda: None)()
 
 
-def downgrade(engine_name='') -> None:
+def downgrade(engine_name: str = '') -> None:
     """Downgrade all databases."""
     # Do not modify. Edit `downgrade_` instead
     globals().get(f'downgrade_{engine_name}', lambda: None)()

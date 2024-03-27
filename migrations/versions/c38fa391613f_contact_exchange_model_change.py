@@ -17,7 +17,7 @@ from alembic import op
 def upgrade() -> None:
     # Remove duplicate entries before dropping the project_id column
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
         DELETE FROM contact_exchange WHERE (user_id, project_id, participant_id) IN (
             SELECT user_id, project_id, participant_id
@@ -56,7 +56,7 @@ def downgrade() -> None:
         sa.Column('project_id', sa.INTEGER(), autoincrement=False, nullable=True),
     )
     op.execute(
-        sa.DDL(
+        sa.text(
             '''
         UPDATE contact_exchange
         SET project_id = participant.project_id

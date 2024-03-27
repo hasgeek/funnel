@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import QuerySelectField
 
-from ..models import Project, Proposal, User
+from ..models import Account, Project, Proposal
 from .helpers import nullable_strip_filters, video_url_validator
 
 __all__ = [
@@ -29,8 +27,8 @@ __all__ = [
 
 
 def proposal_label_form(
-    project: Project, proposal: Optional[Proposal]
-) -> Optional[forms.Form]:
+    project: Project, proposal: Proposal | None
+) -> forms.Form | None:
     """Return a label form for the given project and proposal."""
     if not project.labels:
         return None
@@ -68,8 +66,8 @@ def proposal_label_form(
 
 
 def proposal_label_admin_form(
-    project: Project, proposal: Optional[Proposal]
-) -> Optional[forms.Form]:
+    project: Project, proposal: Proposal | None
+) -> forms.Form | None:
     """Return a label form to use in admin panel for given project and proposal."""
 
     # FIXME: See above
@@ -127,7 +125,7 @@ class ProposalLabelsForm(forms.Form):
     edit_parent: Project
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.formlabels.form = proposal_label_form(
             project=self.edit_parent, proposal=self.edit_obj
@@ -141,7 +139,7 @@ class ProposalLabelsAdminForm(forms.Form):
     edit_parent: Project
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.formlabels.form = proposal_label_admin_form(
             project=self.edit_parent, proposal=self.edit_obj
@@ -177,7 +175,7 @@ class ProposalForm(forms.Form):
     )
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         label_form = proposal_label_form(
             project=self.edit_parent, proposal=self.edit_obj
@@ -213,7 +211,7 @@ class ProposalMemberForm(forms.Form):
     def validate_user(self, field: forms.Field) -> None:
         """Validate user field to confirm user is not an existing collaborator."""
         for membership in self.proposal.memberships:
-            if membership.user == field.data:
+            if membership.member == field.data:
                 raise forms.validators.StopValidation(
                     _("{user} is already a collaborator").format(
                         user=field.data.pickername
@@ -231,7 +229,7 @@ class ProposalTransitionForm(forms.Form):
         __("Status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         # value: transition method name
         # label: transition object itself
@@ -244,7 +242,7 @@ class ProposalMoveForm(forms.Form):
     """Form to move a proposal to another project."""
 
     __expects__ = ('user',)
-    user: User
+    user: Account
 
     target = QuerySelectField(
         __("Move proposal to"),
@@ -253,6 +251,6 @@ class ProposalMoveForm(forms.Form):
         get_label='title',
     )
 
-    def set_queries(self) -> None:
+    def __post_init__(self) -> None:
         """Prepare form for use."""
         self.target.query = self.user.projects_as_editor

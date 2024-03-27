@@ -3,21 +3,21 @@
 from __future__ import annotations
 
 import json
-from typing import Optional, Sequence, Union
-from typing_extensions import Literal
+from collections.abc import Sequence
+from typing import Literal
 
 from flask import flash
 
 from baseframe import _, __, forms
-from coaster.auth import current_auth
 
 from .. import app
+from ..auth import current_auth
 from ..models import (
+    Account,
+    AccountEmailClaim,
     EmailAddress,
     PhoneNumber,
-    Profile,
     User,
-    UserEmailClaim,
     canonical_phone_number,
     parse_phone_number,
     parse_video_url,
@@ -37,10 +37,10 @@ MSG_PHONE_NO_SMS = __("This phone number cannot receive SMS messages")
 MSG_PHONE_BLOCKED = __("This phone number has been blocked from use")
 
 
-class ProfileSelectField(forms.AutocompleteField):
+class AccountSelectField(forms.AutocompleteField):
     """Render an autocomplete field for selecting an account."""
 
-    data: Optional[Profile]  # type: ignore[assignment]
+    data: Account | None  # type: ignore[assignment]  # FIXME
     widget = forms.Select2Widget()
     multiple = False
     widget_autocomplete = True
@@ -48,17 +48,17 @@ class ProfileSelectField(forms.AutocompleteField):
     def _value(self) -> str:
         """Return value for HTML rendering."""
         if self.data is not None:
-            return self.data.name
+            return self.data.name or ''
         return ''
 
     def process_formdata(self, valuelist: Sequence[str]) -> None:
         """Process incoming form data."""
         if valuelist:
-            self.data = Profile.query.filter(
+            self.data = Account.query.filter(
                 # Limit to non-suspended (active) accounts. Do not require account to
                 # be public as well
-                Profile.name_is(valuelist[0]),
-                Profile.is_active,
+                Account.name_is(valuelist[0]),
+                Account.state.ACTIVE,
             ).one_or_none()
         else:
             self.data = None
@@ -83,9 +83,7 @@ class EmailAddressAvailable:
 
     def __call__(self, form: forms.Form, field: forms.Field) -> None:
         # Get actor (from form, or current_auth.actor)
-        actor: Optional[User] = None
-        if hasattr(form, 'edit_user'):
-            actor = form.edit_user
+        actor: User | None = getattr(form, 'edit_user', None)
         if actor is None:
             actor = current_auth.actor
 
@@ -150,7 +148,7 @@ class EmailAddressAvailable:
         if has_error is None and self.purpose == 'register':
             # One last check: is there an existing claim? If so, stop the user from
             # making a dupe account
-            if UserEmailClaim.all(email=field.data).notempty():
+            if AccountEmailClaim.all(email=field.data).notempty():
                 raise forms.validators.StopValidation(
                     _(
                         "You or someone else has made an account with this email"
@@ -174,9 +172,7 @@ class PhoneNumberAvailable:
 
     def __call__(self, form: forms.Form, field: forms.Field) -> None:
         # Get actor (from existing obj, or current_auth.actor)
-        actor: Optional[User] = None
-        if hasattr(form, 'edit_user'):
-            actor = form.edit_user
+        actor: User | None = getattr(form, 'edit_user', None)
         if actor is None:
             actor = current_auth.actor
 
@@ -235,9 +231,7 @@ def image_url_validator() -> forms.validators.ValidUrl:
     """Customise ValidUrl for hosted image URL validation."""
     return forms.validators.ValidUrl(
         allowed_schemes=lambda: app.config.get('IMAGE_URL_SCHEMES', ('https',)),
-        allowed_domains=lambda: app.config.get(  # type: ignore[arg-type, return-value]
-            'IMAGE_URL_DOMAINS'
-        ),
+        allowed_domains=lambda: app.config.get('IMAGE_URL_DOMAINS'),
         message_schemes=__("A https:// URL is required"),
         message_domains=__("Images must be hosted at images.hasgeek.com"),
     )
@@ -271,7 +265,7 @@ def tostr(value: object) -> str:
     return ''
 
 
-def format_json(data: Union[dict, str, None]) -> str:
+def format_json(data: dict | str | None) -> str:
     """Return a dict as a formatted JSON string, and return a string unchanged."""
     if data:
         if isinstance(data, str):
@@ -282,6 +276,8 @@ def format_json(data: Union[dict, str, None]) -> str:
 
 def validate_and_convert_json(form: forms.Form, field: forms.Field) -> None:
     """Confirm form data is valid JSON, and store it back as a parsed dict."""
+    if field.data is None:
+        return
     try:
         field.data = json.loads(field.data)
     except ValueError:

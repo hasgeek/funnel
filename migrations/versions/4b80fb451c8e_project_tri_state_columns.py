@@ -73,7 +73,7 @@ def upgrade() -> None:
     # Move `state` out of the way into `old_state`
     op.alter_column('project', 'state', new_column_name='old_state')
     op.execute(
-        sa.DDL(
+        sa.text(
             'ALTER TABLE project RENAME CONSTRAINT project_state_check TO project_old_state_check'
         )
     )
@@ -141,7 +141,7 @@ def upgrade() -> None:
     # For existing projects, assume the presence of a session to indicate a published schedule.
     # New projects will require explicit publication.
     op.execute(
-        sa.DDL(
+        sa.text(
             'UPDATE project SET schedule_state=1 WHERE id IN (SELECT DISTINCT(project_id) FROM session)'
         )
     )
@@ -159,7 +159,7 @@ def downgrade() -> None:
 
     op.alter_column('project', 'old_state', new_column_name='state')
     op.execute(
-        sa.DDL(
+        sa.text(
             'ALTER TABLE project RENAME CONSTRAINT project_old_state_check TO project_state_check'
         )
     )

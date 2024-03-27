@@ -1,17 +1,21 @@
 """Test main login form for password and OTP flows."""
+
 # pylint: disable=redefined-outer-name
 
 import pytest
+from flask import Flask
 
 from funnel import forms, models
 
+from ...conftest import scoped_session
+
 pytestmark = pytest.mark.filterwarnings(
-    "ignore:Object of type <UserEmail> not in session"
+    "ignore:Object of type <AccountEmail> not in session"
 )
 
 
 @pytest.fixture()
-def user(db_session):
+def user(db_session: scoped_session) -> models.User:
     """User fixture."""
     new_user = models.User(  # nosec
         username='user', fullname="User", password='test_password'
@@ -22,7 +26,7 @@ def user(db_session):
 
 
 @pytest.fixture()
-def user_nameless(db_session):
+def user_nameless(db_session: scoped_session) -> models.User:
     """User fixture without a username."""
     new_user = models.User(  # nosec
         fullname="Nameless User", password='test_password_nameless'
@@ -34,7 +38,7 @@ def user_nameless(db_session):
 
 
 @pytest.fixture()
-def user_named(db_session):
+def user_named(db_session: scoped_session) -> models.User:
     """User fixture with a username."""
     new_user = models.User(  # nosec
         username='user_named', fullname="Named User", password='test_password_named'
@@ -46,7 +50,7 @@ def user_named(db_session):
 
 
 @pytest.fixture()
-def user_email(db_session, user):
+def user_email(db_session: scoped_session, user: models.User) -> models.AccountEmail:
     """Email address for user fixture."""
     retval = user.add_email('user@example.com')
     db_session.commit()
@@ -54,14 +58,16 @@ def user_email(db_session, user):
 
 
 @pytest.fixture()
-def user_phone(db_session, user):
+def user_phone(db_session: scoped_session, user: models.User) -> models.AccountPhone:
     """Phone number for user fixture."""
     retval = user.add_phone('+912345678901')
     db_session.commit()
     return retval
 
 
-def test_form_has_user(app, user, user_nameless, user_named) -> None:
+def test_form_has_user(
+    app: Flask, user: models.User, user_nameless: models.User, user_named: models.User
+) -> None:
     """Login form identifies user correctly."""
     with app.test_request_context(method='POST', data={'username': 'user'}):
         form = forms.LoginForm(meta={'csrf': False})
@@ -69,7 +75,9 @@ def test_form_has_user(app, user, user_nameless, user_named) -> None:
         assert form.user == user
 
 
-def test_form_has_user_nameless(app, user, user_nameless, user_named) -> None:
+def test_form_has_user_nameless(
+    app: Flask, user: models.User, user_nameless: models.User, user_named: models.User
+) -> None:
     """Login form identifies user correctly."""
     with app.test_request_context(
         method='POST', data={'username': 'nameless@example.com'}
@@ -80,7 +88,9 @@ def test_form_has_user_nameless(app, user, user_nameless, user_named) -> None:
         assert form.user == user_nameless
 
 
-def test_form_has_user_named(app, user, user_nameless, user_named) -> None:
+def test_form_has_user_named(
+    app: Flask, user: models.User, user_nameless: models.User, user_named: models.User
+) -> None:
     """Login form identifies user correctly."""
     with app.test_request_context(method='POST', data={'username': 'user_named'}):
         form = forms.LoginForm(meta={'csrf': False})
@@ -89,7 +99,9 @@ def test_form_has_user_named(app, user, user_nameless, user_named) -> None:
         assert form.user == user_named
 
 
-def test_form_has_user_named_by_email(app, user, user_nameless, user_named) -> None:
+def test_form_has_user_named_by_email(
+    app: Flask, user: models.User, user_nameless: models.User, user_named: models.User
+) -> None:
     """Login form identifies user correctly."""
     with app.test_request_context(
         method='POST', data={'username': 'named@example.com'}
@@ -100,7 +112,7 @@ def test_form_has_user_named_by_email(app, user, user_nameless, user_named) -> N
         assert form.user == user_named
 
 
-def test_login_no_data(app, user) -> None:
+def test_login_no_data(app: Flask, user: models.User) -> None:
     """Login form fails if username and password are not provided."""
     with app.test_request_context(method='POST'):
         form = forms.LoginForm(meta={'csrf': False})
@@ -110,7 +122,7 @@ def test_login_no_data(app, user) -> None:
         assert form.password.errors == []
 
 
-def test_login_no_password(app, user) -> None:
+def test_login_no_password(app: Flask, user: models.User) -> None:
     """Login fails if password is not provided and user has no email/phone."""
     with app.test_request_context(method='POST', data={'username': 'user'}):
         form = forms.LoginForm(meta={'csrf': False})
@@ -120,7 +132,9 @@ def test_login_no_password(app, user) -> None:
         assert form.password.errors == [form.password.validators[0].message]
 
 
-def test_login_no_password_with_email(app, user, user_email) -> None:
+def test_login_no_password_with_email(
+    app: Flask, user: models.User, user_email: models.AccountEmail
+) -> None:
     """Passwordless login if password is not provided but user has email."""
     with app.test_request_context(method='POST', data={'username': 'user'}):
         form = forms.LoginForm(meta={'csrf': False})
@@ -131,7 +145,10 @@ def test_login_no_password_with_email(app, user, user_email) -> None:
 
 
 def test_login_no_password_with_phone_and_email(
-    app, user, user_email, user_phone
+    app: Flask,
+    user: models.User,
+    user_email: models.AccountEmail,
+    user_phone: models.AccountPhone,
 ) -> None:
     """Passwordless login if password is not provided but user has phone or email."""
     with app.test_request_context(method='POST', data={'username': 'user'}):
@@ -143,7 +160,10 @@ def test_login_no_password_with_phone_and_email(
 
 
 def test_login_no_password_with_email_and_phone(
-    app, user, user_email, user_phone
+    app: Flask,
+    user: models.User,
+    user_email: models.AccountEmail,
+    user_phone: models.AccountPhone,
 ) -> None:
     """Passwordless login if password is not provided but user used email."""
     with app.test_request_context(method='POST', data={'username': 'user@example.com'}):
@@ -154,7 +174,7 @@ def test_login_no_password_with_email_and_phone(
         assert form.anchor == user_email  # The anchor used in username takes priority
 
 
-def test_login_no_username(app, user) -> None:
+def test_login_no_username(app: Flask, user: models.User) -> None:
     """Login fails if username is not provided."""
     with app.test_request_context(method='POST', data={'password': 'test_password'}):
         form = forms.LoginForm(meta={'csrf': False})
@@ -164,7 +184,7 @@ def test_login_no_username(app, user) -> None:
         assert form.password.errors == []
 
 
-def test_login_blank_username(app, user) -> None:
+def test_login_blank_username(app: Flask, user: models.User) -> None:
     """Login fails if username is blank."""
     with app.test_request_context(
         method='POST', data={'username': '', 'password': 'test_password'}
@@ -176,7 +196,7 @@ def test_login_blank_username(app, user) -> None:
         assert form.password.errors == []
 
 
-def test_login_blank_password(app, user) -> None:
+def test_login_blank_password(app: Flask, user: models.User) -> None:
     """Login fails if password is blank."""
     with app.test_request_context(
         method='POST', data={'username': 'user', 'password': ''}
@@ -188,7 +208,7 @@ def test_login_blank_password(app, user) -> None:
         assert form.password.errors == [form.password.validators[0].message]
 
 
-def test_login_wrong_username(app, user) -> None:
+def test_login_wrong_username(app: Flask, user: models.User) -> None:
     """Login fails if username cannot identify a user."""
     with app.test_request_context(
         method='POST', data={'username': 'no_user', 'password': 'test_password'}
@@ -200,7 +220,7 @@ def test_login_wrong_username(app, user) -> None:
         assert form.password.errors == []
 
 
-def test_login_wrong_password(app, user) -> None:
+def test_login_wrong_password(app: Flask, user: models.User) -> None:
     """Login fails if password is incorrect."""
     with app.test_request_context(
         method='POST', data={'username': 'user', 'password': 'wrong_password'}
@@ -212,7 +232,7 @@ def test_login_wrong_password(app, user) -> None:
         assert form.password.errors == [forms.login.MSG_INCORRECT_PASSWORD]
 
 
-def test_login_long_password(app, user) -> None:
+def test_login_long_password(app: Flask, user: models.User) -> None:
     """Login fails if password candidate is too long."""
     with app.test_request_context(
         method='POST', data={'username': 'user', 'password': 'a' * 101}
@@ -227,7 +247,7 @@ def test_login_long_password(app, user) -> None:
 
 
 @pytest.mark.parametrize('username', ['unknown@example.com', '+919845012345'])
-def test_login_no_probing(app, username) -> None:
+def test_login_no_probing(app: Flask, username: str) -> None:
     """Login fails if email/phone is not present, but as an incorrect password."""
     with app.test_request_context(
         method='POST', data={'username': username, 'password': 'wrong_password'}
@@ -238,7 +258,7 @@ def test_login_no_probing(app, username) -> None:
         assert form.password.errors == [forms.login.MSG_INCORRECT_PASSWORD]
 
 
-def test_login_pass(app, user) -> None:
+def test_login_pass(app: Flask, user: models.User) -> None:
     """Login succeeds if both username and password match."""
     with app.test_request_context(
         method='POST', data={'username': 'user', 'password': 'test_password'}
@@ -250,7 +270,9 @@ def test_login_pass(app, user) -> None:
         assert form.password.errors == []
 
 
-def test_login_email_pass(app, user, user_email) -> None:
+def test_login_email_pass(
+    app: Flask, user: models.User, user_email: models.AccountEmail
+) -> None:
     """Login succeeds if email and password match."""
     with app.test_request_context(
         method='POST', data={'username': str(user_email), 'password': 'test_password'}
@@ -262,7 +284,9 @@ def test_login_email_pass(app, user, user_email) -> None:
         assert form.password.errors == []
 
 
-def test_login_phone_pass(app, user, user_phone) -> None:
+def test_login_phone_pass(
+    app: Flask, user: models.User, user_phone: models.AccountPhone
+) -> None:
     """Login succeeds if phone number and password match."""
     with app.test_request_context(
         method='POST', data={'username': str(user_phone), 'password': 'test_password'}
@@ -274,7 +298,9 @@ def test_login_phone_pass(app, user, user_phone) -> None:
         assert form.password.errors == []
 
 
-def test_login_partial_phone_pass(app, user, user_phone) -> None:
+def test_login_partial_phone_pass(
+    app: Flask, user: models.User, user_phone: models.AccountPhone
+) -> None:
     """Login succeeds if unprefixed phone number and password match."""
     with app.test_request_context(
         method='POST',
@@ -287,7 +313,7 @@ def test_login_partial_phone_pass(app, user, user_phone) -> None:
         assert form.password.errors == []
 
 
-def test_login_user_suspended(app, user) -> None:
+def test_login_user_suspended(app: Flask, user: models.User) -> None:
     """Login fails if the user account has been suspended."""
     user.mark_suspended()
     with app.test_request_context(
@@ -301,7 +327,7 @@ def test_login_user_suspended(app, user) -> None:
         assert form.password.errors == []
 
 
-def test_register_email_otp(app) -> None:
+def test_register_email_otp(app: Flask) -> None:
     """Login with non-existent account and valid email signals a registration."""
     with app.test_request_context(
         method='POST', data={'username': 'example@example.com', 'password': ''}
@@ -323,7 +349,9 @@ def test_register_email_otp(app) -> None:
         ('+12345678900', '+12345678900'),
     ],
 )
-def test_register_phone_otp(app, phone_number, full_phone_number) -> None:
+def test_register_phone_otp(
+    app: Flask, phone_number: str, full_phone_number: str
+) -> None:
     """Login with non-existent account and valid phone signals a registration."""
     with app.test_request_context(
         method='POST', data={'username': phone_number, 'password': ''}

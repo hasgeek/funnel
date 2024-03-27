@@ -49,7 +49,7 @@
         ],
         divElem: "#manage-membership",
         memberTemplate: '#member-template',
-        isUserProfileAdmin: {%- if project.profile.current_roles.admin %} true {% else %} false {%- endif %},
+        isUserProfileAdmin: {%- if project.account.current_roles.admin %} true {% else %} false {%- endif %},
       };
       Hasgeek.membershipInit(membershipConfig);
     });

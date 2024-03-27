@@ -8,7 +8,6 @@ Create Date: 2020-06-17 02:13:45.493791
 """
 
 import hashlib
-from typing import Optional, Tuple, Union
 
 import idna
 import progressbar.widgets
@@ -21,8 +20,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = 'e3b3ccbca3b9'
 down_revision = 'ae075a249493'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 # --- Tables ---------------------------------------------------------------------------
@@ -140,7 +139,7 @@ def upgrade() -> None:
         ondelete='SET NULL',
     )
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(participant))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(participant))
     progress = get_progressbar("Participants", count)
     progress.start()
     items = conn.execute(
@@ -245,7 +244,7 @@ def downgrade() -> None:
         'participant',
         sa.Column('email', sa.VARCHAR(length=254), autoincrement=False, nullable=True),
     )
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(participant))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(participant))
     progress = get_progressbar("Participants", count)
     progress.start()
     items = conn.execute(

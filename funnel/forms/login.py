@@ -2,21 +2,20 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 from baseframe import _, __, forms
 
 from ..models import (
     PASSWORD_MAX_LENGTH,
+    Account,
+    Anchor,
     EmailAddress,
     EmailAddressBlockedError,
+    LoginSession,
     PhoneNumber,
     PhoneNumberBlockedError,
     User,
-    UserEmail,
-    UserEmailClaim,
-    UserPhone,
-    UserSession,
     check_password_strength,
     getuser,
     parse_phone_number,
@@ -61,7 +60,7 @@ class LoginWithOtp(Exception):  # noqa: N818
 
 
 class RegisterWithOtp(Exception):  # noqa: N818
-    """Exception to signal for new user account registration after OTP validation."""
+    """Exception to signal for new account registration after OTP validation."""
 
 
 # --- Validators -----------------------------------------------------------------------
@@ -73,11 +72,11 @@ class PasswordlessLoginIntercept:
 
     message = __("Password is required")
 
-    def __call__(self, form, field) -> None:
+    def __call__(self, form: LoginForm, field: forms.PasswordField) -> None:
         if not field.data:
             # Use getattr for when :meth:`LoginForm.validate_username` is skipped
             if getattr(form, 'anchor', None) is not None:
-                # If user has an anchor, we can allow login to proceed passwordless
+                # If user has an anchor, we can allow login to proceed password-less
                 # using an OTP or email link
                 raise LoginWithOtp()
             if (
@@ -94,7 +93,7 @@ class PasswordlessLoginIntercept:
 # --- Forms ----------------------------------------------------------------------------
 
 
-@User.forms('login')
+@Account.forms('login')
 class LoginForm(forms.RecaptchaForm):
     """
     Form for login and registration.
@@ -121,11 +120,11 @@ class LoginForm(forms.RecaptchaForm):
     """
 
     __returns__ = ('user', 'anchor', 'weak_password', 'new_email', 'new_phone')
-    user: Optional[User] = None
-    anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone]] = None
-    weak_password: Optional[bool] = None
-    new_email: Optional[str] = None
-    new_phone: Optional[str] = None
+    user: Account | None = None
+    anchor: Anchor | None = None
+    weak_password: bool | None = None
+    new_email: str | None = None
+    new_phone: str | None = None
 
     username = forms.StringField(
         __("Phone number or email address"),
@@ -194,7 +193,7 @@ class LoginForm(forms.RecaptchaForm):
         """Validate password if provided."""
         # If there is already an error in the password field, don't bother validating.
         # This will be a `Length` validation error, but that one unfortunately does not
-        # raise `StopValidation`. If the length is off, we can end rightaway.
+        # raise `StopValidation`. If the length is off, we can end right away.
         if field.errors:
             return
 
@@ -243,17 +242,17 @@ class LoginForm(forms.RecaptchaForm):
         # supports both outcomes.
 
         # `check_password_strength(password).is_weak` is a bool
-        self.weak_password: bool = check_password_strength(field.data).is_weak
+        self.weak_password = check_password_strength(field.data).is_weak
 
 
-@User.forms('logout')
+@Account.forms('logout')
 class LogoutForm(forms.Form):
     """Process a logout request."""
 
     __expects__ = ('user',)
-    __returns__ = ('user_session',)
-    user: User
-    user_session: Optional[UserSession] = None
+    __returns__ = ('login_session',)
+    user: Account
+    login_session: LoginSession | None = None
 
     # We use `StringField`` even though the field is not visible. This does not use
     # `HiddenField`, because that gets rendered with `hidden_tag`, and not `SubmitField`
@@ -264,10 +263,10 @@ class LogoutForm(forms.Form):
 
     def validate_sessionid(self, field: forms.Field) -> None:
         """Validate login session belongs to the user who invoked this form."""
-        user_session = UserSession.get(buid=field.data)
-        if not user_session or user_session.user != self.user:
+        login_session = LoginSession.get(buid=field.data)
+        if not login_session or login_session.account != self.user:
             raise forms.validators.ValidationError(MSG_NO_LOGIN_SESSION)
-        self.user_session = user_session
+        self.login_session = login_session
 
 
 class OtpForm(forms.Form):
@@ -298,8 +297,7 @@ class OtpForm(forms.Form):
 class EmailOtpForm(OtpForm):
     """Verify an OTP sent to email."""
 
-    def set_queries(self) -> None:
-        super().set_queries()
+    def __post_init__(self) -> None:
         self.otp.description = _("One-time password sent to your email address")
 
 

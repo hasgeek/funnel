@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import logging
 from logging.config import fileConfig
-from typing import List
+from typing import Any
 
 from alembic import context
+from alembic.operations import MigrationScript
 from flask import current_app
 from sqlalchemy import MetaData
 
@@ -26,7 +27,7 @@ config.set_main_option(
     'sqlalchemy.url',
     str(current_app.extensions['migrate'].db.engines[None].url).replace('%', '%%'),
 )
-bind_names: List[str] = []
+bind_names: list[str] = []
 if current_app.config.get('SQLALCHEMY_BINDS') is not None:
     bind_names = list(current_app.config['SQLALCHEMY_BINDS'].keys())
 else:
@@ -47,7 +48,7 @@ target_db = current_app.extensions['migrate'].db
 # my_important_option = config.get_main_option("my_important_option") ... etc.
 
 
-def get_metadata(bind):
+def get_metadata(bind: str | None) -> MetaData:
     """Return the metadata for a bind."""
     if bind == '':
         bind = None
@@ -62,7 +63,7 @@ def get_metadata(bind):
     return m
 
 
-def run_migrations_offline():
+def run_migrations_offline() -> None:
     """
     Run migrations in 'offline' mode.
 
@@ -95,7 +96,7 @@ def run_migrations_offline():
                 context.run_migrations(engine_name=name)
 
 
-def run_migrations_online():
+def run_migrations_online() -> None:
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine
@@ -105,7 +106,9 @@ def run_migrations_online():
     # this callback is used to prevent an auto-migration from being generated
     # when there are no changes to the schema
     # reference: https://alembic.zzzcomputing.com/en/latest/cookbook.html
-    def process_revision_directives(_context, _revision, directives):
+    def process_revision_directives(
+        _context: Any, _revision: Any, directives: list[MigrationScript]
+    ) -> None:
         if getattr(config.cmd_opts, 'autogenerate', False):
             script = directives[0]
             if len(script.upgrade_ops_list) >= len(bind_names) + 1:

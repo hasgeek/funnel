@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Collection, Iterator
 from datetime import datetime
-from enum import IntEnum
-from typing import Any, Collection, Dict, Iterator, List, Optional, Set, Union
+from enum import ReprEnum
+from typing import Any, Self
 from uuid import UUID
 
-from flask import Markup, escape, request
+from flask import request
+from markupsafe import Markup, escape
 from premailer import transform as email_transform
 from sqlalchemy.orm import defer
 
@@ -17,7 +19,8 @@ from coaster.utils import MARKDOWN_HTML_TAGS, buid, md5sum, newsecret
 from .. import __
 from ..utils.markdown import MarkdownString, markdown_mailer
 from ..utils.mustache import mustache_md
-from . import (
+from .account import Account
+from .base import (
     BaseNameMixin,
     BaseScopedIdMixin,
     DynamicMapped,
@@ -26,14 +29,13 @@ from . import (
     db,
     relationship,
     sa,
+    sa_orm,
 )
-from .helpers import reopen
+from .helpers import IntTitle
 from .types import jsonb
-from .user import User
 
 __all__ = [
     'MailerState',
-    'User',
     'Mailer',
     'MailerDraft',
     'MailerRecipient',
@@ -47,58 +49,51 @@ for _key in EMAIL_TAGS:
     EMAIL_TAGS[_key].append('style')
 
 
-class MailerState(IntEnum):
+class MailerState(IntTitle, ReprEnum):
     """Send state for :class:`Mailer`."""
 
-    DRAFT = 0
-    QUEUED = 1
-    SENDING = 2
-    SENT = 3
-
-    __titles__ = {
-        DRAFT: __("Draft"),
-        QUEUED: __("Queued"),
-        SENDING: __("Sending"),
-        SENT: __("Sent"),
-    }
-
-    def __init__(self, value: int) -> None:
-        self.title = self.__titles__[value]
+    DRAFT = 0, __("Draft")
+    QUEUED = (1, __("Queued"))
+    SENDING = 2, __("Sending")
+    SENT = 3, __("Sent")
 
 
-class Mailer(BaseNameMixin, Model):
+class Mailer(BaseNameMixin[int, Account], Model):
     """A mailer sent via email to multiple recipients."""
 
     __tablename__ = 'mailer'
 
-    user_uuid: Mapped[UUID] = sa.orm.mapped_column(sa.ForeignKey('user.uuid'))
-    user: Mapped[User] = relationship(User, back_populates='mailers')
-    status: Mapped[int] = sa.orm.mapped_column(
-        sa.Integer, nullable=False, default=MailerState.DRAFT
+    user_uuid: Mapped[UUID] = sa_orm.mapped_column(
+        sa.ForeignKey('account.uuid'), default=None
     )
-    _fields: Mapped[str] = sa.orm.mapped_column(
+    user: Mapped[Account] = relationship(back_populates='mailers')
+    status: Mapped[int] = sa_orm.mapped_column(
+        nullable=False, default=MailerState.DRAFT
+    )
+    _fields: Mapped[str] = sa_orm.mapped_column(
         'fields', sa.UnicodeText, nullable=False, default=''
     )
-    trackopens: Mapped[bool] = sa.orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
-    stylesheet: Mapped[str] = sa.orm.mapped_column(
+    trackopens: Mapped[bool] = sa_orm.mapped_column(default=False)
+    stylesheet: Mapped[str] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=False, default=''
     )
-    _cc: Mapped[str] = sa.orm.mapped_column('cc', sa.UnicodeText, nullable=True)
-    _bcc: Mapped[str] = sa.orm.mapped_column('bcc', sa.UnicodeText, nullable=True)
+    _cc: Mapped[str] = sa_orm.mapped_column('cc', sa.UnicodeText, nullable=True)
+    _bcc: Mapped[str] = sa_orm.mapped_column('bcc', sa.UnicodeText, nullable=True)
 
     recipients: DynamicMapped[MailerRecipient] = relationship(
         lazy='dynamic',
         back_populates='mailer',
-        cascade='all, delete-orphan',
-        order_by='(MailerRecipient.draft_id, MailerRecipient._fullname,'
-        ' MailerRecipient._firstname, MailerRecipient._lastname)',
+        order_by=lambda: (
+            # pylint: disable=protected-access
+            MailerRecipient.draft_id,
+            MailerRecipient._fullname,
+            MailerRecipient._firstname,
+            MailerRecipient._lastname,
+        ),
     )
-    drafts: Mapped[List[MailerDraft]] = relationship(
+    drafts: Mapped[list[MailerDraft]] = relationship(
         back_populates='mailer',
-        cascade='all, delete-orphan',
-        order_by='MailerDraft.url_id',
+        order_by=lambda: MailerDraft.url_id,
     )
 
     def __init__(self, **kwargs: Any) -> None:
@@ -127,7 +122,7 @@ class Mailer(BaseNameMixin, Model):
         return self._cc
 
     @cc.setter
-    def cc(self, value: Union[str, Collection[str]]) -> None:
+    def cc(self, value: str | Collection[str]) -> None:
         if isinstance(value, str):
             value = [
                 _l.strip()
@@ -142,7 +137,7 @@ class Mailer(BaseNameMixin, Model):
         return self._bcc
 
     @bcc.setter
-    def bcc(self, value: Union[str, Collection[str]]) -> None:
+    def bcc(self, value: str | Collection[str]) -> None:
         if isinstance(value, str):
             value = [
                 _l.strip()
@@ -161,19 +156,19 @@ class Mailer(BaseNameMixin, Model):
             .all()
         ]
         for rid in ids:
-            recipient = MailerRecipient.query.get(rid)
+            recipient = db.session.get(MailerRecipient, rid)
             if recipient:
                 yield recipient
 
     def permissions(
-        self, actor: Optional[User], inherited: Optional[Set[str]] = None
-    ) -> Set[str]:
+        self, actor: Account | None, inherited: set[str] | None = None
+    ) -> set[str]:
         perms = super().permissions(actor, inherited)
         if actor is not None and actor == self.user:
             perms.update(['edit', 'delete', 'send', 'new-recipient', 'report'])
         return perms
 
-    def draft(self) -> Optional[MailerDraft]:
+    def draft(self) -> MailerDraft | None:
         if self.drafts:
             return self.drafts[-1]
         return None
@@ -190,23 +185,23 @@ class Mailer(BaseNameMixin, Model):
         return ''
 
 
-class MailerDraft(BaseScopedIdMixin, Model):
+class MailerDraft(BaseScopedIdMixin[int, Account], Model):
     """Revision-controlled draft of mailer text (a Mustache template)."""
 
     __tablename__ = 'mailer_draft'
 
-    mailer_id: Mapped[int] = sa.orm.mapped_column(
-        sa.ForeignKey('mailer.id'), nullable=False
+    mailer_id: Mapped[int] = sa_orm.mapped_column(
+        sa.ForeignKey('mailer.id'), default=None, nullable=False
     )
-    mailer: Mapped[Mailer] = relationship(Mailer, back_populates='drafts')
-    parent: Mapped[Mailer] = sa.orm.synonym('mailer')
-    revision_id: Mapped[int] = sa.orm.synonym('url_id')
+    mailer: Mapped[Mailer] = relationship(back_populates='drafts')
+    parent: Mapped[Mailer] = sa_orm.synonym('mailer')
+    revision_id: Mapped[int] = sa_orm.synonym('url_id')
 
-    subject: Mapped[str] = sa.orm.mapped_column(
+    subject: Mapped[str] = sa_orm.mapped_column(
         sa.Unicode(250), nullable=False, default="", deferred=True
     )
 
-    template: Mapped[str] = sa.orm.mapped_column(
+    template: Mapped[str] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=False, default="", deferred=True
     )
 
@@ -219,89 +214,91 @@ class MailerDraft(BaseScopedIdMixin, Model):
         return self.mailer.render_preview(self.template)
 
 
-class MailerRecipient(BaseScopedIdMixin, Model):
+class MailerRecipient(BaseScopedIdMixin[int, Account], Model):
     """Recipient of a mailer."""
 
     __tablename__ = 'mailer_recipient'
 
     # Mailer this recipient is a part of
-    mailer_id: Mapped[int] = sa.orm.mapped_column(sa.ForeignKey('mailer.id'))
-    mailer: Mapped[Mailer] = relationship(Mailer, back_populates='recipients')
-    parent: Mapped[Mailer] = sa.orm.synonym('mailer')
+    mailer_id: Mapped[int] = sa_orm.mapped_column(sa.ForeignKey('mailer.id'))
+    mailer: Mapped[Mailer] = relationship(back_populates='recipients')
+    parent: Mapped[Mailer] = sa_orm.synonym('mailer')
 
-    _fullname: Mapped[Optional[str]] = sa.orm.mapped_column(
+    _fullname: Mapped[str | None] = sa_orm.mapped_column(
         'fullname', sa.Unicode(80), nullable=True
     )
-    _firstname: Mapped[Optional[str]] = sa.orm.mapped_column(
+    _firstname: Mapped[str | None] = sa_orm.mapped_column(
         'firstname', sa.Unicode(80), nullable=True
     )
-    _lastname: Mapped[Optional[str]] = sa.orm.mapped_column(
+    _lastname: Mapped[str | None] = sa_orm.mapped_column(
         'lastname', sa.Unicode(80), nullable=True
     )
-    _nickname: Mapped[Optional[str]] = sa.orm.mapped_column(
+    _nickname: Mapped[str | None] = sa_orm.mapped_column(
         'nickname', sa.Unicode(80), nullable=True
     )
 
-    _email: Mapped[str] = sa.orm.mapped_column(
+    _email: Mapped[str] = sa_orm.mapped_column(
         'email', sa.Unicode(80), nullable=False, index=True
     )
-    md5sum: Mapped[str] = sa.orm.mapped_column(
+    md5sum: Mapped[str] = sa_orm.mapped_column(
         sa.String(32), nullable=False, index=True
     )
 
-    data: Mapped[jsonb] = sa.orm.mapped_column()
+    data: Mapped[jsonb] = sa_orm.mapped_column()
 
-    is_sent: Mapped[bool] = sa.orm.mapped_column(default=False)
+    is_sent: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     # Support email open tracking
-    opentoken: Mapped[str] = sa.orm.mapped_column(
-        sa.Unicode(44), nullable=False, default=newsecret, unique=True
+    opentoken: Mapped[str] = sa_orm.mapped_column(
+        sa.Unicode(44),
+        nullable=False,
+        insert_default=newsecret,
+        default=None,
+        unique=True,
     )
-    opened: Mapped[bool] = sa.orm.mapped_column(
-        sa.Boolean, nullable=False, default=False
-    )
-    opened_ipaddr: Mapped[Optional[str]] = sa.orm.mapped_column(
+    opened: Mapped[bool] = sa_orm.mapped_column(default=False)
+    opened_ipaddr: Mapped[str | None] = sa_orm.mapped_column(
         sa.Unicode(45), nullable=True
     )
-    opened_first_at: Mapped[Optional[datetime]] = sa.orm.mapped_column(
+    opened_first_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
-    opened_last_at: Mapped[Optional[datetime]] = sa.orm.mapped_column(
+    opened_last_at: Mapped[datetime | None] = sa_orm.mapped_column(
         sa.TIMESTAMP(timezone=True), nullable=True
     )
-    opened_count: Mapped[int] = sa.orm.mapped_column(
-        sa.Integer, nullable=False, default=0
-    )
+    opened_count: Mapped[int] = sa_orm.mapped_column(nullable=False, default=0)
 
     # Support RSVP if the email requires it
-    rsvptoken: Mapped[str] = sa.orm.mapped_column(
-        sa.Unicode(44), nullable=False, default=newsecret, unique=True
+    rsvptoken: Mapped[str] = sa_orm.mapped_column(
+        sa.Unicode(44),
+        nullable=False,
+        insert_default=newsecret,
+        default=None,
+        unique=True,
     )
     # Y/N/M response
-    rsvp: Mapped[Optional[str]] = sa.orm.mapped_column(sa.Unicode(1), nullable=True)
+    rsvp: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode(1), nullable=True)
 
     # Customised template for this recipient
-    subject: Mapped[Optional[str]] = sa.orm.mapped_column(
-        sa.Unicode(250), nullable=True
-    )
-    template: Mapped[Optional[str]] = sa.orm.mapped_column(
+    subject: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode(250), nullable=True)
+    template: Mapped[str | None] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=True, deferred=True
     )
 
     # Rendered version of user's template, for archival
-    rendered_text: Mapped[Optional[str]] = sa.orm.mapped_column(
+    rendered_text: Mapped[str | None] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=True, deferred=True
     )
-    rendered_html: Mapped[Optional[str]] = sa.orm.mapped_column(
+    rendered_html: Mapped[str | None] = sa_orm.mapped_column(
         sa.UnicodeText, nullable=True, deferred=True
     )
 
     # Draft of the mailer template that the custom template is linked to (for updating
     # before finalising)
-    draft_id: Mapped[Optional[int]] = sa.orm.mapped_column(
-        sa.ForeignKey('mailer_draft.id')
+    draft_id: Mapped[int | None] = sa_orm.mapped_column(
+        sa.ForeignKey('mailer_draft.id'), default=None
     )
-    draft: Mapped[Optional[MailerDraft]] = relationship(MailerDraft)
+    draft: Mapped[MailerDraft | None] = relationship()
 
     __table_args__ = (sa.UniqueConstraint('mailer_id', 'url_id'),)
 
@@ -309,7 +306,7 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         return f'<MailerRecipient {self.fullname} {self.email} of {self.mailer!r}>'
 
     @property
-    def fullname(self) -> Optional[str]:
+    def fullname(self) -> str | None:
         """Recipient's fullname, constructed from first and last names if required."""
         if self._fullname:
             return self._fullname
@@ -323,11 +320,11 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         return None
 
     @fullname.setter
-    def fullname(self, value: Optional[str]) -> None:
+    def fullname(self, value: str | None) -> None:
         self._fullname = value
 
     @property
-    def firstname(self) -> Optional[str]:
+    def firstname(self) -> str | None:
         if self._firstname:
             return self._firstname
         if self._fullname:
@@ -335,11 +332,11 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         return None
 
     @firstname.setter
-    def firstname(self, value: Optional[str]) -> None:
+    def firstname(self, value: str | None) -> None:
         self._firstname = value
 
     @property
-    def lastname(self) -> Optional[str]:
+    def lastname(self) -> str | None:
         if self._lastname:
             return self._lastname
         if self._fullname:
@@ -347,15 +344,15 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         return None
 
     @lastname.setter
-    def lastname(self, value: Optional[str]) -> None:
+    def lastname(self, value: str | None) -> None:
         self._lastname = value
 
     @property
-    def nickname(self) -> Optional[str]:
+    def nickname(self) -> str | None:
         return self._nickname or self.firstname
 
     @nickname.setter
-    def nickname(self, value: Optional[str]) -> None:
+    def nickname(self, value: str | None) -> None:
         self._nickname = value
 
     @property
@@ -368,7 +365,7 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         self.md5sum = md5sum(value)
 
     @property
-    def revision_id(self) -> Optional[int]:
+    def revision_id(self) -> int | None:
         return self.draft.revision_id if self.draft else None
 
     def is_latest_draft(self) -> bool:
@@ -376,7 +373,7 @@ class MailerRecipient(BaseScopedIdMixin, Model):
             return True
         return self.draft == self.mailer.draft()
 
-    def template_data(self) -> Dict[str, Any]:
+    def template_data(self) -> dict[str, Any]:
         tdata = {
             'fullname': self.fullname,
             'email': self.email,
@@ -423,7 +420,7 @@ class MailerRecipient(BaseScopedIdMixin, Model):
         return self.draft is not None
 
     @classmethod
-    def custom_draft_in(cls, mailer: Mailer) -> List[MailerRecipient]:
+    def custom_draft_in(cls, mailer: Mailer) -> list[Self]:
         return (
             cls.query.filter(
                 cls.mailer == mailer,
@@ -446,10 +443,3 @@ class MailerRecipient(BaseScopedIdMixin, Model):
             )
             .all()
         )
-
-
-@reopen(User)
-class __User:
-    mailers: Mapped[List[Mailer]] = relationship(
-        Mailer, back_populates='user', order_by='Mailer.updated_at.desc()'
-    )

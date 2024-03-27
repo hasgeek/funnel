@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from flask import render_template
+from werkzeug.utils import cached_property
 
 from baseframe import _, __
 
@@ -12,15 +15,16 @@ from ...models import (
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
     sa,
+    sa_orm,
 )
-from ...transports.sms import SmsTemplate
+from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
 
 
 class ProposalReceivedTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for Proposal received."""
+    """DLT registered template for proposal received."""
 
     registered_template = (
         "There's a new submission from {#var#} in {#var#}."
@@ -33,6 +37,7 @@ class ProposalReceivedTemplate(TemplateVarMixin, SmsTemplate):
     plaintext_template = (
         "There's a new submission from {actor} in {project}. Read it here: {url}"
     )
+    message_priority = SmsPriority.NORMAL
 
     url: str
 
@@ -51,6 +56,7 @@ class ProposalSubmittedTemplate(TemplateVarMixin, SmsTemplate):
     plaintext_template = (
         "{project} has received your submission. Here's the link to share: {url}"
     )
+    message_priority = SmsPriority.IMPORTANT
 
     url: str
 
@@ -67,12 +73,17 @@ class RenderProposalReceivedNotification(RenderNotification):
     hero_image = 'img/email/chars-v1/new-submission.png'
     email_heading = __("New submission!")
 
-    fragments_order_by = [Proposal.datetime.desc()]
-    fragments_query_options = [
-        sa.orm.load_only(
-            Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid
-        )
-    ]
+    @cached_property
+    def fragments_order_by(self) -> list[sa.UnaryExpression]:
+        return [Proposal.datetime.desc()]
+
+    @property
+    def fragments_query_options(self) -> Sequence:
+        return [
+            sa_orm.load_only(
+                Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid
+            )
+        ]
 
     def web(self) -> str:
         return render_template(
@@ -98,7 +109,7 @@ class RenderProposalReceivedNotification(RenderNotification):
     def sms(self) -> ProposalReceivedTemplate:
         return ProposalReceivedTemplate(
             project=self.project,
-            actor=self.proposal.user,
+            actor=self.proposal.first_user,
             url=shortlink(
                 self.proposal.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,
@@ -115,7 +126,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
     emoji_prefix = "📤 "
     reason = __("You are receiving this because you made this submission")
     hero_image = 'img/email/chars-v1/sent-submission.png'
-    email_heading = __("Proposal sumbitted!")
+    email_heading = __("Proposal submitted!")
 
     def web(self) -> str:
         return render_template(

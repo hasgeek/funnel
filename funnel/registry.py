@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import re
 from collections import OrderedDict
+from collections.abc import Callable, Collection
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, Callable, Collection, List, NoReturn, Optional, Tuple
+from typing import Any, cast
 
 from flask import Response, abort, jsonify, request
 from werkzeug.datastructures import MultiDict
@@ -14,8 +15,8 @@ from werkzeug.datastructures import MultiDict
 from baseframe import _
 from baseframe.signals import exception_catchall
 
-from .models import AuthToken, UserExternalId
-from .typing import P, ReturnResponse
+from .models import AccountExternalId, AuthToken
+from .typing import ReturnResponse, ReturnView
 
 # Bearer token, as per
 # http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
@@ -28,10 +29,12 @@ class ResourceRegistry(OrderedDict):
     def resource(
         self,
         name: str,
-        description: Optional[str] = None,
+        description: str | None = None,
         trusted: bool = False,
-        scope: Optional[str] = None,
-    ) -> Callable[[Callable[P, Any]], Callable[[], ReturnResponse]]:
+        scope: str | None = None,
+    ) -> Callable[
+        [Callable[[AuthToken, MultiDict, MultiDict], Any]], Callable[[], ReturnResponse]
+    ]:
         """
         Decorate a resource function.
 
@@ -123,9 +126,9 @@ class ResourceRegistry(OrderedDict):
                     )
                     response.status_code = 500
                 # XXX: Let resources control how they return?
-                response.headers[
-                    'Cache-Control'
-                ] = 'no-cache, no-store, max-age=0, must-revalidate'
+                response.headers['Cache-Control'] = (
+                    'no-cache, no-store, max-age=0, must-revalidate'
+                )
                 response.headers['Pragma'] = 'no-cache'
                 return response
 
@@ -136,7 +139,7 @@ class ResourceRegistry(OrderedDict):
                 'trusted': trusted,
                 'f': f,
             }
-            return wrapper
+            return cast(Callable[[], ReturnResponse], wrapper)
 
         return decorator
 
@@ -146,40 +149,40 @@ class LoginProviderData:
     """User data supplied by a LoginProvider."""
 
     userid: str
-    username: Optional[str] = None
-    avatar_url: Optional[str] = None
-    oauth_token: Optional[str] = None
-    oauth_token_secret: Optional[str] = None  # Only used in OAuth1a
-    oauth_token_type: Optional[str] = None
-    oauth_refresh_token: Optional[str] = None
-    oauth_expires_in: Optional[int] = None
-    email: Optional[str] = None
+    username: str | None = None
+    avatar_url: str | None = None
+    oauth_token: str | None = None
+    oauth_token_secret: str | None = None  # Only used in OAuth1a
+    oauth_token_type: str | None = None
+    oauth_refresh_token: str | None = None
+    oauth_expires_in: int | None = None
+    email: str | None = None
     emails: Collection[str] = ()
-    emailclaim: Optional[str] = None
-    phone: Optional[str] = None
-    fullname: Optional[str] = None
+    emailclaim: str | None = None
+    phone: str | None = None
+    fullname: str | None = None
 
 
 class LoginProviderRegistry(OrderedDict):
     """Registry of login providers."""
 
-    def at_username_services(self) -> List[str]:
+    def at_username_services(self) -> list[str]:
         """Return services which typically use ``@username`` addressing."""
         return [key for key in self if self[key].at_username]
 
-    def at_login_items(self) -> List[Tuple[str, LoginProvider]]:
+    def at_login_items(self) -> list[tuple[str, LoginProvider]]:
         """Return services which have the flag at_login set to True."""
         return [(k, v) for (k, v) in self.items() if v.at_login is True]
 
     def __setitem__(self, key: str, value: LoginProvider) -> None:
         """Make a registry entry."""
         super().__setitem__(key, value)
-        UserExternalId.__at_username_services__ = self.at_username_services()
+        AccountExternalId.__at_username_services__ = self.at_username_services()
 
     def __delitem__(self, key: str) -> None:
         """Remove a registry entry."""
         super().__delitem__(key)
-        UserExternalId.__at_username_services__ = self.at_username_services()
+        AccountExternalId.__at_username_services__ = self.at_username_services()
 
 
 class LoginError(Exception):
@@ -231,8 +234,8 @@ class LoginProvider:
         key: str,
         secret: str,
         at_login: bool = True,
-        icon: Optional[str] = None,
-        **kwargs,
+        icon: str | None = None,
+        **kwargs: Any,
     ) -> None:
         self.name = name
         self.title = title
@@ -243,7 +246,7 @@ class LoginProvider:
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def do(self, callback_url: str) -> NoReturn:
+    def do(self, callback_url: str) -> ReturnView:
         """Initiate a login with this login provider."""
         raise NotImplementedError
 

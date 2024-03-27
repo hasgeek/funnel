@@ -1,46 +1,44 @@
 """Mixins for model views."""
+
 # TODO: Move each mixin into the main file for each view, or into <model>_mixin.py
 
 from __future__ import annotations
 
-from typing import Optional, Tuple, Type, Union
-from uuid import uuid4
+from typing import TYPE_CHECKING, Any
+from uuid import UUID, uuid4
 
 from flask import abort, g, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
-from coaster.auth import current_auth
+from coaster.views import ModelView, UrlChangeCheck, UrlForView, route
 
+from ..auth import current_auth
 from ..forms import SavedProjectForm
 from ..models import (
+    Account,
     Draft,
-    Profile,
+    ModelUuidProtocol,
     Project,
     ProjectRedirect,
-    Session,
     TicketEvent,
-    UuidModelUnion,
-    Venue,
-    VenueRoom,
     db,
 )
-from ..typing import ReturnRenderWith, ReturnView
+from ..typing import ReturnView
 from .helpers import render_redirect
+from .login_session import requires_login
 
 
-class ProfileCheckMixin:
+class AccountCheckMixin:
     """Base class checks for suspended accounts."""
 
-    profile: Optional[Profile] = None
+    account: Account
 
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> ReturnView | None:
         """Post-process loader."""
-        profile = self.profile
-        if profile is None:
-            raise ValueError("Subclass must set self.profile")
-        g.profile = profile
-        if not profile.is_active:
+        account = self.account
+        g.account = account
+        if not account.state.ACTIVE:
             abort(410)
 
         # mypy doesn't know this is a mixin, so it warns that `after_loader` is not
@@ -50,189 +48,106 @@ class ProfileCheckMixin:
         return super().after_loader()  # type: ignore[misc]
 
 
-class ProjectViewMixin(ProfileCheckMixin):
-    model: Type[Project] = Project
-    route_model_map = {'profile': 'profile.name', 'project': 'name'}
-    obj: Project
+class ProjectViewBase(
+    AccountCheckMixin, UrlForView, UrlChangeCheck, ModelView[Project]
+):
+    route_model_map = {'account': 'account.urlname', 'project': 'name'}
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
+    project: Project
 
-    def loader(
-        self, profile: str, project: str, session: Optional[str] = None
-    ) -> Union[Project, ProjectRedirect]:
+    def load(self, account: str, project: str, **_kwargs: Any) -> ReturnView | None:
         obj = (
-            Project.query.join(Profile, Project.profile_id == Profile.id)
-            .filter(Profile.name_is(profile), Project.name == project)
+            Project.query.join(Account, Project.account)
+            .filter(Account.name_is(account), Project.name == project)
             .first()
         )
         if obj is None:
             obj_redirect = (
-                ProjectRedirect.query.join(
-                    Profile, ProjectRedirect.profile_id == Profile.id
-                )
-                .filter(Profile.name_is(profile), ProjectRedirect.name == project)
+                ProjectRedirect.query.join(Account, ProjectRedirect.account)
+                .filter(Account.name_is(account), ProjectRedirect.name == project)
                 .first_or_404()
             )
-            return obj_redirect
-        if obj.state.DELETED:
-            abort(410)
-        return obj
-
-    def after_loader(self) -> Optional[ReturnView]:
-        if isinstance(self.obj, ProjectRedirect):
-            if self.obj.project:
-                self.profile = self.obj.project.profile
+            if obj_redirect.project:
+                self.account = obj_redirect.project.account
                 return render_redirect(
-                    self.obj.project.url_for(),
+                    obj_redirect.project.url_for(),
                     302 if request.method == 'GET' else 303,
                 )
             abort(410)  # Project has been deleted
-        self.profile = self.obj.profile
-        return super().after_loader()
+        elif obj.state.DELETED:
+            abort(410)
+        self.obj = obj
+        self.post_init()
+        return self.after_loader()
+
+    def post_init(self) -> None:
+        self.project = project = self.obj
+        self.account = project.account
 
     @property
-    def project_currently_saved(self):
+    def project_currently_saved(self) -> bool:
         return self.obj.is_saved_by(current_auth.user)
 
 
-class ProfileViewMixin(ProfileCheckMixin):
-    model = Profile
-    route_model_map = {'profile': 'name'}
-    obj: Profile
+class AccountViewBase(AccountCheckMixin, UrlForView, ModelView[Account]):
+    route_model_map = {'account': 'urlname'}
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
-    def loader(self, profile: str) -> Profile:
-        profile = Profile.get(profile)
-        if profile is None:
+    def loader(self, account: str) -> Account:
+        obj = Account.get(name=account)
+        if obj is None:
             abort(404)
-        return profile
+        return obj
 
-    def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj
-        return super().after_loader()
+    def post_init(self) -> None:
+        self.account = self.obj
 
 
-class SessionViewMixin(ProfileCheckMixin):
-    model = Session
+@route('/<account>/<project>/ticket_event/<name>')
+class TicketEventViewBase(AccountCheckMixin, UrlForView, ModelView[TicketEvent]):
+    __decorators__ = [requires_login]
     route_model_map = {
-        'profile': 'project.profile.name',
-        'project': 'project.name',
-        'session': 'url_name_uuid_b58',
-    }
-    obj: Session
-    SavedProjectForm = SavedProjectForm
-
-    def loader(self, profile: str, project: str, session: str) -> Session:
-        return (
-            Session.query.join(Project)
-            .join(Profile)
-            .filter(Session.url_name_uuid_b58 == session)
-            .first_or_404()
-        )
-
-    def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
-        return super().after_loader()
-
-    @property
-    def project_currently_saved(self):
-        return self.obj.project.is_saved_by(current_auth.user)
-
-
-class VenueViewMixin(ProfileCheckMixin):
-    model = Venue
-    route_model_map = {
-        'profile': 'project.profile.name',
-        'project': 'project.name',
-        'venue': 'name',
-    }
-    obj: Venue
-
-    def loader(self, profile: str, project: str, venue: str) -> Venue:
-        return (
-            Venue.query.join(Project)
-            .join(Profile)
-            .filter(
-                Profile.name_is(profile), Project.name == project, Venue.name == venue
-            )
-            .first_or_404()
-        )
-
-    def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
-        return super().after_loader()
-
-
-class VenueRoomViewMixin(ProfileCheckMixin):
-    model = VenueRoom
-    route_model_map = {
-        'profile': 'venue.project.profile.name',
-        'project': 'venue.project.name',
-        'venue': 'venue.name',
-        'room': 'name',
-    }
-    obj: VenueRoom
-
-    def loader(self, profile: str, project: str, venue: str, room: str) -> VenueRoom:
-        return (
-            VenueRoom.query.join(Venue)
-            .join(Project)
-            .join(Profile)
-            .filter(
-                Profile.name_is(profile),
-                Project.name == project,
-                Venue.name == venue,
-                VenueRoom.name == room,
-            )
-            .first_or_404()
-        )
-
-    def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.venue.project.profile
-        return super().after_loader()
-
-
-class TicketEventViewMixin(ProfileCheckMixin):
-    model = TicketEvent
-    route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'name': 'name',
     }
-    obj: TicketEvent
 
-    def loader(self, profile: str, project: str, name: str) -> TicketEvent:
+    def loader(self, account: str, project: str, name: str) -> TicketEvent:
         return (
             TicketEvent.query.join(Project)
-            .join(Profile)
+            .join(Account, Project.account)
             .filter(
-                Profile.name_is(profile),
+                Account.name_is(account),
                 Project.name == project,
                 TicketEvent.name == name,
             )
             .one_or_404()
         )
 
-    def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
-        return super().after_loader()
+    def post_init(self) -> None:
+        self.account = self.obj.project.account
 
 
-class DraftViewMixin:
-    obj: UuidModelUnion
-    model: Type[UuidModelUnion]
+# FIXME: Make this a generic like ModelView
+class DraftViewProtoMixin:
+    # These must be Any to avoid conflict with subclasses
+    model: Any
+    obj: Any
 
-    def get_draft(self, obj: Optional[UuidModelUnion] = None) -> Optional[Draft]:
+    def get_draft(self, obj: ModelUuidProtocol | None = None) -> Draft | None:
         """
         Return the draft object for `obj`. Defaults to `self.obj`.
 
         `obj` is needed in case of multi-model views.
         """
         obj = obj if obj is not None else self.obj
-        return Draft.query.get((self.model.__tablename__, obj.uuid))
+        if TYPE_CHECKING:
+            assert obj is not None  # nosec B101
+        return db.session.get(Draft, (self.model.__tablename__, obj.uuid))
 
-    def delete_draft(self, obj=None):
+    def delete_draft(self, obj: ModelUuidProtocol | None = None) -> None:
         """Delete draft for `obj`, or `self.obj` if `obj` is `None`."""
         draft = self.get_draft(obj)
         if draft is not None:
@@ -241,32 +156,29 @@ class DraftViewMixin:
             raise ValueError(_("There is no draft for the given object"))
 
     def get_draft_data(
-        self, obj: Optional[UuidModelUnion] = None
-    ) -> Union[Tuple[None, None], Tuple[int, dict]]:
+        self, obj: ModelUuidProtocol | None = None
+    ) -> tuple[None, None] | tuple[UUID | None, dict]:
         """
         Return a tuple of draft data.
 
-        Contains the current draft revision and the formdata needed to initialize forms.
+        Contains the current draft revision and the data needed to initialize forms.
         """
         draft = self.get_draft(obj)
         if draft is not None:
             return draft.revision, draft.formdata
         return None, None
 
-    def autosave_post(self, obj: Optional[UuidModelUnion] = None) -> ReturnRenderWith:
+    def autosave_post(self, obj: ModelUuidProtocol | None = None) -> ReturnView:
         """Handle autosave POST requests."""
         obj = obj if obj is not None else self.obj
         if 'form.revision' not in request.form:
             # as form.autosave is true, the form should have `form.revision` field even
             # if it's empty
-            return (
-                {
-                    'status': 'error',
-                    'error': 'form_missing_revision_field',
-                    'error_description': _("Form must contain a revision ID"),
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error': 'form_missing_revision_field',
+                'error_description': _("Form must contain a revision ID"),
+            }, 400
 
         # CSRF check
         form = forms.Form()
@@ -282,17 +194,15 @@ class DraftViewMixin:
             if draft is None and client_revision:
                 # The form contains a revision ID but no draft exists.
                 # Somebody is making autosave requests with an invalid draft ID.
-                return (
-                    {
-                        'status': 'error',
-                        'error': 'invalid_or_expired_revision',
-                        'error_description': _(
-                            "Invalid revision ID or the existing changes have been"
-                            " submitted already. Please reload"
-                        ),
-                    },
-                    400,
-                )
+                return {
+                    'status': 'error',
+                    'error': 'invalid_or_expired_revision',
+                    'error_description': _(
+                        "Invalid revision ID or the existing changes have been"
+                        " submitted already. Please reload"
+                    ),
+                }, 400
+
             if draft is not None:
                 if client_revision is None or (
                     client_revision is not None
@@ -300,17 +210,15 @@ class DraftViewMixin:
                 ):
                     # draft exists, but the form did not send a revision ID,
                     # OR revision ID sent by client does not match the last revision ID
-                    return (
-                        {
-                            'status': 'error',
-                            'error': 'missing_or_invalid_revision',
-                            'error_description': _(
-                                "There have been changes to this draft since you last"
-                                " edited it. Please reload"
-                            ),
-                        },
-                        400,
-                    )
+                    return {
+                        'status': 'error',
+                        'error': 'missing_or_invalid_revision',
+                        'error_description': _(
+                            "There have been changes to this draft since you last"
+                            " edited it. Please reload"
+                        ),
+                    }, 400
+
                 if (
                     client_revision is not None
                     and str(draft.revision) == client_revision
@@ -338,13 +246,10 @@ class DraftViewMixin:
             return {
                 'status': 'ok',
                 'revision': draft.revision,
-                'form_nonce': form.form_nonce.default(),
+                'form_nonce': form.form_nonce.get_default(),
             }
-        return (
-            {
-                'status': 'error',
-                'error': 'invalid_csrf',
-                'error_description': _("Invalid CSRF token"),
-            },
-            400,
-        )
+        return {
+            'status': 'error',
+            'error': 'invalid_csrf',
+            'error_description': _("Invalid CSRF token"),
+        }, 400

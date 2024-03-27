@@ -74,7 +74,7 @@ def upgrade() -> None:
 
     # Update search vectors for existing data
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         UPDATE comment SET search_vector = setweight(to_tsvector('english', COALESCE(message_text, '')), 'A');
@@ -95,7 +95,7 @@ def upgrade() -> None:
 
     # Create trigger functions and add triggers
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         CREATE FUNCTION comment_search_vector_update() RETURNS trigger AS $$
@@ -173,7 +173,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     # Drop triggers and functions
     op.execute(
-        sa.DDL(
+        sa.text(
             dedent(
                 '''
         DROP TRIGGER comment_search_vector_trigger ON comment;

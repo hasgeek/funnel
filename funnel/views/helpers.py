@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import gzip
 import zlib
+import zoneinfo
 from base64 import urlsafe_b64encode
+from collections.abc import Callable, Mapping
 from contextlib import nullcontext
 from datetime import datetime, timedelta
 from hashlib import blake2b
+from importlib import resources
 from os import urandom
-from typing import Any, Callable, Dict, Optional, Tuple, Union
-from urllib.parse import unquote, urljoin, urlsplit
+from typing import Any, ContextManager, Literal
+from urllib.parse import quote, unquote, urljoin
 
 import brotli
 from flask import (
@@ -27,39 +30,51 @@ from flask import (
     url_for,
 )
 from furl import furl
-from pytz import common_timezones, timezone as pytz_timezone, utc
+from pytz import BaseTzInfo, timezone as pytz_timezone, utc
 from werkzeug.exceptions import MethodNotAllowed, NotFound
 from werkzeug.routing import BuildError, RequestRedirect
-from werkzeug.urls import url_quote
+from werkzeug.wrappers import Response as BaseResponse
 
 from baseframe import cache, statsd
 from coaster.sqlalchemy import RoleMixin
 from coaster.utils import utcnow
 
 from .. import app, shortlinkapp
+from ..auth import current_auth
 from ..forms import supported_locales
-from ..models import Shortlink, User, db, profanity
+from ..models import Account, Shortlink, db, profanity
 from ..proxies import request_wants
 from ..typing import ResponseType, ReturnResponse, ReturnView
-
-valid_timezones = set(common_timezones)
 
 nocache_expires = utc.localize(datetime(1990, 1, 1))
 
 # Six avatar colours defined in _variable.scss
 avatar_color_count = 6
 
+# --- Timezone data --------------------------------------------------------------------
+
+# Get all known timezones from zoneinfo and make a lowercased lookup table
+valid_timezones = {_tz.lower(): _tz for _tz in zoneinfo.available_timezones()}
+# Get timezone aliases from tzinfo.zi and place them in the lookup table
+with (resources.files('tzdata.zoneinfo') / 'tzdata.zi').open(
+    'r', encoding='utf-8', errors='strict'
+) as _tzdata:
+    for _tzline in _tzdata.readlines():
+        if _tzline.startswith('L'):
+            _tzlink, _tznew, _tzold = _tzline.strip().split()
+            valid_timezones[_tzold.lower()] = _tznew
+
 # --- Classes --------------------------------------------------------------------------
 
 
-class SessionTimeouts(Dict[str, timedelta]):
+class SessionTimeouts(dict[str, timedelta]):
     """
     Singleton dictionary that aids tracking timestamps in session.
 
     Use the :attr:`session_timeouts` instance instead of this class.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Create a dictionary that separately tracks {key}_at keys."""
         super().__init__(*args, **kwargs)
         self.keys_at = {f'{key}_at' for key in self.keys()}
@@ -78,33 +93,55 @@ class SessionTimeouts(Dict[str, timedelta]):
         self.keys_at.remove(f'{key}_at')
         super().__delitem__(key)
 
-    def has_intersection(self, other: Any) -> bool:
+    def has_overlap_with(self, other: Mapping) -> bool:
         """Check for intersection with other dictionary-like object."""
         okeys = other.keys()
         return not (self.keys_at.isdisjoint(okeys) and self.keys().isdisjoint(okeys))
 
+    def crosscheck_session(self, response: ResponseType) -> ResponseType:
+        """Add timestamps to timed values in session, and remove expired values."""
+        # Process timestamps only if there is at least one match. Most requests will
+        # have no match.
+        if self.has_overlap_with(session):
+            now = utcnow()
+            for var, delta in self.items():
+                var_at = f'{var}_at'
+                if var in session:
+                    if var_at not in session:
+                        # Session has var but not timestamp, so add a timestamp
+                        session[var_at] = now
+                    elif session[var_at] < now - delta:
+                        # Session var has expired, so remove var and timestamp
+                        session.pop(var)
+                        session.pop(var_at)
+                elif var_at in session:
+                    # Timestamp present without var, so remove it
+                    session.pop(var_at)
+        return response
+
 
 #: Temporary values that must be periodically expunged from the cookie session
 session_timeouts = SessionTimeouts()
+app.after_request(session_timeouts.crosscheck_session)
 
 # --- Utilities ------------------------------------------------------------------------
 
 
-def app_context():
+def app_context() -> ContextManager:
     """Return an app context if one is not active."""
     if current_app:
         return nullcontext()
     return app.app_context()
 
 
-def str_pw_set_at(user: User) -> str:
+def str_pw_set_at(user: Account) -> str:
     """Render user.pw_set_at as a string, for comparison."""
     if user.pw_set_at is not None:
         return user.pw_set_at.astimezone(utc).replace(microsecond=0).isoformat()
     return 'None'
 
 
-def metarefresh_redirect(url: str):
+def metarefresh_redirect(url: str) -> Response:
     """Redirect using a non-standard Refresh header in a Meta tag."""
     return Response(render_template('meta_refresh.html.jinja2', url=url))
 
@@ -114,8 +151,8 @@ def app_url_for(
     endpoint: str,
     _external: bool = True,
     _method: str = 'GET',
-    _anchor: Optional[str] = None,
-    _scheme: Optional[str] = None,
+    _anchor: str | None = None,
+    _scheme: str | None = None,
     **values: str,
 ) -> str:
     """
@@ -128,7 +165,11 @@ def app_url_for(
     The provided app must have `SERVER_NAME` in its config for URL construction to work.
     """
     # pylint: disable=protected-access
-    if current_app and current_app._get_current_object() is target_app:
+    if (
+        current_app
+        and current_app._get_current_object()  # type: ignore[attr-defined]
+        is target_app
+    ):
         return url_for(
             endpoint,
             _external=_external,
@@ -152,21 +193,23 @@ def app_url_for(
         if old_scheme is not None:
             url_adapter.url_scheme = old_scheme
     if _anchor:
-        result += f'#{url_quote(_anchor)}'
+        result += f'#{quote(_anchor)}'
     return result
 
 
-def validate_is_app_url(url: Union[str, furl], method: str = 'GET') -> bool:
+def validate_is_app_url(url: str | furl, method: str = 'GET') -> bool:
     """Confirm if an external URL is served by the current app (runtime-only)."""
     # Parse or copy URL and remove username and password before further analysis
-    parsed_url = furl(url).remove(username=True, password=True)
+    if isinstance(url, str):
+        url = furl(url)
+    parsed_url = url.remove(username=True, password=True)
     if not parsed_url.host or not parsed_url.scheme:
         return False  # This validator requires a full URL
 
     if current_app.url_map.host_matching:
         # This URL adapter matches explicit hosts, so we just give it the URL as its
         # server_name
-        server_name = parsed_url.netloc
+        server_name = parsed_url.netloc or ''  # Fallback blank str for type checking
         subdomain = None
     else:
         # Next, validate whether the URL's host/netloc is valid for this app's config
@@ -180,6 +223,7 @@ def validate_is_app_url(url: Union[str, furl], method: str = 'GET') -> bool:
                 parsed_url.netloc == server_name
                 or (
                     current_app.subdomain_matching
+                    and parsed_url.netloc is not None
                     and parsed_url.netloc.endswith(f'.{server_name}')
                 )
             ):
@@ -197,13 +241,13 @@ def validate_is_app_url(url: Union[str, furl], method: str = 'GET') -> bool:
                 return False
             server_name = request.host
 
-        # Host is validated, now make an adapter to match the path
-        adapter = current_app.url_map.bind(
-            server_name,
-            subdomain=subdomain,
-            script_name=current_app.config['APPLICATION_ROOT'],
-            url_scheme=current_app.config['PREFERRED_URL_SCHEME'],
-        )
+    # Host is validated, now make an adapter to match the path
+    adapter = current_app.url_map.bind(
+        server_name,
+        subdomain=subdomain,
+        script_name=current_app.config['APPLICATION_ROOT'],
+        url_scheme=current_app.config['PREFERRED_URL_SCHEME'],
+    )
 
     while True:  # Keep looping on redirects
         try:
@@ -214,15 +258,21 @@ def validate_is_app_url(url: Union[str, furl], method: str = 'GET') -> bool:
             return False
 
 
-def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
+def localize_micro_timestamp(
+    timestamp: float, from_tz: BaseTzInfo | str = utc, to_tz: BaseTzInfo | str = utc
+) -> datetime:
     return localize_timestamp(int(timestamp) / 1000, from_tz, to_tz)
 
 
-def localize_timestamp(timestamp, from_tz=utc, to_tz=utc):
+def localize_timestamp(
+    timestamp: float, from_tz: BaseTzInfo | str = utc, to_tz: BaseTzInfo | str = utc
+) -> datetime:
     return localize_date(datetime.fromtimestamp(int(timestamp)), from_tz, to_tz)
 
 
-def localize_date(date, from_tz=utc, to_tz=utc):
+def localize_date(
+    date: datetime, from_tz: BaseTzInfo | str = utc, to_tz: BaseTzInfo | str = utc
+) -> datetime:
     if from_tz and to_tz:
         if isinstance(from_tz, str):
             from_tz = pytz_timezone(from_tz)
@@ -234,35 +284,37 @@ def localize_date(date, from_tz=utc, to_tz=utc):
     return date
 
 
-def get_scheme_netloc(uri: str) -> Tuple[str, str]:
-    parsed_uri = urlsplit(uri)
-    return (parsed_uri.scheme, parsed_uri.netloc)
+def get_scheme_netloc(uri: str | furl) -> tuple[str | None, str | None]:
+    if isinstance(uri, str):
+        uri = furl(uri)
+    return uri.scheme, uri.netloc
 
 
-def autoset_timezone_and_locale(user: User) -> None:
-    # Set the user's timezone and locale automatically if required
+def autoset_timezone_and_locale() -> None:
+    """Set the current user's timezone and locale automatically if required."""
+    user = current_auth.user
     if (
         user.auto_timezone
-        or user.timezone is None
-        or str(user.timezone) not in valid_timezones
+        or not user.timezone
+        or str(user.timezone).lower() not in valid_timezones
     ):
         if request.cookies.get('timezone'):
-            timezone = unquote(request.cookies['timezone'])
-            if timezone in valid_timezones:
-                user.timezone = timezone
-    if (
-        user.auto_locale
-        or user.locale is None
-        or str(user.locale) not in supported_locales
-    ):
-        user.locale = (
-            request.accept_languages.best_match(supported_locales.keys()) or 'en'
+            cookie_timezone = unquote(request.cookies['timezone']).lower()
+            remapped_timezone = valid_timezones.get(cookie_timezone)
+            if remapped_timezone is not None:
+                user.timezone = remapped_timezone  # type: ignore[assignment]
+    if user.auto_locale or not user.locale or str(user.locale) not in supported_locales:
+        user.locale = (  # pyright: ignore[reportGeneralTypeIssues]
+            request.accept_languages.best_match(  # type: ignore[assignment]
+                supported_locales.keys()
+            )
+            or 'en'
         )
 
 
 def progressive_rate_limit_validator(
-    token: str, prev_token: Optional[str]
-) -> Tuple[bool, bool]:
+    token: str, prev_token: str | None
+) -> tuple[bool, bool]:
     """
     Validate for :func:`validate_rate_limit` on autocomplete-type resources.
 
@@ -274,21 +326,21 @@ def progressive_rate_limit_validator(
     # prev_token will be None on the first call to the validator. Count the first
     # call, but don't retain the previous token
     if prev_token is None:
-        return (True, False)
+        return True, False
 
     # User is typing, so current token is previous token plus extra chars. Don't
     # count this as a new call, and keep the longer current token as the reference
     if token.startswith(prev_token):
-        return (False, False)
+        return False, False
 
     # User is backspacing (current < previous), so keep the previous token as the
     # reference in case they retype the deleted characters
     if prev_token.startswith(token):
-        return (False, True)
+        return False, True
 
     # Current token is differing from previous token, meaning this is a new query.
     # Increment the counter, discard previous token and use current token as ref
-    return (True, False)
+    return True, False
 
 
 def validate_rate_limit(
@@ -296,9 +348,9 @@ def validate_rate_limit(
     identifier: str,
     attempts: int,
     timeout: int,
-    token: Optional[str] = None,
-    validator: Optional[Callable[[str, Optional[str]], Tuple[bool, bool]]] = None,
-):
+    token: str | None = None,
+    validator: Callable[[str, str | None], tuple[bool, bool]] | None = None,
+) -> None:
     """
     Validate a rate limit on API-endpoint resources.
 
@@ -320,10 +372,11 @@ def validate_rate_limit(
     :func:`progressive_rate_limit_validator` and its users.
     """
     # statsd.set requires an ASCII string. The identifier parameter is typically UGC,
-    # meaning it can contain just about any character and any length. The identifier
-    # is hashed using BLAKE2b here to bring it down to a meaningful length. It is not
+    # meaning it can contain just about any character and any length. The identifier is
+    # hashed using BLAKE2b here to bring it down to a meaningful length. It is not
     # reversible should that be needed for debugging, but the obvious alternative Base64
-    # encoding (for convering to 7-bit ASCII) cannot be used as it does not limit length
+    # encoding (for converting to 7-bit ASCII) cannot be used as it does not limit
+    # length
     statsd.set(
         'rate_limit',
         blake2b(identifier.encode(), digest_size=32).hexdigest(),
@@ -331,10 +384,7 @@ def validate_rate_limit(
         tags={'resource': resource},
     )
     cache_key = f'rate_limit/v1/{resource}/{identifier}'
-    # XXX: Typing for cache.get is incorrectly specified as returning Optional[str]
-    cache_value: Optional[Tuple[int, str]] = cache.get(  # type: ignore[assignment]
-        cache_key
-    )
+    cache_value: tuple[int, str] | None = cache.get(cache_key)
     if cache_value is None:
         count, cache_token = None, None
         statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 201})
@@ -420,10 +470,9 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
     return token
 
 
-def retrieve_cached_token(token: str) -> Optional[dict]:
+def retrieve_cached_token(token: str) -> dict | None:
     """Retrieve cached data given a token generated using :func:`make_cached_token`."""
-    # XXX: Typing for cache.get is incorrectly specified as returning Optional[str]
-    return cache.get(TEXT_TOKEN_PREFIX + token)  # type: ignore[return-value]
+    return cache.get(TEXT_TOKEN_PREFIX + token)
 
 
 def delete_cached_token(token: str) -> bool:
@@ -431,37 +480,43 @@ def delete_cached_token(token: str) -> bool:
     return cache.delete(TEXT_TOKEN_PREFIX + token)
 
 
-def compress(data: bytes, algorithm: str) -> bytes:
+# `compress` and `decompress` are typed to accept ``| str`` because `compress_response`
+# calls with an `str` type, not a literal string
+
+
+def compress(data: bytes, algorithm: Literal['br', 'gzip', 'deflate'] | str) -> bytes:
     """
     Compress data using Gzip, Deflate or Brotli.
 
-    :param algorithm: One of ``gzip``, ``deflate`` or ``br``
+    :param algorithm: One of ``br``, ``gzip`` or ``deflate``
     """
-    if algorithm == 'gzip':
-        return gzip.compress(data)
-    if algorithm == 'deflate':
-        return zlib.compress(data)
-    if algorithm == 'br':
-        return brotli.compress(data)
-    raise ValueError("Unknown compression algorithm")
+    match algorithm:
+        case 'gzip':
+            return gzip.compress(data)
+        case 'deflate':
+            return zlib.compress(data)
+        case 'br':
+            return brotli.compress(data)
+    raise ValueError(f"Unknown compression algorithm: {algorithm}")
 
 
-def decompress(data: bytes, algorithm: str) -> bytes:
+def decompress(data: bytes, algorithm: Literal['br', 'gzip', 'deflate'] | str) -> bytes:
     """
     Uncompress data using Gzip, Deflate or Brotli.
 
-    :param algorithm: One of ``gzip``, ``deflate`` or ``br``
+    :param algorithm: One of ``br``, ``gzip`` or ``deflate``
     """
-    if algorithm == 'gzip':
-        return gzip.decompress(data)
-    if algorithm == 'deflate':
-        return zlib.decompress(data)
-    if algorithm == 'br':
-        return brotli.decompress(data)
-    raise ValueError("Unknown compression algorithm")
+    match algorithm:
+        case 'gzip':
+            return gzip.decompress(data)
+        case 'deflate':
+            return zlib.decompress(data)
+        case 'br':
+            return brotli.decompress(data)
+    raise ValueError(f"Unknown compression algorithm: {algorithm}")
 
 
-def compress_response(response: ResponseType) -> None:
+def compress_response(response: BaseResponse) -> None:
     """
     Conditionally compress a response based on request parameters.
 
@@ -469,7 +524,8 @@ def compress_response(response: ResponseType) -> None:
     :func:`~funnel.views.decorators.etag_cache_for_user`.
     """
     if (  # pylint: disable=too-many-boolean-expressions
-        response.content_length is not None
+        not response.direct_passthrough
+        and response.content_length is not None
         and response.content_length > 500
         and 200 <= response.status_code < 300
         and 'Content-Encoding' not in response.headers
@@ -477,10 +533,7 @@ def compress_response(response: ResponseType) -> None:
         and (
             response.mimetype.startswith('text/')
             or response.mimetype
-            in (
-                'application/json',
-                'application/javascript',
-            )
+            in ('application/json', 'application/javascript', 'application/x.html+json')
         )
     ):
         algorithm = request.accept_encodings.best_match(('br', 'gzip', 'deflate'))
@@ -514,22 +567,31 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
     return redirect(url, code)
 
 
-def html_in_json(template: str) -> Dict[str, Union[str, Callable[[dict], ReturnView]]]:
-    """Render a HTML fragment in a JSON wrapper, for use with ``@render_with``."""
+def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]:
+    """
+    Render a HTML fragment in a JSON wrapper, for use with ``@render_with``.
 
-    def render_json_with_status(kwargs) -> ReturnResponse:
+    ::
+
+        @render_with(html_in_json('template.html.jinja2'))
+        def my_view(...) -> ReturnRenderWith: ...
+    """
+
+    def render_json_with_status(kwargs: dict[str, Any]) -> ReturnResponse:
         """Render plain JSON."""
         return jsonify(
             status='ok',
             **{
-                k: v
-                if not isinstance(v, RoleMixin)
-                else v.current_access(datasets=('primary',))
+                k: (
+                    v
+                    if not isinstance(v, RoleMixin)
+                    else v.current_access(datasets=('primary',))
+                )
                 for k, v in kwargs.items()
             },
         )
 
-    def render_html_in_json(kwargs) -> ReturnResponse:
+    def render_html_in_json(kwargs: dict[str, Any]) -> ReturnResponse:
         """Render HTML fragment in JSON."""
         resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
         resp.content_type = 'application/x.html+json; charset=utf-8'
@@ -546,13 +608,13 @@ def html_in_json(template: str) -> Dict[str, Union[str, Callable[[dict], ReturnV
 
 
 @app.template_filter('url_join')
-def url_join(base, url=''):
+def url_join(base: str, url: str = '') -> str:
     """Join URLs in a template filter."""
     return urljoin(base, url)
 
 
 @app.template_filter('cleanurl')
-def cleanurl_filter(url):
+def cleanurl_filter(url: str | furl) -> str:
     """Clean a URL in a template filter."""
     if not isinstance(url, furl):
         url = furl(url)
@@ -562,7 +624,7 @@ def cleanurl_filter(url):
 
 
 @app.template_filter('shortlink')
-def shortlink(url: str, actor: Optional[User] = None, shorter: bool = True) -> str:
+def shortlink(url: str, actor: Account | None = None, shorter: bool = True) -> str:
     """
     Return a short link suitable for sharing, in a template filter.
 
@@ -579,6 +641,16 @@ def shortlink(url: str, actor: Optional[User] = None, shorter: bool = True) -> s
 # --- Request/response handlers --------------------------------------------------------
 
 
+@app.before_request
+def no_null_in_form() -> None:
+    """Disallow NULL characters in any form submit (but don't scan file attachments)."""
+    if request.method == 'POST':
+        for values in request.form.listvalues():
+            for each in values:
+                if each is not None and '\x00' in each:
+                    abort(400)
+
+
 @app.after_request
 def commit_db_session(response: ResponseType) -> ResponseType:
     """Commit database session at the end of a request if asked to."""
@@ -587,29 +659,6 @@ def commit_db_session(response: ResponseType) -> ResponseType:
     # is therefore too late for a commit within the view
     if g.get('require_db_commit', False):
         db.session.commit()
-    return response
-
-
-@app.after_request
-def track_temporary_session_vars(response: ResponseType) -> ResponseType:
-    """Add timestamps to timed values in session, and remove expired values."""
-    # Process timestamps only if there is at least one match. Most requests will
-    # have no match.
-    if session_timeouts.has_intersection(session):
-        for var, delta in session_timeouts.items():
-            var_at = f'{var}_at'
-            if var in session:
-                if var_at not in session:
-                    # Session has var but not timestamp, so add a timestamp
-                    session[var_at] = utcnow()
-                elif session[var_at] < utcnow() - delta:
-                    # Session var has expired, so remove var and timestamp
-                    session.pop(var)
-                    session.pop(var_at)
-            elif var_at in session:
-                # Timestamp present without var, so remove it
-                session.pop(var_at)
-
     return response
 
 

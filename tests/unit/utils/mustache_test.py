@@ -1,8 +1,8 @@
 """Tests for Mustache templates on Markdown documents."""
+
 # pylint: disable=not-callable
 # mypy: disable-error-code=index
 
-from typing import Dict, Tuple
 
 import pytest
 
@@ -28,9 +28,9 @@ test_data = {
 }
 
 #: Dict of {test_name: (template, output)}
-templates_and_output: Dict[str, Tuple[str, str]] = {}
+templates_and_output: dict[str, tuple[str, str]] = {}
 #: Dict of {test_name: (template, config_name, output)}
-config_template_output: Dict[str, Tuple[str, str, str]] = {}
+config_template_output: dict[str, tuple[str, str, str]] = {}
 
 templates_and_output['basic'] = (
     """

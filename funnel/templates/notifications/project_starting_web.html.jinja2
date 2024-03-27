@@ -1,8 +1,7 @@
 {% extends "notifications/layout_web.html.jinja2" %}
-{%- from "macros.html.jinja2" import useravatar %}
 
 {%- block avatar %}
-  {{ useravatar(view.project.profile.owner) }}
+  {{ useravatar(view.project.account) }}
 {%- endblock avatar -%}
 
 {%- block content -%}

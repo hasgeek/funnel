@@ -17,15 +17,15 @@ const Membership = {
   }) {
     Vue.use(VS2);
 
-    const memberUI = Vue.component('member', {
+    const memberUI = Vue.component('membership', {
       template: memberTemplate,
-      props: ['member'],
+      props: ['membership'],
       methods: {
-        rolesCount(member) {
+        rolesCount(membership) {
           let count = 0;
-          if (member.is_editor) count += 1;
-          if (member.is_promoter) count += 1;
-          if (member.is_usher) count += 1;
+          if (membership.is_editor) count += 1;
+          if (membership.is_promoter) count += 1;
+          if (membership.is_usher) count += 1;
           return count - 1;
         },
         getInitials: Utils.getInitials,
@@ -114,9 +114,11 @@ const Membership = {
         },
         onChange() {
           if (this.search) {
-            this.members.filter((member) => {
-              member.hide =
-                member.user.fullname
+            this.members.filter((membership) => {
+              /* FIXME: This is using fullname to identify a member,
+                 it should use an id */
+              membership.hide =
+                membership.member.fullname
                   .toLowerCase()
                   .indexOf(this.search.toLowerCase()) === -1;
               return true;

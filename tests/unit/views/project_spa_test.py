@@ -1,10 +1,14 @@
 """Test response types for project SPA endpoints."""
+
 # pylint: disable=redefined-outer-name
 
-from typing import Optional
 from urllib.parse import urlsplit
 
 import pytest
+
+from funnel import models
+
+from ...conftest import AppContext, LoginFixtureProtocol, TestClient
 
 # Endpoints to test within the project namespace
 subpages = ['', 'updates', 'comments', 'sub', 'schedule', 'videos', 'crew']
@@ -19,18 +23,18 @@ login_sessions = [None, '_promoter_login']
 
 
 @pytest.fixture()
-def project_url(app_context, project_expo2010):
+def project_url(app_context: AppContext, project_expo2010: models.Project) -> str:
     """Relative URL for a project."""
     return urlsplit(project_expo2010.url_for()).path
 
 
 @pytest.fixture()
-def _promoter_login(login, user_vetinari):
+def _promoter_login(login: LoginFixtureProtocol, user_vetinari: models.User) -> None:
     """Login as a project promoter."""
     login.as_(user_vetinari)
 
 
-def test_project_url_is_as_expected(project_url) -> None:
+def test_project_url_is_as_expected(project_url: str) -> None:
     """Test the :func:`project_url` fixture before it's used in other tests."""
     # URL ends with '/'
     assert project_url.endswith('/')
@@ -42,12 +46,12 @@ def test_project_url_is_as_expected(project_url) -> None:
 @pytest.mark.parametrize('xhr', xhr_headers)
 @pytest.mark.parametrize('use_login', login_sessions)
 def test_default_is_html(
-    request,
-    client,
-    use_login: Optional[str],
+    request: pytest.FixtureRequest,
+    client: TestClient,
+    use_login: str | None,
     project_url: str,
     page: str,
-    xhr: Optional[dict],
+    xhr: dict | None,
 ) -> None:
     """Pages render as full HTML by default."""
     if use_login:
@@ -65,12 +69,12 @@ def test_default_is_html(
 @pytest.mark.parametrize('xhr', xhr_headers)
 @pytest.mark.parametrize('use_login', login_sessions)
 def test_html_response(
-    request,
-    client,
-    use_login: Optional[str],
+    request: pytest.FixtureRequest,
+    client: TestClient,
+    use_login: str | None,
     project_url: str,
     page: str,
-    xhr: Optional[dict],
+    xhr: dict | None,
 ) -> None:
     """Asking for a HTML page or a fragment (via XHR) returns a page or a fragment."""
     if use_login:
@@ -87,7 +91,11 @@ def test_html_response(
 @pytest.mark.parametrize('page', subpages)
 @pytest.mark.parametrize('use_login', login_sessions)
 def test_json_response(
-    request, client, use_login: Optional[str], project_url: str, page: str
+    request: pytest.FixtureRequest,
+    client: TestClient,
+    use_login: str | None,
+    project_url: str,
+    page: str,
 ) -> None:
     """Asking for JSON returns a JSON response."""
     if use_login:
@@ -96,6 +104,7 @@ def test_json_response(
     rv = client.get(project_url + page, headers=headers)
     assert rv.status_code == 200
     assert rv.content_type == 'application/json'
+    assert rv.json is not None
     assert 'status' in rv.json
     assert rv.json['status'] == 'ok'
 
@@ -104,12 +113,12 @@ def test_json_response(
 @pytest.mark.parametrize('xhr', xhr_headers)
 @pytest.mark.parametrize('use_login', login_sessions)
 def test_htmljson_response(
-    request,
-    client,
-    use_login: Optional[str],
+    request: pytest.FixtureRequest,
+    client: TestClient,
+    use_login: str | None,
     project_url: str,
     page: str,
-    xhr: Optional[dict],
+    xhr: dict | None,
 ) -> None:
     """Asking for HTML in JSON returns that as a HTML fragment."""
     if use_login:
@@ -121,6 +130,7 @@ def test_htmljson_response(
     rv = client.get(project_url + page, headers=headers)
     assert rv.status_code == 200
     assert rv.content_type == 'application/x.html+json; charset=utf-8'
+    assert rv.json is not None
     assert 'status' in rv.json
     assert rv.json['status'] == 'ok'
     assert 'html' in rv.json

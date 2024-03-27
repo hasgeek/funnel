@@ -11,13 +11,14 @@ import re
 from collections.abc import MutableMapping, Sequence
 
 from markdown_it import MarkdownIt
-from markdown_it.renderer import OptionsDict, RendererHTML
+from markdown_it.renderer import RendererHTML
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
+from markdown_it.utils import OptionsDict
 
 __all__ = ['sub_plugin']
 
-TILDE_CHAR = 0x7E  # ASCII value for `~`
+TILDE_CHAR = '~'
 
 WHITESPACE_RE = re.compile(r'(^|[^\\])(\\\\)*\s')
 UNESCAPE_RE = re.compile(r'\\([ \\!"#$%&\'()*+,.\/:;<=>?@[\]^_`{|}~-])')
@@ -25,14 +26,14 @@ UNESCAPE_RE = re.compile(r'\\([ \\!"#$%&\'()*+,.\/:;<=>?@[\]^_`{|}~-])')
 
 def tokenize(state: StateInline, silent: bool) -> bool:
     start = state.pos
-    marker = state.srcCharCode[start]
+    ch = state.src[start]
     maximum = state.posMax
     found = False
 
     if silent:
         return False
 
-    if marker != TILDE_CHAR:
+    if ch != TILDE_CHAR:
         return False
 
     # Don't run any pairs in validation mode
@@ -42,7 +43,7 @@ def tokenize(state: StateInline, silent: bool) -> bool:
     state.pos = start + 1
 
     while state.pos < maximum:
-        if state.srcCharCode[state.pos] == TILDE_CHAR:
+        if state.src[state.pos] == TILDE_CHAR:
             found = True
             break
         state.md.inline.skipToken(state)
@@ -63,13 +64,13 @@ def tokenize(state: StateInline, silent: bool) -> bool:
 
     # Earlier we checked "not silent", but this implementation does not need it
     token = state.push('sub_open', 'sub', 1)
-    token.markup = '~'
+    token.markup = TILDE_CHAR
 
     token = state.push('text', '', 0)
     token.content = UNESCAPE_RE.sub('$1', content)
 
     token = state.push('sub_close', 'sub', -1)
-    token.markup = '~'
+    token.markup = TILDE_CHAR
 
     state.pos = state.posMax + 1
     state.posMax = maximum

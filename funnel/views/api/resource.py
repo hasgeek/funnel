@@ -2,28 +2,27 @@
 
 from __future__ import annotations
 
-from typing import Any, Container, Dict, List, Optional, Union, cast
-from typing_extensions import Literal
+from collections.abc import Container
+from typing import Any, Literal
 
 from flask import abort, jsonify, render_template, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import __
-from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import jsonp, requestargs
 
 from ... import app
+from ...auth import current_auth
 from ...models import (
+    Account,
     AuthClient,
     AuthClientCredential,
-    AuthClientTeamPermissions,
-    AuthClientUserPermissions,
+    AuthClientPermissions,
     AuthToken,
+    LoginSession,
     Organization,
-    Profile,
     User,
-    UserSession,
     db,
     getuser,
 )
@@ -37,14 +36,14 @@ from ..login_session import (
     requires_user_or_client_login,
 )
 
-ReturnResource = Dict[str, Any]
+ReturnResource = dict[str, Any]
 
 
 def get_userinfo(
-    user: User,
+    user: Account,
     auth_client: AuthClient,
     scope: Container[str] = (),
-    user_session: Optional[UserSession] = None,
+    login_session: LoginSession | None = None,
     get_permissions: bool = True,
 ) -> ReturnResource:
     """Return userinfo for a given user, auth client and scope."""
@@ -56,15 +55,15 @@ def get_userinfo(
             'username': user.username,
             'fullname': user.fullname,
             'timezone': user.timezone,
-            'avatar': user.avatar,
+            'avatar': user.logo_url,
             'oldids': [o.buid for o in user.oldids],
             'olduuids': [o.uuid for o in user.oldids],
         }
     else:
         userinfo = {}
 
-    if user_session is not None:
-        userinfo['sessionid'] = user_session.buid
+    if login_session is not None:
+        userinfo['sessionid'] = login_session.buid
 
     if '*' in scope or 'email' in scope or 'email/*' in scope:
         userinfo['email'] = str(user.email)
@@ -77,7 +76,7 @@ def get_userinfo(
                     'userid': org.buid,
                     'buid': org.buid,
                     'uuid': org.uuid,
-                    'name': org.name,
+                    'name': org.urlname,
                     'title': org.title,
                 }
                 for org in user.organizations_as_owner
@@ -87,7 +86,7 @@ def get_userinfo(
                     'userid': org.buid,
                     'buid': org.buid,
                     'uuid': org.uuid,
-                    'name': org.name,
+                    'name': org.urlname,
                     'title': org.title,
                 }
                 for org in user.organizations_as_admin
@@ -95,23 +94,15 @@ def get_userinfo(
         }
 
     if get_permissions:
-        if auth_client.user:
-            uperms = AuthClientUserPermissions.get(auth_client=auth_client, user=user)
-            if uperms is not None:
-                userinfo['permissions'] = uperms.access_permissions.split(' ')
-        else:
-            permsset = set()
-            if user.teams:
-                all_perms = AuthClientTeamPermissions.all_for(
-                    auth_client=auth_client, user=user
-                ).all()
-                for tperms in all_perms:
-                    permsset.update(tperms.access_permissions.split(' '))
-            userinfo['permissions'] = sorted(permsset)
+        uperms = AuthClientPermissions.get(auth_client=auth_client, account=user)
+        if uperms is not None:
+            userinfo['permissions'] = uperms.access_permissions.split(' ')
     return userinfo
 
 
-def resource_error(error, description=None, uri=None) -> Response:
+def resource_error(
+    error: str, description: str | None = None, uri: str | None = None
+) -> Response:
     """Return an error response."""
     params = {'status': 'error', 'error': error}
     if description:
@@ -120,16 +111,16 @@ def resource_error(error, description=None, uri=None) -> Response:
         params['error_uri'] = uri
 
     response = jsonify(params)
-    response.headers[
-        'Cache-Control'
-    ] = 'private, no-cache, no-store, max-age=0, must-revalidate'
+    response.headers['Cache-Control'] = (
+        'private, no-cache, no-store, max-age=0, must-revalidate'
+    )
     response.headers['Pragma'] = 'no-cache'
     response.status_code = 400
     return response
 
 
 def api_result(
-    status: Union[Literal['ok'], Literal['error'], Literal[200], Literal[201]],
+    status: Literal['ok'] | Literal['error'] | Literal[200] | Literal[201],
     _jsonp: bool = False,
     **params: Any,
 ) -> Response:
@@ -146,9 +137,9 @@ def api_result(
     else:
         response = jsonify(params)
     response.status_code = status_code
-    response.headers[
-        'Cache-Control'
-    ] = 'private, no-cache, no-store, max-age=0, must-revalidate'
+    response.headers['Cache-Control'] = (
+        'private, no-cache, no-store, max-age=0, must-revalidate'
+    )
     response.headers['Pragma'] = 'no-cache'
     return response
 
@@ -180,7 +171,7 @@ def user_get_by_userid() -> ReturnView:
     buid = abort_null(request.values.get('userid'))
     if not buid:
         return api_result('error', error='no_userid_provided')
-    user = User.get(buid=buid, defercols=True)
+    user = Account.get(buid=buid, defercols=True)
     if user is not None:
         return api_result(
             'ok',
@@ -205,7 +196,7 @@ def user_get_by_userid() -> ReturnView:
             userid=org.buid,
             buid=org.buid,
             uuid=org.uuid,
-            name=org.name,
+            name=org.urlname,
             title=org.title,
             label=org.pickername,
         )
@@ -215,7 +206,7 @@ def user_get_by_userid() -> ReturnView:
 @app.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
 @requestargs(('userid[]', abort_null))
-def user_get_by_userids(userid: List[str]) -> ReturnView:
+def user_get_by_userids(userid: list[str]) -> ReturnView:
     """
     Return users and organizations with the given userids (Lastuser internal userid).
 
@@ -225,7 +216,7 @@ def user_get_by_userids(userid: List[str]) -> ReturnView:
     if not userid:
         return api_result('error', error='no_userid_provided', _jsonp=True)
     # `userid` parameter is a list, not a scalar, since requestargs has `userid[]`
-    users = User.all(buids=userid)
+    users = Account.all(buids=userid)
     orgs = Organization.all(buids=userid)
     return api_result(
         'ok',
@@ -288,7 +279,7 @@ def user_get(name: str) -> ReturnView:
 @app.route('/api/1/user/getusers', methods=['GET', 'POST'])
 @requires_user_or_client_login
 @requestargs(('name[]', abort_null))
-def user_getall(name: List[str]) -> ReturnView:
+def user_getall(name: list[str]) -> ReturnView:
     """Return users with the given username or email address."""
     names = name
     buids = set()  # Dupe checker
@@ -329,8 +320,8 @@ def user_autocomplete(q: str = '') -> ReturnView:
     """
     if not q:
         return api_result('error', error='no_query_provided')
-    # Limit length of query to User.fullname limit
-    q = q[: User.__title_length__]
+    # Limit length of query to Account.title limit
+    q = q[: Account.__title_length__]
 
     # Setup rate limiter to not count progressive typing or backspacing towards
     # attempts. That is, sending 'abc' after 'ab' will not count towards limits, but
@@ -339,13 +330,15 @@ def user_autocomplete(q: str = '') -> ReturnView:
     # imposes a limit of 20 name lookups per half hour.
 
     validate_rate_limit(
-        # As this endpoint accepts client_id+user_session in lieu of login cookie,
-        # we may not have an authenticated user. Use the user_session's user in that
+        # As this endpoint accepts client_id+login_session in lieu of login cookie,
+        # we may not have an authenticated user. Use the login_session's account in that
         # case
         'api_user_autocomplete',
-        current_auth.actor.uuid_b58
-        if current_auth.actor
-        else current_auth.session.user.uuid_b58,
+        (
+            current_auth.actor.uuid_b58
+            if current_auth.actor
+            else current_auth.session.account.uuid_b58
+        ),
         # Limit 20 attempts
         20,
         # Per half hour (60s * 30m = 1800s)
@@ -378,8 +371,8 @@ def profile_autocomplete(q: str = '') -> ReturnView:
     if not q:
         return api_result('error', error='no_query_provided')
 
-    # Limit length of query to User.fullname and Organization.title length limit
-    q = q[: max(User.__title_length__, Organization.__title_length__)]
+    # Limit length of query to Account.title
+    q = q[: Account.__title_length__]
 
     # Setup rate limiter to not count progressive typing or backspacing towards
     # attempts. That is, sending 'abc' after 'ab' will not count towards limits, but
@@ -388,13 +381,15 @@ def profile_autocomplete(q: str = '') -> ReturnView:
     # imposes a limit of 20 name lookups per half hour.
 
     validate_rate_limit(
-        # As this endpoint accepts client_id+user_session in lieu of login cookie,
-        # we may not have an authenticated user. Use the user_session's user in that
+        # As this endpoint accepts client_id+login_session in lieu of login cookie,
+        # we may not have an authenticated user. Use the login_session's account in that
         # case
         'api_profile_autocomplete',
-        current_auth.actor.uuid_b58
-        if current_auth.actor
-        else current_auth.session.user.uuid_b58,
+        (
+            current_auth.actor.uuid_b58
+            if current_auth.actor
+            else current_auth.session.account.uuid_b58
+        ),
         # Limit 20 attempts
         20,
         # Per half hour (60s * 30m = 1800s)
@@ -404,7 +399,7 @@ def profile_autocomplete(q: str = '') -> ReturnView:
         token=q,
         validator=progressive_rate_limit_validator,
     )
-    profiles = Profile.autocomplete(q)
+    profiles = Account.autocomplete(q)
     profile_names = [p.name for p in profiles]  # TODO: Update front-end, remove this
     profile_list = [
         {
@@ -472,7 +467,7 @@ def login_beacon_json(client_id: str) -> ReturnView:
 @app.route('/api/1/id')
 @resource_registry.resource('id', __("Read your name and basic account data"))
 def resource_id(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Return user's basic identity."""
     if 'all' in args and getbool(args['all']):
@@ -493,21 +488,21 @@ def resource_id(
 @app.route('/api/1/session/verify', methods=['POST'])
 @resource_registry.resource('session/verify', __("Verify user session"), scope='id')
 def session_verify(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Verify a UserSession."""
     sessionid = abort_null(args['sessionid'])
-    user_session = UserSession.authenticate(buid=sessionid, silent=True)
-    if user_session is not None and user_session.user == authtoken.effective_user:
-        user_session.views.mark_accessed(auth_client=authtoken.auth_client)
+    login_session = LoginSession.authenticate(buid=sessionid, silent=True)
+    if login_session is not None and login_session.account == authtoken.effective_user:
+        login_session.views.mark_accessed(auth_client=authtoken.auth_client)
         db.session.commit()
         return {
             'active': True,
-            'sessionid': user_session.buid,
-            'userid': user_session.user.buid,
-            'buid': user_session.user.buid,
-            'user_uuid': user_session.user.uuid,
-            'sudo': user_session.has_sudo,
+            'sessionid': login_session.buid,
+            'userid': login_session.account.buid,
+            'buid': login_session.account.buid,
+            'user_uuid': login_session.account.uuid,
+            'sudo': login_session.has_sudo,
         }
     return {'active': False}
 
@@ -515,7 +510,7 @@ def session_verify(
 @app.route('/api/1/email')
 @resource_registry.resource('email', __("Read your email address"))
 def resource_email(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Return user's email addresses."""
     if 'all' in args and getbool(args['all']):
@@ -533,7 +528,7 @@ def resource_email(
 @app.route('/api/1/phone')
 @resource_registry.resource('phone', __("Read your phone number"))
 def resource_phone(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Return user's phone numbers."""
     if 'all' in args and getbool(args['all']):
@@ -551,14 +546,14 @@ def resource_phone(
     trusted=True,
 )
 def resource_login_providers(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Return user's login providers' data."""
-    service: Optional[str] = abort_null(args.get('service'))
+    service: str | None = abort_null(args.get('service'))
     response = {}
     for extid in authtoken.effective_user.externalids:
         if service is None or extid.service == service:
-            response[cast(str, extid.service)] = {
+            response[extid.service] = {
                 'userid': str(extid.userid),
                 'username': str(extid.username),
                 'oauth_token': str(extid.oauth_token),
@@ -573,7 +568,7 @@ def resource_login_providers(
     'organizations', __("Read the organizations you are a member of")
 )
 def resource_organizations(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Return user's organizations and teams that they are a member of."""
     return get_userinfo(
@@ -587,7 +582,7 @@ def resource_organizations(
 @app.route('/api/1/teams')
 @resource_registry.resource('teams', __("Read the list of teams in your organizations"))
 def resource_teams(
-    authtoken: AuthToken, args: MultiDict, files: Optional[MultiDict] = None
+    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
 ) -> ReturnResource:
     """Return user's organizations' teams."""
     return get_userinfo(

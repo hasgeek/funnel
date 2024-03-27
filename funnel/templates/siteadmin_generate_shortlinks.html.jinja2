@@ -1,0 +1,86 @@
+{% extends "layout.html.jinja2" %}
+
+{% block title %}{% trans %}Get shortlink with additional tags{% endtrans %}{% endblock title %}
+
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ manifest('css/form.css') }}" />
+{% endblock pageheaders %}
+
+{% block content %}
+  <form id="js-generate-shortlink" method="post" action="{{ url_for('create_shortlink') }}" accept-charset="UTF-8" class="mui-form mui-form--margins">
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="title" class="field-url js-campaign-url js-inbox-change" {% if request.referrer %}value="{{ request.referrer }}"{%- endif -%} type="text"/>
+          <label for="title">{% trans %}Url{% endtrans %}</label>
+        </div>
+      </div>
+    </div>
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="id" class="field-campaign-id js-campaign-id js-inbox-change" type="text"/>
+          <label for="id">{% trans %}Campaign ID{% endtrans %}</label>
+        </div>
+        <p class="mui-form__helptext">{% trans %}Ads campaign id{% endtrans %}</p>
+      </div>
+    </div>
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="source" class="field-campaign-source js-campaign-source js-inbox-change" type="text"/>
+          <label for="source">{% trans %}Campaign source{% endtrans %}</label>
+        </div>
+        <p class="mui-form__helptext">{% trans %}The referrer (e.g. google, linkedin, twitter, newsletter){% endtrans %}</p>
+      </div>
+    </div>
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="medium" class="field-campaign-medium js-campaign-medium js-inbox-change" type="text"/>
+          <label for="medium">{% trans %}Campaign medium{% endtrans %}</label>
+        </div>
+        <p class="mui-form__helptext">{% trans %}Marketing medium (e.g. banner, qr, email, social){% endtrans %}</p>
+      </div>
+    </div>
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="name" class="field-campaign-name js-campaign-name js-inbox-change" type="text"/>
+          <label for="name">{% trans %}Campaign name{% endtrans %}</label>
+        </div>
+        <p class="mui-form__helptext">{% trans %}Product or promo code (e.g. membership_2024){% endtrans %}</p>
+      </div>
+    </div>
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="term" class="field-campaign-term js-campaign-term js-inbox-change" type="text"/>
+          <label for="term">{% trans %}Campaign term{% endtrans %}</label>
+        </div>
+        <p class="mui-form__helptext">{% trans %}Paid Adword/keywords{% endtrans %}</p>
+      </div>
+    </div>
+    <div class="mui-form__fields">
+      <div class="mui-form__controls">
+        <div class="mui-textfield mui-textfield--float-label">
+          <input id="content" class="field-campaign-content js-campaign-content js-inbox-change" type="text"/>
+          <label for="content">{% trans %}Campaign content{% endtrans %}</label>
+        </div>
+        <p class="mui-form__helptext">{% trans %}Use to differentiate ads{% endtrans %}</p>
+      </div>
+    </div>
+    <button type="submit" class="mui-btn mui-btn--raised  mui-btn--primary" data-cy="form-submit-btn">{% trans %}Generate shortlink{% endtrans %}</button><span class="loading mui--hide"></span>
+  </form>
+
+  <div class="flex-wrapper flex-wrapper--center margin-bottom">
+    <div class="mui-panel flex-item-grow zero-bottom-margin" aria-hidden="true">
+      <p class="mui--text-subhead zero-bottom-margin js-generated-url"></p>
+    </div>
+    <span class="js-copy-shortlink link"aria-label="{% trans %}Copy shortlink{% endtrans %}" role="button">{{ faicon(icon='copy', baseline=true, icon_size='title', css_class="fa-icon--left-margin") }}</span>
+  </div>
+{% endblock content %}
+
+{% block footerscripts %}
+  <script src="{{ manifest('shortlink_form.js') }}" type="text/javascript"></script>
+{% endblock footerscripts %}

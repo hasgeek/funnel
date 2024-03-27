@@ -4,26 +4,16 @@ from __future__ import annotations
 
 import os.path
 import re
+import warnings
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Type,
-    TypeVar,
-    cast,
-)
+from typing import Any, ClassVar, TypeVar, get_type_hints
 
 from better_profanity import profanity
 from furl import furl
 from markupsafe import Markup, escape as html_escape
+from sqlalchemy import event as sa_event
 from sqlalchemy.dialects.postgresql import TSQUERY
 from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
@@ -32,22 +22,25 @@ from sqlalchemy.ext.mutable import MutableComposite
 from sqlalchemy.orm import Mapped, composite
 from zxcvbn import zxcvbn
 
+from coaster.utils import DataclassFromType
+
 from .. import app
 from ..typing import T
 from ..utils import MarkdownConfig, MarkdownString, markdown_escape
-from . import Model, UrlType, sa
+from .base import Model, UrlType, sa, sa_orm
 
 __all__ = [
     'RESERVED_NAMES',
     'PASSWORD_MIN_LENGTH',
     'PASSWORD_MAX_LENGTH',
+    'IntTitle',
     'check_password_strength',
     'profanity',
     'add_to_class',
     'add_search_trigger',
     'visual_field_delimiter',
     'valid_name',
-    'valid_username',
+    'valid_account_name',
     'quote_autocomplete_like',
     'quote_autocomplete_tsquery',
     'ImgeeFurl',
@@ -58,7 +51,7 @@ __all__ = [
     'MarkdownCompositeInline',
 ]
 
-RESERVED_NAMES: Set[str] = {
+RESERVED_NAMES: set[str] = {
     '_baseframe',
     'about',
     'account',
@@ -142,6 +135,14 @@ RESERVED_NAMES: Set[str] = {
 }
 
 
+@dataclass(frozen=True)
+class IntTitle(DataclassFromType, int):
+    """Integer value with a title (for enums)."""
+
+    # The empty default is required for Mypy's enum plugin's `Enum.__call__` analysis
+    title: str = ''
+
+
 @dataclass
 class PasswordCheckType:
     """
@@ -153,7 +154,7 @@ class PasswordCheckType:
         (guesses < 10^3)
     * 1: very guessable: protection from throttled online attacks
         (guesses < 10^6)
-    * 2: somewhat guessable: protection from unthrottled online attacks
+    * 2: somewhat guessable: protection from un-throttled online attacks
         (guesses < 10^8)
     * 3: safely unguessable: moderate protection from offline slow-hash scenario
         (guesses < 10^10)
@@ -164,7 +165,7 @@ class PasswordCheckType:
     is_weak: bool
     score: int  # One of 0, 1, 2, 3, 4
     warning: str
-    suggestions: List[str]
+    suggestions: list[str]
 
 
 #: Minimum length for a password
@@ -177,7 +178,7 @@ PASSWORD_MIN_SCORE = 3
 
 
 def check_password_strength(
-    password: str, user_inputs: Optional[Iterable[str]] = None
+    password: str, user_inputs: Iterable[str] | None = None
 ) -> PasswordCheckType:
     """Check the strength of a password using zxcvbn."""
     result = zxcvbn(password, user_inputs)
@@ -195,7 +196,7 @@ def check_password_strength(
 
 # re.IGNORECASE needs re.ASCII because of a quirk in the characters it matches.
 # https://docs.python.org/3/library/re.html#re.I
-_username_valid_re = re.compile('^[a-z0-9][a-z0-9_]*$', re.I | re.A)
+_account_name_valid_re = re.compile('^[a-z0-9][a-z0-9_]*$', re.I | re.A)
 _name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
 
 
@@ -209,10 +210,11 @@ with open(
     profanity.add_censor_words([_w.strip() for _w in badwordfile.readlines()])
 
 
+# Used as a delimiter in search results when showing a preview from multiple fields
 visual_field_delimiter = ' ¦ '
 
 
-def add_to_class(cls: Type, name: Optional[str] = None) -> Callable[[T], T]:
+def add_to_class(cls: type, name: str | None = None) -> Callable[[T], T]:
     """
     Add a new method to a class via a decorator. Takes an optional attribute name.
 
@@ -229,12 +231,16 @@ def add_to_class(cls: Type, name: Optional[str] = None) -> Callable[[T], T]:
     """
 
     def decorator(attr: T) -> T:
-        use_name: Optional[str] = name or getattr(attr, '__name__', None)
+        use_name: str | None = name or getattr(attr, '__name__', None)
         if not use_name:  # pragma: no cover
             # None or '' not allowed
             raise ValueError(f"Could not determine name for {attr!r}")
         if use_name in cls.__dict__:
-            raise AttributeError(f"{cls.__name__} already has attribute {use_name}")
+            raise AttributeError(
+                f"{cls.__name__} already has attribute {use_name}",
+                name=use_name,
+                obj=cls,
+            )
         setattr(cls, use_name, attr)
         return attr
 
@@ -245,7 +251,7 @@ ReopenedType = TypeVar('ReopenedType', bound=type)
 TempType = TypeVar('TempType', bound=type)
 
 
-def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
+def reopen(cls: ReopenedType) -> Callable[[type], ReopenedType]:
     """
     Move the contents of the decorated class into an existing class and return it.
 
@@ -279,7 +285,7 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     properties that do more processing.
     """
 
-    def decorator(temp_cls: TempType) -> ReopenedType:
+    def decorator(temp_cls: type) -> ReopenedType:
         if temp_cls.__bases__ != (object,):
             raise TypeError("Reopened class cannot add base classes")
         if temp_cls.__class__ is not type:
@@ -291,7 +297,25 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
             '__setattr__',
             '__delattr__',
         }.intersection(set(temp_cls.__dict__.keys())):
-            raise TypeError("Reopened class contains unsupported __attributes__")
+            raise TypeError("Reopened class contains unsupported __dunder__ attributes")
+        if '__annotations__' in temp_cls.__dict__:
+            # Temp class annotations must be un-stringified as they may refer to names
+            # not available in the reopened class's namespace
+            try:
+                annotations = get_type_hints(temp_cls, include_extras=True)
+            except NameError as exc:
+                warnings.warn(
+                    f"{temp_cls.__qualname__} has a forward annotation that cannot be"
+                    f" resolved. Annotations in {cls.__qualname__} may not be usable at"
+                    f" runtime: {exc}",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
+                annotations = temp_cls.__annotations__
+            if '__annotations__' not in cls.__dict__:
+                cls.__annotations__ = annotations
+            else:
+                cls.__annotations__ = annotations | cls.__annotations__
         for attr, value in list(temp_cls.__dict__.items()):
             # Skip the standard Python attributes, process the rest
             if attr not in (
@@ -303,27 +327,34 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
             ):
                 # Refuse to overwrite existing attributes
                 if hasattr(cls, attr):
-                    raise AttributeError(f"{cls.__name__} already has attribute {attr}")
+                    # At this time we've already merged __annotations__, so there's no
+                    # good way to recover from this error -- it's effectively fatal and
+                    # requires code rewrite. This is however an implicit assumption when
+                    # using @reopen -- it should not be within a try block.
+                    raise AttributeError(
+                        f"{cls.__qualname__} already has attribute {attr!r}",
+                        name=attr,
+                        obj=cls,
+                    )
                 # All good? Copy the attribute over...
                 setattr(cls, attr, value)
+                if hasattr(value, '__set_name__'):
+                    value.__set_name__(cls, attr)
                 # ...And remove it from the temporary class
                 delattr(temp_cls, attr)
-            # Merge typing annotations
-            elif attr == '__annotations__':
-                cls.__annotations__.update(value)
         # Return the original class. Leave the temporary class to the garbage collector
         return cls
 
     return decorator
 
 
-def valid_username(candidate: str) -> bool:
+def valid_account_name(candidate: str) -> bool:
     """
     Check if a username is valid.
 
     Letters, numbers and underscores only.
     """
-    return _username_valid_re.search(candidate) is not None
+    return _account_name_valid_re.search(candidate) is not None
 
 
 def valid_name(candidate: str) -> bool:
@@ -369,7 +400,11 @@ def quote_autocomplete_like(prefix: str, midway: bool = False) -> str:
     # Some SQL dialects respond to '[' and ']', so remove them.
     # Suffix a '%' to make a prefix-match query.
     like_query = (
-        prefix.replace('%', r'\%').replace('_', r'\_').replace('[', '').replace(']', '')
+        prefix.replace('\\', r'\\')
+        .replace('%', r'\%')
+        .replace('_', r'\_')
+        .replace('[', '')
+        .replace(']', '')
         + '%'
     )
     lstrip_like_query = like_query.lstrip()
@@ -380,18 +415,15 @@ def quote_autocomplete_like(prefix: str, midway: bool = False) -> str:
     return lstrip_like_query
 
 
-def quote_autocomplete_tsquery(prefix: str) -> TSQUERY:
+def quote_autocomplete_tsquery(prefix: str) -> sa.Cast[str]:
     """Return a PostgreSQL tsquery suitable for autocomplete-type matches."""
-    return cast(
+    return sa.cast(
+        sa.func.concat(sa.func.phraseto_tsquery('simple', prefix or ''), ':*'),
         TSQUERY,
-        sa.func.cast(
-            sa.func.concat(sa.func.phraseto_tsquery('simple', prefix or ''), ':*'),
-            TSQUERY,
-        ),
     )
 
 
-def add_search_trigger(model: Type[Model], column_name: str) -> Dict[str, str]:
+def add_search_trigger(model: type[Model], column_name: str) -> dict[str, str]:
     """
     Add a search trigger and returns SQL for use in migrations.
 
@@ -399,7 +431,7 @@ def add_search_trigger(model: Type[Model], column_name: str) -> Dict[str, str]:
 
         class MyModel(Model):
             ...
-            search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+            search_vector: Mapped[str] = sa_orm.mapped_column(
                 TSVectorType(
                     'name', 'title', *indexed_columns,
                     weights={'name': 'A', 'title': 'B'},
@@ -466,13 +498,14 @@ def add_search_trigger(model: Type[Model], column_name: str) -> Dict[str, str]:
         END
         $$ LANGUAGE plpgsql;
 
-        CREATE TRIGGER {trigger_name} BEFORE INSERT OR UPDATE ON {table_name}
-        FOR EACH ROW EXECUTE PROCEDURE {function_name}();
+        CREATE TRIGGER {trigger_name} BEFORE INSERT OR UPDATE OF {source_columns}
+        ON {table_name} FOR EACH ROW EXECUTE PROCEDURE {function_name}();
         '''.format(  # nosec
             function_name=pgquote(function_name),
             column_name=pgquote(column_name),
             trigger_expr=trigger_expr,
             trigger_name=pgquote(trigger_name),
+            source_columns=', '.join(pgquote(col) for col in column.type.columns),
             table_name=pgquote(model.__tablename__),
         )
     )
@@ -489,13 +522,13 @@ def add_search_trigger(model: Type[Model], column_name: str) -> Dict[str, str]:
         '''
     )
 
-    sa.event.listen(
+    sa_event.listen(
         model.__table__,
         'after_create',
         sa.DDL(trigger_function).execute_if(dialect='postgresql'),
     )
 
-    sa.event.listen(
+    sa_event.listen(
         model.__table__,
         'before_drop',
         sa.DDL(drop_statement).execute_if(dialect='postgresql'),
@@ -516,7 +549,7 @@ class MessageComposite:
     :param tag: Optional wrapper tag for HTML rendering
     """
 
-    def __init__(self, text: str, tag: Optional[str] = None) -> None:
+    def __init__(self, text: str, tag: str | None = None) -> None:
         self.text = text
         self.tag = tag
 
@@ -544,7 +577,7 @@ class MessageComposite:
     def html(self) -> Markup:
         return Markup(self.__html__())
 
-    def __json__(self) -> Dict[str, Any]:
+    def __json__(self) -> dict[str, Any]:
         """Return JSON-compatible rendering of contents."""
         return {'text': self.text, 'html': self.__html__()}
 
@@ -552,7 +585,7 @@ class MessageComposite:
 class ImgeeFurl(furl):
     """Furl with a resize method specifically for Imgee URLs."""
 
-    def resize(self, width: int, height: Optional[int] = None) -> furl:
+    def resize(self, width: int, height: int | None = None) -> furl:
         """
         Return image url with `?size=WxH` suffixed to it.
 
@@ -595,17 +628,17 @@ class MarkdownCompositeBase(MutableComposite):
 
     config: ClassVar[MarkdownConfig]
 
-    def __init__(self, text: Optional[str], html: Optional[str] = None) -> None:
+    def __init__(self, text: str | None, html: str | None = None) -> None:
         """Create a composite."""
         if html is None:
             self.text = text  # This will regenerate HTML
         else:
             self._text = text
-            self._html: Optional[str] = html
+            self._html: str | None = html
 
-    def __composite_values__(self) -> Tuple[Optional[str], Optional[str]]:
+    def __composite_values__(self) -> tuple[str | None, str | None]:
         """Return composite values for SQLAlchemy."""
-        return (self._text, self._html)
+        return self._text, self._html
 
     # Return a string representation of the text (see class decorator)
     def __str__(self) -> str:
@@ -620,7 +653,7 @@ class MarkdownCompositeBase(MutableComposite):
         """Implement format_spec support as required by MarkdownString."""
         # This call's MarkdownString's __format__ instead of __markdown_format__ as the
         # content has not been manipulated from the source string
-        return self.__markdown__().__format__(format_spec)
+        return format(self.__markdown__(), format_spec)
 
     def __html__(self) -> str:
         """Return HTML representation."""
@@ -630,27 +663,27 @@ class MarkdownCompositeBase(MutableComposite):
         """Implement format_spec support as required by Markup."""
         # This call's Markup's __format__ instead of __html_format__ as the
         # content has not been manipulated from the source string
-        return self.__html__().__format__(format_spec)
+        return format(self.__html__(), format_spec)
 
     # Return a Markup string of the HTML
     @property
-    def html(self) -> Optional[Markup]:
+    def html(self) -> Markup | None:
         """Return HTML as a read-only property."""
         return Markup(self._html) if self._html is not None else None
 
     @property
-    def text(self) -> Optional[str]:
+    def text(self) -> str | None:
         """Return text as a property."""
         return self._text
 
     @text.setter
-    def text(self, value: Optional[str]) -> None:
+    def text(self, value: str | None) -> None:
         """Set the text value."""
         self._text = None if value is None else str(value)
         self._html = self.config.render(self._text)
         self.changed()
 
-    def __json__(self) -> Dict[str, Optional[str]]:
+    def __json__(self) -> dict[str, str | None]:
         """Return JSON-compatible rendering of composite."""
         return {'text': self._text, 'html': self._html}
 
@@ -670,12 +703,12 @@ class MarkdownCompositeBase(MutableComposite):
     # tested here as we don't use them.
     # https://docs.sqlalchemy.org/en/13/orm/extensions/mutable.html#id1
 
-    def __getstate__(self) -> Tuple[Optional[str], Optional[str]]:
+    def __getstate__(self) -> tuple[str | None, str | None]:
         """Get state for pickling."""
         # Return state for pickling
-        return (self._text, self._html)
+        return self._text, self._html
 
-    def __setstate__(self, state: Tuple[Optional[str], Optional[str]]) -> None:
+    def __setstate__(self, state: tuple[str | None, str | None]) -> None:
         """Set state from pickle."""
         # Set state from pickle
         self._text, self._html = state
@@ -686,27 +719,30 @@ class MarkdownCompositeBase(MutableComposite):
         return bool(self._text)
 
     @classmethod
-    def coerce(cls: Type[_MC], key: str, value: Any) -> _MC:
+    def coerce(cls: type[_MC], key: str, value: Any) -> _MC:
         """Allow a composite column to be assigned a string value."""
         return cls(value)
 
+    # TODO: Add `nullable` as a keyword parameter and add overloads for returning
+    # Mapped[str] or Mapped[str | None] based on nullable
+
     @classmethod
     def create(
-        cls: Type[_MC],
+        cls: type[_MC],
         name: str,
         deferred: bool = False,
-        deferred_group: Optional[str] = None,
-        **kwargs,
-    ) -> Tuple[sa.orm.Composite[_MC], Mapped[str], Mapped[str]]:
+        deferred_group: str | None = None,
+        **kwargs: Any,
+    ) -> tuple[sa_orm.Composite[_MC], Mapped[str], Mapped[str]]:
         """Create a composite column and backing individual columns."""
-        col_text = sa.orm.mapped_column(
+        col_text = sa_orm.mapped_column(
             name + '_text',
             sa.UnicodeText,
             deferred=deferred,
             deferred_group=deferred_group,
             **kwargs,
         )
-        col_html = sa.orm.mapped_column(
+        col_html = sa_orm.mapped_column(
             name + '_html',
             sa.UnicodeText,
             deferred=deferred,

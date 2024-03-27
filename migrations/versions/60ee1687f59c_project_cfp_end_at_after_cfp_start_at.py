@@ -6,8 +6,6 @@ Create Date: 2021-06-03 15:34:31.913604
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column
@@ -18,8 +16,8 @@ cfp_end_at = column('end_at', sa.TIMESTAMP)
 # revision identifiers, used by Alembic.
 revision = '60ee1687f59c'
 down_revision = '5f465411775c'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 def upgrade() -> None:

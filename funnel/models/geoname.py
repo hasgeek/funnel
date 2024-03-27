@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Collection
+from datetime import date
 from decimal import Decimal
-from typing import Collection, Dict, List, Optional, Union, cast
+from typing import Required, Self, TypedDict
 
 from sqlalchemy.dialects.postgresql import ARRAY
 
 from coaster.utils import make_name
 
-from . import (
+from . import types
+from .base import (
     BaseMixin,
     BaseNameMixin,
     GeonameModel,
@@ -19,7 +22,7 @@ from . import (
     db,
     relationship,
     sa,
-    types,
+    sa_orm,
 )
 from .helpers import quote_autocomplete_like
 
@@ -34,10 +37,16 @@ continent_codes = {
     'AS': 6255147,  # Asia
     'EU': 6255148,  # Europe
     'NA': 6255149,  # North America
-    'OC': 6255151,  # Ocenia
+    'OC': 6255151,  # Oceania
     'SA': 6255150,  # South America
     'AN': 6255152,  # Antarctica
 }
+
+
+class ParseLocationsDict(TypedDict, total=False):
+    token: Required[str]
+    special: bool
+    geoname: GeoName
 
 
 class GeoCountryInfo(BaseNameMixin, GeonameModel):
@@ -45,33 +54,33 @@ class GeoCountryInfo(BaseNameMixin, GeonameModel):
 
     __tablename__ = 'geo_country_info'
 
-    geonameid: Mapped[int] = sa.orm.synonym('id')
-    geoname: Mapped[Optional[GeoName]] = relationship(
-        'GeoName',
+    geonameid: Mapped[int] = sa_orm.synonym('id')
+    geoname: Mapped[GeoName | None] = relationship(
         uselist=False,
-        primaryjoin='GeoCountryInfo.id == foreign(GeoName.id)',
-        backref='has_country',
+        viewonly=True,
+        primaryjoin=lambda: GeoCountryInfo.id == sa_orm.foreign(GeoName.id),
+        back_populates='has_country',
     )
-    iso_alpha2: Mapped[Optional[types.char2]] = sa.orm.mapped_column(
+    iso_alpha2: Mapped[types.char2 | None] = sa_orm.mapped_column(
         sa.CHAR(2), unique=True
     )
-    iso_alpha3: Mapped[Optional[types.char3]] = sa.orm.mapped_column(unique=True)
-    iso_numeric: Mapped[Optional[int]]
-    fips_code: Mapped[Optional[types.str3]]
-    capital: Mapped[Optional[str]]
-    area_in_sqkm: Mapped[Optional[Decimal]]
-    population: Mapped[Optional[types.bigint]]
-    continent: Mapped[Optional[types.char2]]
-    tld: Mapped[Optional[types.str3]]
-    currency_code: Mapped[Optional[types.char3]]
-    currency_name: Mapped[Optional[str]]
-    phone: Mapped[Optional[types.str16]]
-    postal_code_format: Mapped[Optional[types.unicode]]
-    postal_code_regex: Mapped[Optional[types.unicode]]
-    languages: Mapped[Optional[List[str]]] = sa.orm.mapped_column(
+    iso_alpha3: Mapped[types.char3 | None] = sa_orm.mapped_column(unique=True)
+    iso_numeric: Mapped[int | None]
+    fips_code: Mapped[types.str3 | None]
+    capital: Mapped[str | None]
+    area_in_sqkm: Mapped[Decimal | None]
+    population: Mapped[types.bigint | None]
+    continent: Mapped[types.char2 | None]
+    tld: Mapped[types.str3 | None]
+    currency_code: Mapped[types.char3 | None]
+    currency_name: Mapped[str | None]
+    phone: Mapped[types.str16 | None]
+    postal_code_format: Mapped[types.unicode | None]
+    postal_code_regex: Mapped[types.unicode | None]
+    languages: Mapped[list[str] | None] = sa_orm.mapped_column(
         ARRAY(sa.Unicode, dimensions=1)
     )
-    neighbours: Mapped[Optional[List[str]]] = sa.orm.mapped_column(
+    neighbours: Mapped[list[str] | None] = sa_orm.mapped_column(
         ARRAY(sa.CHAR(2), dimensions=1)
     )
     equivalent_fips_code: Mapped[types.str3]
@@ -93,23 +102,24 @@ class GeoAdmin1Code(BaseMixin, GeonameModel):
     """Geoname record for 1st level administrative division (state, province)."""
 
     __tablename__ = 'geo_admin1_code'
-    __allow_unmapped__ = True
 
-    geonameid: Mapped[int] = sa.orm.synonym('id')
-    geoname: Mapped[GeoName] = relationship(
-        'GeoName',
+    geonameid: Mapped[int] = sa_orm.synonym('id')
+    geoname: Mapped[GeoName | None] = relationship(
         uselist=False,
-        primaryjoin='GeoAdmin1Code.id == foreign(GeoName.id)',
-        backref='has_admin1code',
+        primaryjoin=lambda: GeoAdmin1Code.id == sa_orm.foreign(GeoName.id),
         viewonly=True,
+        back_populates='has_admin1code',
     )
-    title = sa.orm.mapped_column(sa.Unicode)
-    ascii_title = sa.orm.mapped_column(sa.Unicode)
-    country_id = sa.orm.mapped_column(
-        'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
+    title: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    ascii_title: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    country_id: Mapped[str | None] = sa_orm.mapped_column(
+        'country',
+        sa.CHAR(2),
+        sa.ForeignKey('geo_country_info.iso_alpha2'),
+        default=None,
     )
-    country: Mapped[Optional[GeoCountryInfo]] = relationship('GeoCountryInfo')
-    admin1_code = sa.orm.mapped_column(sa.Unicode)
+    country: Mapped[GeoCountryInfo | None] = relationship()
+    admin1_code: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
 
     def __repr__(self) -> str:
         """Return representation."""
@@ -120,24 +130,25 @@ class GeoAdmin2Code(BaseMixin, GeonameModel):
     """Geoname record for 2nd level administrative division (district, county)."""
 
     __tablename__ = 'geo_admin2_code'
-    __allow_unmapped__ = True
 
-    geonameid: Mapped[int] = sa.orm.synonym('id')
+    geonameid: Mapped[int] = sa_orm.synonym('id')
     geoname: Mapped[GeoName] = relationship(
-        'GeoName',
         uselist=False,
-        primaryjoin='GeoAdmin2Code.id == foreign(GeoName.id)',
-        backref='has_admin2code',
         viewonly=True,
+        primaryjoin=lambda: GeoAdmin2Code.id == sa_orm.foreign(GeoName.id),
+        back_populates='has_admin2code',
     )
-    title = sa.orm.mapped_column(sa.Unicode)
-    ascii_title = sa.orm.mapped_column(sa.Unicode)
-    country_id = sa.orm.mapped_column(
-        'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
+    title: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    ascii_title: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    country_id: Mapped[str | None] = sa_orm.mapped_column(
+        'country',
+        sa.CHAR(2),
+        sa.ForeignKey('geo_country_info.iso_alpha2'),
+        default=None,
     )
-    country: Mapped[Optional[GeoCountryInfo]] = relationship('GeoCountryInfo')
-    admin1_code = sa.orm.mapped_column(sa.Unicode)
-    admin2_code = sa.orm.mapped_column(sa.Unicode)
+    country: Mapped[GeoCountryInfo | None] = relationship()
+    admin1_code: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    admin2_code: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
 
     def __repr__(self) -> str:
         """Return representation."""
@@ -148,57 +159,82 @@ class GeoName(BaseNameMixin, GeonameModel):
     """Geographical name record."""
 
     __tablename__ = 'geo_name'
-    __allow_unmapped__ = True
 
-    geonameid: Mapped[int] = sa.orm.synonym('id')
-    ascii_title = sa.orm.mapped_column(sa.Unicode)
-    latitude = sa.orm.mapped_column(sa.Numeric)
-    longitude = sa.orm.mapped_column(sa.Numeric)
-    fclass = sa.orm.mapped_column(sa.CHAR(1))
-    fcode = sa.orm.mapped_column(sa.Unicode)
-    country_id = sa.orm.mapped_column(
-        'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
+    geonameid: Mapped[int] = sa_orm.synonym('id')
+    ascii_title: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    latitude: Mapped[Decimal | None] = sa_orm.mapped_column(sa.Numeric)
+    longitude: Mapped[Decimal | None] = sa_orm.mapped_column(sa.Numeric)
+    fclass: Mapped[str | None] = sa_orm.mapped_column(sa.CHAR(1))
+    fcode: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    country_id: Mapped[str | None] = sa_orm.mapped_column(
+        'country',
+        sa.CHAR(2),
+        sa.ForeignKey('geo_country_info.iso_alpha2'),
+        default=None,
     )
-    country: Mapped[Optional[GeoCountryInfo]] = relationship('GeoCountryInfo')
-    cc2 = sa.orm.mapped_column(sa.Unicode)
-    admin1 = sa.orm.mapped_column(sa.Unicode)
-    admin1_ref: Mapped[Optional[GeoAdmin1Code]] = relationship(
-        'GeoAdmin1Code',
+    country: Mapped[GeoCountryInfo | None] = relationship()
+    cc2: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    admin1: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    admin1_ref: Mapped[GeoAdmin1Code | None] = relationship(
         uselist=False,
-        primaryjoin='and_(GeoName.country_id == foreign(GeoAdmin1Code.country_id), '
-        'GeoName.admin1 == foreign(GeoAdmin1Code.admin1_code))',
+        primaryjoin=lambda: sa.and_(
+            GeoName.country_id == sa_orm.foreign(GeoAdmin1Code.country_id),
+            GeoName.admin1 == sa_orm.foreign(GeoAdmin1Code.admin1_code),
+        ),
         viewonly=True,
     )
-    admin1_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('geo_admin1_code.id'), nullable=True
+    admin1_id: Mapped[int | None] = sa_orm.mapped_column(
+        sa.ForeignKey('geo_admin1_code.id'), default=None, nullable=True
     )
-    admin1code: Mapped[Optional[GeoAdmin1Code]] = relationship(
-        'GeoAdmin1Code', uselist=False, foreign_keys=[admin1_id]
+    admin1code: Mapped[GeoAdmin1Code | None] = relationship(
+        uselist=False, foreign_keys=[admin1_id]
     )
 
-    admin2 = sa.orm.mapped_column(sa.Unicode)
-    admin2_ref: Mapped[Optional[GeoAdmin2Code]] = relationship(
-        'GeoAdmin2Code',
+    admin2: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    admin2_ref: Mapped[GeoAdmin2Code | None] = relationship(
         uselist=False,
-        primaryjoin='and_(GeoName.country_id == foreign(GeoAdmin2Code.country_id), '
-        'GeoName.admin1 == foreign(GeoAdmin2Code.admin1_code), '
-        'GeoName.admin2 == foreign(GeoAdmin2Code.admin2_code))',
+        primaryjoin=lambda: sa.and_(
+            GeoName.country_id == sa_orm.foreign(GeoAdmin2Code.country_id),
+            GeoName.admin1 == sa_orm.foreign(GeoAdmin2Code.admin1_code),
+            GeoName.admin2 == sa_orm.foreign(GeoAdmin2Code.admin2_code),
+        ),
         viewonly=True,
     )
-    admin2_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('geo_admin2_code.id'), nullable=True
+    admin2_id: Mapped[int | None] = sa_orm.mapped_column(
+        sa.ForeignKey('geo_admin2_code.id'), default=None, nullable=True
     )
-    admin2code: Mapped[Optional[GeoAdmin2Code]] = relationship(
-        'GeoAdmin2Code', uselist=False, foreign_keys=[admin2_id]
+    admin2code: Mapped[GeoAdmin2Code | None] = relationship(
+        uselist=False, foreign_keys=[admin2_id]
     )
 
-    admin4 = sa.orm.mapped_column(sa.Unicode)
-    admin3 = sa.orm.mapped_column(sa.Unicode)
-    population = sa.orm.mapped_column(sa.BigInteger)
-    elevation = sa.orm.mapped_column(sa.Integer)
-    dem = sa.orm.mapped_column(sa.Integer)  # Digital Elevation Model
-    timezone = sa.orm.mapped_column(sa.Unicode)
-    moddate = sa.orm.mapped_column(sa.Date)
+    admin4: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    admin3: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    population: Mapped[int | None] = sa_orm.mapped_column(sa.BigInteger)
+    elevation: Mapped[int | None] = sa_orm.mapped_column()
+    #: Digital Elevation Model
+    dem: Mapped[int | None] = sa_orm.mapped_column()
+    timezone: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode)
+    moddate: Mapped[date | None] = sa_orm.mapped_column(sa.Date)
+
+    has_country: Mapped[GeoCountryInfo | None] = relationship(
+        uselist=False,
+        viewonly=True,
+        primaryjoin=lambda: GeoCountryInfo.id == sa_orm.foreign(GeoName.id),
+        back_populates='geoname',
+    )
+    has_admin1code: Mapped[GeoAdmin1Code | None] = relationship(
+        uselist=False,
+        viewonly=True,
+        primaryjoin=lambda: GeoAdmin1Code.id == sa_orm.foreign(GeoName.id),
+        back_populates='geoname',
+    )
+    has_admin2code: Mapped[GeoAdmin2Code | None] = relationship(
+        uselist=False,
+        viewonly=True,
+        primaryjoin=lambda: GeoAdmin2Code.id == sa_orm.foreign(GeoName.id),
+        back_populates='geoname',
+    )
+    alternate_titles: Mapped[list[GeoAltName]] = relationship(back_populates='geoname')
 
     __table_args__ = (
         sa.Index(
@@ -220,11 +256,15 @@ class GeoName(BaseNameMixin, GeonameModel):
             return self.has_country.title
         if self.has_admin1code:
             return (
-                self.admin1code.title if self.admin1code else self.admin1_ref.title
+                self.admin1code.title
+                if self.admin1code
+                else self.admin1_ref.title if self.admin1_ref else ''
             ) or ''
         if self.has_admin2code:
             return (
-                self.admin2code.title if self.admin2code else self.admin2_ref.title
+                self.admin2code.title
+                if self.admin2code
+                else self.admin2_ref.title if self.admin2_ref else ''
             ) or ''
         return self.ascii_title or self.title
 
@@ -276,7 +316,7 @@ class GeoName(BaseNameMixin, GeonameModel):
 
     @property
     def use_title(self) -> str:
-        """Return a recommended usable title."""
+        """Return a recommended usable title (English-only)."""
         usetitle = self.ascii_title or ''
         if self.fclass == 'A' and self.fcode and self.fcode.startswith('PCL'):
             if 'of the' in usetitle:
@@ -325,26 +365,35 @@ class GeoName(BaseNameMixin, GeonameModel):
             f' "{self.ascii_title}">'
         )
 
-    def related_geonames(self) -> Dict[str, GeoName]:
+    def related_geonames(self) -> dict[str, GeoName]:
         """Return related geonames based on superior hierarchy (country, state, etc)."""
-        related = {}
+        related: dict[str, GeoName] = {}
         if self.admin2code and self.admin2code.geonameid != self.geonameid:
             related['admin2'] = self.admin2code.geoname
-        if self.admin1code and self.admin1code.geonameid != self.geonameid:
+        if (
+            self.admin1code
+            and self.admin1code.geonameid != self.geonameid
+            and self.admin1code.geoname is not None
+        ):
             related['admin1'] = self.admin1code.geoname
-        if self.country and self.country.geonameid != self.geonameid:
+        if (
+            self.country
+            and self.country.geonameid != self.geonameid
+            and self.country.geoname
+        ):
             related['country'] = self.country.geoname
         if (
             (self.fclass, self.fcode) != ('L', 'CONT')
             and self.country
             and self.country.continent
         ):
-            related['continent'] = GeoName.query.get(
-                continent_codes[self.country.continent]
-            )
+            continent = db.session.get(GeoName, continent_codes[self.country.continent])
+            if continent:
+                related['continent'] = continent
+
         return related
 
-    def as_dict(self, related=True, alternate_titles=True) -> dict:
+    def as_dict(self, related: bool = True, alternate_titles: bool = True) -> dict:
         """Convert this record into a dictionary suitable for casting to JSON."""
         return {
             'geonameid': self.geonameid,
@@ -373,26 +422,28 @@ class GeoName(BaseNameMixin, GeonameModel):
             'dem': self.dem,
             'timezone': self.timezone,
             'moddate': self.moddate.strftime('%Y-%m-%d') if self.moddate else None,
-            'related': {
-                k: v.as_dict(related=False, alternate_titles=False)
-                for (k, v) in self.related_geonames().items()
-            }
-            if related
-            else {},
-            'alternate_titles': [a.as_dict() for a in self.alternate_titles]
-            if alternate_titles
-            else [],
+            'related': (
+                {
+                    k: v.as_dict(related=False, alternate_titles=False)
+                    for (k, v) in self.related_geonames().items()
+                }
+                if related
+                else {}
+            ),
+            'alternate_titles': (
+                [a.as_dict() for a in self.alternate_titles] if alternate_titles else []
+            ),
         }
 
     @classmethod
-    def get(cls, name) -> Optional[GeoName]:
+    def get(cls, name: str) -> GeoName | None:
         """Get geoname record matching given URL stub name."""
         return cls.query.filter_by(name=name).one_or_none()
 
     @classmethod
     def get_by_title(
-        cls, titles: Union[str, List[str]], lang: Optional[str] = None
-    ) -> List[GeoName]:
+        cls, titles: str | list[str], lang: str | None = None
+    ) -> list[GeoName]:
         """
         Get geoname records matching the given titles.
 
@@ -433,10 +484,10 @@ class GeoName(BaseNameMixin, GeonameModel):
     def parse_locations(
         cls,
         q: str,
-        special: Optional[List[str]] = None,
-        lang: Optional[str] = None,
-        bias: Optional[List[str]] = None,
-    ):
+        special: list[str] | None = None,
+        lang: str | None = None,
+        bias: list[str] | None = None,
+    ) -> list[ParseLocationsDict]:
         """
         Parse a string and return annotations marking all identified locations.
 
@@ -448,12 +499,15 @@ class GeoName(BaseNameMixin, GeonameModel):
         special = [s.lower() for s in special] if special else []
         if bias is None:
             bias = []
-        tokens = NOWORDS_RE.split(q)
+        while '' in bias:
+            bias.remove('')
+        bias = [each.upper() for each in bias]
+        tokens: list[str] = NOWORDS_RE.split(q)
         while '' in tokens:
             tokens.remove('')  # Remove blank tokens from beginning and end
         ltokens = [t.lower() for t in tokens]
-        results: List[Dict[str, object]] = []
-        counter = 0
+        results: list[ParseLocationsDict] = []
+        counter: int = 0
         limit = len(tokens)
         while counter < limit:
             token = tokens[counter]
@@ -472,13 +526,13 @@ class GeoName(BaseNameMixin, GeonameModel):
                             sa.or_(GeoAltName.lang == lang, GeoAltName.lang.is_(None))
                         )
                         .options(
-                            sa.orm.joinedload(GeoAltName.geoname).joinedload(
+                            sa_orm.joinedload(GeoAltName.geoname).joinedload(
                                 GeoName.country
                             ),
-                            sa.orm.joinedload(GeoAltName.geoname).joinedload(
+                            sa_orm.joinedload(GeoAltName.geoname).joinedload(
                                 GeoName.admin1code
                             ),
-                            sa.orm.joinedload(GeoAltName.geoname).joinedload(
+                            sa_orm.joinedload(GeoAltName.geoname).joinedload(
                                 GeoName.admin2code
                             ),
                         )
@@ -492,13 +546,13 @@ class GeoName(BaseNameMixin, GeonameModel):
                             )
                         )
                         .options(
-                            sa.orm.joinedload(GeoAltName.geoname).joinedload(
+                            sa_orm.joinedload(GeoAltName.geoname).joinedload(
                                 GeoName.country
                             ),
-                            sa.orm.joinedload(GeoAltName.geoname).joinedload(
+                            sa_orm.joinedload(GeoAltName.geoname).joinedload(
                                 GeoName.admin1code
                             ),
-                            sa.orm.joinedload(GeoAltName.geoname).joinedload(
+                            sa_orm.joinedload(GeoAltName.geoname).joinedload(
                                 GeoName.admin2code
                             ),
                         )
@@ -512,7 +566,7 @@ class GeoName(BaseNameMixin, GeonameModel):
                     candidates = [
                         (NOWORDS_RE.split(m.title.lower()), m) for m in matches
                     ]
-                    fullmatch = []
+                    fullmatch: list[tuple[int, GeoAltName]] = []
                     for mtokens, match in candidates:
                         if mtokens == ltokens[counter : counter + len(mtokens)]:
                             fullmatch.append((len(mtokens), match))
@@ -524,14 +578,11 @@ class GeoName(BaseNameMixin, GeonameModel):
                         # (d) population
                         accepted.sort(
                             key=lambda a: (
-                                {
-                                    v: k
-                                    for k, v in enumerate(
-                                        reversed(cast(List[str], bias))
-                                    )
-                                }.get(a.geoname.country_id, -1),
+                                {v: k for k, v in enumerate(reversed(bias))}.get(
+                                    a.geoname.country_id or '', -1
+                                ),
                                 {lang: 0}.get(a.lang, 1),
-                                {'A': 1, 'P': 2}.get(a.geoname.fclass, 0),
+                                {'A': 1, 'P': 2}.get(a.geoname.fclass or '', 0),
                                 a.geoname.population,
                             ),
                             reverse=True,
@@ -554,7 +605,7 @@ class GeoName(BaseNameMixin, GeonameModel):
         return results
 
     @classmethod
-    def autocomplete(cls, prefix: str, lang: Optional[str] = None) -> Query[GeoName]:
+    def autocomplete(cls, prefix: str, lang: str | None = None) -> Query[Self]:
         """
         Autocomplete a geoname record.
 
@@ -581,21 +632,17 @@ class GeoAltName(BaseMixin, GeonameModel):
     """Additional names for any :class:`GeoName`."""
 
     __tablename__ = 'geo_alt_name'
-    __allow_unmapped__ = True
 
-    geonameid = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('geo_name.id'), nullable=False
+    geonameid: Mapped[int] = sa_orm.mapped_column(
+        sa.ForeignKey('geo_name.id'), default=None, nullable=False
     )
-    geoname: Mapped[GeoName] = relationship(
-        GeoName,
-        backref=sa.orm.backref('alternate_titles', cascade='all, delete-orphan'),
-    )
-    lang = sa.orm.mapped_column(sa.Unicode, nullable=True, index=True)
-    title = sa.orm.mapped_column(sa.Unicode, nullable=False)
-    is_preferred_name = sa.orm.mapped_column(sa.Boolean, nullable=False)
-    is_short_name = sa.orm.mapped_column(sa.Boolean, nullable=False)
-    is_colloquial = sa.orm.mapped_column(sa.Boolean, nullable=False)
-    is_historic = sa.orm.mapped_column(sa.Boolean, nullable=False)
+    geoname: Mapped[GeoName] = relationship(back_populates='alternate_titles')
+    lang: Mapped[str | None] = sa_orm.mapped_column(index=True)
+    title: Mapped[str] = sa_orm.mapped_column()
+    is_preferred_name: Mapped[bool] = sa_orm.mapped_column()
+    is_short_name: Mapped[bool] = sa_orm.mapped_column()
+    is_colloquial: Mapped[bool] = sa_orm.mapped_column()
+    is_historic: Mapped[bool] = sa_orm.mapped_column()
 
     __table_args__ = (
         sa.Index(

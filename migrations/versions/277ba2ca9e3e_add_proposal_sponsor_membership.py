@@ -6,29 +6,27 @@ Create Date: 2022-01-04 16:26:51.717623
 
 """
 
-from typing import Optional, Tuple, Union
-
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '277ba2ca9e3e'
 down_revision = '99e99507a595'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `upgrade_` instead
     globals().get('upgrade_%s' % engine_name, lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `downgrade_` instead
     globals().get('downgrade_%s' % engine_name, lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     op.create_table(
         'proposal_sponsor_membership',
         sa.Column('granted_at', sa.TIMESTAMP(timezone=True), nullable=False),
@@ -76,7 +74,7 @@ def upgrade_():
     )
 
 
-def downgrade_():
+def downgrade_() -> None:
     op.drop_index(
         'ix_proposal_sponsor_membership_seq',
         table_name='proposal_sponsor_membership',
@@ -99,9 +97,9 @@ def downgrade_():
     op.drop_table('proposal_sponsor_membership')
 
 
-def upgrade_geoname():
+def upgrade_geoname() -> None:
     pass
 
 
-def downgrade_geoname():
+def downgrade_geoname() -> None:
     pass

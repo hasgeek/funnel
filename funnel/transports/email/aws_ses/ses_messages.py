@@ -5,7 +5,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional
 
 from dataclasses_json import DataClassJsonMixin, config
 
@@ -31,8 +30,8 @@ class SesMailHeaders(DataClassJsonMixin):
 class SesCommonMailHeaders(DataClassJsonMixin):
     """Json object for common mail headers."""
 
-    from_address: List[str] = field(metadata=config(field_name='from'))
-    to_address: List[str] = field(metadata=config(field_name='to'))
+    from_address: list[str] = field(metadata=config(field_name='from'))
+    to_address: list[str] = field(metadata=config(field_name='to'))
     messageid: str = field(metadata=config(field_name='messageId'))
     subject: str = ''  # Subject may be missing
 
@@ -59,13 +58,13 @@ class SesMail(DataClassJsonMixin):
     source: str
     source_arn: str = field(metadata=config(field_name='sourceArn'))
     sending_accountid: str = field(metadata=config(field_name='sendingAccountId'))
-    destination: List[str]
+    destination: list[str]
     headers_truncated: bool = field(metadata=config(field_name='headersTruncated'))
-    headers: List[SesMailHeaders]
+    headers: list[SesMailHeaders]
     common_headers: SesCommonMailHeaders = field(
         metadata=config(field_name='commonHeaders')
     )
-    tags: Dict[str, List[str]]
+    tags: dict[str, list[str]]
 
 
 @dataclass
@@ -80,9 +79,9 @@ class SesIndividualRecipient(DataClassJsonMixin):
     """
 
     email: str = field(metadata=config(field_name='emailAddress'))
-    action: Optional[str] = None
-    status: Optional[str] = None
-    diagnostic_code: Optional[str] = field(
+    action: str | None = None
+    status: str | None = None
+    diagnostic_code: str | None = field(
         metadata=config(field_name='diagnosticCode'), default=None
     )
 
@@ -104,12 +103,12 @@ class SesBounce(DataClassJsonMixin):
 
     bounce_type: str = field(metadata=config(field_name='bounceType'))
     bounce_sub_type: str = field(metadata=config(field_name='bounceSubType'))
-    bounced_recipients: List[SesIndividualRecipient] = field(
+    bounced_recipients: list[SesIndividualRecipient] = field(
         metadata=config(field_name='bouncedRecipients')
     )
     timestamp: str
     feedbackid: str = field(metadata=config(field_name='feedbackId'))
-    reporting_mta: Optional[str] = field(
+    reporting_mta: str | None = field(
         metadata=config(field_name='reportingMTA'), default=None
     )
 
@@ -149,21 +148,21 @@ class SesComplaint(DataClassJsonMixin):
     * 'virus': A virus is found in the originating message
     """
 
-    complained_recipients: List[SesIndividualRecipient] = field(
+    complained_recipients: list[SesIndividualRecipient] = field(
         metadata=config(field_name='complainedRecipients')
     )
     timestamp: str
     feedbackid: str = field(metadata=config(field_name='feedbackId'))
-    complaint_sub_type: Optional[str] = field(
+    complaint_sub_type: str | None = field(
         metadata=config(field_name='complaintSubType'), default=None
     )
-    user_agent: Optional[str] = field(
+    user_agent: str | None = field(
         metadata=config(field_name='userAgent'), default=None
     )
-    complaint_feedback_type: Optional[str] = field(
+    complaint_feedback_type: str | None = field(
         metadata=config(field_name='complaintFeedbackType'), default=None
     )
-    arrival_date: Optional[str] = field(
+    arrival_date: str | None = field(
         metadata=config(field_name='arrivalDate'), default=None
     )
 
@@ -182,7 +181,7 @@ class SesDelivery(DataClassJsonMixin):
 
     timestamp: str
     processing_time: int = field(metadata=config(field_name='processingTimeMillis'))
-    recipients: List[str]
+    recipients: list[str]
     smtp_response: str = field(metadata=config(field_name='smtpResponse'))
     reporting_mta: str = field(metadata=config(field_name='reportingMTA'))
 
@@ -235,7 +234,7 @@ class SesClick(DataClassJsonMixin):
     timestamp: str
     user_agent: str = field(metadata=config(field_name='userAgent'))
     link: str
-    link_tags: Optional[Dict[str, List[str]]] = field(
+    link_tags: dict[str, list[str]] | None = field(
         metadata=config(field_name='linkTags'), default=None
     )
 
@@ -276,7 +275,7 @@ class SesDeliveryDelay(DataClassJsonMixin):
         * 'Undetermined': Amazon SES wasn't able to determine the reason
     """
 
-    delayed_recipients: List[SesIndividualRecipient] = field(
+    delayed_recipients: list[SesIndividualRecipient] = field(
         metadata=config(field_name='delayedRecipients')
     )
     expiration_time: str = field(metadata=config(field_name='expirationTime'))
@@ -328,15 +327,15 @@ class SesEvent(DataClassJsonMixin):
 
     event_type: str = field(metadata=config(field_name='eventType'))
     mail: SesMail
-    bounce: Optional[SesBounce] = None
-    complaint: Optional[SesComplaint] = None
-    delivery: Optional[SesDelivery] = None
-    send: Optional[SesSend] = None
-    reject: Optional[SesReject] = None
-    opened: Optional[SesOpen] = field(metadata=config(field_name='open'), default=None)
-    click: Optional[SesClick] = None
-    failure: Optional[SesRenderFailure] = None
-    delivery_delay: Optional[SesDeliveryDelay] = field(
+    bounce: SesBounce | None = None
+    complaint: SesComplaint | None = None
+    delivery: SesDelivery | None = None
+    send: SesSend | None = None
+    reject: SesReject | None = None
+    opened: SesOpen | None = field(metadata=config(field_name='open'), default=None)
+    click: SesClick | None = None
+    failure: SesRenderFailure | None = None
+    delivery_delay: SesDeliveryDelay | None = field(
         metadata=config(field_name='deliveryDelay'), default=None
     )
 

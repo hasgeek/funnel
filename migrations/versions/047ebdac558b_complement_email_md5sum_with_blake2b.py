@@ -7,7 +7,6 @@ Create Date: 2020-06-05 04:10:56.627503
 """
 
 import hashlib
-from typing import Optional, Tuple, Union
 
 import progressbar.widgets
 import sqlalchemy as sa
@@ -18,8 +17,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = '047ebdac558b'
 down_revision = 'f58bd7c54f9b'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 user_email = table(
@@ -60,7 +59,7 @@ def upgrade() -> None:
 
     # Add blake2b column to UserEmail
     op.add_column('user_email', sa.Column('blake2b', sa.LargeBinary(), nullable=True))
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(user_email))
     progress = get_progressbar("Emails", count)
     progress.start()
     items = conn.execute(sa.select(user_email.c.id, user_email.c.email))
@@ -86,7 +85,9 @@ def upgrade() -> None:
     op.add_column(
         'user_email_claim', sa.Column('blake2b', sa.LargeBinary(), nullable=True)
     )
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email_claim))
+    count = conn.scalar(
+        sa.select(sa.func.count(sa.text('*'))).select_from(user_email_claim)
+    )
     progress = get_progressbar("Email claims", count)
     progress.start()
     items = conn.execute(sa.select(user_email_claim.c.id, user_email_claim.c.email))

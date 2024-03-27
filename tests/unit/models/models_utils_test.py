@@ -4,13 +4,17 @@ import pytest
 
 from funnel import models
 
+from ...conftest import scoped_session
 
-def test_merge_users_older_newer(db_session, user_death, user_rincewind) -> None:
+
+def test_merge_accounts_older_newer(
+    db_session: scoped_session, user_death: models.User, user_rincewind: models.User
+) -> None:
     """Test to verify merger of user accounts and return new user (older first)."""
     # Scenario 1: if first user's created_at date is older than second user's
     # created_at
     db_session.commit()
-    merged = models.merge_users(user_death, user_rincewind)
+    merged = models.merge_accounts(user_death, user_rincewind)
     assert merged == user_death
     assert isinstance(merged, models.User)
     # because the logic is to merge into older account
@@ -18,12 +22,14 @@ def test_merge_users_older_newer(db_session, user_death, user_rincewind) -> None
     assert user_rincewind.state.MERGED
 
 
-def test_merge_users_newer_older(db_session, user_death, user_rincewind) -> None:
+def test_merge_accounts_newer_older(
+    db_session: scoped_session, user_death: models.User, user_rincewind: models.User
+) -> None:
     """Test to verify merger of user accounts and return new user (newer first)."""
     # Scenario 2: if second user's created_at date is older than first user's
     # created_at
     db_session.commit()
-    merged = models.merge_users(user_rincewind, user_death)
+    merged = models.merge_accounts(user_rincewind, user_death)
     assert merged == user_death
     assert isinstance(merged, models.User)
     # because the logic is to merge into older account
@@ -31,9 +37,13 @@ def test_merge_users_newer_older(db_session, user_death, user_rincewind) -> None
     assert user_rincewind.state.MERGED
 
 
-@pytest.mark.filterwarnings("ignore:Object of type <UserEmail> not in session")
+@pytest.mark.filterwarnings("ignore:Object of type <AccountEmail> not in session")
 def test_getuser(  # pylint: disable=too-many-statements
-    db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
+    db_session: scoped_session,
+    user_twoflower: models.User,
+    user_rincewind: models.User,
+    user_mort: models.User,
+    user_wolfgang: models.User,
 ) -> None:
     """Test for retrieving a user from a username, email address or phone number."""
     # Confirm fixtures are as we need them to be
@@ -46,11 +56,11 @@ def test_getuser(  # pylint: disable=too-many-statements
 
     # Email claim (not verified)
     # User Wolfgang is attempting to claim someone else's email address
-    emailclaim1 = models.UserEmailClaim(
-        user=user_wolfgang, email='twoflower@example.org'
+    emailclaim1 = models.AccountEmailClaim(
+        account=user_wolfgang, email='twoflower@example.org'
     )
-    emailclaim2 = models.UserEmailClaim(
-        user=user_wolfgang, email='rincewind@example.org'
+    emailclaim2 = models.AccountEmailClaim(
+        account=user_wolfgang, email='rincewind@example.org'
     )
     db_session.add_all([emailclaim1, emailclaim2])
     db_session.commit()
@@ -128,9 +138,13 @@ def test_getuser(  # pylint: disable=too-many-statements
     assert models.getuser('+912345678901') is None
 
 
-@pytest.mark.filterwarnings("ignore:Object of type <UserEmail> not in session")
+@pytest.mark.filterwarnings("ignore:Object of type <AccountEmail> not in session")
 def test_getuser_anchor(
-    db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
+    db_session: scoped_session,
+    user_twoflower: models.User,
+    user_rincewind: models.User,
+    user_mort: models.User,
+    user_wolfgang: models.User,
 ) -> None:
     """Test for retrieving a user from a username, email address or phone number."""
     # Confirm fixtures are as we need them to be
@@ -143,11 +157,11 @@ def test_getuser_anchor(
 
     # Email claim (not verified)
     # User Wolfgang is attempting to claim someone else's email address
-    emailclaim1 = models.UserEmailClaim(
-        user=user_wolfgang, email='twoflower@example.org'
+    emailclaim1 = models.AccountEmailClaim(
+        account=user_wolfgang, email='twoflower@example.org'
     )
-    emailclaim2 = models.UserEmailClaim(
-        user=user_wolfgang, email='rincewind@example.org'
+    emailclaim2 = models.AccountEmailClaim(
+        account=user_wolfgang, email='rincewind@example.org'
     )
     db_session.add_all([emailclaim1, emailclaim2])
     db_session.commit()
@@ -180,7 +194,7 @@ def test_getuser_anchor(
     )
     assert models.getuser('mort@example.net', True) == (user_mort, user_mort.email)
 
-    # Retrival by email claim only works when there is no verified email address
+    # Retrieval by email claim only works when there is no verified email address
     assert models.getuser('twoflower@example.org', True) != (
         user_wolfgang,
         user_wolfgang.emailclaims[0],
@@ -222,14 +236,14 @@ def test_getuser_anchor(
     assert models.getuser('+912345678901', True) == (None, None)
 
 
-def test_getextid(db_session, user_rincewind) -> None:
+def test_getextid(db_session: scoped_session, user_rincewind: models.User) -> None:
     """Retrieve user given service and userid."""
     service = 'sample-service'
     userid = 'rincewind@sample-service'
 
-    externalid = models.UserExternalId(  # nosec
+    externalid = models.AccountExternalId(  # nosec
         service=service,
-        user=user_rincewind,
+        account=user_rincewind,
         userid=userid,
         username='rincewind',
         oauth_token='sample-service-token',
@@ -239,5 +253,5 @@ def test_getextid(db_session, user_rincewind) -> None:
     db_session.add(externalid)
     db_session.commit()
     result = models.getextid(service, userid=userid)
-    assert isinstance(result, models.UserExternalId)
+    assert isinstance(result, models.AccountExternalId)
     assert result == externalid

@@ -723,10 +723,10 @@
                 27 === e
                   ? i.destroy()
                   : 40 === e
-                  ? i.increment()
-                  : 38 === e
-                  ? i.decrement()
-                  : 13 === e && (i.selectCurrent(), i.destroy());
+                    ? i.increment()
+                    : 38 === e
+                      ? i.decrement()
+                      : 13 === e && (i.selectCurrent(), i.destroy());
             } else (32 !== e && 38 !== e && 40 !== e) || (t.preventDefault(), u(this));
           }
         }

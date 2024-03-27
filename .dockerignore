@@ -25,7 +25,8 @@ funnel/static/img/fa5-packed.svg
 **/baseframe-packed.*
 
 # Download files
-geoname_data
+geoname_data/
+download/
 
 # Dependencies
 build/dependencies
@@ -38,7 +39,7 @@ geckodriver.log
 tests/cypress/screenshots
 tests/cypress/videos
 tests/screenshots
-tests/unit/utils/markdown/data/output.html
+tests/unit/utils/md/data/output.html
 coverage/
 
 # Instance files that should not be checked-in

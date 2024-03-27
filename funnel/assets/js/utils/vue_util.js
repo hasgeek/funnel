@@ -5,7 +5,7 @@ import { USER_AVATAR_IMG_SIZE } from '../constants';
 
 export const userAvatarUI = Vue.component('useravatar', {
   template:
-    '<a :href="user.profile_url" v-if="user.profile_url && addprofilelink" class="nounderline"><span class="user__box__wrapper" v-if="user.avatar"><img class="user__box__gravatar" :src="imgurl"></span><div class="user__box__gravatar user__box__gravatar--initials" :data-avatar-colour="getAvatarColour(user.fullname)" v-else>{{ getInitials(user.fullname) }}</div></a v-if="user.profile_url && addprofilelink"></a><span v-else><img class="user__box__gravatar" :src="imgurl" v-if="user.avatar"/><div class="user__box__gravatar user__box__gravatar--initials" :data-avatar-colour="getAvatarColour(user.fullname)" v-else>{{ getInitials(user.fullname) }}</span v-else>',
+    '<a :href="user.absolute_url" v-if="addprofilelink" class="nounderline"><span class="user__box__wrapper" v-if="user.logo_url"><img class="user__box__gravatar" :src="imgurl"></span><div class="user__box__gravatar user__box__gravatar--initials" :data-avatar-colour="getAvatarColour(user.fullname)" v-else>{{ getInitials(user.fullname) }}</div></a v-if="user.absolute_url && addprofilelink"></a><span v-else><img class="user__box__gravatar" :src="imgurl" v-if="user.logo_url"/><div class="user__box__gravatar user__box__gravatar--initials" :data-avatar-colour="getAvatarColour(user.fullname)" v-else>{{ getInitials(user.fullname) }}</span v-else>',
   props: {
     user: Object,
     addprofilelink: {
@@ -26,7 +26,7 @@ export const userAvatarUI = Vue.component('useravatar', {
       return USER_AVATAR_IMG_SIZE[this.size];
     },
     imgurl() {
-      return `${this.user.avatar}?size=${encodeURIComponent(this.imgsize)}`;
+      return `${this.user.logo_url}?size=${encodeURIComponent(this.imgsize)}`;
     },
   },
 });
@@ -68,8 +68,8 @@ export const faSvg = Vue.component('faicon', {
 });
 
 export const shareDropdown = Vue.component('sharedropdown', {
-  template: `<ul class="mui-dropdown__menu mui-dropdown__menu--hg-link" data-cy="share-dropdown"><li><a class="mui--text-body2 js-copy-link" href="javascript:void(0)" data-ga="Copy link"><faicon :icon="'copy'" :baseline=true :css_class="'mui--text-light fa-icon--right-margin'"></faicon>{{ window.gettext('Copy link') }}<span class="js-copy-url" aria-hidden="true">{{ url }}</span></a></li><li><a class="mui--text-body2" :href="emailUrl" data-ga="Share via Email"><faicon :icon="'envelope'" :baseline=true :css_class="'mui--text-light fa-icon--right-margin'"></faicon>{{ window.gettext('Email') }}</a></li><li><a class="mui--text-body2" target="_blank" rel="noopener" :href="twitterUrl" :data-url="url" data-via="Hasgeek" :data-text="title" data-ga="Tweet"><faicon :icon="'twitter-square'" :baseline=true :css_class="'mui--text-light fa-icon--right-margin'"></faicon>{{ window.gettext('Twitter') }}</a></li><li><a class="mui--text-body2" target="_blank" rel="noopener" :href="facebookUrl" :data-href="url" data-ga="Share on facebook"><faicon :icon="'facebook-square'" :baseline=true :css_class="'mui--text-light fa-icon--right-margin'"></faicon>{{ window.gettext('Facebook') }}</a></li><li><a class="mui--text-body2" :href="linkedinUrl" data-ga="Share about on linkedin"><faicon :icon="'linkedin'" :baseline=true :css_class="'mui--text-light fa-icon--right-margin'"></faicon>{{ window.gettext('Linkedin') }}</a></li><ul>`,
-  props: ['url', 'title'],
+  template: `<ul class="mui-dropdown__menu mui-dropdown__menu--hg-link" data-cy="share-dropdown"><li><a class="mui--text-body2 js-copy-link" href="javascript:void(0)" data-ga="Copy link"><faicon :icon="'copy'" :baseline=true :css_class="'mui--text-light fa-icon--right-margin'"></faicon>{{ window.gettext('Copy link') }}<span class="js-copy-url" aria-hidden="true">{{ url }}</span></a></li><li><a class="mui--text-body2" :href="emailUrl" data-ga="Share via Email"><faicon :icon="'envelope'" :baseline=true :css_class="'mui--text-light fa-icon--right-margin'"></faicon>{{ window.gettext('Email') }}</a></li><li><a class="mui--text-body2" target="_blank" rel="noopener" :href="twitterUrl" :data-url="url" data-via="Hasgeek" :data-text="title" data-ga="Tweet"><faicon :icon="'twitter-square'" :baseline=true :css_class="'mui--text-light fa-icon--right-margin'"></faicon>{{ window.gettext('Twitter') }}</a></li><li><a class="mui--text-body2" target="_blank" rel="noopener" :href="facebookUrl" :data-href="url" data-ga="Share on facebook"><faicon :icon="'facebook-square'" :baseline=true :css_class="'mui--text-light fa-icon--right-margin'"></faicon>{{ window.gettext('Facebook') }}</a></li><li><a class="mui--text-body2" :href="linkedinUrl" data-ga="Share about on linkedin"><faicon :icon="'linkedin'" :baseline=true :css_class="'mui--text-light fa-icon--right-margin'"></faicon>{{ window.gettext('Linkedin') }}</a></li><li v-if="this.siteeditor"><a class="mui--text-body2" :href="window.Hasgeek.Config.customShortlinkBuilder"><faicon :icon="'link'" :baseline=true :css_class="'mui--text-light fa-icon--right-margin'"></faicon>{{ window.gettext('Customize') }}</a></li><ul>`,
+  props: ['url', 'title', 'siteeditor'],
   components: {
     faSvg,
   },

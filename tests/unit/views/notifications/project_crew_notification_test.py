@@ -3,12 +3,14 @@
 from pytest_bdd import given, parsers, scenarios, then, when
 
 from funnel import models
-from funnel.models.membership_mixin import MEMBERSHIP_RECORD_TYPE
+from funnel.models.membership_mixin import MembershipRecordTypeEnum
+
+from ....conftest import GetUserProtocol, scoped_session
 
 scenarios('notifications/project_crew_notification.feature')
 
 
-def role_columns(role):
+def role_columns(role: str) -> dict[str, bool]:
     roles = [_r.strip() for _r in role.split(',')]
     is_editor = 'editor' in roles
     is_promoter = 'promoter' in roles
@@ -21,13 +23,14 @@ def role_columns(role):
     target_fixture='vetinari_member',
 )
 def given_vetinari_editor_promoter_project(
-    user_vetinari,
-    project_expo2010,
-) -> models.ProjectCrewMembership:
+    user_vetinari: models.User,
+    project_expo2010: models.Project,
+) -> models.ProjectMembership:
     assert 'promoter' in project_expo2010.roles_for(user_vetinari)
     assert 'editor' in project_expo2010.roles_for(user_vetinari)
-    vetinari_member = project_expo2010.crew_memberships[0]
-    assert vetinari_member.user == user_vetinari
+    vetinari_member = project_expo2010.crew_memberships.first()
+    assert vetinari_member is not None
+    assert vetinari_member.member == user_vetinari
     return vetinari_member
 
 
@@ -36,14 +39,14 @@ def given_vetinari_editor_promoter_project(
     target_fixture='vimes_member',
 )
 def given_vimes_promoter_project(
-    db_session,
-    user_vetinari,
-    user_vimes,
-    project_expo2010,
-) -> models.ProjectCrewMembership:
-    vimes_member = models.ProjectCrewMembership(
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    user_vimes: models.User,
+    project_expo2010: models.Project,
+) -> models.ProjectMembership:
+    vimes_member = models.ProjectMembership(
         parent=project_expo2010,
-        user=user_vimes,
+        member=user_vimes,
         is_promoter=True,
         granted_by=user_vetinari,
     )
@@ -60,15 +63,15 @@ def given_vimes_promoter_project(
     target_fixture='ridcully_member',
 )
 def when_vetinari_adds_ridcully(
-    role,
-    db_session,
-    user_ridcully,
-    project_expo2010,
-    user_vetinari,
-) -> models.ProjectCrewMembership:
-    ridcully_member = models.ProjectCrewMembership(
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    user_ridcully: models.User,
+    project_expo2010: models.Project,
+    role: str,
+) -> models.ProjectMembership:
+    ridcully_member = models.ProjectMembership(
         parent=project_expo2010,
-        user=user_ridcully,
+        member=user_ridcully,
         granted_by=user_vetinari,
         **role_columns(role),
     )
@@ -98,7 +101,11 @@ def when_vetinari_adds_ridcully(
     )
 )
 def then_user_gets_notification(
-    getuser, recipient, notification_string, actor, ridcully_member
+    getuser: GetUserProtocol,
+    recipient: str,
+    actor: str,
+    notification_string: str,
+    ridcully_member: models.ProjectMembership,
 ) -> None:
     preview = models.PreviewNotification(
         models.ProjectCrewMembershipNotification,
@@ -106,14 +113,15 @@ def then_user_gets_notification(
         fragment=ridcully_member,
         user=ridcully_member.granted_by,
     )
-    user_notification = models.NotificationFor(preview, getuser(recipient))
-    view = user_notification.views.render
+    notification_recipient = models.NotificationFor(preview, getuser(recipient))
+    view = notification_recipient.views.render
     assert view.actor.uuid == getuser(actor).uuid
+    assert ridcully_member.granted_by is not None
     assert (
         view.activity_template().format(
             actor=ridcully_member.granted_by.fullname,
             project=ridcully_member.project.joined_title,
-            user=ridcully_member.user.fullname,
+            user=ridcully_member.member.fullname,
         )
         == notification_string
     )
@@ -132,17 +140,17 @@ def then_user_gets_notification(
     target_fixture='ridcully_member',
 )
 def when_vetinari_invites_ridcully(
-    role,
-    db_session,
-    user_ridcully,
-    project_expo2010,
-    user_vetinari,
-) -> models.ProjectCrewMembership:
-    ridcully_member = models.ProjectCrewMembership(
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    user_ridcully: models.User,
+    project_expo2010: models.Project,
+    role: str,
+) -> models.ProjectMembership:
+    ridcully_member = models.ProjectMembership(
         parent=project_expo2010,
-        user=user_ridcully,
+        member=user_ridcully,
         granted_by=user_vetinari,
-        record_type=MEMBERSHIP_RECORD_TYPE.INVITE,
+        record_type=MembershipRecordTypeEnum.INVITE,
         **role_columns(role),
     )
     db_session.add(ridcully_member)
@@ -156,12 +164,12 @@ def when_vetinari_invites_ridcully(
     target_fixture='ridcully_member',
 )
 def when_ridcully_accepts_invite(
-    db_session,
-    ridcully_member,
-    user_ridcully,
-) -> models.ProjectCrewMembership:
-    assert ridcully_member.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
-    assert ridcully_member.user == user_ridcully
+    db_session: scoped_session,
+    user_ridcully: models.User,
+    ridcully_member: models.ProjectMembership,
+) -> models.ProjectMembership:
+    assert ridcully_member.record_type == MembershipRecordTypeEnum.INVITE
+    assert ridcully_member.member == user_ridcully
     ridcully_member_accept = ridcully_member.accept(actor=user_ridcully)
     db_session.commit()
     return ridcully_member_accept
@@ -173,14 +181,14 @@ def when_ridcully_accepts_invite(
     target_fixture='ridcully_member',
 )
 def given_ridcully_is_existing_crew(
-    db_session,
-    user_vetinari,
-    user_ridcully,
-    project_expo2010,
-) -> models.ProjectCrewMembership:
-    ridcully_member = models.ProjectCrewMembership(
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    user_ridcully: models.User,
+    project_expo2010: models.Project,
+) -> models.ProjectMembership:
+    ridcully_member = models.ProjectMembership(
         parent=project_expo2010,
-        user=user_ridcully,
+        member=user_ridcully,
         is_usher=True,
         is_promoter=True,
         is_editor=True,
@@ -198,11 +206,11 @@ def given_ridcully_is_existing_crew(
     target_fixture='ridcully_member',
 )
 def when_vetinari_amends_ridcully_role(
-    role,
-    db_session,
-    user_vetinari,
-    ridcully_member,
-) -> models.ProjectCrewMembership:
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    ridcully_member: models.ProjectMembership,
+    role: str,
+) -> models.ProjectMembership:
     ridcully_member_amend = ridcully_member.replace(
         actor=user_vetinari,
         **role_columns(role),
@@ -218,11 +226,11 @@ def when_vetinari_amends_ridcully_role(
     target_fixture='ridcully_member',
 )
 def when_ridcully_changes_role(
-    role,
-    db_session,
-    user_ridcully,
-    ridcully_member,
-) -> models.ProjectCrewMembership:
+    db_session: scoped_session,
+    user_ridcully: models.User,
+    ridcully_member: models.ProjectMembership,
+    role: str,
+) -> models.ProjectMembership:
     ridcully_member_amend = ridcully_member.replace(
         actor=user_ridcully,
         **role_columns(role),
@@ -235,13 +243,13 @@ def when_ridcully_changes_role(
     "Vetinari made Ridcully an admin of Ankh-Morpork", target_fixture='ridcully_admin'
 )
 def given_vetinari_made_ridcully_admin_of_org(
-    db_session,
-    user_ridcully,
-    org_ankhmorpork,
-    user_vetinari,
-) -> models.OrganizationMembership:
-    ridcully_admin = models.OrganizationMembership(
-        user=user_ridcully, organization=org_ankhmorpork, granted_by=user_vetinari
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    user_ridcully: models.User,
+    org_ankhmorpork: models.Organization,
+) -> models.AccountMembership:
+    ridcully_admin = models.AccountMembership(
+        member=user_ridcully, account=org_ankhmorpork, granted_by=user_vetinari
     )
     db_session.add(ridcully_admin)
     db_session.commit()
@@ -256,15 +264,15 @@ def given_vetinari_made_ridcully_admin_of_org(
     target_fixture='ridcully_member',
 )
 def given_ridcully_is_existing_member(
-    role,
-    db_session,
-    user_ridcully,
-    project_expo2010,
-    user_vetinari,
-) -> models.ProjectCrewMembership:
-    existing_ridcully_member = models.ProjectCrewMembership(
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    user_ridcully: models.User,
+    project_expo2010: models.Project,
+    role: str,
+) -> models.ProjectMembership:
+    existing_ridcully_member = models.ProjectMembership(
         parent=project_expo2010,
-        user=user_ridcully,
+        member=user_ridcully,
         granted_by=user_vetinari,
         **role_columns(role),
     )
@@ -278,10 +286,10 @@ def given_ridcully_is_existing_member(
     target_fixture='ridcully_member',
 )
 def when_vetinari_removes_ridcully(
-    db_session,
-    user_vetinari,
-    ridcully_member,
-) -> models.ProjectCrewMembership:
+    db_session: scoped_session,
+    user_vetinari: models.User,
+    ridcully_member: models.ProjectMembership,
+) -> models.ProjectMembership:
     ridcully_member.revoke(actor=user_vetinari)
     db_session.commit()
     return ridcully_member
@@ -292,10 +300,10 @@ def when_vetinari_removes_ridcully(
     target_fixture='ridcully_member',
 )
 def when_ridcully_resigns(
-    db_session,
-    user_ridcully,
-    ridcully_member,
-) -> models.ProjectCrewMembership:
+    db_session: scoped_session,
+    user_ridcully: models.User,
+    ridcully_member: models.ProjectMembership,
+) -> models.ProjectMembership:
     ridcully_member.revoke(user_ridcully)
     db_session.commit()
     return ridcully_member
@@ -306,12 +314,12 @@ def when_ridcully_resigns(
         "{recipient} is notified of the removal with photo of {actor} and message {notification_string}"
     )
 )
-def then_user_notification_removal(
-    getuser,
-    recipient,
-    notification_string,
-    ridcully_member,
-    actor,
+def then_notification_recipient_removal(
+    getuser: GetUserProtocol,
+    recipient: str,
+    actor: str,
+    notification_string: str,
+    ridcully_member: models.ProjectMembership,
 ) -> None:
     preview = models.PreviewNotification(
         models.ProjectCrewMembershipRevokedNotification,
@@ -319,13 +327,14 @@ def then_user_notification_removal(
         fragment=ridcully_member,
         user=ridcully_member.revoked_by,
     )
-    user_notification = models.NotificationFor(preview, getuser(recipient))
-    view = user_notification.views.render
+    notification_recipient = models.NotificationFor(preview, getuser(recipient))
+    view = notification_recipient.views.render
     assert view.actor.uuid == getuser(actor).uuid
+    assert ridcully_member.revoked_by is not None
     assert (
         view.activity_template().format(
             project=ridcully_member.project.joined_title,
-            user=ridcully_member.user.fullname,
+            user=ridcully_member.member.fullname,
             actor=ridcully_member.revoked_by.fullname,
         )
         == notification_string
@@ -339,15 +348,14 @@ def then_user_notification_removal(
     target_fixture='ridcully_member',
 )
 def when_ridcully_adds_themself(
-    role,
-    db_session,
-    user_ridcully,
-    project_expo2010,
-    user_vetinari,
-) -> models.ProjectCrewMembership:
-    ridcully_member = models.ProjectCrewMembership(
+    db_session: scoped_session,
+    user_ridcully: models.User,
+    project_expo2010: models.Project,
+    role: str,
+) -> models.ProjectMembership:
+    ridcully_member = models.ProjectMembership(
         parent=project_expo2010,
-        user=user_ridcully,
+        member=user_ridcully,
         granted_by=user_ridcully,
         **role_columns(role),
     )

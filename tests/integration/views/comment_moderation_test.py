@@ -1,4 +1,5 @@
 """Test comment moderation views."""
+
 # pylint: disable=too-many-locals
 
 import pytest
@@ -7,28 +8,30 @@ from werkzeug.datastructures import MultiDict
 
 from funnel import models
 
+from ...conftest import LoginFixtureProtocol, TestClient, scoped_session
+
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_same(
-    client,
-    db_session,
-    login,
-    new_user,
-    new_user2,
-    new_user_admin,
-    new_user_owner,
-    new_project,
-    csrf_token,
+    client: TestClient,
+    db_session: scoped_session,
+    login: LoginFixtureProtocol,
+    new_user: models.User,
+    new_user2: models.User,
+    new_user_admin: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
+    csrf_token: str,
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
-        user=new_user, is_comment_moderator=True, granted_by=new_user
+        member=new_user, is_comment_moderator=True, granted_by=new_user
     )
     sm2 = models.SiteMembership(
-        user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+        member=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
     )
     sm3 = models.SiteMembership(
-        user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+        member=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
     )
     db_session.add_all([sm, sm2, sm3])
     db_session.commit()
@@ -39,7 +42,7 @@ def test_comment_report_same(
 
     # Let's make a comment
     comment = models.Comment(
-        user=new_user2,
+        posted_by=new_user2,
         commentset=new_project.commentset,
         message="Test comment message",
     )
@@ -56,7 +59,7 @@ def test_comment_report_same(
         db_session.commit()
     report1_id = report1.id
 
-    assert comment.is_reviewed_by(new_user_admin)
+    assert comment.was_reviewed_by(new_user_admin)
 
     login.as_(new_user)
 
@@ -86,25 +89,25 @@ def test_comment_report_same(
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_opposing(
-    client,
-    db_session,
-    login,
-    new_user,
-    new_user2,
-    new_user_admin,
-    new_user_owner,
-    new_project,
-    csrf_token,
+    client: TestClient,
+    db_session: scoped_session,
+    login: LoginFixtureProtocol,
+    new_user: models.User,
+    new_user2: models.User,
+    new_user_admin: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
+    csrf_token: str,
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
-        user=new_user, is_comment_moderator=True, granted_by=new_user
+        member=new_user, is_comment_moderator=True, granted_by=new_user
     )
     sm2 = models.SiteMembership(
-        user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+        member=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
     )
     sm3 = models.SiteMembership(
-        user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+        member=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
     )
     db_session.add_all([sm, sm2, sm3])
     db_session.commit()
@@ -115,7 +118,7 @@ def test_comment_report_opposing(
 
     # Let's make another comment
     comment2 = models.Comment(
-        user=new_user2,
+        posted_by=new_user2,
         commentset=new_project.commentset,
         message="Test second comment message",
     )
@@ -149,11 +152,11 @@ def test_comment_report_opposing(
     assert bool(comment2_refetched.state.SPAM) is False
     assert bool(comment2_refetched.state.PUBLIC) is True
     # a new report will be created
-    assert comment2_refetched.is_reviewed_by(new_user)
+    assert comment2_refetched.was_reviewed_by(new_user)
     assert (
         models.CommentModeratorReport.query.filter_by(
             comment=comment2_refetched,
-            user=new_user,
+            reported_by=new_user,
             report_type=models.MODERATOR_REPORT_TYPE.OK,
         ).one()
         is not None
@@ -162,25 +165,25 @@ def test_comment_report_opposing(
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_majority_spam(
-    client,
-    db_session,
-    login,
-    new_user,
-    new_user2,
-    new_user_admin,
-    new_user_owner,
-    new_project,
-    csrf_token,
+    client: TestClient,
+    db_session: scoped_session,
+    login: LoginFixtureProtocol,
+    new_user: models.User,
+    new_user2: models.User,
+    new_user_admin: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
+    csrf_token: str,
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
-        user=new_user, is_comment_moderator=True, granted_by=new_user
+        member=new_user, is_comment_moderator=True, granted_by=new_user
     )
     sm2 = models.SiteMembership(
-        user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+        member=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
     )
     sm3 = models.SiteMembership(
-        user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+        member=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
     )
     db_session.add_all([sm, sm2, sm3])
     db_session.commit()
@@ -191,7 +194,7 @@ def test_comment_report_majority_spam(
 
     # Let's make another comment
     comment3 = models.Comment(
-        user=new_user2,
+        posted_by=new_user2,
         commentset=new_project.commentset,
         message="Test second comment message",
     )
@@ -210,7 +213,7 @@ def test_comment_report_majority_spam(
 
     # report the comment as not spam as new_user_owner
     report4 = models.CommentModeratorReport(
-        user=new_user_owner,
+        reported_by=new_user_owner,
         comment=comment3,
         report_type=models.MODERATOR_REPORT_TYPE.OK,
     )
@@ -251,25 +254,25 @@ def test_comment_report_majority_spam(
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_majority_ok(
-    client,
-    db_session,
-    login,
-    new_user,
-    new_user2,
-    new_user_admin,
-    new_user_owner,
-    new_project,
-    csrf_token,
+    client: TestClient,
+    db_session: scoped_session,
+    login: LoginFixtureProtocol,
+    new_user: models.User,
+    new_user2: models.User,
+    new_user_admin: models.User,
+    new_user_owner: models.User,
+    new_project: models.Project,
+    csrf_token: str,
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
-        user=new_user, is_comment_moderator=True, granted_by=new_user
+        member=new_user, is_comment_moderator=True, granted_by=new_user
     )
     sm2 = models.SiteMembership(
-        user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+        member=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
     )
     sm3 = models.SiteMembership(
-        user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+        member=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
     )
     db_session.add_all([sm, sm2, sm3])
     db_session.commit()
@@ -280,7 +283,7 @@ def test_comment_report_majority_ok(
 
     # Let's make another comment
     comment4 = models.Comment(
-        user=new_user2,
+        posted_by=new_user2,
         commentset=new_project.commentset,
         message="Test second comment message",
     )
@@ -299,7 +302,7 @@ def test_comment_report_majority_ok(
 
     # report the comment as not spam as new_user_owner
     report6 = models.CommentModeratorReport(
-        user=new_user_owner,
+        reported_by=new_user_owner,
         comment=comment4,
         report_type=models.MODERATOR_REPORT_TYPE.OK,
     )

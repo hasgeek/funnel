@@ -6,8 +6,6 @@ Create Date: 2021-04-27 00:52:53.622787
 
 """
 
-from typing import Optional, Tuple, Union
-
 import progressbar.widgets
 import sqlalchemy as sa
 from alembic import op
@@ -17,8 +15,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = 'aebd5a9e5af1'
 down_revision = 'd0097ec29880'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 project = table(
@@ -90,7 +88,7 @@ def upgrade() -> None:
 
     # Update project start_at/end_at timestamps where sessions exist
     conn = op.get_bind()
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(project))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(project))
     progress = get_progressbar("Projects", count)
     progress.start()
     project_ids = conn.execute(sa.select(project.c.id))

@@ -30,7 +30,7 @@ def upgrade() -> None:
 
     results = connection.execute(proposal_space.select())
     for space in results:
-        if space['content']:
+        if space.content:
             for section, title in [
                 ('format', "Format"),
                 ('criteria', "Criteria for proposals"),
@@ -40,8 +40,8 @@ def upgrade() -> None:
                 ('themes', "Theme"),
             ]:
                 modified = False
-                text = space['description_text']
-                if space['content'].get(section):
+                text = space.description_text
+                if space.content.get(section):
                     modified = True
                     text = (
                         text
@@ -49,13 +49,13 @@ def upgrade() -> None:
                         + "## "
                         + title
                         + '\r\n\r\n'
-                        + space['content'][section]
+                        + space.content[section]
                     )
                 if modified:
                     html = markdown(text)
                     connection.execute(
                         proposal_space.update()
-                        .where(proposal_space.c.id == space['id'])
+                        .where(proposal_space.c.id == space.id)
                         .values(
                             {
                                 'description_text': text,

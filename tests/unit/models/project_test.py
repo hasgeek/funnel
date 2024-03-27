@@ -1,4 +1,5 @@
 """Tests for Project model."""
+
 # pylint: disable=redefined-outer-name
 
 from datetime import datetime, timedelta
@@ -9,8 +10,10 @@ from coaster.utils import utcnow
 
 from funnel import models
 
+from ...conftest import scoped_session
 
-def invalidate_cache(project):
+
+def invalidate_cache(project: models.Project) -> None:
     for attr in (
         'datelocation',
         'schedule_start_at_localized',
@@ -26,22 +29,27 @@ def invalidate_cache(project):
 
 
 @pytest.mark.flaky(reruns=1)  # Rerun in case assert with timedelta fails
-def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
+def test_cfp_state_draft(
+    db_session: scoped_session,
+    new_organization: models.Organization,
+    new_project: models.Project,
+) -> None:
     assert new_project.cfp_start_at is None
     assert new_project.state.DRAFT
     assert new_project.cfp_state.NONE
     assert not new_project.cfp_state.DRAFT
-    assert new_project in new_organization.profile.draft_projects
+    assert new_project in new_organization.draft_projects
 
     new_project.open_cfp()
     db_session.commit()
 
     assert new_project.cfp_state.PUBLIC
     # Start date is automatically set by open_cfp to utcnow()
+    assert new_project.cfp_start_at is not None
     assert new_project.cfp_start_at > utcnow() - timedelta(minutes=1)
     assert not new_project.cfp_state.DRAFT
     assert new_project.cfp_state.OPEN
-    assert new_project in new_organization.profile.draft_projects
+    assert new_project in new_organization.draft_projects
 
     new_project.cfp_start_at = utcnow()
     db_session.commit()
@@ -49,17 +57,17 @@ def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
     assert new_project.cfp_start_at is not None
     assert not new_project.cfp_state.DRAFT
     # because project state is still draft
-    assert new_project in new_organization.profile.draft_projects
+    assert new_project in new_organization.draft_projects
 
     new_project.publish()
     db_session.commit()
     assert not new_project.cfp_state.DRAFT
     assert not new_project.state.DRAFT
-    assert new_project not in new_organization.profile.draft_projects
+    assert new_project not in new_organization.draft_projects
 
 
 def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
-    db_session, new_project
+    db_session: scoped_session, new_project: models.Project
 ) -> None:
     # without any session the project will have no start and end dates
     assert new_project.sessions.count() == 0
@@ -102,12 +110,14 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
     # now project.schedule_start_at will be the first session's start date
     # and project.schedule_end_at will be the last session's end date
     assert new_project.schedule_start_at is not None
-    assert new_project.schedule_end_at is not None  # type: ignore[unreachable]
+    assert new_project.schedule_end_at is not None
     assert new_session_a.start_at is not None
     assert new_session_b.end_at is not None
     assert new_project.sessions.count() == 2
     assert new_project.schedule_start_at.date() == new_session_a.start_at.date()
     assert new_project.schedule_end_at.date() == new_session_b.end_at.date()
+    assert new_project.start_at is not None
+    assert new_project.end_at is not None
     assert new_project.start_at.date() == new_session_a.start_at.date()
     assert new_project.end_at.date() == new_session_b.end_at.date()
 
@@ -218,7 +228,9 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
 
 
 @pytest.fixture()
-def second_organization(db_session, new_user2):
+def second_organization(
+    db_session: scoped_session, new_user2: models.User
+) -> models.Organization:
     org2 = models.Organization(
         owner=new_user2, title="Second test org", name='test_org_2'
     )
@@ -228,13 +240,17 @@ def second_organization(db_session, new_user2):
 
 
 def test_project_rename(
-    db_session, new_organization, second_organization, new_project, new_project2
+    db_session: scoped_session,
+    new_organization: models.Organization,
+    second_organization: models.Organization,
+    new_project: models.Project,
+    new_project2: models.Project,
 ) -> None:
     # The project has a default name from the fixture, and there is no redirect
     assert new_project.name == 'test-project'
-    assert new_project.profile == new_organization.profile
+    assert new_project.account == new_organization
     redirect = models.ProjectRedirect.query.filter_by(
-        profile=new_organization.profile, name='test-project'
+        account=new_organization, name='test-project'
     ).one_or_none()
     assert redirect is None
 
@@ -243,7 +259,7 @@ def test_project_rename(
     new_project.make_name()
     assert new_project.name == 'renamed-project'
     redirect = models.ProjectRedirect.query.filter_by(
-        profile=new_organization.profile, name='test-project'
+        account=new_organization, name='test-project'
     ).one_or_none()
     assert redirect is not None
     assert redirect.project == new_project
@@ -257,13 +273,13 @@ def test_project_rename(
 
     # Changing project also creates a redirect from the old project
     redirect2 = models.ProjectRedirect.query.filter_by(
-        profile=new_organization.profile, name='renamed-project'
+        account=new_organization, name='renamed-project'
     ).one_or_none()
     assert redirect2 is None
 
-    new_project.profile = second_organization.profile
+    new_project.account = second_organization
     redirect2 = models.ProjectRedirect.query.filter_by(
-        profile=new_organization.profile, name='renamed-project'
+        account=new_organization, name='renamed-project'
     ).one_or_none()
     assert redirect2 is not None
     assert redirect2.project == new_project
@@ -274,7 +290,7 @@ def test_project_rename(
     new_project2.name = 'test-project'
     # The existing redirect is not touched by this, as the project takes priority
     new_redirect = models.ProjectRedirect.query.filter_by(
-        profile=new_organization.profile, name='test-project'
+        account=new_organization, name='test-project'
     ).one_or_none()
     assert new_redirect is not None
     assert new_redirect == redirect
@@ -283,7 +299,7 @@ def test_project_rename(
     # But renaming out will reuse the existing redirect to point to the new project
     new_project2.name = 'renamed-away'
     new_redirect = models.ProjectRedirect.query.filter_by(
-        profile=new_organization.profile, name='test-project'
+        account=new_organization, name='test-project'
     ).one_or_none()
     assert new_redirect is not None
     assert new_redirect == redirect
@@ -291,7 +307,9 @@ def test_project_rename(
 
 
 def test_project_featured_proposal(
-    db_session, user_twoflower, project_expo2010
+    db_session: scoped_session,
+    user_twoflower: models.User,
+    project_expo2010: models.Project,
 ) -> None:
     # `has_featured_proposals` returns None if the project has no proposals
     assert project_expo2010.has_featured_proposals is False
@@ -299,7 +317,7 @@ def test_project_featured_proposal(
     # A proposal is created, default state is `Submitted`
     proposal = models.Proposal(
         project=project_expo2010,
-        user=user_twoflower,
+        created_by=user_twoflower,
         title="Test Proposal",
         body="Test body",
         description="Test",

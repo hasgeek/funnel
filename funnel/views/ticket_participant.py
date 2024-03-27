@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from collections.abc import Iterable
+from typing import Any, TypedDict
 
 from flask import abort, flash, request, url_for
 from sqlalchemy.exc import IntegrityError
@@ -22,30 +23,38 @@ from coaster.views import (
 from .. import app
 from ..forms import TicketParticipantForm
 from ..models import (
-    Profile,
+    Account,
+    EmailAddress,
     Project,
     SyncTicket,
     TicketEvent,
     TicketEventParticipant,
     TicketParticipant,
     db,
+    sa,
 )
 from ..proxies import request_wants
+from ..signals import user_data_changed, user_registered
 from ..typing import ReturnRenderWith, ReturnView
-from ..utils import (
-    abort_null,
-    format_twitter_handle,
-    make_qrcode,
-    mask_email,
-    split_name,
-)
+from ..utils import format_twitter_handle, make_qrcode, mask_email, split_name
 from .helpers import render_redirect
 from .login_session import requires_login
-from .mixins import ProfileCheckMixin, ProjectViewMixin, TicketEventViewMixin
+from .mixins import AccountCheckMixin, ProjectViewBase, TicketEventViewBase
 
 
-def ticket_participant_badge_data(ticket_participants, project):
-    badges = []
+class BadgeDict(TypedDict):
+    first_name: str
+    last_name: str
+    twitter: str | None
+    company: str | None
+    qrcode_content: str
+    order_no: str
+
+
+def ticket_participant_badge_data(
+    ticket_participants: Iterable[TicketParticipant], project: Project
+) -> list[BadgeDict]:
+    badges: list[BadgeDict] = []
     for ticket_participant in ticket_participants:
         first_name, last_name = split_name(ticket_participant.fullname)
         ticket = SyncTicket.query.filter_by(
@@ -68,8 +77,8 @@ def ticket_participant_badge_data(ticket_participants, project):
 
 # FIXME: Do not process integer primary keys
 def ticket_participant_data(
-    ticket_participant: TicketParticipant, project_id: int, full=False
-):
+    ticket_participant: TicketParticipant, project_id: int, full: bool = False
+) -> dict[str, Any]:
     data = {
         '_id': ticket_participant.id,
         'puk': ticket_participant.puk,
@@ -89,13 +98,17 @@ def ticket_participant_data(
     return data
 
 
-def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
+def ticket_participant_checkin_data(
+    ticket_participant, project: Project, ticket_event: TicketEvent  # FIXME type
+) -> dict:
     puuid_b58 = uuid_to_base58(ticket_participant.uuid)
     data = {
         'puuid_b58': puuid_b58,
         'fullname': ticket_participant.fullname,
         'company': ticket_participant.company,
-        'email': mask_email(ticket_participant.email),
+        'email': (
+            mask_email(ticket_participant.email) if ticket_participant.email else None
+        ),
         'badge_printed': ticket_participant.badge_printed,
         'checked_in': ticket_participant.checked_in,
         'ticket_type_titles': ticket_participant.ticket_type_titles,
@@ -106,19 +119,19 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
             {
                 'badge_url': url_for(
                     'TicketParticipantView_badge',
-                    profile=project.profile.name,
+                    account=project.account.urlname,
                     project=project.name,
                     ticket_participant=puuid_b58,
                 ),
                 'label_badge_url': url_for(
                     'TicketParticipantView_label_badge',
-                    profile=project.profile.name,
+                    account=project.account.urlname,
                     project=project.name,
                     ticket_participant=puuid_b58,
                 ),
                 'edit_url': url_for(
                     'TicketParticipantView_edit',
-                    profile=project.profile.name,
+                    account=project.account.urlname,
                     project=project.name,
                     ticket_participant=puuid_b58,
                 ),
@@ -128,8 +141,8 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
 
 
 @Project.views('ticket_participant')
-@route('/<profile>/<project>/ticket_participants')
-class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
+@route('/<account>/<project>/ticket_participants', init_app=app)
+class ProjectTicketParticipantView(ProjectViewBase):
     @route('json')
     @requires_login
     @requires_roles({'promoter', 'usher'})
@@ -149,7 +162,7 @@ class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
         form = TicketParticipantForm(parent=self.obj)
         if form.validate_on_submit():
             ticket_participant = TicketParticipant(project=self.obj)
-            ticket_participant.user = form.user
+            ticket_participant.participant = form.user
             with db.session.no_autoflush:
                 form.populate_obj(ticket_participant)
             try:
@@ -164,46 +177,44 @@ class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
         )
 
 
-ProjectTicketParticipantView.init_app(app)
-
-
 @TicketParticipant.views('main')
-@route('/<profile>/<project>/ticket_participant/<ticket_participant>')
-class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
+@route('/<account>/<project>/ticket_participant/<ticket_participant>', init_app=app)
+class TicketParticipantView(
+    AccountCheckMixin, UrlForView, ModelView[TicketParticipant]
+):
     __decorators__ = [requires_login]
 
-    model = TicketParticipant
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'ticket_participant': 'uuid_b58',
     }
-    obj: TicketParticipant
 
-    def loader(
-        self, profile: str, project: str, ticket_participant: str
-    ) -> TicketParticipant:
-        return (
+    def load(
+        self, account: str, project: str, ticket_participant: str
+    ) -> ReturnView | None:
+        self.obj = (
             TicketParticipant.query.join(Project)
-            .join(Profile)
+            .join(Account, Project.account)
             .filter(
-                Profile.name_is(profile),
+                Account.name_is(account),
                 Project.name == project,
                 TicketParticipant.uuid_b58 == ticket_participant,
             )
             .first_or_404()
         )
-
-    def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+        self.post_init()
         return super().after_loader()
+
+    def post_init(self) -> None:
+        self.account = self.obj.project.account
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'project_promoter'})
     def edit(self) -> ReturnView:
         form = TicketParticipantForm(obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
-            self.obj.user = form.user
+            self.obj.participant = form.user
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
@@ -225,26 +236,49 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
         return {'badges': ticket_participant_badge_data([self.obj], self.obj.project)}
 
 
-TicketParticipantView.init_app(app)
+@user_data_changed.connect
+@user_registered.connect
+def user_ticket_assignment(user: Account, changes: list[str]) -> None:
+    """Scan for event tickets to be assigned to the user based on matching contacts."""
+    emails = [str(e) for e in user.emails]
+    phones = [str(p) for p in user.phones]
+    if {'email', 'phone', 'merge', 'registered-otp', 'registered-extid'} & set(changes):
+        updated = False
+        tickets = (
+            TicketParticipant.query.join(
+                EmailAddress, TicketParticipant.email_address_id == EmailAddress.id
+            )
+            .filter(
+                sa.or_(
+                    EmailAddress.email.in_(emails),
+                    TicketParticipant.phone.in_(phones),
+                )
+            )
+            .all()
+        )
+
+        for ticket in tickets:
+            if ticket.participant is None:
+                updated = True
+                ticket.participant = user
+        if updated:
+            db.session.commit()
 
 
 @TicketEvent.views('ticket_participant')
-@route('/<profile>/<project>/ticket_event/<name>')
-class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
-    __decorators__ = [requires_login]
-
+class TicketEventParticipantView(TicketEventViewBase):
     @route('ticket_participants/checkin', methods=['GET', 'POST'])
     @requires_roles({'project_promoter', 'project_usher'})
     def checkin(self) -> ReturnView:
         form = forms.Form()
         if form.validate_on_submit():
             checked_in = getbool(request.form.get('checkin'))
-            ticket_participant_ids = [
-                abort_null(x) for x in request.form.getlist('puuid_b58')
-            ]
+            ticket_participant_ids = request.form.getlist('puuid_b58')
             for ticket_participant_id in ticket_participant_ids:
                 attendee = TicketEventParticipant.get(self.obj, ticket_participant_id)
-                attendee.checked_in = checked_in
+                if attendee is None:
+                    abort(404)
+                attendee.checked_in = bool(checked_in)
             db.session.commit()
             if request_wants.json:
                 return {
@@ -316,25 +350,21 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
 TicketEventParticipantView.init_app(app)
 
 
-# FIXME: make this endpoint use uuid_b58 instead of puk, along with badge generation
-@route('/<profile>/<project>/event/<event>/ticket_participant/<puk>')
+# TODO: make this endpoint use uuid_b58 instead of puk, along with badge generation
+@route('/<account>/<project>/event/<event>/ticket_participant/<puk>', init_app=app)
 class TicketEventParticipantCheckinView(ClassView):
     __decorators__ = [requires_login]
 
     @route('checkin', methods=['POST'])
     def checkin_puk(
-        self, profile: str, project: str, event: str, puk: str
+        self, account: str, project: str, event: str, puk: str
     ) -> ReturnView:
-        abort(403)
-
-        checked_in = getbool(  # type: ignore[unreachable]
-            request.form.get('checkin', 't')
-        )
+        checked_in = getbool(request.form.get('checkin', 't'))
         ticket_event = (
             TicketEvent.query.join(Project)
-            .join(Profile)
+            .join(Account, Project.account)
             .filter(
-                Profile.name_is(profile),
+                Account.name_is(account),
                 Project.name == project,
                 TicketEvent.name == event,
             )
@@ -342,9 +372,9 @@ class TicketEventParticipantCheckinView(ClassView):
         )
         ticket_participant = (
             TicketParticipant.query.join(Project)
-            .join(Profile)
+            .join(Account, Project.account)
             .filter(
-                Profile.name_is(profile),
+                Account.name_is(account),
                 Project.name == project,
                 TicketParticipant.puk == puk,
             )
@@ -352,13 +382,11 @@ class TicketEventParticipantCheckinView(ClassView):
         )
         attendee = TicketEventParticipant.get(ticket_event, ticket_participant.uuid_b58)
         if attendee is None:
-            return (
-                {'error': 'not_found', 'error_description': _("Attendee not found")},
-                404,
-            )
-        attendee.checked_in = checked_in
+            return {
+                'error': 'not_found',
+                'error_description': _("Attendee not found"),
+            }, 404
+
+        attendee.checked_in = bool(checked_in)
         db.session.commit()
         return {'attendee': {'fullname': ticket_participant.fullname}}
-
-
-TicketEventParticipantCheckinView.init_app(app)

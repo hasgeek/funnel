@@ -1,6 +1,7 @@
 -r test.in
 bandit
 black
+djlint
 flake8
 flake8-annotations
 flake8-assertive
@@ -16,7 +17,7 @@ flake8-print
 flake8-pytest-style
 flask-debugtoolbar
 isort
-lxml-stubs
+mkinit @ git+https://github.com/Erotemic/mkinit
 mypy
 mypy-json-report
 pep8-naming
@@ -27,11 +28,19 @@ pylint
 pyupgrade
 reformat-gherkin
 ruff
-toml
-tomli
+types-beautifulsoup4
 types-chevron
+types-Flask-Migrate
 types-geoip2
+types-greenlet
+types-lxml
+types-mock
+types-passlib
+types-Pillow
+types-pytest-lazy-fixture
 types-python-dateutil
 types-pytz
+types-PyYAML
 types-redis
 types-requests
+types-zxcvbn

@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from typing import List, Union
+from typing import TYPE_CHECKING, Self, overload
 
-from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 
 from coaster.sqlalchemy import with_roles
 
-from . import (
+from .account import Account
+from .base import (
     BaseScopedNameMixin,
     Mapped,
     Model,
@@ -16,13 +17,12 @@ from . import (
     hybrid_property,
     relationship,
     sa,
+    sa_orm,
 )
-from .helpers import add_search_trigger, reopen, visual_field_delimiter
-from .project import Project
+from .helpers import add_search_trigger, visual_field_delimiter
 from .project_membership import project_child_role_map
-from .proposal import Proposal
 
-proposal_label = sa.Table(
+proposal_label: sa.Table = sa.Table(
     'proposal_label',
     Model.metadata,
     sa.Column(
@@ -44,27 +44,26 @@ proposal_label = sa.Table(
 )
 
 
-class Label(BaseScopedNameMixin, Model):
+class Label(BaseScopedNameMixin[int, Account], Model):
     __tablename__ = 'label'
-    __allow_unmapped__ = True
 
-    project_id = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
+    project_id: Mapped[int] = sa_orm.mapped_column(
+        sa.ForeignKey('project.id', ondelete='CASCADE'), default=None, nullable=False
     )
     # Backref from project is defined in the Project model with an ordering list
     project: Mapped[Project] = with_roles(
-        relationship(Project), grants_via={None: project_child_role_map}
+        relationship(), grants_via={None: project_child_role_map}
     )
     # `parent` is required for
     # :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
-    parent: Mapped[Project] = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa_orm.synonym('project')
 
     #: Parent label's id. Do not write to this column directly, as we don't have the
     #: ability to : validate the value within the app. Always use the :attr:`main_label`
     #: relationship.
-    main_label_id = sa.orm.mapped_column(
-        sa.Integer,
+    main_label_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('label.id', ondelete='CASCADE'),
+        default=None,
         index=True,
         nullable=True,
     )
@@ -72,9 +71,9 @@ class Label(BaseScopedNameMixin, Model):
         remote_side='Label.id', back_populates='options'
     )
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
-    options: Mapped[List[Label]] = relationship(
+    options: Mapped[OrderingList[Label]] = relationship(
         back_populates='main_label',
-        order_by='Label.seq',
+        order_by=lambda: Label.seq,
         passive_deletes=True,
         collection_class=ordering_list('seq', count_from=1),
     )
@@ -84,37 +83,33 @@ class Label(BaseScopedNameMixin, Model):
     # add_primary_relationship)
 
     #: Sequence number for this label, used in UI for ordering
-    seq = sa.orm.mapped_column(sa.Integer, nullable=False)
+    seq: Mapped[int] = sa_orm.mapped_column()
 
     # A single-line description of this label, shown when picking labels (optional)
-    description = sa.orm.mapped_column(sa.UnicodeText, nullable=False, default='')
+    description: Mapped[str] = sa_orm.mapped_column(
+        sa.UnicodeText, nullable=False, default=''
+    )
 
     #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
     #: Since emoji can be composed from multiple symbols, there is no length
     #: limit imposed here
-    icon_emoji = sa.orm.mapped_column(sa.UnicodeText, nullable=True)
+    icon_emoji: Mapped[str | None] = sa_orm.mapped_column(sa.UnicodeText, nullable=True)
 
     #: Restricted mode specifies that this label may only be applied by someone with
     #: an editorial role (TODO: name the role). If this label is a parent, it applies
     #: to all its children
-    _restricted = sa.orm.mapped_column(
-        'restricted', sa.Boolean, nullable=False, default=False
-    )
+    _restricted: Mapped[bool] = sa_orm.mapped_column('restricted', default=False)
 
     #: Required mode signals to UI that if this label is a parent, one of its
     #: children must be mandatorily applied to the proposal. The value of this
     #: field must be ignored if the label is not a parent
-    _required = sa.orm.mapped_column(
-        'required', sa.Boolean, nullable=False, default=False
-    )
+    _required: Mapped[bool] = sa_orm.mapped_column('required', default=False)
 
     #: Archived mode specifies that the label is no longer available for use
     #: although all the previous records will stay in database.
-    _archived = sa.orm.mapped_column(
-        'archived', sa.Boolean, nullable=False, default=False
-    )
+    _archived: Mapped[bool] = sa_orm.mapped_column('archived', default=False)
 
-    search_vector: Mapped[TSVectorType] = sa.orm.mapped_column(
+    search_vector: Mapped[str] = sa_orm.mapped_column(
         TSVectorType(
             'name',
             'title',
@@ -130,8 +125,8 @@ class Label(BaseScopedNameMixin, Model):
     )
 
     #: Proposals that this label is attached to
-    proposals: Mapped[List[Proposal]] = relationship(
-        Proposal, secondary=proposal_label, back_populates='labels'
+    proposals: Mapped[list[Proposal]] = relationship(
+        secondary=proposal_label, back_populates='labels'
     )
 
     __table_args__ = (
@@ -326,7 +321,7 @@ class ProposalLabelProxyWrapper:
     def __init__(self, obj: Proposal) -> None:
         object.__setattr__(self, '_obj', obj)
 
-    def __getattr__(self, name: str) -> Union[bool, str, None]:
+    def __getattr__(self, name: str) -> bool | str | None:
         """Get an attribute."""
         # What this does:
         # 1. Check if the project has this label (including archived labels). If not,
@@ -340,7 +335,7 @@ class ProposalLabelProxyWrapper:
             Label.name == name, Label.project == self._obj.project
         ).one_or_none()
         if label is None:
-            raise AttributeError
+            raise AttributeError(f"No label {name} in {self._obj.project}")
 
         if not label.has_options:
             return label in self._obj.labels
@@ -358,7 +353,7 @@ class ProposalLabelProxyWrapper:
             Label._archived.is_(False),
         ).one_or_none()
         if label is None:
-            raise AttributeError
+            raise AttributeError(f"No label {name} in {self._obj.project}")
 
         if not label.has_options:
             if value is True:
@@ -390,40 +385,24 @@ class ProposalLabelProxyWrapper:
 
 
 class ProposalLabelProxy:
+    @overload
+    def __get__(self, obj: None, cls: type[Proposal] | None = None) -> Self: ...
+
+    @overload
     def __get__(
-        self, obj, cls=None
-    ) -> Union[ProposalLabelProxyWrapper, ProposalLabelProxy]:
+        self, obj: Proposal, cls: type[Proposal] | None = None
+    ) -> ProposalLabelProxyWrapper: ...
+
+    def __get__(
+        self, obj: Proposal | None, cls: type[Proposal] | None = None
+    ) -> ProposalLabelProxyWrapper | Self:
         """Get proposal label proxy."""
         if obj is not None:
             return ProposalLabelProxyWrapper(obj)
         return self
 
 
-@reopen(Project)
-class __Project:
-    labels: Mapped[List[Label]] = relationship(
-        Label,
-        primaryjoin=sa.and_(
-            Label.project_id == Project.id,
-            Label.main_label_id.is_(None),
-            Label._archived.is_(False),  # pylint: disable=protected-access
-        ),
-        order_by=Label.seq,
-        viewonly=True,
-    )
-    all_labels: Mapped[List[Label]] = relationship(
-        Label,
-        collection_class=ordering_list('seq', count_from=1),
-        back_populates='project',
-    )
-
-
-@reopen(Proposal)
-class __Proposal:
-    #: For reading and setting labels from the edit form
-    formlabels = ProposalLabelProxy()
-
-    labels: Mapped[List[Label]] = with_roles(
-        relationship(Label, secondary=proposal_label, back_populates='proposals'),
-        read={'all'},
-    )
+# Tail imports
+if TYPE_CHECKING:
+    from .project import Project
+    from .proposal import Proposal

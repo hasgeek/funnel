@@ -188,14 +188,14 @@ def upgrade() -> None:
         op.rename_table(old, new)
 
     for old, new in renamed_sequences:
-        op.execute(sa.DDL(f'ALTER SEQUENCE {old} RENAME TO {new}'))
+        op.execute(sa.text(f'ALTER SEQUENCE {old} RENAME TO {new}'))
 
     for table, old, new in renamed_columns:
         op.alter_column(table, old, new_column_name=new)
 
     for table, old, new in renamed_constraints:
         op.execute(
-            sa.DDL(
+            sa.text(
                 'ALTER TABLE {table} RENAME CONSTRAINT {old} TO {new}'.format(
                     table=table, old=old, new=new
                 )
@@ -206,7 +206,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     for table, old, new in renamed_constraints:
         op.execute(
-            sa.DDL(
+            sa.text(
                 'ALTER TABLE {table} RENAME CONSTRAINT {new} TO {old}'.format(
                     table=table, old=old, new=new
                 )
@@ -217,7 +217,7 @@ def downgrade() -> None:
         op.alter_column(table, new, new_column_name=old)
 
     for old, new in renamed_sequences:
-        op.execute(sa.DDL(f'ALTER SEQUENCE {new} RENAME TO {old}'))
+        op.execute(sa.text(f'ALTER SEQUENCE {new} RENAME TO {old}'))
 
     for old, new in renamed_tables:
         op.rename_table(new, old)

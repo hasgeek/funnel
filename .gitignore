@@ -2,6 +2,8 @@
 *.egg-info
 *.pyc
 .coverage
+coverage/
+coverage.xml
 .eslintcache
 .mypy_cache
 .pytest_cache
@@ -31,7 +33,8 @@ node_modules
 baseframe-packed.*
 
 # Download files
-geoname_data
+geoname_data/
+download/
 
 # Dependencies
 build/dependencies
@@ -44,8 +47,7 @@ geckodriver.log
 tests/cypress/screenshots
 tests/cypress/videos
 tests/screenshots
-tests/unit/utils/markdown/data/output.html
-coverage/
+tests/unit/utils/md/data/output.html
 
 # Instance files that should not be checked-in
 instance/development.py

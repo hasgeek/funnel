@@ -9,8 +9,6 @@ Create Date: ${create_date}
 
 """
 
-from typing import Optional, Tuple, Union
-
 from alembic import op
 import sqlalchemy as sa
 ${imports if imports else ""}
@@ -18,8 +16,8 @@ ${imports if imports else ""}
 # revision identifiers, used by Alembic.
 revision: str = ${repr(up_revision)}
 down_revision: str = ${repr(down_revision)}
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = ${repr(branch_labels)}
-depends_on: Optional[Union[str, Tuple[str, ...]]] = ${repr(depends_on)}
+branch_labels: str | tuple[str, ...] | None = ${repr(branch_labels)}
+depends_on: str | tuple[str, ...] | None = ${repr(depends_on)}
 
 
 def upgrade(engine_name: str = '') -> None:
@@ -51,12 +49,20 @@ def downgrade(engine_name: str = '') -> None:
 % for db_name in db_names:
 
 def upgrade_${db_name}() -> None:
-    """Upgrade database bind '${db_name}'."""
+    % if db_name == '':
+    """Upgrade default database."""
+    % else:
+    """Upgrade ${db_name} database."""
+    % endif
     ${context.get("%s_upgrades" % db_name, "pass")}
 
 
 def downgrade_${db_name}() -> None:
-    """Downgrade database bind '${db_name}'."""
+    % if db_name == '':
+    """Downgrade default database."""
+    % else:
+    """Downgrade ${db_name} database."""
+    % endif
     ${context.get("%s_downgrades" % db_name, "pass")}
 
 % endfor

@@ -1,26 +1,23 @@
 """API view for creating a shortlink to any content on the website."""
 
-from typing import Dict, Optional, Tuple, Union
-
 from furl import furl
 
 from baseframe import _
-from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import requestform
 
 from ... import app, shortlinkapp
+from ...auth import current_auth
 from ...models import Shortlink, db
-from ...utils import abort_null
 from ..helpers import app_url_for, validate_is_app_url
 
 
 # Add future hasjobapp route here
 @app.route('/api/1/shortlink/create', methods=['POST'])
-@requestform(('url', abort_null), ('shorter', getbool), ('name', abort_null))
+@requestform('url', ('shorter', getbool), 'name')
 def create_shortlink(
-    url: Union[str, furl], shorter: bool = True, name: Optional[str] = None
-) -> Tuple[Dict[str, str], int]:
+    url: str | furl, shorter: bool = True, name: str | None = None
+) -> tuple[dict[str, str], int]:
     """Create a shortlink that's valid for URLs in the app."""
     # Validate URL to be local before allowing a shortlink to it.
     if url:

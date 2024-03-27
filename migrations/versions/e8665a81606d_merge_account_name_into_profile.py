@@ -8,7 +8,6 @@ Create Date: 2020-04-15 02:24:49.259869
 """
 
 from textwrap import dedent
-from typing import Optional, Tuple, Union
 
 import sqlalchemy as sa
 from alembic import op
@@ -19,8 +18,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = 'e8665a81606d'
 down_revision = 'd50c3d8e3f33'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 class PROFILE_STATE:  # noqa: N801

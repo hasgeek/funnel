@@ -33,12 +33,23 @@
                 <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
               </div>
 
+              <div class="mui-textfield mui-textfield--float-label" v-else-if="field.type == 'email'">
+                <input :id="`input-${id}`" type="email" :name="`${field.name}`" :value="`${ useremail }`" />
+                <label :for="`input-${id}`">{{ field.title }}</label>
+                <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
+              </div>
+
               <div class="mui-checkbox" v-else-if="field.type == 'boolean'">
                 <label>
                   <input :id="`checkbox-${id}`" type="checkbox" :name="`${field.name}`" />
                   {{ field.title }}
                 </label>
                 <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
+              </div>
+
+              <div v-else-if="field.type == 'info'">
+                <p v-if="'title' in field" class="mui--text-body2 mui--text-bold">{{ field.title }}</p>
+                <p v-if="'description' in field" class="mui--text-body2">{{ field.description }}</p>
               </div>
 
             </div>

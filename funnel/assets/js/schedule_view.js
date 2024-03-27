@@ -84,29 +84,35 @@ const Schedule = {
           // On closing modal, update browser history
           $('#session-modal').on($.modal.CLOSE, () => {
             this.modalHtml = '';
-            Spa.updateMetaTags(this.pageDetails);
-            if (window.history.state.openModal) {
-              window.history.back();
+            if (schedule.config.replaceHistoryToModalUrl) {
+              Spa.updateMetaTags(this.pageDetails);
+              if (window.history.state.openModal) {
+                window.history.back();
+              }
             }
           });
-          $(window).on('popstate', () => {
-            if (this.modalHtml) {
-              $.modal.close();
-            }
-          });
+          if (schedule.config.changeToModalUrl) {
+            $(window).on('popstate', () => {
+              if (this.modalHtml) {
+                $.modal.close();
+              }
+            });
+          }
         },
         openModal(sessionHtml, currentPage, pageDetails) {
           this.modalHtml = sessionHtml;
           $('#session-modal').modal('show');
           this.handleModalShown();
-          window.history.pushState(
-            {
-              openModal: true,
-            },
-            '',
-            currentPage
-          );
-          Spa.updateMetaTags(pageDetails);
+          if (schedule.config.replaceHistoryToModalUrl) {
+            window.history.pushState(
+              {
+                openModal: true,
+              },
+              '',
+              currentPage
+            );
+            Spa.updateMetaTags(pageDetails);
+          }
         },
         handleFetchError(error) {
           const errorMsg = Form.getFetchError(error);
@@ -237,7 +243,9 @@ const Schedule = {
         },
       },
       mounted() {
-        this.animateWindowScrollWithHeader();
+        if (schedule.config.rememberScrollPos) {
+          this.animateWindowScrollWithHeader();
+        }
         this.handleBrowserResize();
         this.handleBrowserHistory();
       },
@@ -268,9 +276,8 @@ const Schedule = {
         this.config.slotInterval
       );
       if (this.config.schedule[session.eventDay]) {
-        this.config.schedule[session.eventDay].sessions[
-          session.startTime
-        ].showLabel = true;
+        this.config.schedule[session.eventDay].sessions[session.startTime].showLabel =
+          true;
         this.config.schedule[session.eventDay].sessions[session.startTime].rooms[
           session.room_scoped_name
         ].talk = session;

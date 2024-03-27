@@ -6,7 +6,6 @@ Create Date: 2021-03-11 09:07:56.611054
 
 """
 
-from typing import Optional, Tuple, Union
 from uuid import uuid4
 
 import progressbar.widgets
@@ -18,8 +17,8 @@ from sqlalchemy.sql import column, table
 # revision identifiers, used by Alembic.
 revision = '1c9cbf3a1e5e'
 down_revision = '7d5b77aada1e'
-branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
-depends_on: Optional[Union[str, Tuple[str, ...]]] = None
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
 
 
 project = table(
@@ -117,20 +116,20 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `upgrade_` instead
     globals().get('upgrade_%s' % engine_name, lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `downgrade_` instead
     globals().get('downgrade_%s' % engine_name, lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     conn = op.get_bind()
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(project))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(project))
     progress = get_progressbar("Projects", count)
     progress.start()
 
@@ -140,7 +139,7 @@ def upgrade_():
     for counter, project_item in enumerate(projects):
         # Create membership for existing RSVP
         rsvp_count = conn.scalar(
-            sa.select(sa.func.count('*'))
+            sa.select(sa.func.count(sa.text('*')))
             .where(rsvp.c.project_id == project_item.id)
             .select_from(rsvp)
         )
@@ -158,7 +157,7 @@ def upgrade_():
 
         for rsvp_item in rsvps:
             existing_counter = conn.scalar(
-                sa.select(sa.func.count('*'))
+                sa.select(sa.func.count(sa.text('*')))
                 .where(
                     commentset_membership.c.commentset_id == project_item.commentset_id
                 )
@@ -197,7 +196,7 @@ def upgrade_():
 
         for crew in crews:
             existing_counter = conn.scalar(
-                sa.select(sa.func.count('*'))
+                sa.select(sa.func.count(sa.text('*')))
                 .where(
                     commentset_membership.c.commentset_id == project_item.commentset_id
                 )
@@ -226,7 +225,9 @@ def upgrade_():
     progress.finish()
 
     # Create commentset membership for existing proposal memberships
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(proposal_membership))
+    count = conn.scalar(
+        sa.select(sa.func.count(sa.text('*'))).select_from(proposal_membership)
+    )
     progress = get_progressbar("Proposals", count)
     progress.start()
 
@@ -244,7 +245,7 @@ def upgrade_():
     )
     for counter, proposal_item in enumerate(proposals):
         existing_counter = conn.scalar(
-            sa.select(sa.func.count('*'))
+            sa.select(sa.func.count(sa.text('*')))
             .where(commentset_membership.c.commentset_id == proposal_item.commentset_id)
             .where(commentset_membership.c.user_id == proposal_item.user_id)
             .where(commentset_membership.c.revoked_at.is_(None))
@@ -271,10 +272,10 @@ def upgrade_():
     progress.finish()
 
 
-def downgrade_():
+def downgrade_() -> None:
     conn = op.get_bind()
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(project))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(project))
     progress = get_progressbar("Projects", count)
     progress.start()
 
@@ -283,7 +284,7 @@ def downgrade_():
         commentset_memberships = conn.execute(
             sa.select(commentset_membership.c.id)
             .where(commentset_membership.c.commentset_id == project_item.commentset_id)
-            .where(commentset_membership.c.revoked_at is None)
+            .where(commentset_membership.c.revoked_at.is_(None))
             .select_from(commentset_membership)
         )
         for membership_item in commentset_memberships:
@@ -295,7 +296,7 @@ def downgrade_():
         progress.update(counter)
     progress.finish()
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(proposal))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(proposal))
     progress = get_progressbar("Proposals", count)
     progress.start()
 
@@ -308,7 +309,7 @@ def downgrade_():
         commentset_memberships = conn.execute(
             sa.select(commentset_membership.c.id)
             .where(commentset_membership.c.commentset_id == proposal_item.commentset_id)
-            .where(commentset_membership.c.revoked_at is None)
+            .where(commentset_membership.c.revoked_at.is_(None))
             .select_from(commentset_membership)
         )
         for membership_item in commentset_memberships:
