@@ -256,7 +256,6 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             start = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S%z")
             end = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S%z")
             all_projects = self.obj.listed_projects.order_by(None)
-            print('start, end', start, end)
             if end > start:
                 filtered_projects = (
                         all_projects.filter(
@@ -270,7 +269,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                         'title': p.title,
                         'start': p.start_at,
                         'end': p.end_at,
-                        'date': datetime_filter(p.start_at_localized, format='dd MMM yyyy'),
+                        'date_str': datetime_filter(p.start_at_localized, format='dd MMM yyyy'),
                         'time': datetime_filter(p.start_at_localized, format='hh:mm a'),
                         'venue': p.primary_venue.city if p.primary_venue else p.location,
                         'cfp_open': True if p.cfp_state.OPEN else False,

@@ -1,6 +1,5 @@
 import Vue from 'vue/dist/vue.min';
 import FullCalendar from '@fullcalendar/vue';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import multiMonthPlugin from '@fullcalendar/multimonth';
 import { faSvg } from './utils/vue_util';
@@ -22,7 +21,7 @@ $(() => {
         cfp: '',
         events: [],
         calendarOptions: {
-          plugins: [timeGridPlugin, dayGridPlugin, multiMonthPlugin],
+          plugins: [dayGridPlugin, multiMonthPlugin],
           initialView: 'dayGridMonth',
           aspectRatio: 1.5,
           headerToolbar: {
@@ -30,6 +29,7 @@ $(() => {
             center: '',
             end: '',
           },
+          showNonCurrentDates: false,
           events: async function fetcEvents(info) {
             const url = `${window.location.href}?${new URLSearchParams({
               start: info.startStr,
@@ -60,7 +60,6 @@ $(() => {
     mounted() {
       this.calendar = this.$refs.fullCalendar.getApi();
       this.updateTitle();
-      console.log(this.calendar);
     },
     methods: {
       updateTitle() {
@@ -86,21 +85,19 @@ $(() => {
           case 'monthly':
             this.calendar.changeView('dayGridMonth');
             break;
-          case 'weekly':
-            this.calendar.changeView('timeGridDay');
-            break;
           case 'yearly':
             this.calendar.changeView('multiMonthYear');
             break;
           default:
-            this.calendar.changeView('timeGridDay');
+            this.calendar.changeView('dayGridMonth');
         }
         this.updateTitle();
         this.updateEvents();
       },
       propertyVal(event, key) {
-        console.log('event', event, key);
-        // return event && (event[key] || event.extendedProps[key]);
+        return (
+          event && (event[key] || (event.extendedProps && event.extendedProps[key]))
+        );
       },
     },
     computed: {

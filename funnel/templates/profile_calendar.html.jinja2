@@ -51,7 +51,7 @@
             <div id="calendar" class="calendar-container" v-cloak>
               <div class="grid calendar_mobile">
                 <div class="grid__col-12">
-                  <h2 class="mui--text-headline text-bold project-headline">Upcoming</h2>
+                  <h2 class="mui--text-headline text-bold project-headline">Projects</h2>
                 </div>
                 <div class="grid__col-sm-6 grid__col-md-7 grid__col-lg-8 proposal_list">
                   <div v-if="filteredEvents">
@@ -61,13 +61,13 @@
                           <td>
                             <div class="card__body">
                               <p class="mui--text-subhead text-bold margin-bottom">
-                                <a :href="event.url" class="mui--text-dark">{{ event.title }}</a>
+                                <a :href="propertyVal(event, 'url')" class="mui--text-dark">{{ event.title }}</a>
                               </p>
-                              <p class="mui--text-dark mui--text-light margin-bottom"><faicon :icon="'calendar-alt'" :baseline=true></faicon> {{ event.date }} <faicon :icon="'clock'" :baseline=true :css_class="'margin-left'"></faicon> {{ event.time }}</p>
+                              <p class="mui--text-dark mui--text-light margin-bottom"><faicon :icon="'calendar-alt'" :baseline=true></faicon> {{ propertyVal(event, 'date_str') }} <faicon :icon="'clock'" :baseline=true :css_class="'margin-left'"></faicon> {{ propertyVal(event, 'time') }}</p>
                               <div class="margin-bottom">
-                                <span class="badge text-bold" v-if="event.cfp_open">Accepting proposals</span><span class="badge badge-success text-bold" v-if="event.member_access">Member access</span><span class="badge badge-dark text-bold" v-else>Free</span>
+                                <span class="badge text-bold" v-if="propertyVal(event, 'cfp_open')">Accepting proposals</span><span class="badge badge-success text-bold" v-if="propertyVal(event, 'member_access')">Member access</span><span class="badge badge-dark text-bold" v-else>Free</span>
                               </div>
-                              <p class="mui--text-caption mui--text-light proposal_venue"><faicon :icon="'map-marker-alt'" :baseline=false></faicon>{{ event.venue }}</p>
+                              <p class="mui--text-caption mui--text-light proposal_venue"><faicon :icon="'map-marker-alt'" :baseline=false></faicon>{{ propertyVal(event, 'venue') }}</p>
                             </div>
                           </td>
                         </tr>

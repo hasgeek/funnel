@@ -3,7 +3,6 @@
 .calendar-container {
   width: 100%;
   min-height: 300px;
-  padding-top: 32px;
 }
 
 .fc-header-toolbar {
@@ -11,7 +10,7 @@
 }
 
 .fc {
-  margin: 20px auto;
+  margin: $mui-grid-padding auto;
   width: 100%;
   max-width: 100%;
 
@@ -42,11 +41,16 @@
   }
 
   .fc-daygrid-day-events {
-    margin-top: -4px;
+    margin-top: -$mui-grid-padding/4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .fc-daygrid-dot-event {
     justify-content: center;
+    margin: 0 !important;
+    padding: 0;
   }
 
   .fc-day-disabled {
@@ -74,9 +78,9 @@ table.proposal-list-table tr {
 
 .flex-wrapper--baseline {
   justify-content: right;
-  padding: 8px 16px 0 0;
+  padding: $mui-grid-padding/2 $mui-grid-padding 0 0;
   position: relative;
-  z-index: 10;
+  z-index: 3;
 }
 
 .fc-text-caption {
@@ -91,7 +95,7 @@ table.proposal-list-table tr {
 .fc-multimonth-title {
   font-size: 14px !important;
   font-variant: all-small-caps;
-  padding: 16px !important;
+  padding: $mui-grid-padding !important;
   text-align: left !important;
   font-weight: 600 !important;
 }
@@ -103,7 +107,7 @@ table.proposal-list-table tr {
   border-radius: 16px;
 }
 .fc-view-harness {
-  height: 256px !important;
+  height: 270px !important;
 }
 
 .fc-daygrid-day-frame {
@@ -142,22 +146,22 @@ table.proposal-list-table tr {
   }
   .calendar_mobile .calendar_mobile_container {
     order: 1;
-    margin: -64px 0 24px;
+    margin: -$mui-grid-padding-double 0 $mui-grid-padding * 1.5;
     position: sticky;
+    top: $mui-grid-padding-double;
+    z-index: 2;
   }
 }
 
-.page-card button {
-  top: 3px;
-}
 .proposal_venue {
-  margin: 16px 0 0;
+  margin: $mui-grid-padding 0 0;
   display: flex;
-  gap: 4px;
+  gap: $mui-grid-padding/4;
 }
+
 .filter-menu {
   position: absolute;
-  left: 188px;
+  left: 158px;
   padding: $mui-grid-padding;
   background-color: $mui-bg-color-primary;
   z-index: 1000;
@@ -165,9 +169,10 @@ table.proposal-list-table tr {
     0 0 2px rgba(0, 0, 0, 0.12),
     0 2px 2px rgba(0, 0, 0, 0.2);
   border-radius: 0 16px 16px 16px;
+  min-width: 200px;
 
   button {
     width: 100%;
-    margin-top: 16px;
+    margin-top: $mui-grid-padding;
   }
 }
