@@ -21,7 +21,7 @@ from ...models import (
     Project,
     Proposal,
 )
-from ...transports.sms import OneLineTemplate, SmsPriority, SmsTemplate
+from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
@@ -78,6 +78,14 @@ class CommentProjectTemplate(TemplateVarMixin, SmsTemplate):
     url: str
 
 
+class CommentReportReceivedTemplate(SmsTemplate):
+    registered_template = 'A comment has been reported as spam: {#var#} -Hasgeek'
+    template = 'A comment has been reported as spam: {url} -Hasgeek'
+    plaintext_template = 'A comment has been reported as spam: {url}'
+
+    url: str
+
+
 @CommentReportReceivedNotification.renderer
 class RenderCommentReportReceivedNotification(RenderNotification):
     """Notify site admins when a comment report is received."""
@@ -103,9 +111,8 @@ class RenderCommentReportReceivedNotification(RenderNotification):
             'notifications/comment_report_received_email.html.jinja2', view=self
         )
 
-    def sms(self) -> OneLineTemplate:
-        return OneLineTemplate(
-            text1=_("A comment has been reported as spam."),
+    def sms(self) -> CommentReportReceivedTemplate:
+        return CommentReportReceivedTemplate(
             url=shortlink(
                 url_for(
                     'siteadmin_review_comment',
