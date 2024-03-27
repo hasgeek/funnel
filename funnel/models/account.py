@@ -379,6 +379,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             order_by=lambda: AccountMembership.granted_at.asc(),
             viewonly=True,
         ),
+        read={'reader'},
         # Use offered_roles to determine which roles the user gets
         grants_via={
             'member': {
@@ -430,7 +431,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     )
     followers = with_roles(
         DynamicAssociationProxy['Account']('active_follower_memberships', 'member'),
-        read={'all'},
+        read={'reader'},
     )
 
     organization_admin_memberships: DynamicMapped[AccountMembership] = relationship(
@@ -499,7 +500,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     organizations_as_admin = DynamicAssociationProxy['Account'](
         'active_organization_admin_memberships', 'account'
     )
-    following = with_roles(
+    accounts_following = with_roles(
         DynamicAssociationProxy['Account']('active_following_memberships', 'account'),
         read={'all'},
     )

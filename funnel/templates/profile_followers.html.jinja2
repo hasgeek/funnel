@@ -50,13 +50,12 @@
           <div class="grid__col-xs-12">
             <h2 class="project-headline">{% trans %}Followers{% endtrans %}</h2>
             <ul class="mui-list--unstyled list--border">
-              {%- for user in followers %}
+              {%- for membership in memberships %}
                 <li class="user">
                   <div class="user__box">
-                    {{ useravatar(user) }}
+                    {{ useravatar(membership.member) }}
                     <div class="user__box__header">
-                      <h3 class="mui--text-body2 user__box__fullname">{{ user.pickername }}</h3>
-<!--                       <h3 class="mui--text-caption user__box__userid"><span>{% for team in teams %}{{ team.title }}{% if not loop.last %}, {% endif %}{% endfor %}</span></h3> -->
+                      <h3 class="mui--text-body2 user__box__fullname">{{ membership.member.pickername }}</h3>
                     </div>
                   </div>
                 </li>

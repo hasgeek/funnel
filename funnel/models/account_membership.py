@@ -46,6 +46,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
                 'revoked_at',
                 'is_self_granted',
                 'is_self_revoked',
+                'is_migrated',
             }
         },
         'account_admin': {
@@ -61,6 +62,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
                 'is_invite',
                 'is_self_granted',
                 'is_self_revoked',
+                'is_migrated',
             }
         },
     }
