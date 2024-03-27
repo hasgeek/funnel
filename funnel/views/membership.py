@@ -106,7 +106,7 @@ class OrganizationMembersView(AccountViewBase):
                     }, 422
 
                 new_membership = AccountMembership(
-                    account=self.obj, granted_by=current_auth.user
+                    account=self.obj, granted_by=current_auth.user, is_admin=True
                 )
                 membership_form.populate_obj(new_membership)
                 db.session.add(new_membership)

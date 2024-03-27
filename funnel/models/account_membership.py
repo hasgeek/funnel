@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+from typing import Any
+
+from sqlalchemy import event
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import immutable, with_roles
 
 from .account import Account
-from .base import Mapped, Model, relationship, sa, sa_orm
+from .base import Mapped, Model, declared_attr, relationship, sa, sa_orm
 from .membership_mixin import ImmutableMembershipMixin
 
 __all__ = ['AccountMembership']
@@ -18,8 +21,6 @@ class AccountMembership(ImmutableMembershipMixin, Model):
     An account can be an owner, admin, member or follower of another account.
 
     Owners can manage other owners, admins and members, but not followers.
-
-    TODO: Distinct flags for is_member, is_follower and is_admin.
     """
 
     __tablename__ = 'account_membership'
@@ -35,6 +36,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
             'read': {
                 'urls',
                 'member',
+                'is_admin',
                 'is_owner',
                 'account',
                 'granted_by',
@@ -66,12 +68,20 @@ class AccountMembership(ImmutableMembershipMixin, Model):
             'urls',
             'uuid_b58',
             'offered_roles',
+            'is_admin',
             'is_owner',
             'member',
             'account',
         },
-        'without_parent': {'urls', 'uuid_b58', 'offered_roles', 'is_owner', 'member'},
-        'related': {'urls', 'uuid_b58', 'offered_roles', 'is_owner'},
+        'without_parent': {
+            'urls',
+            'uuid_b58',
+            'offered_roles',
+            'is_admin',
+            'is_owner',
+            'member',
+        },
+        'related': {'urls', 'uuid_b58', 'offered_roles', 'is_admin', 'is_owner'},
     }
 
     #: Account that this membership is being granted on
@@ -90,14 +100,49 @@ class AccountMembership(ImmutableMembershipMixin, Model):
 
     # Organization roles:
     is_owner: Mapped[bool] = immutable(sa_orm.mapped_column(default=False))
+    is_admin: Mapped[bool] = immutable(sa_orm.mapped_column(default=False))
+    # Default role if both are false: 'follower'
+
+    @declared_attr.directive
+    @classmethod
+    def __table_args__(cls) -> tuple:  # type: ignore[override]
+        """Table arguments."""
+        try:
+            args = list(super().__table_args__)
+        except AttributeError:
+            args = []
+        kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
+        args.append(
+            # Check if is_owner is True, is_admin must also be True
+            sa.CheckConstraint(
+                sa.or_(
+                    sa.and_(
+                        cls.is_owner.is_(True),
+                        cls.is_admin.is_(True),
+                    ),
+                    cls.is_owner.is_(False),
+                ),
+                name='account_membership_owner_is_admin_check',
+            )
+        )
+        if kwargs:
+            args.append(kwargs)
+        return tuple(args)
 
     @cached_property
     def offered_roles(self) -> set[str]:
-        """Roles offered by this membership record."""
-        # TODO: is_member and is_admin will be distinct flags in the future, with the
-        # base role set to `follower` only. is_owner will remain, but if it's set, then
-        # is_admin must also be set (enforced with a check constraint)
-        roles = {'follower', 'member', 'admin'}
+        """Roles offered to the member via this membership record (if active)."""
+        roles = {'follower'}
+        if self.is_admin:
+            roles |= {'admin', 'member'}
         if self.is_owner:
-            roles.add('owner')
+            roles |= {'owner', 'member'}
         return roles
+
+
+@event.listens_for(AccountMembership.is_owner, 'set')
+def _ensure_owner_is_admin_too(
+    target: AccountMembership, value: Any, old_value: Any, _initiator: Any
+) -> None:
+    if value:
+        target.is_admin = True

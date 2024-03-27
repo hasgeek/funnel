@@ -369,7 +369,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         passive_deletes=True,
         back_populates='account',
     )
-    active_admin_memberships: DynamicMapped[AccountMembership] = with_roles(
+    active_follower_memberships: DynamicMapped[AccountMembership] = with_roles(
         relationship(
             lazy='dynamic',
             primaryjoin=lambda: sa.and_(
@@ -379,20 +379,35 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             order_by=lambda: AccountMembership.granted_at.asc(),
             viewonly=True,
         ),
-        grants_via={'member': {'admin', 'member'}},
+        # Use offered_roles to determine which roles the user gets
+        grants_via={
+            'member': {
+                'follower': 'follower',
+                'member': 'member',
+                'admin': 'admin',
+                'owner': 'owner',
+            }
+        },
+    )
+    active_admin_memberships: DynamicMapped[AccountMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            sa_orm.remote(AccountMembership.account_id) == Account.id,
+            AccountMembership.is_active,
+            AccountMembership.is_admin.is_(True),
+        ),
+        order_by=lambda: AccountMembership.granted_at.asc(),
+        viewonly=True,
     )
 
-    active_owner_memberships: DynamicMapped[AccountMembership] = with_roles(
-        relationship(
-            lazy='dynamic',
-            primaryjoin=lambda: sa.and_(
-                sa_orm.remote(AccountMembership.account_id) == Account.id,
-                AccountMembership.is_active,
-                AccountMembership.is_owner.is_(True),
-            ),
-            viewonly=True,
+    active_owner_memberships: DynamicMapped[AccountMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            sa_orm.remote(AccountMembership.account_id) == Account.id,
+            AccountMembership.is_active,
+            AccountMembership.is_owner.is_(True),
         ),
-        grants_via={'member': {'owner', 'admin', 'member'}},
+        viewonly=True,
     )
 
     active_invitations: DynamicMapped[AccountMembership] = relationship(
@@ -413,6 +428,10 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         DynamicAssociationProxy['Account']('active_admin_memberships', 'member'),
         read={'all'},
     )
+    followers = with_roles(
+        DynamicAssociationProxy['Account']('active_follower_memberships', 'member'),
+        read={'all'},
+    )
 
     organization_admin_memberships: DynamicMapped[AccountMembership] = relationship(
         lazy='dynamic',
@@ -431,7 +450,6 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             viewonly=True,
         )
     )
-
     active_organization_admin_memberships: DynamicMapped[AccountMembership] = (
         relationship(
             lazy='dynamic',
@@ -443,7 +461,6 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             viewonly=True,
         )
     )
-
     active_organization_owner_memberships: DynamicMapped[AccountMembership] = (
         relationship(
             lazy='dynamic',
@@ -456,7 +473,6 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             viewonly=True,
         )
     )
-
     active_organization_invitations: DynamicMapped[AccountMembership] = relationship(
         lazy='dynamic',
         foreign_keys=lambda: AccountMembership.member_id,
@@ -467,13 +483,25 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         ),
         viewonly=True,
     )
+    active_following_memberships: DynamicMapped[AccountMembership] = relationship(
+        lazy='dynamic',
+        primaryjoin=lambda: sa.and_(
+            sa_orm.remote(AccountMembership.member_id) == Account.id,
+            AccountMembership.is_active,
+        ),
+        order_by=lambda: AccountMembership.granted_at.asc(),
+        viewonly=True,
+    )
 
     organizations_as_owner = DynamicAssociationProxy['Account'](
         'active_organization_owner_memberships', 'account'
     )
-
     organizations_as_admin = DynamicAssociationProxy['Account'](
         'active_organization_admin_memberships', 'account'
+    )
+    following = with_roles(
+        DynamicAssociationProxy['Account']('active_following_memberships', 'account'),
+        read={'all'},
     )
 
     # auth_client.py
