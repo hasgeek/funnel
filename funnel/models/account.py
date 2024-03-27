@@ -2677,33 +2677,24 @@ class AccountExternalId(BaseMixin[int, Account], Model):
     account: Mapped[Account] = relationship(back_populates='externalids')
     user: Mapped[Account] = sa_orm.synonym('account')
     #: Identity of the external service (in app's login provider registry)
-    # FIXME: change to sa.Unicode
-    service: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
+    service: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
     #: Unique user id as per external service, used for identifying related accounts
-    # FIXME: change to sa.Unicode (uses UnicodeText for obsolete OpenID support)
-    userid: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
+    userid: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
     #: Optional public-facing username on the external service
-    # FIXME: change to sa.Unicode. LinkedIn once used full URLs
-    username: Mapped[str | None] = sa_orm.mapped_column(sa.UnicodeText, nullable=True)
+    username: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
     #: OAuth or OAuth2 access token
-    # FIXME: change to sa.Unicode
-    oauth_token: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
-    )
+    oauth_token: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
     #: Optional token secret (not used in OAuth2, used by Twitter with OAuth1a)
-    # FIXME: change to sa.Unicode
     oauth_token_secret: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
+        sa.Unicode, nullable=True
     )
     #: OAuth token type (typically 'bearer')
-    # FIXME: change to sa.Unicode
     oauth_token_type: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
+        sa.Unicode, nullable=True
     )
     #: OAuth2 refresh token
-    # FIXME: change to sa.Unicode
     oauth_refresh_token: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
+        sa.Unicode, nullable=True
     )
     #: OAuth2 token expiry in seconds, as sent by service provider
     oauth_expires_in: Mapped[int | None] = sa_orm.mapped_column()

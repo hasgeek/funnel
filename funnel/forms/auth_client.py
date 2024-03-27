@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from urllib.parse import urlparse
-
 from baseframe import _, __, forms
 from coaster.utils import getbool
 
@@ -73,12 +71,14 @@ class AuthClientForm(forms.Form):
             ),
         ],
     )
+    # FIXME: Allow multiple website URLs and validate against redirect URLs
     website = forms.URLField(
         __("Application website"),
         validators=[forms.validators.DataRequired(), forms.validators.URL()],
         filters=strip_filters,
         description=__("Website where users may access this application"),
     )
+    # FIXME: Change validator to URI instead of URL, for native app URIs
     redirect_uris = forms.TextListField(
         __("Redirect URLs"),
         validators=[
@@ -115,26 +115,6 @@ class AuthClientForm(forms.Form):
                 raise forms.validators.ValidationError(_("Invalid owner"))
             self.account = orgs[0]
 
-    def _urls_match(self, url1: str, url2: str) -> bool:
-        """Validate two URLs have the same base component (minus path)."""
-        p1 = urlparse(url1)
-        p2 = urlparse(url2)
-        return (
-            (p1.netloc == p2.netloc)
-            and (p1.scheme == p2.scheme)
-            and (p1.username == p2.username)
-            and (p1.password == p2.password)
-        )
-
-    def validate_redirect_uri(self, field: forms.Field) -> None:
-        """Validate redirect URI points to the website for confidential clients."""
-        if self.confidential.data and not self._urls_match(
-            self.website.data or '', field.data
-        ):
-            raise forms.validators.ValidationError(
-                _("The scheme, domain and port must match that of the website URL")
-            )
-
 
 @AuthClientCredential.forms('main')
 class AuthClientCredentialForm(forms.Form):
@@ -150,7 +130,7 @@ class AuthClientCredentialForm(forms.Form):
     )
 
 
-def permission_validator(form: forms.Form, field: forms.Field) -> None:
+def permission_validator(_form: forms.Form, field: forms.Field) -> None:
     """Validate permission strings to be appropriately named."""
     permlist = field.data.split()
     for perm in permlist:

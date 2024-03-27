@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from hashlib import blake2b, sha256
 from typing import Any, Self, cast, overload
 
+from furl import furl
 from sqlalchemy.orm import attribute_keyed_dict, load_only
 from sqlalchemy.orm.query import Query as QueryBaseClass
 from werkzeug.utils import cached_property
@@ -23,6 +24,7 @@ from .base import (
     Mapped,
     Model,
     Query,
+    UrlType,
     UuidMixin,
     db,
     declarative_mixin,
@@ -54,7 +56,7 @@ class ScopeMixin:
     def _scope(cls) -> Mapped[str]:
         """Database column for storing scopes as a space-separated string."""
         return sa_orm.mapped_column(
-            'scope', sa.UnicodeText, nullable=cls.__scope_null_allowed__
+            'scope', sa.Unicode, nullable=cls.__scope_null_allowed__
         )
 
     @property
@@ -116,18 +118,16 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin[int, Account], Model):
         sa_orm.mapped_column(), read={'all'}, write={'owner'}
     )
     #: Website
-    website: Mapped[str] = with_roles(
-        sa_orm.mapped_column(sa.UnicodeText, nullable=False),  # FIXME: Use UrlType
-        read={'all'},
-        write={'owner'},
+    website: Mapped[furl] = with_roles(
+        sa_orm.mapped_column(UrlType, nullable=False), read={'all'}, write={'owner'}
     )
     #: Redirect URIs (one or more)
     _redirect_uris: Mapped[str | None] = sa_orm.mapped_column(
         'redirect_uri', sa.UnicodeText, nullable=True, default=''
     )
     #: Back-end notification URI (TODO: deprecated, needs better architecture)
-    notification_uri: Mapped[str | None] = with_roles(  # FIXME: Use UrlType
-        sa_orm.mapped_column(sa.UnicodeText, nullable=True, default=''), rw={'owner'}
+    notification_uri: Mapped[furl | None] = with_roles(
+        sa_orm.mapped_column(UrlType, nullable=True, default=''), rw={'owner'}
     )
     #: Active flag
     active: Mapped[bool] = sa_orm.mapped_column(default=True)
@@ -389,7 +389,7 @@ class AuthCode(ScopeMixin, BaseMixin[int, Account], Model):
     code: Mapped[str] = sa_orm.mapped_column(
         sa.String(44), insert_default=newsecret, default=None, nullable=False
     )
-    redirect_uri: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
+    redirect_uri: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
     used: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     def is_valid(self) -> bool:
@@ -656,7 +656,7 @@ class AuthClientPermissions(BaseMixin[int, Account], Model):
     )
     #: The permissions as a string of tokens
     access_permissions: Mapped[str] = sa_orm.mapped_column(
-        'permissions', sa.UnicodeText, default='', nullable=False
+        'permissions', sa.Unicode, default='', nullable=False
     )
 
     # Only one assignment per account and client
@@ -732,7 +732,7 @@ class AuthClientTeamPermissions(BaseMixin[int, Account], Model):
     )
     #: The permissions as a string of tokens
     access_permissions: Mapped[str] = sa_orm.mapped_column(
-        'permissions', sa.UnicodeText, default='', nullable=False
+        'permissions', sa.Unicode, default='', nullable=False
     )
 
     # Only one assignment per team and client
