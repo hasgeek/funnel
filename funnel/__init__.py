@@ -26,14 +26,14 @@ from ._version import __version__
 
 #: Main app for hasgeek.com
 app = Flask(__name__, instance_relative_config=True)
-app.name = 'funnel'  # pyright: ignore[reportGeneralTypeIssues]
+app.name = 'funnel'  # pyright: ignore[reportAttributeAccessIssue]
 app.config['SITE_TITLE'] = __("Hasgeek")
 #: Short link app at has.gy
 shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True)
-shortlinkapp.name = 'shortlink'  # pyright: ignore[reportGeneralTypeIssues]
+shortlinkapp.name = 'shortlink'  # pyright: ignore[reportAttributeAccessIssue]
 #: Unsubscribe app at bye.li
 unsubscribeapp = Flask(__name__, static_folder=None, instance_relative_config=True)
-unsubscribeapp.name = 'unsubscribe'  # pyright: ignore[reportGeneralTypeIssues]
+unsubscribeapp.name = 'unsubscribe'  # pyright: ignore[reportAttributeAccessIssue]
 
 all_apps = [app, shortlinkapp, unsubscribeapp]
 

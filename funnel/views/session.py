@@ -15,7 +15,8 @@ from ..auth import current_auth
 from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
 from ..models import Account, Project, Proposal, SavedSession, Session, db
 from ..proxies import request_wants
-from ..typing import ReturnRenderWith, ReturnView
+from ..typing import ReturnView
+from .decorators import idempotent_request
 from .helpers import localize_date, render_redirect
 from .login_session import requires_login
 from .mixins import AccountCheckMixin, ProjectViewBase
@@ -127,6 +128,7 @@ def session_edit(
 @route('/<account>/<project>/sessions', init_app=app)
 class ProjectSessionView(ProjectViewBase):
     @route('new', methods=['GET', 'POST'])
+    @idempotent_request(['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
     def new_session(self) -> ReturnView:
@@ -206,12 +208,14 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
         )
 
     @route('edit', methods=['GET', 'POST'])
+    @idempotent_request(['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
     def edit(self) -> ReturnView:
         return session_edit(self.obj.project, session=self.obj)
 
     @route('delete', methods=['POST'])
+    @idempotent_request()
     @requires_login
     @requires_roles({'project_editor'})
     def delete(self) -> ReturnView:
@@ -240,9 +244,10 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
         return {'status': True, 'modal_url': modal_url}
 
     @route('save', methods=['POST'])
+    @idempotent_request()
     @requires_login
     # @requires_roles({'reader'})
-    def save(self) -> ReturnRenderWith:
+    def save(self) -> ReturnView:
         form = SavedSessionForm()
         created = False
         if form.validate_on_submit():

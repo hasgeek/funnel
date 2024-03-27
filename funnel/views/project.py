@@ -44,6 +44,7 @@ from ..models import (
 )
 from ..signals import project_data_change, project_role_change
 from ..typing import ReturnRenderWith, ReturnView
+from .decorators import idempotent_request
 from .helpers import html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import (
@@ -656,6 +657,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         return render_redirect(self.obj.url_for())
 
     @route('cfp_transition', methods=['POST'])
+    @idempotent_request()
     @requires_login
     @requires_roles({'editor'})
     def cfp_transition(self) -> ReturnView:
@@ -694,6 +696,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         }
 
     @route('register', methods=['POST'])
+    @idempotent_request()
     @requires_login
     def register(self) -> ReturnView:
         """Register for project as a participant."""
@@ -728,6 +731,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         return render_redirect(self.obj.url_for())
 
     @route('deregister', methods=['POST'])
+    @idempotent_request()
     @requires_login
     def deregister(self) -> ReturnView:
         """Unregister from project as a participant."""
@@ -820,6 +824,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         return self.get_rsvp_state_csv(RsvpStateEnum.MAYBE)
 
     @route('save', methods=['POST'])
+    @idempotent_request()
     @requires_login
     @requires_roles({'reader'})
     def save(self) -> ReturnView:
