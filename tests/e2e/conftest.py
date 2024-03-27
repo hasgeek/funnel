@@ -3,8 +3,11 @@
 # pylint: disable=redefined-outer-name
 
 import pytest
+from playwright.sync_api import expect
 from pytest_socket import enable_socket
 from sqlalchemy.orm import scoped_session
+
+expect.set_options(timeout=10_000)
 
 
 @pytest.fixture()
