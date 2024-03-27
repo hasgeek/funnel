@@ -8,6 +8,7 @@ from flask import abort, current_app, flash, render_template, request
 
 from baseframe import _
 from baseframe.filters import date_filter
+from baseframe import forms
 from baseframe.forms import render_form
 from coaster.views import (
     UrlChangeCheck,
@@ -28,6 +29,7 @@ from ..forms import (
 )
 from ..models import Account, Project, Session, db, sa
 from ..typing import ReturnRenderWith, ReturnView
+from .decorators import idempotent_request
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
 from .mixins import AccountViewBase
@@ -241,6 +243,32 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             abort(404)  # Reserved account
 
         return ctx
+
+    @route('followers', endpoint='followers')
+    @render_with('profile_followers.html.jinja2', json=True)
+    def followers(self) -> ReturnRenderWith:
+        """Followers of an account"""
+        return {
+            'profile': self.obj.current_access(datasets=('primary', 'related')),
+            'followers': [],
+        }
+
+    @route('follow', methods=['POST'])
+    @idempotent_request()
+    @requires_login
+    @requires_roles({'reader'})
+    def follow(self) -> ReturnView:
+        """Follow an account."""
+        form = forms.Form()
+        form.form_nonce.data = form.form_nonce.get_default()
+        if form.validate_on_submit():
+            return {'status': 'ok', 'form_nonce': form.form_nonce.data}
+        return {
+            'status': 'error',
+            'error': 'project_save_form_invalid',
+            'error_description': _("This page timed out. Reload and try again"),
+            'form_nonce': form.form_nonce.data,
+        }, 400
 
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)

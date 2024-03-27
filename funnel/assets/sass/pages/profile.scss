@@ -99,16 +99,9 @@
   }
 }
 
-.profile-create-btn {
-  margin-right: 8px;
-  margin-top: 0;
-}
-
-.profile-create-btn--mobile {
+.profile__btns .mui-btn {
   width: 100%;
-  .mui-btn {
-    width: 100%;
-  }
+  margin-left: 0;
 }
 
 .profile-dropdown-btn {
@@ -177,11 +170,18 @@
           min-width: 450px;
         }
       }
+      .profile__btns .mui-btn {
+        width: auto;
+        margin-left: 0;
+        margin-right: $mui-grid-padding * 0.5;
+      }
       .profile__banner__btns {
         position: absolute;
         bottom: -58px;
         z-index: 1000;
         right: $mui-grid-padding;
+        display: flex;
+        align-items: center;
       }
     }
   }
