@@ -241,12 +241,12 @@ class CommentReplyNotification(Notification[Comment, Comment], type='comment_rep
 class ProjectCrewMembershipNotification(
     DocumentHasAccount,
     Notification[Project, ProjectMembership],
-    type='project_crew_membership_granted',
+    type='project_membership_granted',
 ):
     """Notification of being granted crew membership (including role changes)."""
 
     category = notification_categories.project_crew
-    title = __("When a project crew member is added or removed")
+    title = __("When crew members change")
     description = __("Crew members have access to the project’s settings and data")
 
     dispatch_roles = ['member', 'project_crew']
@@ -256,7 +256,7 @@ class ProjectCrewMembershipNotification(
 class ProjectCrewMembershipRevokedNotification(
     DocumentHasAccount,
     Notification[Project, ProjectMembership],
-    type='project_crew_membership_revoked',
+    type='project_membership_revoked',
     shadows=ProjectCrewMembershipNotification,
 ):
     """Notification of being removed from crew membership (including role changes)."""

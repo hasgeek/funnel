@@ -27,6 +27,8 @@ notification_preferences = sa.table(
 renames = [
     ('organization_membership_granted', 'account_membership_granted'),
     ('organization_membership_revoked', 'account_membership_revoked'),
+    ('project_crew_membership_granted', 'project_membership_granted'),
+    ('project_crew_membership_revoked', 'project_membership_revoked'),
 ]
 
 
