@@ -120,15 +120,13 @@ class MatomoData:
 @overload
 async def matomo_response_json(
     client: httpx.AsyncClient, url: str, sequence: Literal[True] = True
-) -> Sequence[MatomoResponse]:
-    ...
+) -> Sequence[MatomoResponse]: ...
 
 
 @overload
 async def matomo_response_json(
     client: httpx.AsyncClient, url: str, sequence: Literal[False]
-) -> MatomoResponse | None:
-    ...
+) -> MatomoResponse | None: ...
 
 
 async def matomo_response_json(

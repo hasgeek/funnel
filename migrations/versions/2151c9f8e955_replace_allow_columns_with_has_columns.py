@@ -17,13 +17,13 @@ branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade(engine_name='') -> None:
+def upgrade(engine_name: str = '') -> None:
     """Upgrade all databases."""
     # Do not modify. Edit `upgrade_` instead
     globals().get(f'upgrade_{engine_name}', lambda: None)()
 
 
-def downgrade(engine_name='') -> None:
+def downgrade(engine_name: str = '') -> None:
     """Downgrade all databases."""
     # Do not modify. Edit `downgrade_` instead
     globals().get(f'downgrade_{engine_name}', lambda: None)()

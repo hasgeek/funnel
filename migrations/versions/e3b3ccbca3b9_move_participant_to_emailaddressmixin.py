@@ -139,7 +139,7 @@ def upgrade() -> None:
         ondelete='SET NULL',
     )
 
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(participant))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(participant))
     progress = get_progressbar("Participants", count)
     progress.start()
     items = conn.execute(
@@ -244,7 +244,7 @@ def downgrade() -> None:
         'participant',
         sa.Column('email', sa.VARCHAR(length=254), autoincrement=False, nullable=True),
     )
-    count = conn.scalar(sa.select(sa.func.count('*')).select_from(participant))
+    count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(participant))
     progress = get_progressbar("Participants", count)
     progress.start()
     items = conn.execute(

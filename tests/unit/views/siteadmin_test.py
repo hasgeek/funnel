@@ -1,22 +1,27 @@
 """Test siteadmin endpoints."""
+
 # pylint: disable=redefined-outer-name
 
 from __future__ import annotations
+
+import types
 
 import pytest
 
 from funnel import models
 
+from ...conftest import Flask, LoginFixtureProtocol, TestClient, scoped_session
+
 
 @pytest.fixture()
-def rq_dashboard():
+def rq_dashboard() -> types.ModuleType:
     """Run tests for rq_dashboard only if it is installed."""
     return pytest.importorskip('rq_dashboard')
 
 
 @pytest.fixture()
 def user_vetinari_sysadmin(
-    db_session, user_vetinari: models.User
+    db_session: scoped_session, user_vetinari: models.User
 ) -> models.SiteMembership:
     if user_vetinari.active_site_membership:
         site_membership = user_vetinari.active_site_membership.replace(
@@ -32,7 +37,10 @@ def user_vetinari_sysadmin(
 
 @pytest.mark.usefixtures('rq_dashboard')
 def test_cant_access_rq_dashboard(
-    app, client, login, user_rincewind: models.User
+    app: Flask,
+    client: TestClient,
+    login: LoginFixtureProtocol,
+    user_rincewind: models.User,
 ) -> None:
     """User who is not a sysadmin cannot access RQ dashboard."""
     login.as_(user_rincewind)
@@ -42,7 +50,10 @@ def test_cant_access_rq_dashboard(
 
 @pytest.mark.usefixtures('rq_dashboard', 'user_vetinari_sysadmin')
 def test_can_access_rq_dashboard(
-    app, client, login, user_vetinari: models.User
+    app: Flask,
+    client: TestClient,
+    login: LoginFixtureProtocol,
+    user_vetinari: models.User,
 ) -> None:
     """User who is a sysadmin can access RQ dashboard."""
     login.as_(user_vetinari)

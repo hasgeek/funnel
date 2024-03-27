@@ -6,6 +6,7 @@ import re
 from enum import Enum
 from re import Pattern
 from string import Formatter
+from types import SimpleNamespace
 from typing import Any, ClassVar, cast
 
 from flask import Flask
@@ -205,11 +206,13 @@ class SmsTemplate:
             '_plaintext',
             # vformat only needs __getitem__, so ignore mypy's warning about arg type.
             # The expected type is Mapping[str, Any]
-            Formatter().vformat(  # type: ignore[call-overload]
-                self.plaintext_template, (), self
-            )
-            if self.plaintext_template
-            else '',
+            (
+                Formatter().vformat(  # type: ignore[call-overload]
+                    self.plaintext_template, (), self
+                )
+                if self.plaintext_template
+                else ''
+            ),
         )
         self.truncate()
         object.__setattr__(
@@ -249,7 +252,9 @@ class SmsTemplate:
         try:
             return self._format_kwargs[attr]
         except KeyError as exc:
-            raise AttributeError(attr) from exc
+            raise AttributeError(
+                attr, name=attr, obj=SimpleNamespace(**self._format_kwargs)
+            ) from exc
 
     def __getitem__(self, key: str) -> Any:
         """Get a format variable via dictionary access, defaulting to ''."""

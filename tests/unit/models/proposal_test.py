@@ -2,8 +2,14 @@
 
 from funnel import models
 
+from ...conftest import scoped_session
 
-def test_reorder(db_session, user_twoflower, project_expo2010) -> None:
+
+def test_reorder(
+    db_session: scoped_session,
+    user_twoflower: models.User,
+    project_expo2010: models.Project,
+) -> None:
     proposal1 = models.Proposal(
         created_by=user_twoflower,
         project=project_expo2010,

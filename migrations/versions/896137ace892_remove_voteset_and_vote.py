@@ -17,17 +17,17 @@ branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `upgrade_` instead
     globals().get('upgrade_%s' % engine_name, lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `downgrade_` instead
     globals().get('downgrade_%s' % engine_name, lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     op.drop_constraint('comment_voteset_id_fkey', 'comment', type_='foreignkey')
     op.drop_column('comment', 'voteset_id')
     op.drop_constraint('project_voteset_id_fkey', 'project', type_='foreignkey')
@@ -41,7 +41,7 @@ def upgrade_():
     op.drop_table('voteset')
 
 
-def downgrade_():
+def downgrade_() -> None:
     op.create_table(
         'voteset',
         sa.Column(

@@ -6,41 +6,59 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import Account, NewUpdateNotification, Update
+from ...models import Account, Project, ProjectUpdateNotification, Update
 from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
 
 
-class UpdateTemplate(TemplateVarMixin, SmsTemplate):
-    """DLT registered template for Updates."""
+class UpdateMergedTitleTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for updates when the project has a merged title."""
 
     registered_template = (
         'There is an update in {#var#}: {#var#}\n\nhttps://bye.li to stop -Hasgeek'
     )
     template = (
-        "There is an update in {account}: {url}\n\nhttps://bye.li to stop -Hasgeek"
+        "There is an update in {project}: {url}\n\nhttps://bye.li to stop -Hasgeek"
     )
-    plaintext_template = "There is an update in {account}: {url}"
+    plaintext_template = "There is an update in {project}: {url}"
     message_priority = SmsPriority.NORMAL
 
     url: str
 
 
-@NewUpdateNotification.renderer
-class RenderNewUpdateNotification(RenderNotification):
+class UpdateSplitTitleTemplate(TemplateVarMixin, SmsTemplate):
+    """DLT registered template for updates when the project has a split title."""
+
+    registered_template = (
+        "There is an update in {#var#} / {#var#}. Details here: {#var#}"
+        "\n\nhttps://bye.li to stop -Hasgeek"
+    )
+    template = (
+        "There is an update in {account_title} / {project_title}. Details here: {url}"
+        "\n\nhttps://bye.li to stop -Hasgeek"
+    )
+    plaintext_template = (
+        "There is an update in {account_title} / {project_title}: {url}"
+    )
+    message_priority = SmsPriority.NORMAL
+
+    url: str
+
+
+@ProjectUpdateNotification.renderer
+class RenderProjectUpdateNotification(RenderNotification):
     """Notify crew and participants when the project has a new update."""
 
+    project: Project
     update: Update
-    aliases = {'document': 'update'}
+    aliases = {'document': 'project', 'fragment': 'update'}
     emoji_prefix = "📰 "
     reason = __(
         "You are receiving this because you have registered for this or related"
         " projects"
     )
-    hero_image = 'img/email/chars-v1/update.png'
-    email_heading = __("New update!")
 
     @property
     def actor(self) -> Account:
@@ -54,7 +72,9 @@ class RenderNewUpdateNotification(RenderNotification):
         return self.update.created_by
 
     def web(self) -> str:
-        return render_template('notifications/update_new_web.html.jinja2', view=self)
+        return render_template(
+            'notifications/project_update_web.html.jinja2', view=self
+        )
 
     def email_subject(self) -> str:
         return self.emoji_prefix + _("{update} ({project})").format(
@@ -62,11 +82,22 @@ class RenderNewUpdateNotification(RenderNotification):
         )
 
     def email_content(self) -> str:
-        return render_template('notifications/update_new_email.html.jinja2', view=self)
+        return render_template(
+            'notifications/project_update_email.html.jinja2', view=self
+        )
 
-    def sms(self) -> UpdateTemplate:
-        return UpdateTemplate(
-            account=self.update.project.account,
+    def sms(self) -> UpdateMergedTitleTemplate | UpdateSplitTitleTemplate:
+        if len(self.update.project.title_parts) == 1:
+            return UpdateMergedTitleTemplate(
+                project=self.update.project,
+                url=shortlink(
+                    self.update.url_for(_external=True, **self.tracking_tags('sms')),
+                    shorter=True,
+                ),
+            )
+        return UpdateSplitTitleTemplate(
+            project_title=self.update.project,
+            account_title=self.update.project.account,
             url=shortlink(
                 self.update.url_for(_external=True, **self.tracking_tags('sms')),
                 shorter=True,

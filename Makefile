@@ -1,19 +1,35 @@
+ifeq ($(shell test -d .venv/bin && echo 1 || echo 0), 1)
+    export PATH := .venv/bin:$(PATH)
+endif
+
 all:
 	@echo "You must have an active Python virtualenv (3.11+) before using any of these."
 	@echo
 	@echo "For production deployment:"
+	@echo
 	@echo "  make install       # For first time setup and after dependency upgrades"
 	@echo "  make assets        # For only Node asset changes"
 	@echo
 	@echo "For testing and CI:"
+	@echo
 	@echo "  make install-test  # Install everything needed for a test environment"
+	@echo "  make install-playwright  # Install browsers for Playwright-based tests"
 	@echo
 	@echo "For development:"
+	@echo
 	@echo "  make install-dev   # For first time setup and after dependency upgrades"
 	@echo "  make deps-noup     # Rebuild for dependency changes, but skip upgrades"
 	@echo "  make deps          # Scan for dependency upgrades (remember to test!)"
 	@echo "  make deps-python   # Scan for Python dependency upgrades"
 	@echo "  make deps-npm      # Scan for NPM dependency upgrades"
+	@echo
+	@echo "To export a new symbol from any Python file, regenerate '__init__.py' files:"
+	@echo
+	@echo "  make initpy"
+	@echo
+	@echo "After editing any UI strings, regenerate Babel translation databases:"
+	@echo
+	@echo "  make babel"
 	@echo
 	@echo "To upgrade dependencies in a development environment, use all in order and"
 	@echo "commit changes only if all tests pass:"
@@ -100,6 +116,35 @@ deps-noup: deps-python-noup
 
 deps: deps-python deps-npm
 
+initpy: initpy-models initpy-forms initpy-loginproviders initpy-transports initpy-utils
+
+initpy-models:
+	mkinit --inplace --relative --black --lazy_loader_typed funnel/models/__init__.py
+	isort funnel/models/__init__.py funnel/models/__init__.pyi
+	black funnel/models/__init__.py funnel/models/__init__.pyi
+
+initpy-forms:
+	mkinit --inplace --relative --black funnel/forms/__init__.py
+	isort funnel/forms/__init__.py
+	black funnel/forms/__init__.py
+
+initpy-loginproviders:
+	mkinit --inplace --relative --black funnel/loginproviders/__init__.py
+	isort funnel/loginproviders/__init__.py
+	black funnel/loginproviders/__init__.py
+
+initpy-transports:
+	# Do not auto-gen funnel/transports/__init__.py, only sub-packages
+	mkinit --inplace --relative --black funnel/transports/email
+	mkinit --inplace --relative --black funnel/transports/sms
+	isort funnel/transports/*/__init__.py
+	black funnel/transports/*/__init__.py
+
+initpy-utils:
+	mkinit --inplace --relative --black --recursive funnel/utils
+	isort funnel/utils/__init__.py funnel/utils/*/__init__.py funnel/utils/*/*/__init__.py
+	black funnel/utils/__init__.py funnel/utils/*/__init__.py funnel/utils/*/*/__init__.py
+
 install-npm:
 	npm install
 
@@ -118,9 +163,18 @@ install-python-test: install-python-pip deps-editable
 install-python: install-python-pip deps-editable
 	pip install --use-pep517 -r requirements/base.txt
 
-install-dev: deps-editable install-python-dev install-npm assets
+install-playwright:
+	@if command -v playwright > /dev/null; then\
+		echo "playwright install --with-deps";\
+		playwright install --with-deps;\
+	else\
+		echo "Install Playwright first: make install-python-test";\
+		exit 1;\
+	fi
 
-install-test: deps-editable install-python-test install-npm assets
+install-dev: deps-editable install-python-dev install-playwright install-npm assets
+
+install-test: deps-editable install-python-test install-playwright install-npm assets
 
 install: deps-editable install-python install-npm-ci assets
 

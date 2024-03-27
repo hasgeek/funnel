@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import re
 from html import unescape as html_unescape
-from typing import Any, TypeVar
-from typing_extensions import TypedDict
+from typing import Any, ClassVar, Generic, TypedDict, TypeVar
 from urllib.parse import quote as urlquote
 
 from flask import request, url_for
@@ -13,40 +12,35 @@ from markupsafe import Markup
 from sqlalchemy.sql import expression
 
 from baseframe import __
-from coaster.views import (
-    ClassView,
-    ModelView,
-    UrlForView,
-    render_with,
-    requestargs,
-    requires_roles,
-    route,
-)
+from coaster.sqlalchemy import RoleAccessProxy
+from coaster.views import ClassView, render_with, requestargs, requires_roles, route
 
 from .. import app, executor
 from ..models import (
     Account,
     Comment,
     Commentset,
+    ModelSearchProtocol,
     Project,
     Proposal,
     ProposalMembership,
     Query,
-    SearchModelUnion,
     Session,
     Update,
     db,
     sa,
+    sa_orm,
     visual_field_delimiter,
 )
 from ..typing import ReturnRenderWith
 from ..utils import abort_null
 from .helpers import render_redirect
-from .mixins import AccountViewMixin, ProjectViewMixin
+from .mixins import AccountViewBase, ProjectViewBase
 
 # --- Definitions ----------------------------------------------------------------------
 
 _Q = TypeVar('_Q', bound=Query)
+_ST = TypeVar('_ST', bound=ModelSearchProtocol)
 
 
 # PostgreSQL ts_headline markers
@@ -69,25 +63,29 @@ html_whitespace_re = re.compile(r'\s+', re.ASCII)
 # --- Search provider types ------------------------------------------------------------
 
 
-class SearchProvider:
+class SearchProvider(Generic[_ST]):
     """Base class for search providers."""
 
     #: Label to use in UI
     label: str
     #: Model to query against
-    model: type[SearchModelUnion]
+    model: type[_ST]
     #: Does this model have a title column?
-    has_title: bool = True
+    has_title: ClassVar[bool] = True
 
     @property
     def regconfig(self) -> str:
-        """Return PostgreSQL regconfig language, defaulting to English."""
+        """Return PostgreSQL `regconfig` language, defaulting to English."""
         return self.model.search_vector.type.options.get('regconfig', 'english')
 
     @property
     def title_column(self) -> sa.ColumnElement[str]:
         """Return a column or column expression representing the object's title."""
-        return self.model.title
+        # `Comment.title` is a property not a column, as comments don't have titles.
+        # That makes this return value incorrect, but here we ignore the error as
+        # class:`CommentSearch` explicitly overrides :meth:`hltitle_column`, and that is
+        # the only place this property is accessed
+        return self.model.title  # type: ignore[return-value]  # FIXME
 
     @property
     def hltext(self) -> sa.ColumnElement[str]:
@@ -102,9 +100,7 @@ class SearchProvider:
             *(getattr(self.model, c) for c in self.model.search_vector.type.columns),
         )
 
-    def hltitle_column(
-        self, tsquery: sa.sql.functions.Function
-    ) -> sa.ColumnElement[str]:
+    def hltitle_column(self, tsquery: sa.Function) -> sa.ColumnElement:
         """Return a column expression for title with search terms highlighted."""
         return sa.func.ts_headline(
             self.regconfig,
@@ -114,9 +110,7 @@ class SearchProvider:
             type_=sa.UnicodeText,
         )
 
-    def hlsnippet_column(
-        self, tsquery: sa.sql.functions.Function
-    ) -> sa.ColumnElement[str]:
+    def hlsnippet_column(self, tsquery: sa.Function) -> sa.ColumnElement[str]:
         """Return a column expression for a snippet of text with highlights."""
         return sa.func.ts_headline(
             self.regconfig,
@@ -128,9 +122,7 @@ class SearchProvider:
             type_=sa.UnicodeText,
         )
 
-    def matched_text_column(
-        self, tsquery: sa.sql.functions.Function
-    ) -> sa.ColumnElement[str]:
+    def matched_text_column(self, tsquery: sa.Function) -> sa.ColumnElement[str]:
         """Return a column expression for matching text, without highlighting."""
         return sa.func.ts_headline(
             self.regconfig,
@@ -142,58 +134,50 @@ class SearchProvider:
 
     # --- Query methods
 
-    def add_order_by(self, tsquery: sa.sql.functions.Function, query: _Q) -> _Q:
+    def add_order_by(self, tsquery: sa.Function, query: _Q) -> _Q:
         """Add an order_by condition to the query."""
         return query.order_by(
             sa.desc(sa.func.ts_rank_cd(self.model.search_vector, tsquery)),
             self.model.created_at.desc(),
         )
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query:
+    def all_query(self, tsquery: sa.Function) -> Query:
         """Search entire site."""
         raise NotImplementedError("Subclasses must implement all_query")
 
-    def all_count(self, tsquery: sa.sql.functions.Function) -> int:
+    def all_count(self, tsquery: sa.Function) -> int:
         """Return count of results for :meth:`all_query`."""
-        return self.all_query(tsquery).options(sa.orm.load_only(self.model.id)).count()
+        return self.all_query(tsquery).options(sa_orm.load_only(self.model.id_)).count()
 
 
-class SearchInAccountProvider(SearchProvider):
+class SearchInAccountProvider(SearchProvider[_ST]):
     """Base class for search providers that support searching in an account."""
 
-    def account_query(
-        self, tsquery: sa.sql.functions.Function, account: Account
-    ) -> Query:
+    def account_query(self, tsquery: sa.Function, account: Account) -> Query:
         """Search in an account."""
         raise NotImplementedError("Subclasses must implement account_query")
 
-    def account_count(
-        self, tsquery: sa.sql.functions.Function, account: Account
-    ) -> int:
+    def account_count(self, tsquery: sa.Function, account: Account) -> int:
         """Return count of results for :meth:`account_query`."""
         return (
             self.account_query(tsquery, account)
-            .options(sa.orm.load_only(self.model.id))
+            .options(sa_orm.load_only(self.model.id_))
             .count()
         )
 
 
-class SearchInProjectProvider(SearchInAccountProvider):
+class SearchInProjectProvider(SearchInAccountProvider[_ST]):
     """Base class for search providers that support searching in a project."""
 
-    def project_query(
-        self, tsquery: sa.sql.functions.Function, project: Project
-    ) -> Query:
+    def project_query(self, tsquery: sa.Function, project: Project) -> Query:
         """Search in a project."""
         raise NotImplementedError("Subclasses must implement project_query")
 
-    def project_count(
-        self, tsquery: sa.sql.functions.Function, project: Project
-    ) -> int:
+    def project_count(self, tsquery: sa.Function, project: Project) -> int:
         """Return count of results for :meth:`project_query`."""
         return (
             self.project_query(tsquery, project)
-            .options(sa.orm.load_only(self.model.id))
+            .options(sa_orm.load_only(self.model.id_))
             .count()
         )
 
@@ -207,7 +191,7 @@ class ProjectSearch(SearchInAccountProvider):
     label = __("Projects")
     model = Project
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Project]:
+    def all_query(self, tsquery: sa.Function) -> Query[Project]:
         """Search entire site for projects."""
         return (
             Project.query.join(Account, Project.account).filter(
@@ -245,10 +229,10 @@ class ProjectSearch(SearchInAccountProvider):
             )
         )
 
-    def all_count(self, tsquery: sa.sql.functions.Function) -> int:
+    def all_count(self, tsquery: sa.Function) -> int:
         """Return count of matching projects across the entire site."""
         return (
-            db.session.query(sa.func.count('*'))
+            db.session.query(sa.func.count(sa.text('*')))
             .select_from(Project)
             .join(Account, Project.account)
             .filter(
@@ -259,9 +243,7 @@ class ProjectSearch(SearchInAccountProvider):
             .scalar()
         )
 
-    def account_query(
-        self, tsquery: sa.sql.functions.Function, account: Account
-    ) -> Query[Project]:
+    def account_query(self, tsquery: sa.Function, account: Account) -> Query[Project]:
         """Search within an account for projects."""
         return Project.query.filter(
             Project.account == account,
@@ -310,7 +292,7 @@ class AccountSearch(SearchProvider):
             visual_field_delimiter, Account.title, Account.description_html
         )
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Account]:
+    def all_query(self, tsquery: sa.Function) -> Query[Account]:
         """Search for accounts."""
         return self.add_order_by(
             tsquery,
@@ -327,7 +309,7 @@ class SessionSearch(SearchInProjectProvider):
     label = __("Sessions")
     model = Session
 
-    def add_order_by(self, tsquery: sa.sql.functions.Function, query: _Q) -> _Q:
+    def add_order_by(self, tsquery: sa.Function, query: _Q) -> _Q:
         """Add an order_by condition to the query."""
         return query.order_by(
             sa.desc(sa.func.ts_rank_cd(Session.search_vector, tsquery)),
@@ -337,7 +319,7 @@ class SessionSearch(SearchInProjectProvider):
             ).desc(),
         )
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Session]:
+    def all_query(self, tsquery: sa.Function) -> Query[Session]:
         """Search for sessions across the site."""
         return self.add_order_by(
             tsquery,
@@ -352,9 +334,7 @@ class SessionSearch(SearchInProjectProvider):
             ),
         )
 
-    def account_query(
-        self, tsquery: sa.sql.functions.Function, account: Account
-    ) -> Query[Session]:
+    def account_query(self, tsquery: sa.Function, account: Account) -> Query[Session]:
         """Search for sessions within an account."""
         return self.add_order_by(
             tsquery,
@@ -368,9 +348,7 @@ class SessionSearch(SearchInProjectProvider):
             ),
         )
 
-    def project_query(
-        self, tsquery: sa.sql.functions.Function, project: Project
-    ) -> Query[Session]:
+    def project_query(self, tsquery: sa.Function, project: Project) -> Query[Session]:
         """Search for sessions within a project."""
         return self.add_order_by(
             tsquery,
@@ -388,14 +366,14 @@ class ProposalSearch(SearchInProjectProvider):
     label = __("Submissions")
     model = Proposal
 
-    def add_order_by(self, tsquery: sa.sql.functions.Function, query: _Q) -> _Q:
+    def add_order_by(self, tsquery: sa.Function, query: _Q) -> _Q:
         """Add an order_by condition to the query."""
         return query.order_by(
             sa.desc(sa.func.ts_rank_cd(Proposal.search_vector, tsquery)),
             Proposal.created_at.desc(),
         )
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Proposal]:
+    def all_query(self, tsquery: sa.Function) -> Query[Proposal]:
         """Search for proposals across the site."""
         return self.add_order_by(
             tsquery,
@@ -421,9 +399,7 @@ class ProposalSearch(SearchInProjectProvider):
             ),
         )
 
-    def account_query(
-        self, tsquery: sa.sql.functions.Function, account: Account
-    ) -> Query[Proposal]:
+    def account_query(self, tsquery: sa.Function, account: Account) -> Query[Proposal]:
         """Search for proposals within an account."""
         return self.add_order_by(
             tsquery,
@@ -447,9 +423,7 @@ class ProposalSearch(SearchInProjectProvider):
             ),
         )
 
-    def project_query(
-        self, tsquery: sa.sql.functions.Function, project: Project
-    ) -> Query[Proposal]:
+    def project_query(self, tsquery: sa.Function, project: Project) -> Query[Proposal]:
         """Search for proposals within a project."""
         return self.add_order_by(
             tsquery,
@@ -479,7 +453,7 @@ class UpdateSearch(SearchInProjectProvider):
     label = __("Updates")
     model = Update
 
-    def add_order_by(self, tsquery: sa.sql.functions.Function, query: _Q) -> _Q:
+    def add_order_by(self, tsquery: sa.Function, query: _Q) -> _Q:
         """Add an order_by condition to the query."""
         return query.order_by(
             sa.desc(sa.func.ts_rank_cd(Update.search_vector, tsquery)),
@@ -489,7 +463,7 @@ class UpdateSearch(SearchInProjectProvider):
             ).desc(),
         )
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Update]:
+    def all_query(self, tsquery: sa.Function) -> Query[Update]:
         """Search for updates across the site."""
         return self.add_order_by(
             tsquery,
@@ -504,9 +478,7 @@ class UpdateSearch(SearchInProjectProvider):
             ),
         )
 
-    def account_query(
-        self, tsquery: sa.sql.functions.Function, account: Account
-    ) -> Query[Update]:
+    def account_query(self, tsquery: sa.Function, account: Account) -> Query[Update]:
         """Search for updates within an account."""
         return self.add_order_by(
             tsquery,
@@ -518,9 +490,7 @@ class UpdateSearch(SearchInProjectProvider):
             ),
         )
 
-    def project_query(
-        self, tsquery: sa.sql.functions.Function, project: Project
-    ) -> Query[Update]:
+    def project_query(self, tsquery: sa.Function, project: Project) -> Query[Update]:
         """Search for updates within a project."""
         return self.add_order_by(
             tsquery,
@@ -539,11 +509,11 @@ class CommentSearch(SearchInProjectProvider):
     model = Comment
     has_title = False  # Comments don't have titles
 
-    def hltitle_column(self, tsquery: sa.sql.functions.Function):
+    def hltitle_column(self, tsquery: sa.Function) -> sa.ColumnElement:
         """Comments don't have titles, so return a null expression here."""
         return expression.null()
 
-    def all_query(self, tsquery: sa.sql.functions.Function) -> Query[Comment]:
+    def all_query(self, tsquery: sa.Function) -> Query[Comment]:
         """Search for comments across the site."""
         return (
             Comment.query.join(Account, Comment.posted_by_id == Account.id)
@@ -586,9 +556,7 @@ class CommentSearch(SearchInProjectProvider):
             )
         )
 
-    def account_query(
-        self, tsquery: sa.sql.functions.Function, account: Account
-    ) -> Query[Comment]:
+    def account_query(self, tsquery: sa.Function, account: Account) -> Query[Comment]:
         """Search for comments within an account."""
         return (
             Comment.query.join(Account, Comment.posted_by_id == Account.id)
@@ -627,9 +595,7 @@ class CommentSearch(SearchInProjectProvider):
             )
         )
 
-    def project_query(
-        self, tsquery: sa.sql.functions.Function, project: Project
-    ) -> Query[Comment]:
+    def project_query(self, tsquery: sa.Function, project: Project) -> Query[Comment]:
         """Search for comments within a project."""
         return (
             Comment.query.join(Account, Comment.posted_by_id == Account.id)
@@ -695,7 +661,7 @@ def escape_quotes(text: str) -> Markup:
     return Markup(text.replace('"', '&quot;').replace("'", '&#39;'))
 
 
-def get_tsquery(text: str | None) -> sa.sql.functions.Function:
+def get_tsquery(text: str | None) -> sa.Function:
     """
     Parse a web search query into a PostgreSQL ``tsquery``.
 
@@ -727,7 +693,7 @@ class SearchCountType(TypedDict, total=False):
 
 # @cache.memoize(timeout=300)
 def search_counts(
-    tsquery: sa.sql.functions.Function,
+    tsquery: sa.Function,
     account: Account | None = None,
     project: Project | None = None,
 ) -> list[SearchCountType]:
@@ -775,15 +741,35 @@ def search_counts(
     return results
 
 
+class SearchResultsItemDict(TypedDict):
+    title: str | None
+    title_html: str | None
+    url: str
+    snippet_html: str
+    obj: RoleAccessProxy
+
+
+class SearchResultsDict(TypedDict):
+    items: list[SearchResultsItemDict]
+    has_next: bool
+    has_prev: bool
+    page: int
+    per_page: int
+    pages: int
+    next_num: int | None
+    prev_num: int | None
+    count: int | None
+
+
 # @cache.memoize(timeout=300)
 def search_results(
-    tsquery: sa.sql.functions.Function,
+    tsquery: sa.Function,
     stype: str,
     page: int = 1,
     per_page: int = 20,
     account: Account | None = None,
     project: Project | None = None,
-):
+) -> SearchResultsDict:
     """Return search results."""
     # Pick up model data for the given type string
     sp = search_providers[stype]
@@ -833,10 +819,13 @@ def search_results(
 
 
 # --- Views -------------------------------------------------------------------
-class SearchView(ClassView):
+
+
+@route('/', init_app=app)
+class SiteSearchView(ClassView):
     current_section = 'search'
 
-    @route('/search', endpoint='search')
+    @route('search', endpoint='search')
     @render_with('search.html.jinja2', json=True)
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
     def search(
@@ -864,12 +853,9 @@ class SearchView(ClassView):
         }
 
 
-SearchView.init_app(app)
-
-
 @Account.views('search')
-@route('/<account>')
-class AccountSearchView(AccountViewMixin, UrlForView, ModelView):
+@route('/<account>', init_app=app)
+class AccountSearchView(AccountViewBase):
     @route('search', endpoint='search_account')
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
@@ -904,12 +890,9 @@ class AccountSearchView(AccountViewMixin, UrlForView, ModelView):
         }
 
 
-AccountSearchView.init_app(app)
-
-
 @Project.views('search')
-@route('/<account>/<project>/')
-class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
+@route('/<account>/<project>/', init_app=app)
+class ProjectSearchView(ProjectViewBase):
     @route('search', endpoint='search_project')
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'crew', 'participant'})
@@ -943,6 +926,3 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
                 tsquery, stype, page=page, per_page=per_page, project=self.obj
             ),
         }
-
-
-ProjectSearchView.init_app(app)

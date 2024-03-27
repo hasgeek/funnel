@@ -9,9 +9,7 @@ from baseframe import _, __, forms
 from ..models import (
     PASSWORD_MAX_LENGTH,
     Account,
-    AccountEmail,
-    AccountEmailClaim,
-    AccountPhone,
+    Anchor,
     EmailAddress,
     EmailAddressBlockedError,
     LoginSession,
@@ -74,11 +72,11 @@ class PasswordlessLoginIntercept:
 
     message = __("Password is required")
 
-    def __call__(self, form, field) -> None:
+    def __call__(self, form: LoginForm, field: forms.PasswordField) -> None:
         if not field.data:
             # Use getattr for when :meth:`LoginForm.validate_username` is skipped
             if getattr(form, 'anchor', None) is not None:
-                # If user has an anchor, we can allow login to proceed passwordless
+                # If user has an anchor, we can allow login to proceed password-less
                 # using an OTP or email link
                 raise LoginWithOtp()
             if (
@@ -123,7 +121,7 @@ class LoginForm(forms.RecaptchaForm):
 
     __returns__ = ('user', 'anchor', 'weak_password', 'new_email', 'new_phone')
     user: Account | None = None
-    anchor: AccountEmail | AccountEmailClaim | AccountPhone | None = None
+    anchor: Anchor | None = None
     weak_password: bool | None = None
     new_email: str | None = None
     new_phone: str | None = None
@@ -195,7 +193,7 @@ class LoginForm(forms.RecaptchaForm):
         """Validate password if provided."""
         # If there is already an error in the password field, don't bother validating.
         # This will be a `Length` validation error, but that one unfortunately does not
-        # raise `StopValidation`. If the length is off, we can end rightaway.
+        # raise `StopValidation`. If the length is off, we can end right away.
         if field.errors:
             return
 
@@ -244,7 +242,7 @@ class LoginForm(forms.RecaptchaForm):
         # supports both outcomes.
 
         # `check_password_strength(password).is_weak` is a bool
-        self.weak_password: bool = check_password_strength(field.data).is_weak
+        self.weak_password = check_password_strength(field.data).is_weak
 
 
 @Account.forms('logout')
@@ -299,8 +297,7 @@ class OtpForm(forms.Form):
 class EmailOtpForm(OtpForm):
     """Verify an OTP sent to email."""
 
-    def set_queries(self) -> None:
-        super().set_queries()
+    def __post_init__(self) -> None:
         self.otp.description = _("One-time password sent to your email address")
 
 

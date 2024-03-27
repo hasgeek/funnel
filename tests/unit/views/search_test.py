@@ -5,14 +5,16 @@ These tests verify the structure of the views, but don't actually test for wheth
 views are returning expected results (at this time). Proper search testing requires a
 corpus of searchable data in fixtures.
 """
+
 # pylint: disable=redefined-outer-name
 
+from types import SimpleNamespace
 from typing import cast
 
 import pytest
-from flask import url_for
+from flask import Flask, url_for
 
-from funnel.models import Query
+from funnel import models
 from funnel.views.search import (
     SearchInAccountProvider,
     SearchInProjectProvider,
@@ -20,6 +22,8 @@ from funnel.views.search import (
     search_counts,
     search_providers,
 )
+
+from ...conftest import TestClient, scoped_session
 
 search_all_types = list(search_providers.keys())
 search_profile_types = [
@@ -31,7 +35,7 @@ search_project_types = [
 
 
 @pytest.fixture()
-def db_session(db_session_truncate):
+def db_session(db_session_truncate: scoped_session) -> scoped_session:
     """
     Use the database session truncate fixture.
 
@@ -45,13 +49,17 @@ def db_session(db_session_truncate):
 
 
 @pytest.mark.parametrize('stype', search_all_types)
-def test_search_all_count_returns_int(stype, all_fixtures) -> None:
+def test_search_all_count_returns_int(
+    stype: str, all_fixtures: SimpleNamespace
+) -> None:
     """Assert that all_count() returns an int."""
     assert isinstance(search_providers[stype].all_count(get_tsquery("test")), int)
 
 
 @pytest.mark.parametrize('stype', search_profile_types)
-def test_search_profile_count_returns_int(stype, org_ankhmorpork, all_fixtures) -> None:
+def test_search_profile_count_returns_int(
+    stype: str, org_ankhmorpork: models.Organization, all_fixtures: SimpleNamespace
+) -> None:
     """Assert that profile_count() returns an int."""
     assert isinstance(
         cast(SearchInAccountProvider, search_providers[stype]).account_count(
@@ -63,7 +71,7 @@ def test_search_profile_count_returns_int(stype, org_ankhmorpork, all_fixtures) 
 
 @pytest.mark.parametrize('stype', search_project_types)
 def test_search_project_count_returns_int(
-    stype, project_expo2010, all_fixtures
+    stype: str, project_expo2010: models.Project, all_fixtures: SimpleNamespace
 ) -> None:
     """Assert that project_count() returns an int."""
     assert isinstance(
@@ -75,30 +83,36 @@ def test_search_project_count_returns_int(
 
 
 @pytest.mark.parametrize('stype', search_all_types)
-def test_search_all_returns_query(stype, all_fixtures) -> None:
+def test_search_all_returns_query(stype: str, all_fixtures: SimpleNamespace) -> None:
     """Assert that all_query() returns a query."""
-    assert isinstance(search_providers[stype].all_query(get_tsquery("test")), Query)
+    assert isinstance(
+        search_providers[stype].all_query(get_tsquery("test")), models.Query
+    )
 
 
 @pytest.mark.parametrize('stype', search_profile_types)
-def test_search_profile_returns_query(stype, org_ankhmorpork, all_fixtures) -> None:
+def test_search_profile_returns_query(
+    stype: str, org_ankhmorpork: models.Organization, all_fixtures: SimpleNamespace
+) -> None:
     """Assert that profile_query() returns a query."""
     assert isinstance(
         cast(SearchInAccountProvider, search_providers[stype]).account_query(
             get_tsquery("test"), org_ankhmorpork
         ),
-        Query,
+        models.Query,
     )
 
 
 @pytest.mark.parametrize('stype', search_project_types)
-def test_search_project_returns_query(stype, project_expo2010, all_fixtures) -> None:
+def test_search_project_returns_query(
+    stype: str, project_expo2010: models.Project, all_fixtures: SimpleNamespace
+) -> None:
     """Assert that project_query() returns an int."""
     assert isinstance(
         cast(SearchInProjectProvider, search_providers[stype]).project_query(
             get_tsquery("test"), project_expo2010
         ),
-        Query,
+        models.Query,
     )
 
 
@@ -106,7 +120,9 @@ def test_search_project_returns_query(stype, project_expo2010, all_fixtures) -> 
 
 
 @pytest.mark.usefixtures('request_context', 'all_fixtures')
-def test_search_counts(org_ankhmorpork, project_expo2010) -> None:
+def test_search_counts(
+    org_ankhmorpork: models.Organization, project_expo2010: models.Project
+) -> None:
     """Test that search_counts returns a list of dicts."""
     r1 = search_counts(get_tsquery("test"))
     r2 = search_counts(get_tsquery("test"), account=org_ankhmorpork)
@@ -124,7 +140,12 @@ def test_search_counts(org_ankhmorpork, project_expo2010) -> None:
 
 
 @pytest.mark.usefixtures('app_context', 'all_fixtures')
-def test_view_search_counts(app, client, org_ankhmorpork, project_expo2010) -> None:
+def test_view_search_counts(
+    app: Flask,
+    client: TestClient,
+    org_ankhmorpork: models.Organization,
+    project_expo2010: models.Project,
+) -> None:
     """Search views return counts as a list of dicts."""
     org_ankhmorpork.make_profile_public()
     r1 = client.get(
@@ -154,7 +175,7 @@ def test_view_search_counts(app, client, org_ankhmorpork, project_expo2010) -> N
 
 @pytest.mark.usefixtures('app_context', 'all_fixtures')
 @pytest.mark.parametrize('stype', search_all_types)
-def test_view_search_results_all(client, stype) -> None:
+def test_view_search_results_all(client: TestClient, stype: str) -> None:
     """Global search view returns results for each type."""
     resultset = client.get(
         url_for('search'),
@@ -172,7 +193,9 @@ def test_view_search_results_all(client, stype) -> None:
 
 @pytest.mark.usefixtures('app_context', 'all_fixtures')
 @pytest.mark.parametrize('stype', search_profile_types)
-def test_view_search_results_profile(client, org_ankhmorpork, stype) -> None:
+def test_view_search_results_profile(
+    client: TestClient, org_ankhmorpork: models.Organization, stype: str
+) -> None:
     """Account search view returns results for each type."""
     org_ankhmorpork.make_profile_public()
     resultset = client.get(
@@ -191,7 +214,9 @@ def test_view_search_results_profile(client, org_ankhmorpork, stype) -> None:
 
 @pytest.mark.usefixtures('app_context', 'all_fixtures')
 @pytest.mark.parametrize('stype', search_project_types)
-def test_view_search_results_project(client, project_expo2010, stype) -> None:
+def test_view_search_results_project(
+    client: TestClient, project_expo2010: models.Project, stype: str
+) -> None:
     """Project search view returns results for each type."""
     resultset = client.get(
         project_expo2010.url_for('search'),

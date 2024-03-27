@@ -4,25 +4,22 @@ from __future__ import annotations
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
+from coaster.sqlalchemy import immutable, with_roles
 
-from . import DynamicMapped, Mapped, Model, backref, relationship, sa
 from .account import Account
-from .helpers import reopen
-from .membership_mixin import ImmutableUserMembershipMixin
+from .base import Mapped, Model, relationship, sa, sa_orm
+from .membership_mixin import ImmutableMembershipMixin
 
 __all__ = ['AccountMembership']
 
 
-class AccountMembership(ImmutableUserMembershipMixin, Model):
+class AccountMembership(ImmutableMembershipMixin, Model):
     """
-    An account can be a member of another account as an owner, admin or follower.
+    An account can be an owner, admin, member or follower of another account.
 
-    Owners can manage other administrators.
+    Owners can manage other owners, admins and members, but not followers.
 
-    TODO: This model may introduce non-admin memberships in a future iteration by
-    replacing :attr:`is_owner` with :attr:`member_level` or distinct role flags as in
-    :class:`ProjectMembership`.
+    TODO: Distinct flags for is_member, is_follower and is_admin.
     """
 
     __tablename__ = 'account_membership'
@@ -51,7 +48,7 @@ class AccountMembership(ImmutableUserMembershipMixin, Model):
         'account_admin': {
             'read': {
                 'record_type',
-                'record_type_label',
+                'record_type_enum',
                 'granted_at',
                 'granted_by',
                 'revoked_at',
@@ -77,158 +74,30 @@ class AccountMembership(ImmutableUserMembershipMixin, Model):
         'related': {'urls', 'uuid_b58', 'offered_roles', 'is_owner'},
     }
 
-    #: Organization that this membership is being granted on
-    account_id: Mapped[int] = sa.orm.mapped_column(
-        sa.Integer,
+    #: Account that this membership is being granted on
+    account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'),
+        default=None,
         nullable=False,
     )
     account: Mapped[Account] = with_roles(
-        relationship(
-            Account,
-            foreign_keys=[account_id],
-            backref=backref(
-                'memberships', lazy='dynamic', cascade='all', passive_deletes=True
-            ),
-        ),
+        relationship(foreign_keys=[account_id], back_populates='memberships'),
         grants_via={None: {'admin': 'account_admin', 'owner': 'account_owner'}},
     )
-    parent_id: Mapped[int] = sa.orm.synonym('account_id')
+    parent_id: Mapped[int] = sa_orm.synonym('account_id')
     parent_id_column = 'account_id'
-    parent: Mapped[Account] = sa.orm.synonym('account')
+    parent: Mapped[Account] = sa_orm.synonym('account')
 
     # Organization roles:
-    is_owner: Mapped[bool] = immutable(
-        sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
-    )
+    is_owner: Mapped[bool] = immutable(sa_orm.mapped_column(default=False))
 
     @cached_property
     def offered_roles(self) -> set[str]:
         """Roles offered by this membership record."""
-        roles = {'admin'}
+        # TODO: is_member and is_admin will be distinct flags in the future, with the
+        # base role set to `follower` only. is_owner will remain, but if it's set, then
+        # is_admin must also be set (enforced with a check constraint)
+        roles = {'follower', 'member', 'admin'}
         if self.is_owner:
             roles.add('owner')
         return roles
-
-
-# Add active membership relationships to Account
-@reopen(Account)
-class __Account:
-    active_admin_memberships: DynamicMapped[AccountMembership] = with_roles(
-        relationship(
-            AccountMembership,
-            lazy='dynamic',
-            primaryjoin=sa.and_(
-                sa.orm.remote(AccountMembership.account_id) == Account.id,
-                AccountMembership.is_active,
-            ),
-            order_by=AccountMembership.granted_at.asc(),
-            viewonly=True,
-        ),
-        grants_via={'member': {'admin', 'owner'}},
-    )
-
-    active_owner_memberships: DynamicMapped[AccountMembership] = relationship(
-        AccountMembership,
-        lazy='dynamic',
-        primaryjoin=sa.and_(
-            sa.orm.remote(AccountMembership.account_id) == Account.id,
-            AccountMembership.is_active,
-            AccountMembership.is_owner.is_(True),
-        ),
-        viewonly=True,
-    )
-
-    active_invitations: DynamicMapped[AccountMembership] = relationship(
-        AccountMembership,
-        lazy='dynamic',
-        primaryjoin=sa.and_(
-            sa.orm.remote(AccountMembership.account_id) == Account.id,
-            AccountMembership.is_invite,
-            AccountMembership.revoked_at.is_(None),
-        ),
-        viewonly=True,
-    )
-
-    owner_users = with_roles(
-        DynamicAssociationProxy('active_owner_memberships', 'member'), read={'all'}
-    )
-    admin_users = with_roles(
-        DynamicAssociationProxy('active_admin_memberships', 'member'), read={'all'}
-    )
-
-    # pylint: disable=invalid-unary-operand-type
-    organization_admin_memberships: DynamicMapped[AccountMembership] = relationship(
-        AccountMembership,
-        lazy='dynamic',
-        foreign_keys=[AccountMembership.member_id],  # type: ignore[has-type]
-        viewonly=True,
-    )
-
-    noninvite_organization_admin_memberships: DynamicMapped[
-        AccountMembership
-    ] = relationship(
-        AccountMembership,
-        lazy='dynamic',
-        foreign_keys=[AccountMembership.member_id],
-        primaryjoin=sa.and_(
-            sa.orm.remote(AccountMembership.member_id)  # type: ignore[has-type]
-            == Account.id,
-            ~AccountMembership.is_invite,
-        ),
-        viewonly=True,
-    )
-
-    active_organization_admin_memberships: DynamicMapped[
-        AccountMembership
-    ] = relationship(
-        AccountMembership,
-        lazy='dynamic',
-        foreign_keys=[AccountMembership.member_id],
-        primaryjoin=sa.and_(
-            sa.orm.remote(AccountMembership.member_id)  # type: ignore[has-type]
-            == Account.id,
-            AccountMembership.is_active,
-        ),
-        viewonly=True,
-    )
-
-    active_organization_owner_memberships: DynamicMapped[
-        AccountMembership
-    ] = relationship(
-        AccountMembership,
-        lazy='dynamic',
-        foreign_keys=[AccountMembership.member_id],
-        primaryjoin=sa.and_(
-            sa.orm.remote(AccountMembership.member_id)  # type: ignore[has-type]
-            == Account.id,
-            AccountMembership.is_active,
-            AccountMembership.is_owner.is_(True),
-        ),
-        viewonly=True,
-    )
-
-    active_organization_invitations: DynamicMapped[AccountMembership] = relationship(
-        AccountMembership,
-        lazy='dynamic',
-        foreign_keys=[AccountMembership.member_id],
-        primaryjoin=sa.and_(
-            sa.orm.remote(AccountMembership.member_id)  # type: ignore[has-type]
-            == Account.id,
-            AccountMembership.is_invite,
-            AccountMembership.revoked_at.is_(None),
-        ),
-        viewonly=True,
-    )
-
-    organizations_as_owner = DynamicAssociationProxy(
-        'active_organization_owner_memberships', 'account'
-    )
-
-    organizations_as_admin = DynamicAssociationProxy(
-        'active_organization_admin_memberships', 'account'
-    )
-
-
-Account.__active_membership_attrs__.add('active_organization_admin_memberships')
-Account.__noninvite_membership_attrs__.add('noninvite_organization_admin_memberships')

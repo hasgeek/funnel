@@ -5,7 +5,7 @@ from __future__ import annotations
 import smtplib
 from dataclasses import dataclass
 from email.utils import formataddr, getaddresses, make_msgid, parseaddr
-from typing import Optional, Union
+from typing import Union
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -30,14 +30,14 @@ __all__ = [
 ]
 
 # Email recipient type
-EmailRecipient = Union[Account, tuple[Optional[str], str], str]
+EmailRecipient = Union[Account, tuple[str | None, str], str]
 
 
 @dataclass
 class EmailAttachment:
     """An email attachment. Must have content, filename and mimetype."""
 
-    content: str
+    content: bytes
     filename: str
     mimetype: str
 
@@ -91,7 +91,10 @@ def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
             }
             location['address'] = postal_address
     else:
-        location = rsvp.project.location
+        location = {
+            "@type": "VirtualLocation",
+            "url": rsvp.project.absolute_url,
+        }
     return {
         '@context': 'https://schema.org',
         '@type': 'EventReservation',
@@ -99,9 +102,11 @@ def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
         'reservationStatus': (
             'https://schema.org/ReservationConfirmed'
             if rsvp.state.YES
-            else 'https://schema.org/ReservationCancelled'
-            if rsvp.state.NO
-            else 'https://schema.org/ReservationPending'
+            else (
+                'https://schema.org/ReservationCancelled'
+                if rsvp.state.NO
+                else 'https://schema.org/ReservationPending'
+            )
         ),
         'underName': {
             '@type': 'Person',
@@ -116,8 +121,11 @@ def jsonld_event_reservation(rsvp: Rsvp) -> dict[str, object]:
             'performer': {
                 '@type': 'Organization',
                 'name': rsvp.project.account.title,
+                'image': rsvp.project.account.logo_url,
             },
         },
+        'modifyReservationUrl': rsvp.project.absolute_url,
+        'modifiedTime': rsvp.updated_at,
         'numSeats': '1',
     }
 

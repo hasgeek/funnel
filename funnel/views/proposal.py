@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from flask import abort, flash, request
 
 from baseframe import _, __
 from baseframe.forms import Form, render_delete_sqla, render_form, render_template
-from coaster.auth import current_auth
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.utils import getbool, make_name
 from coaster.views import (
     ModelView,
@@ -19,6 +21,7 @@ from coaster.views import (
 )
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     ProposalFeaturedForm,
     ProposalForm,
@@ -38,11 +41,12 @@ from ..models import (
     ProposalSuuidRedirect,
     db,
     sa,
+    sa_orm,
 )
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo, requires_user_not_spammy
-from .mixins import AccountCheckMixin, ProjectViewMixin
+from .mixins import AccountCheckMixin, ProjectViewBase
 from .notification import dispatch_notification
 from .session import session_edit
 
@@ -53,27 +57,27 @@ markdown_message = __(
 
 
 @Proposal.features('comment_new')
-def proposal_comment_new(obj):
+def proposal_comment_new(obj: Proposal) -> bool:
     return obj.current_roles.commenter
 
 
 @Project.features('reorder_proposals')
-def proposals_can_be_reordered(obj):
+def proposals_can_be_reordered(obj: Project) -> bool:
     return obj.current_roles.editor
 
 
 # --- Routes ------------------------------------------------------------------
 @Project.views('proposal_new')
-@route('/<account>/<project>')
-class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>/<project>', init_app=app)
+class ProjectProposalView(ProjectViewBase):
     """Views for proposal management (new/reorder)."""
 
     @route('sub/new', methods=['GET', 'POST'])
     @route('proposals/new', methods=['GET', 'POST'])
     @requires_login
-    @render_with('submission_form.html.jinja2')
     @requires_roles({'reader'})
     @requires_user_not_spammy()
+    @render_with('submission_form.html.jinja2')
     def new_proposal(self) -> ReturnRenderWith:
         # This along with the `reader` role makes it possible for
         # anyone to submit a proposal if the CFP is open.
@@ -114,12 +118,12 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
         if Form().validate_on_submit():
             proposal: Proposal = (
                 Proposal.query.filter_by(uuid_b58=target)
-                .options(sa.orm.load_only(Proposal.id, Proposal.seq))
+                .options(sa_orm.load_only(Proposal.id, Proposal.seq))
                 .one_or_404()
             )
             other_proposal: Proposal = (
                 Proposal.query.filter_by(uuid_b58=other)
-                .options(sa.orm.load_only(Proposal.id, Proposal.seq))
+                .options(sa_orm.load_only(Proposal.id, Proposal.seq))
                 .one_or_404()
             )
             proposal.current_access().reorder_item(other_proposal, before)
@@ -128,62 +132,51 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
         return {'status': 'error', 'error': 'csrf'}, 422
 
 
-ProjectProposalView.init_app(app)
-
-
 @Proposal.views('main')
-@route('/<account>/<project>/proposals/<proposal>')
+@route('/<account>/<project>/proposals/<proposal>', init_app=app)
 @route('/<account>/<project>/sub/<proposal>')
-class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
-    model = Proposal
+class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Proposal]):
     route_model_map = {
         'account': 'project.account.urlname',
         'project': 'project.name',
         'proposal': 'url_name_uuid_b58',
     }
-    obj: Proposal | ProposalSuuidRedirect
 
     SavedProjectForm = SavedProjectForm
 
-    def loader(
+    def load(
         self,
         account: str,  # skipcq: PYL-W0613
         project: str,  # skipcq: PYL-W0613
         proposal: str,
-    ) -> Proposal | ProposalSuuidRedirect:
+    ) -> ReturnView | None:
         # `account` and `project` are part of the URL, but unnecessary for loading
         # a proposal since it has a unique id embedded. These parameters are not
         # used in the query.
         obj = (
-            self.model.query.join(Project)
+            Proposal.query.join(Project)
             .join(Account, Project.account)
             .filter(Proposal.url_name_uuid_b58 == proposal)
             .first()
         )
-        if obj is None:
-            if request.method == 'GET':
-                return (
-                    ProposalSuuidRedirect.query.join(Proposal)
-                    .filter(ProposalSuuidRedirect.suuid == proposal.split('-')[-1])
-                    .first_or_404()
-                )
-            abort(404)
-
-        if obj.project.state.DELETED or obj.state.DELETED:
+        if obj is not None:
+            self.account = obj.project.account
+            self.obj = obj
+            if obj.project.state.DELETED or obj.state.DELETED:
+                abort(410)
+            return self.after_loader()
+        redirect = (
+            ProposalSuuidRedirect.query.join(Proposal)
+            .filter(ProposalSuuidRedirect.suuid == proposal.split('-')[-1])
+            .first_or_404()
+        )
+        if not redirect.proposal:
             abort(410)
-        return obj
+        self.account = redirect.proposal.project.account
+        return render_redirect(redirect.proposal.url_for(), 308)
 
-    def after_loader(self) -> ReturnView | None:
-        if isinstance(self.obj, ProposalSuuidRedirect):
-            if self.obj.proposal:
-                self.account = self.obj.proposal.project.account
-                return render_redirect(
-                    self.obj.proposal.url_for(),
-                    302 if request.method == 'GET' else 303,
-                )
-            abort(410)
+    def post_init(self) -> None:
         self.account = self.obj.project.account
-        return super().after_loader()
 
     @route('')
     @render_with(html_in_json('submission.html.jinja2'))
@@ -268,15 +261,13 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                         ],
                     ),
                 }, 201
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("Pick a user to be added"),
-                    'errors': collaborator_form.errors,
-                    'form_nonce': collaborator_form.form_nonce.data,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error_description': _("Pick a user to be added"),
+                'errors': collaborator_form.errors,
+                'form_nonce': collaborator_form.form_nonce.data,
+            }, 400
+
         return render_form(
             form=collaborator_form,
             title='',
@@ -385,10 +376,11 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 'status': 'ok',
                 'message': _("This submission is no longer featured"),
             }
-        return (
-            {'status': 'error', 'error': 'validation', 'errors': featured_form.errors},
-            422,
-        )
+        return {
+            'status': 'error',
+            'error': 'validation',
+            'errors': featured_form.errors,
+        }, 422
 
     @route('schedule', methods=['GET', 'POST'])
     @requires_login
@@ -418,7 +410,7 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('contacts.json', methods=['GET'])
     @requires_login
     @requires_roles({'project_editor'})
-    def contacts_json(self):
+    def contacts_json(self) -> dict[str, Any]:
         """Return the contact details of collaborators as JSON."""
         return {
             'title': self.obj.title,
@@ -426,7 +418,7 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 {
                     'fullname': membership.member.fullname,
                     'username': membership.member.username,
-                    'profile': membership.member.profile_url,
+                    'profile': membership.member.absolute_url,
                     'email': str(membership.member.email),
                     'phone': str(membership.member.phone),
                 }
@@ -435,42 +427,34 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         }
 
 
-ProposalView.init_app(app)
-
-
 @ProposalMembership.views('main')
-@route('/<account>/<project>/sub/<proposal>/collaborator/<membership>')
-class ProposalMembershipView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
-    model = ProposalMembership
+@route('/<account>/<project>/sub/<proposal>/collaborator/<membership>', init_app=app)
+class ProposalMembershipView(
+    AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[ProposalMembership]
+):
     route_model_map = {
         'account': 'proposal.project.account.urlname',
         'project': 'proposal.project.name',
         'proposal': 'proposal.url_name_uuid_b58',
         'membership': 'uuid_b58',
     }
-    obj: ProposalMembership
 
-    def loader(
-        self,
-        account: str,  # skipcq: PYL-W0613
-        project: str,  # skipcq: PYL-W0613
-        proposal: str,  # skipcq: PYL-W0613
-        membership: str,
-    ) -> ProposalMembership:
+    def load(self, membership: str, **_kwargs: str) -> ReturnView | None:
         # `account`, `project` and `proposal` are part of the URL, but unnecessary for
         # loading a proposal membership since it has a unique id.
-        obj = self.model.query.filter(
+        obj = ProposalMembership.query.filter(
             ProposalMembership.uuid_b58 == membership
         ).one_or_404()
         if obj.revoked_at is not None:
             abort(410)
-        return obj
+        self.obj = obj
+        self.post_init()
+        return self.after_loader()
 
-    def after_loader(self):
+    def post_init(self) -> None:
         self.account = self.obj.proposal.project.account
-        return super().after_loader()
 
-    def collaborators(self):
+    def collaborators(self) -> list[RoleAccessProxy[ProposalMembership]]:
         return [
             _m.current_access(datasets=['primary', 'related'])
             for _m in self.obj.proposal.memberships
@@ -486,18 +470,21 @@ class ProposalMembershipView(AccountCheckMixin, UrlChangeCheck, UrlForView, Mode
         )
         del collaborator_form.user
         if collaborator_form.validate_on_submit():
-            with db.session.no_autoflush, membership.amend_by(
-                current_auth.user
-            ) as amendment:
+            with (
+                db.session.no_autoflush,
+                membership.amend_by(current_auth.user) as amendment,
+            ):
                 collaborator_form.populate_obj(amendment)
             db.session.commit()
             return {
                 'status': 'ok',
-                'message': _("{user}’s role has been updated").format(
-                    user=membership.member.pickername
-                )
-                if amendment.membership is not self.obj
-                else None,
+                'message': (
+                    _("{user}’s role has been updated").format(
+                        user=membership.member.pickername
+                    )
+                    if amendment.membership is not self.obj
+                    else None
+                ),
                 'html': render_template(
                     'collaborator_list.html.jinja2',
                     collaborators=self.collaborators(),
@@ -539,6 +526,3 @@ class ProposalMembershipView(AccountCheckMixin, UrlChangeCheck, UrlForView, Mode
                 ),
             }
         return {'status': 'error', 'error': 'csrf'}, 422
-
-
-ProposalMembershipView.init_app(app)

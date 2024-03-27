@@ -7,6 +7,7 @@
 # Since a random number generator is not a unique number generator, some tests are
 # marked as flaky and will be re-run in case a dupe value is generated
 
+from collections.abc import Sequence
 from typing import Any
 from unittest.mock import patch
 
@@ -15,11 +16,13 @@ from furl import furl
 
 from funnel import models
 
+from ...conftest import scoped_session
+
 
 class MockRandomBigint:
     """Mock for random_bigint that returns from a pre-determined sequence."""
 
-    def __init__(self, sequence) -> None:
+    def __init__(self, sequence: Sequence[int]) -> None:
         self.sequence = sequence
         self.counter = 0
 
@@ -80,7 +83,7 @@ def test_mock_random_bigint() -> None:
         ('https://example.com/', 'https://example.com'),
     ],
 )
-def test_url_hash_is_normalized(lhs, rhs) -> None:
+def test_url_hash_is_normalized(lhs: str, rhs: str) -> None:
     """URL hash is normalized and handles furl objects."""
     assert models.shortlink.url_blake2b160_hash(
         lhs
@@ -128,7 +131,7 @@ uni_name_bigint_mappings = [
 
 
 @pytest.mark.parametrize(('name', 'bigint'), name_bigint_mappings)
-def test_bigint_to_name(name, bigint) -> None:
+def test_bigint_to_name(name: str, bigint: int) -> None:
     """Bigints can be mapped to names."""
     assert models.shortlink.bigint_to_name(bigint) == name
 
@@ -136,7 +139,7 @@ def test_bigint_to_name(name, bigint) -> None:
 @pytest.mark.parametrize(
     ('name', 'bigint'), name_bigint_mappings + uni_name_bigint_mappings
 )
-def test_name_to_bigint(name, bigint) -> None:
+def test_name_to_bigint(name: str, bigint: int) -> None:
     """Names can be mapped to bigints."""
     # Works with `str`
     assert models.shortlink.name_to_bigint(name) == bigint
@@ -231,7 +234,9 @@ def test_shortlink_constructor_with_reuse() -> None:
 @pytest.mark.parametrize(
     ('longid', 'match'), [(146727516324, False), (-1, False), (4235324, True)]
 )
-def test_shortlink_reuse_with_shorter(db_session, longid, match) -> None:
+def test_shortlink_reuse_with_shorter(
+    db_session: scoped_session, longid: int, match: bool
+) -> None:
     """Shortlink reuse with shorter will avoid longer ids."""
     sl1 = models.shortlink.Shortlink(id=longid, url='https://example.com')
     db_session.add(sl1)
@@ -265,7 +270,9 @@ def test_shortlink_constructor_with_name() -> None:
 
 
 @pytest.mark.filterwarnings('ignore:New instance')
-def test_shortlink_constructor_handle_collisions(db_session) -> None:
+def test_shortlink_constructor_handle_collisions(
+    db_session: scoped_session,
+) -> None:
     """Shortlink constructor will handle random id collisions gracefully."""
     prngids = MockRandomBigint([42, 42, 128, 128, 128, 384])
     with patch(

@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from flask import abort, current_app, flash, render_template, request
 
 from baseframe import _
 from baseframe.filters import date_filter
 from baseframe.forms import render_form
-from coaster.auth import current_auth
 from coaster.views import (
-    ModelView,
     UrlChangeCheck,
-    UrlForView,
     get_next_url,
     render_with,
     requestargs,
@@ -20,6 +19,7 @@ from coaster.views import (
 )
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     ProfileBannerForm,
     ProfileForm,
@@ -30,12 +30,12 @@ from ..models import Account, Project, Session, db, sa
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
-from .mixins import AccountViewMixin
+from .mixins import AccountViewBase
 from .schedule import schedule_data, session_list_data
 
 
 @Account.features('new_project')
-def feature_profile_new_project(obj):
+def feature_profile_new_project(obj: Account) -> bool:
     return (
         obj.is_organization_profile
         and obj.current_roles.admin
@@ -44,7 +44,7 @@ def feature_profile_new_project(obj):
 
 
 @Account.features('new_user_project')
-def feature_profile_new_user_project(obj: Account):
+def feature_profile_new_user_project(obj: Account) -> bool:
     return (
         obj.is_user_profile
         and obj.current_roles.admin
@@ -53,29 +53,33 @@ def feature_profile_new_user_project(obj: Account):
 
 
 @Account.features('make_public')
-def feature_profile_make_public(obj: Account):
+def feature_profile_make_public(obj: Account) -> bool:
     return obj.current_roles.admin and obj.make_profile_public.is_available
 
 
 @Account.features('make_private')
-def feature_profile_make_private(obj: Account):
+def feature_profile_make_private(obj: Account) -> bool:
     return obj.current_roles.admin and obj.make_profile_private.is_available
 
 
-def template_switcher(templateargs):
+@Account.features('is_private')
+def feature_profile_is_private(obj: Account) -> bool:
+    return not obj.current_roles.admin and not bool(obj.profile_state.ACTIVE_AND_PUBLIC)
+
+
+def template_switcher(templateargs: dict[str, Any]) -> str:
     template = templateargs.pop('template')
     return render_template(template, **templateargs)
 
 
 @Account.views('main')
-@route('/<account>')
-class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>', init_app=app)
+class ProfileView(UrlChangeCheck, AccountViewBase):
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
-    @requires_roles({'reader', 'admin'})
     def view(self) -> ReturnRenderWith:
         template_name = None
-        ctx = {}
+        ctx: dict[str, Any] = {}
 
         if self.obj.is_user_profile:
             template_name = 'user_profile.html.jinja2'
@@ -136,9 +140,6 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 .limit(1)
                 .first()
             )
-            has_membership_project = self.obj.projects.filter(
-                Project.boxoffice_data.op('@>')({'has_membership': True})
-            ).first()
             scheduled_sessions_list = (
                 session_list_data(
                     featured_project.scheduled_sessions, with_modal_url='view'
@@ -174,7 +175,7 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
             # If the user is an admin of this account, show all draft projects.
             # Else, only show the drafts they have a crew role in
             if self.obj.current_roles.admin:
-                draft_projects = self.obj.draft_projects
+                draft_projects: list[Project] = self.obj.draft_projects.all()
                 unscheduled_projects = self.obj.projects.filter(
                     Project.state.PUBLISHED_WITHOUT_SESSIONS
                 ).all()
@@ -228,11 +229,11 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     _p.current_access(datasets=('primary', 'related'))
                     for _p in sponsored_submissions
                 ],
-                'has_membership_project': (
-                    has_membership_project.current_access(
+                'membership_project': (
+                    self.obj.membership_project.current_access(
                         datasets=('without_parent', 'related')
                     )
-                    if has_membership_project is not None
+                    if self.obj.membership_project is not None
                     else None
                 ),
             }
@@ -243,7 +244,6 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
-    @requires_roles({'reader', 'admin'})
     def user_participated_projects(self) -> ReturnRenderWith:
         if self.obj.is_organization_profile:
             abort(404)
@@ -263,7 +263,6 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('in/submissions')
     @route('in/proposals')  # Legacy route, will be auto-redirected to `in/submissions`
     @render_with('user_profile_proposals.html.jinja2', json=True)
-    @requires_roles({'reader', 'admin'})
     def user_proposals(self) -> ReturnRenderWith:
         if self.obj.is_organization_profile:
             abort(404)
@@ -281,7 +280,7 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('past.projects')
     @requestargs(('page', int), ('per_page', int))
     @render_with('past_projects_section.html.jinja2')
-    def past_projects(self, page: int = 1, per_page: int = 10) -> ReturnView:
+    def past_projects(self, page: int = 1, per_page: int = 10) -> ReturnRenderWith:
         projects = self.obj.listed_projects.order_by(None)
         past_projects = projects.filter(Project.state.PAST).order_by(
             Project.start_at.desc()
@@ -308,7 +307,7 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('past.sessions')
     @requestargs(('page', int), ('per_page', int))
     @render_with('past_sessions_section.html.jinja2')
-    def past_sessions(self, page: int = 1, per_page: int = 10) -> ReturnView:
+    def past_sessions(self, page: int = 1, per_page: int = 10) -> ReturnRenderWith:
         featured_sessions = (
             Session.query.join(Project, Session.project_id == Project.id)
             .filter(
@@ -467,6 +466,3 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 _("There was a problem saving your changes. Please try again"), 'error'
             )
         return render_redirect(get_next_url(referrer=True))
-
-
-ProfileView.init_app(app)

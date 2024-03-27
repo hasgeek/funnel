@@ -4,8 +4,12 @@ import pytest
 
 from funnel import models
 
+from ...conftest import scoped_session
 
-def test_merge_accounts_older_newer(db_session, user_death, user_rincewind) -> None:
+
+def test_merge_accounts_older_newer(
+    db_session: scoped_session, user_death: models.User, user_rincewind: models.User
+) -> None:
     """Test to verify merger of user accounts and return new user (older first)."""
     # Scenario 1: if first user's created_at date is older than second user's
     # created_at
@@ -18,7 +22,9 @@ def test_merge_accounts_older_newer(db_session, user_death, user_rincewind) -> N
     assert user_rincewind.state.MERGED
 
 
-def test_merge_accounts_newer_older(db_session, user_death, user_rincewind) -> None:
+def test_merge_accounts_newer_older(
+    db_session: scoped_session, user_death: models.User, user_rincewind: models.User
+) -> None:
     """Test to verify merger of user accounts and return new user (newer first)."""
     # Scenario 2: if second user's created_at date is older than first user's
     # created_at
@@ -33,7 +39,11 @@ def test_merge_accounts_newer_older(db_session, user_death, user_rincewind) -> N
 
 @pytest.mark.filterwarnings("ignore:Object of type <AccountEmail> not in session")
 def test_getuser(  # pylint: disable=too-many-statements
-    db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
+    db_session: scoped_session,
+    user_twoflower: models.User,
+    user_rincewind: models.User,
+    user_mort: models.User,
+    user_wolfgang: models.User,
 ) -> None:
     """Test for retrieving a user from a username, email address or phone number."""
     # Confirm fixtures are as we need them to be
@@ -130,7 +140,11 @@ def test_getuser(  # pylint: disable=too-many-statements
 
 @pytest.mark.filterwarnings("ignore:Object of type <AccountEmail> not in session")
 def test_getuser_anchor(
-    db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
+    db_session: scoped_session,
+    user_twoflower: models.User,
+    user_rincewind: models.User,
+    user_mort: models.User,
+    user_wolfgang: models.User,
 ) -> None:
     """Test for retrieving a user from a username, email address or phone number."""
     # Confirm fixtures are as we need them to be
@@ -180,7 +194,7 @@ def test_getuser_anchor(
     )
     assert models.getuser('mort@example.net', True) == (user_mort, user_mort.email)
 
-    # Retrival by email claim only works when there is no verified email address
+    # Retrieval by email claim only works when there is no verified email address
     assert models.getuser('twoflower@example.org', True) != (
         user_wolfgang,
         user_wolfgang.emailclaims[0],
@@ -222,7 +236,7 @@ def test_getuser_anchor(
     assert models.getuser('+912345678901', True) == (None, None)
 
 
-def test_getextid(db_session, user_rincewind) -> None:
+def test_getextid(db_session: scoped_session, user_rincewind: models.User) -> None:
     """Retrieve user given service and userid."""
     service = 'sample-service'
     userid = 'rincewind@sample-service'

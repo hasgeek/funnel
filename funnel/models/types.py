@@ -3,6 +3,7 @@
 from typing import Annotated, TypeAlias
 
 import sqlalchemy as sa
+import sqlalchemy.orm as sa_orm
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import mapped_column
 from sqlalchemy_json import mutable_json_type
@@ -37,7 +38,7 @@ unicode: TypeAlias = Annotated[str, mapped_column(sa.Unicode())]
 text: TypeAlias = Annotated[str, mapped_column(sa.UnicodeText())]
 jsonb: TypeAlias = Annotated[
     dict,
-    sa.orm.mapped_column(
+    sa_orm.mapped_column(
         # FIXME: mutable_json_type assumes `dict|list`, not just `dict`
         mutable_json_type(
             dbtype=sa.JSON().with_variant(postgresql.JSONB, 'postgresql'), nested=True
@@ -46,7 +47,7 @@ jsonb: TypeAlias = Annotated[
 ]
 jsonb_dict: TypeAlias = Annotated[
     dict,
-    sa.orm.mapped_column(
+    sa_orm.mapped_column(
         # FIXME: mutable_json_type assumes `dict|list`, not just `dict`
         mutable_json_type(
             dbtype=sa.JSON().with_variant(postgresql.JSONB, 'postgresql'), nested=True

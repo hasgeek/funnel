@@ -6,21 +6,13 @@ import re
 import string
 from collections.abc import Callable, Iterable, Mapping
 from functools import wraps
-from typing import Any, Concatenate, SupportsIndex, TypeVar
-from typing_extensions import ParamSpec, Protocol, Self
+from typing import Any, Concatenate, ParamSpec, Self, SupportsIndex, TypeVar, cast
 
-__all__ = ['HasMarkdown', 'MarkdownString', 'markdown_escape']
+__all__ = ['MarkdownString', 'markdown_escape']
 
 
 _P = ParamSpec('_P')
 _ListOrDict = TypeVar('_ListOrDict', list, dict)
-
-
-class HasMarkdown(Protocol):
-    """Protocol for a class implementing :meth:`__markdown__`."""
-
-    def __markdown__(self) -> str:
-        """Return a Markdown string."""
 
 
 #: Based on the ASCII punctuation list in the CommonMark spec at
@@ -83,7 +75,9 @@ class _MarkdownEscapeHelper:
 
 
 def _escape_argspec(
-    obj: _ListOrDict, iterable: Iterable[Any], escape: Callable[[Any], MarkdownString]
+    obj: _ListOrDict,
+    iterable: Iterable[tuple[Any, object]],
+    escape: Callable[[Any], MarkdownString],
 ) -> _ListOrDict:
     """Escape all arguments."""
     for key, value in iterable:
@@ -94,15 +88,15 @@ def _escape_argspec(
 
 
 def _simple_escaping_wrapper(
-    func: Callable[Concatenate[str, _P], str]
-) -> Callable[Concatenate[MarkdownString, _P], MarkdownString]:
+    func: Callable[Concatenate[Any, _P], str]
+) -> Callable[Concatenate[Any, _P], MarkdownString]:
     @wraps(func)
     def wrapped(
         self: MarkdownString, *args: _P.args, **kwargs: _P.kwargs
     ) -> MarkdownString:
-        arg_list = _escape_argspec(list(args), enumerate(args), self.escape)
+        _escape_argspec(cast(list, args), enumerate(args), self.escape)
         _escape_argspec(kwargs, kwargs.items(), self.escape)
-        return self.__class__(func(self, *arg_list, **kwargs))
+        return self.__class__(func(self, *args, **kwargs))
 
     return wrapped
 
@@ -140,23 +134,23 @@ class MarkdownString(str):
         return markdown_unescape_re.sub(r'\1', str(self))
 
     @classmethod
-    def escape(cls, text: str | HasMarkdown, silent: bool = True) -> Self:
+    def escape(cls, text: str, silent: bool = True) -> Self:
         """Escape a string, for internal use only. Use :func:`markdown_escape`."""
         if silent and text is None:
             return cls('')  # type: ignore[unreachable]
-        if hasattr(text, '__markdown__'):
-            return cls(text.__markdown__())
+        if callable(dunder_markdown := getattr(text, '__markdown__', None)):
+            return cls(dunder_markdown())
         return cls(markdown_escape_re.sub(r'\\\1', text))
 
     # These additional methods are borrowed from the implementation in markupsafe
 
-    def __add__(self, other: str | HasMarkdown) -> Self:
+    def __add__(self, other: Any) -> Self:
         if isinstance(other, str) or hasattr(other, '__markdown__'):
             return self.__class__(super().__add__(self.escape(other)))
 
         return NotImplemented
 
-    def __radd__(self, other: str | HasMarkdown) -> Self:
+    def __radd__(self, other: Any) -> Self:
         if isinstance(other, str) or hasattr(other, '__markdown__'):
             return self.escape(other).__add__(self)
 
@@ -187,7 +181,7 @@ class MarkdownString(str):
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({super().__repr__()})'
 
-    def join(self, iterable: Iterable[str | HasMarkdown]) -> Self:
+    def join(self, iterable: Iterable[str]) -> Self:
         return self.__class__(super().join(map(self.escape, iterable)))
 
     join.__doc__ = str.join.__doc__
@@ -213,7 +207,7 @@ class MarkdownString(str):
 
     splitlines.__doc__ = str.splitlines.__doc__
 
-    __getitem__ = _simple_escaping_wrapper(str.__getitem__)  # type: ignore[assignment]
+    __getitem__ = _simple_escaping_wrapper(str.__getitem__)
     capitalize = _simple_escaping_wrapper(str.capitalize)  # type: ignore[assignment]
     title = _simple_escaping_wrapper(str.title)  # type: ignore[assignment]
     lower = _simple_escaping_wrapper(str.lower)  # type: ignore[assignment]

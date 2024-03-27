@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 from collections.abc import MutableMapping, Sequence
+from typing import Any
 
 from markdown_it import MarkdownIt
-from markdown_it.renderer import OptionsDict, RendererHTML
+from markdown_it.renderer import RendererHTML
 from markdown_it.token import Token
+from markdown_it.utils import OptionsDict
+
+__all__ = ['block_code_extend_plugin']
 
 
 def fence(
@@ -33,7 +37,7 @@ def code_block(
     return output
 
 
-def block_code_extend_plugin(md: MarkdownIt, **opts) -> None:
+def block_code_extend_plugin(md: MarkdownIt, **opts: Any) -> None:
     """Add CSS class ``language-none`` for code fences with no language identifier."""
     md.add_render_rule('fence', fence)
     md.add_render_rule('code_block', code_block)

@@ -1,4 +1,5 @@
 """Test ProjectSponsorMembership."""
+
 # pylint: disable=redefined-outer-name
 
 import pytest
@@ -7,9 +8,16 @@ from coaster.sqlalchemy import ImmutableColumnError
 
 from funnel import models
 
+from ...conftest import scoped_session
+
 
 @pytest.fixture()
-def citywatch_sponsor(db_session, project_expo2010, org_citywatch, user_vetinari):
+def citywatch_sponsor(
+    db_session: scoped_session,
+    project_expo2010: models.Project,
+    org_citywatch: models.Organization,
+    user_vetinari: models.User,
+) -> models.ProjectSponsorMembership:
     """Add City Watch as a sponsor of Expo 2010."""
     sponsor = models.ProjectSponsorMembership(
         project=project_expo2010,
@@ -23,7 +31,12 @@ def citywatch_sponsor(db_session, project_expo2010, org_citywatch, user_vetinari
 
 
 @pytest.fixture()
-def uu_sponsor(db_session, project_expo2010, org_uu, user_vetinari):
+def uu_sponsor(
+    db_session: scoped_session,
+    project_expo2010: models.Project,
+    org_uu: models.Organization,
+    user_vetinari: models.User,
+) -> models.ProjectSponsorMembership:
     """Add Unseen University as a sponsor of Expo 2010."""
     sponsor = models.ProjectSponsorMembership(
         project=project_expo2010,
@@ -37,7 +50,12 @@ def uu_sponsor(db_session, project_expo2010, org_uu, user_vetinari):
 
 
 @pytest.fixture()
-def dibbler_sponsor(db_session, project_expo2010, user_dibbler, user_vetinari):
+def dibbler_sponsor(
+    db_session: scoped_session,
+    project_expo2010: models.Project,
+    user_dibbler: models.User,
+    user_vetinari: models.User,
+) -> models.ProjectSponsorMembership:
     """Add CMOT Dibbler as a promoted sponsor of Expo 2010."""
     sponsor = models.ProjectSponsorMembership(
         project=project_expo2010,
@@ -52,12 +70,12 @@ def dibbler_sponsor(db_session, project_expo2010, user_dibbler, user_vetinari):
 
 
 def test_auto_seq(
-    db_session,
-    project_expo2010,
-    org_citywatch,
-    org_uu,
-    user_dibbler,
-    user_vetinari,
+    db_session: scoped_session,
+    project_expo2010: models.Project,
+    org_citywatch: models.Organization,
+    org_uu: models.Organization,
+    user_dibbler: models.User,
+    user_vetinari: models.User,
 ) -> None:
     """Sequence numbers are auto-issued in commit order."""
     sponsor1 = models.ProjectSponsorMembership(
@@ -95,14 +113,14 @@ def test_auto_seq(
 
 
 def test_expo_has_sponsors(
-    db_session,
-    project_expo2010,
-    dibbler_sponsor,
-    uu_sponsor,
-    citywatch_sponsor,
-    org_citywatch,
-    org_uu,
-    user_dibbler,
+    db_session: scoped_session,
+    project_expo2010: models.Project,
+    dibbler_sponsor: models.ProjectSponsorMembership,
+    uu_sponsor: models.ProjectSponsorMembership,
+    citywatch_sponsor: models.ProjectSponsorMembership,
+    org_citywatch: models.Organization,
+    org_uu: models.Organization,
+    user_dibbler: models.User,
 ) -> None:
     """Project Expo 2010 has sponsors in a specific order."""
     db_session.commit()
@@ -114,7 +132,11 @@ def test_expo_has_sponsors(
 
 
 def test_expo_sponsor_reorder(
-    db_session, project_expo2010, citywatch_sponsor, uu_sponsor, dibbler_sponsor
+    db_session: scoped_session,
+    project_expo2010: models.Project,
+    citywatch_sponsor: models.ProjectSponsorMembership,
+    uu_sponsor: models.ProjectSponsorMembership,
+    dibbler_sponsor: models.ProjectSponsorMembership,
 ) -> None:
     """Sponsors can be re-ordered."""
     db_session.commit()
@@ -133,13 +155,13 @@ def test_expo_sponsor_reorder(
 
 
 def test_expo_sponsor_seq_reissue(
-    db_session,
-    project_expo2010,
-    citywatch_sponsor,
-    uu_sponsor,
-    dibbler_sponsor,
-    user_dibbler,
-    user_wolfgang,
+    db_session: scoped_session,
+    project_expo2010: models.Project,
+    citywatch_sponsor: models.ProjectSponsorMembership,
+    uu_sponsor: models.ProjectSponsorMembership,
+    dibbler_sponsor: models.ProjectSponsorMembership,
+    user_dibbler: models.User,
+    user_wolfgang: models.User,
 ) -> None:
     """If the the last sponsor is dropped, the next sponsor gets their spot."""
     db_session.commit()
@@ -177,15 +199,21 @@ def test_expo_sponsor_seq_reissue(
     ]
 
 
-def test_change_promoted_flag(db_session, project_expo2010, citywatch_sponsor) -> None:
+def test_change_promoted_flag(
+    db_session: scoped_session,
+    project_expo2010: models.Project,
+    citywatch_sponsor: models.ProjectSponsorMembership,
+) -> None:
     """Change sponsor is_promoted flag."""
     assert citywatch_sponsor.is_promoted is False
+    assert citywatch_sponsor.granted_by is not None
     # Flag can be changed with a revision
     new_record = citywatch_sponsor.replace(
         actor=citywatch_sponsor.granted_by, is_promoted=True
     )
     assert new_record != citywatch_sponsor
     assert new_record.is_promoted is True
+    assert new_record.granted_by is not None
 
     noop_record = new_record.replace(actor=new_record.granted_by, is_promoted=True)
     assert noop_record == new_record
@@ -194,15 +222,21 @@ def test_change_promoted_flag(db_session, project_expo2010, citywatch_sponsor) -
         new_record.is_promoted = False
 
 
-def test_change_label(db_session, project_expo2010, citywatch_sponsor) -> None:
+def test_change_label(
+    db_session: scoped_session,
+    project_expo2010: models.Project,
+    citywatch_sponsor: models.ProjectSponsorMembership,
+) -> None:
     """Change sponsor label."""
     assert citywatch_sponsor.label is None
     # Flag can be changed with a revision
+    assert citywatch_sponsor.granted_by is not None
     new_record = citywatch_sponsor.replace(
         actor=citywatch_sponsor.granted_by, label="Guards! Guards!"
     )
     assert new_record != citywatch_sponsor
     assert new_record.label == "Guards! Guards!"
+    assert new_record.granted_by is not None
 
     noop_record = new_record.replace(
         actor=new_record.granted_by, label="Guards! Guards!"
@@ -213,13 +247,20 @@ def test_change_label(db_session, project_expo2010, citywatch_sponsor) -> None:
         new_record.label = None
 
 
-def test_sponsor_offered_roles(db_session, project_expo2010, citywatch_sponsor) -> None:
+def test_sponsor_offered_roles(
+    db_session: scoped_session,
+    project_expo2010: models.Project,
+    citywatch_sponsor: models.ProjectSponsorMembership,
+) -> None:
     """Sponsors don't get a role from the sponsor membership."""
     assert citywatch_sponsor.offered_roles == set()
 
 
 def test_sponsor_member_role(
-    db_session, citywatch_sponsor, user_vimes, user_rincewind
+    db_session: scoped_session,
+    citywatch_sponsor: models.ProjectSponsorMembership,
+    user_vimes: models.User,
+    user_rincewind: models.User,
 ) -> None:
     """Sponsor account admins get member role on the membership record."""
     assert 'member' in citywatch_sponsor.roles_for(user_vimes)

@@ -8,7 +8,7 @@
         </ul>
       </div>
       <ul class="mui-list--unstyled zero-bottom-margin" v-if="updates.length">
-        <update :update="update" :iseditor="isEditor" :addreadmore="addReadMore" v-for="update in updates"></update>
+        <update :update="update" :iseditor="isEditor" :siteeditor="siteEditor" :addreadmore="addReadMore" v-for="update in updates"></update>
       </ul>
     </div>
 
@@ -17,14 +17,31 @@
         <div class="page-card__card">
           <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
             <div class="update__heading">
-              <ul class="bullet-separated-list--flex mui--text-light mui--text-body2 update__date" v-if="update.number">
+               <form v-if="iseditor" :id="'pin-form-' + update.uuid_b58" :action="update.urls.edit" method="post" style="display: inline;">
+                <input type="hidden" :value=getCsrfToken() name="csrf_token">
+                <input type="hidden" value="pin" name="form.id">
+                <input type="hidden" v-if="!update.is_pinned" name="is_pinned" value="true">
+                <input type="hidden" v-if="update.is_pinned" name="is_pinned" value="">
+              </form>
+              <ul class="bullet-separated-list--flex mui--text-light mui--text-body2" v-if="update.number">
                 <li><a class="text-uppercase mui--text-light nounderline" :href="update.urls.view">{{ gettext('Update') }} #{{ update.number }}</a></li>
                 <li v-if="age"><a class="mui--text-light nounderline" :href="update.urls.view">{{ age }}</a></li>
-                <li v-if="update.visibility_label == 'Restricted'">
+                <li v-if="update.visibility == 'participants'">
+                  <faicon :icon="'lock-alt'"></faicon>
+                </li>
+                <li v-if="update.visibility == 'members'">
                   <faicon :icon="'lock-alt'"></faicon>
                 </li>
                 <li v-if="update.is_pinned">
-                  <faicon :icon="'thumbtack'" :baseline=false :css_class="'mui--align-middle'"></faicon>
+                  <a v-if="iseditor" href="#" @click="handlePinEvent($event, `pin-form-${update.uuid_b58}`, update.urls.edit);">
+                    <faicon :icon="'thumbtack-solid'" :baseline=false :css_class="'mui--align-middle'"></faicon>
+                  </a>
+                  <faicon v-else :icon="'thumbtack-solid'" :baseline=false :css_class="'mui--align-middle'"></faicon>
+                </li>
+                <li v-if="!update.is_pinned && iseditor">
+                  <a href="#" @click="handlePinEvent($event, `pin-form-${update.uuid_b58}`, update.urls.edit);" class="update__heading__unpin">
+                    <faicon :icon="'thumbtack'" :baseline=false :css_class="'mui--align-middle'"></faicon>
+                  </a>
                 </li>
               </ul>
               <p v-else class="text-capitalize mui--text-light zero-bottom-margin">{{ gettext('Draft') }}</p>
@@ -32,7 +49,7 @@
             <div class="update__action-btn">
               <div class="mui-dropdown">
                 <a href="#" onclick="return false;" class="mui--text-subhead nounderline mui--text-light project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="button" aria-haspopup="true" aria-expanded="false" :aria-label="gettext('Share')"><faicon :icon="'share-alt'" :icon_size="'subhead'" :baseline=true></faicon></a>
-                <sharedropdown :url='update.urls.view' :title='update.title'></sharedropdown>
+                <sharedropdown :url='update.urls.view' :title='update.title' :siteeditor='siteeditor'></sharedropdown>
               </div>
               <a href="#" onclick="return false;" class="mui--text-subhead nounderline mui--text-light hg-link-btn mui--hide" :data-title="update.title" :data-url="update.urls.view + '?utm_source=webshare'"><faicon :icon="'share-alt'" :icon_size="'subhead'" :baseline=true></faicon></a>
               <div class="mui-dropdown mui-dropdown--update" v-if="iseditor">

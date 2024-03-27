@@ -15,13 +15,14 @@ from __future__ import annotations
 import re
 from collections.abc import MutableMapping, Sequence
 from functools import reduce
-from typing_extensions import TypedDict
+from typing import Any, TypedDict
 
 from markdown_it import MarkdownIt
-from markdown_it.renderer import OptionsDict, RendererHTML
+from markdown_it.renderer import RendererHTML
 from markdown_it.rules_core import StateCore
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
+from markdown_it.utils import OptionsDict
 
 from coaster.utils import make_name
 
@@ -73,9 +74,15 @@ def find_elements(
             # pylint: disable=unsubscriptable-object,unsupported-assignment-operation
             text_content = reduce(
                 lambda acc, t: acc + t.content,
-                [tok for tok in token.children if tok.type in ('text', 'code_inline')]
-                if token.children
-                else [],
+                (
+                    [
+                        tok
+                        for tok in token.children
+                        if tok.type in ('text', 'code_inline')
+                    ]
+                    if token.children
+                    else []
+                ),
                 '',
             )
             current_heading['text'] = text_content
@@ -188,7 +195,7 @@ def toc_item_to_html(item: TocItem, options: dict, md: MarkdownIt) -> str:
     return html
 
 
-def toc_plugin(md: MarkdownIt, **opts) -> None:
+def toc_plugin(md: MarkdownIt, **opts: Any) -> None:
     opts = {
         **defaults,
         **opts,

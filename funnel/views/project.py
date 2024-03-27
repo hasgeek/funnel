@@ -12,21 +12,14 @@ from markupsafe import Markup
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
-from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
-from coaster.views import (
-    ModelView,
-    UrlChangeCheck,
-    UrlForView,
-    get_next_url,
-    render_with,
-    requires_roles,
-    route,
-)
+from coaster.views import get_next_url, render_with, requires_roles, route
 
 from .. import app
+from ..auth import current_auth
 from ..forms import (
     CfpForm,
+    ProjectAssignParentForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
@@ -38,12 +31,13 @@ from ..forms import (
     ProjectTransitionForm,
 )
 from ..models import (
-    RSVP_STATUS,
     Account,
     Project,
+    ProjectRsvpStateEnum,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
     Rsvp,
+    RsvpStateEnum,
     SavedProject,
     db,
     sa,
@@ -57,7 +51,7 @@ from .login_session import (
     requires_site_editor,
     requires_user_not_spammy,
 )
-from .mixins import AccountViewMixin, DraftViewMixin, ProjectViewMixin
+from .mixins import AccountViewBase, DraftViewProtoMixin, ProjectViewBase
 from .notification import dispatch_notification
 
 
@@ -72,7 +66,12 @@ class CountWords:
 
 
 registration_count_messages = [
-    CountWords(__("Be the first to register!"), '', __("Be the first follower!"), ''),
+    CountWords(
+        __("Be the first to register!"),
+        '',
+        __("Be the first follower!"),
+        '',
+    ),
     CountWords(
         __("One registration so far"),
         __("You have registered"),
@@ -142,7 +141,9 @@ numeric_count = CountWords(
 )
 
 
-def get_registration_text(count: int, registered=False, follow_mode=False) -> str:
+def get_registration_text(
+    count: int, registered: bool = False, follow_mode: bool = False
+) -> str:
     if count < len(registration_count_messages):
         if registered and not follow_mode:
             return registration_count_messages[count].registered
@@ -160,16 +161,31 @@ def get_registration_text(count: int, registered=False, follow_mode=False) -> st
     return Markup(numeric_count.not_following.format(num=format_number(count)))
 
 
-@Project.features('rsvp')
+@Project.features('rsvp', cached_property=True)
 def feature_project_rsvp(obj: Project) -> bool:
-    return (
+    return bool(
         obj.state.PUBLISHED
-        and obj.allow_rsvp is True
         and (obj.start_at is None or not obj.state.PAST)
+        and (
+            obj.rsvp_state == ProjectRsvpStateEnum.ALL
+            or (
+                obj.rsvp_state == ProjectRsvpStateEnum.MEMBERS
+                and obj.current_roles.account_member
+            )
+        )
     )
 
 
-@Project.features('tickets')
+@Project.features('rsvp_for_members', cached_property=True)
+def feature_project_rsvp_for_members(obj: Project) -> bool:
+    return bool(
+        obj.state.PUBLISHED
+        and (obj.start_at is None or not obj.state.PAST)
+        and obj.rsvp_state == ProjectRsvpStateEnum.MEMBERS
+    )
+
+
+@Project.features('tickets', cached_property=True)
 def feature_project_tickets(obj: Project) -> bool:
     return (
         obj.start_at is not None
@@ -180,9 +196,9 @@ def feature_project_tickets(obj: Project) -> bool:
     )
 
 
-@Project.features('tickets_or_rsvp')
+@Project.features('tickets_or_rsvp', cached_property=True)
 def feature_project_tickets_or_rsvp(obj: Project) -> bool:
-    return obj.features.tickets() or obj.features.rsvp()
+    return obj.features.tickets or obj.features.rsvp
 
 
 @Project.features('subscription', cached_property=True)
@@ -197,24 +213,24 @@ def feature_project_subscription(obj: Project) -> bool:
 
 @Project.features('show_tickets', cached_property=True)
 def show_tickets(obj: Project) -> bool:
-    return obj.features.tickets() or obj.features.subscription
+    return obj.features.tickets or obj.features.subscription
 
 
-@Project.features('rsvp_unregistered')
+@Project.features('rsvp_unregistered', cached_property=True)
 def feature_project_register(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
     return rsvp is None or not rsvp.state.YES
 
 
-@Project.features('rsvp_registered')
+@Project.features('rsvp_registered', cached_property=True)
 def feature_project_deregister(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
-    return rsvp is not None and rsvp.state.YES
+    return rsvp is not None and bool(rsvp.state.YES)
 
 
 @Project.features('schedule_no_sessions')
 def feature_project_has_no_sessions(obj: Project) -> bool:
-    return obj.state.PUBLISHED and not obj.start_at
+    return bool(obj.state.PUBLISHED and not obj.start_at)
 
 
 @Project.features('comment_new')
@@ -227,7 +243,7 @@ def feature_project_post_update(obj: Project) -> bool:
     return obj.current_roles.editor
 
 
-@Project.features('follow_mode')
+@Project.features('follow_mode', cached_property=True)
 def project_follow_mode(obj: Project) -> bool:
     return obj.start_at is None
 
@@ -236,8 +252,8 @@ def project_follow_mode(obj: Project) -> bool:
 def project_registration_text(obj: Project) -> str:
     return get_registration_text(
         count=obj.rsvp_count_going,
-        registered=obj.features.rsvp_registered(),
-        follow_mode=obj.features.follow_mode(),
+        registered=obj.features.rsvp_registered,
+        follow_mode=obj.features.follow_mode,
     )
 
 
@@ -250,7 +266,7 @@ def project_register_button_text(obj: Project) -> str:
     if custom_text and (rsvp is None or not rsvp.state.YES):
         return custom_text
 
-    if obj.features.follow_mode():
+    if obj.features.follow_mode:
         if rsvp is not None and rsvp.state.YES:
             return _("Following")
         return _("Follow")
@@ -259,9 +275,19 @@ def project_register_button_text(obj: Project) -> str:
     return _("Register")
 
 
+@Project.views('buy_button_eyebrow_text')
+def project_buy_button_eyebrow_text(obj: Project) -> str:
+    custom_text = (
+        obj.boxoffice_data.get('buy_btn_eyebrow_txt') if obj.boxoffice_data else None
+    )
+    if not custom_text:
+        custom_text = _("Hybrid access (members only)")
+    return custom_text
+
+
 @Account.views('project_new')
-@route('/<account>')
-class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
+@route('/<account>', init_app=app)
+class AccountProjectView(AccountViewBase):
     """Project views inside the account (new project view only)."""
 
     @route('new', methods=['GET', 'POST'])
@@ -295,23 +321,16 @@ class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
         )
 
 
-AccountProjectView.init_app(app)
-
-
-# mypy has trouble with the definition of `obj` and `model` between ProjectViewMixin and
-# DraftViewMixin
 @Project.views('main')
-@route('/<account>/<project>/')
-class ProjectView(  # type: ignore[misc]
-    ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
-):
+@route('/<account>/<project>/', init_app=app)
+class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     """All main project views."""
 
     @route('')
     @render_with(html_in_json('project.html.jinja2'))
     @requires_roles({'reader'})
     def view(self) -> ReturnRenderWith:
-        """Render project landing lage."""
+        """Render project landing page."""
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'featured_proposals': [
@@ -464,7 +483,7 @@ class ProjectView(  # type: ignore[misc]
 
             return render_redirect(self.obj.url_for())
         # Reset nonce to avoid conflict with autosave
-        form.form_nonce.data = form.form_nonce.default()
+        form.form_nonce.data = form.form_nonce.get_default()
         return render_form(
             form=form,
             title=_("Edit project"),
@@ -497,7 +516,7 @@ class ProjectView(  # type: ignore[misc]
             success=_(
                 "You have deleted project ‘{title}’ and all its associated content"
             ).format(title=self.obj.title),
-            next=self.obj.account.profile_url,
+            next=self.obj.account.absolute_url,
             cancel_url=self.obj.url_for(),
         )
 
@@ -582,25 +601,29 @@ class ProjectView(  # type: ignore[misc]
             obj=SimpleNamespace(
                 org=boxoffice_data.get('org', ''),
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
-                allow_rsvp=self.obj.allow_rsvp,
+                rsvp_state=self.obj.rsvp_state,
                 is_subscription=boxoffice_data.get('is_subscription', True),
                 register_form_schema=boxoffice_data.get('register_form_schema'),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
+                buy_btn_eyebrow_txt=boxoffice_data.get('buy_btn_eyebrow_txt', ''),
                 has_membership=boxoffice_data.get('has_membership', False),
             ),
             model=Project,
         )
         if form.validate_on_submit():
-            form.populate_obj(self.obj)
+            self.obj.rsvp_state = form.rsvp_state.data
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
-            self.obj.boxoffice_data[
-                'register_form_schema'
-            ] = form.register_form_schema.data
-            self.obj.boxoffice_data[
-                'register_button_txt'
-            ] = form.register_button_txt.data
+            self.obj.boxoffice_data['register_form_schema'] = (
+                form.register_form_schema.data
+            )
+            self.obj.boxoffice_data['register_button_txt'] = (
+                form.register_button_txt.data
+            )
+            self.obj.boxoffice_data['buy_btn_eyebrow_txt'] = (
+                form.buy_btn_eyebrow_txt.data
+            )
             self.obj.boxoffice_data['has_membership'] = form.has_membership.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
@@ -738,18 +761,22 @@ class ProjectView(  # type: ignore[misc]
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'going_rsvps': [
                 _r.current_access(datasets=('without_parent', 'related', 'related'))
-                for _r in self.obj.rsvps_with(RSVP_STATUS.YES)
+                for _r in self.obj.rsvps_with(RsvpStateEnum.YES)
             ],
-            'rsvp_form_fields': [
-                field.get('name', '')
-                for field in self.obj.boxoffice_data['register_form_schema']['fields']
-            ]
-            if self.obj.boxoffice_data.get('register_form_schema', {})
-            and 'fields' in self.obj.boxoffice_data.get('register_form_schema', {})
-            else None,
+            'rsvp_form_fields': (
+                [
+                    field.get('name', '')
+                    for field in self.obj.boxoffice_data['register_form_schema'][
+                        'fields'
+                    ]
+                ]
+                if self.obj.boxoffice_data.get('register_form_schema', {})
+                and 'fields' in self.obj.boxoffice_data.get('register_form_schema', {})
+                else None
+            ),
         }
 
-    def get_rsvp_state_csv(self, state):
+    def get_rsvp_state_csv(self, state: RsvpStateEnum) -> Response:
         """Export participant list as a CSV."""
         outfile = io.StringIO(newline='')
         out = csv.writer(outfile)
@@ -783,14 +810,14 @@ class ProjectView(  # type: ignore[misc]
     @requires_roles({'promoter'})
     def rsvp_list_yes_csv(self) -> ReturnView:
         """Return a CSV of RSVP participants who answered Yes."""
-        return self.get_rsvp_state_csv(state=RSVP_STATUS.YES)
+        return self.get_rsvp_state_csv(RsvpStateEnum.YES)
 
     @route('rsvp_list/maybe.csv')
     @requires_login
     @requires_roles({'promoter'})
     def rsvp_list_maybe_csv(self) -> ReturnView:
         """Return a CSV of RSVP participants who answered Maybe."""
-        return self.get_rsvp_state_csv(state=RSVP_STATUS.MAYBE)
+        return self.get_rsvp_state_csv(RsvpStateEnum.MAYBE)
 
     @route('save', methods=['POST'])
     @requires_login
@@ -798,7 +825,7 @@ class ProjectView(  # type: ignore[misc]
     def save(self) -> ReturnView:
         """Save (bookmark) a project."""
         form = self.SavedProjectForm()
-        form.form_nonce.data = form.form_nonce.default()
+        form.form_nonce.data = form.form_nonce.get_default()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
                 account=current_auth.user, project=self.obj
@@ -817,15 +844,12 @@ class ProjectView(  # type: ignore[misc]
                     db.session.commit()
             # Send new form nonce
             return {'status': 'ok', 'form_nonce': form.form_nonce.data}
-        return (
-            {
-                'status': 'error',
-                'error': 'project_save_form_invalid',
-                'error_description': _("This page timed out. Reload and try again"),
-                'form_nonce': form.form_nonce.data,
-            },
-            400,
-        )
+        return {
+            'status': 'error',
+            'error': 'project_save_form_invalid',
+            'error_description': _("This page timed out. Reload and try again"),
+            'form_nonce': form.form_nonce.data,
+        }, 400
 
     @route('admin', methods=['GET', 'POST'])
     @render_with('project_admin.html.jinja2')
@@ -908,5 +932,15 @@ class ProjectView(  # type: ignore[misc]
             }
         return render_redirect(get_next_url(referrer=True))
 
-
-ProjectView.init_app(app)
+    @route('assign_parent_project', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def assign_parent_project(self) -> ReturnView:
+        form = ProjectAssignParentForm(obj=self.obj, user=current_auth.user)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            return render_redirect(self.obj.url_for())
+        return render_form(
+            form=form, title=_("Assign a parent project"), submit=_("Assign")
+        )

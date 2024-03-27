@@ -1,18 +1,25 @@
 """Test account forms."""
+
 # pylint: disable=redefined-outer-name
 
+from collections.abc import Generator
 from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
+from typing import ContextManager, cast
 
 import pytest
+from flask import Flask
+from requests_mock import Mocker
 
-from baseframe.forms.validators import StopValidation
+from baseframe.forms import PasswordField, StopValidation
 
 from funnel import forms
 
 
 @pytest.fixture(autouse=True)
-def _policy_form_app_context(request, app):
+def _policy_form_app_context(
+    request: pytest.FixtureRequest, app: Flask
+) -> Generator[None, None, None]:
     """Create a POST request context with form data."""
     data = {}
     for mark in request.node.iter_markers('formdata'):
@@ -23,7 +30,7 @@ def _policy_form_app_context(request, app):
 
 
 @pytest.fixture()
-def form(request):
+def form(request: pytest.FixtureRequest) -> forms.PasswordPolicyForm:
     """Form fixture."""
     user = None
     for mark in request.node.iter_markers('formuser'):
@@ -35,13 +42,13 @@ def form(request):
 
 
 @pytest.mark.formdata()
-def test_password_policy_form_no_data(form) -> None:
+def test_password_policy_form_no_data(form: forms.PasswordPolicyForm) -> None:
     """Test form validation for missing password."""
     assert form.validate() is False
 
 
 @pytest.mark.formdata({'password': 'weak'})
-def test_weak_password(form) -> None:
+def test_weak_password(form: forms.PasswordPolicyForm) -> None:
     """Test weak password validation."""
     assert form.validate() is True
     assert form.is_weak is True
@@ -52,7 +59,7 @@ def test_weak_password(form) -> None:
 
 @pytest.mark.formdata({'password': 'rincewind123'})
 @pytest.mark.formuser('user_rincewind')
-def test_related_password(form) -> None:
+def test_related_password(form: forms.PasswordPolicyForm) -> None:
     """Password cannot be related to user identifiers (username, email, etc)."""
     assert form.validate() is True
     assert form.edit_user is not None
@@ -64,7 +71,7 @@ def test_related_password(form) -> None:
 
 @pytest.mark.formdata({'password': 'this-is-a-sufficiently-long-password'})
 @pytest.mark.formuser('user_rincewind')
-def test_okay_password(form) -> None:
+def test_okay_password(form: forms.PasswordPolicyForm) -> None:
     """Long passwords are valid."""
     assert form.validate() is True
     assert form.edit_user is not None
@@ -79,15 +86,22 @@ def test_pwned_password_validator() -> None:
     """Test the pwned password validator."""
     # Validation success = no return value, no exception
     forms.pwned_password_validator(
-        None, SimpleNamespace(data='this is unlikely to be in the breach list')
+        None,
+        cast(
+            PasswordField,
+            SimpleNamespace(data='this is unlikely to be in the breach list'),
+        ),
     )
 
     with pytest.raises(StopValidation, match='times and is not safe'):
-        forms.pwned_password_validator(None, SimpleNamespace(data='123456'))
+        forms.pwned_password_validator(
+            None, cast(PasswordField, SimpleNamespace(data='123456'))
+        )
 
     with pytest.raises(StopValidation, match='times and is not safe'):
         forms.pwned_password_validator(
-            None, SimpleNamespace(data='correct horse battery staple')
+            None,
+            cast(PasswordField, SimpleNamespace(data='correct horse battery staple')),
         )
 
 
@@ -144,9 +158,11 @@ D10B1F9D5901978256CE5B2AD832F292D5A:e'''
     ],
 )
 def test_mangled_response_pwned_password_validator(
-    requests_mock, text, expectation
+    requests_mock: Mocker, text: str, expectation: ContextManager
 ) -> None:
     """Test that the validator successfully parses mangled output in the API."""
     requests_mock.get('https://api.pwnedpasswords.com/range/7C4A8', text=text)
     with expectation:
-        forms.pwned_password_validator(None, SimpleNamespace(data='123456'))
+        forms.pwned_password_validator(
+            None, cast(PasswordField, SimpleNamespace(data='123456'))
+        )

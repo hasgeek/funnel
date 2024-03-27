@@ -20,17 +20,17 @@ start_at = column('start_at', sa.TIMESTAMP)
 end_at = column('end_at', sa.TIMESTAMP)
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `upgrade_` instead
     globals().get('upgrade_%s' % engine_name, lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `downgrade_` instead
     globals().get('downgrade_%s' % engine_name, lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     op.drop_constraint('session_start_at_end_at_check', 'session', type_='check')
     op.create_check_constraint(
         'session_start_at_end_at_check',
@@ -47,7 +47,7 @@ def upgrade_():
     )
 
 
-def downgrade_():
+def downgrade_() -> None:
     op.drop_constraint('session_start_at_end_at_check', 'session', type_='check')
     op.create_check_constraint(
         'session_start_at_end_at_check',
