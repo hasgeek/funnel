@@ -29,7 +29,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
     __null_granted_by__ = True
 
     #: List of role columns in this model
-    __data_columns__ = ('is_admin', 'is_owner')
+    __data_columns__ = ('is_admin', 'is_owner', 'label')
 
     __roles__ = {
         'all': {
@@ -38,6 +38,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
                 'member',
                 'is_admin',
                 'is_owner',
+                'label',
                 'account',
                 'granted_by',
                 'revoked_by',
@@ -70,6 +71,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
             'offered_roles',
             'is_admin',
             'is_owner',
+            'label',
             'member',
             'account',
         },
@@ -79,9 +81,17 @@ class AccountMembership(ImmutableMembershipMixin, Model):
             'offered_roles',
             'is_admin',
             'is_owner',
+            'label',
             'member',
         },
-        'related': {'urls', 'uuid_b58', 'offered_roles', 'is_admin', 'is_owner'},
+        'related': {
+            'urls',
+            'uuid_b58',
+            'offered_roles',
+            'is_admin',
+            'is_owner',
+            'label',
+        },
     }
 
     #: Account that this membership is being granted on
@@ -103,6 +113,13 @@ class AccountMembership(ImmutableMembershipMixin, Model):
     is_admin: Mapped[bool] = immutable(sa_orm.mapped_column(default=False))
     # Default role if both are false: 'follower'
 
+    #: Optional label, indicating the member's role in the account
+    label: Mapped[str | None] = immutable(
+        sa_orm.mapped_column(
+            sa.CheckConstraint("label <> ''", name='account_membership_label_check')
+        )
+    )
+
     @declared_attr.directive
     @classmethod
     def __table_args__(cls) -> tuple:  # type: ignore[override]
@@ -113,7 +130,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
             args = []
         kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
         args.append(
-            # Check if is_owner is True, is_admin must also be True
+            # If is_owner is True, is_admin must also be True
             sa.CheckConstraint(
                 sa.or_(
                     sa.and_(
