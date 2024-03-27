@@ -1,7 +1,7 @@
 """Account model with subtypes, and account-linked personal data models."""
 
 # pylint: disable=unnecessary-lambda,invalid-unary-operand-type
-# pyright: reportGeneralTypeIssues=false
+# pyright: reportGeneralTypeIssues=false,reportAttributeAccessIssue=false
 
 from __future__ import annotations
 
@@ -81,20 +81,21 @@ from .phone_number import PhoneNumber, PhoneNumberMixin
 __all__ = [
     'ACCOUNT_STATE',
     'Account',
-    'deleted_account',
-    'removed_account',
-    'unknown_account',
-    'User',
-    'DuckTypeAccount',
-    'AccountOldId',
-    'Organization',
-    'Team',
-    'Placeholder',
     'AccountEmail',
     'AccountEmailClaim',
-    'AccountPhone',
     'AccountExternalId',
+    'AccountOldId',
+    'AccountPhone',
     'Anchor',
+    'Community',
+    'deleted_account',
+    'DuckTypeAccount',
+    'Organization',
+    'Placeholder',
+    'removed_account',
+    'Team',
+    'unknown_account',
+    'User',
 ]
 
 
@@ -184,6 +185,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     # Helper flags (see subclasses)
     is_user_profile: ClassVar[bool] = False
     is_organization_profile: ClassVar[bool] = False
+    is_community_profile: ClassVar[bool] = False
     is_placeholder_profile: ClassVar[bool] = False
 
     reserved_names: ClassVar[set[str]] = RESERVED_NAMES
@@ -2052,6 +2054,27 @@ class Organization(Account):
             .filter(Team.account == self, Team.is_public.is_(True))
             .options(sa_orm.joinedload(Account.member_teams))
             .order_by(sa.func.lower(Account.title))
+        )
+
+
+class Community(Account):
+    """
+    A community account.
+
+    Communities differ from organizations in having open-ended membership.
+    """
+
+    __mapper_args__ = {'polymorphic_identity': 'C'}
+    is_community_profile = True
+
+    def __init__(self, owner: User, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        if self.joined_at is None:
+            self.joined_at = sa.func.utcnow()
+        db.session.add(
+            AccountMembership(
+                account=self, member=owner, granted_by=owner, is_owner=True
+            )
         )
 
 
