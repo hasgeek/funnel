@@ -33,7 +33,7 @@ parse-type==0.6.2
     # via pytest-bdd
 pluggy==1.4.0
     # via pytest
-pytest==8.1.1
+pytest==8.0.0
     # via
     #   -r requirements/test.in
     #   pytest-asyncio
@@ -49,7 +49,7 @@ pytest-asyncio==0.23.6
     # via -r requirements/test.in
 pytest-base-url==2.1.0
     # via pytest-playwright
-pytest-bdd==7.1.2
+pytest-bdd==7.0.1
     # via -r requirements/test.in
 pytest-cov==5.0.0
     # via -r requirements/test.in
