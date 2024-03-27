@@ -97,7 +97,7 @@
         </div>
         <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles mui--pull-right">
           <li v-if="membership.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Owner') }}</li>
-          <li v-else class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Admin') }}</li>
+          <li v-if="membership.is_admin" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Admin') }}</li>
         </ul>
       </div>
     </script>

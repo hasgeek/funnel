@@ -26,13 +26,13 @@ from ..models import (
     Account,
     AccountMembership,
     MembershipRevokedError,
-    Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
     Project,
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
     ProjectMembership,
+    User,
     db,
 )
 from ..proxies import request_wants
@@ -48,8 +48,8 @@ from .notification import dispatch_notification
 class OrganizationMembersView(AccountViewBase):
     def after_loader(self) -> ReturnView | None:
         """Don't render member views for user accounts."""
-        if not isinstance(self.obj, Organization):
-            # Only organization accounts have admin members
+        if isinstance(self.obj, User):
+            # Only non-user accounts have admin/owner members
             abort(404)
         return super().after_loader()
 
@@ -179,7 +179,9 @@ class OrganizationMembershipView(
 
                 try:
                     new_membership = previous_membership.replace(
-                        actor=current_auth.user, is_owner=membership_form.is_owner.data
+                        actor=current_auth.user,
+                        is_owner=membership_form.is_owner.data,
+                        is_admin=True,
                     )
                 except MembershipRevokedError:
                     return {
@@ -242,18 +244,28 @@ class OrganizationMembershipView(
                         'error_description': _("You can’t revoke your own membership"),
                         'form_nonce': form.form_nonce.data,
                     }, 422
+                if not previous_membership.is_admin:
+                    return {
+                        'status': 'error',
+                        'error_description': _("This person is not an admin"),
+                        'form_nonce': form.form_nonce.data,
+                    }, 422
                 if previous_membership.is_active:
-                    previous_membership.revoke(actor=current_auth.user)
-                    db.session.commit()
-                    dispatch_notification(
-                        OrganizationAdminMembershipRevokedNotification(
-                            document=previous_membership.account,
-                            fragment=previous_membership,
-                        )
+                    # Downgrade to follower
+                    new_membership = previous_membership.replace(
+                        actor=current_auth.user, is_admin=False, is_owner=False
                     )
+                    if new_membership != previous_membership:
+                        db.session.commit()
+                        dispatch_notification(
+                            OrganizationAdminMembershipRevokedNotification(
+                                document=previous_membership.account,
+                                fragment=previous_membership,
+                            )
+                        )
                 return {
                     'status': 'ok',
-                    'message': _("The member has been removed"),
+                    'message': _("The admin has been removed"),
                     'memberships': [
                         membership.current_access(
                             datasets=('without_parent', 'related')

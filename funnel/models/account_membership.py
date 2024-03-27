@@ -29,7 +29,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
     __null_granted_by__ = True
 
     #: List of role columns in this model
-    __data_columns__ = ('is_owner',)
+    __data_columns__ = ('is_admin', 'is_owner')
 
     __roles__ = {
         'all': {
