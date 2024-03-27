@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from hashlib import blake2b, sha256
 from typing import Any, Self, cast, overload
 
+from furl import furl
 from sqlalchemy.orm import attribute_keyed_dict, load_only
 from sqlalchemy.orm.query import Query as QueryBaseClass
 from werkzeug.utils import cached_property
@@ -23,6 +24,7 @@ from .base import (
     Mapped,
     Model,
     Query,
+    UrlType,
     UuidMixin,
     db,
     declarative_mixin,
@@ -116,18 +118,16 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin[int, Account], Model):
         sa_orm.mapped_column(), read={'all'}, write={'owner'}
     )
     #: Website
-    website: Mapped[str] = with_roles(
-        sa_orm.mapped_column(sa.Unicode, nullable=False),  # FIXME: Use UrlType
-        read={'all'},
-        write={'owner'},
+    website: Mapped[furl] = with_roles(
+        sa_orm.mapped_column(UrlType, nullable=False), read={'all'}, write={'owner'}
     )
     #: Redirect URIs (one or more)
     _redirect_uris: Mapped[str | None] = sa_orm.mapped_column(
         'redirect_uri', sa.UnicodeText, nullable=True, default=''
     )
     #: Back-end notification URI (TODO: deprecated, needs better architecture)
-    notification_uri: Mapped[str | None] = with_roles(  # FIXME: Use UrlType
-        sa_orm.mapped_column(sa.Unicode, nullable=True, default=''), rw={'owner'}
+    notification_uri: Mapped[furl | None] = with_roles(
+        sa_orm.mapped_column(UrlType, nullable=True, default=''), rw={'owner'}
     )
     #: Active flag
     active: Mapped[bool] = sa_orm.mapped_column(default=True)

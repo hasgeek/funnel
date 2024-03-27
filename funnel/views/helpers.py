@@ -13,7 +13,7 @@ from hashlib import blake2b
 from importlib import resources
 from os import urandom
 from typing import Any, ContextManager, Literal
-from urllib.parse import quote, unquote, urljoin, urlsplit
+from urllib.parse import quote, unquote, urljoin
 
 import brotli
 from flask import (
@@ -284,9 +284,10 @@ def localize_date(
     return date
 
 
-def get_scheme_netloc(uri: str) -> tuple[str, str]:
-    parsed_uri = urlsplit(uri)
-    return parsed_uri.scheme, parsed_uri.netloc
+def get_scheme_netloc(uri: str | furl) -> tuple[str | None, str | None]:
+    if isinstance(uri, str):
+        uri = furl(uri)
+    return uri.scheme, uri.netloc
 
 
 def autoset_timezone_and_locale() -> None:
