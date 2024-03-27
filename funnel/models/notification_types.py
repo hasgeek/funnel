@@ -86,6 +86,19 @@ class AccountPasswordNotification(
     for_private_recipient = True
 
 
+class FollowerNotification(
+    DocumentIsAccount, Notification[Account, AccountMembership], type='follower'
+):
+    """Notification of a new follower."""
+
+    category = notification_categories.account
+    title = __("When I have a new follower")
+    description = __("See who is interested in your work")
+
+    exclude_actor = True  # The actor can't possibly receive this notification anyway
+    dispatch_roles = ['account_admin']
+
+
 # --- Project participant notifications ------------------------------------------------
 
 
@@ -278,7 +291,7 @@ class RegistrationReceivedNotification(
     exclude_actor = True
 
 
-# --- Organization admin notifications -------------------------------------------------
+# --- Account admin notifications ------------------------------------------------------
 
 
 class AccountMembershipNotification(
