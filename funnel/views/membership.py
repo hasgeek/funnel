@@ -18,10 +18,10 @@ from coaster.views import (
 from .. import app, signals
 from ..auth import current_auth
 from ..forms import (
+    FollowForm,
     OrganizationMembershipForm,
     ProjectCrewMembershipForm,
     ProjectCrewMembershipInviteForm,
-    FollowForm,
 )
 from ..models import (
     Account,
