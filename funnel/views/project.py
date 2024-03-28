@@ -33,6 +33,7 @@ from ..forms import (
 from ..models import (
     Account,
     Project,
+    ProjectPublishedNotification,
     ProjectRsvpStateEnum,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
@@ -642,15 +643,22 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     def transition(self) -> ReturnView:
         """Change project's state."""
         transition_form = ProjectTransitionForm(obj=self.obj)
-        if (
-            transition_form.validate_on_submit()
-        ):  # check if the provided transition is valid
+        # Check if the provided transition is valid
+        if transition_form.validate_on_submit():
             transition = getattr(
                 self.obj.current_access(), transition_form.transition.data
             )
-            transition()  # call the transition
+            first_time_flag: bool | None = transition()  # call the transition
             db.session.commit()
             flash(transition.data['message'], 'success')
+            if transition_form.transition.data == 'publish' and first_time_flag:
+                dispatch_notification(
+                    ProjectPublishedNotification(
+                        document=self.obj.account, fragment=self.obj
+                    )
+                )
+            # If there's a future notification for CFP open, it can be dispatched here
+            # elif transition_form.transition.data == 'open_cfp' and first_time_flag:
         else:
             flash(_("Invalid transition for this project"), 'error')
             abort(403)

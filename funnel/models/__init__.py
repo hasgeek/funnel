@@ -131,6 +131,7 @@ __all__ = [
     "ProjectStartingNotification",
     "ProjectTomorrowNotification",
     "ProjectUpdateNotification",
+    "ProjectPublishedNotification",
     "Proposal",
     "ProposalLabelProxy",
     "ProposalLabelProxyWrapper",

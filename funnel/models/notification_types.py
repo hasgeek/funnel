@@ -34,6 +34,7 @@ __all__ = [
     'RegistrationCancellationNotification',
     'RegistrationConfirmationNotification',
     'ProjectStartingNotification',
+    'ProjectPublishedNotification',
     'ProjectTomorrowNotification',
     'OrganizationAdminMembershipNotification',
     'OrganizationAdminMembershipRevokedNotification',
@@ -66,6 +67,15 @@ class DocumentIsAccount:
     @property
     def preference_context(self) -> Account:
         """Return document itself as preference context."""
+        return self.document  # type: ignore[attr-defined]
+
+
+class DocumentIsProfile:
+    """Mixin class for notifications on the profile."""
+
+    @property
+    def preference_context(self) -> Account:
+        """Return the document as the preference context."""
         return self.document  # type: ignore[attr-defined]
 
 
@@ -195,6 +205,21 @@ class ProjectTomorrowNotification(
 
     dispatch_roles = ['project_crew', 'project_participant']
     # This is a notification triggered without an actor
+
+
+class ProjectPublishedNotification(
+    DocumentIsAccount, Notification[Account, Project], type='project_published'
+):
+    """Notification of a newly published project."""
+
+    category = notification_categories.participant
+    title = __("When a project is published")
+    description = __(
+        "Notifies all members of a account when a new project is published"
+    )
+
+    roles = ['project_crew', 'account_participant']
+    exclude_actor = False  # Send to everyone including the actor
 
 
 # --- Comment notifications ------------------------------------------------------------
