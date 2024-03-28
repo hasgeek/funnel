@@ -208,17 +208,17 @@ class ProjectTomorrowNotification(
 
 
 class ProjectPublishedNotification(
-    DocumentIsProfile, Notification[Account, Project], type='project_published'
+    DocumentIsAccount, Notification[Account, Project], type='project_published'
 ):
     """Notification of a newly published project."""
 
     category = notification_categories.participant
     title = __("When a project is published")
     description = __(
-        "Notifies all members of a profile when a new project is published"
+        "Notifies all members of a account when a new project is published"
     )
 
-    roles = ['project_crew', 'project_participant', 'account_participant']
+    roles = ['project_crew', 'account_participant']
     exclude_actor = False  # Send to everyone including the actor
 
 

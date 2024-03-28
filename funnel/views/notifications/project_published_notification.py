@@ -6,7 +6,7 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import Account, Project, ProjectPublishedNotification
+from ...models import Project, ProjectPublishedNotification
 from ...transports.sms import SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -27,7 +27,6 @@ class ProjectPublishedTemplate(TemplateVarMixin, SmsTemplate):
     plaintext_template = "{account} has published a new project: {url}"
 
     url: str
-    account: Account
 
 
 @ProjectPublishedNotification.renderer
