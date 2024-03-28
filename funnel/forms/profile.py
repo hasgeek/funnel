@@ -13,6 +13,7 @@ __all__ = [
     'ProfileLogoForm',
     'ProfileBannerForm',
     'ProfileTransitionForm',
+    'FollowForm',
 ]
 
 
@@ -148,3 +149,12 @@ class ProfileBannerForm(forms.Form):
         """Prepare form for use."""
         self.banner_image_url.widget_type = 'modal'
         self.banner_image_url.profile = self.account.name or self.account.buid
+
+
+@Account.forms('follow')
+class FollowForm(forms.Form):
+    """Form for following or unfollowing an account."""
+
+    follow = forms.BooleanField(
+        __("Follow?"), validators=[forms.validators.InputRequired()]
+    )

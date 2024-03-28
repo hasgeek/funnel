@@ -99,15 +99,13 @@
   }
 }
 
-.profile-create-btn {
-  margin-right: 8px;
-  margin-top: 0;
-}
-
-.profile-create-btn--mobile {
-  width: 100%;
+.profile__btns {
   .mui-btn {
     width: 100%;
+    margin-left: 0;
+  }
+  .admin-btns {
+    display: inline-block;
   }
 }
 
@@ -181,7 +179,20 @@
         position: absolute;
         bottom: -58px;
         z-index: 1000;
-        right: $mui-grid-padding;
+        right: 0;
+        display: flex;
+        align-items: center;
+        .admin-btns {
+          display: inline-block;
+          margin-left: $mui-grid-padding * 0.5;
+        }
+      }
+      .profile__btns {
+        display: flex;
+        .mui-btn {
+          width: auto;
+          margin-left: $mui-grid-padding * 0.5;
+        }
       }
     }
   }

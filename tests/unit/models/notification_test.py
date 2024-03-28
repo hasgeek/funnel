@@ -94,7 +94,7 @@ def project_fixtures(
     admin_membership = models.AccountMembership(
         account=org,
         member=user_admin,
-        is_owner=False,
+        is_admin=True,
         granted_by=user_owner,
     )
     db_session.add_all(

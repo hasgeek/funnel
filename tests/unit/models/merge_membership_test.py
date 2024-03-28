@@ -15,7 +15,9 @@ def death_membership(
     org_ankhmorpork: models.Organization,
     user_death: models.User,
 ) -> models.AccountMembership:
-    membership = models.AccountMembership(account=org_ankhmorpork, member=user_death)
+    membership = models.AccountMembership(
+        account=org_ankhmorpork, member=user_death, is_admin=True
+    )
     db_session.add(membership)
     db_session.commit()
     return membership
@@ -42,7 +44,7 @@ def rincewind_membership(
     user_rincewind: models.User,
 ) -> models.AccountMembership:
     membership = models.AccountMembership(
-        account=org_ankhmorpork, member=user_rincewind
+        account=org_ankhmorpork, member=user_rincewind, is_admin=True
     )
     db_session.add(membership)
     db_session.commit()
@@ -260,7 +262,7 @@ def test_merge_multiple_memberships(
     db_session.add(uu_death_owner_membership)
     db_session.commit()
     uu_rincewind_membership = models.AccountMembership(
-        account=org_uu, member=user_rincewind, is_owner=False
+        account=org_uu, member=user_rincewind, is_admin=True
     )
     db_session.add(uu_rincewind_membership)
     db_session.commit()

@@ -21,13 +21,15 @@ from coaster.views import (
 from .. import app
 from ..auth import current_auth
 from ..forms import (
+    FollowForm,
     ProfileBannerForm,
     ProfileForm,
     ProfileLogoForm,
     ProfileTransitionForm,
 )
-from ..models import Account, Project, Session, db, sa
+from ..models import Account, AccountMembership, Project, Session, db, sa
 from ..typing import ReturnRenderWith, ReturnView
+from .decorators import idempotent_request
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
 from .mixins import AccountViewBase
@@ -75,6 +77,9 @@ def template_switcher(templateargs: dict[str, Any]) -> str:
 @Account.views('main')
 @route('/<account>', init_app=app)
 class ProfileView(UrlChangeCheck, AccountViewBase):
+
+    FollowForm = FollowForm
+
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
     def view(self) -> ReturnRenderWith:
@@ -94,7 +99,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
 
             ctx = {
                 'template': template_name,
-                'profile': self.obj.current_access(datasets=('primary', 'related')),
+                'profile': self.obj.current_access(),
                 'tagged_sessions': [
                     session.current_access() for session in tagged_sessions
                 ],
@@ -190,7 +195,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
 
             ctx = {
                 'template': template_name,
-                'profile': self.obj.current_access(datasets=('primary', 'related')),
+                'profile': self.obj.current_access(),
                 'all_projects': [
                     p.current_access(datasets=('without_parent', 'related'))
                     for p in all_projects
@@ -242,6 +247,82 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
 
         return ctx
 
+    @route('followers', endpoint='followers')
+    @render_with('profile_followers.html.jinja2', json=True)
+    @requires_login
+    @requires_roles({'reader'})
+    def followers(self) -> ReturnRenderWith:
+        """Followers of an account."""
+        profile = self.obj.current_access()
+        return {
+            'profile': profile,
+            'count': self.obj.active_follower_memberships.count(),
+            'memberships': (
+                membership.current_access()
+                for membership in self.obj.active_follower_memberships
+                if not membership.is_migrated
+            ),
+        }
+
+    @route('following', endpoint='following')
+    @render_with('profile_following.html.jinja2', json=True)
+    @requires_login
+    @requires_roles({'reader'})
+    def following(self) -> ReturnRenderWith:
+        """Accounts being followed."""
+        profile = self.obj.current_access()
+        return {
+            'profile': profile,
+            'count': self.obj.active_following_memberships.count(),
+            'accounts': (
+                membership.account.current_access()
+                for membership in self.obj.active_following_memberships
+                if membership.member.profile_state.ACTIVE_AND_PUBLIC
+            ),
+        }
+
+    @route('follow', methods=['POST'], endpoint='follow')
+    @requires_login
+    @requires_roles({'reader'})
+    @idempotent_request()
+    def follow(self) -> ReturnView:
+        """Follow an account."""
+        form = FollowForm()
+        del form.form_nonce
+        if form.validate_on_submit():
+            existing_membership = self.obj.active_follower_memberships.filter_by(
+                member=current_auth.user
+            ).one_or_none()
+            if form.follow.data:
+                if not existing_membership:
+                    membership = AccountMembership(
+                        account=self.obj,
+                        member=current_auth.user,
+                        granted_by=current_auth.user,
+                        is_owner=False,
+                        is_admin=False,
+                    )
+                    db.session.add(membership)
+                    db.session.commit()
+                    # TODO: Dispatch notification for new follower
+                    flash(_("Your now following this account"), 'info')
+                    return render_redirect(self.obj.url_for('followers'))
+                # If actor is already following, maybe confirm a MIGRATE record
+                new_membership = existing_membership.replace(actor=current_auth.user)
+                if new_membership != existing_membership:
+                    db.session.commit()
+                flash(_("Your now following this account"), 'info')
+                return render_redirect(self.obj.url_for('followers'))
+            # Unfollow
+            if existing_membership:
+                if existing_membership.is_admin:
+                    flash(_("You are an admin of this account"), 'error')
+                existing_membership.revoke(current_auth.user)
+                db.session.commit()
+            return render_redirect(self.obj.url_for())
+        flash(_("This page timed out. Reload and try again"), 'error')
+        return render_redirect(self.obj.url_for())
+
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
     def user_participated_projects(self) -> ReturnRenderWith:
@@ -253,7 +334,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
         }
 
         return {
-            'profile': self.obj.current_access(datasets=('primary', 'related')),
+            'profile': self.obj.current_access(),
             'participated_projects': [
                 project.current_access(datasets=('without_parent', 'related'))
                 for project in participated_projects
@@ -270,7 +351,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
         submitted_proposals = self.obj.public_proposals
 
         return {
-            'profile': self.obj.current_access(datasets=('primary', 'related')),
+            'profile': self.obj.current_access(),
             'submitted_proposals': [
                 proposal.current_access(datasets=('without_parent', 'related'))
                 for proposal in submitted_proposals

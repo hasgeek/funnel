@@ -7,7 +7,7 @@ from funnel.models.membership_mixin import MembershipRecordTypeEnum
 
 from ....conftest import GetUserProtocol, scoped_session
 
-scenarios('notifications/organization_membership_notification.feature')
+scenarios('notifications/account_admin_notification.feature')
 
 
 @given(
@@ -24,7 +24,7 @@ def given_vimes_admin(
         member=user_vimes,
         account=org_ankhmorpork,
         granted_by=user_vetinari,
-        is_owner=False,
+        is_admin=True,
     )
     db_session.add(vimes_admin)
     assert 'admin' in org_ankhmorpork.roles_for(user_vimes)
@@ -52,6 +52,7 @@ def when_vetinari_adds_ridcully(
         account=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=is_owner,
+        is_admin=True,
     )
     db_session.add(ridcully_admin)
     db_session.commit()
@@ -86,7 +87,7 @@ def then_user_gets_notification(
     ridcully_admin: models.AccountMembership,
 ) -> None:
     preview = models.PreviewNotification(
-        models.OrganizationAdminMembershipNotification,
+        models.AccountAdminNotification,
         document=ridcully_admin.account,
         fragment=ridcully_admin,
         user=ridcully_admin.granted_by,
@@ -126,6 +127,7 @@ def when_vetinari_invites_ridcully(
         account=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=is_owner,
+        is_admin=True,
         record_type=MembershipRecordTypeEnum.INVITE,
     )
     db_session.add(ridcully_admin)
@@ -166,6 +168,7 @@ def given_riduclly_admin(
         account=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=is_owner,
+        is_admin=True,
     )
     db_session.add(ridcully_admin)
     db_session.commit()
@@ -217,7 +220,7 @@ def then_notification_recipient_removal(
     ridcully_admin: models.AccountMembership,
 ) -> None:
     preview = models.PreviewNotification(
-        models.OrganizationAdminMembershipRevokedNotification,
+        models.AccountAdminRevokedNotification,
         document=ridcully_admin.account,
         fragment=ridcully_admin,
         user=ridcully_admin.revoked_by,
