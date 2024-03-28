@@ -39,7 +39,7 @@
 {% block bodyattrs %}class="bg-primary no-sticky-header mobile-header"{% endblock bodyattrs %}
 
 {% block baseheadline %}
-  {{ profile_header(profile, class="mui--hidden-xs mui--hidden-sm", current_page="followers", title=_("Followers")) }}
+  {{ profile_header(profile, class="mui--hidden-xs mui--hidden-sm", current_page="following", title=_("Following")) }}
 {% endblock baseheadline %}
 
 {% block basecontent %}
@@ -48,14 +48,14 @@
       <div class="page-content">
         <div class="grid">
           <div class="grid__col-xs-12">
-            <h2 class="project-headline">{% trans %}Followers{% endtrans %}({{count}})</h2>
+            <h2 class="project-headline">{% trans %}Following{% endtrans %}({{count}})</h2>
             <ul class="mui-list--unstyled list--border">
-              {%- for membership in memberships %}
+              {%- for account in accounts %}
                 <li class="user">
                   <div class="user__box">
-                    {{ useravatar(membership.member) }}
+                    {{ useravatar(account) }}
                     <div class="user__box__header">
-                      <h3 class="mui--text-body2 user__box__fullname">{{ membership.member.pickername }}</h3>
+                      <h3 class="mui--text-body2 user__box__fullname">{{ account.pickername }}</h3>
                     </div>
                   </div>
                 </li>

@@ -99,9 +99,14 @@
   }
 }
 
-.profile__btns .mui-btn {
-  width: 100%;
-  margin-left: 0;
+.profile__btns {
+  .mui-btn {
+    width: 100%;
+    margin-left: 0;
+  }
+  .admin-btns {
+    display: inline-block;
+  }
 }
 
 .profile-dropdown-btn {
@@ -170,19 +175,26 @@
           min-width: 450px;
         }
       }
-      .profile__btns .mui-btn {
-        width: auto;
-        margin-left: 0;
-        margin-right: $mui-grid-padding * 0.5;
-      }
       .profile__banner__btns {
         position: absolute;
         bottom: -58px;
         z-index: 1000;
-        right: $mui-grid-padding;
+        right: 0;
         display: flex;
         align-items: center;
+        .admin-btns {
+          display: inline-block;
+          margin-left: $mui-grid-padding * 0.5;
+        }
       }
+      .profile__btns {
+        display: flex;
+        .mui-btn {
+          width: auto;
+          margin-left: $mui-grid-padding * 0.5;
+        }
+      }
+
     }
   }
   .profile-details {

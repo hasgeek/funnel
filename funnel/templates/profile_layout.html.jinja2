@@ -393,7 +393,18 @@
     {% elif profile.features.make_public() %}
       <a class="mui-btn mui-btn--raised mui-btn--primary" href="#make-public-modal" rel="modal:open" role="button" aria-haspopup="true" data-cy="profile-public">{% trans %}Make account public{% endtrans %}</a>
     {% endif %}
-    <a class="mui-btn mui-btn--dark mui-btn--raised" href="{{ profile.url_for('follow') }} ">{% trans %}Follow{% endtrans %}</a>
+    <form action="{{ profile.url_for('follow') }}" method="post">
+      {{ current_view.FollowForm().hidden_tag() }}
+      {%- if current_auth.is_anonymous %}
+        <a class="mui--text-light" href="{{ url_for('login', next=request.path) }}" data-ga="Login to follow account" aria-label="{% trans %}Login to follow this account{% endtrans %}">{% trans %}Follow{% endtrans %}</a>
+      {%- else %}
+        {% if profile.current_roles.follower %}
+          <button type="submit" name="follow" value="false" class="mui-btn mui-btn--accent mui-btn--raised" href="{{ profile.url_for('follow') }} ">{% trans %}Unfollow{% endtrans %}</button>
+        {% else %}
+          <button type="submit" name="follow" value="true" class="mui-btn mui-btn--dark mui-btn--raised" href="{{ profile.url_for('follow') }} ">{% trans %}Follow{% endtrans %}</button>
+        {%- endif %}
+      {%- endif %}
+    </form>
   </div>
 {% endmacro %}
 
@@ -439,7 +450,7 @@
               <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
                 {{ profile_header_buttons(profile) }}
                 {%- if profile.current_roles.admin %}
-                  <div class="display-inlineblock">{{ profile_admin_buttons(profile) }}</div>
+                  <div class="admin-btns">{{ profile_admin_buttons(profile) }}</div>
                 {% endif %}
               </div>
             </div>
@@ -498,12 +509,13 @@
         <nav class="sub-navbar" id="page-navbar">
           {% if profile.is_organization_profile %}
             <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
-            <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'followers' -%}{{ profile.url_for('followers') }}{%- endif %}" data-cy-navbar="profile">{% trans %}Followers{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'followers' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'followers' -%}{{ profile.url_for('followers') }}{%- endif %}" data-cy-navbar="followers">{% trans %}Followers{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
             <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-cy-navbar="admins">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {% elif not profile.features.is_private() %}
             <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for() }}">{% trans %}Sessions{% endtrans %}</a>
             <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'projects' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_participated_projects') }}">{% trans %}Projects{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
             <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'submissions' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_proposals') }}" data-cy="submissions">{% trans %}Submissions{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'following' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'following' -%}{{ profile.url_for('following') }}{%- endif %}" data-cy-navbar="followers">{% trans %}Following{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {% endif %}
         </nav>
       </div>
@@ -526,6 +538,12 @@
 
 {% block footerscripts %}
   {% block innerscripts %}{% endblock innerscripts %}
+  <script src="{{ manifest('profile.js') }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+
+    });
+  </script>
   {% if featured_project and featured_project.schedule_start_at -%}
     <script src="{{ manifest('schedule_view.js') }}" type="text/javascript"></script>
     <script type="text/javascript">

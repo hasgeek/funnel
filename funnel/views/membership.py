@@ -21,6 +21,7 @@ from ..forms import (
     OrganizationMembershipForm,
     ProjectCrewMembershipForm,
     ProjectCrewMembershipInviteForm,
+    FollowForm,
 )
 from ..models import (
     Account,
@@ -46,6 +47,9 @@ from .notification import dispatch_notification
 @Account.views('members')
 @route('/<account>/members', init_app=app)
 class OrganizationMembersView(AccountViewBase):
+
+    FollowForm = FollowForm
+
     def after_loader(self) -> ReturnView | None:
         """Don't render member views for user accounts."""
         if isinstance(self.obj, User):

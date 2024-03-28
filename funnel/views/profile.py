@@ -77,6 +77,9 @@ def template_switcher(templateargs: dict[str, Any]) -> str:
 @Account.views('main')
 @route('/<account>', init_app=app)
 class ProfileView(UrlChangeCheck, AccountViewBase):
+
+    FollowForm = FollowForm
+
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
     def view(self) -> ReturnRenderWith:
@@ -271,14 +274,14 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
         return {
             'profile': profile,
             'count': self.obj.active_following_memberships.count(),
-            'memberships': (
-                membership.current_access()
+            'accounts': (
+                membership.account.current_access()
                 for membership in self.obj.active_following_memberships
                 if membership.member.profile_state.ACTIVE_AND_PUBLIC
             ),
         }
 
-    @route('followers', methods=['POST'], endpoint='follow')
+    @route('follow', methods=['POST'], endpoint='follow')
     @requires_login
     @requires_roles({'reader'})
     @idempotent_request()
@@ -302,28 +305,23 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                     db.session.add(membership)
                     db.session.commit()
                     # TODO: Dispatch notification for new follower
-                    return {'status': 'ok', 'following': True}, 201
+                    flash(_("Your now following this account"), 'info')
+                    return render_redirect(self.obj.url_for('followers'))
                 # If actor is already following, maybe confirm a MIGRATE record
                 new_membership = existing_membership.replace(actor=current_auth.user)
                 if new_membership != existing_membership:
                     db.session.commit()
-                return {'status': 'ok', 'following': True}, 200
+                flash(_("Your now following this account"), 'info')
+                return render_redirect(self.obj.url_for('followers'))
             # Unfollow
             if existing_membership:
                 if existing_membership.is_admin:
-                    return {
-                        'status': 'error',
-                        'error': 'admin_unfollow',
-                        'error_description': _("You are an admin of this account"),
-                    }, 422
+                    flash(_("You are an admin of this account"), 'error')
                 existing_membership.revoke(current_auth.user)
-                return {'status': 'ok', 'following': False}, 201
-            return {'status': 'ok', 'following': False}, 200
-        return {
-            'status': 'error',
-            'error': 'follow_form_invalid',
-            'error_description': _("This page timed out. Reload and try again"),
-        }, 422
+                db.session.commit()
+            return render_redirect(self.obj.url_for())
+        flash(_("This page timed out. Reload and try again"), 'error')
+        return render_redirect(self.obj.url_for())
 
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
