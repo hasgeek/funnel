@@ -263,7 +263,9 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @requires_roles({'reader'})
     def followers(self, page: int = 1, per_page: int = 50) -> ReturnRenderWith:
         """Followers of an account."""
-        pagination = self.obj.active_follower_memberships.paginate(page=page, per_page=per_page)
+        pagination = self.obj.active_follower_memberships.paginate(
+            page=page, per_page=per_page
+        )
         return {
             'status': 'ok',
             'profile': self.obj.current_access(),
@@ -273,12 +275,8 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                 pagination.page + 1 if pagination.page < pagination.pages else ''
             ),
             'total_pages': pagination.pages,
-            'accounts': [
-                p.member.current_access()
-                for p in pagination.items
-            ],
+            'accounts': [p.member.current_access() for p in pagination.items],
         }
-
 
     @route('following', endpoint='following')
     @requestargs(('page', int), ('per_page', int))
@@ -286,7 +284,9 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @requires_roles({'reader'})
     def following(self, page: int = 1, per_page: int = 50) -> ReturnRenderWith:
         """Accounts being followed."""
-        pagination = self.obj.active_following_memberships.paginate(page=page, per_page=per_page)
+        pagination = self.obj.active_following_memberships.paginate(
+            page=page, per_page=per_page
+        )
         return {
             'status': 'ok',
             'profile': self.obj.current_access(),
