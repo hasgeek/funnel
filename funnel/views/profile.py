@@ -257,11 +257,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
         return {
             'profile': profile,
             'count': self.obj.active_follower_memberships.count(),
-            'memberships': (
-                membership.current_access()
-                for membership in self.obj.active_follower_memberships
-                if not membership.is_migrated
-            ),
+            'memberships': profile.active_follower_memberships,
         }
 
     @route('following', endpoint='following')
