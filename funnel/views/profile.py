@@ -69,6 +69,16 @@ def feature_profile_is_private(obj: Account) -> bool:
     return not obj.current_roles.admin and not bool(obj.profile_state.ACTIVE_AND_PUBLIC)
 
 
+@Account.features('followers_count')
+def feature_profile_followers_count(obj: Account) -> bool:
+    return obj.active_follower_memberships.count()
+
+
+@Account.features('following_count')
+def feature_profile_following_count(obj: Account) -> bool:
+    return obj.active_following_memberships.count()
+
+
 def template_switcher(templateargs: dict[str, Any]) -> str:
     template = templateargs.pop('template')
     return render_template(template, **templateargs)
@@ -248,33 +258,49 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
         return ctx
 
     @route('followers', endpoint='followers')
+    @requestargs(('page', int), ('per_page', int))
     @render_with('profile_followers.html.jinja2', json=True)
-    @requires_login
     @requires_roles({'reader'})
-    def followers(self) -> ReturnRenderWith:
+    def followers(self, page: int = 1, per_page: int = 50) -> ReturnRenderWith:
         """Followers of an account."""
-        profile = self.obj.current_access()
+        pagination = self.obj.active_follower_memberships.paginate(page=page, per_page=per_page)
         return {
-            'profile': profile,
+            'status': 'ok',
+            'profile': self.obj.current_access(),
             'count': self.obj.active_follower_memberships.count(),
-            'memberships': profile.active_follower_memberships,
+            'followers': True,
+            'next_page': (
+                pagination.page + 1 if pagination.page < pagination.pages else ''
+            ),
+            'total_pages': pagination.pages,
+            'accounts': [
+                p.member.current_access()
+                for p in pagination.items
+            ],
         }
 
+
     @route('following', endpoint='following')
-    @render_with('profile_following.html.jinja2', json=True)
-    @requires_login
+    @requestargs(('page', int), ('per_page', int))
+    @render_with('profile_following.html.jinja2')
     @requires_roles({'reader'})
-    def following(self) -> ReturnRenderWith:
+    def following(self, page: int = 1, per_page: int = 50) -> ReturnRenderWith:
         """Accounts being followed."""
-        profile = self.obj.current_access()
+        pagination = self.obj.active_following_memberships.paginate(page=page, per_page=per_page)
         return {
-            'profile': profile,
+            'status': 'ok',
+            'profile': self.obj.current_access(),
             'count': self.obj.active_following_memberships.count(),
-            'accounts': (
-                membership.account.current_access()
-                for membership in self.obj.active_following_memberships
-                if membership.member.profile_state.ACTIVE_AND_PUBLIC
+            'following': True,
+            'next_page': (
+                pagination.page + 1 if pagination.page < pagination.pages else ''
             ),
+            'total_pages': pagination.pages,
+            'accounts': [
+                p.account.current_access()
+                for p in pagination.items
+                if p.member.profile_state.ACTIVE_AND_PUBLIC
+            ],
         }
 
     @route('follow', methods=['POST'], endpoint='follow')
