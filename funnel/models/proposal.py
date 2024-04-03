@@ -537,7 +537,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
     def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
+    sponsors: DynamicAssociationProxy[Account, ProposalSponsorMembership] = (
+        DynamicAssociationProxy('sponsor_memberships', 'member')
+    )
 
     @role_check('reader')
     def has_reader_role(
