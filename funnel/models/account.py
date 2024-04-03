@@ -421,12 +421,12 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         viewonly=True,
     )
 
-    owner_users = with_roles(
-        DynamicAssociationProxy['Account']('active_owner_memberships', 'member'),
+    owner_users: DynamicAssociationProxy[Account, AccountMembership] = with_roles(
+        DynamicAssociationProxy('active_owner_memberships', 'member'),
         read={'all'},
     )
-    admin_users = with_roles(
-        DynamicAssociationProxy['Account']('active_admin_memberships', 'member'),
+    admin_users: DynamicAssociationProxy[Account, AccountMembership] = with_roles(
+        DynamicAssociationProxy('active_admin_memberships', 'member'),
         read={'all'},
     )
     followers = with_roles(
@@ -494,11 +494,11 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         viewonly=True,
     )
 
-    organizations_as_owner = DynamicAssociationProxy['Account'](
-        'active_organization_owner_memberships', 'account'
+    organizations_as_owner: DynamicAssociationProxy[Account, AccountMembership] = (
+        DynamicAssociationProxy('active_organization_owner_memberships', 'account')
     )
-    organizations_as_admin = DynamicAssociationProxy['Account'](
-        'active_organization_admin_memberships', 'account'
+    organizations_as_admin: DynamicAssociationProxy[Account, AccountMembership] = (
+        DynamicAssociationProxy('active_organization_admin_memberships', 'account')
     )
     accounts_following = with_roles(
         DynamicAssociationProxy['Account']('active_following_memberships', 'account'),
@@ -527,9 +527,9 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         )''',
         viewonly=True,
     )
-    subscribed_commentsets = DynamicAssociationProxy['Commentset'](
-        'active_commentset_memberships', 'commentset'
-    )
+    subscribed_commentsets: DynamicAssociationProxy[
+        Commentset, CommentsetMembership
+    ] = DynamicAssociationProxy('active_commentset_memberships', 'commentset')
 
     # contact_exchange.py
     scanned_contacts: DynamicMapped[ContactExchange] = relationship(
@@ -635,8 +635,8 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         )
     )
 
-    projects_as_crew = DynamicAssociationProxy['Project'](
-        'projects_as_crew_active_memberships', 'project'
+    projects_as_crew: DynamicAssociationProxy[Project, ProjectMembership] = (
+        DynamicAssociationProxy('projects_as_crew_active_memberships', 'project')
     )
 
     projects_as_editor_active_memberships: DynamicMapped[ProjectMembership] = (
@@ -651,8 +651,8 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         )
     )
 
-    projects_as_editor = DynamicAssociationProxy['Project'](
-        'projects_as_editor_active_memberships', 'project'
+    projects_as_editor: DynamicAssociationProxy[Project, ProjectMembership] = (
+        DynamicAssociationProxy('projects_as_editor_active_memberships', 'project')
     )
 
     # project.py
@@ -716,7 +716,9 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     )
 
     # This is a User property of the proposals the user account is a collaborator in
-    proposals = DynamicAssociationProxy['Proposal']('proposal_memberships', 'proposal')
+    proposals: DynamicAssociationProxy[Proposal, ProposalMembership] = (
+        DynamicAssociationProxy('proposal_memberships', 'proposal')
+    )
 
     @property
     def public_proposal_memberships(self) -> Query[ProposalMembership]:
@@ -728,8 +730,8 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             .filter(ProposalMembership.is_uncredited.is_(False))
         )
 
-    public_proposals = DynamicAssociationProxy['Proposal'](
-        'public_proposal_memberships', 'proposal'
+    public_proposals: DynamicAssociationProxy[Proposal, ProposalMembership] = (
+        DynamicAssociationProxy('public_proposal_memberships', 'proposal')
     )
 
     # proposal.py
@@ -893,13 +895,13 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         )
     )
 
-    sponsored_projects = DynamicAssociationProxy['Project'](
-        'project_sponsor_memberships', 'project'
+    sponsored_projects: DynamicAssociationProxy[Project, ProjectSponsorMembership] = (
+        DynamicAssociationProxy('project_sponsor_memberships', 'project')
     )
 
-    sponsored_proposals = DynamicAssociationProxy['Project'](
-        'proposal_sponsor_memberships', 'proposal'
-    )
+    sponsored_proposals: DynamicAssociationProxy[
+        Proposal, ProposalSponsorMembership
+    ] = DynamicAssociationProxy('proposal_sponsor_memberships', 'proposal')
 
     # sync_ticket.py:
     ticket_participants: Mapped[list[TicketParticipant]] = relationship(
@@ -2848,7 +2850,7 @@ from .update import Update
 
 if TYPE_CHECKING:
     from .auth_client import AuthClientTeamPermissions
-    from .comment import Comment, Commentset  # noqa: F401
+    from .comment import Comment, Commentset
     from .commentset_membership import CommentsetMembership
     from .contact_exchange import ContactExchange
     from .moderation import CommentModeratorReport

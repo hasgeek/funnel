@@ -70,12 +70,12 @@ def feature_profile_is_private(obj: Account) -> bool:
 
 
 @Account.features('followers_count')
-def feature_profile_followers_count(obj: Account) -> bool:
+def feature_profile_followers_count(obj: Account) -> int:
     return obj.active_follower_memberships.count()
 
 
 @Account.features('following_count')
-def feature_profile_following_count(obj: Account) -> bool:
+def feature_profile_following_count(obj: Account) -> int:
     return obj.active_following_memberships.count()
 
 

@@ -408,12 +408,18 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         viewonly=True,
     )
 
-    crew = DynamicAssociationProxy[Account]('active_crew_memberships', 'member')
-    editors = DynamicAssociationProxy[Account]('active_editor_memberships', 'member')
-    promoters = DynamicAssociationProxy[Account](
-        'active_promoter_memberships', 'member'
+    crew: DynamicAssociationProxy[Account, ProjectMembership] = DynamicAssociationProxy(
+        'active_crew_memberships', 'member'
     )
-    ushers = DynamicAssociationProxy[Account]('active_usher_memberships', 'member')
+    editors: DynamicAssociationProxy[Account, ProjectMembership] = (
+        DynamicAssociationProxy('active_editor_memberships', 'member')
+    )
+    promoters: DynamicAssociationProxy[Account, ProjectMembership] = (
+        DynamicAssociationProxy('active_promoter_memberships', 'member')
+    )
+    ushers: DynamicAssociationProxy[Account, ProjectMembership] = (
+        DynamicAssociationProxy('active_usher_memberships', 'member')
+    )
 
     # proposal.py
     proposals: DynamicMapped[Proposal] = relationship(
@@ -464,7 +470,9 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
+    sponsors: DynamicAssociationProxy[Account, ProjectSponsorMembership] = (
+        DynamicAssociationProxy('sponsor_memberships', 'member')
+    )
 
     # sync_ticket.py
     ticket_clients: Mapped[list[TicketClient]] = relationship(back_populates='project')
