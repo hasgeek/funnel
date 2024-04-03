@@ -299,7 +299,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             'accounts': [
                 p.account.current_access()
                 for p in pagination.items
-                if p.member.profile_state.ACTIVE_AND_PUBLIC
+                if p.account.profile_state.ACTIVE_AND_PUBLIC
             ],
         }
 
