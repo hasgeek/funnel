@@ -413,8 +413,8 @@
     <form action="{{ profile.url_for('follow') }}" method="post">
       {{ current_view.FollowForm().hidden_tag() }}
       {%- if current_auth.is_anonymous %}
-        <a class="mui--text-light" href="{{ url_for('login', next=request.path) }}" data-ga="Login to follow account" aria-label="{% trans %}Login to follow this account{% endtrans %}">{% trans %}Follow{% endtrans %}</a>
-      {%- else %}
+        <a class="mui-btn mui-btn--dark mui-btn--raised" href="{{ url_for('login', next=request.path) }}" data-ga="Login to follow account" aria-label="{% trans %}Login to follow this account{% endtrans %}">{% trans %}Follow{% endtrans %}</a>
+      {%- elif profile != current_auth.user %}
         {% if profile.current_roles.follower %}
           <button type="submit" name="follow" value="false" class="mui-btn mui-btn--accent mui-btn--raised" href="{{ profile.url_for('follow') }} ">{% trans %}Unfollow{% endtrans %}</button>
         {% else %}
