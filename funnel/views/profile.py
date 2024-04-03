@@ -328,8 +328,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                     db.session.add(membership)
                     db.session.commit()
                     # TODO: Dispatch notification for new follower
-                    flash(_("You are now following this account"), 'info')
-                    return render_redirect(self.obj.url_for('followers'))
+                    return {'status': 'ok', 'following': True}, 201
                 # If actor has an existing record, maybe confirm a MIGRATE record or
                 # explicitly set is_follower=True
                 new_membership = existing_membership.replace(
@@ -337,18 +336,24 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                 )
                 if new_membership != existing_membership:
                     db.session.commit()
-                flash(_("You are now following this account"), 'info')
-                return render_redirect(self.obj.url_for('followers'))
+                return {'status': 'ok', 'following': True}, 200
             # Unfollow
             if existing_membership:
                 if existing_membership.is_admin:
-                    flash(_("You are an admin of this account"), 'error')
-                    return render_redirect(self.obj.url_for())
+                    return {
+                        'status': 'error',
+                        'error': 'admin_unfollow',
+                        'error_description': _("You are an admin of this account"),
+                    }, 422
                 existing_membership.revoke(current_auth.user)
                 db.session.commit()
-            return render_redirect(self.obj.url_for())
-        flash(_("This page timed out. Reload and try again"), 'error')
-        return render_redirect(self.obj.url_for())
+                return {'status': 'ok', 'following': False}, 201
+            return {'status': 'ok', 'following': False}, 200
+        return {
+            'status': 'error',
+            'error': 'follow_form_invalid',
+            'error_description': _("This page timed out. Reload and try again"),
+        }, 422
 
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
