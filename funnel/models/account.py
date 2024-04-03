@@ -429,8 +429,8 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         DynamicAssociationProxy('active_admin_memberships', 'member'),
         read={'all'},
     )
-    followers = with_roles(
-        DynamicAssociationProxy['Account']('active_follower_memberships', 'member'),
+    followers: DynamicAssociationProxy[Account, AccountMembership] = with_roles(
+        DynamicAssociationProxy('active_follower_memberships', 'member'),
         read={'reader'},
     )
 
@@ -500,9 +500,11 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     organizations_as_admin: DynamicAssociationProxy[Account, AccountMembership] = (
         DynamicAssociationProxy('active_organization_admin_memberships', 'account')
     )
-    accounts_following = with_roles(
-        DynamicAssociationProxy['Account']('active_following_memberships', 'account'),
-        read={'all'},
+    accounts_following: DynamicAssociationProxy[Account, AccountMembership] = (
+        with_roles(
+            DynamicAssociationProxy('active_following_memberships', 'account'),
+            read={'all'},
+        )
     )
 
     # auth_client.py
