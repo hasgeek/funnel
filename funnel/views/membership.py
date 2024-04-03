@@ -255,10 +255,14 @@ class OrganizationMembershipView(
                         'form_nonce': form.form_nonce.data,
                     }, 422
                 if previous_membership.is_active:
-                    # Downgrade to follower
-                    new_membership = previous_membership.replace(
-                        actor=current_auth.user, is_admin=False, is_owner=False
-                    )
+                    if previous_membership.is_follower:
+                        # Downgrade to follower
+                        new_membership = previous_membership.replace(
+                            actor=current_auth.user, is_admin=False, is_owner=False
+                        )
+                    else:
+                        # Revoke membership
+                        previous_membership.revoke(actor=current_auth.user)
                     if new_membership != previous_membership:
                         db.session.commit()
                         dispatch_notification(

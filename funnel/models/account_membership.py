@@ -113,7 +113,10 @@ class AccountMembership(ImmutableMembershipMixin, Model):
     # Organization roles:
     is_owner: Mapped[bool] = immutable(sa_orm.mapped_column(default=False))
     is_admin: Mapped[bool] = immutable(sa_orm.mapped_column(default=False))
-    # Default role if both are false: 'follower'
+    # This column tracks whether the member is explicitly a follower, or implicitly
+    # via being an admin. If implicit, revoking admin status must also revoke follower
+    # status
+    is_follower: Mapped[bool] = immutable(sa_orm.mapped_column(default=False))
 
     #: Optional label, indicating the member's role in the account
     label: Mapped[str | None] = immutable(
@@ -131,18 +134,28 @@ class AccountMembership(ImmutableMembershipMixin, Model):
         except AttributeError:
             args = []
         kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
-        args.append(
-            # If is_owner is True, is_admin must also be True
-            sa.CheckConstraint(
-                sa.or_(
-                    sa.and_(
-                        cls.is_owner.is_(True),
-                        cls.is_admin.is_(True),
+        args.extend(
+            [
+                # If is_owner is True, is_admin must also be True
+                sa.CheckConstraint(
+                    sa.or_(
+                        sa.and_(
+                            cls.is_owner.is_(True),
+                            cls.is_admin.is_(True),
+                        ),
+                        cls.is_owner.is_(False),
                     ),
-                    cls.is_owner.is_(False),
+                    name='account_membership_owner_is_admin_check',
                 ),
-                name='account_membership_owner_is_admin_check',
-            )
+                # Either is_admin or is_follower must be True
+                sa.CheckConstraint(
+                    sa.or_(
+                        cls.is_admin.is_(True),
+                        cls.is_follower.is_(True),
+                    ),
+                    name='account_membership_admin_or_follower_check',
+                ),
+            ]
         )
         if kwargs:
             args.append(kwargs)

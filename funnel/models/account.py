@@ -746,18 +746,6 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         lazy='dynamic', back_populates='participant'
     )
 
-    @property
-    def rsvp_followers(self) -> Query[Account]:
-        """All users with an active RSVP in a project."""
-        return (
-            Account.query.filter(Account.state.ACTIVE)
-            .join(Rsvp, Rsvp.participant_id == Account.id)
-            .join(Project, Rsvp.project_id == Project.id)
-            .filter(Rsvp.state.YES, Project.state.PUBLISHED, Project.account == self)
-        )
-
-    with_roles(rsvp_followers, grants={'follower'})
-
     # saved.py
     saved_projects: DynamicMapped[SavedProject] = relationship(
         lazy='dynamic', passive_deletes=True, back_populates='account'
@@ -909,18 +897,6 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     ticket_participants: Mapped[list[TicketParticipant]] = relationship(
         back_populates='participant'
     )
-
-    @property
-    def ticket_followers(self) -> Query[Account]:
-        """All users with a ticket in a project."""
-        return (
-            Account.query.filter(Account.state.ACTIVE)
-            .join(TicketParticipant, TicketParticipant.participant_id == Account.id)
-            .join(Project, TicketParticipant.project_id == Project.id)
-            .filter(Project.state.PUBLISHED, Project.account == self)
-        )
-
-    with_roles(ticket_followers, grants={'follower'})
 
     # update.py
     created_updates: DynamicMapped[Update] = relationship(

@@ -323,22 +323,27 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                         granted_by=current_auth.user,
                         is_owner=False,
                         is_admin=False,
+                        is_follower=True,
                     )
                     db.session.add(membership)
                     db.session.commit()
                     # TODO: Dispatch notification for new follower
-                    flash(_("Your now following this account"), 'info')
+                    flash(_("You are now following this account"), 'info')
                     return render_redirect(self.obj.url_for('followers'))
-                # If actor is already following, maybe confirm a MIGRATE record
-                new_membership = existing_membership.replace(actor=current_auth.user)
+                # If actor has an existing record, maybe confirm a MIGRATE record or
+                # explicitly set is_follower=True
+                new_membership = existing_membership.replace(
+                    actor=current_auth.user, is_follower=True
+                )
                 if new_membership != existing_membership:
                     db.session.commit()
-                flash(_("Your now following this account"), 'info')
+                flash(_("You are now following this account"), 'info')
                 return render_redirect(self.obj.url_for('followers'))
             # Unfollow
             if existing_membership:
                 if existing_membership.is_admin:
                     flash(_("You are an admin of this account"), 'error')
+                    return render_redirect(self.obj.url_for())
                 existing_membership.revoke(current_auth.user)
                 db.session.commit()
             return render_redirect(self.obj.url_for())
