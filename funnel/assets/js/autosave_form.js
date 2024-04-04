@@ -43,9 +43,6 @@ window.Hasgeek.autoSave = ({ autosave, formId, msgElemId }) => {
           if (remoteData.revision) {
             $('input[name="form.revision"]').val(remoteData.revision);
           }
-          if (remoteData.form_nonce) {
-            $('input[name="form_nonce"]').val(remoteData.form_nonce);
-          }
           waitingForResponse = false;
         }
       } else {

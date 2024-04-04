@@ -6,7 +6,7 @@ const SaveProject = ({
   postUrl = $(`#${formId}`).attr('action'),
   config = {},
 }) => {
-  const onSuccess = (response) => {
+  const onSuccess = () => {
     $(`#${formId}`)
       .find('button')
       .prop('disabled', false)
@@ -25,7 +25,6 @@ const SaveProject = ({
           }
         }
       });
-    Form.updateFormNonce(response);
   };
 
   const onError = (error) => {

@@ -9,8 +9,7 @@ const jsonForm = Vue.component('jsonform', {
       const obj = {};
       const formData = $(`#${this.formid}`).serializeArray();
       formData.forEach((field) => {
-        if (field.name !== 'form_nonce' && field.name !== 'csrf_token')
-          obj[field.name] = field.value;
+        if (field.name !== 'csrf_token') obj[field.name] = field.value;
       });
       return JSON.stringify(obj);
     },
@@ -32,7 +31,6 @@ const jsonForm = Vue.component('jsonform', {
             contentType: 'application/json',
             dataType: 'html',
             formData: JSON.stringify({
-              form_nonce: formValues.get('form_nonce'),
               csrf_token: formValues.get('csrf_token'),
               form: form.getFormData(),
             }),

@@ -162,7 +162,6 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
                 'status': 'error',
                 'error': 'pin_form_invalid',
                 'error_description': _("This page timed out. Reload and try again"),
-                'form_nonce': form.form_nonce.data,
             }, 422
         return render_form(
             form=form,

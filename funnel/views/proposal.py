@@ -265,7 +265,6 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
                 'status': 'error',
                 'error_description': _("Pick a user to be added"),
                 'errors': collaborator_form.errors,
-                'form_nonce': collaborator_form.form_nonce.data,
             }, 400
 
         return render_form(
