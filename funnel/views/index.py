@@ -133,15 +133,15 @@ class IndexView(ClassView):
 
         return {
             'all_projects': [
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                p.current_access(datasets=('primary', 'related'))
                 for p in all_projects
             ],
             'upcoming_projects': [
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                p.current_access(datasets=('primary', 'related'))
                 for p in upcoming_projects
             ],
             'open_cfp_projects': [
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                p.current_access(datasets=('primary', 'related'))
                 for p in open_cfp_projects
             ],
             'featured_project': (

@@ -10,6 +10,14 @@
   margin-top: 0 !important;
 }
 
+.zero-left-margin {
+  margin-left: 0 !important;
+}
+
+.zero-right-margin {
+  margin-right: 0 !important;
+}
+
 .margin-bottom {
   margin-bottom: $mui-grid-padding * 0.5;
 }
@@ -100,6 +108,7 @@
 
 .flex-wrapper--end {
   align-items: flex-end;
+  margin-left: auto !important;
 }
 
 .flex-wrapper--space-between {
@@ -132,6 +141,15 @@
 
 .flex-item-grow {
   flex-grow: 1;
+}
+
+.flex-item-align-end {
+  align-self: flex-end;
+  margin-left: auto !important;
+}
+
+.flex-order-last {
+  order: 999;
 }
 
 // ============================================================================

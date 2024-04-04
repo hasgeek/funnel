@@ -18,7 +18,6 @@ from coaster.views import (
 from .. import app, signals
 from ..auth import current_auth
 from ..forms import (
-    FollowForm,
     OrganizationMembershipForm,
     ProjectCrewMembershipForm,
     ProjectCrewMembershipInviteForm,
@@ -47,8 +46,6 @@ from .notification import dispatch_notification
 @Account.views('members')
 @route('/<account>/members', init_app=app)
 class OrganizationMembersView(AccountViewBase):
-
-    FollowForm = FollowForm
 
     def after_loader(self) -> ReturnView | None:
         """Don't render member views for user accounts."""

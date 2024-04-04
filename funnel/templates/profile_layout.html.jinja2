@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import img_size, saveprojectform, calendarwidget, projectcard, video_thumbnail %}
+{%- from "macros.html.jinja2" import img_size, saveprojectform, calendarwidget, projectcard, video_thumbnail, profileavatar, addFollowButton %}
 {%- from "js/schedule.js.jinja2" import schedule_template %}
 {% block title %}{{ profile.title }}{% endblock title %}
 
@@ -75,15 +75,7 @@
             <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
               <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
                 <div class="flex-wrapper flex-wrapper--center">
-                    <a href="{{ featured_project.account.absolute_url }}" class="profile-avatar margin-right" data-ga="View account">
-                    {%- if featured_project.account.logo_url.url %}
-                      <img src="{{ featured_project.account.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.account.title }}"/>
-                    {% else %}
-                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.account.title }}"/>
-                    {% endif %}
-                    </a>
-                    <a href="{{ featured_project.account.absolute_url }}" class="profile-avatar-title mui--text-subhead text-bold mui--text-dark nounderline" data-ga="View account">{{ featured_project.account.title }}</a>
-                  </a>
+                  {{ profileavatar(featured_project.account, css_class='margin-left') }}
                 </div>
                 {%- if not current_auth.is_anonymous %}
                   {% set save_form_id = "spotlight_spfm_desktop_" + featured_project.uuid_b58 %}
@@ -410,16 +402,7 @@
         </div>
       </div>
     {% endif %}
-    <form id="{{ follow_formid }}" action="{{ profile.url_for('follow') }}" class="js-follow-form" method="post">
-      {{ current_view.FollowForm().hidden_tag() }}
-      {%- if current_auth.is_anonymous %}
-        <a class="mui-btn mui-btn--dark mui-btn--raised" href="{{ url_for('login', next=request.path) }}" data-ga="Login to follow account" aria-label="{% trans %}Login to follow this account{% endtrans %}">{% trans %}Follow{% endtrans %}</a>
-      {%- elif profile != current_auth.user %}
-        <input type="hidden" name="follow" value=""/>
-        <button type="submit" value="false" class="mui-btn mui-btn--accent mui-btn--raised js-unfollow-btn {% if not profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{% trans %}Unfollow{% endtrans %}</button>
-        <button type="submit" value="true" class="mui-btn mui-btn--dark mui-btn--raised js-follow-btn {% if profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{% trans %}Follow{% endtrans %}</button>
-      {%- endif %}
-    </form>
+    {{ addFollowButton(profile, follow_formid) }}
   </div>
 {% endmacro %}
 

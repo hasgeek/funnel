@@ -13,6 +13,7 @@ import ReadStatus from './utils/read_status';
 import LazyLoadMenu from './utils/lazyloadmenu';
 import './utils/getDevicePixelRatio';
 import setTimezoneCookie from './utils/timezone';
+import './utils/follow_action';
 import 'muicss/dist/js/mui';
 
 const pace = require('pace-js');

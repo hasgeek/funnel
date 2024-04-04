@@ -88,8 +88,6 @@ def template_switcher(templateargs: dict[str, Any]) -> str:
 @route('/<account>', init_app=app)
 class ProfileView(UrlChangeCheck, AccountViewBase):
 
-    FollowForm = FollowForm
-
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
     def view(self) -> ReturnRenderWith:
@@ -309,7 +307,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @idempotent_request()
     def follow(self) -> ReturnView:
         """Follow an account."""
-        form = FollowForm()
+        form = FollowForm(meta={'csrf': False})
         del form.form_nonce
         if form.validate_on_submit():
             existing_membership = self.obj.active_follower_memberships.filter_by(
@@ -349,6 +347,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                 db.session.commit()
                 return {'status': 'ok', 'following': False}, 201
             return {'status': 'ok', 'following': False}, 200
+        print(form.errors)
         return {
             'status': 'error',
             'error': 'follow_form_invalid',
