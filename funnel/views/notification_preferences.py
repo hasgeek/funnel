@@ -136,7 +136,6 @@ class AccountNotificationView(ClassView):
     def set_notification_preference(self) -> ReturnRenderWith:
         """Set one notification preference."""
         form = SetNotificationPreferenceForm()
-        del form.form_nonce
         if form.validate():
             if (
                 form.notification_type.data

@@ -33,7 +33,6 @@ export const Submission = {
           toastr.success(responseData.message);
         }
         $('.js-subscribed, .js-unsubscribed').toggleClass('mui--hide');
-        Form.updateFormNonce(responseData);
       }
     } else {
       Form.getFetchError(response);

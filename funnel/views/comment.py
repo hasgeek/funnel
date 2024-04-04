@@ -219,7 +219,6 @@ class CommentsetView(UrlForView, ModelView[Commentset]):
     @requires_login
     def subscribe(self) -> ReturnView:
         subscribe_form = CommentsetSubscribeForm()
-        subscribe_form.form_nonce.data = subscribe_form.form_nonce.get_default()
         if subscribe_form.validate_on_submit():
             if subscribe_form.subscribe.data:
                 self.obj.add_subscriber(
@@ -229,7 +228,6 @@ class CommentsetView(UrlForView, ModelView[Commentset]):
                 return {
                     'status': 'ok',
                     'message': _("You will be notified of new comments"),
-                    'form_nonce': subscribe_form.form_nonce.data,
                 }
             self.obj.remove_subscriber(
                 actor=current_auth.user, member=current_auth.user
@@ -238,7 +236,6 @@ class CommentsetView(UrlForView, ModelView[Commentset]):
             return {
                 'status': 'ok',
                 'message': _("You will no longer be notified for new comments"),
-                'form_nonce': subscribe_form.form_nonce.data,
             }
         return {
             'status': 'error',
@@ -246,7 +243,6 @@ class CommentsetView(UrlForView, ModelView[Commentset]):
             'details': subscribe_form.errors,
             # FIXME: this needs `error` (code) and `error_description` (text) keys
             'message': _("Request expired. Reload and try again"),
-            'form_nonce': subscribe_form.form_nonce.data,
         }, 400
 
     @route('seen', methods=['POST'])

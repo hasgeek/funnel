@@ -37,7 +37,6 @@ def rooms_list(project: Project) -> list[tuple[str, str]]:
 
 def get_form_template(form: SessionForm) -> ReturnView:
     """Render Session form html."""
-    form.form_nonce.data = form.form_nonce.get_default()
     form_template = render_template(
         'session_form.html.jinja2',
         form=form,
