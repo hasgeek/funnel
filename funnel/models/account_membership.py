@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Self
 
 from sqlalchemy import event
 from werkzeug.utils import cached_property
@@ -35,6 +35,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
         'all': {
             'read': {
                 'urls',
+                'offered_roles',
                 'member',
                 'is_admin',
                 'is_owner',
@@ -164,12 +165,30 @@ class AccountMembership(ImmutableMembershipMixin, Model):
     @cached_property
     def offered_roles(self) -> set[str]:
         """Roles offered to the member via this membership record (if active)."""
+        # Admins and owners are always followers, and a record must have is_follower
+        # or is_admin True, so this guarantees the `follower` role is always present
         roles = {'follower'}
         if self.is_admin:
             roles |= {'admin', 'member'}
         if self.is_owner:
             roles |= {'owner', 'member'}
         return roles
+
+    @with_roles(call={'member'})
+    def revoke_follower(self, actor: Account) -> Self | None:
+        """Make the member unfollow (potentially revoking the membership)."""
+        if self.is_admin:
+            return self.replace(actor, is_follower=False)
+        self.revoke(actor)
+        return None
+
+    @with_roles(call={'account_admin'})
+    def revoke_admin_owner(self, actor: Account) -> Self | None:
+        """Remove the member as admin/owner (potentially revoking the membership)."""
+        if self.is_follower:
+            return self.replace(actor, is_admin=False, is_owner=False)
+        self.revoke(actor)
+        return None
 
 
 @event.listens_for(AccountMembership.is_owner, 'set')

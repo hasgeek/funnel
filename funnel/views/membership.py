@@ -154,6 +154,8 @@ class OrganizationMembershipView(
             AccountMembership.uuid_b58 == membership,
         ).first_or_404()
         self.post_init()
+        if not self.obj.is_active:
+            abort(410)
         return self.after_loader()
 
     def post_init(self) -> None:
@@ -242,25 +244,15 @@ class OrganizationMembershipView(
                     return {
                         'status': 'error',
                         'error_description': _("This person is not an admin"),
-                        'form_nonce': form.form_nonce.data,
                     }, 422
-                if previous_membership.is_active:
-                    if previous_membership.is_follower:
-                        # Downgrade to follower
-                        new_membership = previous_membership.replace(
-                            actor=current_auth.user, is_admin=False, is_owner=False
-                        )
-                    else:
-                        # Revoke membership
-                        previous_membership.revoke(actor=current_auth.user)
-                    if new_membership != previous_membership:
-                        db.session.commit()
-                        dispatch_notification(
-                            AccountAdminRevokedNotification(
-                                document=previous_membership.account,
-                                fragment=previous_membership,
-                            )
-                        )
+                previous_membership.revoke_admin_owner(current_auth.user)
+                db.session.commit()
+                dispatch_notification(
+                    AccountAdminRevokedNotification(
+                        document=previous_membership.account,
+                        fragment=previous_membership,
+                    )
+                )
                 return {
                     'status': 'ok',
                     'message': _("The admin has been removed"),
@@ -294,7 +286,7 @@ class OrganizationMembershipView(
 
 @Project.views('crew')
 @route('/<account>/<project>/crew', init_app=app)
-class ProjectMembershipView(ProjectViewBase):
+class ProjectCrewView(ProjectViewBase):
     @route('', methods=['GET', 'POST'])
     @render_with(html_in_json('project_membership.html.jinja2'))
     def crew(self) -> ReturnRenderWith:
@@ -375,7 +367,7 @@ class ProjectMembershipView(ProjectViewBase):
         return {'status': 'ok', 'form': membership_form_html}
 
 
-class ProjectCrewMembershipBase(
+class ProjectMembershipViewBase(
     AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[ProjectMembership]
 ):
     route_model_map = {
@@ -404,7 +396,7 @@ class ProjectCrewMembershipBase(
 
 @ProjectMembership.views('invite')
 @route('/<account>/<project>/crew/<membership>/invite', init_app=app)
-class ProjectCrewMembershipInviteView(ProjectCrewMembershipBase):
+class ProjectMembershipInviteView(ProjectMembershipViewBase):
     def load(self, account: str, project: str, membership: str) -> ReturnView | None:
         resp = super().load(account, project, membership)
         if not self.obj.is_invite or self.obj.member != current_auth.user:
@@ -450,7 +442,7 @@ class ProjectCrewMembershipInviteView(ProjectCrewMembershipBase):
 
 @ProjectMembership.views('main')
 @route('/<account>/<project>/crew/<membership>', init_app=app)
-class ProjectCrewMembershipView(ProjectCrewMembershipBase):
+class ProjectMembershipView(ProjectMembershipViewBase):
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'account_admin'})
