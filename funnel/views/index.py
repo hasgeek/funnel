@@ -133,8 +133,7 @@ class IndexView(ClassView):
 
         return {
             'all_projects': [
-                p.current_access(datasets=('primary', 'related'))
-                for p in all_projects
+                p.current_access(datasets=('primary', 'related')) for p in all_projects
             ],
             'upcoming_projects': [
                 p.current_access(datasets=('primary', 'related'))
