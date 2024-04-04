@@ -347,7 +347,6 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                 db.session.commit()
                 return {'status': 'ok', 'following': False}, 201
             return {'status': 'ok', 'following': False}, 200
-        print(form.errors)
         return {
             'status': 'error',
             'error': 'follow_form_invalid',
