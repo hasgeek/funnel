@@ -483,8 +483,6 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                 db.session.commit()
 
             return render_redirect(self.obj.url_for())
-        # Reset nonce to avoid conflict with autosave
-        form.form_nonce.data = form.form_nonce.get_default()
         return render_form(
             form=form,
             title=_("Edit project"),
@@ -830,7 +828,6 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
     def save(self) -> ReturnView:
         """Save (bookmark) a project."""
         form = self.SavedProjectForm()
-        form.form_nonce.data = form.form_nonce.get_default()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
                 account=current_auth.user, project=self.obj
@@ -847,13 +844,11 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                 if proj_save is not None:
                     db.session.delete(proj_save)
                     db.session.commit()
-            # Send new form nonce
-            return {'status': 'ok', 'form_nonce': form.form_nonce.data}
+            return {'status': 'ok'}
         return {
             'status': 'error',
             'error': 'project_save_form_invalid',
             'error_description': _("This page timed out. Reload and try again"),
-            'form_nonce': form.form_nonce.data,
         }, 400
 
     @route('admin', methods=['GET', 'POST'])

@@ -18,5 +18,5 @@ def test_new_label_get(
     resp = client.get(new_project.url_for('new_label'))
     label_form = forms.LabelForm(parent=new_project, model=models.Label)
     for field in label_form:
-        if field not in ('csrf_token', 'form_nonce'):
+        if field != 'csrf_token':
             assert field.name in resp.data.decode('utf-8')

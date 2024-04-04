@@ -87,7 +87,6 @@ class OrganizationMembersView(AccountViewBase):
                             " number"
                         ),
                         'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data,
                     }, 422
 
                 previous_membership = (
@@ -103,7 +102,6 @@ class OrganizationMembersView(AccountViewBase):
                         'status': 'error',
                         'error_description': _("This user is already an admin"),
                         'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data,
                     }, 422
 
                 new_membership = AccountMembership(
@@ -132,7 +130,6 @@ class OrganizationMembersView(AccountViewBase):
                 'status': 'error',
                 'error_description': _("The new admin could not be added"),
                 'errors': membership_form.errors,
-                'form_nonce': membership_form.form_nonce.data,
             }, 422
 
         membership_form_html = render_form(
@@ -175,7 +172,6 @@ class OrganizationMembershipView(
                     return {
                         'status': 'error',
                         'error_description': _("You can’t edit your own role"),
-                        'form_nonce': membership_form.form_nonce.data,
                     }, 422
 
                 try:
@@ -191,7 +187,6 @@ class OrganizationMembershipView(
                             "This member’s record was edited elsewhere."
                             " Reload the page"
                         ),
-                        'form_nonce': membership_form.form_nonce.data,
                     }, 422
                 if new_membership != previous_membership:
                     db.session.commit()
@@ -219,7 +214,6 @@ class OrganizationMembershipView(
                 'status': 'error',
                 'error_description': _("Please pick one or more roles"),
                 'errors': membership_form.errors,
-                'form_nonce': membership_form.form_nonce.data,
             }, 422
 
         membership_form_html = render_form(
@@ -243,7 +237,6 @@ class OrganizationMembershipView(
                     return {
                         'status': 'error',
                         'error_description': _("You can’t revoke your own membership"),
-                        'form_nonce': form.form_nonce.data,
                     }, 422
                 if not previous_membership.is_admin:
                     return {
@@ -281,7 +274,6 @@ class OrganizationMembershipView(
             return {
                 'status': 'error',
                 'errors': form.errors,
-                'form_nonce': form.form_nonce.data,
             }, 422
 
         form_html = render_form(
@@ -333,7 +325,6 @@ class ProjectMembershipView(ProjectViewBase):
                             " verify their email address or phone number"
                         ),
                         'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data,
                     }, 422
                 previous_membership = (
                     ProjectMembership.query.filter(ProjectMembership.is_active)
@@ -345,7 +336,6 @@ class ProjectMembershipView(ProjectViewBase):
                         'status': 'error',
                         'error_description': _("This person is already a member"),
                         'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data,
                     }, 422
                 new_membership = ProjectMembership(
                     project=self.obj, granted_by=current_auth.user
@@ -373,7 +363,6 @@ class ProjectMembershipView(ProjectViewBase):
                 'status': 'error',
                 'error_description': _("Please pick one or more roles"),
                 'errors': membership_form.errors,
-                'form_nonce': membership_form.form_nonce.data,
             }, 422
 
         membership_form_html = render_form(
@@ -486,7 +475,6 @@ class ProjectCrewMembershipView(ProjectCrewMembershipBase):
                             "The member’s record was edited elsewhere."
                             " Reload the page"
                         ),
-                        'form_nonce': form.form_nonce.data,
                     }, 422
                 if new_membership != previous_membership:
                     db.session.commit()
@@ -512,7 +500,6 @@ class ProjectCrewMembershipView(ProjectCrewMembershipBase):
                 'status': 'error',
                 'error_description': _("Please pick one or more roles"),
                 'errors': form.errors,
-                'form_nonce': form.form_nonce.data,
             }, 422
 
         membership_form_html = render_form(

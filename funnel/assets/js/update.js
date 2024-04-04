@@ -52,9 +52,8 @@ const Updates = {
         },
         handlePinEvent(event, formId, postUrl) {
           event.preventDefault();
-          const onSuccess = (response) => {
+          const onSuccess = () => {
             this.update.is_pinned = !this.update.is_pinned;
-            Form.updateFormNonce(response);
           };
 
           const onError = (error) => {

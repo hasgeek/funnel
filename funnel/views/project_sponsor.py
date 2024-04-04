@@ -54,7 +54,6 @@ class ProjectSponsorLandingView(ProjectViewBase):
                             sponsor=form.member.data.pickername
                         ),
                         'errors': form.errors,
-                        'form_nonce': form.form_nonce.data,
                     }, 400
 
                 sponsor_membership = ProjectSponsorMembership(
@@ -70,7 +69,6 @@ class ProjectSponsorLandingView(ProjectViewBase):
                 'status': 'error',
                 'error_description': _("Sponsor could not be added"),
                 'errors': form.errors,
-                'form_nonce': form.form_nonce.data,
             }, 400
 
         return render_template(
@@ -153,7 +151,6 @@ class ProjectSponsorView(
                     'status': 'error',
                     'error_description': _("Sponsor could not be edited"),
                     'errors': form.errors,
-                    'form_nonce': form.form_nonce.data,
                 }, 400
 
         return render_template(
@@ -179,7 +176,6 @@ class ProjectSponsorView(
                 'status': 'error',
                 'error_description': _("Sponsor could not be removed"),
                 'errors': form.errors,
-                'form_nonce': form.form_nonce.data,
             }, 400
 
         return render_template(

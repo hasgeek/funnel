@@ -186,7 +186,6 @@ class DraftViewProtoMixin:
             incoming_data: MultiDict = MultiDict(request.form.items(multi=True))
             client_revision = incoming_data.pop('form.revision')
             incoming_data.pop('csrf_token', None)
-            incoming_data.pop('form_nonce', None)
 
             # find the last draft
             draft = self.get_draft(obj)
@@ -246,7 +245,6 @@ class DraftViewProtoMixin:
             return {
                 'status': 'ok',
                 'revision': draft.revision,
-                'form_nonce': form.form_nonce.get_default(),
             }
         return {
             'status': 'error',
