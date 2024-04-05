@@ -230,7 +230,7 @@ def test_object_use(msgt: SimpleNamespace) -> None:
     assert msg.plaintext == "sample3 here"
 
 
-# --- Test the registered templates
+# MARK: Test the registered templates
 
 
 def test_web_otp_template() -> None:

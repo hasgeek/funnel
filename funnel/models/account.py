@@ -139,7 +139,7 @@ class ZBase32Comparator(Comparator[str]):  # pylint: disable=abstract-method
             return sa.false()
 
 
-# --- Tables ---------------------------------------------------------------------------
+# MARK: Tables -------------------------------------------------------------------------
 
 team_membership = sa.Table(
     'team_membership',
@@ -167,7 +167,7 @@ team_membership = sa.Table(
 )
 
 
-# --- Models ---------------------------------------------------------------------------
+# MARK: Models -------------------------------------------------------------------------
 
 
 class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
@@ -334,7 +334,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         deferred=True,
     )
 
-    # --- Backrefs
+    # MARK: Backrefs
 
     # account.py:
     oldid: Mapped[AccountOldId] = relationship(
@@ -1275,7 +1275,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             for attr in self.__noninvite_membership_attrs__
         )
 
-    # --- Transport details
+    # MARK: Transport details
 
     @with_roles(call={'owner'})
     def has_transport_email(self) -> bool:
@@ -2036,7 +2036,7 @@ removed_account = DuckTypeAccount(__("[removed]"))
 unknown_account = DuckTypeAccount(__("[unknown]"))
 
 
-# --- Organizations and teams -------------------------------------------------
+# MARK: Organizations and teams -----------------------------------------------
 
 
 class Organization(Account):
@@ -2121,6 +2121,7 @@ class Team(UuidMixin, BaseMixin[int, Account], Model):
     is_public: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     # --- Backrefs
+
     client_permissions: Mapped[list[AuthClientTeamPermissions]] = relationship(
         back_populates='team'
     )
@@ -2164,7 +2165,7 @@ class Team(UuidMixin, BaseMixin[int, Account], Model):
         return query.filter_by(buid=buid).one_or_none()
 
 
-# --- Account email/phone and misc
+# MARK: Account email/phone and misc
 
 
 class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):

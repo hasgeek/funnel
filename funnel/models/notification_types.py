@@ -39,7 +39,7 @@ __all__ = [
     'AccountAdminRevokedNotification',
 ]
 
-# --- Protocol and Mixin classes -------------------------------------------------------
+# MARK: Protocol and Mixin classes -----------------------------------------------------
 
 
 class DocumentHasProject:
@@ -69,7 +69,7 @@ class DocumentIsAccount:
         return self.document  # type: ignore[attr-defined]
 
 
-# --- Account notifications ------------------------------------------------------------
+# MARK: Account notifications ----------------------------------------------------------
 
 
 class AccountPasswordNotification(
@@ -101,7 +101,7 @@ class FollowerNotification(
     dispatch_roles = ['account_admin']
 
 
-# --- Project participant notifications ------------------------------------------------
+# MARK: Project participant notifications ----------------------------------------------
 
 
 class RegistrationConfirmationNotification(
@@ -212,7 +212,7 @@ class ProjectTomorrowNotification(
     # This is a notification triggered without an actor
 
 
-# --- Comment notifications ------------------------------------------------------------
+# MARK: Comment notifications ----------------------------------------------------------
 
 
 class NewCommentNotification(Notification[Commentset, Comment], type='comment_new'):
@@ -237,7 +237,7 @@ class CommentReplyNotification(Notification[Comment, Comment], type='comment_rep
     dispatch_roles = ['replied_to_commenter']
 
 
-# --- Project crew notifications -------------------------------------------------------
+# MARK: Project crew notifications -----------------------------------------------------
 
 
 class ProjectCrewNotification(
@@ -293,7 +293,7 @@ class RegistrationReceivedNotification(
     exclude_actor = True
 
 
-# --- Account admin notifications ------------------------------------------------------
+# MARK: Account admin notifications ----------------------------------------------------
 
 
 class AccountAdminNotification(
@@ -325,7 +325,7 @@ class AccountAdminRevokedNotification(
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
-# --- Site administrator notifications -------------------------------------------------
+# MARK: Site administrator notifications -----------------------------------------------
 
 
 class CommentReportReceivedNotification(

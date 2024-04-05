@@ -57,7 +57,7 @@ class RequestWants:
     def __bool__(self) -> bool:
         return has_request_context()
 
-    # --- request_wants tests ----------------------------------------------------------
+    # MARK: request_wants tests --------------------------------------------------------
 
     @test_uses('Accept')
     def json(self) -> bool:
@@ -116,7 +116,7 @@ class RequestWants:
         """Content of user prompt in HTMX."""
         return request.environ.get('HTTP_HX_PROMPT')
 
-    # --- End of request_wants tests ---------------------------------------------------
+    # MARK: End of request_wants tests -------------------------------------------------
 
     if TYPE_CHECKING:
 

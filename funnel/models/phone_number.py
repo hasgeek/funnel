@@ -46,7 +46,7 @@ __all__ = [
     'PhoneNumberMixin',
 ]
 
-# --- Enums and constants --------------------------------------------------------------
+# MARK: Enums and constants ------------------------------------------------------------
 
 
 # Unprefixed phone numbers are assumed to be a local number in India (+91). A fallback
@@ -58,7 +58,7 @@ __all__ = [
 PHONE_LOOKUP_REGIONS = ['IN']
 
 
-# --- Exceptions -----------------------------------------------------------------------
+# MARK: Exceptions ---------------------------------------------------------------------
 
 
 class PhoneNumberError(ValueError):
@@ -77,7 +77,7 @@ class PhoneNumberInUseError(PhoneNumberError):
     """Phone number is in use by another owner."""
 
 
-# --- Utilities ------------------------------------------------------------------------
+# MARK: Utilities ----------------------------------------------------------------------
 
 
 # Three phone number utilities are presented here. All three return a formatted phone
@@ -226,7 +226,7 @@ def phone_blake2b160_hash(
     return hashlib.blake2b(number.encode('utf-8'), digest_size=20).digest()
 
 
-# --- Models ---------------------------------------------------------------------------
+# MARK: Models -------------------------------------------------------------------------
 
 
 class PhoneNumber(BaseMixin[int, 'Account'], Model):

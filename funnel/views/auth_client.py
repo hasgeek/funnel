@@ -36,7 +36,7 @@ from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
 
-# --- Routes: client apps -----------------------------------------------------
+# MARK: Routes: client apps ------------------------------------------------------------
 
 
 @app.route('/apps')
@@ -250,7 +250,7 @@ class AuthClientView(UrlForView, ModelView[AuthClient]):
         )
 
 
-# --- Routes: client credentials ----------------------------------------------
+# MARK: Routes: client credentials -----------------------------------------------------
 
 
 @AuthClientCredential.views('main')
@@ -281,7 +281,7 @@ class AuthClientCredentialView(UrlForView, ModelView[AuthClientCredential]):
         )
 
 
-# --- Routes: client app permissions ------------------------------------------
+# MARK: Routes: client app permissions -------------------------------------------------
 
 
 @AuthClientPermissions.views('main')

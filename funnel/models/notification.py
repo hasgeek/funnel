@@ -151,7 +151,7 @@ __all__ = [
     'notification_web_types',
 ]
 
-# --- Typing ---------------------------------------------------------------------------
+# MARK: Typing -------------------------------------------------------------------------
 
 # Document generic type
 _D = TypeVar('_D', bound=ModelUuidProtocol)
@@ -160,7 +160,7 @@ _F = TypeVar('_F', bound=ModelUuidProtocol | None)
 # Type of None (required to detect Optional)
 NoneType = type(None)
 
-# --- Registries -----------------------------------------------------------------------
+# MARK: Registries ---------------------------------------------------------------------
 
 #: Registry of Notification subclasses for user preferences, automatically populated.
 #: Inactive types and types that shadow other types are excluded from this registry
@@ -219,7 +219,7 @@ notification_categories: SimpleNamespace = SimpleNamespace(
 )
 
 
-# --- Flags ----------------------------------------------------------------------------
+# MARK: Flags --------------------------------------------------------------------------
 
 
 class SmsStatusEnum(IntTitle, ReprEnum):
@@ -232,7 +232,7 @@ class SmsStatusEnum(IntTitle, ReprEnum):
     UNKNOWN = 5, __("Unknown")
 
 
-# --- Legacy models --------------------------------------------------------------------
+# MARK: Legacy models ------------------------------------------------------------------
 
 
 class SmsMessage(PhoneNumberMixin, BaseMixin[int, Account], Model):
@@ -266,7 +266,7 @@ class SmsMessage(PhoneNumberMixin, BaseMixin[int, Account], Model):
         super().__init__(**kwargs)
 
 
-# --- Notification models --------------------------------------------------------------
+# MARK: Notification models ------------------------------------------------------------
 
 
 class NotificationType(Generic[_D, _F], Protocol):
@@ -925,7 +925,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
         },
     }
 
-    # --- User notification properties -------------------------------------------------
+    # MARK: User notification properties -----------------------------------------------
 
     @property
     def identity(self) -> tuple[int, UUID]:
@@ -992,7 +992,7 @@ class NotificationRecipient(NoIdMixin, NotificationRecipientProtoMixin, Model):
 
     with_roles(is_revoked, rw={'owner'})
 
-    # --- Dispatch helper methods ------------------------------------------------------
+    # MARK: Dispatch helper methods ----------------------------------------------------
 
     def recipient_preferences(self) -> NotificationPreferences:
         """Return the account's notification preferences for this notification type."""
@@ -1250,7 +1250,7 @@ class NotificationFor(NotificationRecipientProtoMixin):
         )
 
 
-# --- Notification preferences ---------------------------------------------------------
+# MARK: Notification preferences -------------------------------------------------------
 
 
 class NotificationPreferences(BaseMixin[int, Account], Model):
@@ -1384,7 +1384,7 @@ class NotificationPreferences(BaseMixin[int, Account], Model):
         return value
 
 
-# --- Signal handlers ------------------------------------------------------------------
+# MARK: Signal handlers ----------------------------------------------------------------
 
 
 auto_init_default(Notification.eventid)

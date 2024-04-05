@@ -40,7 +40,7 @@ __all__ = [
     'MembershipRecordTypeError',
 ]
 
-# --- Typing ---------------------------------------------------------------------------
+# MARK: Typing -------------------------------------------------------------------------
 
 MembershipType = TypeVar('MembershipType', bound='ImmutableMembershipMixin')
 
@@ -76,7 +76,7 @@ FrozenAttributionType = TypeVar(
 )
 
 
-# --- Enum -----------------------------------------------------------------------------
+# MARK: Enum ---------------------------------------------------------------------------
 
 
 class MembershipRecordTypeEnum(IntTitle, ReprEnum):
@@ -95,7 +95,7 @@ class MembershipRecordTypeEnum(IntTitle, ReprEnum):
     MIGRATE = 5, __("Migrate")
 
 
-# --- Exceptions -----------------------------------------------------------------------
+# MARK: Exceptions ---------------------------------------------------------------------
 
 
 class MembershipError(Exception):
@@ -110,7 +110,7 @@ class MembershipRecordTypeError(MembershipError):
     """Membership record type is invalid."""
 
 
-# --- Classes --------------------------------------------------------------------------
+# MARK: Classes ------------------------------------------------------------------------
 
 
 @declarative_mixin

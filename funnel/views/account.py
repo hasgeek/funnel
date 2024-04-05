@@ -876,7 +876,7 @@ class AccountView(ClassView):
         )
 
 
-# --- Compatibility routes -------------------------------------------------------------
+# MARK: Compatibility routes -----------------------------------------------------------
 
 
 # Retained for future hasjob integration

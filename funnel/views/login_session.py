@@ -63,7 +63,7 @@ from .helpers import (
 )
 from .otp import OtpSession, OtpTimeoutError
 
-# --- Constants ------------------------------------------------------------------------
+# MARK: Constants ----------------------------------------------------------------------
 
 #: Login session validity in seconds, needed for cookie max_age
 LOGIN_SESSION_VALIDITY_PERIOD_TOTAL_SECONDS = int(
@@ -76,12 +76,12 @@ FORMID_SUDO_OTP = 'sudo-otp'
 #: Form id for sudo password form
 FORMID_SUDO_PASSWORD = 'sudo-password'  # nosec
 
-# --- Registry entries -----------------------------------------------------------------
+# MARK: Registry entries ---------------------------------------------------------------
 
 session_timeouts['sudo_context'] = timedelta(minutes=15)
 
 
-# --- Login manager --------------------------------------------------------------------
+# MARK: Login manager ------------------------------------------------------------------
 
 
 class LoginManager:
@@ -217,7 +217,7 @@ class LoginManager:
 # For compatibility with baseframe.forms.fields.UserSelectFieldBase
 LoginManager.usermanager = LoginManager
 
-# --- View helpers ---------------------------------------------------------------------
+# MARK: View helpers -------------------------------------------------------------------
 
 
 @LoginSession.views('mark_accessed')
@@ -373,7 +373,7 @@ def update_user_session_timestamp(response: ResponseType) -> ResponseType:
     return response
 
 
-# --- Utility functions and decorators -------------------------------------------------
+# MARK: Utility functions and decorators -----------------------------------------------
 
 
 def save_session_next_url() -> bool:

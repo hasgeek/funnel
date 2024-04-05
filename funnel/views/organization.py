@@ -17,7 +17,7 @@ from ..typing import ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo, requires_user_not_spammy
 
-# --- Routes: Organizations ---------------------------------------------------
+# MARK: Routes: Organizations ----------------------------------------------------------
 
 
 @Organization.views()

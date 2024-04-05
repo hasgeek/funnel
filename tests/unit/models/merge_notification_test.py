@@ -147,7 +147,7 @@ def user2_test_preferences(
     return prefs
 
 
-# --- Tests for UserNotification -------------------------------------------------------
+# MARK: Tests for UserNotification -----------------------------------------------------
 
 
 def test_merge_without_notifications(
@@ -219,7 +219,7 @@ def test_merge_with_dupe_notifications(
     assert notification_recipient1.recipient == fixtures.user1
 
 
-# --- Tests for NotificationPreferences ------------------------------------------------
+# MARK: Tests for NotificationPreferences ----------------------------------------------
 
 
 def test_merge_with_user1_preferences(

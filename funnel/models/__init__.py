@@ -9,7 +9,7 @@
 
 __protected__ = ['types']
 
-# --- Everything below this line is auto-generated using `make initpy` -----------------
+# MARK: Everything below this line is auto-generated using `make initpy` ---------------
 
 import lazy_loader
 
