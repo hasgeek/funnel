@@ -27,7 +27,9 @@ def given_vetinari_editor_promoter_project(
     project_expo2010: models.Project,
 ) -> models.ProjectMembership:
     assert 'promoter' in project_expo2010.roles_for(user_vetinari)
+    assert 'project_promoter' in project_expo2010.roles_for(user_vetinari)
     assert 'editor' in project_expo2010.roles_for(user_vetinari)
+    assert 'project_editor' in project_expo2010.roles_for(user_vetinari)
     vetinari_member = project_expo2010.crew_memberships.first()
     assert vetinari_member is not None
     assert vetinari_member.member == user_vetinari
@@ -53,6 +55,7 @@ def given_vimes_promoter_project(
     db_session.add(vimes_member)
     db_session.commit()
     assert 'promoter' in project_expo2010.roles_for(user_vimes)
+    assert 'project_promoter' in project_expo2010.roles_for(user_vimes)
     return vimes_member
 
 

@@ -375,7 +375,16 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
             ),
             viewonly=True,
         ),
-        grants_via={'member': {'editor', 'promoter', 'usher', 'participant', 'crew'}},
+        # Get subset of roles via offered_roles property
+        grants_via={
+            'member': {
+                'crew': {'crew', 'project_crew'},
+                'editor': {'editor', 'project_editor'},
+                'participant': {'participant', 'project_participant'},
+                'promoter': {'promoter', 'project_promoter'},
+                'usher': {'usher', 'project_usher'},
+            }
+        },
     )
 
     active_editor_memberships: DynamicMapped[ProjectMembership] = relationship(
@@ -513,6 +522,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     def rooms(self) -> list[VenueRoom]:
         return [room for venue in self.venues for room in venue.rooms]
 
+    # MARK: Model config
+
     __table_args__ = (
         sa.UniqueConstraint('account_id', 'name'),
         sa.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
@@ -580,6 +591,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
             'title',  # From BaseScopedNameMixin
         },
     }
+
+    # MARK: Conditional states
 
     state.add_conditional_state(
         'PAST',
@@ -670,6 +683,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         cfp_state.EXPIRED,
     )
 
+    # MARK: Magic methods
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
@@ -694,6 +709,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         if not format_spec:
             return self.joined_title
         return format(self.joined_title, format_spec)
+
+    # MARK: Methods and properties
 
     @role_check('member_participant')
     def has_member_participant_role(
@@ -1609,6 +1626,7 @@ if TYPE_CHECKING:
     from .saved import SavedProject
     from .sync_ticket import TicketClient, TicketEvent, TicketParticipant, TicketType
 
+# MARK: Additional column properties
 
 # Whether the project has any featured proposals. Returns `None` instead of
 # a boolean if the project does not have any proposal.
