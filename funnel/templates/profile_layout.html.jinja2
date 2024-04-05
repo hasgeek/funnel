@@ -378,8 +378,8 @@
   </div>
 {% endmacro %}
 
-{% macro profile_header_buttons(profile, follow_formid) %}
-  <div class="profile__btns">
+{% macro profile_header_buttons(profile) %}
+  <div class="profile__btns flex-wrapper--center">
     {% if profile.features.new_project() %}
       <a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }} {% trans %}New project{% endtrans %}</a>
     {% elif profile.features.make_public() %}
@@ -402,7 +402,7 @@
         </div>
       </div>
     {% endif %}
-    {{ addFollowButton(profile, follow_formid) }}
+    {{ addFollowButton(profile) }}
   </div>
 {% endmacro %}
 
@@ -446,7 +446,7 @@
                 </div>
               </div>
               <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
-                {{ profile_header_buttons(profile, follow_formid="desktop-follow-form") }}
+                {{ profile_header_buttons(profile) }}
                 {%- if profile.current_roles.admin %}
                   <div class="admin-btns">{{ profile_admin_buttons(profile) }}</div>
                 {% endif %}
@@ -475,7 +475,7 @@
           </ul>
           <div class="markdown">{{ profile.description }}</div>
           <div class="mui--visible-xs-block mui--visible-sm-block">
-            {{ profile_header_buttons(profile, follow_formid="mobile-follow-form") }}
+            {{ profile_header_buttons(profile) }}
           </div>
         </div>
       </div>

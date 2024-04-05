@@ -264,12 +264,12 @@
   </table>
 {%- endmacro %}
 
-{%- macro addFollowButton(profile, follow_formid='follow-form', size='normal', hide_unfollow=false, css_class='') %}
+{%- macro addFollowButton(profile, size='normal', hide_unfollow=false, css_class='') %}
   {% if size == 'small' %}
     {%- set buttonclass = 'mui-btn--small' %}
   {% endif %}
-  {% set follow_formid = follow_formid + profile.uuid_b58 %}
-  <form id="{{ follow_formid }}" action="{{ profile.url_for('follow') }}" class="follow-form js-follow-form {% if css_class %}{{ css_class }}{% endif %}" method="post">
+  {% set follow_formid = 'follow_form'  + profile.uuid_b58 %}
+  <form id="{{ follow_formid }}" action="{{ profile.url_for('follow') }}" class="follow-form js-follow-form {% if css_class %}{{ css_class }}{% endif %}" data-account-id="{{ profile.uuid_b58 }}" method="post">
     {%- if current_auth.is_anonymous %}
       <a class="mui-btn mui-btn--dark mui-btn--raised" href="{{ url_for('login', next=request.path) }}" data-ga="Login to follow account" aria-label="{% trans %}Login to follow this account{% endtrans %}">{% trans %}Follow{% endtrans %}</a>
     {%- elif profile != current_auth.user and not profile.features.is_private() %}

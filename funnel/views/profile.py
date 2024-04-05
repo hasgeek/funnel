@@ -307,7 +307,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @idempotent_request()
     def follow(self) -> ReturnView:
         """Follow an account."""
-        form = FollowForm(meta={'csrf': False})
+        form = FollowForm()
         if form.validate_on_submit():
             existing_membership = self.obj.active_follower_memberships.filter_by(
                 member=current_auth.user
