@@ -13,7 +13,7 @@ from funnel.extapi.typing import ExtTicketsDict
 
 from ...conftest import Flask, scoped_session
 
-# --- Fixture data
+# MARK: Fixture data
 
 
 class TicketEventTypeDict(TypedDict):
@@ -152,7 +152,7 @@ ticket_list3: list[ExtTicketsDict] = [
     },
 ]
 
-# --- Tests and helpers
+# MARK: Tests and helpers
 
 
 def bulk_upsert(

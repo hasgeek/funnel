@@ -39,7 +39,7 @@ __all__ = [
     'OrganizationAdminMembershipRevokedNotification',
 ]
 
-# --- Protocol and Mixin classes -------------------------------------------------------
+# MARK: Protocol and Mixin classes -----------------------------------------------------
 
 
 class DocumentHasProject:
@@ -69,7 +69,7 @@ class DocumentIsAccount:
         return self.document  # type: ignore[attr-defined]
 
 
-# --- Account notifications ------------------------------------------------------------
+# MARK: Account notifications ----------------------------------------------------------
 
 
 class AccountPasswordNotification(
@@ -86,7 +86,7 @@ class AccountPasswordNotification(
     for_private_recipient = True
 
 
-# --- Project participant notifications ------------------------------------------------
+# MARK: Project participant notifications ----------------------------------------------
 
 
 class RegistrationConfirmationNotification(
@@ -197,7 +197,7 @@ class ProjectTomorrowNotification(
     # This is a notification triggered without an actor
 
 
-# --- Comment notifications ------------------------------------------------------------
+# MARK: Comment notifications ----------------------------------------------------------
 
 
 class NewCommentNotification(Notification[Commentset, Comment], type='comment_new'):
@@ -222,7 +222,7 @@ class CommentReplyNotification(Notification[Comment, Comment], type='comment_rep
     dispatch_roles = ['replied_to_commenter']
 
 
-# --- Project crew notifications -------------------------------------------------------
+# MARK: Project crew notifications -----------------------------------------------------
 
 
 class ProjectCrewMembershipNotification(
@@ -278,7 +278,7 @@ class RegistrationReceivedNotification(
     exclude_actor = True
 
 
-# --- Organization admin notifications -------------------------------------------------
+# MARK: Organization admin notifications -----------------------------------------------
 
 
 class OrganizationAdminMembershipNotification(
@@ -308,7 +308,7 @@ class OrganizationAdminMembershipRevokedNotification(
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
-# --- Site administrator notifications -------------------------------------------------
+# MARK: Site administrator notifications -----------------------------------------------
 
 
 class CommentReportReceivedNotification(

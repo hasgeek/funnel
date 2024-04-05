@@ -47,7 +47,7 @@ rq.job_class = 'rq.job.Job'
 rq.queues = ['funnel']  # Queues used in this app
 executor = Executor()
 
-# --- Assets ---------------------------------------------------------------------------
+# MARK: Assets -------------------------------------------------------------------------
 
 #: Theme files, for transitioning away from Baseframe templates. These are used by
 #: Baseframe's render_form and other form helper functions.
@@ -66,7 +66,7 @@ assets['spectrum.css'][version] = 'css/spectrum.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 
 
-# --- Import rest of the app -----------------------------------------------------------
+# MARK: Import rest of the app ---------------------------------------------------------
 
 from . import (  # isort:skip  # noqa: F401  # pylint: disable=wrong-import-position
     geoip,
@@ -81,7 +81,7 @@ from . import (  # isort:skip  # noqa: F401  # pylint: disable=wrong-import-posi
 )
 from .models import db, sa_orm  # isort:skip
 
-# --- Configuration---------------------------------------------------------------------
+# MARK: Configuration ------------------------------------------------------------------
 
 # Config is loaded from legacy Python settings files in the instance folder and then
 # overridden with values from the environment. Python config is pending deprecation
@@ -197,13 +197,13 @@ app.assets.register(  # type: ignore[attr-defined]  # FIXME
 
 views.siteadmin.init_rq_dashboard()
 
-# --- Serve static files with WhiteNoise -----------------------------------------------
+# MARK: Serve static files with WhiteNoise ---------------------------------------------
 
 _wn = WhiteNoise(app.wsgi_app, root=app.static_folder, prefix=app.static_url_path)
 _wn.add_files(baseframe.static_folder, prefix=baseframe.static_url_path)
 app.wsgi_app = _wn  # type: ignore[method-assign]
 
-# --- Init SQLAlchemy mappers ----------------------------------------------------------
+# MARK: Init SQLAlchemy mappers --------------------------------------------------------
 
 # Database model loading (from Funnel or extensions) is complete.
 # Configure database mappers now, before the process is forked for workers.

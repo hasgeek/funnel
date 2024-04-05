@@ -37,7 +37,7 @@ __all__ = [
 ]
 
 
-# --- Markdown dataclasses -------------------------------------------------------------
+# MARK: Markdown dataclasses -----------------------------------------------------------
 
 
 @dataclass
@@ -151,7 +151,7 @@ class MarkdownConfig:
         return Markup(md.render(text or ''))
 
 
-# --- Markdown plugins -----------------------------------------------------------------
+# MARK: Markdown plugins ---------------------------------------------------------------
 
 
 MarkdownPlugin.register('abbr', abbr_plugin)
@@ -199,7 +199,7 @@ MarkdownPlugin.register('footnote_ext', footnote_extend_plugin)
 # The TOC plugin isn't yet working
 # MarkdownPlugin.register('toc', toc_plugin)
 
-# --- Markdown configurations ----------------------------------------------------------
+# MARK: Markdown configurations --------------------------------------------------------
 
 markdown_basic = MarkdownConfig.register(
     name='basic',

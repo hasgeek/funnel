@@ -39,7 +39,7 @@ from .login_session import requires_login
 session_timeouts['unsub_token'] = timedelta(minutes=15)
 session_timeouts['unsub_token_type'] = timedelta(minutes=15)
 
-# --- Account notifications tab --------------------------------------------------------
+# MARK: Account notifications tab ------------------------------------------------------
 
 unsubscribe_link_expired = __(
     "That unsubscribe link has expired. However, you can manage your preferences from"
@@ -311,7 +311,7 @@ class AccountNotificationView(ClassView):
         if not token_type:
             token_type = session.get('unsub_token_type') or request.form['token_type']
 
-        # --- Signed tokens (email)
+        # MARK: Signed tokens (email)
         if token_type == 'signed':  # nosec
             try:
                 # Token will be in session in the GET request, and in request.form
@@ -332,7 +332,7 @@ class AccountNotificationView(ClassView):
                 flash(unsubscribe_link_invalid, 'error')
                 return render_redirect(url_for('notification_preferences'))
 
-        # --- Cached tokens (SMS)
+        # MARK: Cached tokens (SMS)
         elif token_type == 'cached':  # nosec
             # Enforce a rate limit per IP on cached tokens, to slow down enumeration.
             # Some ISPs use carrier-grade NAT and will have a single IP for a very

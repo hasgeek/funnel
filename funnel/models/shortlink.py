@@ -32,7 +32,7 @@ from .helpers import profanity
 __all__ = ['Shortlink']
 
 
-# --- Constants ------------------------------------------------------------------------
+# MARK: Constants ----------------------------------------------------------------------
 
 #: Size for for SMS and other length-sensitive uses. This can be raised from 3 to 4
 #: bytes as usage grows
@@ -55,7 +55,7 @@ NAME_MASK = b'AAAAAAAAAAA='  # 11 bytes + 1 padding byte
 _valid_name_re = re.compile('^[A-Za-z0-9_-]*$')
 
 
-# --- Helpers --------------------------------------------------------------------------
+# MARK: Helpers ------------------------------------------------------------------------
 
 
 def normalize_url(url: str | furl, default_scheme: str = 'https') -> furl:
@@ -194,7 +194,7 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
         )
 
 
-# --- Models ---------------------------------------------------------------------------
+# MARK: Models -------------------------------------------------------------------------
 
 
 class Shortlink(NoIdMixin, Model):
@@ -248,7 +248,7 @@ class Shortlink(NoIdMixin, Model):
         """Compare name to id in a SQL expression."""
         return ShortLinkToBigIntComparator(cls.id)
 
-    # --- Validators
+    # MARK: Validators
 
     @sa_orm.validates('id')
     def _validate_id_not_zero(self, _key: str, value: int) -> int:
@@ -263,7 +263,7 @@ class Shortlink(NoIdMixin, Model):
         # `url_blake2b160_hash(value)`
         return value
 
-    # --- Methods
+    # MARK: Methods
 
     def __repr__(self) -> str:
         """Return string representation of self."""

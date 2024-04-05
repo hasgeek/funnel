@@ -51,7 +51,7 @@ nocache_expires = utc.localize(datetime(1990, 1, 1))
 # Six avatar colours defined in _variable.scss
 avatar_color_count = 6
 
-# --- Timezone data --------------------------------------------------------------------
+# MARK: Timezone data ------------------------------------------------------------------
 
 # Get all known timezones from zoneinfo and make a lowercased lookup table
 valid_timezones = {_tz.lower(): _tz for _tz in zoneinfo.available_timezones()}
@@ -64,7 +64,7 @@ with (resources.files('tzdata.zoneinfo') / 'tzdata.zi').open(
             _tzlink, _tznew, _tzold = _tzline.strip().split()
             valid_timezones[_tzold.lower()] = _tznew
 
-# --- Classes --------------------------------------------------------------------------
+# MARK: Classes ------------------------------------------------------------------------
 
 
 class SessionTimeouts(dict[str, timedelta]):
@@ -124,7 +124,7 @@ class SessionTimeouts(dict[str, timedelta]):
 session_timeouts = SessionTimeouts()
 app.after_request(session_timeouts.crosscheck_session)
 
-# --- Utilities ------------------------------------------------------------------------
+# MARK: Utilities ----------------------------------------------------------------------
 
 
 def app_context() -> ContextManager:
@@ -543,7 +543,7 @@ def compress_response(response: BaseResponse) -> None:
             response.vary.add('Accept-Encoding')
 
 
-# --- Template helpers -----------------------------------------------------------------
+# MARK: Template helpers ---------------------------------------------------------------
 
 
 def render_redirect(url: str, code: int = 303) -> ReturnResponse:
@@ -604,7 +604,7 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
     }
 
 
-# --- Filters and URL constructors -----------------------------------------------------
+# MARK: Filters and URL constructors ---------------------------------------------------
 
 
 @app.template_filter('url_join')
@@ -638,7 +638,7 @@ def shortlink(url: str, actor: Account | None = None, shorter: bool = True) -> s
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
 
 
-# --- Request/response handlers --------------------------------------------------------
+# MARK: Request/response handlers ------------------------------------------------------
 
 
 @app.before_request

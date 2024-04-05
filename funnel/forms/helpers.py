@@ -23,7 +23,7 @@ from ..models import (
     parse_video_url,
 )
 
-# --- Error messages -------------------------------------------------------------------
+# MARK: Error messages -----------------------------------------------------------------
 
 MSG_EMAIL_INVALID = _("This does not appear to be a valid email address")
 MSG_EMAIL_BLOCKED = __("This email address has been blocked from use")

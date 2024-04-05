@@ -98,7 +98,7 @@ async def test_mnrl_file_numbers(
         ) == ('test.json', {'1111111111', '2222222222', '3333333333'})
 
 
-# --- CLI interface
+# MARK: CLI interface
 
 
 @pytest.mark.mock_config('app', {'MNRL_API_KEY': ...})

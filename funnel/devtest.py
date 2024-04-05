@@ -34,7 +34,7 @@ __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
 # `OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`
 mpcontext = multiprocessing.get_context('fork')
 
-# --- Development and testing app multiplexer ------------------------------------------
+# MARK: Development and testing app multiplexer ----------------------------------------
 
 info_app = Flask(__name__)
 
@@ -103,7 +103,7 @@ class AppByHostWsgi:
 
 devtest_app = AppByHostWsgi(*all_apps)
 
-# --- Background worker ----------------------------------------------------------------
+# MARK: Background worker --------------------------------------------------------------
 
 
 class HostPort(NamedTuple):

@@ -60,7 +60,7 @@ from .helpers import (
 __all__ = ['ProjectRsvpStateEnum', 'Project', 'ProjectLocation', 'ProjectRedirect']
 
 
-# --- Constants ---------------------------------------------------------------
+# MARK: Constants -------------------------------------------------------------
 
 
 class PROJECT_STATE(LabeledEnum):  # noqa: N801
@@ -85,7 +85,7 @@ class ProjectRsvpStateEnum(IntTitle, ReprEnum):
     MEMBERS = 3, __("Only members can register")
 
 
-# --- Models ------------------------------------------------------------------
+# MARK: Models ----------------------------------------------------------------
 
 
 class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
@@ -342,7 +342,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         deferred=True,
     )
 
-    # --- Backrefs and relationships
+    # MARK: Backrefs and relationships
 
     redirects: Mapped[list[ProjectRedirect]] = relationship(back_populates='project')
     locations: Mapped[list[ProjectLocation]] = relationship(back_populates='project')

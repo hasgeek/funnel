@@ -669,7 +669,7 @@ def account_merge() -> ReturnView:
     )
 
 
-# --- Future Hasjob login --------------------------------------------------------------
+# MARK: Future Hasjob login ------------------------------------------------------------
 
 # Hasjob login flow:
 

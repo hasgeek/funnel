@@ -8,7 +8,7 @@ from baseframe import __
 
 from ..models import Account
 
-# --- Delete validator registry --------------------------------------------------------
+# MARK: Delete validator registry ------------------------------------------------------
 
 ValidatorFunc = TypeVar('ValidatorFunc', bound=Callable[[Account], bool])
 
@@ -43,7 +43,7 @@ def delete_validator(
     return decorator
 
 
-# --- Delete validator functions -------------------------------------------------------
+# MARK: Delete validator functions -----------------------------------------------------
 
 
 @delete_validator(
@@ -96,7 +96,7 @@ def user_owns_apps(user: Account) -> bool:
     return True
 
 
-# --- Delete validator view helper -----------------------------------------------------
+# MARK: Delete validator view helper ---------------------------------------------------
 
 
 @Account.views()

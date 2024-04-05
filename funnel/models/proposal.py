@@ -49,7 +49,7 @@ __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalSuuidRedirect']
 _marker = object()
 
 
-# --- Constants ------------------------------------------------------------------
+# MARK: Constants ----------------------------------------------------------------
 
 
 class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
@@ -123,7 +123,7 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
     # SHORLISTABLE = {SUBMITTED, AWAITING_DETAILS, UNDER_EVALUATION}
 
 
-# --- Models ------------------------------------------------------------------
+# MARK: Models ----------------------------------------------------------------
 
 
 class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model):
