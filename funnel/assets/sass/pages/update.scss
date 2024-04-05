@@ -37,6 +37,8 @@
   position: relative;
 
   .update__heading {
+    display: flex;
+    gap: 8px;
     .update__heading__unpin {
       display: none;
     }
