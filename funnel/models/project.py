@@ -378,16 +378,11 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         # Get subset of roles via offered_roles property
         grants_via={
             'member': {
-                'crew',
-                'editor',
-                'participant',
-                'promoter',
-                'usher',
-                'project_crew',
-                'project_editor',
-                'project_participant',
-                'project_promoter',
-                'project_usher',
+                'crew': {'crew', 'project_crew'},
+                'editor': {'editor', 'project_editor'},
+                'participant': {'participant', 'project_participant'},
+                'promoter': {'promoter', 'project_promoter'},
+                'usher': {'usher', 'project_usher'},
             }
         },
     )
