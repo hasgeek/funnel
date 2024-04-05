@@ -161,11 +161,11 @@ class ProjectMembership(ImmutableMembershipMixin, Model):
     @cached_property
     def offered_roles(self) -> set[str]:
         """Roles offered by this membership record."""
-        roles = {'crew', 'participant'}
+        roles = {'crew', 'participant', 'project_crew', 'project_participant'}
         if self.is_editor:
-            roles.add('editor')
+            roles |= {'editor', 'project_editor'}
         if self.is_promoter:
-            roles.add('promoter')
+            roles |= {'promoter', 'project_promoter'}
         if self.is_usher:
-            roles.add('usher')
+            roles |= {'usher', 'project_usher'}
         return roles
