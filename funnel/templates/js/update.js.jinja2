@@ -24,7 +24,7 @@
                 <input type="hidden" v-if="update.is_pinned" name="is_pinned" value="">
               </form>
               <ul class="bullet-separated-list--flex mui--text-light mui--text-body2" v-if="update.number">
-              <li><a class="text-uppercase mui--text-light nounderline" :href="update.urls.view">{{ gettext('Update #%d', update.number) }}</a></li>
+                <li><a class="text-uppercase mui--text-light nounderline" :href="update.urls.view">{{ gettext('Update #%d', update.number) }}</a></li>
                 <li v-if="age"><a class="mui--text-light nounderline" :href="update.urls.view">{{ age }}</a></li>
                 <li v-if="update.visibility == 'participants'">
                   <faicon :icon="'lock-alt'"></faicon>
