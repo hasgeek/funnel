@@ -1,6 +1,6 @@
 """AWS SES email support."""
 
-# --- Everything below this line is auto-generated using `make initpy` -----------------
+# MARK: Everything below this line is auto-generated using `make initpy` ---------------
 
 from . import ses_messages, sns_notifications
 from .ses_messages import (

@@ -24,7 +24,7 @@ branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
 
-# --- Tables ---------------------------------------------------------------------------
+# MARK: Tables -------------------------------------------------------------------------
 
 user = table('user', column('id', sa.Integer))
 
@@ -61,7 +61,7 @@ email_address = table(
     column('is_blocked', sa.Boolean),
 )
 
-# --- Functions ------------------------------------------------------------------------
+# MARK: Functions ----------------------------------------------------------------------
 
 
 def get_progressbar(label, maxval):

@@ -45,7 +45,7 @@ def db_session(db_session_truncate: scoped_session) -> scoped_session:
     return db_session_truncate
 
 
-# --- Tests for datatypes returned by search providers ---------------------------------
+# MARK: Tests for datatypes returned by search providers -------------------------------
 
 
 @pytest.mark.parametrize('stype', search_all_types)
@@ -116,7 +116,7 @@ def test_search_project_returns_query(
     )
 
 
-# --- Test search functions ------------------------------------------------------------
+# MARK: Test search functions ----------------------------------------------------------
 
 
 @pytest.mark.usefixtures('request_context', 'all_fixtures')
@@ -136,7 +136,7 @@ def test_search_counts(
             assert 'count' in typeset
 
 
-# --- Test views -----------------------------------------------------------------------
+# MARK: Test views ---------------------------------------------------------------------
 
 
 @pytest.mark.usefixtures('app_context', 'all_fixtures')

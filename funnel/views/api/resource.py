@@ -144,7 +144,7 @@ def api_result(
     return response
 
 
-# --- Client access endpoints -------------------------------------------------
+# MARK: Client access endpoints --------------------------------------------------------
 
 
 @app.route('/api/1/token/verify', methods=['POST'])
@@ -418,7 +418,7 @@ def profile_autocomplete(q: str = '') -> ReturnView:
     )
 
 
-# --- Public endpoints --------------------------------------------------------
+# MARK: Public endpoints ---------------------------------------------------------------
 
 
 @app.route('/api/1/login/beacon.html')
@@ -461,7 +461,7 @@ def login_beacon_json(client_id: str) -> ReturnView:
     return response
 
 
-# --- Token-based resource endpoints ------------------------------------------
+# MARK: Token-based resource endpoints -------------------------------------------------
 
 
 @app.route('/api/1/id')

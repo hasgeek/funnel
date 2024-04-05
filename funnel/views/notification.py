@@ -356,7 +356,7 @@ class RenderNotification:
             in self.notification.role_provider_obj.current_roles
         )
 
-    # --- Overrideable render methods
+    # MARK: Overrideable render methods
 
     @property
     def actor(self) -> Account | None:
@@ -447,7 +447,7 @@ class RenderNotification:
         return self.text()
 
 
-# --- Dispatch functions ---------------------------------------------------------------
+# MARK: Dispatch functions -------------------------------------------------------------
 
 # This has four parts:
 # 1. Front function `dispatch_notification` is called from views or signal handlers. It
@@ -503,7 +503,7 @@ def dispatch_notification(*notifications: Notification) -> None:
         )
 
 
-# --- Transports -----------------------------------------------------------------------
+# MARK: Transports ---------------------------------------------------------------------
 
 
 def transport_worker_wrapper(
@@ -625,7 +625,7 @@ def dispatch_transport_sms(
 # Add transport workers here as their worker methods are written
 transport_workers = {'email': dispatch_transport_email, 'sms': dispatch_transport_sms}
 
-# --- Notification background workers --------------------------------------------------
+# MARK: Notification background workers ------------------------------------------------
 
 DISPATCH_BATCH_SIZE = 10
 

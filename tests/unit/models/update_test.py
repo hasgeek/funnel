@@ -10,7 +10,7 @@ from funnel import models
 
 from ...conftest import scoped_session
 
-# --- Fixtures -------------------------------------------------------------------------
+# MARK: Fixtures -----------------------------------------------------------------------
 
 
 @pytest.fixture()
@@ -117,7 +117,7 @@ def rincewind_participant(
     return rsvp
 
 
-# --- Tests ----------------------------------------------------------------------------
+# MARK: Tests --------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(

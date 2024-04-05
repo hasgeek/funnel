@@ -1,6 +1,6 @@
 """SMS transport support."""
 
-# --- Everything below this line is auto-generated using `make initpy` -----------------
+# MARK: Everything below this line is auto-generated using `make initpy` ---------------
 
 from . import send, template
 from .send import (
