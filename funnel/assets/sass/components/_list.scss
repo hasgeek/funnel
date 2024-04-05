@@ -67,10 +67,10 @@
 .bullet-separated-list--flex {
   padding-left: 0;
   display: flex;
-  list-style-type: disc;
+  list-style-type: none;
   margin: 0;
   li {
-    padding: 0 20px 0 0;
+    padding: 0 8px 0 0;
     span.bullet-separated-list__span {
       position: relative;
       left: -7px;
@@ -79,7 +79,10 @@
   li:first-child {
     margin-left: -8px;
     list-style-type: none;
-    padding-left: 0;
+    padding: 0 20px 0 0;
+  }
+  li:nth-child(2) {
+    list-style-type: disc;
   }
   li:last-child {
     padding: 0;
