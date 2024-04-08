@@ -634,12 +634,14 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         'HAS_PROPOSALS',
         cfp_state.ANY,
         lambda project: db.session.query(project.proposals.exists()).scalar(),
+        lambda project: project.proposals.exists(),
         label=('has_proposals', __("Has submissions")),
     )
     cfp_state.add_conditional_state(
         'HAS_SESSIONS',
         cfp_state.ANY,
         lambda project: db.session.query(project.sessions.exists()).scalar(),
+        lambda project: project.sessions.exists(),
         label=('has_sessions', __("Has sessions")),
     )
     cfp_state.add_conditional_state(
