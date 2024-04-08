@@ -266,9 +266,15 @@
       }
     }
   }
-  .schedule-grid.schedule-grid--compressed {
+  .schedule-grid.schedule-grid--compressed .schedule .schedule__table {
     max-height: 50vh;
     overflow: scroll;
+  }
+  .schedule-grid.schedule-grid--compressed .schedule .schedule__date {
+    display: none;
+  }
+  .schedule-grid.schedule-grid--compressed .schedule .schedule__date--upcoming {
+    display: block;
   }
 }
 
