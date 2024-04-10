@@ -1008,6 +1008,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         'ACTIVE_AND_PUBLIC',
         profile_state.PUBLIC,
         lambda account: bool(account.state.ACTIVE),
+        lambda account: account.state.ACTIVE.__clause_element__(),
     )
 
     @classmethod
