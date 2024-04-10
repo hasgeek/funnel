@@ -376,6 +376,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
                 sa_orm.remote(AccountMembership.account_id) == Account.id,
                 AccountMembership.is_active,
             ),
+            # FIXME: Filter out suspended accounts
             order_by=lambda: AccountMembership.granted_at.desc(),
             viewonly=True,
         ),
