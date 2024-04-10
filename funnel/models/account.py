@@ -207,6 +207,9 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         ),
         read={'all'},
     )
+    # TODO: Use a non-deterministic collation instead of a lowercase index
+    # https://www.postgresql.org/docs/current/collation.html#COLLATION-NONDETERMINISTIC
+    # SQLAlchemy data type parameter `collation='name'`
 
     #: The account's title (user's fullname)
     title: Mapped[str] = with_roles(
