@@ -58,7 +58,7 @@ if TYPE_CHECKING:
     import funnel.models as funnel_models
     from funnel.devtest import BackgroundWorker, CapturedCalls
 
-# --- Pytest config --------------------------------------------------------------------
+# MARK: Pytest config ------------------------------------------------------------------
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -155,7 +155,7 @@ def pytest_runtest_logreport(report: pytest.TestReport):
         report.nodeid = f'{filename}:{line_no}::{domain}'
 
 
-# --- Playwright browser config --------------------------------------------------------
+# MARK: Playwright browser config ------------------------------------------------------
 
 
 @pytest.fixture(scope='session')
@@ -164,7 +164,7 @@ def browser_context_args(browser_context_args: dict) -> dict:
     return browser_context_args | {'ignore_https_errors': True}
 
 
-# --- Import fixtures ------------------------------------------------------------------
+# MARK: Import fixtures ----------------------------------------------------------------
 
 
 @pytest.fixture(scope='session')
@@ -197,7 +197,7 @@ def funnel_devtest() -> ModuleType:
     return pytest.importorskip('funnel.devtest')
 
 
-# --- Fixtures -------------------------------------------------------------------------
+# MARK: Fixtures -----------------------------------------------------------------------
 
 
 _meta_refresh_content_re = re.compile(
@@ -1270,14 +1270,14 @@ def login(
     return SimpleNamespace(as_=as_, logout=logout)  # pyright: ignore[reportReturnType]
 
 
-# --- Sample data: users, organizations, projects, etc ---------------------------------
+# MARK: Sample data --------------------------------------------------------------------
 
 # These names are adapted from the Discworld universe. Backstories can be found at:
 # * https://discworld.fandom.com/
 # * https://wiki.lspace.org/
 
 
-# --- Users
+# MARK: Users
 
 
 @runtime_checkable
@@ -1548,7 +1548,7 @@ def user_om(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-# --- Organizations
+# MARK: Organizations
 
 
 @pytest.fixture()
@@ -1645,7 +1645,8 @@ def org_citywatch(
     return org
 
 
-# --- Projects
+# MARK: Projects
+
 # Fixtures from this point on drift away from Discworld, to reflect the unique contours
 # of the product being tested. Maintaining fidelity to Discworld is hard.
 
@@ -1748,7 +1749,7 @@ def project_ai2(
     return project
 
 
-# --- Client apps
+# MARK: Client apps
 
 
 @pytest.fixture()
@@ -1820,8 +1821,7 @@ def all_fixtures(  # pylint: disable=too-many-locals
     return SimpleNamespace(**locals())
 
 
-# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-# --- Old fixtures, to be removed when tests are updated -------------------------------
+# MARK: Old fixtures, to be removed when tests are updated -----------------------------
 
 
 TEST_DATA = {

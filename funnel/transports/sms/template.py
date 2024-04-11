@@ -21,7 +21,7 @@ __all__ = [
     'MessageTemplate',
 ]
 
-# --- Registered template processor ----------------------------------------------------
+# MARK: Registered template processor --------------------------------------------------
 
 # This list of chars is from https://archive.is/XJJHV via Airtel.
 # Not currently used because the documentation is unclear on how to use it
@@ -399,7 +399,7 @@ class SmsTemplate:
         cls.init_subclass_config(app, app.config.get('SMS_DLT_TEMPLATE_IDS', {}))
 
 
-# --- Registered templates used by this app --------------------------------------------
+# MARK: Registered templates used by this app ------------------------------------------
 
 
 class WebOtpTemplate(SmsTemplate):

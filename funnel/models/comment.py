@@ -43,7 +43,7 @@ from .helpers import MarkdownCompositeBasic, MessageComposite, add_search_trigge
 __all__ = ['Comment', 'Commentset']
 
 
-# --- Constants ------------------------------------------------------------------------
+# MARK: Constants ----------------------------------------------------------------------
 
 
 class COMMENTSET_STATE(LabeledEnum):  # noqa: N801
@@ -84,7 +84,7 @@ message_deleted = MessageComposite(__("[deleted]"), 'del')
 message_removed = MessageComposite(__("[removed]"), 'del')
 
 
-# --- Models ---------------------------------------------------------------------------
+# MARK: Models -------------------------------------------------------------------------
 
 
 class Commentset(UuidMixin, BaseMixin[int, Account], Model):

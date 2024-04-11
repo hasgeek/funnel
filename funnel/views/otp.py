@@ -49,7 +49,7 @@ from .helpers import (
 
 session_timeouts['otp'] = timedelta(minutes=15)
 
-# --- Exceptions -----------------------------------------------------------------------
+# MARK: Exceptions ---------------------------------------------------------------------
 
 
 class OtpError(Exception):
@@ -68,7 +68,7 @@ class OtpUserError(OtpError, Forbidden):
     """OTP is being used by a different user."""
 
 
-# --- Typing ---------------------------------------------------------------------------
+# MARK: Typing -------------------------------------------------------------------------
 
 #: Tell mypy that the type of ``OtpSession.user`` is same as ``OtpSession.make(user)``.
 #: We need both ``Account`` and ``Optional[Account]`` so that the value of
@@ -78,11 +78,11 @@ OptionalAccountType = TypeVar('OptionalAccountType', Account, Optional[Account])
 #: Define type for subclasses
 OtpSessionType = TypeVar('OtpSessionType', bound='OtpSession')
 
-# --- Registry -------------------------------------------------------------------------
+# MARK: Registry -----------------------------------------------------------------------
 
 _reason_subclasses: dict[str, type[OtpSession]] = {}
 
-# --- Classes --------------------------------------------------------------------------
+# MARK: Classes ------------------------------------------------------------------------
 
 
 @dataclass

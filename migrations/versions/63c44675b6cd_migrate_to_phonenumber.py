@@ -106,7 +106,7 @@ def upgrade_() -> None:
     """Upgrade database bind ''."""
     conn = op.get_bind()
 
-    # --- UserPhone --------------------------------------------------------------------
+    # MARK: UserPhone ------------------------------------------------------------------
     op.add_column(
         'user_phone', sa.Column('phone_number_id', sa.Integer(), nullable=True)
     )
@@ -172,7 +172,7 @@ def upgrade_() -> None:
     op.drop_column('user_phone', 'phone')
     op.drop_column('user_phone', 'gets_text')
 
-    # --- SmsMessage -------------------------------------------------------------------
+    # MARK: SmsMessage -----------------------------------------------------------------
     # Remove rows with no `transactionid`, as the data is not validated in any way
     conn.execute(sa.delete(sms_message).where(sms_message.c.transactionid.is_(None)))
     op.add_column(
@@ -315,7 +315,7 @@ def downgrade_() -> None:
     """Downgrade database bind ''."""
     conn = op.get_bind()
 
-    # --- SmsMessage -------------------------------------------------------------------
+    # MARK: SmsMessage -----------------------------------------------------------------
     op.add_column(
         'sms_message',
         sa.Column(
@@ -344,7 +344,7 @@ def downgrade_() -> None:
     op.drop_index(op.f('ix_sms_message_phone_number_id'), 'sms_message')
     op.drop_column('sms_message', 'phone_number_id')
 
-    # --- UserPhone --------------------------------------------------------------------
+    # MARK: UserPhone ------------------------------------------------------------------
     op.add_column(
         'user_phone',
         sa.Column(

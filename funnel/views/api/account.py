@@ -19,7 +19,6 @@ from ..helpers import progressive_rate_limit_validator, validate_rate_limit
 def password_policy_check() -> ReturnView:
     """Check if a password meets policy criteria (strength, embedded personal info)."""
     form = PasswordPolicyForm(edit_user=current_auth.user)
-    form.form_nonce.data = form.form_nonce.get_default()
 
     if form.validate_on_submit():
         return {
@@ -49,7 +48,6 @@ def password_policy_check() -> ReturnView:
 def account_username_availability() -> ReturnView:
     """Check whether a username is available for the taking."""
     form = UsernameAvailableForm(edit_user=current_auth.user)
-    del form.form_nonce
 
     # FIXME: Rate limiting must happen _before_ hitting the database.
 

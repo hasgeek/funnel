@@ -60,7 +60,7 @@ from .helpers import (
 __all__ = ['ProjectRsvpStateEnum', 'Project', 'ProjectLocation', 'ProjectRedirect']
 
 
-# --- Constants ---------------------------------------------------------------
+# MARK: Constants -------------------------------------------------------------
 
 
 class PROJECT_STATE(LabeledEnum):  # noqa: N801
@@ -85,7 +85,7 @@ class ProjectRsvpStateEnum(IntTitle, ReprEnum):
     MEMBERS = 3, __("Only members can register")
 
 
-# --- Models ------------------------------------------------------------------
+# MARK: Models ----------------------------------------------------------------
 
 
 class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
@@ -342,7 +342,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         deferred=True,
     )
 
-    # --- Backrefs and relationships
+    # MARK: Backrefs and relationships
 
     redirects: Mapped[list[ProjectRedirect]] = relationship(back_populates='project')
     locations: Mapped[list[ProjectLocation]] = relationship(back_populates='project')
@@ -375,7 +375,16 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
             ),
             viewonly=True,
         ),
-        grants_via={'member': {'editor', 'promoter', 'usher', 'participant', 'crew'}},
+        # Get subset of roles via offered_roles property
+        grants_via={
+            'member': {
+                'crew': {'crew', 'project_crew'},
+                'editor': {'editor', 'project_editor'},
+                'participant': {'participant', 'project_participant'},
+                'promoter': {'promoter', 'project_promoter'},
+                'usher': {'usher', 'project_usher'},
+            }
+        },
     )
 
     active_editor_memberships: DynamicMapped[ProjectMembership] = relationship(
@@ -408,12 +417,18 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         viewonly=True,
     )
 
-    crew = DynamicAssociationProxy[Account]('active_crew_memberships', 'member')
-    editors = DynamicAssociationProxy[Account]('active_editor_memberships', 'member')
-    promoters = DynamicAssociationProxy[Account](
-        'active_promoter_memberships', 'member'
+    crew: DynamicAssociationProxy[Account, ProjectMembership] = DynamicAssociationProxy(
+        'active_crew_memberships', 'member'
     )
-    ushers = DynamicAssociationProxy[Account]('active_usher_memberships', 'member')
+    editors: DynamicAssociationProxy[Account, ProjectMembership] = (
+        DynamicAssociationProxy('active_editor_memberships', 'member')
+    )
+    promoters: DynamicAssociationProxy[Account, ProjectMembership] = (
+        DynamicAssociationProxy('active_promoter_memberships', 'member')
+    )
+    ushers: DynamicAssociationProxy[Account, ProjectMembership] = (
+        DynamicAssociationProxy('active_usher_memberships', 'member')
+    )
 
     # proposal.py
     proposals: DynamicMapped[Proposal] = relationship(
@@ -464,7 +479,9 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
+    sponsors: DynamicAssociationProxy[Account, ProjectSponsorMembership] = (
+        DynamicAssociationProxy('sponsor_memberships', 'member')
+    )
 
     # sync_ticket.py
     ticket_clients: Mapped[list[TicketClient]] = relationship(back_populates='project')
@@ -504,6 +521,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     @property
     def rooms(self) -> list[VenueRoom]:
         return [room for venue in self.venues for room in venue.rooms]
+
+    # MARK: Model config
 
     __table_args__ = (
         sa.UniqueConstraint('account_id', 'name'),
@@ -573,6 +592,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         },
     }
 
+    # MARK: Conditional states
+
     state.add_conditional_state(
         'PAST',
         state.PUBLISHED,
@@ -613,12 +634,14 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         'HAS_PROPOSALS',
         cfp_state.ANY,
         lambda project: db.session.query(project.proposals.exists()).scalar(),
+        lambda project: project.proposals.exists(),
         label=('has_proposals', __("Has submissions")),
     )
     cfp_state.add_conditional_state(
         'HAS_SESSIONS',
         cfp_state.ANY,
         lambda project: db.session.query(project.sessions.exists()).scalar(),
+        lambda project: project.sessions.exists(),
         label=('has_sessions', __("Has sessions")),
     )
     cfp_state.add_conditional_state(
@@ -662,6 +685,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         cfp_state.EXPIRED,
     )
 
+    # MARK: Magic methods
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
@@ -686,6 +711,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         if not format_spec:
             return self.joined_title
         return format(self.joined_title, format_spec)
+
+    # MARK: Methods and properties
 
     @role_check('member_participant')
     def has_member_participant_role(
@@ -1601,6 +1628,7 @@ if TYPE_CHECKING:
     from .saved import SavedProject
     from .sync_ticket import TicketClient, TicketEvent, TicketParticipant, TicketType
 
+# MARK: Additional column properties
 
 # Whether the project has any featured proposals. Returns `None` instead of
 # a boolean if the project does not have any proposal.

@@ -23,7 +23,7 @@ from ... import app, models
 from ...models import Mapped, Query, db, sa
 from . import periodic
 
-# --- Data structures ------------------------------------------------------------------
+# MARK: Data structures ----------------------------------------------------------------
 
 
 def trend_symbol(current: int, previous: int) -> str:
@@ -114,7 +114,7 @@ class MatomoData:
     visits_month: MatomoResponse | None = None
 
 
-# --- Matomo analytics -----------------------------------------------------------------
+# MARK: Matomo analytics ---------------------------------------------------------------
 
 
 @overload
@@ -242,7 +242,7 @@ async def matomo_stats() -> MatomoData:
     )
 
 
-# --- Internal database analytics ------------------------------------------------------
+# MARK: Internal database analytics ----------------------------------------------------
 
 
 def data_sources() -> dict[str, DataSource]:
@@ -365,7 +365,7 @@ async def user_stats() -> dict[str, ResourceStats]:
     return stats
 
 
-# --- Commands -------------------------------------------------------------------------
+# MARK: Commands -----------------------------------------------------------------------
 
 
 async def dailystats() -> None:

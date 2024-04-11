@@ -66,7 +66,9 @@ def proposals_can_be_reordered(obj: Project) -> bool:
     return obj.current_roles.editor
 
 
-# --- Routes ------------------------------------------------------------------
+# MARK: Routes -------------------------------------------------------------------------
+
+
 @Project.views('proposal_new')
 @route('/<account>/<project>', init_app=app)
 class ProjectProposalView(ProjectViewBase):
@@ -265,7 +267,6 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
                 'status': 'error',
                 'error_description': _("Pick a user to be added"),
                 'errors': collaborator_form.errors,
-                'form_nonce': collaborator_form.form_nonce.data,
             }, 400
 
         return render_form(

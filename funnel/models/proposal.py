@@ -49,7 +49,7 @@ __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalSuuidRedirect']
 _marker = object()
 
 
-# --- Constants ------------------------------------------------------------------
+# MARK: Constants ----------------------------------------------------------------
 
 
 class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
@@ -123,7 +123,7 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
     # SHORLISTABLE = {SUBMITTED, AWAITING_DETAILS, UNDER_EVALUATION}
 
 
-# --- Models ------------------------------------------------------------------
+# MARK: Models ----------------------------------------------------------------
 
 
 class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model):
@@ -355,6 +355,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         'SCHEDULED',
         state.CONFIRMED,
         lambda proposal: proposal.session is not None and proposal.session.scheduled,
+        lambda proposal: sa.and_(
+            proposal.session.isnot(None), proposal.session.scheduled
+        ),
         label=('scheduled', __("Confirmed &amp; scheduled")),
     )
 
@@ -537,7 +540,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
     def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
+    sponsors: DynamicAssociationProxy[Account, ProposalSponsorMembership] = (
+        DynamicAssociationProxy('sponsor_memberships', 'member')
+    )
 
     @role_check('reader')
     def has_reader_role(
