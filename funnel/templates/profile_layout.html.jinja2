@@ -396,7 +396,7 @@
     </div>
   </div>
   <div class="mui-container {% if class %}{{ class }}{% endif %}">
-    <div class="profile">
+    <div class="profile {% if not profile.is_verified  %}profile--unverified{% endif %}">
       <div class="profile__banner">
         <div class="profile__banner__box">
           {%- if profile.banner_image_url.url %}
@@ -408,7 +408,7 @@
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              {%- if profile.current_roles.admin %}
+              {%- if profile.current_roles.admin and profile.is_verified  %}
                 <a href="{{ profile.url_for('update_banner') }}" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload js-modal-form" aria-label="{% trans %}Add cover photo url{% endtrans %}" data-cy="add-banner" rel="modal:open" data-hash="edit_banner" aria-haspopup="true">{{ faicon(icon='camera', icon_size='body2', css_class="profile__banner__icon") }} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}Add cover photo{% endtrans %}</span></a>
               {% endif %}
               <div class="profile__logo">
@@ -474,7 +474,7 @@
               <li><a href="{{ profile.website }}" target="_blank" rel="noopener nofollow">{{ faicon(icon='globe') }} {{ profile.website|cleanurl }}</a></li>
             {%- endif %}
           </ul>
-          <div class="markdown">{{ profile.description }}</div>
+          <div class="markdown {% if not profile.is_verified  %}mui--hide{% endif %}">{{ profile.description }}</div>
           <div class="mui--visible-xs-block mui--visible-sm-block">
             {% if profile.features.new_project() %}
               <div class="display-inlineblock profile-create-btn profile-create-btn--mobile"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }} {% trans %}New project{% endtrans %}</a></div>

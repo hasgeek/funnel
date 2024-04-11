@@ -339,6 +339,8 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
         )
         if self.obj.is_user_profile:
             form.make_for_user()
+        elif not self.obj.is_verified:
+            form.form_for_unverified_account()
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
@@ -404,6 +406,8 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_banner(self) -> ReturnRenderWith:
+        if not self.obj.is_verified:
+            abort(404)
         form = ProfileBannerForm(account=self.obj)
         edit_logo_url = self.obj.url_for('edit_banner_image_url')
         delete_logo_url = self.obj.url_for('remove_banner')

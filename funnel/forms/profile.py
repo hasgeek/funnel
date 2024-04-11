@@ -78,6 +78,9 @@ class ProfileForm(OrganizationForm):
             "Optional – This message will be shown on the account’s page"
         )
 
+    def form_for_unverified_account(self) -> None:
+        del self.description
+
 
 @Account.forms('transition')
 class ProfileTransitionForm(forms.Form):
