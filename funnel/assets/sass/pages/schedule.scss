@@ -268,8 +268,10 @@
   }
   .schedule-grid.schedule-grid--compressed .schedule .schedule__table {
     max-height: 50vh;
-    content-visibility: auto;
     overflow: scroll;
+  }
+  .schedule-grid.schedule-grid--compressed .schedule .schedule__table .schedule__row {
+    content-visibility: auto;
   }
   .schedule-grid.schedule-grid--compressed .schedule .schedule__date {
     display: none;
