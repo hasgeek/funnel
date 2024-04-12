@@ -31,7 +31,7 @@ $(() => {
           },
           showNonCurrentDates: false,
           dayMaxEventRows: 1,
-          events: async function fetcEvents(info) {
+          events: async function fetchEvents(info) {
             const url = `${window.location.href}?${new URLSearchParams({
               start: info.startStr,
               end: info.endStr,
