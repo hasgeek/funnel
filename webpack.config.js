@@ -61,7 +61,10 @@ module.exports = {
     form_css: path.resolve(__dirname, 'funnel/assets/sass/form.scss'),
     index_css: path.resolve(__dirname, 'funnel/assets/sass/pages/index.scss'),
     profile_css: path.resolve(__dirname, 'funnel/assets/sass/pages/profile.scss'),
-    profile_calendar_css: path.resolve(__dirname, 'funnel/assets/sass/pages/profile_calendar.scss'),
+    profile_calendar_css: path.resolve(
+      __dirname,
+      'funnel/assets/sass/pages/profile_calendar.scss'
+    ),
     project_css: path.resolve(__dirname, 'funnel/assets/sass/pages/project.scss'),
     submission_css: path.resolve(__dirname, 'funnel/assets/sass/pages/submission.scss'),
     labels_css: path.resolve(__dirname, 'funnel/assets/sass/pages/labels.scss'),

@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any
 from datetime import datetime
+from typing import Any
 
-from flask import abort, current_app, flash, render_template, request, jsonify
+from flask import abort, current_app, flash, jsonify, render_template, request
 
 from baseframe import _
 from baseframe.filters import date_filter, datetime_filter
@@ -243,14 +243,20 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
 
         return ctx
 
-
     def jsonify_calendar(jsonData):
         return jsonify(jsonData['projects'])
 
     @route('calendar', methods=['GET'], endpoint='calendar')
     @requestargs('start', 'end')
-    @render_with({'text/html': 'profile_calendar.html.jinja2', 'application/json': jsonify_calendar})
-    def org_calendar(self, start: datetime = None, end: datetime = None) -> ReturnRenderWith:
+    @render_with(
+        {
+            'text/html': 'profile_calendar.html.jinja2',
+            'application/json': jsonify_calendar,
+        }
+    )
+    def org_calendar(
+        self, start: datetime = None, end: datetime = None
+    ) -> ReturnRenderWith:
         projects = []
         if start is not None and end is not None:
             start = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S%z")
@@ -258,31 +264,39 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             all_projects = self.obj.listed_projects.order_by(None)
             if end > start:
                 filtered_projects = (
-                        all_projects.filter(
-                            Project.start_at >= start, Project.end_at < end,
-                        )
-                        .order_by(Project.order_by_date())
-                        .all()
+                    all_projects.filter(
+                        Project.start_at >= start,
+                        Project.end_at < end,
                     )
+                    .order_by(Project.order_by_date())
+                    .all()
+                )
                 projects = [
                     {
                         'title': p.title,
                         'start': p.start_at,
                         'end': p.end_at,
-                        'date_str': datetime_filter(p.start_at_localized, format='dd MMM yyyy'),
+                        'date_str': datetime_filter(
+                            p.start_at_localized, format='dd MMM yyyy'
+                        ),
                         'time': datetime_filter(p.start_at_localized, format='hh:mm a'),
-                        'venue': p.primary_venue.city if p.primary_venue else p.location,
+                        'venue': (
+                            p.primary_venue.city if p.primary_venue else p.location
+                        ),
                         'cfp_open': True if p.cfp_state.OPEN else False,
-                        'member_access': True if (p.features.rsvp_for_members or p.features.subscription) else False,
+                        'member_access': (
+                            True
+                            if (p.features.rsvp_for_members or p.features.subscription)
+                            else False
+                        ),
                         'url': p.url_for(),
                     }
                     for p in filtered_projects
                 ]
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
-            'projects': projects
+            'projects': projects,
         }
-
 
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
