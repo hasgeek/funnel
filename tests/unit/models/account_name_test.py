@@ -33,20 +33,34 @@ def test_validate_name_candidate(db_session: scoped_session, model: str) -> None
         'P': models.Placeholder,
     }
     cls = modelref[model]
-    assert cls.validate_name_candidate(None) == 'blank'  # type: ignore[arg-type]
-    assert cls.validate_name_candidate('') == 'blank'
-    assert cls.validate_name_candidate('invalid-name') == 'invalid'
-    assert cls.validate_name_candidate('0123456789' * 7) == 'long'
+    assert (
+        cls.validate_name_candidate(None)  # type: ignore[arg-type]
+        is models.AccountNameProblem.BLANK
+    )
+    assert cls.validate_name_candidate('') is models.AccountNameProblem.BLANK
+    assert (
+        cls.validate_name_candidate('invalid-name') is models.AccountNameProblem.INVALID
+    )
+    assert (
+        cls.validate_name_candidate('0123456789' * 7) is models.AccountNameProblem.LONG
+    )
     assert cls.validate_name_candidate('0123456789' * 6) is None
     assert cls.validate_name_candidate('ValidName') is None
     assert cls.validate_name_candidate('test_reserved') is None
+    assert cls.validate_name_candidate('account') is models.AccountNameProblem.RESERVED
     db_session.add(models.Placeholder(name='test_reserved'))
-    assert cls.validate_name_candidate('test_reserved') == 'reserved'
-    assert cls.validate_name_candidate('Test_Reserved') == 'reserved'
+    assert (
+        cls.validate_name_candidate('test_reserved')
+        is models.AccountNameProblem.PLACEHOLDER
+    )
+    assert (
+        cls.validate_name_candidate('Test_Reserved')
+        is models.AccountNameProblem.PLACEHOLDER
+    )
     assert cls.validate_name_candidate('TestReserved') is None
-    assert cls.validate_name_candidate('rincewind') == 'user'
-    assert cls.validate_name_candidate('uu') == 'org'
-    assert cls.validate_name_candidate('UU') == 'org'
+    assert cls.validate_name_candidate('rincewind') is models.AccountNameProblem.USER
+    assert cls.validate_name_candidate('uu') is models.AccountNameProblem.ORG
+    assert cls.validate_name_candidate('UU') is models.AccountNameProblem.ORG
 
 
 def test_reserved_name(db_session: scoped_session) -> None:

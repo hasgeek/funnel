@@ -9,7 +9,7 @@ from markupsafe import Markup
 
 from baseframe import _, __, forms
 
-from ..models import Account, Team, User
+from ..models import Account, AccountNameProblem, Team, User
 
 __all__ = ['OrganizationForm', 'TeamForm']
 
@@ -51,46 +51,43 @@ class OrganizationForm(forms.Form):
     )
 
     def validate_name(self, field: forms.Field) -> None:
-        """Validate name is valid and available for this organization."""
-        reason = Account.validate_name_candidate(field.data)
+        """Validate name is valid and available for this account."""
+        if self.edit_obj:
+            reason = self.edit_obj.validate_new_name(field.data)
+        else:
+            reason = Account.validate_name_candidate(field.data)
         if not reason:
             return  # name is available
-        if reason == 'invalid':
-            raise forms.validators.ValidationError(
-                _("Names can only have alphabets, numbers and underscores")
-            )
-        if reason == 'reserved':
-            raise forms.validators.ValidationError(_("This name is reserved"))
-        if (
-            self.edit_obj
-            and self.edit_obj.name
-            and field.data.lower() == self.edit_obj.name.lower()
-        ):
-            # Name has only changed case from previous name. This is a validation pass
-            return
-        if reason == 'user':
-            if (
-                self.edit_user.username
-                and field.data.lower() == self.edit_user.username.lower()
-            ):
+        match reason:
+            case AccountNameProblem.INVALID:
                 raise forms.validators.ValidationError(
-                    Markup(
-                        _(
-                            "This is <em>your</em> current username."
-                            ' You must change it first from <a href="{account}">your'
-                            " account</a> before you can assign it to an organization"
-                        ).format(account=url_for('account'))
-                    )
+                    _("Names can only have alphabets, numbers and underscores")
                 )
-            raise forms.validators.ValidationError(
-                _("This name has been taken by another user")
-            )
-        if reason == 'org':
-            raise forms.validators.ValidationError(
-                _("This name has been taken by another organization")
-            )
-        # We're not supposed to get an unknown reason. Flag error to developers.
-        raise ValueError(f"Unknown account name validation failure reason: {reason}")
+            case AccountNameProblem.RESERVED:
+                raise forms.validators.ValidationError(_("This name is reserved"))
+            case AccountNameProblem.USER:
+                if self.edit_user.name_is(field.data):
+                    raise forms.validators.ValidationError(
+                        Markup(
+                            _(
+                                'This is <em>your</em> current username.'
+                                ' You must change it first from <a href="'
+                                '{account}">your account</a> before you can assign it'
+                                ' to an organization'
+                            ).format(account=url_for('account'))
+                        )
+                    )
+                raise forms.validators.ValidationError(
+                    _("This name has been taken by another user")
+                )
+            case AccountNameProblem.ORG:
+                raise forms.validators.ValidationError(
+                    _("This name has been taken by another organization")
+                )
+            case _:
+                raise forms.validators.ValidationError(
+                    _("This name has been taken by another account")
+                )
 
 
 @Team.forms('main')

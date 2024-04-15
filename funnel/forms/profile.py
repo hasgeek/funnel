@@ -62,6 +62,10 @@ class ProfileForm(OrganizationForm):
     def __post_init__(self) -> None:
         """Prepare form for use."""
         self.logo_url.profile = self.account.name or self.account.buid
+        if self.account.is_user_profile:
+            self.make_for_user()
+        if not self.account.is_verified:
+            del self.description
 
     def make_for_user(self) -> None:
         """Customise form for a user account."""

@@ -99,7 +99,22 @@
   }
 }
 
-.profile__btns {
+.profile.profile--unverified {
+  .profile__banner__box {
+    padding-bottom: 70px;
+    .profile__banner__box__img {
+      display: none;
+    }
+  }
+}
+
+.profile-create-btn {
+  margin-right: 8px;
+  margin-top: 0;
+}
+
+.profile-create-btn--mobile {
+  width: 100%;
   .mui-btn {
     width: 100%;
     margin-left: 0;
@@ -198,6 +213,11 @@
   }
   .profile-details {
     padding: 2 * $mui-grid-padding 0 0;
+  }
+  .profile.profile--unverified {
+    .profile__banner__box {
+      padding-bottom: 45px;
+    }
   }
 }
 
