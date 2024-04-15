@@ -65,6 +65,7 @@ RESERVED_NAMES: set[str] = {
     'brand',
     'brands',
     'by',
+    'calendar',
     'client',
     'clients',
     'comments',
