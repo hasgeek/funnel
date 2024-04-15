@@ -28,6 +28,7 @@ module.exports = {
     app: path.resolve(__dirname, 'funnel/assets/js/app.js'),
     index: path.resolve(__dirname, 'funnel/assets/js/index.js'),
     profile: path.resolve(__dirname, 'funnel/assets/js/profile.js'),
+    profile_calendar: path.resolve(__dirname, 'funnel/assets/js/profile_calendar.js'),
     project_header: path.resolve(__dirname, 'funnel/assets/js/project_header.js'),
     project: path.resolve(__dirname, 'funnel/assets/js/project.js'),
     submissions: path.resolve(__dirname, 'funnel/assets/js/submissions.js'),
@@ -61,6 +62,10 @@ module.exports = {
     form_css: path.resolve(__dirname, 'funnel/assets/sass/form.scss'),
     index_css: path.resolve(__dirname, 'funnel/assets/sass/pages/index.scss'),
     profile_css: path.resolve(__dirname, 'funnel/assets/sass/pages/profile.scss'),
+    profile_calendar_css: path.resolve(
+      __dirname,
+      'funnel/assets/sass/pages/profile_calendar.scss'
+    ),
     project_css: path.resolve(__dirname, 'funnel/assets/sass/pages/project.scss'),
     submission_css: path.resolve(__dirname, 'funnel/assets/sass/pages/submission.scss'),
     labels_css: path.resolve(__dirname, 'funnel/assets/sass/pages/labels.scss'),
