@@ -55,7 +55,7 @@ def test_username_available(
     assert rv.get_json() == {
         'status': 'error',
         'error': 'validation_failure',
-        'error_description': "This username has been taken",
+        'error_description': "This username is taken",
     }
 
     # Mis-formatted usernames will render an explanatory error
