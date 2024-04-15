@@ -958,6 +958,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
                 'timezone',
                 'description',
                 'website',
+                'tagline',
                 'logo_url',
                 'banner_image_url',
                 'joined_at',

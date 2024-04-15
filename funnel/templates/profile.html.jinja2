@@ -46,6 +46,21 @@
 {% endblock baseheadline %}
 
 {% block basecontent %}
+  {%- if profile.is_verified %}
+    <div class="bg-accent">
+      <div class="projects-wrapper">
+        <div class="mui-container">
+          <div class="grid">
+            <div class="grid__col-12">
+              <div class="markdown">
+                {{ profile.description }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {%- endif %}
   <div class="bg-accent">
     {%- if profile.is_organization_profile %}
       {%- with people = profile.views.people_and_teams() %}
