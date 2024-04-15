@@ -10,7 +10,7 @@ import sqlalchemy.orm as sa_orm
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Table
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import DeclarativeBase, Mapped, declarative_mixin, declared_attr
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType
 
@@ -78,6 +78,7 @@ __all__ = [
     'declared_attr',
     'DynamicMapped',
     'GeonameModel',
+    'hybrid_method',
     'hybrid_property',
     'LocaleType',
     'Mapped',

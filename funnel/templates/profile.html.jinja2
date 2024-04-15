@@ -88,6 +88,18 @@
           {%- if profile.features.new_project() %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
               <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-ga="Add new project">
+                <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left">
+                  <div class="flex-wrapper flex-wrapper--center">
+                    <span class="profile-avatar margin-right">
+                      {%- if profile.logo_url.url %}
+                        <img src="{{ profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ profile.title }}"/>
+                      {% else %}
+                        <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ profile.title }}"/>
+                      {% endif %}
+                    </span>
+                    <span class="profile-avatar-title mui--text-body2 text-bold mui--text-dark">{{ profile.title }}</span>
+                  </div>
+                </div>
                 <div class="card__image-wrapper">
                   <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="new"/>
                   <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class="mui--align-middle card__image-wrapper__icon-wrapper__icon") }}</p>

@@ -399,7 +399,7 @@
     <div class="profile {% if not profile.is_verified  %}profile--unverified{% endif %}">
       <div class="profile__banner">
         <div class="profile__banner__box">
-          {%- if profile.banner_image_url.url %}
+          {%- if profile.is_verified and profile.banner_image_url.url %}
             <img class="profile__banner__box__img" src="{{ profile.banner_image_url.resize(img_size.profile_banner) }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
           {% else %}
             <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}" alt="{{ profile.title }}"/>
@@ -408,7 +408,7 @@
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              {%- if profile.current_roles.admin and profile.is_verified  %}
+              {%- if profile.current_roles.admin and profile.is_verified %}
                 <a href="{{ profile.url_for('update_banner') }}" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload js-modal-form" aria-label="{% trans %}Add cover photo url{% endtrans %}" data-cy="add-banner" rel="modal:open" data-hash="edit_banner" aria-haspopup="true">{{ faicon(icon='camera', icon_size='body2', css_class="profile__banner__icon") }} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}Add cover photo{% endtrans %}</span></a>
               {% endif %}
               <div class="profile__logo">
@@ -468,13 +468,13 @@
           </div>
           <ul class="bullet-separated-list">
             {%- if profile.joined_at %}
-              <li>{{ faicon(icon='history') }} {% trans date=profile.joined_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
+              <li>{{ faicon(icon='history') }} {% trans date=profile.joined_at|date(format='MMM YYYY') %}Joined {{ date }}{% endtrans %}</li>
             {%- endif %}
             {%- if profile.website %}
               <li><a href="{{ profile.website }}" target="_blank" rel="noopener nofollow">{{ faicon(icon='globe') }} {{ profile.website|cleanurl }}</a></li>
             {%- endif %}
           </ul>
-          <div class="markdown {% if not profile.is_verified  %}mui--hide{% endif %}">{{ profile.description }}</div>
+          {% if profile.is_verified %}<div class="markdown">{{ profile.description }}</div>{% endif %}
           <div class="mui--visible-xs-block mui--visible-sm-block">
             {% if profile.features.new_project() %}
               <div class="display-inlineblock profile-create-btn profile-create-btn--mobile"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }} {% trans %}New project{% endtrans %}</a></div>
