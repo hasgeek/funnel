@@ -334,11 +334,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @requires_roles({'admin'})
     @requires_user_not_spammy()
     def edit(self) -> ReturnView:
-        form = ProfileForm(
-            obj=self.obj, model=Account, account=self.obj, edit_user=current_auth.user
-        )
-        if self.obj.is_user_profile:
-            form.make_for_user()
+        form = ProfileForm(obj=self.obj, account=self.obj, edit_user=current_auth.user)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
@@ -404,6 +400,8 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_banner(self) -> ReturnRenderWith:
+        if not self.obj.is_verified:
+            abort(403)
         form = ProfileBannerForm(account=self.obj)
         edit_logo_url = self.obj.url_for('edit_banner_image_url')
         delete_logo_url = self.obj.url_for('remove_banner')
@@ -416,6 +414,8 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @route('edit_banner', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_banner_image_url(self) -> ReturnView:
+        if not self.obj.is_verified:
+            abort(403)
         form = ProfileBannerForm(obj=self.obj, account=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():

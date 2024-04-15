@@ -9,6 +9,7 @@ import hashlib
 import itertools
 from collections.abc import Iterable, Iterator, Sequence
 from datetime import datetime
+from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -59,6 +60,7 @@ from .base import (
     UrlType,
     UuidMixin,
     db,
+    hybrid_method,
     hybrid_property,
     relationship,
     sa,
@@ -80,6 +82,7 @@ from .phone_number import PhoneNumber, PhoneNumberMixin
 
 __all__ = [
     'ACCOUNT_STATE',
+    'AccountNameProblem',
     'Account',
     'deleted_account',
     'removed_account',
@@ -96,6 +99,17 @@ __all__ = [
     'AccountExternalId',
     'Anchor',
 ]
+
+
+class AccountNameProblem(Enum):
+    BLANK = 'blank'  # Name is blank
+    RESERVED = 'reserved'  # Name is a reserved keyword
+    INVALID = 'invalid'  # Name has invalid syntax
+    LONG = 'long'  # Name is too long
+    USER = 'user'  # Name is taken by a user account
+    ORG = 'org'  # Name is taken by an organization account
+    PLACEHOLDER = 'placeholder'  # Name is taken by a placeholder account
+    ACCOUNT = 'account'  # Name is taken by an account of unknown type
 
 
 class ACCOUNT_STATE(LabeledEnum):  # noqa: N801
@@ -944,6 +958,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
                 'timezone',
                 'description',
                 'website',
+                'tagline',
                 'logo_url',
                 'banner_image_url',
                 'joined_at',
@@ -1531,8 +1546,18 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         """Return SQL comparator for :prop:`uuid_zbase32`."""
         return ZBase32Comparator(cls.uuid)  # type: ignore[arg-type]
 
+    @hybrid_method
+    def name_is(self, name: str) -> bool:
+        if name.startswith('~'):
+            return self.uuid_zbase32 == name[1:]
+        return (
+            self.name is not None
+            and self.name.lower() == name.replace('-', '_').lower()
+        )
+
+    @name_is.expression
     @classmethod
-    def name_is(cls, name: str) -> ColumnElement:
+    def _name_is_expr(cls, name: str) -> ColumnElement:
         """Generate query filter to check if name is matching (case insensitive)."""
         if name.startswith('~'):
             return cls.uuid_zbase32 == name[1:]
@@ -1751,46 +1776,42 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         return users
 
     @classmethod
-    def validate_name_candidate(cls, name: str) -> str | None:
+    def validate_name_candidate(cls, name: str) -> AccountNameProblem | None:
         """
         Validate an account name candidate.
 
-        Returns one of several error codes, or `None` if all is okay:
-
-        * ``blank``: No name supplied
-        * ``reserved``: Name is reserved
-        * ``invalid``: Invalid characters in name
-        * ``long``: Name is longer than allowed size
-        * ``user``: Name is assigned to a user
-        * ``org``: Name is assigned to an organization
+        Returns ``None`` if all is okay, or :enum:`AccountNameProblem`.
         """
-        if not name:
-            return 'blank'
+        if not name or not name.strip():
+            return AccountNameProblem.BLANK
         if name.lower() in cls.reserved_names:
-            return 'reserved'
+            return AccountNameProblem.RESERVED
         if not valid_account_name(name):
-            return 'invalid'
+            return AccountNameProblem.INVALID
         if len(name) > cls.__name_length__:
-            return 'long'
+            return AccountNameProblem.LONG
         # Look for existing on the base Account model, not the subclass, as SQLAlchemy
         # will add a filter condition on subclasses to restrict the query to that type.
         existing = (
-            Account.query.filter(sa.func.lower(Account.name) == sa.func.lower(name))
+            Account.query.filter(Account.name_is(name))
             .options(sa_orm.load_only(cls.id, cls.uuid, cls.type_))
             .one_or_none()
         )
         if existing is not None:
-            if isinstance(existing, Placeholder):
-                return 'reserved'
-            if isinstance(existing, User):
-                return 'user'
-            if isinstance(existing, Organization):
-                return 'org'
+            match existing:
+                case User():
+                    return AccountNameProblem.USER
+                case Organization():
+                    return AccountNameProblem.ORG
+                case Placeholder():
+                    return AccountNameProblem.PLACEHOLDER
+                case _:
+                    return AccountNameProblem.ACCOUNT
         return None
 
-    def validate_new_name(self, name: str) -> str | None:
+    def validate_new_name(self, name: str) -> AccountNameProblem | None:
         """Validate a new name for this account, returning an error code or None."""
-        if self.name and name.lower() == self.name.lower():
+        if self.name_is(name):
             return None
         return self.validate_name_candidate(name)
 
