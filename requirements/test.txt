@@ -65,9 +65,9 @@ pytest-socket==0.7.0
     # via -r requirements/test.in
 python-slugify==8.0.4
     # via pytest-playwright
-requests-mock==1.11.0
+requests-mock==1.12.1
     # via -r requirements/test.in
-respx==0.21.0
+respx==0.21.1
     # via -r requirements/test.in
 soupsieve==2.5
     # via beautifulsoup4
