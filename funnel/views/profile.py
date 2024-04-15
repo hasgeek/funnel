@@ -271,10 +271,15 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                         'title': p.title,
                         'start': p.start_at,
                         'end': p.end_at,
+                        # start_at_localized is guaranteed type `datetime` here:
                         'date_str': datetime_filter(
-                            p.start_at_localized, format='dd MMM yyyy'
+                            p.start_at_localized,  # type: ignore[arg-type]
+                            format='dd MMM yyyy',
                         ),
-                        'time': datetime_filter(p.start_at_localized, format='hh:mm a'),
+                        'time': datetime_filter(
+                            p.start_at_localized,  # type: ignore[arg-type]
+                            format='hh:mm a',
+                        ),
                         'venue': (
                             p.primary_venue.city if p.primary_venue else p.location
                         ),
