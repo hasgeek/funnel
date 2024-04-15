@@ -243,7 +243,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
 
         return ctx
 
-    @route('calendar', endpoint='calendar')
+    @route('calendar')
     @requestargs(('start', parse_isoformat), ('end', parse_isoformat))
     @render_with(
         {
@@ -291,7 +291,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                     }
                     for p in filtered_projects
                 ]
-        return {'profile': self.obj, 'projects': projects}
+        return {'profile': self.obj.current_access(), 'projects': projects}
 
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
