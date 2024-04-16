@@ -273,9 +273,9 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                             sa.and_(
                                 Project.start_at < end,
                                 Project.start_at >= start,
-                                Project.end_at >= end),
+                                Project.end_at >= end,
+                            ),
                         )
-
                     )
                     .order_by(Project.order_by_date())
                     .all()
