@@ -211,5 +211,5 @@ def _ensure_owner_is_admin_too(
         try:
             target.is_admin = True
         except ImmutableColumnError:
-            # Bypass the protections of the immutable validator
+            # Bypass the protection of the immutable validator
             target.__dict__['is_admin'] = True
