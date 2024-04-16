@@ -49,6 +49,7 @@ from coaster.utils import LabeledEnum, newsecret, require_one_of, utcnow
 
 from ..typing import OptionalMigratedTables
 from .base import (
+    AppenderQuery,
     BaseMixin,
     DynamicMapped,
     LocaleType,
@@ -386,14 +387,13 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         passive_deletes=True,
         back_populates='account',
     )
-    active_follower_memberships: DynamicMapped[AccountMembership] = with_roles(
+    follower_memberships: DynamicMapped[AccountMembership] = with_roles(
         relationship(
             lazy='dynamic',
             primaryjoin=lambda: sa.and_(
                 sa_orm.remote(AccountMembership.account_id) == Account.id,
                 AccountMembership.is_active,
             ),
-            # FIXME: Filter out suspended accounts
             order_by=lambda: AccountMembership.granted_at.desc(),
             viewonly=True,
         ),
@@ -408,7 +408,14 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             }
         },
     )
-    active_admin_memberships: DynamicMapped[AccountMembership] = relationship(
+
+    @cached_property
+    def active_follower_memberships(self) -> AppenderQuery[AccountMembership]:
+        return self.follower_memberships.join(Account, AccountMembership.member).filter(
+            Account.state.ACTIVE
+        )
+
+    admin_memberships: DynamicMapped[AccountMembership] = relationship(
         lazy='dynamic',
         primaryjoin=lambda: sa.and_(
             sa_orm.remote(AccountMembership.account_id) == Account.id,
@@ -419,7 +426,13 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         viewonly=True,
     )
 
-    active_owner_memberships: DynamicMapped[AccountMembership] = relationship(
+    @cached_property
+    def active_admin_memberships(self) -> AppenderQuery[AccountMembership]:
+        return self.admin_memberships.join(Account, AccountMembership.member).filter(
+            Account.state.ACTIVE
+        )
+
+    owner_memberships: DynamicMapped[AccountMembership] = relationship(
         lazy='dynamic',
         primaryjoin=lambda: sa.and_(
             sa_orm.remote(AccountMembership.account_id) == Account.id,
@@ -428,6 +441,12 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         ),
         viewonly=True,
     )
+
+    @cached_property
+    def active_owner_memberships(self) -> AppenderQuery[AccountMembership]:
+        return self.owner_memberships.join(Account, AccountMembership.member).filter(
+            Account.state.ACTIVE
+        )
 
     active_invitations: DynamicMapped[AccountMembership] = relationship(
         lazy='dynamic',
@@ -440,15 +459,21 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     )
 
     owner_users: DynamicAssociationProxy[Account, AccountMembership] = with_roles(
-        DynamicAssociationProxy('active_owner_memberships', 'member'),
+        DynamicAssociationProxy(
+            'active_owner_memberships', 'member', lambda: AccountMembership.member
+        ),
         read={'all'},
     )
     admin_users: DynamicAssociationProxy[Account, AccountMembership] = with_roles(
-        DynamicAssociationProxy('active_admin_memberships', 'member'),
+        DynamicAssociationProxy(
+            'active_admin_memberships', 'member', lambda: AccountMembership.member
+        ),
         read={'all'},
     )
     followers: DynamicAssociationProxy[Account, AccountMembership] = with_roles(
-        DynamicAssociationProxy('active_follower_memberships', 'member'),
+        DynamicAssociationProxy(
+            'active_follower_memberships', 'member', lambda: AccountMembership.member
+        ),
         read={'reader'},
     )
 

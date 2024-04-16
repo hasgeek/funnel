@@ -15,6 +15,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, declarative_mixin, declared_
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType
 
 from coaster.sqlalchemy import (
+    AppenderQuery,
     BaseIdNameMixin,
     BaseMixin,
     BaseNameMixin,
@@ -65,6 +66,7 @@ GeonameModel.init_flask_sqlalchemy(db)
 
 
 __all__ = [
+    'AppenderQuery',
     'backref',
     'BaseIdNameMixin',
     'BaseMixin',

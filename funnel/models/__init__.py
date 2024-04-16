@@ -30,6 +30,7 @@ __all__ = [
     "AccountPasswordNotification",
     "AccountPhone",
     "Anchor",
+    "AppenderQuery",
     "AuthClient",
     "AuthClientCredential",
     "AuthClientPermissions",

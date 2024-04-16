@@ -68,6 +68,7 @@ from .auth_client import (
     AuthToken,
 )
 from .base import (
+    AppenderQuery,
     BaseIdNameMixin,
     BaseMixin,
     BaseNameMixin,
@@ -258,6 +259,7 @@ __all__ = [
     "AccountPasswordNotification",
     "AccountPhone",
     "Anchor",
+    "AppenderQuery",
     "AuthClient",
     "AuthClientCredential",
     "AuthClientPermissions",
