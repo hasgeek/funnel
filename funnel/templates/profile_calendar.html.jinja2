@@ -55,6 +55,7 @@
                 </div>
                 <div class="grid__col-sm-6 grid__col-md-7 grid__col-lg-8 proposal_list">
                   <div v-if="filteredEvents">
+                    <div class="overlay flex-wrapper flex-wrapper--center flex-wrapper--justify-center" v-if="loading"><span class="loading"></span></div>
                     <table class="proposal-list-table mui-table card page-card">
                       <tbody>
                         <tr v-for="event in filteredEvents">
@@ -129,15 +130,6 @@
                               </div>
                             </div>
                           </div>
-<!--                      <div id="field-free-events" class="mui-form__fields">
-                            <div class="mui-form__controls">
-                              <div class="mui-checkbox">
-                                <label>
-                                  <input type="checkbox" id="free_events" name="free_events" v-model="closed"> {{ gettext('Closed') }}
-                                </label>
-                              </div>
-                            </div>
-                          </div> -->
                           <button type="submit" class="mui-btn mui-btn--small mui-btn--primary">Apply</button>
                         </form>
                       </div>
