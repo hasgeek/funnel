@@ -260,8 +260,22 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             if end > start:
                 filtered_projects = (
                     all_projects.filter(
-                        Project.start_at >= start,
-                        Project.end_at < end,
+                        sa.or_(
+                            sa.and_(
+                                Project.start_at >= start,
+                                Project.end_at < end,
+                            ),
+                            sa.and_(
+                                Project.start_at < start,
+                                Project.end_at > start,
+                                Project.end_at < end,
+                            ),
+                            sa.and_(
+                                Project.start_at < end,
+                                Project.start_at >= start,
+                                Project.end_at >= end),
+                        )
+
                     )
                     .order_by(Project.order_by_date())
                     .all()
