@@ -10,7 +10,7 @@
 }
 
 .fc {
-  margin: $mui-grid-padding auto;
+  margin: $mui-grid-padding auto 0;
   width: 100%;
   max-width: 100%;
 
@@ -105,7 +105,7 @@ table.proposal-list-table tr {
   border-radius: 16px;
 }
 .fc-view-harness {
-  height: 270px !important;
+  height: 260px !important;
 }
 
 .fc-daygrid-day-frame {
