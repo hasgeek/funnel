@@ -7,7 +7,7 @@ from typing import Any, Self
 from sqlalchemy import event
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import immutable, with_roles
+from coaster.sqlalchemy import ImmutableColumnError, immutable, with_roles
 
 from .account import Account
 from .base import Mapped, Model, declared_attr, relationship, sa, sa_orm
@@ -37,7 +37,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
     __null_granted_by__ = True
 
     #: List of role columns in this model
-    __data_columns__ = ('is_admin', 'is_owner', 'label')
+    __data_columns__ = ('is_follower', 'is_admin', 'is_owner', 'label')
 
     __roles__ = {
         'all': {
@@ -47,6 +47,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
                 'member',
                 'is_admin',
                 'is_owner',
+                'is_follower',
                 'label',
                 'account',
                 'granted_by',
@@ -82,6 +83,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
             'offered_roles',
             'is_admin',
             'is_owner',
+            'is_follower',
             'label',
             'member',
             'account',
@@ -92,6 +94,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
             'offered_roles',
             'is_admin',
             'is_owner',
+            'is_follower',
             'label',
             'member',
         },
@@ -101,6 +104,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
             'offered_roles',
             'is_admin',
             'is_owner',
+            'is_follower',
             'label',
         },
     }
@@ -191,7 +195,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
         return None
 
     @with_roles(call={'account_admin'})
-    def revoke_admin_owner(self, actor: Account) -> Self | None:
+    def revoke_member(self, actor: Account) -> Self | None:
         """Remove the member as admin/owner (potentially revoking the membership)."""
         if self.is_follower:
             return self.replace(actor, is_admin=False, is_owner=False)
@@ -204,4 +208,8 @@ def _ensure_owner_is_admin_too(
     target: AccountMembership, value: Any, old_value: Any, _initiator: Any
 ) -> None:
     if value:
-        target.is_admin = True
+        try:
+            target.is_admin = True
+        except ImmutableColumnError:
+            # Bypass the protections of the immutable validator
+            target.__dict__['is_admin'] = True

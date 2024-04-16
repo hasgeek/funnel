@@ -245,7 +245,7 @@ class OrganizationMembershipView(
                         'status': 'error',
                         'error_description': _("This person is not an admin"),
                     }, 422
-                previous_membership.revoke_admin_owner(current_auth.user)
+                previous_membership.revoke_member(current_auth.user)
                 db.session.commit()
                 dispatch_notification(
                     AccountAdminRevokedNotification(
