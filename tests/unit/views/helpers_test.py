@@ -16,7 +16,7 @@ from werkzeug.routing import BuildError
 import funnel.views.helpers as vhelpers
 
 
-@pytest.fixture()
+@pytest.fixture
 def testapp() -> Flask:
     """Create a test app with an `index` view."""
     new_app = Flask(__name__)

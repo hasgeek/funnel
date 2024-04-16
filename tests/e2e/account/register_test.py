@@ -28,7 +28,7 @@ pytestmark = pytest.mark.filterwarnings(
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def published_project(
     db_session: scoped_session, new_project: models.Project
 ) -> models.Project:
@@ -39,7 +39,7 @@ def published_project(
     return new_project
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_twoflower_with_password_and_contact(
     db_session: scoped_session, user_twoflower: models.User
 ) -> models.User:

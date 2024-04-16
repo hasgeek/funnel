@@ -13,7 +13,7 @@ from ...conftest import scoped_session
 # MARK: Fixtures -----------------------------------------------------------------------
 
 
-@pytest.fixture()
+@pytest.fixture
 def public_update(
     db_session: scoped_session,
     project_expo2010: models.Project,
@@ -31,7 +31,7 @@ def public_update(
     return update
 
 
-@pytest.fixture()
+@pytest.fixture
 def participant_update(
     db_session: scoped_session,
     project_expo2010: models.Project,
@@ -49,7 +49,7 @@ def participant_update(
     return update
 
 
-@pytest.fixture()
+@pytest.fixture
 def member_update(
     db_session: scoped_session,
     project_expo2010: models.Project,
@@ -67,7 +67,7 @@ def member_update(
     return update
 
 
-@pytest.fixture()
+@pytest.fixture
 def vimes_admin(
     db_session: scoped_session,
     org_ankhmorpork: models.Organization,
@@ -85,7 +85,7 @@ def vimes_admin(
     return membership
 
 
-@pytest.fixture()
+@pytest.fixture
 def ridcully_editor(
     db_session: scoped_session,
     user_vetinari: models.User,
@@ -105,7 +105,7 @@ def ridcully_editor(
     return membership
 
 
-@pytest.fixture()
+@pytest.fixture
 def rincewind_participant(
     db_session: scoped_session,
     project_expo2010: models.Project,

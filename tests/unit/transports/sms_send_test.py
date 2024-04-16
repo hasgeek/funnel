@@ -36,7 +36,7 @@ EXOTEL_CALLBACK_TO = "09999999999"
 MESSAGE = WebOtpTemplate(otp="1234")
 
 
-@pytest.mark.enable_socket()
+@pytest.mark.enable_socket
 @pytest.mark.requires_config('app', 'twilio')
 @pytest.mark.usefixtures('app_context')
 def test_twilio_success() -> None:
@@ -45,7 +45,7 @@ def test_twilio_success() -> None:
     assert sid
 
 
-@pytest.mark.enable_socket()
+@pytest.mark.enable_socket
 @pytest.mark.requires_config('app', 'twilio')
 @pytest.mark.usefixtures('app_context')
 def test_twilio_failures() -> None:

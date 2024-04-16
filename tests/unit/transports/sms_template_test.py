@@ -11,7 +11,7 @@ from flask import Flask
 from funnel.transports import sms
 
 
-@pytest.fixture()
+@pytest.fixture
 def app() -> Flask:
     test_app = Flask(__name__)
     test_app.config['TESTING'] = True

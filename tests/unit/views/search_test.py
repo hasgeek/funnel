@@ -34,7 +34,7 @@ search_project_types = [
 ]
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session(db_session_truncate: scoped_session) -> scoped_session:
     """
     Use the database session truncate fixture.

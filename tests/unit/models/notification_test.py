@@ -64,7 +64,7 @@ def notification_types(database: SQLAlchemy) -> SimpleNamespace:
     return SimpleNamespace(**locals())
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_fixtures(
     db_session: scoped_session,
 ) -> SimpleNamespace:  # pylint: disable=too-many-locals
@@ -181,7 +181,7 @@ def test_project_roles(project_fixtures: SimpleNamespace) -> None:
     assert 'participant' not in bystander_roles
 
 
-@pytest.fixture()
+@pytest.fixture
 def update(
     project_fixtures: SimpleNamespace, db_session: scoped_session
 ) -> models.Update:

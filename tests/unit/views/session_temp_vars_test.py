@@ -55,7 +55,7 @@ def test_session_intersection() -> None:
     assert not st.has_overlap_with(fake_session_disjoint)
 
 
-@pytest.fixture()
+@pytest.fixture
 def _timeout_var() -> Generator[None, None, None]:
     session_timeouts['test_timeout'] = timedelta(seconds=test_timeout_seconds)
     yield

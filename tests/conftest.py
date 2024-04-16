@@ -469,14 +469,14 @@ def unsubscribeapp(funnel) -> Flask:
     return funnel.unsubscribeapp
 
 
-@pytest.fixture()
+@pytest.fixture
 def app_context(app: Flask) -> Generator[AppContext, None, None]:
     """Create an app context for the test."""
     with app.app_context() as ctx:
         yield ctx
 
 
-@pytest.fixture()
+@pytest.fixture
 def request_context(app: Flask) -> Generator[RequestContext, None, None]:
     """Create a request context with default values for the test."""
     with app.test_request_context() as ctx:
@@ -618,7 +618,7 @@ def _app_events(
     flask.appcontext_popped.disconnect(appcontext_popped, app)
 
 
-@pytest.fixture()
+@pytest.fixture
 def _database_events(
     models: ModuleType, rich_console: Console, print_stack: PrintStackProtocol
 ) -> Generator[None, None, None]:
@@ -968,7 +968,7 @@ def database(funnel, models, request: pytest.FixtureRequest, app: Flask) -> SQLA
     return models.db
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session_truncate(
     funnel, app, database: SQLAlchemy, app_context
 ) -> Generator[scoped_session, None, None]:
@@ -1027,7 +1027,7 @@ class BoundSession(FsaSession):
         return self.bindcts[None].connection
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session_rollback(
     funnel, app: Flask, database: SQLAlchemy, app_context: AppContext
 ) -> Generator[scoped_session, None, None]:
@@ -1069,7 +1069,7 @@ db_session_implementations = {
 }
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session(request: pytest.FixtureRequest) -> scoped_session:
     """
     Database session fixture.
@@ -1089,7 +1089,7 @@ def db_session(request: pytest.FixtureRequest) -> scoped_session:
 
     * The ``--dbsession`` command-line option defaults to ``rollback`` but can be set to
       ``truncate``, changing it for the entire pytest session
-    * An individual test can be decorated with ``@pytest.mark.dbcommit()``
+    * An individual test can be decorated with ``@pytest.mark.dbcommit``
     * A test module or package can override the ``db_session`` fixture to return one of
       the underlying fixtures, thereby overriding both of the above behaviours
     """
@@ -1149,7 +1149,7 @@ class TestClient(FlaskClient):
         ) -> TestResponse: ...
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(app: Flask, db_session: scoped_session) -> TestClient:
     """Provide a test client that commits the db session before any action."""
     client = TestClient(app, TestResponse, use_cookies=True)
@@ -1227,7 +1227,7 @@ def live_server(
             )
 
 
-@pytest.fixture()
+@pytest.fixture
 def csrf_token(app: Flask, client: TestClient) -> str:
     """Supply a CSRF token for use in form submissions."""
     field_name = app.config.get('WTF_CSRF_FIELD_NAME', 'csrf_token')
@@ -1247,7 +1247,7 @@ class LoginFixtureProtocol(Protocol):
     def logout(self) -> None: ...
 
 
-@pytest.fixture()
+@pytest.fixture
 def login(
     app: Flask, client: TestClient, db_session: scoped_session
 ) -> LoginFixtureProtocol:
@@ -1287,7 +1287,7 @@ class GetUserProtocol(Protocol):
     def __call__(self, user: str) -> funnel_models.User: ...
 
 
-@pytest.fixture()
+@pytest.fixture
 def getuser(request: pytest.FixtureRequest) -> GetUserProtocol:
     """Get a user fixture by their name."""
     # spell-checker: disable
@@ -1334,7 +1334,7 @@ def getuser(request: pytest.FixtureRequest) -> GetUserProtocol:
     return func
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_twoflower(models, db_session: scoped_session) -> funnel_models.User:
     """
     Twoflower is a tourist from the Agatean Empire who goes on adventures.
@@ -1348,7 +1348,7 @@ def user_twoflower(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_rincewind(models, db_session: scoped_session) -> funnel_models.User:
     """
     Rincewind is a wizard and a former member of Unseen University.
@@ -1361,7 +1361,7 @@ def user_rincewind(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_death(models, db_session: scoped_session) -> funnel_models.User:
     """
     Death is the epoch user, present at the beginning and always having the last word.
@@ -1380,7 +1380,7 @@ def user_death(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_mort(models, db_session: scoped_session) -> funnel_models.User:
     """
     Mort is Death's apprentice, and a site admin in tests.
@@ -1396,7 +1396,7 @@ def user_mort(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_susan(models, db_session: scoped_session) -> funnel_models.User:
     """
     Susan Sto Helit (also written Sto-Helit) is Death's grand daughter.
@@ -1408,7 +1408,7 @@ def user_susan(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_lutze(models, db_session: scoped_session) -> funnel_models.User:
     """
     Lu-Tze is a history monk and sweeper at the Monastery of Oi-Dong.
@@ -1420,7 +1420,7 @@ def user_lutze(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_ridcully(models, db_session: scoped_session) -> funnel_models.User:
     """
     Mustrum Ridcully, archchancellor of Unseen University.
@@ -1432,7 +1432,7 @@ def user_ridcully(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_librarian(models, db_session: scoped_session) -> funnel_models.User:
     """
     Librarian of Unseen University, currently an orangutan.
@@ -1444,7 +1444,7 @@ def user_librarian(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_ponder_stibbons(models, db_session: scoped_session) -> funnel_models.User:
     """
     Ponder Stibbons, maintainer of Hex, the computer powered by an Anthill Inside.
@@ -1456,7 +1456,7 @@ def user_ponder_stibbons(models, db_session: scoped_session) -> funnel_models.Us
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_vetinari(models, db_session: scoped_session) -> funnel_models.User:
     """
     Havelock Vetinari, patrician (aka dictator) of Ankh-Morpork.
@@ -1468,7 +1468,7 @@ def user_vetinari(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_vimes(models, db_session: scoped_session) -> funnel_models.User:
     """
     Samuel Vimes, commander of the Ankh-Morpork City Watch.
@@ -1480,7 +1480,7 @@ def user_vimes(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_carrot(models, db_session: scoped_session) -> funnel_models.User:
     """
     Carrot Ironfoundersson, captain of the Ankh-Morpork City Watch.
@@ -1492,7 +1492,7 @@ def user_carrot(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_angua(models, db_session: scoped_session) -> funnel_models.User:
     """
     Delphine Angua von Überwald, member of the Ankh-Morpork City Watch, and foreigner.
@@ -1510,7 +1510,7 @@ def user_angua(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_dibbler(models, db_session: scoped_session) -> funnel_models.User:
     """
     Cut Me Own Throat (or C.M.O.T) Dibbler, huckster who exploits small opportunities.
@@ -1522,7 +1522,7 @@ def user_dibbler(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_wolfgang(models, db_session: scoped_session) -> funnel_models.User:
     """
     Wolfgang von Überwald, brother of Angua, violent shapeshifter.
@@ -1535,7 +1535,7 @@ def user_wolfgang(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_om(models, db_session: scoped_session) -> funnel_models.User:
     """
     Great God Om of the theocracy of Omnia, who has lost his believers.
@@ -1551,7 +1551,7 @@ def user_om(models, db_session: scoped_session) -> funnel_models.User:
 # MARK: Organizations
 
 
-@pytest.fixture()
+@pytest.fixture
 def org_ankhmorpork(
     models, db_session: scoped_session, user_vetinari: funnel_models.User
 ) -> funnel_models.Organization:
@@ -1568,7 +1568,7 @@ def org_ankhmorpork(
     return org
 
 
-@pytest.fixture()
+@pytest.fixture
 def org_uu(
     models,
     db_session: scoped_session,
@@ -1607,7 +1607,7 @@ def org_uu(
     return org
 
 
-@pytest.fixture()
+@pytest.fixture
 def org_citywatch(
     models,
     db_session: scoped_session,
@@ -1651,7 +1651,7 @@ def org_citywatch(
 # of the product being tested. Maintaining fidelity to Discworld is hard.
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_expo2010(
     models,
     db_session: scoped_session,
@@ -1672,7 +1672,7 @@ def project_expo2010(
     return project
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_expo2011(
     models,
     db_session: scoped_session,
@@ -1693,7 +1693,7 @@ def project_expo2011(
     return project
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_ai1(
     models,
     db_session: scoped_session,
@@ -1723,7 +1723,7 @@ def project_ai1(
     return project
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_ai2(
     models,
     db_session: scoped_session,
@@ -1752,7 +1752,7 @@ def project_ai2(
 # MARK: Client apps
 
 
-@pytest.fixture()
+@pytest.fixture
 def client_hex(
     models, db_session: scoped_session, org_uu: funnel_models.Organization
 ) -> funnel_models.AuthClient:
@@ -1779,7 +1779,7 @@ class CredProtocol(Protocol):
     secret: str
 
 
-@pytest.fixture()
+@pytest.fixture
 def client_hex_credential(
     models, db_session: scoped_session, client_hex: funnel_models.AuthClient
 ) -> CredProtocol:
@@ -1788,7 +1788,7 @@ def client_hex_credential(
     return cast(CredProtocol, SimpleNamespace(cred=cred, secret=secret))
 
 
-@pytest.fixture()
+@pytest.fixture
 def all_fixtures(  # pylint: disable=too-many-locals
     db_session: scoped_session,
     user_twoflower: funnel_models.User,
@@ -1846,7 +1846,7 @@ TEST_DATA = {
 }
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_user(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['testuser'])
     db_session.add(user)
@@ -1854,7 +1854,7 @@ def new_user(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_user2(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['testuser2'])
     db_session.add(user)
@@ -1862,7 +1862,7 @@ def new_user2(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_user_owner(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['test_org_owner'])
     db_session.add(user)
@@ -1870,7 +1870,7 @@ def new_user_owner(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_user_admin(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['test_org_admin'])
     db_session.add(user)
@@ -1878,7 +1878,7 @@ def new_user_admin(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_organization(
     models,
     db_session: scoped_session,
@@ -1899,7 +1899,7 @@ def new_organization(
     return org
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_team(
     models,
     db_session: scoped_session,
@@ -1913,7 +1913,7 @@ def new_team(
     return team
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_project(
     models,
     db_session: scoped_session,
@@ -1933,7 +1933,7 @@ def new_project(
     return project
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_project2(
     models,
     db_session: scoped_session,
@@ -1953,7 +1953,7 @@ def new_project2(
     return project
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_main_label(
     models, db_session: scoped_session, new_project: funnel_models.Project
 ) -> funnel_models.Label:
@@ -1973,7 +1973,7 @@ def new_main_label(
     return main_label_a
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_main_label_unrestricted(
     models, db_session: scoped_session, new_project: funnel_models.Project
 ) -> funnel_models.Label:
@@ -1993,7 +1993,7 @@ def new_main_label_unrestricted(
     return main_label_b
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_label(
     models, db_session: scoped_session, new_project: funnel_models.Project
 ) -> funnel_models.Label:
@@ -2004,7 +2004,7 @@ def new_label(
     return label_b
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_proposal(
     models,
     db_session: scoped_session,
@@ -2022,7 +2022,7 @@ def new_proposal(
     return proposal
 
 
-@pytest.fixture()
+@pytest.fixture
 def fail_with_diff() -> Callable[[str, str], None]:
     def func(left: str, right: str) -> None:
         if left != right:
