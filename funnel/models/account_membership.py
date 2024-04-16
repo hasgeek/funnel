@@ -18,9 +18,17 @@ __all__ = ['AccountMembership']
 
 class AccountMembership(ImmutableMembershipMixin, Model):
     """
-    An account can be an owner, admin, member or follower of another account.
+    An account can be an owner, admin or follower of another account.
 
-    Owners can manage other owners, admins and members, but not followers.
+    Owners can manage other owners and admins (members), but not followers. The term
+    'member' has two distinct meanings in this model:
+
+    1. The subject of an :class:`AccountMembership` record is referred to as a member,
+       even if the record is revoked and therefore has no bearing on the parent
+       :class:`Account`.
+    2. The :class:`Account` model recognises a 'member' role that is granted via an
+       :class:`AccountMembership` record, but only if specific flags are set (currently
+       :attr:`is_admin`).
     """
 
     __tablename__ = 'account_membership'
