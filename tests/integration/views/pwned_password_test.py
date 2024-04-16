@@ -13,7 +13,7 @@ PWNED_PASSWORD = 'thisisone1'  # nosec
 
 
 @pytest.mark.flaky(reruns=2)  # Web service could fail occasionally
-@pytest.mark.enable_socket()
+@pytest.mark.enable_socket
 def test_pwned_password(
     client: TestClient,
     csrf_token: str,

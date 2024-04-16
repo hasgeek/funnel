@@ -339,5 +339,5 @@ section-order = [
 repo = ['funnel']
 
 [tool.ruff.lint.flake8-pytest-style]
-fixture-parentheses = true
-mark-parentheses = true
+fixture-parentheses = false
+mark-parentheses = false

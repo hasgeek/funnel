@@ -38,7 +38,7 @@ def test_markdown_cases(
     # fail_with_diff(case.expected_output, case.output)
 
 
-@pytest.mark.debug_markdown_output()
+@pytest.mark.debug_markdown_output
 def test_markdown_debug_output(
     pytestconfig: pytest.Config, markdown_test_registry: type[MarkdownTestRegistry]
 ) -> None:

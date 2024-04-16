@@ -48,7 +48,7 @@ rsvp_excess_json = {
 }
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_expo2010(project_expo2010: models.Project) -> models.Project:
     """Project fixture with a registration form."""
     project_expo2010.start_at = datetime.datetime.now() + datetime.timedelta(days=1)

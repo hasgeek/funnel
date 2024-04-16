@@ -17,13 +17,13 @@ from ...conftest import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def create_shortlink(app_context: AppContext) -> str:
     """URL for creating a shortlink."""
     return url_for('create_shortlink')
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_rincewind_site_editor(
     db_session: scoped_session, user_rincewind: models.User
 ) -> models.SiteMembership:

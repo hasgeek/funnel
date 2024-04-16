@@ -25,19 +25,19 @@ def mock_api_key() -> str:
     return secrets.token_urlsafe()
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_twoflower_phone(user_twoflower: models.User) -> models.AccountPhone:
     """User phone fixture."""
     return user_twoflower.add_phone(VALID_PHONE_INTL)
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_rincewind_phone(user_rincewind: models.User) -> models.AccountPhone:
     """User phone fixture."""
     return user_rincewind.add_phone(VALID_PHONE)
 
 
-@pytest.fixture()
+@pytest.fixture
 def unaffiliated_phone_number() -> models.PhoneNumber:
     """Phone number not affiliated with a user account."""
     return models.PhoneNumber.add(VALID_PHONE)
