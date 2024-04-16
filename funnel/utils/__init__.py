@@ -4,7 +4,8 @@ __ignore__ = ['base', 'escape', 'tabs']  # Unwanted exports from markdown sub-pa
 
 # MARK: Everything below this line is auto-generated using `make initpy` ---------------
 
-from . import markdown, misc, mustache
+from . import jinja_template, markdown, misc, mustache
+from .jinja_template import JinjaTemplateBase, jinja_global_marker
 from .markdown import (
     MarkdownConfig,
     MarkdownPlugin,
@@ -30,6 +31,7 @@ from .misc import (
 from .mustache import mustache_html, mustache_md
 
 __all__ = [
+    "JinjaTemplateBase",
     "MarkdownConfig",
     "MarkdownPlugin",
     "MarkdownString",
@@ -37,6 +39,8 @@ __all__ = [
     "blake2b160_hex",
     "extract_twitter_handle",
     "format_twitter_handle",
+    "jinja_global_marker",
+    "jinja_template",
     "make_qrcode",
     "make_redirect_url",
     "markdown",

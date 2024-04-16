@@ -11,12 +11,14 @@ from markupsafe import Markup
 from baseframe import _, __
 from baseframe.filters import date_filter
 from baseframe.forms import render_message
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, pages
 from ..forms import SavedProjectForm
-from ..models import Account, Project, sa
+from ..models import Account, Project, Venue, sa
 from ..typing import ReturnRenderWith, ReturnView
+from .helpers import JinjaTemplate
 from .schedule import schedule_data, session_list_data
 
 
@@ -38,14 +40,24 @@ policy_pages = [
 ]
 
 
+class IndexTemplate(JinjaTemplate, template='index.html.jinja2'):
+    all_projects: list[Project | RoleAccessProxy[Project]]
+    upcoming_projects: list[Project | RoleAccessProxy[Project]]
+    open_cfp_projects: list[Project | RoleAccessProxy[Project]]
+    featured_project: Project | RoleAccessProxy[Project] | None
+    featured_project_venues: list[Venue] | list[RoleAccessProxy[Venue]] | None
+    featured_project_sessions: list[dict] | None  # TODO: Specify precise type
+    featured_project_schedule: list[dict] | None  # TODO: Specify precise type
+    featured_accounts: list[Account | RoleAccessProxy[Account]]
+
+
 @route('/', init_app=app)
 class IndexView(ClassView):
     current_section = 'home'
     SavedProjectForm = SavedProjectForm
 
     @route('', endpoint='index')
-    @render_with('index.html.jinja2')
-    def home(self) -> ReturnRenderWith:
+    def home(self) -> ReturnView:
         g.account = None
         projects = Project.all_unsorted()
         # TODO: Move these queries into the Project class
@@ -131,32 +143,32 @@ class IndexView(ClassView):
             key=lambda a: featured_account_sort_key[(a.name or a.title).lower()]
         )
 
-        return {
-            'all_projects': [
+        return IndexTemplate(
+            all_projects=[
                 p.access_for(roles={'all'}, datasets=('primary', 'related'))
                 for p in all_projects
             ],
-            'upcoming_projects': [
+            upcoming_projects=[
                 p.access_for(roles={'all'}, datasets=('primary', 'related'))
                 for p in upcoming_projects
             ],
-            'open_cfp_projects': [
+            open_cfp_projects=[
                 p.access_for(roles={'all'}, datasets=('primary', 'related'))
                 for p in open_cfp_projects
             ],
-            'featured_project': (
+            featured_project=(
                 featured_project.current_access(datasets=('primary', 'related'))
                 if featured_project
                 else None
             ),
-            'featured_project_venues': featured_project_venues,
-            'featured_project_sessions': scheduled_sessions_list,
-            'featured_project_schedule': featured_project_schedule,
-            'featured_accounts': [
+            featured_project_venues=featured_project_venues,
+            featured_project_sessions=scheduled_sessions_list,
+            featured_project_schedule=featured_project_schedule,
+            featured_accounts=[
                 p.current_access(datasets=('primary', 'related'))
                 for p in featured_accounts
             ],
-        }
+        )()
 
     @route('past.projects', endpoint='past_projects')
     @render_with('past_projects_section.html.jinja2')

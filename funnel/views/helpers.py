@@ -40,11 +40,12 @@ from coaster.sqlalchemy import RoleMixin
 from coaster.utils import utcnow
 
 from .. import app, shortlinkapp
-from ..auth import current_auth
+from ..auth import CurrentAuth, current_auth
 from ..forms import supported_locales
 from ..models import Account, Shortlink, db, profanity
-from ..proxies import request_wants
+from ..proxies import RequestWants, request_wants
 from ..typing import ResponseType, ReturnResponse, ReturnView
+from ..utils import JinjaTemplateBase, jinja_global_marker
 
 nocache_expires = utc.localize(datetime(1990, 1, 1))
 
@@ -65,6 +66,11 @@ with (resources.files('tzdata.zoneinfo') / 'tzdata.zi').open(
             valid_timezones[_tzold.lower()] = _tznew
 
 # MARK: Classes ------------------------------------------------------------------------
+
+
+class JinjaTemplate(JinjaTemplateBase, template=''):
+    current_auth: CurrentAuth = jinja_global_marker()
+    request_wants: RequestWants = jinja_global_marker()
 
 
 class SessionTimeouts(dict[str, timedelta]):
