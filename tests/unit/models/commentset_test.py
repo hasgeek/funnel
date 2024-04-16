@@ -12,7 +12,7 @@ from funnel import models
 from ...conftest import scoped_session
 
 
-@pytest.fixture()
+@pytest.fixture
 def comment1(
     db_session: scoped_session,
     project_expo2010: models.Project,
@@ -29,7 +29,7 @@ def comment1(
     return c
 
 
-@pytest.fixture()
+@pytest.fixture
 def comment2(
     db_session: scoped_session,
     project_expo2010: models.Project,

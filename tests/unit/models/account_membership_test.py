@@ -7,7 +7,7 @@ from funnel import models
 from ...conftest import scoped_session
 
 
-@pytest.fixture()
+@pytest.fixture
 def placeholder_account(db_session: scoped_session) -> models.Placeholder:
     obj = models.Placeholder(name='placeholder', title='Placeholder')
     db_session.add(obj)

@@ -115,7 +115,7 @@ def phone_models(
         )
 
 
-@pytest.fixture()
+@pytest.fixture
 def refcount_data() -> Generator[set[models.PhoneNumber], None, None]:
     refcount_signal_fired: set[models.PhoneNumber] = set()
 

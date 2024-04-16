@@ -11,7 +11,7 @@ from funnel.proxies.request import RequestWants
 from funnel.typing import ReturnView
 
 
-@pytest.fixture()
+@pytest.fixture
 def fixture_app() -> Flask:
     """Test app for testing Vary header in responses."""
     tapp = Flask(__name__)
