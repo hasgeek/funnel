@@ -416,7 +416,7 @@
     </div>
   </div>
   <div class="mui-container {% if class %}{{ class }}{% endif %}">
-    <div class="profile {% if not profile.is_verified  %}profile--unverified{% endif %}">
+    <div class="profile">
       <div class="profile__banner">
         <div class="profile__banner__box">
           {%- if profile.is_verified and profile.banner_image_url.url %}
