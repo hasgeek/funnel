@@ -567,7 +567,9 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
     return redirect(url, code)
 
 
-def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]:
+def html_in_json(
+    template: str,
+) -> dict[str, str | Callable[[Mapping[str, Any]], ReturnView]]:
     """
     Render a HTML fragment in a JSON wrapper, for use with ``@render_with``.
 
@@ -577,7 +579,7 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
         def my_view(...) -> ReturnRenderWith: ...
     """
 
-    def render_json_with_status(kwargs: dict[str, Any]) -> ReturnResponse:
+    def render_json_with_status(kwargs: Mapping[str, Any]) -> ReturnResponse:
         """Render plain JSON."""
         return jsonify(
             status='ok',
@@ -591,7 +593,7 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
             },
         )
 
-    def render_html_in_json(kwargs: dict[str, Any]) -> ReturnResponse:
+    def render_html_in_json(kwargs: Mapping[str, Any]) -> ReturnResponse:
         """Render HTML fragment in JSON."""
         resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
         resp.content_type = 'application/x.html+json; charset=utf-8'
