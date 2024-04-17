@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 from flask import abort, current_app, flash, jsonify, render_template, request
@@ -68,7 +69,8 @@ def feature_profile_is_private(obj: Account) -> bool:
     return not obj.current_roles.admin and not bool(obj.profile_state.ACTIVE_AND_PUBLIC)
 
 
-def template_switcher(templateargs: dict[str, Any]) -> str:
+def template_switcher(templateargs: Mapping[str, Any]) -> str:
+    templateargs = dict(templateargs)
     template = templateargs.pop('template')
     return render_template(template, **templateargs)
 
