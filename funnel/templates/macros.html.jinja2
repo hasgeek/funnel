@@ -148,8 +148,8 @@
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-ga="View project">
     {%- if include_profile %}
     <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left">
-      <div class="flex-wrapper flex-wrapper--center">
-        {{ profileavatar(project.account, add_profile_link=false, css_class='margin-left') }}
+      <div class="flex-wrapper flex-wrapper--center flex-wrapper-full-width">
+        {{ profileavatar(project.account, add_profile_link=false, css_class='flex-item-align-end margin-right') }}
       </div>
       {%- if not current_auth.is_anonymous and add_bookmark %}
         {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
@@ -264,20 +264,15 @@
   </table>
 {%- endmacro %}
 
-{%- macro addFollowButton(profile, size='normal', hide_unfollow=false, css_class='') %}
-  {% if size == 'small' %}
-    {%- set buttonclass = 'mui-btn--small' %}
-  {% endif %}
+{%- macro addFollowButton(profile, css_class='') %}
   {% set follow_formid = 'follow_form'  + profile.uuid_b58 %}
   <form id="{{ follow_formid }}" action="{{ profile.url_for('follow') }}" class="follow-form js-follow-form {% if css_class %}{{ css_class }}{% endif %}" data-account-id="{{ profile.uuid_b58 }}" method="post">
     {%- if current_auth.is_anonymous %}
       <a class="mui-btn mui-btn--dark mui-btn--raised" href="{{ url_for('login', next=request.path) }}" data-ga="Login to follow account" aria-label="{% trans %}Login to follow this account{% endtrans %}">{% trans %}Follow{% endtrans %}</a>
     {%- elif profile != current_auth.user and not profile.features.is_private() %}
       <input type="hidden" name="follow" value=""/>
-      {% if not hide_unfollow %}
-        <button type="submit" value="false" class="mui-btn mui-btn--accent mui-btn--raised zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} js-unfollow-btn {% if not profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{% trans %}Unfollow{% endtrans %}</button>
-      {% endif %}
-      <button type="submit" value="true" class="mui-btn mui-btn--dark mui-btn--raised zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} zero-left-margin js-follow-btn {% if profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{% trans %}Follow{% endtrans %}</button>
+      <button type="submit" value="false" class="mui-btn mui-btn--accent mui-btn--small zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} js-unfollow-btn mui--hide {% if not profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-check-solid', icon_size='subhead') }}</button>
+      <button type="submit" value="true" class="mui-btn mui-btn--primary mui-btn--small zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} zero-left-margin js-follow-btn {% if profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-plus', icon_size='subhead') }}</button>
     {%- endif %}
   </form>
 {%- endmacro %}
@@ -297,7 +292,7 @@
     <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}" data-avatar-colour="{{ user.views and user.views.avatar_color_code or '' }}">{{ user.title|initials }}</div>
   {% endif %}
   {% if add_profile_link %}</a>{% endif %}
-  {{ addFollowButton(user, size='small', css_class='flex-order-last flex-item-align-end') }}
+  {{ addFollowButton(user, css_class='flex-order-last flex-item-align-end') }}
 {%- endmacro %}
 
 {%- macro profileavatar(account,  add_profile_link=true, css_class="") %}
@@ -313,7 +308,7 @@
     </div>
   </div>
   {% if add_profile_link %}<a href="{{ account.absolute_url }}" class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{%- else %}<span class="mui--text-dark mui--text-subhead text-bold nounderline">{% endif %}{{ account.title }}{% if add_profile_link %}</a>{%- else %}</span>{% endif %}
-  {{ addFollowButton(account, size='small', hide_unfollow=true, css_class=css_class) }}
+  {{ addFollowButton(account, css_class=css_class) }}
 {%- endmacro %}
 
 {%- macro list_sponsors(sponsors) %}

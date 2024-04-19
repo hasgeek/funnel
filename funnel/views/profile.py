@@ -312,8 +312,8 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
         """Follow an account."""
         form = FollowForm()
         if form.validate_on_submit():
-            existing_membership = self.obj.active_follower_memberships.filter_by(
-                member=current_auth.user
+            existing_membership = self.obj.active_follower_memberships.filter(
+                AccountMembership.member==current_auth.user
             ).one_or_none()
             if form.follow.data:
                 if not existing_membership:
