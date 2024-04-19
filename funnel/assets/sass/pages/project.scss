@@ -63,7 +63,7 @@
       display: none;
     }
     .register-block__content__txt {
-      font-size: 9px;
+      font-size: 12px;
       line-height: 16px;
       width: 100%;
       display: block;
@@ -111,7 +111,7 @@
   .register-block {
     .register-block__content {
       .register-block__content__txt {
-        font-size: 10px;
+        font-size: 12px;
       }
     }
   }
@@ -152,6 +152,7 @@
 
 @media (min-width: 768px) {
   .project-footer {
+    padding: 0 !important;
     .register-block {
       display: block;
       .register-block__content {
@@ -419,7 +420,7 @@
     }
     .project-banner__left {
       width: 67%;
-      margin: 0 $mui-grid-padding 0 0;
+      margin: 0 $mui-grid-padding * 2 0 0;
       .embed-video-wrapper--shaped {
         border-radius: 16px;
       }
@@ -543,10 +544,9 @@
 }
 
 .project-section__map {
-  height: 400px;
+  height: 300px;
   width: 100%;
   z-index: 0;
-  margin: 0 0 $mui-grid-padding;
   position: relative;
   outline: none;
 }
