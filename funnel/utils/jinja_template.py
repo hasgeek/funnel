@@ -1,13 +1,16 @@
 """Jinja2 templates with type hints (in future: also type checking of the template)."""
 
+from collections.abc import Iterator
 from typing import Any, ClassVar, Literal
 
-from flask import render_template
+from flask import render_template, stream_template
 from typing_extensions import dataclass_transform
 
 from coaster.utils import is_dunder
 
 __all__ = ['JinjaTemplateBase', 'jinja_global_marker']
+
+# MARK: Typed template dataclass -------------------------------------------------------
 
 
 def jinja_global_marker(*, init: Literal[False] = False) -> Any:
@@ -22,10 +25,10 @@ class JinjaTemplateBase:
 
     _template: ClassVar[str]
 
-    def __init__(self, **kwargs) -> None:
-        self.__dict__.update(kwargs)
+    def __init__(self, **context) -> None:
+        self.__dict__.update(context)
 
-    def __init_subclass__(cls, template: str) -> None:
+    def __init_subclass__(cls, template: str | None) -> None:
         # Ensure cls doesn't have any default values. All template context must be
         # passed to `__init__` explicitly
         for attr, value in cls.__dict__.items():
@@ -39,6 +42,12 @@ class JinjaTemplateBase:
             cls._template = template
         super().__init_subclass__()
 
-    def __call__(self) -> str:
+    # Primary methods, only usable given an app context
+
+    def render_template(self) -> str:
         """Render template with context vars."""
         return render_template(self._template, **self.__dict__)
+
+    def stream_template(self) -> Iterator[str]:
+        """Stream template with context vars."""
+        return stream_template(self._template, **self.__dict__)

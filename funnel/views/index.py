@@ -168,7 +168,7 @@ class IndexView(ClassView):
                 p.current_access(datasets=('primary', 'related'))
                 for p in featured_accounts
             ],
-        )()
+        ).render_template()
 
     @route('past.projects', endpoint='past_projects')
     @render_with('past_projects_section.html.jinja2')
