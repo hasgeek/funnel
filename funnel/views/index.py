@@ -49,7 +49,7 @@ class IndexView(ClassView):
         g.account = None
         projects = Project.all_unsorted()
         # TODO: Move these queries into the Project class
-        all_projects = (
+        upcoming_projects = (
             projects.filter(
                 Project.state.PUBLISHED,
                 sa.or_(
@@ -65,8 +65,6 @@ class IndexView(ClassView):
             .order_by(Project.next_session_at.asc())
             .all()
         )
-        upcoming_projects = all_projects[:3]
-        all_projects = all_projects[3:]
         featured_project = (
             projects.filter(
                 Project.state.PUBLISHED,
@@ -112,8 +110,6 @@ class IndexView(ClassView):
             # pick one upcoming project from from all projects, only if
             # there are any projects left in it
             upcoming_projects.remove(featured_project)
-            if all_projects:
-                upcoming_projects.append(all_projects.pop(0))
         open_cfp_projects = (
             projects.filter(Project.state.PUBLISHED, Project.cfp_state.OPEN)
             .order_by(Project.next_session_at.asc())
@@ -132,10 +128,6 @@ class IndexView(ClassView):
         )
 
         return {
-            'all_projects': [
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
-                for p in all_projects
-            ],
             'upcoming_projects': [
                 p.access_for(roles={'all'}, datasets=('primary', 'related'))
                 for p in upcoming_projects
@@ -166,7 +158,7 @@ class IndexView(ClassView):
         projects = Project.all_unsorted()
         pagination = (
             projects.filter(Project.state.PAST)
-            .order_by(Project.start_at.desc())
+            .order_by(Project.end_at.desc())
             .paginate(page=page, per_page=per_page)
         )
         return {
