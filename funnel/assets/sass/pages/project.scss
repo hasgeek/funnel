@@ -180,6 +180,14 @@
         }
       }
     }
+    .flex-content {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    .fifty-width {
+      width: 48% !important;
+    }
   }
 }
 
@@ -377,6 +385,9 @@
         }
       }
     }
+  }
+  .project-banner__right--flex-direction {
+    flex-direction: column;
   }
 }
 
