@@ -1,7 +1,6 @@
 -r test.in
 bandit
 black
-djlint
 flake8
 flake8-annotations
 flake8-assertive
@@ -17,7 +16,7 @@ flake8-print
 flake8-pytest-style
 flask-debugtoolbar
 isort
-mkinit @ git+https://github.com/Erotemic/mkinit
+mkinit
 mypy
 mypy-json-report
 pep8-naming

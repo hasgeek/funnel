@@ -9,6 +9,7 @@ import hashlib
 import itertools
 from collections.abc import Iterable, Iterator, Sequence
 from datetime import datetime
+from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -35,13 +36,13 @@ from zbase32 import decode as zbase32_decode, encode as zbase32_encode
 from baseframe import __
 from coaster.sqlalchemy import (
     DynamicAssociationProxy,
-    LazyRoleSet,
     RoleMixin,
     StateManager,
     add_primary_relationship,
     auto_init_default,
     failsafe_add,
     immutable,
+    role_check,
     with_roles,
 )
 from coaster.utils import LabeledEnum, newsecret, require_one_of, utcnow
@@ -59,6 +60,7 @@ from .base import (
     UrlType,
     UuidMixin,
     db,
+    hybrid_method,
     hybrid_property,
     relationship,
     sa,
@@ -80,6 +82,7 @@ from .phone_number import PhoneNumber, PhoneNumberMixin
 
 __all__ = [
     'ACCOUNT_STATE',
+    'AccountNameProblem',
     'Account',
     'deleted_account',
     'removed_account',
@@ -96,6 +99,17 @@ __all__ = [
     'AccountExternalId',
     'Anchor',
 ]
+
+
+class AccountNameProblem(Enum):
+    BLANK = 'blank'  # Name is blank
+    RESERVED = 'reserved'  # Name is a reserved keyword
+    INVALID = 'invalid'  # Name has invalid syntax
+    LONG = 'long'  # Name is too long
+    USER = 'user'  # Name is taken by a user account
+    ORG = 'org'  # Name is taken by an organization account
+    PLACEHOLDER = 'placeholder'  # Name is taken by a placeholder account
+    ACCOUNT = 'account'  # Name is taken by an account of unknown type
 
 
 class ACCOUNT_STATE(LabeledEnum):  # noqa: N801
@@ -138,7 +152,7 @@ class ZBase32Comparator(Comparator[str]):  # pylint: disable=abstract-method
             return sa.false()
 
 
-# --- Tables ---------------------------------------------------------------------------
+# MARK: Tables -------------------------------------------------------------------------
 
 team_membership = sa.Table(
     'team_membership',
@@ -166,7 +180,7 @@ team_membership = sa.Table(
 )
 
 
-# --- Models ---------------------------------------------------------------------------
+# MARK: Models -------------------------------------------------------------------------
 
 
 class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
@@ -281,9 +295,6 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         ImgeeType, sa.CheckConstraint("banner_image_url <> ''"), nullable=True
     )
 
-    # These two flags are read-only. There is no provision for writing to them within
-    # the app:
-
     #: Protected accounts cannot be deleted
     is_protected: Mapped[bool] = with_roles(
         immutable(sa_orm.mapped_column(default=False)),
@@ -335,7 +346,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         deferred=True,
     )
 
-    # --- Backrefs
+    # MARK: Backrefs
 
     # account.py:
     oldid: Mapped[AccountOldId] = relationship(
@@ -380,17 +391,20 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             order_by=lambda: AccountMembership.granted_at.asc(),
             viewonly=True,
         ),
-        grants_via={'member': {'admin', 'owner'}},
+        grants_via={'member': {'admin', 'member'}},
     )
 
-    active_owner_memberships: DynamicMapped[AccountMembership] = relationship(
-        lazy='dynamic',
-        primaryjoin=lambda: sa.and_(
-            sa_orm.remote(AccountMembership.account_id) == Account.id,
-            AccountMembership.is_active,
-            AccountMembership.is_owner.is_(True),
+    active_owner_memberships: DynamicMapped[AccountMembership] = with_roles(
+        relationship(
+            lazy='dynamic',
+            primaryjoin=lambda: sa.and_(
+                sa_orm.remote(AccountMembership.account_id) == Account.id,
+                AccountMembership.is_active,
+                AccountMembership.is_owner.is_(True),
+            ),
+            viewonly=True,
         ),
-        viewonly=True,
+        grants_via={'member': {'owner', 'admin', 'member'}},
     )
 
     active_invitations: DynamicMapped[AccountMembership] = relationship(
@@ -403,12 +417,12 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         viewonly=True,
     )
 
-    owner_users = with_roles(
-        DynamicAssociationProxy['Account']('active_owner_memberships', 'member'),
+    owner_users: DynamicAssociationProxy[Account, AccountMembership] = with_roles(
+        DynamicAssociationProxy('active_owner_memberships', 'member'),
         read={'all'},
     )
-    admin_users = with_roles(
-        DynamicAssociationProxy['Account']('active_admin_memberships', 'member'),
+    admin_users: DynamicAssociationProxy[Account, AccountMembership] = with_roles(
+        DynamicAssociationProxy('active_admin_memberships', 'member'),
         read={'all'},
     )
 
@@ -466,12 +480,12 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         viewonly=True,
     )
 
-    organizations_as_owner = DynamicAssociationProxy['Account'](
-        'active_organization_owner_memberships', 'account'
+    organizations_as_owner: DynamicAssociationProxy[Account, AccountMembership] = (
+        DynamicAssociationProxy('active_organization_owner_memberships', 'account')
     )
 
-    organizations_as_admin = DynamicAssociationProxy['Account'](
-        'active_organization_admin_memberships', 'account'
+    organizations_as_admin: DynamicAssociationProxy[Account, AccountMembership] = (
+        DynamicAssociationProxy('active_organization_admin_memberships', 'account')
     )
 
     # auth_client.py
@@ -496,9 +510,9 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         )''',
         viewonly=True,
     )
-    subscribed_commentsets = DynamicAssociationProxy['Commentset'](
-        'active_commentset_memberships', 'commentset'
-    )
+    subscribed_commentsets: DynamicAssociationProxy[
+        Commentset, CommentsetMembership
+    ] = DynamicAssociationProxy('active_commentset_memberships', 'commentset')
 
     # contact_exchange.py
     scanned_contacts: DynamicMapped[ContactExchange] = relationship(
@@ -604,8 +618,8 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         )
     )
 
-    projects_as_crew = DynamicAssociationProxy['Project'](
-        'projects_as_crew_active_memberships', 'project'
+    projects_as_crew: DynamicAssociationProxy[Project, ProjectMembership] = (
+        DynamicAssociationProxy('projects_as_crew_active_memberships', 'project')
     )
 
     projects_as_editor_active_memberships: DynamicMapped[ProjectMembership] = (
@@ -620,8 +634,8 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         )
     )
 
-    projects_as_editor = DynamicAssociationProxy['Project'](
-        'projects_as_editor_active_memberships', 'project'
+    projects_as_editor: DynamicAssociationProxy[Project, ProjectMembership] = (
+        DynamicAssociationProxy('projects_as_editor_active_memberships', 'project')
     )
 
     # project.py
@@ -685,7 +699,9 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     )
 
     # This is a User property of the proposals the user account is a collaborator in
-    proposals = DynamicAssociationProxy['Proposal']('proposal_memberships', 'proposal')
+    proposals: DynamicAssociationProxy[Proposal, ProposalMembership] = (
+        DynamicAssociationProxy('proposal_memberships', 'proposal')
+    )
 
     @property
     def public_proposal_memberships(self) -> Query[ProposalMembership]:
@@ -697,8 +713,8 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             .filter(ProposalMembership.is_uncredited.is_(False))
         )
 
-    public_proposals = DynamicAssociationProxy['Proposal'](
-        'public_proposal_memberships', 'proposal'
+    public_proposals: DynamicAssociationProxy[Proposal, ProposalMembership] = (
+        DynamicAssociationProxy('public_proposal_memberships', 'proposal')
     )
 
     # proposal.py
@@ -862,13 +878,13 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         )
     )
 
-    sponsored_projects = DynamicAssociationProxy['Project'](
-        'project_sponsor_memberships', 'project'
+    sponsored_projects: DynamicAssociationProxy[Project, ProjectSponsorMembership] = (
+        DynamicAssociationProxy('project_sponsor_memberships', 'project')
     )
 
-    sponsored_proposals = DynamicAssociationProxy['Project'](
-        'proposal_sponsor_memberships', 'proposal'
-    )
+    sponsored_proposals: DynamicAssociationProxy[
+        Proposal, ProposalSponsorMembership
+    ] = DynamicAssociationProxy('proposal_sponsor_memberships', 'proposal')
 
     # sync_ticket.py:
     ticket_participants: Mapped[list[TicketParticipant]] = relationship(
@@ -925,6 +941,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         'polymorphic_on': type_,
         # When querying the Account model, cast automatically to all subclasses
         'with_polymorphic': '*',
+        # Store a version id in this column to prevent edits to obsolete data
         'version_id_col': revisionid,
     }
 
@@ -941,6 +958,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
                 'timezone',
                 'description',
                 'website',
+                'tagline',
                 'logo_url',
                 'banner_image_url',
                 'joined_at',
@@ -995,6 +1013,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         'ACTIVE_AND_PUBLIC',
         profile_state.PUBLIC,
         lambda account: bool(account.state.ACTIVE),
+        lambda account: account.state.ACTIVE.__clause_element__(),
     )
 
     @classmethod
@@ -1043,14 +1062,12 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
 
     with_roles(pickername, read={'all'})
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        """Identify roles for the given actor."""
-        roles = super().roles_for(actor, anchors)
-        if self.profile_state.ACTIVE_AND_PUBLIC:
-            roles.add('reader')
-        return roles
+    @role_check('reader')
+    def has_reader_role(
+        self, _actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Grant 'reader' role to all if the profile state is active and public."""
+        return bool(self.profile_state.ACTIVE_AND_PUBLIC)
 
     @cached_property
     def verified_contact_count(self) -> int:
@@ -1265,7 +1282,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             for attr in self.__noninvite_membership_attrs__
         )
 
-    # --- Transport details
+    # MARK: Transport details
 
     @with_roles(call={'owner'})
     def has_transport_email(self) -> bool:
@@ -1394,16 +1411,19 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         return None
 
     @property
-    def _self_is_owner_and_admin_of_self(self) -> Account:
+    def _self_is_owner_of_self(self) -> Account | None:
         """
-        Return self.
+        Return self in a user account.
 
         Helper method for :meth:`roles_for` and :meth:`actors_with` to assert that the
         user is owner and admin of their own account.
         """
-        return self
+        return self if self.is_user_profile else None
 
-    with_roles(_self_is_owner_and_admin_of_self, grants={'owner', 'admin'})
+    with_roles(
+        _self_is_owner_of_self,
+        grants={'follower', 'member', 'admin', 'owner'},
+    )
 
     def organizations_as_owner_ids(self) -> list[int]:
         """
@@ -1526,8 +1546,18 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         """Return SQL comparator for :prop:`uuid_zbase32`."""
         return ZBase32Comparator(cls.uuid)  # type: ignore[arg-type]
 
+    @hybrid_method
+    def name_is(self, name: str) -> bool:
+        if name.startswith('~'):
+            return self.uuid_zbase32 == name[1:]
+        return (
+            self.name is not None
+            and self.name.lower() == name.replace('-', '_').lower()
+        )
+
+    @name_is.expression
     @classmethod
-    def name_is(cls, name: str) -> ColumnElement:
+    def _name_is_expr(cls, name: str) -> ColumnElement:
         """Generate query filter to check if name is matching (case insensitive)."""
         if name.startswith('~'):
             return cls.uuid_zbase32 == name[1:]
@@ -1746,46 +1776,42 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         return users
 
     @classmethod
-    def validate_name_candidate(cls, name: str) -> str | None:
+    def validate_name_candidate(cls, name: str) -> AccountNameProblem | None:
         """
         Validate an account name candidate.
 
-        Returns one of several error codes, or `None` if all is okay:
-
-        * ``blank``: No name supplied
-        * ``reserved``: Name is reserved
-        * ``invalid``: Invalid characters in name
-        * ``long``: Name is longer than allowed size
-        * ``user``: Name is assigned to a user
-        * ``org``: Name is assigned to an organization
+        Returns ``None`` if all is okay, or :enum:`AccountNameProblem`.
         """
-        if not name:
-            return 'blank'
+        if not name or not name.strip():
+            return AccountNameProblem.BLANK
         if name.lower() in cls.reserved_names:
-            return 'reserved'
+            return AccountNameProblem.RESERVED
         if not valid_account_name(name):
-            return 'invalid'
+            return AccountNameProblem.INVALID
         if len(name) > cls.__name_length__:
-            return 'long'
+            return AccountNameProblem.LONG
         # Look for existing on the base Account model, not the subclass, as SQLAlchemy
         # will add a filter condition on subclasses to restrict the query to that type.
         existing = (
-            Account.query.filter(sa.func.lower(Account.name) == sa.func.lower(name))
+            Account.query.filter(Account.name_is(name))
             .options(sa_orm.load_only(cls.id, cls.uuid, cls.type_))
             .one_or_none()
         )
         if existing is not None:
-            if isinstance(existing, Placeholder):
-                return 'reserved'
-            if isinstance(existing, User):
-                return 'user'
-            if isinstance(existing, Organization):
-                return 'org'
+            match existing:
+                case User():
+                    return AccountNameProblem.USER
+                case Organization():
+                    return AccountNameProblem.ORG
+                case Placeholder():
+                    return AccountNameProblem.PLACEHOLDER
+                case _:
+                    return AccountNameProblem.ACCOUNT
         return None
 
-    def validate_new_name(self, name: str) -> str | None:
+    def validate_new_name(self, name: str) -> AccountNameProblem | None:
         """Validate a new name for this account, returning an error code or None."""
-        if self.name and name.lower() == self.name.lower():
+        if self.name_is(name):
             return None
         return self.validate_name_candidate(name)
 
@@ -2023,7 +2049,7 @@ removed_account = DuckTypeAccount(__("[removed]"))
 unknown_account = DuckTypeAccount(__("[unknown]"))
 
 
-# --- Organizations and teams -------------------------------------------------
+# MARK: Organizations and teams -----------------------------------------------
 
 
 class Organization(Account):
@@ -2087,6 +2113,7 @@ class Team(UuidMixin, BaseMixin[int, Account], Model):
     is_public: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     # --- Backrefs
+
     client_permissions: Mapped[list[AuthClientTeamPermissions]] = relationship(
         back_populates='team'
     )
@@ -2130,7 +2157,7 @@ class Team(UuidMixin, BaseMixin[int, Account], Model):
         return query.filter_by(buid=buid).one_or_none()
 
 
-# --- Account email/phone and misc
+# MARK: Account email/phone and misc
 
 
 class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
@@ -2299,7 +2326,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         if new_account.primary_email is None:
             new_account.primary_email = primary_email
         old_account.primary_email = None
-        return [cls.__table__.name, user_email_primary_table.name]
+        return [cls.__table__.name, account_email_primary_table.name]
 
 
 class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
@@ -2659,7 +2686,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
         if new_account.primary_phone is None:
             new_account.primary_phone = primary_phone
         old_account.primary_phone = None
-        return [cls.__table__.name, user_phone_primary_table.name]
+        return [cls.__table__.name, account_phone_primary_table.name]
 
 
 class AccountExternalId(BaseMixin[int, Account], Model):
@@ -2675,35 +2702,24 @@ class AccountExternalId(BaseMixin[int, Account], Model):
     account: Mapped[Account] = relationship(back_populates='externalids')
     user: Mapped[Account] = sa_orm.synonym('account')
     #: Identity of the external service (in app's login provider registry)
-    # FIXME: change to sa.Unicode
-    service: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
+    service: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
     #: Unique user id as per external service, used for identifying related accounts
-    # FIXME: change to sa.Unicode
-    userid: Mapped[str] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=False
-    )  # Unique id (or obsolete OpenID)
+    userid: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
     #: Optional public-facing username on the external service
-    # FIXME: change to sa.Unicode. LinkedIn once used full URLs
-    username: Mapped[str | None] = sa_orm.mapped_column(sa.UnicodeText, nullable=True)
+    username: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
     #: OAuth or OAuth2 access token
-    # FIXME: change to sa.Unicode
-    oauth_token: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
-    )
+    oauth_token: Mapped[str | None] = sa_orm.mapped_column(sa.Unicode, nullable=True)
     #: Optional token secret (not used in OAuth2, used by Twitter with OAuth1a)
-    # FIXME: change to sa.Unicode
     oauth_token_secret: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
+        sa.Unicode, nullable=True
     )
     #: OAuth token type (typically 'bearer')
-    # FIXME: change to sa.Unicode
     oauth_token_type: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
+        sa.Unicode, nullable=True
     )
     #: OAuth2 refresh token
-    # FIXME: change to sa.Unicode
     oauth_refresh_token: Mapped[str | None] = sa_orm.mapped_column(
-        sa.UnicodeText, nullable=True
+        sa.Unicode, nullable=True
     )
     #: OAuth2 token expiry in seconds, as sent by service provider
     oauth_expires_in: Mapped[int | None] = sa_orm.mapped_column()
@@ -2772,10 +2788,10 @@ class AccountExternalId(BaseMixin[int, Account], Model):
         return cls.query.filter_by(**{param: value, 'service': service}).one_or_none()
 
 
-user_email_primary_table = add_primary_relationship(
+account_email_primary_table = add_primary_relationship(
     Account, 'primary_email', AccountEmail, 'account', 'account_id'
 )
-user_phone_primary_table = add_primary_relationship(
+account_phone_primary_table = add_primary_relationship(
     Account, 'primary_phone', AccountPhone, 'account', 'account_id'
 )
 
@@ -2805,7 +2821,7 @@ from .update import Update
 
 if TYPE_CHECKING:
     from .auth_client import AuthClientTeamPermissions
-    from .comment import Comment, Commentset  # noqa: F401
+    from .comment import Comment, Commentset
     from .commentset_membership import CommentsetMembership
     from .contact_exchange import ContactExchange
     from .moderation import CommentModeratorReport

@@ -53,7 +53,7 @@ def test_authcode_wellformed(
     # TODO: Add redirect_uri, response_type, state, scope
 
 
-@pytest.mark.dbcommit()
+@pytest.mark.dbcommit
 @pytest.mark.filterwarnings("ignore:Object of type <AuthToken> not in session")
 def test_auth_untrusted_confidential(
     client: TestClient,
@@ -66,7 +66,7 @@ def test_auth_untrusted_confidential(
     """Test auth on an untrusted confidential auth client."""
     login.as_(user_rincewind)
 
-    # --- Create a typical auth code request -------------------------------------------
+    # MARK: Create a typical auth code request -----------------------------------------
 
     authcode_params = {
         'client_id': client_hex_credential.cred.name,
@@ -97,7 +97,7 @@ def test_auth_untrusted_confidential(
     code = rparams['code'][0]
     assert code is not None
 
-    # --- Exchange code for a token ----------------------------------------------------
+    # MARK: Exchange code for a token --------------------------------------------------
 
     authtoken_params = {
         'grant_type': 'authorization_code',
@@ -132,7 +132,7 @@ def test_auth_untrusted_confidential(
     assert authtoken.token == data['access_token']
     assert authtoken.token_type == data['token_type']
 
-    # --- Ask for an auth code again, with the same scope ------------------------------
+    # MARK: Ask for an auth code again, with the same scope ----------------------------
 
     authcode_params['state'] = token_urlsafe()
     rv = client.get(

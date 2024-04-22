@@ -16,7 +16,7 @@ from funnel.views.notifications.mixins import TemplateVarMixin
 from ...conftest import Flask, TestClient, scoped_session
 
 
-@pytest.fixture()
+@pytest.fixture
 def phone_vetinari(
     db_session: scoped_session, user_vetinari: models.User
 ) -> models.AccountPhone:
@@ -27,7 +27,7 @@ def phone_vetinari(
     return accountphone
 
 
-@pytest.fixture()
+@pytest.fixture
 def notification_prefs_vetinari(
     db_session: scoped_session, user_vetinari: models.User
 ) -> models.NotificationPreferences:
@@ -46,7 +46,7 @@ def notification_prefs_vetinari(
     return prefs
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_update(
     db_session: scoped_session,
     user_vetinari: models.User,
@@ -67,14 +67,16 @@ def project_update(
     return update
 
 
-@pytest.fixture()
+@pytest.fixture
 def update_notification_recipient(
     db_session: scoped_session,
     user_vetinari: models.User,
     project_update: models.Update,
 ) -> models.NotificationRecipient:
     """Get a user notification for the update fixture."""
-    notification = models.NewUpdateNotification(project_update)
+    notification = models.ProjectUpdateNotification(
+        document=project_update.project, fragment=project_update
+    )
     db_session.add(notification)
     db_session.commit()
 
@@ -94,7 +96,7 @@ def test_notification_recipient_is_user_vetinari(
     assert update_notification_recipient.recipient == user_vetinari
 
 
-@pytest.fixture()
+@pytest.fixture
 def unsubscribe_sms_short_url(
     update_notification_recipient: models.NotificationRecipient,
     phone_vetinari: models.AccountPhone,
@@ -166,21 +168,28 @@ def test_template_var_mixin() -> None:
     t1.var_max_length = 40
 
     p1 = SimpleNamespace(
-        title='Ankh-Morpork 2010', joined_title='Ankh-Morpork / Ankh-Morpork 2010'
+        title='Ankh-Morpork 2010', joined_title='Discworld / Ankh-Morpork 2010'
     )
     u1 = SimpleNamespace(
         pickername='Havelock Vetinari (@vetinari)', title='Havelock Vetinari'
     )
     u2 = SimpleNamespace(pickername='Twoflower', title='Twoflower')
+    a1 = SimpleNamespace(pickername='Discworld (@discworld)', title='Discworld')
     t1.project = cast(models.Project, p1)
+    t1.project_title = cast(models.Project, p1)
     t1.user = cast(models.User, u2)
     t1.actor = cast(models.User, u1)
+    t1.account = cast(models.Account, a1)
+    t1.account_title = cast(models.Account, a1)
     assert isinstance(t1.project, str)
     assert isinstance(t1.actor, str)
     assert isinstance(t1.user, str)
-    assert t1.project == 'Ankh-Morpork / Ankh-Morpork 2010'
+    assert t1.project == 'Discworld / Ankh-Morpork 2010'
+    assert t1.project_title == 'Ankh-Morpork 2010'
     assert t1.actor == 'Havelock Vetinari (@vetinari)'
     assert t1.user == 'Twoflower'
+    assert t1.account == 'Discworld (@discworld)'
+    assert t1.account_title == 'Discworld'
 
     # Do this again to confirm truncation at a smaller size
     t1.var_max_length = 20

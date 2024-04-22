@@ -29,15 +29,16 @@ venvs = [".venv"]
 paths = ["funnel", "tests", "migrations/versions"]
 deps-file = "requirements/base.in"
 exclude-deps = [
-  "argon2-cffi",   # Optional dep for passlib
-  "bcrypt",        # Optional dep for passlib
-  "greenlet",      # Optional dep for SQLAlchemy's asyncio support
-  "gunicorn",      # Not imported, used as server
-  "linkify-it-py", # Optional dep for markdown-it-py
-  "psycopg",       # Optional dep for SQLAlchemy
-  "rq-dashboard",  # Creosote fails to recognise the import
-  "tzdata",        # Resource-only dep, no code to import
-  "urllib3",       # Unused but required to silence a pip-audit warning
+  "argon2-cffi",     # Optional dep for passlib
+  "bcrypt",          # Optional dep for passlib
+  "greenlet",        # Optional dep for SQLAlchemy's asyncio support
+  "gunicorn",        # Not imported, used as server
+  "linkify-it-py",   # Optional dep for markdown-it-py
+  "psycopg",         # Optional dep for SQLAlchemy
+  "python-dateutil", # Creosote fails to recognise the import
+  "rq-dashboard",    # Creosote fails to recognise the import
+  "tzdata",          # Resource-only dep, no code to import
+  "urllib3",         # Unused but required to silence a pip-audit warning
 ]
 
 [tool.djlint]
@@ -187,6 +188,7 @@ disable = [
   'invalid-name',                   # Flake8 covers our naming convention requirements
   'line-too-long',                  # Long lines are okay if Black doesn't wrap them
   'no-member',                      # Pylint gets confused over how some members become part of an instance
+  'no-value-for-parameter',         # False positives with SQLAlchemy's hybrid_method
   'too-few-public-methods',         # Data classes and validator classes have few methods
   'too-many-ancestors',             # Our models have a large number of mixin classes
   'too-many-arguments',             # Callables can have many optional arguments
@@ -335,3 +337,7 @@ section-order = [
 
 [tool.ruff.lint.isort.sections]
 repo = ['funnel']
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false

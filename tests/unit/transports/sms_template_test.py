@@ -11,7 +11,7 @@ from flask import Flask
 from funnel.transports import sms
 
 
-@pytest.fixture()
+@pytest.fixture
 def app() -> Flask:
     test_app = Flask(__name__)
     test_app.config['TESTING'] = True
@@ -230,7 +230,7 @@ def test_object_use(msgt: SimpleNamespace) -> None:
     assert msg.plaintext == "sample3 here"
 
 
-# --- Test the registered templates
+# MARK: Test the registered templates
 
 
 def test_web_otp_template() -> None:

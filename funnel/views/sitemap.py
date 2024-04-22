@@ -20,7 +20,7 @@ from ..models import Account, Project, Proposal, Session, Update
 from .decorators import xml_response
 from .index import policy_pages
 
-# --- Sitemap models -------------------------------------------------------------------
+# MARK: Sitemap models -----------------------------------------------------------------
 
 
 class ChangeFreq(str, Enum):
@@ -57,7 +57,7 @@ class SitemapPage:
     priority: float | None = None
 
 
-# --- Helper functions -----------------------------------------------------------------
+# MARK: Helper functions ---------------------------------------------------------------
 
 
 # The earliest date in Hasgeek's production database is 26 May 2011 (from Lastuser).
@@ -166,7 +166,7 @@ def changefreq_for_age(age: timedelta) -> ChangeFreq:
     return ChangeFreq.yearly
 
 
-# --- Model queries --------------------------------------------------------------------
+# MARK: Model queries ------------------------------------------------------------------
 
 
 @executor.job
@@ -247,7 +247,7 @@ def query_session(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) ->
     ]
 
 
-# --- Views ----------------------------------------------------------------------------
+# MARK: Views --------------------------------------------------------------------------
 
 
 @route('/', init_app=app)

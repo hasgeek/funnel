@@ -9,7 +9,7 @@
 
 __protected__ = ['types']
 
-# --- Everything below this line is auto-generated using `make initpy` -----------------
+# MARK: Everything below this line is auto-generated using `make initpy` ---------------
 
 import lazy_loader
 
@@ -23,6 +23,7 @@ __all__ = [
     "AccountEmailClaim",
     "AccountExternalId",
     "AccountMembership",
+    "AccountNameProblem",
     "AccountOldId",
     "AccountPasswordNotification",
     "AccountPhone",
@@ -98,7 +99,6 @@ __all__ = [
     "ModelUrlProtocol",
     "ModelUuidProtocol",
     "NewCommentNotification",
-    "NewUpdateNotification",
     "NoIdMixin",
     "Notification",
     "NotificationFor",
@@ -130,6 +130,8 @@ __all__ = [
     "ProjectRsvpStateEnum",
     "ProjectSponsorMembership",
     "ProjectStartingNotification",
+    "ProjectTomorrowNotification",
+    "ProjectUpdateNotification",
     "Proposal",
     "ProposalLabelProxy",
     "ProposalLabelProxyWrapper",
@@ -170,6 +172,7 @@ __all__ = [
     "UrlType",
     "User",
     "UuidMixin",
+    "VISIBILITY_STATE",
     "Venue",
     "VenueRoom",
     "VideoError",
@@ -197,6 +200,7 @@ __all__ = [
     "getextid",
     "getuser",
     "helpers",
+    "hybrid_method",
     "hybrid_property",
     "label",
     "login_session",
@@ -219,6 +223,7 @@ __all__ = [
     "project_child_role_map",
     "project_child_role_set",
     "project_membership",
+    "project_venue_primary_table",
     "proposal",
     "proposal_membership",
     "quote_autocomplete_like",

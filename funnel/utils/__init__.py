@@ -2,7 +2,7 @@
 
 __ignore__ = ['base', 'escape', 'tabs']  # Unwanted exports from markdown sub-package
 
-# --- Everything below this line is auto-generated using `make initpy` -----------------
+# MARK: Everything below this line is auto-generated using `make initpy` ---------------
 
 from . import markdown, misc, mustache
 from .markdown import (

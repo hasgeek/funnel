@@ -8,7 +8,7 @@ from funnel import models
 from ...conftest import LoginFixtureProtocol, TestClient
 
 
-@pytest.mark.dbcommit()
+@pytest.mark.dbcommit
 def test_manage_labels_view(
     app: Flask,
     client: TestClient,
@@ -25,7 +25,7 @@ def test_manage_labels_view(
     assert new_main_label.title in resp.data.decode('utf-8')
 
 
-@pytest.mark.dbcommit()
+@pytest.mark.dbcommit
 def test_edit_option_label_view(
     app: Flask,
     client: TestClient,

@@ -44,6 +44,7 @@ from .account import (
     AccountEmail,
     AccountEmailClaim,
     AccountExternalId,
+    AccountNameProblem,
     AccountOldId,
     AccountPhone,
     Anchor,
@@ -93,6 +94,7 @@ from .base import (
     db,
     declarative_mixin,
     declared_attr,
+    hybrid_method,
     hybrid_property,
     postgresql,
     relationship,
@@ -172,12 +174,13 @@ from .notification_types import (
     CommentReplyNotification,
     CommentReportReceivedNotification,
     NewCommentNotification,
-    NewUpdateNotification,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
     ProjectStartingNotification,
+    ProjectTomorrowNotification,
+    ProjectUpdateNotification,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
     RegistrationCancellationNotification,
@@ -228,7 +231,7 @@ from .typing import (
     ModelUrlProtocol,
     ModelUuidProtocol,
 )
-from .update import Update
+from .update import VISIBILITY_STATE, Update
 from .utils import (
     AccountAndAnchor,
     IncompleteUserMigrationError,
@@ -236,7 +239,7 @@ from .utils import (
     getuser,
     merge_accounts,
 )
-from .venue import Venue, VenueRoom
+from .venue import Venue, VenueRoom, project_venue_primary_table
 from .video_mixin import VideoError, VideoMixin, parse_video_url
 
 __all__ = [
@@ -247,6 +250,7 @@ __all__ = [
     "AccountEmailClaim",
     "AccountExternalId",
     "AccountMembership",
+    "AccountNameProblem",
     "AccountOldId",
     "AccountPasswordNotification",
     "AccountPhone",
@@ -322,7 +326,6 @@ __all__ = [
     "ModelUrlProtocol",
     "ModelUuidProtocol",
     "NewCommentNotification",
-    "NewUpdateNotification",
     "NoIdMixin",
     "Notification",
     "NotificationFor",
@@ -354,6 +357,8 @@ __all__ = [
     "ProjectRsvpStateEnum",
     "ProjectSponsorMembership",
     "ProjectStartingNotification",
+    "ProjectTomorrowNotification",
+    "ProjectUpdateNotification",
     "Proposal",
     "ProposalLabelProxy",
     "ProposalLabelProxyWrapper",
@@ -394,6 +399,7 @@ __all__ = [
     "UrlType",
     "User",
     "UuidMixin",
+    "VISIBILITY_STATE",
     "Venue",
     "VenueRoom",
     "VideoError",
@@ -421,6 +427,7 @@ __all__ = [
     "getextid",
     "getuser",
     "helpers",
+    "hybrid_method",
     "hybrid_property",
     "label",
     "login_session",
@@ -443,6 +450,7 @@ __all__ = [
     "project_child_role_map",
     "project_child_role_set",
     "project_membership",
+    "project_venue_primary_table",
     "proposal",
     "proposal_membership",
     "quote_autocomplete_like",

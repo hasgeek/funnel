@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
 from hashlib import sha1
-from typing import Any
+from typing import Any, NoReturn
 
 import requests
 from flask import url_for
@@ -19,6 +19,7 @@ from ..models import (
     PASSWORD_MAX_LENGTH,
     PASSWORD_MIN_LENGTH,
     Account,
+    AccountNameProblem,
     Anchor,
     User,
     check_password_strength,
@@ -384,21 +385,26 @@ class PasswordChangeForm(forms.Form):
             raise forms.validators.ValidationError(_("Incorrect password"))
 
 
-def raise_username_error(reason: str) -> str:
+def raise_username_error(reason: AccountNameProblem) -> NoReturn:
     """Provide a user-friendly error message for a username field error."""
-    if reason == 'blank':
-        raise forms.validators.ValidationError(_("This is required"))
-    if reason == 'long':
-        raise forms.validators.ValidationError(_("This is too long"))
-    if reason == 'invalid':
-        raise forms.validators.ValidationError(
-            _("Usernames can only have alphabets, numbers and underscores")
-        )
-    if reason == 'reserved':
-        raise forms.validators.ValidationError(_("This username is reserved"))
-    if reason in ('user', 'org'):
-        raise forms.validators.ValidationError(_("This username has been taken"))
-    raise forms.validators.ValidationError(_("This username is not available"))
+    match reason:
+        case AccountNameProblem.BLANK:
+            raise forms.validators.ValidationError(_("This is required"))
+        case AccountNameProblem.LONG:
+            raise forms.validators.ValidationError(_("This is too long"))
+        case AccountNameProblem.INVALID:
+            raise forms.validators.ValidationError(
+                _("Usernames can only have alphabets, numbers and underscores")
+            )
+        case AccountNameProblem.RESERVED:
+            raise forms.validators.ValidationError(_("This username is reserved"))
+        case (
+            AccountNameProblem.ACCOUNT
+            | AccountNameProblem.USER
+            | AccountNameProblem.ORG
+            | AccountNameProblem.PLACEHOLDER
+        ):
+            raise forms.validators.ValidationError(_("This username is taken"))
 
 
 @Account.forms('main')

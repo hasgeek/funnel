@@ -37,7 +37,7 @@ from ..utils import abort_null
 from .helpers import render_redirect
 from .mixins import AccountViewBase, ProjectViewBase
 
-# --- Definitions ----------------------------------------------------------------------
+# MARK: Definitions --------------------------------------------------------------------
 
 _Q = TypeVar('_Q', bound=Query)
 _ST = TypeVar('_ST', bound=ModelSearchProtocol)
@@ -60,7 +60,7 @@ match_text_breakpoint_re = re.compile('[¦\r\n].*')
 # regex here.
 html_whitespace_re = re.compile(r'\s+', re.ASCII)
 
-# --- Search provider types ------------------------------------------------------------
+# MARK: Search provider types ----------------------------------------------------------
 
 
 class SearchProvider(Generic[_ST]):
@@ -132,7 +132,7 @@ class SearchProvider(Generic[_ST]):
             type_=sa.UnicodeText,
         )
 
-    # --- Query methods
+    # MARK: Query methods
 
     def add_order_by(self, tsquery: sa.Function, query: _Q) -> _Q:
         """Add an order_by condition to the query."""
@@ -182,7 +182,7 @@ class SearchInProjectProvider(SearchInAccountProvider[_ST]):
         )
 
 
-# --- Search providers -----------------------------------------------------------------
+# MARK: Search providers ---------------------------------------------------------------
 
 
 class ProjectSearch(SearchInAccountProvider):
@@ -648,7 +648,7 @@ search_providers: dict[str, SearchProvider] = {
 }
 
 
-# --- Utilities ---------------------------------------------------------------
+# MARK: Utilities ----------------------------------------------------------------------
 
 
 def escape_quotes(text: str) -> Markup:
@@ -679,7 +679,7 @@ def clean_matched_text(text: str) -> str:
     )
 
 
-# --- Search functions --------------------------------------------------------
+# MARK: Search functions ---------------------------------------------------------------
 
 
 class SearchCountType(TypedDict, total=False):
@@ -818,7 +818,7 @@ def search_results(
     }
 
 
-# --- Views -------------------------------------------------------------------
+# MARK: Views --------------------------------------------------------------------------
 
 
 @route('/', init_app=app)

@@ -1,0 +1,30 @@
+{%- extends "notifications/layout_email.html.jinja2" -%}
+{%- from "notifications/macros_email.html.jinja2" import pinned_update, cta_button, rsvp_footer -%}
+{%- block content -%}
+
+  <tr align="center">
+    <td class="text-content">
+      <p class="body-content">
+        {%- with venue = view.project.primary_venue %}
+          {%- if venue %}
+            {%- trans project=view.project.joined_title, start_at=(view.session or view.project).start_at_localized|datetime, venue=venue.title, location=venue.city or project.location -%}
+              <b>{{ project }}</b> has an in-person session at {{ venue }}, {{ location }} starting {{ start_at }}.
+            {%- endtrans -%}
+          {%- else %}
+            {%- trans project=view.project.joined_title, start_at=(view.session or view.project).start_at_localized|datetime, location=project.location -%}
+              <b>{{ project }}</b> has an in-person session at {{ location }}, starting {{ start_at }}.
+            {%- endtrans -%}
+          {%- endif %}
+        {%- endwith %}
+      </p>
+    </td>
+  </tr>
+  <br/>
+
+  {#- Button : BEGIN #}
+  {{ cta_button(view.project.url_for(_external=true, **view.tracking_tags()), gettext("Join now") ) }}
+  {#- Button : END #}
+
+  {{ pinned_update(view, view.project) }}
+
+{%- endblock content -%}

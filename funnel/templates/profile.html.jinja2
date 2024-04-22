@@ -46,6 +46,21 @@
 {% endblock baseheadline %}
 
 {% block basecontent %}
+  {%- if profile.is_verified %}
+    <div class="bg-accent">
+      <div class="projects-wrapper">
+        <div class="mui-container">
+          <div class="grid">
+            <div class="grid__col-12">
+              <div class="markdown">
+                {{ profile.description }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {%- endif %}
   <div class="bg-accent">
     {%- if profile.is_organization_profile %}
       {%- with people = profile.views.people_and_teams() %}
@@ -88,6 +103,18 @@
           {%- if profile.features.new_project() %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
               <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-ga="Add new project">
+                <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left">
+                  <div class="flex-wrapper flex-wrapper--center">
+                    <span class="profile-avatar margin-right">
+                      {%- if profile.logo_url.url %}
+                        <img src="{{ profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ profile.title }}"/>
+                      {% else %}
+                        <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ profile.title }}"/>
+                      {% endif %}
+                    </span>
+                    <span class="profile-avatar-title mui--text-body2 text-bold mui--text-dark">{{ profile.title }}</span>
+                  </div>
+                </div>
                 <div class="card__image-wrapper">
                   <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="new"/>
                   <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class="mui--align-middle card__image-wrapper__icon-wrapper__icon") }}</p>
@@ -216,8 +243,14 @@
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
           org: {{ membership_project.boxoffice_data.org|tojson }},
-          itemCollectionId: {{ membership_project.boxoffice_data.item_collection_id|tojson }},
-          itemCollectionTitle: {{ membership_project.title|tojson }}
+          menuId: {{ membership_project.boxoffice_data.item_collection_id|tojson }},
+          menuTitle: {{ membership_project.title|tojson }}
+          {%- if current_auth.user -%}
+          ,
+          userName: {{current_auth.user.fullname|tojson }},
+          userEmail: {{ current_auth.user.email|tojson }},
+          userPhone: {{ current_auth.user.phone|tojson }}
+          {%- endif -%}
         };
       {%- endif %}
       window.Hasgeek.homeInit('.markdown', tickets);

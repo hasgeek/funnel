@@ -23,7 +23,7 @@ branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
 
-# --- Tables ---------------------------------------------------------------------------
+# MARK: Tables -------------------------------------------------------------------------
 
 
 user_email = table(
@@ -75,7 +75,7 @@ email_address = table(
 )
 
 
-# --- Functions ------------------------------------------------------------------------
+# MARK: Functions ----------------------------------------------------------------------
 
 
 def get_progressbar(label, maxval):
@@ -156,13 +156,13 @@ def email_domain_naive(email):
     return email.lower().split('@', 1)[1]
 
 
-# --- Migrations -----------------------------------------------------------------------
+# MARK: Migrations ---------------------------------------------------------------------
 
 
 def upgrade() -> None:
     conn = op.get_bind()
 
-    # --- UserEmail --------------------------------------------------------------------
+    # MARK: UserEmail ------------------------------------------------------------------
     op.add_column(
         'user_email', sa.Column('email_address_id', sa.Integer(), nullable=True)
     )
@@ -241,7 +241,7 @@ def upgrade() -> None:
     op.drop_column('user_email', 'domain')
     op.drop_column('user_email', 'md5sum')
 
-    # --- UserEmailClaim ---------------------------------------------------------------
+    # MARK: UserEmailClaim -------------------------------------------------------------
     op.add_column(
         'user_email_claim', sa.Column('email_address_id', sa.Integer(), nullable=True)
     )
@@ -330,7 +330,7 @@ def upgrade() -> None:
     op.drop_column('user_email_claim', 'domain')
     op.drop_column('user_email_claim', 'md5sum')
 
-    # --- Proposal ---------------------------------------------------------------------
+    # MARK: Proposal -------------------------------------------------------------------
     op.add_column(
         'proposal', sa.Column('email_address_id', sa.Integer(), nullable=True)
     )
@@ -408,7 +408,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     conn = op.get_bind()
 
-    # --- Proposal ---------------------------------------------------------------------
+    # MARK: Proposal -------------------------------------------------------------------
     op.add_column(
         'proposal',
         sa.Column('email', sa.VARCHAR(length=80), autoincrement=False, nullable=True),
@@ -437,7 +437,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_proposal_email_address_id'), table_name='proposal')
     op.drop_column('proposal', 'email_address_id')
 
-    # --- UserEmailClaim ---------------------------------------------------------------
+    # MARK: UserEmailClaim -------------------------------------------------------------
     op.add_column(
         'user_email_claim',
         sa.Column('md5sum', sa.VARCHAR(length=32), autoincrement=False, nullable=True),
@@ -505,7 +505,7 @@ def downgrade() -> None:
     )
     op.drop_column('user_email_claim', 'email_address_id')
 
-    # --- UserEmail --------------------------------------------------------------------
+    # MARK: UserEmail ------------------------------------------------------------------
     op.add_column(
         'user_email',
         sa.Column('md5sum', sa.VARCHAR(length=32), autoincrement=False, nullable=True),
@@ -560,6 +560,6 @@ def downgrade() -> None:
     op.create_index('ix_user_email_domain', 'user_email', ['domain'], unique=False)
     op.drop_column('user_email', 'email_address_id')
 
-    # --- Drop imported contents and restart sequence ----------------------------------
+    # MARK: Drop imported contents and restart sequence --------------------------------
     op.get_bind().execute(email_address.delete())
     op.execute(sa.text('ALTER SEQUENCE email_address_id_seq RESTART'))

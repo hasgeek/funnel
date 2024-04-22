@@ -227,7 +227,7 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def second_organization(
     db_session: scoped_session, new_user2: models.User
 ) -> models.Organization:

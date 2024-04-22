@@ -75,7 +75,6 @@ const Ticketing = {
       () => {
         window.Boxoffice.init({
           org,
-          itemCollection: menuId,
           menu: menuId,
           paymentDesc: menuTitle,
           user_name: userName,

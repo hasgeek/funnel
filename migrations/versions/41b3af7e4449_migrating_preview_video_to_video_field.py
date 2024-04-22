@@ -21,7 +21,8 @@ down_revision = '530c22761e27'
 branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
-# --- Tables ---------------------------------------------------------------------------
+# MARK: Tables -------------------------------------------------------------------------
+
 proposal = table(
     'proposal',
     column('id', sa.Integer()),
@@ -31,7 +32,7 @@ proposal = table(
 )
 
 
-# --- Functions ------------------------------------------------------------------------
+# MARK: Functions ----------------------------------------------------------------------
 
 troublesome_filename = 'preview-video-troublesome.csv'
 
@@ -127,7 +128,7 @@ def make_video_url(video_source: str, video_id: str):
     raise ValueError("Unknown video source")
 
 
-# --- Migrations -----------------------------------------------------------------------
+# MARK: Migrations ---------------------------------------------------------------------
 
 
 def upgrade() -> None:

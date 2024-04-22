@@ -44,6 +44,7 @@ from ..models import (
 )
 from ..signals import project_data_change, project_role_change
 from ..typing import ReturnRenderWith, ReturnView
+from .decorators import idempotent_request
 from .helpers import html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import (
@@ -482,8 +483,6 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                 db.session.commit()
 
             return render_redirect(self.obj.url_for())
-        # Reset nonce to avoid conflict with autosave
-        form.form_nonce.data = form.form_nonce.get_default()
         return render_form(
             form=form,
             title=_("Edit project"),
@@ -656,6 +655,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         return render_redirect(self.obj.url_for())
 
     @route('cfp_transition', methods=['POST'])
+    @idempotent_request()
     @requires_login
     @requires_roles({'editor'})
     def cfp_transition(self) -> ReturnView:
@@ -694,6 +694,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         }
 
     @route('register', methods=['POST'])
+    @idempotent_request()
     @requires_login
     def register(self) -> ReturnView:
         """Register for project as a participant."""
@@ -728,6 +729,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         return render_redirect(self.obj.url_for())
 
     @route('deregister', methods=['POST'])
+    @idempotent_request()
     @requires_login
     def deregister(self) -> ReturnView:
         """Unregister from project as a participant."""
@@ -820,12 +822,12 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         return self.get_rsvp_state_csv(RsvpStateEnum.MAYBE)
 
     @route('save', methods=['POST'])
+    @idempotent_request()
     @requires_login
     @requires_roles({'reader'})
     def save(self) -> ReturnView:
         """Save (bookmark) a project."""
         form = self.SavedProjectForm()
-        form.form_nonce.data = form.form_nonce.get_default()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
                 account=current_auth.user, project=self.obj
@@ -842,13 +844,11 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                 if proj_save is not None:
                     db.session.delete(proj_save)
                     db.session.commit()
-            # Send new form nonce
-            return {'status': 'ok', 'form_nonce': form.form_nonce.data}
+            return {'status': 'ok'}
         return {
             'status': 'error',
             'error': 'project_save_form_invalid',
             'error_description': _("This page timed out. Reload and try again"),
-            'form_nonce': form.form_nonce.data,
         }, 400
 
     @route('admin', methods=['GET', 'POST'])

@@ -14,7 +14,7 @@ pytestmark = pytest.mark.filterwarnings(
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def user(db_session: scoped_session) -> models.User:
     """User fixture."""
     new_user = models.User(  # nosec
@@ -25,7 +25,7 @@ def user(db_session: scoped_session) -> models.User:
     return new_user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_nameless(db_session: scoped_session) -> models.User:
     """User fixture without a username."""
     new_user = models.User(  # nosec
@@ -37,7 +37,7 @@ def user_nameless(db_session: scoped_session) -> models.User:
     return new_user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_named(db_session: scoped_session) -> models.User:
     """User fixture with a username."""
     new_user = models.User(  # nosec
@@ -49,7 +49,7 @@ def user_named(db_session: scoped_session) -> models.User:
     return new_user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_email(db_session: scoped_session, user: models.User) -> models.AccountEmail:
     """Email address for user fixture."""
     retval = user.add_email('user@example.com')
@@ -57,7 +57,7 @@ def user_email(db_session: scoped_session, user: models.User) -> models.AccountE
     return retval
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_phone(db_session: scoped_session, user: models.User) -> models.AccountPhone:
     """Phone number for user fixture."""
     retval = user.add_phone('+912345678901')

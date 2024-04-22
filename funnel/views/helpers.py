@@ -13,7 +13,7 @@ from hashlib import blake2b
 from importlib import resources
 from os import urandom
 from typing import Any, ContextManager, Literal
-from urllib.parse import quote, unquote, urljoin, urlsplit
+from urllib.parse import quote, unquote, urljoin
 
 import brotli
 from flask import (
@@ -51,7 +51,7 @@ nocache_expires = utc.localize(datetime(1990, 1, 1))
 # Six avatar colours defined in _variable.scss
 avatar_color_count = 6
 
-# --- Timezone data --------------------------------------------------------------------
+# MARK: Timezone data ------------------------------------------------------------------
 
 # Get all known timezones from zoneinfo and make a lowercased lookup table
 valid_timezones = {_tz.lower(): _tz for _tz in zoneinfo.available_timezones()}
@@ -64,7 +64,7 @@ with (resources.files('tzdata.zoneinfo') / 'tzdata.zi').open(
             _tzlink, _tznew, _tzold = _tzline.strip().split()
             valid_timezones[_tzold.lower()] = _tznew
 
-# --- Classes --------------------------------------------------------------------------
+# MARK: Classes ------------------------------------------------------------------------
 
 
 class SessionTimeouts(dict[str, timedelta]):
@@ -124,7 +124,7 @@ class SessionTimeouts(dict[str, timedelta]):
 session_timeouts = SessionTimeouts()
 app.after_request(session_timeouts.crosscheck_session)
 
-# --- Utilities ------------------------------------------------------------------------
+# MARK: Utilities ----------------------------------------------------------------------
 
 
 def app_context() -> ContextManager:
@@ -284,9 +284,10 @@ def localize_date(
     return date
 
 
-def get_scheme_netloc(uri: str) -> tuple[str, str]:
-    parsed_uri = urlsplit(uri)
-    return parsed_uri.scheme, parsed_uri.netloc
+def get_scheme_netloc(uri: str | furl) -> tuple[str | None, str | None]:
+    if isinstance(uri, str):
+        uri = furl(uri)
+    return uri.scheme, uri.netloc
 
 
 def autoset_timezone_and_locale() -> None:
@@ -542,7 +543,7 @@ def compress_response(response: BaseResponse) -> None:
             response.vary.add('Accept-Encoding')
 
 
-# --- Template helpers -----------------------------------------------------------------
+# MARK: Template helpers ---------------------------------------------------------------
 
 
 def render_redirect(url: str, code: int = 303) -> ReturnResponse:
@@ -566,7 +567,9 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
     return redirect(url, code)
 
 
-def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]:
+def html_in_json(
+    template: str,
+) -> dict[str, str | Callable[[Mapping[str, Any]], ReturnView]]:
     """
     Render a HTML fragment in a JSON wrapper, for use with ``@render_with``.
 
@@ -576,7 +579,7 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
         def my_view(...) -> ReturnRenderWith: ...
     """
 
-    def render_json_with_status(kwargs: dict[str, Any]) -> ReturnResponse:
+    def render_json_with_status(kwargs: Mapping[str, Any]) -> ReturnResponse:
         """Render plain JSON."""
         return jsonify(
             status='ok',
@@ -590,7 +593,7 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
             },
         )
 
-    def render_html_in_json(kwargs: dict[str, Any]) -> ReturnResponse:
+    def render_html_in_json(kwargs: Mapping[str, Any]) -> ReturnResponse:
         """Render HTML fragment in JSON."""
         resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
         resp.content_type = 'application/x.html+json; charset=utf-8'
@@ -603,7 +606,7 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
     }
 
 
-# --- Filters and URL constructors -----------------------------------------------------
+# MARK: Filters and URL constructors ---------------------------------------------------
 
 
 @app.template_filter('url_join')
@@ -637,7 +640,7 @@ def shortlink(url: str, actor: Account | None = None, shorter: bool = True) -> s
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
 
 
-# --- Request/response handlers --------------------------------------------------------
+# MARK: Request/response handlers ------------------------------------------------------
 
 
 @app.before_request

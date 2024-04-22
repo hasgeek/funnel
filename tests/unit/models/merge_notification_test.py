@@ -26,7 +26,7 @@ def fixture_notification_type(database: SQLAlchemy) -> Any:
     return MergeTestNotification
 
 
-@pytest.fixture()
+@pytest.fixture
 def fixtures(db_session: scoped_session) -> SimpleNamespace:
     # pylint: disable=possibly-unused-variable
     owner = models.User(
@@ -53,7 +53,7 @@ def fixtures(db_session: scoped_session) -> SimpleNamespace:
     return SimpleNamespace(**locals())
 
 
-@pytest.fixture()
+@pytest.fixture
 def notification(
     db_session: scoped_session, fixtures: SimpleNamespace
 ) -> models.OrganizationAdminMembershipNotification:
@@ -65,7 +65,7 @@ def notification(
     return new_notification
 
 
-@pytest.fixture()
+@pytest.fixture
 def notification_recipient1(
     db_session: scoped_session,
     fixtures: SimpleNamespace,
@@ -75,14 +75,14 @@ def notification_recipient1(
         eventid=notification.eventid,
         recipient_id=fixtures.user1.id,
         notification_id=notification.id,
-        role=models.OrganizationAdminMembershipNotification.roles[-1],
+        role=notification.dispatch_roles[-1],
     )
     db_session.add(nr)
     db_session.commit()
     return nr
 
 
-@pytest.fixture()
+@pytest.fixture
 def notification_recipient2(
     db_session: scoped_session,
     fixtures: SimpleNamespace,
@@ -92,14 +92,14 @@ def notification_recipient2(
         eventid=notification.eventid,
         recipient_id=fixtures.user2.id,
         notification_id=notification.id,
-        role=models.OrganizationAdminMembershipNotification.roles[-1],
+        role=notification.dispatch_roles[-1],
     )
     db_session.add(nr)
     db_session.commit()
     return nr
 
 
-@pytest.fixture()
+@pytest.fixture
 def user1_main_preferences(
     db_session: scoped_session, fixtures: SimpleNamespace
 ) -> models.NotificationPreferences:
@@ -109,7 +109,7 @@ def user1_main_preferences(
     return prefs
 
 
-@pytest.fixture()
+@pytest.fixture
 def user1_test_preferences(
     db_session: scoped_session,
     fixtures: SimpleNamespace,
@@ -123,7 +123,7 @@ def user1_test_preferences(
     return prefs
 
 
-@pytest.fixture()
+@pytest.fixture
 def user2_main_preferences(
     db_session: scoped_session, fixtures: SimpleNamespace
 ) -> models.NotificationPreferences:
@@ -133,7 +133,7 @@ def user2_main_preferences(
     return prefs
 
 
-@pytest.fixture()
+@pytest.fixture
 def user2_test_preferences(
     db_session: scoped_session,
     fixtures: SimpleNamespace,
@@ -147,7 +147,7 @@ def user2_test_preferences(
     return prefs
 
 
-# --- Tests for UserNotification -------------------------------------------------------
+# MARK: Tests for UserNotification -----------------------------------------------------
 
 
 def test_merge_without_notifications(
@@ -219,7 +219,7 @@ def test_merge_with_dupe_notifications(
     assert notification_recipient1.recipient == fixtures.user1
 
 
-# --- Tests for NotificationPreferences ------------------------------------------------
+# MARK: Tests for NotificationPreferences ----------------------------------------------
 
 
 def test_merge_with_user1_preferences(

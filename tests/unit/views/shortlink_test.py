@@ -13,7 +13,7 @@ from funnel import models
 from ...conftest import Flask, scoped_session
 
 
-@pytest.fixture()
+@pytest.fixture
 def shortlink_client(
     db_session: scoped_session, shortlinkapp: Flask
 ) -> Generator[FlaskClient, None, None]:
@@ -33,7 +33,7 @@ def test_shortlink_404(shortlink_client: FlaskClient) -> None:
     assert rv.status_code == 404
 
 
-@pytest.mark.dbcommit()
+@pytest.mark.dbcommit
 def test_shortlink_301(
     db_session: scoped_session, shortlink_client: FlaskClient
 ) -> None:
@@ -46,7 +46,7 @@ def test_shortlink_301(
     assert rv.headers['Referrer-Policy'] == 'unsafe-url'
 
 
-@pytest.mark.dbcommit()
+@pytest.mark.dbcommit
 def test_shortlink_410(
     db_session: scoped_session, shortlink_client: FlaskClient
 ) -> None:

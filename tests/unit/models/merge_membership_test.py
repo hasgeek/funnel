@@ -9,7 +9,7 @@ from funnel import models
 from ...conftest import scoped_session
 
 
-@pytest.fixture()
+@pytest.fixture
 def death_membership(
     db_session: scoped_session,
     org_ankhmorpork: models.Organization,
@@ -21,7 +21,7 @@ def death_membership(
     return membership
 
 
-@pytest.fixture()
+@pytest.fixture
 def death_owner_membership(
     db_session: scoped_session,
     org_ankhmorpork: models.Organization,
@@ -35,7 +35,7 @@ def death_owner_membership(
     return membership
 
 
-@pytest.fixture()
+@pytest.fixture
 def rincewind_membership(
     db_session: scoped_session,
     org_ankhmorpork: models.Organization,
@@ -49,7 +49,7 @@ def rincewind_membership(
     return membership
 
 
-@pytest.fixture()
+@pytest.fixture
 def rincewind_owner_membership(
     db_session: scoped_session,
     org_ankhmorpork: models.Organization,
@@ -63,7 +63,7 @@ def rincewind_owner_membership(
     return membership
 
 
-# --- Tests ----------------------------------------------------------------------------
+# MARK: Tests --------------------------------------------------------------------------
 
 
 def test_merge_without_membership(

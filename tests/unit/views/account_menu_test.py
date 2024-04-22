@@ -9,7 +9,7 @@ from funnel import models
 from ...conftest import scoped_session
 
 
-@pytest.mark.dbcommit()  # Required for granted_at time to be unique per commit
+@pytest.mark.dbcommit  # Required for granted_at time to be unique per commit
 @pytest.mark.parametrize(
     (
         'number_of_orgs',

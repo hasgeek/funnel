@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from datetime import datetime, timedelta
 from enum import ReprEnum
 from typing import TYPE_CHECKING, Any, Literal, Self, cast, overload
@@ -20,9 +20,9 @@ from werkzeug.utils import cached_property
 from baseframe import __, localize_timezone
 from coaster.sqlalchemy import (
     DynamicAssociationProxy,
-    LazyRoleSet,
     ManagedState,
     StateManager,
+    role_check,
     with_roles,
 )
 from coaster.utils import LabeledEnum, buid, utcnow
@@ -60,7 +60,7 @@ from .helpers import (
 __all__ = ['ProjectRsvpStateEnum', 'Project', 'ProjectLocation', 'ProjectRedirect']
 
 
-# --- Constants ---------------------------------------------------------------
+# MARK: Constants -------------------------------------------------------------
 
 
 class PROJECT_STATE(LabeledEnum):  # noqa: N801
@@ -85,7 +85,7 @@ class ProjectRsvpStateEnum(IntTitle, ReprEnum):
     MEMBERS = 3, __("Only members can register")
 
 
-# --- Models ------------------------------------------------------------------
+# MARK: Models ----------------------------------------------------------------
 
 
 class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
@@ -102,11 +102,12 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     account: Mapped[Account] = with_roles(
         relationship(foreign_keys=[account_id], back_populates='projects'),
         read={'all'},
-        # If account grants an 'admin' role, make it 'account_admin' here
+        # Remap account roles for use in project
         grants_via={
             None: {
+                'owner': 'account_owner',
                 'admin': 'account_admin',
-                'follower': 'account_participant',
+                'follower': 'account_follower',
                 'member': 'account_member',
             }
         },
@@ -296,7 +297,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
     livestream_urls: Mapped[list[str] | None] = with_roles(
         sa_orm.mapped_column(
-            sa.ARRAY(sa.UnicodeText, dimensions=1),
+            sa.ARRAY(sa.Unicode, dimensions=1),
             nullable=True,  # For legacy data
             server_default=sa.text("'{}'::text[]"),
             default=None,
@@ -341,7 +342,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         deferred=True,
     )
 
-    # --- Backrefs and relationships
+    # MARK: Backrefs and relationships
 
     redirects: Mapped[list[ProjectRedirect]] = relationship(back_populates='project')
     locations: Mapped[list[ProjectLocation]] = relationship(back_populates='project')
@@ -374,7 +375,16 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
             ),
             viewonly=True,
         ),
-        grants_via={'member': {'editor', 'promoter', 'usher', 'participant', 'crew'}},
+        # Get subset of roles via offered_roles property
+        grants_via={
+            'member': {
+                'crew': {'crew', 'project_crew'},
+                'editor': {'editor', 'project_editor'},
+                'participant': {'participant', 'project_participant'},
+                'promoter': {'promoter', 'project_promoter'},
+                'usher': {'usher', 'project_usher'},
+            }
+        },
     )
 
     active_editor_memberships: DynamicMapped[ProjectMembership] = relationship(
@@ -407,12 +417,18 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         viewonly=True,
     )
 
-    crew = DynamicAssociationProxy[Account]('active_crew_memberships', 'member')
-    editors = DynamicAssociationProxy[Account]('active_editor_memberships', 'member')
-    promoters = DynamicAssociationProxy[Account](
-        'active_promoter_memberships', 'member'
+    crew: DynamicAssociationProxy[Account, ProjectMembership] = DynamicAssociationProxy(
+        'active_crew_memberships', 'member'
     )
-    ushers = DynamicAssociationProxy[Account]('active_usher_memberships', 'member')
+    editors: DynamicAssociationProxy[Account, ProjectMembership] = (
+        DynamicAssociationProxy('active_editor_memberships', 'member')
+    )
+    promoters: DynamicAssociationProxy[Account, ProjectMembership] = (
+        DynamicAssociationProxy('active_promoter_memberships', 'member')
+    )
+    ushers: DynamicAssociationProxy[Account, ProjectMembership] = (
+        DynamicAssociationProxy('active_usher_memberships', 'member')
+    )
 
     # proposal.py
     proposals: DynamicMapped[Proposal] = relationship(
@@ -463,7 +479,9 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
+    sponsors: DynamicAssociationProxy[Account, ProjectSponsorMembership] = (
+        DynamicAssociationProxy('sponsor_memberships', 'member')
+    )
 
     # sync_ticket.py
     ticket_clients: Mapped[list[TicketClient]] = relationship(back_populates='project')
@@ -503,6 +521,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     @property
     def rooms(self) -> list[VenueRoom]:
         return [room for venue in self.venues for room in venue.rooms]
+
+    # MARK: Model config
 
     __table_args__ = (
         sa.UniqueConstraint('account_id', 'name'),
@@ -572,6 +592,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         },
     }
 
+    # MARK: Conditional states
+
     state.add_conditional_state(
         'PAST',
         state.PUBLISHED,
@@ -612,12 +634,14 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         'HAS_PROPOSALS',
         cfp_state.ANY,
         lambda project: db.session.query(project.proposals.exists()).scalar(),
+        lambda project: project.proposals.exists(),
         label=('has_proposals', __("Has submissions")),
     )
     cfp_state.add_conditional_state(
         'HAS_SESSIONS',
         cfp_state.ANY,
         lambda project: db.session.query(project.sessions.exists()).scalar(),
+        lambda project: project.sessions.exists(),
         label=('has_sessions', __("Has sessions")),
     )
     cfp_state.add_conditional_state(
@@ -661,6 +685,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         cfp_state.EXPIRED,
     )
 
+    # MARK: Magic methods
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
@@ -685,6 +711,33 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         if not format_spec:
             return self.joined_title
         return format(self.joined_title, format_spec)
+
+    # MARK: Methods and properties
+
+    @role_check('member_participant')
+    def has_member_participant_role(
+        self, actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Confirm if the actor is both a participant and an account member."""
+        if actor is None:
+            return False
+        roles = self.roles_for(actor)
+        if 'participant' in roles and 'account_member' in roles:
+            return True
+        return False
+
+    @has_member_participant_role.iterable
+    def _(self) -> Iterable[Account]:
+        """All participants who are also account members."""
+        # TODO: This iterable causes a loop of SQL queries. It will be far more
+        # efficient to SQL JOIN the data sources once they are single-table sources.
+        # Rsvp needs to merge into ProjectMembership, and AccountMembership needs to
+        # replace the hacky "membership project" data source.
+        return (
+            account
+            for account in self.actors_with({'participant'})
+            if 'account_member' in self.roles_for(account)
+        )
 
     @with_roles(call={'editor'})
     @cfp_state.transition(
@@ -767,7 +820,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     with_roles(title_suffix, read={'all'})
 
     @property
-    def title_parts(self) -> list[str]:
+    def title_parts(self) -> tuple[str] | tuple[str, str]:
         """
         Return the hierarchy of titles of this project.
 
@@ -780,9 +833,9 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         """
         if self.short_title == self.title:
             # Project title does not derive from account title, so use both
-            return [self.account.title, self.title]
+            return (self.account.title, self.title)
         # Project title extends account title, so account title is not needed
-        return [self.title]
+        return (self.title,)
 
     with_roles(title_parts, read={'all'})
 
@@ -928,21 +981,19 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         return Rsvp.get_for(self, account, create)
 
     def rsvps_with(self, state: RsvpStateEnum) -> Query[Rsvp]:
+        # pylint: disable=protected-access
         return self.rsvps.join(Account).filter(
-            Account.state.ACTIVE,
-            Rsvp._state == state,  # pylint: disable=protected-access
+            Account.state.ACTIVE, Rsvp._state == state
         )
 
     def rsvp_counts(self) -> dict[str, int]:
+        # pylint: disable=protected-access
         return {
             row[0]: row[1]
-            for row in db.session.query(
-                Rsvp._state,  # pylint: disable=protected-access
-                sa.func.count(Rsvp._state),  # pylint: disable=protected-access
-            )
+            for row in db.session.query(Rsvp._state, sa.func.count(Rsvp._state))
             .join(Account)
             .filter(Account.state.ACTIVE, Rsvp.project == self)
-            .group_by(Rsvp._state)  # pylint: disable=protected-access
+            .group_by(Rsvp._state)
             .all()
         }
 
@@ -959,13 +1010,12 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         self.start_at = self.schedule_start_at
         self.end_at = self.schedule_end_at
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
-        roles.add('reader')
-        return roles
+    @role_check('reader')
+    def has_reader_role(
+        self, _actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Unconditionally grant reader role (for now)."""
+        return True
 
     def is_safe_to_delete(self) -> bool:
         """Return True if project has no proposals."""
@@ -1578,6 +1628,7 @@ if TYPE_CHECKING:
     from .saved import SavedProject
     from .sync_ticket import TicketClient, TicketEvent, TicketParticipant, TicketType
 
+# MARK: Additional column properties
 
 # Whether the project has any featured proposals. Returns `None` instead of
 # a boolean if the project does not have any proposal.
