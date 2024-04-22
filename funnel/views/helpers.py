@@ -39,6 +39,7 @@ from werkzeug.routing import BuildError, RequestRedirect
 from werkzeug.wrappers import Response as BaseResponse
 
 from baseframe import cache, statsd
+from coaster.assets import WebpackManifest
 from coaster.sqlalchemy import RoleMixin
 from coaster.utils import utcnow
 from coaster.views import ClassView
@@ -92,6 +93,13 @@ class JinjaTemplate(JinjaTemplateBase, template=None):
     joiner: Callable = jinja_global_marker()
     namespace: Callable = jinja_global_marker()
 
+    # Globals provided by Jinja2 i18n extension
+    _: Callable = jinja_global_marker()
+    gettext: Callable = jinja_global_marker()
+    ngettext: Callable = jinja_global_marker()
+    pgettext: Callable = jinja_global_marker()
+    npgettext: Callable = jinja_global_marker()
+
     # Globals provided by Flask when an app context is present
     url_for: Callable[..., str] = jinja_global_marker()  # Get URL for route
     get_flashed_messages: Callable = jinja_global_marker()  # Flash messages
@@ -106,6 +114,7 @@ class JinjaTemplate(JinjaTemplateBase, template=None):
     # Globals provided by Coaster, Baseframe and Funnel
     current_auth: CurrentAuth = jinja_global_marker()  # Auth data
     current_view: ClassView = jinja_global_marker()  # Current ClassView or ModelView
+    manifest: WebpackManifest = jinja_global_marker()  # Webpack manifest loader
     request_is_xhr: Callable[[], bool] = jinja_global_marker()  # Legacy XHR test
     get_locale: Callable[[], Locale] = jinja_global_marker()  # User locale
     csrf_token: Callable[[], str | bytes] = jinja_global_marker()  # CSRF token

@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import Iterator
-from typing import Any, ClassVar, Literal, NamedTuple
+from typing import Any, ClassVar, Literal, NamedTuple, get_type_hints
 
 from flask import current_app, render_template, stream_template
-from jinja2 import Environment, Template
+from jinja2 import Environment, Template, nodes
+from jinja2.compiler import CodeGenerator, Frame
 from jinja2.meta import find_referenced_templates
-from jinja2.nodes import Template as TemplateNode
 from typing_extensions import dataclass_transform
 
 from coaster.utils import is_dunder
@@ -20,11 +21,149 @@ __all__ = ['JinjaTemplateBase', 'jinja_global_marker']
 
 class TemplateAst(NamedTuple):
     template: str
-    ast: TemplateNode
+    ast: nodes.Template
     filename: str | None
 
     def __repr__(self) -> str:
         return f'TemplateAst({self.template!r}, ast, {self.filename!r})'
+
+
+class TrackingCodeGenerator(CodeGenerator):
+    """Fix the implementation in jinja2.meta to track context apart from frames."""
+
+    def __init__(self, *args, templates: list[TemplateAst], **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.templates = {
+            template_ast.template: template_ast for template_ast in templates
+        }
+        self.context_vars: set[str] = set(self.environment.globals.keys())
+        self.unresolved_identifiers: dict[str, set[tuple[int, str]]] = {
+            (self.name or ''): set()
+        }
+        self.lineno = 0  # Track line number for start of frame
+
+    def visit_new_template(
+        self, template: str, with_context: bool, frame: Frame | None = None
+    ) -> None:
+        """Visit a new template, passing forward context if required."""
+        template_ast = self.templates[template]
+        codegen = self.__class__(
+            environment=self.environment,
+            name=template_ast.template,
+            filename=template_ast.filename,
+            templates=[],
+        )
+        codegen.templates = self.templates
+        if with_context:
+            if frame:
+                # Copied context, with both top-level context and local context
+                codegen.context_vars = self.context_vars | set(
+                    frame.symbols.dump_stores().keys()
+                )
+            else:
+                # Shared top-level context (required for `extends` tag)
+                codegen.context_vars = self.context_vars
+        codegen.visit(template_ast.ast)
+        self.unresolved_identifiers.update(codegen.unresolved_identifiers)
+
+    def pop_assign_tracking(self, frame: Frame) -> None:
+        """Track top-level variable assignments."""
+        if frame.toplevel:
+            new_vars = self._assign_stack[-1]
+            if new_vars:
+                self.context_vars.update(new_vars)
+        return super().pop_assign_tracking(frame)
+
+    def leave_frame(self, frame: Frame, with_python_scope: bool = False) -> None:
+        """Find all unresolved identifiers in each frame."""
+        self.unresolved_identifiers[self.name or ''].update(
+            {
+                (self.lineno, param)
+                for (_target, (action, param)) in frame.symbols.loads.items()
+                if action == 'resolve'
+                and param not in self.context_vars
+                and param not in set(frame.symbols.dump_stores().keys())
+            }
+        )
+        return super().leave_frame(frame, with_python_scope)
+
+    def visit_Include(self, node: nodes.Include, frame: Frame) -> None:  # noqa: N802
+        """Examine an included template."""
+        super().visit_Include(node, frame)
+        template = None
+        include_template: Any = node.template
+        if isinstance(include_template, (nodes.Tuple, nodes.List)):
+            try:
+                include_template = include_template.as_const()
+            except nodes.Impossible:
+                warnings.warn(
+                    f"Can't process dynamic include: {node.template}", stacklevel=1
+                )
+                return
+        if isinstance(include_template, nodes.Const):
+            include_template = include_template.value
+        if isinstance(include_template, str):
+            if include_template in self.templates:
+                template = include_template
+        elif isinstance(include_template, (tuple, list)):
+            for candidate in include_template:
+                if candidate in self.templates:
+                    template = candidate
+                    break
+        if template is not None:
+            self.visit_new_template(template, node.with_context, frame)
+
+    def visit_Extends(self, node: nodes.Extends, frame: Frame) -> None:  # noqa: N802
+        """Extend context to an extended template."""
+        super().visit_Extends(node, frame)
+        try:
+            template = node.template.as_const()
+        except nodes.Impossible:
+            warnings.warn(f"Can't process dynamic extends at {node}", stacklevel=1)
+        if template not in self.templates:
+            warnings.warn(f"Cannot extend unknown template {template}", stacklevel=1)
+        self.visit_new_template(template, with_context=True)  # No frame
+
+    def visit_Import(self, node: nodes.Import, frame: Frame) -> None:  # noqa: N802
+        """Examine an imported template."""
+        super().visit_Import(node, frame)
+        try:
+            template = node.template.as_const()
+        except nodes.Impossible:
+            warnings.warn(f"Can't process dynamic import at {node}", stacklevel=1)
+        if template not in self.templates:
+            warnings.warn(f"Cannot import unknown template {template}", stacklevel=1)
+        self.visit_new_template(template, node.with_context, frame)
+        if frame.toplevel:
+            self.context_vars.add(node.target)
+
+    def visit_FromImport(  # noqa: N802
+        self, node: nodes.FromImport, frame: Frame
+    ) -> None:
+        """Examine an imported template and track symbols added to context."""
+        super().visit_FromImport(node, frame)
+        try:
+            template = node.template.as_const()
+        except nodes.Impossible:
+            warnings.warn(f"Can't process dynamic import at {node}", stacklevel=1)
+        if template not in self.templates:
+            warnings.warn(f"Cannot import unknown template {template}", stacklevel=1)
+        self.visit_new_template(template, node.with_context, frame)
+        if frame.toplevel:
+            self.context_vars.update(
+                name[1] if isinstance(name, tuple) else name for name in node.names
+            )
+
+    def visit_Macro(self, node: nodes.Macro, frame: Frame) -> None:  # noqa: N802
+        """Record macro names as top-level context."""
+        super().visit_Macro(node, frame)
+        if frame.toplevel:
+            self.context_vars.add(node.name)
+
+    def visit(self, node: nodes.Node, *args: Any, **kwargs: Any) -> Any:
+        """Record line number of node before visiting."""
+        self.lineno = node.lineno
+        return super().visit(node, *args, **kwargs)
 
 
 # MARK: Typed template dataclass -------------------------------------------------------
@@ -143,3 +282,25 @@ class JinjaTemplateBase:
                     processed.add(ref_template)
             iterator += 1
         return stack
+
+    @classmethod
+    def jinja_validate_vars(
+        cls,
+        env: Environment | None = None,
+    ) -> dict[str, set[tuple[int, str]]]:
+        """Find vars used in the template but missing in the dataclass."""
+        if env is None:
+            env = current_app.jinja_env
+        dataclass_vars = set(get_type_hints(cls).keys())
+        dataclass_vars.discard('_template')
+        stack = cls.jinja_ast_stack(env, cls._template)
+        first = stack[0]
+        codegen = TrackingCodeGenerator(
+            environment=env,
+            name=first.template,
+            filename=first.filename,
+            templates=stack,
+        )
+        codegen.context_vars |= set(dataclass_vars)
+        codegen.visit(first.ast)
+        return codegen.unresolved_identifiers
