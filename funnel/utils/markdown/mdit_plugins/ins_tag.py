@@ -6,14 +6,14 @@ Ported from markdown_it.rules_inline.strikethrough.
 
 from __future__ import annotations
 
-from collections.abc import MutableMapping, Sequence
+from collections.abc import Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
 from markdown_it.rules_inline import StateInline
 from markdown_it.rules_inline.state_inline import Delimiter
 from markdown_it.token import Token
-from markdown_it.utils import OptionsDict
+from markdown_it.utils import EnvType, OptionsDict
 
 __all__ = ['ins_plugin']
 
@@ -124,7 +124,7 @@ def ins_open(
     tokens: Sequence[Token],
     idx: int,
     options: OptionsDict,
-    env: MutableMapping,
+    env: EnvType,
 ) -> str:
     return '<ins>'
 
@@ -134,7 +134,7 @@ def ins_close(
     tokens: Sequence[Token],
     idx: int,
     options: OptionsDict,
-    env: MutableMapping,
+    env: EnvType,
 ) -> str:
     return '</ins>'
 
