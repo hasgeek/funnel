@@ -73,8 +73,8 @@ def lint_jinja_templates(
         else:
             rprint(
                 f"[bold white]{template}[/]"
-                f" ([link={sys.modules[cls.__module__].__file__}]{cls.__module__}"
-                f".[bold yellow]{cls.__qualname__}[/][/])",
+                f" ([link=file://{sys.modules[cls.__module__].__file__}]"
+                f"{cls.__module__}.[bold yellow]{cls.__qualname__}[/][/])",
                 end='',
             )
         if has_undefined:
