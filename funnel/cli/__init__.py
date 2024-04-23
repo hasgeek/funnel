@@ -1,7 +1,5 @@
 """Command line interface."""
 
-# flake8: noqa
+from . import geodata, lint, misc, periodic, refresh
 
-from __future__ import annotations
-
-from . import geodata, misc, periodic, refresh
+__all__ = ['geodata', 'lint', 'misc', 'periodic', 'refresh']
