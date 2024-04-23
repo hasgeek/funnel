@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import warnings
-from collections.abc import Iterator
-from typing import Any, ClassVar, Literal, NamedTuple, get_type_hints
+from collections.abc import Callable, Iterator
+from typing import Any, ClassVar, Literal, NamedTuple, Self, get_type_hints
 
 from flask import current_app, render_template, stream_template
-from jinja2 import Environment, Template, nodes
+from jinja2 import Environment, Template, TemplateNotFound, TemplatesNotFound, nodes
 from jinja2.compiler import CodeGenerator, Frame
-from jinja2.meta import find_referenced_templates
 from typing_extensions import dataclass_transform
 
 from coaster.utils import is_dunder
@@ -28,32 +27,58 @@ class TemplateAst(NamedTuple):
         return f'TemplateAst({self.template!r}, ast, {self.filename!r})'
 
 
-class TrackingCodeGenerator(CodeGenerator):
+class JinjaInspector(CodeGenerator):
     """Fix the implementation in jinja2.meta to track context apart from frames."""
 
-    def __init__(self, *args, templates: list[TemplateAst], **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.templates = {
-            template_ast.template: template_ast for template_ast in templates
-        }
         self.context_vars: set[str] = set(self.environment.globals.keys())
+        # Unresolved identifiers from across templates
         self.unresolved_identifiers: dict[str, set[tuple[int, str]]] = {
             (self.name or ''): set()
         }
+        # Temp structure for unresolved identifiers before their locations in the
+        # file are discovered
         self.unresolved_identifiers_in_frame: set[str] | None = None
 
-    def visit_new_template(
-        self, template: str, with_context: bool, frame: Frame | None = None
+    @classmethod
+    def get_source_from_list(
+        cls, env: Environment, templates: list[str]
+    ) -> tuple[str, str, str | None, Callable[[], bool] | None]:
+        """
+        Get first matching template from a list of templates.
+
+        :return: Tuple of template name, source, filename, up_to_date callable
+        """
+        assert env.loader is not None  # nosec B101
+        for each in templates:
+            try:
+                return (each,) + env.loader.get_source(env, each)
+            except TemplateNotFound:
+                continue
+        raise TemplatesNotFound(templates)
+
+    @classmethod
+    def from_template(
+        cls, env: Environment, template: str | list[str]
+    ) -> tuple[Self, nodes.Template]:
+        """
+        Create a JinjaInspector given the environment and template name.
+
+        :return: Tuple of inspector and root node of the template AST
+        """
+        if isinstance(template, str):
+            template = [template]
+        template, source, filename = cls.get_source_from_list(env, template)[:3]
+        template_ast = env.parse(source, template, filename)
+        codegen = cls(environment=env, name=template, filename=filename)
+        return codegen, template_ast
+
+    def visit_template_file(
+        self, template: str | list[str], with_context: bool, frame: Frame | None = None
     ) -> None:
         """Visit a new template, passing forward context if required."""
-        template_ast = self.templates[template]
-        codegen = self.__class__(
-            environment=self.environment,
-            name=template_ast.template,
-            filename=template_ast.filename,
-            templates=[],
-        )
-        codegen.templates = self.templates
+        codegen, template_ast = self.from_template(self.environment, template)
         if with_context:
             if frame:
                 # Copied context, with both top-level context and local context
@@ -63,7 +88,7 @@ class TrackingCodeGenerator(CodeGenerator):
             else:
                 # Shared top-level context (required for `extends` tag)
                 codegen.context_vars = self.context_vars
-        codegen.visit(template_ast.ast)
+        codegen.visit(template_ast)
         self.unresolved_identifiers.update(codegen.unresolved_identifiers)
 
     def pop_assign_tracking(self, frame: Frame) -> None:
@@ -88,6 +113,9 @@ class TrackingCodeGenerator(CodeGenerator):
 
     def leave_frame(self, frame: Frame, with_python_scope: bool = False) -> None:
         if with_python_scope and (unresolved := self.unresolved_identifiers_in_frame):
+            # visit_Name should have cleared the unresolved list, so if there's any
+            # left, this frame is being closed prematurely and we don't know where
+            # in the file the name appears. Save them as line 0
             for each in unresolved:
                 self.unresolved_identifiers[self.name or ''].add((0, each))
             self.unresolved_identifiers_in_frame = None
@@ -96,11 +124,11 @@ class TrackingCodeGenerator(CodeGenerator):
     def visit_Include(self, node: nodes.Include, frame: Frame) -> None:  # noqa: N802
         """Examine an included template."""
         super().visit_Include(node, frame)
-        template = None
+        template: str | list[str] | None = None
         include_template: Any = node.template
         if isinstance(include_template, (nodes.Tuple, nodes.List)):
             try:
-                include_template = include_template.as_const()
+                include_template = include_template.as_const(frame.eval_ctx)
             except nodes.Impossible:
                 warnings.warn(
                     f"Can't process dynamic include: {node.template}", stacklevel=1
@@ -109,37 +137,35 @@ class TrackingCodeGenerator(CodeGenerator):
         if isinstance(include_template, nodes.Const):
             include_template = include_template.value
         if isinstance(include_template, str):
-            if include_template in self.templates:
-                template = include_template
+            template = include_template
         elif isinstance(include_template, (tuple, list)):
-            for candidate in include_template:
-                if candidate in self.templates:
-                    template = candidate
-                    break
+            template = list(include_template)
+        else:
+            warnings.warn(
+                f"Unknown include template data type: {include_template}", stacklevel=1
+            )
         if template is not None:
-            self.visit_new_template(template, node.with_context, frame)
+            self.visit_template_file(template, node.with_context, frame)
 
     def visit_Extends(self, node: nodes.Extends, frame: Frame) -> None:  # noqa: N802
         """Extend context to an extended template."""
         super().visit_Extends(node, frame)
         try:
-            template = node.template.as_const()
+            template = node.template.as_const(frame.eval_ctx)
         except nodes.Impossible:
             warnings.warn(f"Can't process dynamic extends at {node}", stacklevel=1)
-        if template not in self.templates:
-            warnings.warn(f"Cannot extend unknown template {template}", stacklevel=1)
-        self.visit_new_template(template, with_context=True)  # No frame
+        else:
+            self.visit_template_file(template, with_context=True)  # No frame
 
     def visit_Import(self, node: nodes.Import, frame: Frame) -> None:  # noqa: N802
         """Examine an imported template."""
         super().visit_Import(node, frame)
         try:
-            template = node.template.as_const()
+            template = node.template.as_const(frame.eval_ctx)
         except nodes.Impossible:
             warnings.warn(f"Can't process dynamic import at {node}", stacklevel=1)
-        if template not in self.templates:
-            warnings.warn(f"Cannot import unknown template {template}", stacklevel=1)
-        self.visit_new_template(template, node.with_context, frame)
+        else:
+            self.visit_template_file(template, node.with_context, frame)
         if frame.toplevel:
             self.context_vars.add(node.target)
 
@@ -149,12 +175,11 @@ class TrackingCodeGenerator(CodeGenerator):
         """Examine an imported template and track symbols added to context."""
         super().visit_FromImport(node, frame)
         try:
-            template = node.template.as_const()
+            template = node.template.as_const(frame.eval_ctx)
         except nodes.Impossible:
             warnings.warn(f"Can't process dynamic import at {node}", stacklevel=1)
-        if template not in self.templates:
-            warnings.warn(f"Cannot import unknown template {template}", stacklevel=1)
-        self.visit_new_template(template, node.with_context, frame)
+        else:
+            self.visit_template_file(template, node.with_context, frame)
         if frame.toplevel:
             self.context_vars.update(
                 name[1] if isinstance(name, tuple) else name for name in node.names
@@ -274,52 +299,15 @@ class JinjaTemplateBase:
         env.get_or_select_template(template or cls._template)
 
     @classmethod
-    def jinja_ast_stack(
-        cls, env: Environment | None = None, template: str | None = None
-    ) -> list[TemplateAst]:
-        """Return a stack of Jinja templates referenced from the first template."""
-        if env is None:
-            env = current_app.jinja_env
-        template = template or cls._template
-        stack = [
-            TemplateAst(
-                template, env.parse((tf := cls.jinja_source(env, template))[0]), tf[1]
-            )
-        ]
-        processed = {template}  # Catch multiple references to the same template
-        iterator = 0
-        while iterator < len(stack):
-            for ref_template in find_referenced_templates(stack[iterator].ast):
-                if ref_template is not None and ref_template not in processed:
-                    stack.append(
-                        TemplateAst(
-                            ref_template,
-                            env.parse((tf := cls.jinja_source(env, ref_template))[0]),
-                            tf[1],
-                        )
-                    )
-                    processed.add(ref_template)
-            iterator += 1
-        return stack
-
-    @classmethod
-    def jinja_validate_vars(
-        cls,
-        env: Environment | None = None,
+    def jinja_unresolved_identifiers(
+        cls, env: Environment | None = None
     ) -> dict[str, set[tuple[int, str]]]:
         """Find vars used in the template but missing in the dataclass."""
         if env is None:
             env = current_app.jinja_env
         dataclass_vars = set(get_type_hints(cls).keys())
         dataclass_vars.discard('_template')
-        stack = cls.jinja_ast_stack(env, cls._template)
-        first = stack[0]
-        codegen = TrackingCodeGenerator(
-            environment=env,
-            name=first.template,
-            filename=first.filename,
-            templates=stack,
-        )
+        codegen, template_ast = JinjaInspector.from_template(env, cls._template)
         codegen.context_vars |= set(dataclass_vars)
-        codegen.visit(first.ast)
+        codegen.visit(template_ast)
         return codegen.unresolved_identifiers
