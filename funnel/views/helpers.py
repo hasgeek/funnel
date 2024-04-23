@@ -50,7 +50,7 @@ from ..forms import supported_locales
 from ..models import Account, Shortlink, db, profanity
 from ..proxies import RequestWants, request_wants
 from ..typing import ResponseType, ReturnResponse, ReturnView
-from ..utils import JinjaTemplateBase, jinja_global_marker
+from ..utils import JinjaTemplateBase, jinja_global
 
 nocache_expires = utc.localize(datetime(1990, 1, 1))
 
@@ -86,39 +86,39 @@ class JinjaTemplate(JinjaTemplateBase, template=None):
     """Jinja template dataclass base class with type hints for Jinja globals."""
 
     # Globals provided by Jinja2
-    range: Callable = jinja_global_marker()  # noqa: A003
-    dict: Callable = jinja_global_marker()  # noqa: A003
-    lipsum: Callable = jinja_global_marker()
-    cycler: Callable = jinja_global_marker()
-    joiner: Callable = jinja_global_marker()
-    namespace: Callable = jinja_global_marker()
+    range: Callable = jinja_global()  # noqa: A003
+    dict: Callable = jinja_global()  # noqa: A003
+    lipsum: Callable = jinja_global()
+    cycler: Callable = jinja_global()
+    joiner: Callable = jinja_global()
+    namespace: Callable = jinja_global()
 
     # Globals provided by Jinja2 i18n extension
-    _: Callable = jinja_global_marker()
-    gettext: Callable = jinja_global_marker()
-    ngettext: Callable = jinja_global_marker()
-    pgettext: Callable = jinja_global_marker()
-    npgettext: Callable = jinja_global_marker()
+    _: Callable = jinja_global()
+    gettext: Callable = jinja_global()
+    ngettext: Callable = jinja_global()
+    pgettext: Callable = jinja_global()
+    npgettext: Callable = jinja_global()
 
     # Globals provided by Flask when an app context is present
-    url_for: Callable[..., str] = jinja_global_marker()  # Get URL for route
-    get_flashed_messages: Callable = jinja_global_marker()  # Flash messages
-    config: Mapping = jinja_global_marker()  # App config as a read-only dict
-    g: AppContextProtocol = jinja_global_marker()  # App context data
+    url_for: Callable[..., str] = jinja_global()  # Get URL for route
+    get_flashed_messages: Callable = jinja_global()  # Flash messages
+    config: Mapping = jinja_global()  # App config as a read-only dict
+    g: AppContextProtocol = jinja_global()  # App context data
 
     # Globals provided by Flask when a request context is present (not typed `| None`
     # here as only email templates are rendered outside a request)
-    request: Request = jinja_global_marker()  # HTTP request data
-    session: SessionMixin = jinja_global_marker()  # Cookie session
+    request: Request = jinja_global()  # HTTP request data
+    session: SessionMixin = jinja_global()  # Cookie session
 
     # Globals provided by Coaster, Baseframe and Funnel
-    current_auth: CurrentAuth = jinja_global_marker()  # Auth data
-    current_view: ClassView = jinja_global_marker()  # Current ClassView or ModelView
-    manifest: WebpackManifest = jinja_global_marker()  # Webpack manifest loader
-    request_is_xhr: Callable[[], bool] = jinja_global_marker()  # Legacy XHR test
-    get_locale: Callable[[], Locale] = jinja_global_marker()  # User locale
-    csrf_token: Callable[[], str | bytes] = jinja_global_marker()  # CSRF token
-    request_wants: RequestWants = jinja_global_marker()  # Request flags
+    current_auth: CurrentAuth = jinja_global()  # Auth data
+    current_view: ClassView = jinja_global()  # Current ClassView or ModelView
+    manifest: WebpackManifest = jinja_global()  # Webpack manifest loader
+    request_is_xhr: Callable[[], bool] = jinja_global()  # Legacy XHR test
+    get_locale: Callable[[], Locale] = jinja_global()  # User locale
+    csrf_token: Callable[[], str | bytes] = jinja_global()  # CSRF token
+    request_wants: RequestWants = jinja_global()  # Request flags
 
 
 class SessionTimeouts(dict[str, timedelta]):

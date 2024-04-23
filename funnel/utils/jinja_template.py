@@ -14,7 +14,7 @@ from typing_extensions import dataclass_transform
 
 from coaster.utils import is_dunder
 
-__all__ = ['JinjaTemplateBase', 'jinja_global_marker']
+__all__ = ['JinjaTemplateBase', 'jinja_global', 'jinja_undefined']
 
 # MARK: Jinja helpers ------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ class TrackingCodeGenerator(CodeGenerator):
         self.unresolved_identifiers: dict[str, set[tuple[int, str]]] = {
             (self.name or ''): set()
         }
-        self.lineno = 0  # Track line number for start of frame
+        self.unresolved_identifiers_in_frame: set[str] | None = None
 
     def visit_new_template(
         self, template: str, with_context: bool, frame: Frame | None = None
@@ -74,17 +74,23 @@ class TrackingCodeGenerator(CodeGenerator):
                 self.context_vars.update(new_vars)
         return super().pop_assign_tracking(frame)
 
+    def enter_frame(self, frame: Frame) -> None:
+        unresolved_identifiers = {
+            param
+            for (_target, (action, param)) in frame.symbols.loads.items()
+            if action == 'resolve'
+            and param not in self.context_vars
+            and param not in set(frame.symbols.dump_stores().keys())
+        }
+        if unresolved_identifiers:
+            self.unresolved_identifiers_in_frame = unresolved_identifiers
+        return super().enter_frame(frame)
+
     def leave_frame(self, frame: Frame, with_python_scope: bool = False) -> None:
-        """Find all unresolved identifiers in each frame."""
-        self.unresolved_identifiers[self.name or ''].update(
-            {
-                (self.lineno, param)
-                for (_target, (action, param)) in frame.symbols.loads.items()
-                if action == 'resolve'
-                and param not in self.context_vars
-                and param not in set(frame.symbols.dump_stores().keys())
-            }
-        )
+        if with_python_scope and (unresolved := self.unresolved_identifiers_in_frame):
+            for each in unresolved:
+                self.unresolved_identifiers[self.name or ''].add((0, each))
+            self.unresolved_identifiers_in_frame = None
         return super().leave_frame(frame, with_python_scope)
 
     def visit_Include(self, node: nodes.Include, frame: Frame) -> None:  # noqa: N802
@@ -160,21 +166,34 @@ class TrackingCodeGenerator(CodeGenerator):
         if frame.toplevel:
             self.context_vars.add(node.name)
 
-    def visit(self, node: nodes.Node, *args: Any, **kwargs: Any) -> Any:
-        """Record line number of node before visiting."""
-        self.lineno = node.lineno
-        return super().visit(node, *args, **kwargs)
+    def visit_Name(self, node: nodes.Name, frame: Frame) -> None:  # noqa: N802
+        if (
+            node.ctx == 'load'
+            and (unresolved := self.unresolved_identifiers_in_frame) is not None
+            and node.name in unresolved
+        ):
+            self.unresolved_identifiers[self.name or ''].add((node.lineno, node.name))
+            unresolved.remove(node.name)
+        return super().visit_Name(node, frame)
 
 
 # MARK: Typed template dataclass -------------------------------------------------------
 
 
-def jinja_global_marker(*, init: Literal[False] = False) -> Any:
+def jinja_global(*, init: Literal[False] = False) -> Any:
+    """Sentinel for a Jinja2 environment global value."""
+    return ...
+
+
+def jinja_undefined(*, default: Literal[None] = None) -> Any:
+    """Sentinel for an optional Jinja2 context variable."""
     return ...
 
 
 @dataclass_transform(
-    eq_default=False, kw_only_default=True, field_specifiers=(jinja_global_marker,)
+    eq_default=False,
+    kw_only_default=True,
+    field_specifiers=(jinja_global, jinja_undefined),
 )
 class JinjaTemplateBase:
     """Base class for a Jinja2 template with explicit context var types."""
