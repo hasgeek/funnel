@@ -7,16 +7,7 @@ from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
 import user_agents
-from flask import (
-    abort,
-    current_app,
-    flash,
-    redirect,
-    render_template,
-    request,
-    session,
-    url_for,
-)
+from flask import abort, current_app, flash, redirect, request, session, url_for
 from markupsafe import Markup, escape
 
 from baseframe import _, forms
@@ -63,6 +54,7 @@ from ..typing import ReturnRenderWith, ReturnResponse, ReturnView
 from .decorators import etag_cache_for_user, xhr_only
 from .email import send_email_verify_link
 from .helpers import (
+    JinjaTemplate,
     app_url_for,
     autoset_timezone_and_locale,
     avatar_color_count,
@@ -78,6 +70,8 @@ from .login_session import (
 )
 from .notification import dispatch_notification
 from .otp import OtpSession, OtpTimeoutError
+
+# MARK: View registry ------------------------------------------------------------------
 
 
 @Account.views()
@@ -289,6 +283,22 @@ def login_session_service(obj: LoginSession) -> str | None:
     return None
 
 
+# MARK: Templates ----------------------------------------------------------------------
+
+
+class AccountMenuTemplate(JinjaTemplate, template='account_menu.html.jinja2'):
+    pass
+
+
+class LogoutBrowserDataTemplate(
+    JinjaTemplate, template='logout_browser_data.html.jinja2'
+):
+    next: str  # noqa: A003
+
+
+# MARK: Views --------------------------------------------------------------------------
+
+
 @route('/account', init_app=app)
 class AccountView(ClassView):
     """Account management views."""
@@ -340,7 +350,7 @@ class AccountView(ClassView):
     @xhr_only(lambda: url_for('account'))
     def menu(self) -> ReturnView:
         """Render account menu."""
-        return render_template('account_menu.html.jinja2')
+        return AccountMenuTemplate().render_template()
 
     @route('organizations', endpoint='organizations')
     @render_with('account_organizations.html.jinja2')
@@ -863,9 +873,7 @@ class AccountView(ClassView):
             flash(_("Your account has been deleted"), 'success')
             logout_internal()
             db.session.commit()
-            return render_template(
-                'logout_browser_data.html.jinja2', next=url_for('index')
-            )
+            return LogoutBrowserDataTemplate(next=url_for('index')).render_template()
         return render_form(
             form=form,
             formid='account-delete',

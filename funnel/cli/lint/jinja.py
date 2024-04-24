@@ -92,14 +92,15 @@ def lint_jinja_templates(
             rprint(" [dim]undefined names:")
         else:
             rprint()
-        for dep_template, undefined_names in report.items():
-            rprint(f" - {dep_template}", end='')
-            if undefined_names:
-                rprint(': ', end='')
-            rprint(
-                ', '.join(
-                    f'[red]{line}:[bold]{name}[/][/]'
-                    for line, name in sorted(undefined_names)
-                ),
-                soft_wrap=True,
-            )
+        if has_deps or has_undefined:
+            for dep_template, undefined_names in report.items():
+                rprint(f" - {dep_template}", end='')
+                if undefined_names:
+                    rprint(': ', end='')
+                rprint(
+                    ', '.join(
+                        f'[red]{line}:[bold]{name}[/][/]'
+                        for line, name in sorted(undefined_names)
+                    ),
+                    soft_wrap=True,
+                )
