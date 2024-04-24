@@ -358,7 +358,7 @@ def autoset_timezone_and_locale() -> None:
             if remapped_timezone is not None:
                 user.timezone = remapped_timezone  # type: ignore[assignment]
     if user.auto_locale or not user.locale or str(user.locale) not in supported_locales:
-        user.locale = (  # pyright: ignore[reportGeneralTypeIssues]
+        user.locale = (  # pyright: ignore[reportAttributeAccessIssue]
             request.accept_languages.best_match(  # type: ignore[assignment]
                 supported_locales.keys()
             )
