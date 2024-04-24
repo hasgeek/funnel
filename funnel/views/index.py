@@ -6,6 +6,7 @@ import os.path
 from dataclasses import dataclass
 
 from flask import Response, g, render_template
+from flask_flatpages import Page
 from markupsafe import Markup
 
 from baseframe import _, __
@@ -38,6 +39,15 @@ policy_pages = [
     PolicyPage('policy/community', __("Community guidelines")),
     PolicyPage('policy/code', __("Code of conduct")),
 ]
+
+
+class ContactTemplate(JinjaTemplate, template='contact.html.jinja2'):
+    page: Page
+
+
+class PolicyTemplate(JinjaTemplate, template='policy.html.jinja2'):
+    index: list[PolicyPage]
+    page: Page
 
 
 class IndexTemplate(JinjaTemplate, template='index.html.jinja2'):
@@ -197,20 +207,17 @@ def about() -> ReturnView:
 
 @app.route('/about/contact')
 def contact() -> ReturnView:
-    return render_template(
-        'contact.html.jinja2', page=pages.get_or_404('about/contact')
-    )
+    return ContactTemplate(page=pages.get_or_404('about/contact')).render_template()
 
 
 # Trailing slash in `/about/policy/` is required for relative links in `index.md`
 @app.route('/about/policy/', defaults={'path': 'policy/index'})
 @app.route('/about/<path:path>')
 def policy(path: str) -> ReturnView:
-    return render_template(
-        'policy.html.jinja2',
+    return PolicyTemplate(
         index=policy_pages,
         page=pages.get_or_404(os.path.join('about', path)),
-    )
+    ).render_template()
 
 
 @app.route('/opensearch.xml')
