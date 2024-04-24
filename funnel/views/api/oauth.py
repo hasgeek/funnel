@@ -26,7 +26,7 @@ from ...models import (
 from ...registry import ResourceRegistry, resource_registry
 from ...typing import ReturnView
 from ...utils import make_redirect_url
-from ..helpers import JinjaTemplate
+from ..helpers import JinjaTemplate, LayoutTemplate
 from ..login_session import reload_for_cookies, requires_client_login, requires_login
 from .resource import get_userinfo
 
@@ -35,7 +35,10 @@ class ScopeError(Exception):
     """Requested scope is invalid or beyond access level."""
 
 
-class OauthForbiddenTemplate(JinjaTemplate, template='oauth_403.html.jinja2'):
+# MARK: Templates ----------------------------------------------------------------------
+
+
+class OauthForbiddenTemplate(LayoutTemplate, template='oauth_403.html.jinja2'):
     reason: str
 
 
@@ -46,12 +49,15 @@ class OauthPublicRedirectTemplate(
     redirect_to: str
 
 
-class OauthAuthorizeTemplate(JinjaTemplate, template='oauth_authorize.html.jinja2'):
+class OauthAuthorizeTemplate(LayoutTemplate, template='oauth_authorize.html.jinja2'):
     form: forms.Form
     auth_client: AuthClient
     redirect_uri: str
     internal_resources: list[str]
     resource_registry: ResourceRegistry
+
+
+# MARK: Utilities ----------------------------------------------------------------------
 
 
 def verifyscope(scope: Iterable, auth_client: AuthClient) -> list[str]:
@@ -187,6 +193,9 @@ def oauth_auth_error(
     response.headers['Cache-Control'] = 'no-cache, no-store, max-age=0, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     return response
+
+
+# MARK: Views --------------------------------------------------------------------------
 
 
 @app.route('/api/1/auth', methods=['GET', 'POST'])

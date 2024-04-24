@@ -14,14 +14,14 @@ from ..forms import OrganizationForm, TeamForm
 from ..models import Account, Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
 from ..typing import ReturnView
-from .helpers import JinjaTemplate, render_redirect
+from .helpers import LayoutTemplate, render_redirect
 from .login_session import requires_login, requires_sudo, requires_user_not_spammy
 
 # MARK: Templates ----------------------------------------------------------------------
 
 
 class OrganizationTeamsTemplate(
-    JinjaTemplate, template='organization_teams.html.jinja2'
+    LayoutTemplate, template='organization_teams.html.jinja2'
 ):
     org: Account
 

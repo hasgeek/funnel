@@ -19,7 +19,7 @@ from .. import app, pages
 from ..forms import SavedProjectForm
 from ..models import Account, Project, Venue, sa
 from ..typing import ReturnRenderWith, ReturnView
-from .helpers import JinjaTemplate
+from .helpers import LayoutTemplate
 from .schedule import schedule_data, session_list_data
 
 
@@ -41,16 +41,20 @@ policy_pages = [
 ]
 
 
-class ContactTemplate(JinjaTemplate, template='contact.html.jinja2'):
+class AboutTemplate(LayoutTemplate, template='about.html.jinja2'):
+    pass
+
+
+class ContactTemplate(LayoutTemplate, template='contact.html.jinja2'):
     page: Page
 
 
-class PolicyTemplate(JinjaTemplate, template='policy.html.jinja2'):
+class PolicyTemplate(LayoutTemplate, template='policy.html.jinja2'):
     index: list[PolicyPage]
     page: Page
 
 
-class IndexTemplate(JinjaTemplate, template='index.html.jinja2'):
+class IndexTemplate(LayoutTemplate, template='index.html.jinja2'):
     upcoming_projects: list[Project | RoleAccessProxy[Project]]
     open_cfp_projects: list[Project | RoleAccessProxy[Project]]
     featured_project: Project | RoleAccessProxy[Project] | None
@@ -202,7 +206,7 @@ class IndexView(ClassView):
 
 @app.route('/about')
 def about() -> ReturnView:
-    return render_template('about.html.jinja2')
+    return AboutTemplate().render_template()
 
 
 @app.route('/about/contact')

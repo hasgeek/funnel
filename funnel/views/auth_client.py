@@ -35,18 +35,18 @@ from ..models import (
     db,
 )
 from ..typing import ReturnRenderWith, ReturnView
-from .helpers import JinjaTemplate, render_redirect
+from .helpers import LayoutTemplate, render_redirect
 from .login_session import requires_login, requires_sudo
 
 # MARK: Templates ----------------------------------------------------------------------
 
 
-class AuthClientIndexTemplate(JinjaTemplate, template='auth_client_index.html.jinja2'):
+class AuthClientIndexTemplate(LayoutTemplate, template='auth_client_index.html.jinja2'):
     auth_clients: Iterable[AuthClient]
 
 
 class AuthClientCredentialTemplate(
-    JinjaTemplate, template='auth_client_credential.html.jinja2'
+    LayoutTemplate, template='auth_client_credential.html.jinja2'
 ):
     name: str
     secret: str

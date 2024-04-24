@@ -50,7 +50,7 @@ from ..forms import supported_locales
 from ..models import Account, Shortlink, db, profanity
 from ..proxies import RequestWants, request_wants
 from ..typing import ResponseType, ReturnResponse, ReturnView
-from ..utils import JinjaTemplateBase, jinja_global
+from ..utils import JinjaTemplateBase, jinja_global, jinja_undefined
 
 nocache_expires = utc.localize(datetime(1990, 1, 1))
 
@@ -119,6 +119,12 @@ class JinjaTemplate(JinjaTemplateBase, template=None):
     get_locale: Callable[[], Locale] = jinja_global()  # User locale
     csrf_token: Callable[[], str | bytes] = jinja_global()  # CSRF token
     request_wants: RequestWants = jinja_global()  # Request flags
+
+
+class LayoutTemplate(JinjaTemplate, template='layout.html.jinja2'):
+    """Jinja templates that extend layout.html.jinja2."""
+
+    search_query: str = jinja_undefined(default=None)
 
 
 class SessionTimeouts(dict[str, timedelta]):
