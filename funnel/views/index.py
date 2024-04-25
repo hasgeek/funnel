@@ -6,17 +6,20 @@ import os.path
 from dataclasses import dataclass
 
 from flask import Response, g, render_template
+from flask_flatpages import Page
 from markupsafe import Markup
 
 from baseframe import _, __
 from baseframe.filters import date_filter
 from baseframe.forms import render_message
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, pages
 from ..forms import SavedProjectForm
-from ..models import Account, Project, sa
+from ..models import Account, Project, Venue, sa
 from ..typing import ReturnRenderWith, ReturnView
+from .helpers import LayoutTemplate
 from .schedule import schedule_data, session_list_data
 
 
@@ -38,14 +41,36 @@ policy_pages = [
 ]
 
 
+class AboutTemplate(LayoutTemplate, template='about.html.jinja2'):
+    pass
+
+
+class ContactTemplate(LayoutTemplate, template='contact.html.jinja2'):
+    page: Page
+
+
+class PolicyTemplate(LayoutTemplate, template='policy.html.jinja2'):
+    index: list[PolicyPage]
+    page: Page
+
+
+class IndexTemplate(LayoutTemplate, template='index.html.jinja2'):
+    upcoming_projects: list[Project | RoleAccessProxy[Project]]
+    open_cfp_projects: list[Project | RoleAccessProxy[Project]]
+    featured_project: Project | RoleAccessProxy[Project] | None
+    featured_project_venues: list[Venue] | list[RoleAccessProxy[Venue]] | None
+    featured_project_sessions: list[dict] | None  # TODO: Specify precise type
+    featured_project_schedule: list[dict] | None  # TODO: Specify precise type
+    featured_accounts: list[Account | RoleAccessProxy[Account]]
+
+
 @route('/', init_app=app)
 class IndexView(ClassView):
     current_section = 'home'
     SavedProjectForm = SavedProjectForm
 
     @route('', endpoint='index')
-    @render_with('index.html.jinja2')
-    def home(self) -> ReturnRenderWith:
+    def home(self) -> ReturnView:
         g.account = None
         projects = Project.all_unsorted()
         # TODO: Move these queries into the Project class
@@ -127,28 +152,28 @@ class IndexView(ClassView):
             key=lambda a: featured_account_sort_key[(a.name or a.title).lower()]
         )
 
-        return {
-            'upcoming_projects': [
+        return IndexTemplate(
+            upcoming_projects=[
                 p.access_for(roles={'all'}, datasets=('primary', 'related'))
                 for p in upcoming_projects
             ],
-            'open_cfp_projects': [
+            open_cfp_projects=[
                 p.access_for(roles={'all'}, datasets=('primary', 'related'))
                 for p in open_cfp_projects
             ],
-            'featured_project': (
+            featured_project=(
                 featured_project.current_access(datasets=('primary', 'related'))
                 if featured_project
                 else None
             ),
-            'featured_project_venues': featured_project_venues,
-            'featured_project_sessions': scheduled_sessions_list,
-            'featured_project_schedule': featured_project_schedule,
-            'featured_accounts': [
+            featured_project_venues=featured_project_venues,
+            featured_project_sessions=scheduled_sessions_list,
+            featured_project_schedule=featured_project_schedule,
+            featured_accounts=[
                 p.current_access(datasets=('primary', 'related'))
                 for p in featured_accounts
             ],
-        }
+        ).render_template()
 
     @route('past.projects', endpoint='past_projects')
     @render_with('past_projects_section.html.jinja2')
@@ -181,25 +206,22 @@ class IndexView(ClassView):
 
 @app.route('/about')
 def about() -> ReturnView:
-    return render_template('about.html.jinja2')
+    return AboutTemplate().render_template()
 
 
 @app.route('/about/contact')
 def contact() -> ReturnView:
-    return render_template(
-        'contact.html.jinja2', page=pages.get_or_404('about/contact')
-    )
+    return ContactTemplate(page=pages.get_or_404('about/contact')).render_template()
 
 
 # Trailing slash in `/about/policy/` is required for relative links in `index.md`
 @app.route('/about/policy/', defaults={'path': 'policy/index'})
 @app.route('/about/<path:path>')
 def policy(path: str) -> ReturnView:
-    return render_template(
-        'policy.html.jinja2',
+    return PolicyTemplate(
         index=policy_pages,
         page=pages.get_or_404(os.path.join('about', path)),
-    )
+    ).render_template()
 
 
 @app.route('/opensearch.xml')

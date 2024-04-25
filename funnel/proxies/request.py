@@ -13,7 +13,7 @@ from werkzeug.utils import cached_property
 
 from ..typing import ResponseType, T
 
-__all__ = ['request_wants']
+__all__ = ['request_wants', 'RequestWants']
 
 
 def test_uses(
