@@ -40,14 +40,14 @@ from werkzeug.wrappers import Response as BaseResponse
 
 from baseframe import cache, statsd
 from coaster.assets import WebpackManifest
-from coaster.sqlalchemy import RoleMixin
+from coaster.sqlalchemy import RoleAccessProxy, RoleMixin
 from coaster.utils import utcnow
 from coaster.views import ClassView
 
 from .. import app, shortlinkapp
 from ..auth import CurrentAuth, current_auth
 from ..forms import supported_locales
-from ..models import Account, Shortlink, db, profanity
+from ..models import Account, Project, Shortlink, db, profanity
 from ..proxies import RequestWants, request_wants
 from ..typing import ResponseType, ReturnResponse, ReturnView
 from ..utils import JinjaTemplateBase, jinja_global, jinja_undefined
@@ -122,9 +122,28 @@ class JinjaTemplate(JinjaTemplateBase, template=None):
 
 
 class LayoutTemplate(JinjaTemplate, template='layout.html.jinja2'):
-    """Jinja templates that extend layout.html.jinja2."""
+    """Jinja templates that extend ``layout.html.jinja2``."""
 
     search_query: str = jinja_undefined(default=None)
+
+
+class FormLayoutTemplate(LayoutTemplate, template='formlayout.html.jinja2'):
+    """Jinja templates that extend ``formlayout.html.jinja2``."""
+
+    autosave: bool = jinja_undefined(default=None)
+    ref_id: str = jinja_undefined(default=None)
+
+
+class ProjectLayout(LayoutTemplate, template='project_layout.html.jinja2'):
+    """Jinja templates that extend ``project_layout.html.jinja2``."""
+
+    project: Project | RoleAccessProxy[Project]
+
+
+class ProfileLayout(LayoutTemplate, template='profile_layout.html.jinja2'):
+    """Jinja templates that extend ``profile_layout.html.jinja2``."""
+
+    # TODO
 
 
 class SessionTimeouts(dict[str, timedelta]):
