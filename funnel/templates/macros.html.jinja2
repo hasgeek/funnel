@@ -25,7 +25,7 @@
 <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
 {%- endmacro %}
 
-{% macro calendarwidget(calendar, compact=true) %}
+{% macro calendarwidget(calendar, compact=true, flex=false) %}
   <div class="card__calendar {% if compact %} card__calendar--compact {% endif %}" aria-hidden="true">
     <div class="calendar">
       {% set event = namespace(month='', year='', first_week='', previous='', next='') %}
@@ -42,15 +42,15 @@
               {% set event.next = true %}
             {% endif %}
           {% endif %}
-          <p class="calendar__month {% if week.upcoming %}calendar__month--upcoming{% endif %} {% if event.first_week == week %}calendar__month--upcoming--first calendar__month--latest{% endif %} {% if week.month != event.month %}calendar__month--unique{% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__month--latest{% endif %}"><span class="calendar__month__counting" data-today="{{ calendar.today }}" data-month="{{ week.month }}"></span><span class="calendar__month__name mui--text-light">{{ week.month }} {{ week.year }}</span></p>
+          <p class="calendar__month {% if week.upcoming %}calendar__month--upcoming{% endif %} {% if event.first_week == week %}calendar__month--upcoming--first calendar__month--latest{% endif %} {% if week.month != event.month %}calendar__month--unique{% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__month--latest{% endif %}{% if flex == true %} zero-padding{% endif %}"><span class="calendar__month__counting" data-today="{{ calendar.today }}" data-month="{{ week.month }}"></span><span class="calendar__month__name mui--text-light">{{ week.month }} {{ week.year }}</span></p>
           {% set event.month = week.month %}
           {% set event.year = week.year %}
-          <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first calendar__weekdays__dates--latest {% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__weekdays__dates--latest {% endif %}" data-month="{{ week.month }}">
+          <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first calendar__weekdays__dates--latest {% endif %} {% if flex == true %} calendar__weekdays__dates--justify {% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__weekdays__dates--latest {% endif %}" data-month="{{ week.month }}">
             <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--left">
               {% if event.previous %}{{ faicon(icon='chevron-left', icon_size='caption', baseline=false, css_class="calendar__weekdays__dates__icon__next") }}{% endif %}
             </p>
             {% for date in week.dates %}
-              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %} {% if date.isoformat >= calendar.today %} calendar__weekdays__dates__date--latest{% endif %} calendar__weekdays__dates__date--{{ (loop.index - 1) % 7 }}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
+            <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %} {% if date.isoformat >= calendar.today %} calendar__weekdays__dates__date--latest{% endif %} {% if flex == true %}calendar__weekdays__dates__date--flex {% endif %} {% if date.count > 0 and flex == true %} calendar__weekdays__dates__date--flex {% endif %} calendar__weekdays__dates__date--{{ (loop.index - 1) % 7 }}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
                 <span class="calendar__weekdays__dates__date__day">{{ date.day }}</span>
                 <span class="calendar__weekdays__dates__date__name">{{ calendar.days[(loop.index - 1) % 7] }}</span>
                 {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} – {{ date.day_end_at }}</span>{% endif %}

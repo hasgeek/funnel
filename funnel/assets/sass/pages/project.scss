@@ -68,6 +68,7 @@
       width: 100%;
       display: block;
       font-style: italic;
+      font-weight: 600;
       margin-bottom: $mui-grid-padding * 0.25;
     }
     .register-block__btn {
@@ -365,6 +366,7 @@
         .calendar__weekdays .calendar__weekdays__dates--latest {
           display: flex;
           margin-bottom: $mui-grid-padding * 0.5;
+          font-weight: 600;
         }
 
         .calendar__weekdays .calendar__weekdays__dates:last-child {
