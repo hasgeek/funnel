@@ -101,7 +101,7 @@ dnspython==2.6.1
     #   baseframe
     #   mxsniff
     #   pyisemail
-emoji==2.11.0
+emoji==2.11.1
     # via baseframe
 filelock==3.13.4
     # via tldextract
@@ -136,7 +136,7 @@ flask-executor==1.0.0
     # via -r requirements/base.in
 flask-flatpages==0.8.2
     # via -r requirements/base.in
-flask-mailman==1.0.0
+flask-mailman==1.1.0
     # via -r requirements/base.in
 flask-migrate==4.0.7
     # via
@@ -155,7 +155,7 @@ flask-wtf==1.2.1
     # via
     #   -r requirements/base.in
     #   baseframe
-freezegun==1.4.0
+freezegun==1.5.0
     # via rq-scheduler
 frozenlist==1.4.1
     # via
@@ -359,7 +359,7 @@ pyyaml==6.0.1
     #   pymdown-extensions
 qrcode==7.4.2
     # via -r requirements/base.in
-redis==5.0.3
+redis==5.0.4
     # via
     #   baseframe
     #   flask-redis
@@ -407,7 +407,7 @@ semantic-version==2.10.0
     # via
     #   baseframe
     #   coaster
-sentry-sdk==1.45.0
+sentry-sdk==2.0.0
     # via baseframe
 six==1.16.0
     # via
