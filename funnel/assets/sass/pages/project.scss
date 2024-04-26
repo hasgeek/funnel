@@ -102,6 +102,10 @@
     width: calc(50% - $mui-grid-padding/2);
     align-self: flex-end;
   }
+  .register-block__btn--full-width {
+    width: 100%;
+    margin-top: $mui-grid-padding;
+  }
   .register-block__content:only-child {
     width: 100%;
     align-self: flex-end;
