@@ -160,7 +160,7 @@ class CommentNotification(RenderNotification):
         if (document_type := self.document_type) == 'project':
             return self.commentset.project
         if document_type == 'proposal':
-            return self.commentset.proposal.project  # type: ignore[union-attr]
+            return self.commentset.proposal.project  # type: ignore[union-attr,return-value]
         return None
 
     @property
