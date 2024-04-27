@@ -1,3 +1,4 @@
+@use 'sass:math';
 @import '../base/variable';
 
 .calendar-container {
@@ -89,7 +90,7 @@ table.proposal-list-table tr {
 
 .fc-widget-header {
   float: right;
-  padding: $mui-grid-padding/2 $mui-grid-padding;
+  padding: math.div($mui-grid-padding, 2) $mui-grid-padding;
   position: relative;
   align-items: center;
   z-index: 3;
@@ -167,7 +168,7 @@ table.proposal-list-table tr {
 .proposal_venue {
   margin: $mui-grid-padding 0 0;
   display: flex;
-  gap: $mui-grid-padding/4;
+  gap: math.div($mui-grid-padding, 4);
 }
 
 .filter-menu {

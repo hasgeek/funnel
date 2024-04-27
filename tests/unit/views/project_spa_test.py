@@ -22,13 +22,13 @@ xhr_headers = [
 login_sessions = [None, '_promoter_login']
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_url(app_context: AppContext, project_expo2010: models.Project) -> str:
     """Relative URL for a project."""
     return urlsplit(project_expo2010.url_for()).path
 
 
-@pytest.fixture()
+@pytest.fixture
 def _promoter_login(login: LoginFixtureProtocol, user_vetinari: models.User) -> None:
     """Login as a project promoter."""
     login.as_(user_vetinari)

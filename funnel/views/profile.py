@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 from flask import abort, current_app, flash, jsonify, render_template, request
@@ -68,7 +69,8 @@ def feature_profile_is_private(obj: Account) -> bool:
     return not obj.current_roles.admin and not bool(obj.profile_state.ACTIVE_AND_PUBLIC)
 
 
-def template_switcher(templateargs: dict[str, Any]) -> str:
+def template_switcher(templateargs: Mapping[str, Any]) -> str:
+    templateargs = dict(templateargs)
     template = templateargs.pop('template')
     return render_template(template, **templateargs)
 
@@ -108,7 +110,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             # We're using it because we want to define our own order here.
             # listed_projects already includes a filter on Project.state.PUBLISHED
             projects = self.obj.listed_projects.order_by(None)
-            all_projects = (
+            upcoming_projects = (
                 projects.filter(
                     sa.or_(
                         Project.state.LIVE,
@@ -123,8 +125,6 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                 .all()
             )
 
-            upcoming_projects = all_projects[:3]
-            all_projects = all_projects[3:]
             featured_project = (
                 projects.filter(
                     sa.or_(
@@ -192,10 +192,6 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             ctx = {
                 'template': template_name,
                 'profile': self.obj.current_access(datasets=('primary', 'related')),
-                'all_projects': [
-                    p.current_access(datasets=('without_parent', 'related'))
-                    for p in all_projects
-                ],
                 'unscheduled_projects': [
                     p.current_access(datasets=('without_parent', 'related'))
                     for p in unscheduled_projects
@@ -348,7 +344,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     def past_projects(self, page: int = 1, per_page: int = 10) -> ReturnRenderWith:
         projects = self.obj.listed_projects.order_by(None)
         past_projects = projects.filter(Project.state.PAST).order_by(
-            Project.start_at.desc()
+            Project.end_at.desc()
         )
         pagination = past_projects.paginate(page=page, per_page=per_page)
         return {

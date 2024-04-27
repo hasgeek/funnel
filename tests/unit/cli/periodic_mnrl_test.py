@@ -47,7 +47,7 @@ def mnrl_json_response() -> bytes:
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize('status_code', [200, 401])
 async def test_mnrl_file_list_apikey_invalid(
     respx_mock: MockRouter, mnrl_files_response_keyinvalid: bytes, status_code: int
@@ -60,7 +60,7 @@ async def test_mnrl_file_list_apikey_invalid(
         await cli_mnrl.get_mnrl_json_file_list('invalid')
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize('status_code', [200, 407])
 async def test_mnrl_file_list_apikey_expired(
     respx_mock: MockRouter, mnrl_files_response_keyexpired: bytes, status_code: int
@@ -73,7 +73,7 @@ async def test_mnrl_file_list_apikey_expired(
         await cli_mnrl.get_mnrl_json_file_list('expired')
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_mnrl_file_list(
     respx_mock: MockRouter, mnrl_files_response: bytes
 ) -> None:
@@ -84,7 +84,7 @@ async def test_mnrl_file_list(
     assert await cli_mnrl.get_mnrl_json_file_list('12345') == ['test.json']
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.mock_config('app', {'MNRL_API_KEY': '12345'})
 async def test_mnrl_file_numbers(
     respx_mock: MockRouter, mnrl_json_response: bytes

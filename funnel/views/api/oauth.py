@@ -5,14 +5,7 @@ from __future__ import annotations
 from collections.abc import Collection, Iterable
 from typing import Any, cast
 
-from flask import (
-    abort,
-    get_flashed_messages,
-    jsonify,
-    redirect,
-    render_template,
-    request,
-)
+from flask import abort, get_flashed_messages, jsonify, redirect, request
 
 from baseframe import _, forms
 from coaster.sqlalchemy import failsafe_add
@@ -30,15 +23,41 @@ from ...models import (
     db,
     getuser,
 )
-from ...registry import resource_registry
+from ...registry import ResourceRegistry, resource_registry
 from ...typing import ReturnView
 from ...utils import make_redirect_url
+from ..helpers import JinjaTemplate, LayoutTemplate
 from ..login_session import reload_for_cookies, requires_client_login, requires_login
 from .resource import get_userinfo
 
 
 class ScopeError(Exception):
     """Requested scope is invalid or beyond access level."""
+
+
+# MARK: Templates ----------------------------------------------------------------------
+
+
+class OauthForbiddenTemplate(LayoutTemplate, template='oauth_403.html.jinja2'):
+    reason: str
+
+
+class OauthPublicRedirectTemplate(
+    JinjaTemplate, template='oauth_public_redirect.html.jinja2'
+):
+    auth_client: AuthClient
+    redirect_to: str
+
+
+class OauthAuthorizeTemplate(LayoutTemplate, template='oauth_authorize.html.jinja2'):
+    form: forms.Form
+    auth_client: AuthClient
+    redirect_uri: str
+    internal_resources: list[str]
+    resource_registry: ResourceRegistry
+
+
+# MARK: Utilities ----------------------------------------------------------------------
 
 
 def verifyscope(scope: Iterable, auth_client: AuthClient) -> list[str]:
@@ -78,7 +97,7 @@ def verifyscope(scope: Iterable, auth_client: AuthClient) -> list[str]:
 
 def oauth_auth_403(reason: str) -> ReturnView:
     """Return 403 errors for /auth."""
-    return render_template('oauth_403.html.jinja2', reason=reason), 403
+    return OauthForbiddenTemplate(reason=reason).render_template(), 403
 
 
 def oauth_make_auth_code(
@@ -141,11 +160,10 @@ def oauth_auth_success(
             redirect_uri, use_fragment=use_fragment, code=code, state=state
         )
     if use_fragment:
-        return render_template(
-            'oauth_public_redirect.html.jinja2',
+        return OauthPublicRedirectTemplate(
             auth_client=auth_client,
             redirect_to=redirect_to,
-        )
+        ).render_template()
     response = redirect(redirect_to, 303)
     response.headers['Cache-Control'] = 'no-cache, no-store, max-age=0, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
@@ -175,6 +193,9 @@ def oauth_auth_error(
     response.headers['Cache-Control'] = 'no-cache, no-store, max-age=0, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     return response
+
+
+# MARK: Views --------------------------------------------------------------------------
 
 
 @app.route('/api/1/auth', methods=['GET', 'POST'])
@@ -328,14 +349,13 @@ def oauth_authorize() -> ReturnView:
 
     # GET request or POST with invalid CSRF
     return (
-        render_template(
-            'oauth_authorize.html.jinja2',
+        OauthAuthorizeTemplate(
             form=form,
             auth_client=auth_client,
             redirect_uri=redirect_uri,
             internal_resources=internal_resources,
             resource_registry=resource_registry,
-        ),
+        ).render_template(),
         200,
         {'X-Frame-Options': 'SAMEORIGIN'},
     )

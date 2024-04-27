@@ -13,13 +13,13 @@ from funnel import models
 from ...conftest import Flask, LoginFixtureProtocol, TestClient, scoped_session
 
 
-@pytest.fixture()
+@pytest.fixture
 def rq_dashboard() -> types.ModuleType:
     """Run tests for rq_dashboard only if it is installed."""
     return pytest.importorskip('rq_dashboard')
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_vetinari_sysadmin(
     db_session: scoped_session, user_vetinari: models.User
 ) -> models.SiteMembership:

@@ -211,7 +211,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin[int, Account], Model):
         if netloc:
             return netloc in (
                 urllib.parse.urlsplit(r).netloc
-                for r in (tuple(self.redirect_uris) + (self.website,))
+                for r in (tuple(self.redirect_uris) + (str(self.website),))
             )
         return False
 

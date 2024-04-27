@@ -2,42 +2,42 @@
 
 <div class="modal__header bg-accent">
   <a class="modal__close mui--text-dark" data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-  <h3 class="js-modal-title mui--text-headline session-modal__title" data-cy-session="title">{{ session.title }}</h3>
+  <h3 class="js-modal-title mui--text-headline session-modal__title" data-cy-session="title">{{ project_session.title }}</h3>
   <div class="mui--clearfix">
-    {% if session.speaker %}
-      <p class="mui--text-subhead modal__header__text" data-cy-session="speaker">{{ faicon(icon='microphone-alt') }} {{ session.speaker }}</p>
+    {% if project_session.speaker %}
+      <p class="mui--text-subhead modal__header__text" data-cy-session="speaker">{{ faicon(icon='microphone-alt') }} {{ project_session.speaker }}</p>
     {% endif %}
     <div class="mui--pull-left modal__header__heading">
-      {% if session.scheduled %}
-        <p class="mui--text-subhead modal__header__text" data-cy-session="time">{{ faicon(icon='calendar-alt') }} {{ session.start_at_localized|date }}, {{ session.start_at_localized|time }}–{{ session.end_at_localized|time }}
+      {% if project_session.scheduled %}
+        <p class="mui--text-subhead modal__header__text" data-cy-session="time">{{ faicon(icon='calendar-alt') }} {{ project_session.start_at_localized|date }}, {{ project_session.start_at_localized|time }}–{{ project_session.end_at_localized|time }}
         </p>
       {% else %}
         <p class="mui--text-subhead modal__header__text">
         {% trans %}This session has not been scheduled yet{% endtrans %}
         </p>
       {% endif %}
-      {% if session.venue_room %}
-        <p class="mui--text-subhead modal__header__text" data-cy-session="room">{{ faicon(icon='map-marker-alt') }} {{ session.venue_room.title }}, {{ session.venue_room.venue.title }}</p>
+      {% if project_session.venue_room %}
+        <p class="mui--text-subhead modal__header__text" data-cy-session="room">{{ faicon(icon='map-marker-alt') }} {{ project_session.venue_room.title }}, {{ project_session.venue_room.venue.title }}</p>
       {% endif %}
     </div>
     <div class="mui-dropdown mui--pull-right">
-      <a href="#" onclick="return false;" class="hg-link-btn mui--hide left-padding" data-url="{{ session.url_for(_external=true, utm_source='webshare') }}" role="button" aria-label="{% trans %}Share this session{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
+      <a href="#" onclick="return false;" class="hg-link-btn mui--hide left-padding" data-url="{{ project_session.url_for(_external=true, utm_source='webshare') }}" role="button" aria-label="{% trans %}Share this session{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
       <a href="#" onclick="return false;" class="project-links left-padding" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" aria-label="{% trans %}Share{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='share-alt', baseline=true, icon_size='subhead', css_class="mui--text-light") }}</a>
-      {{ share_dropdown(session.url_for(_external=true), session.title) }}
+      {{ share_dropdown(project_session.url_for(_external=true), project_session.title) }}
     </div>
   </div>
 </div>
 
 <div class="modal__body">
-  {% if session.views.video and session.views.video.url %}
-    {%- if not session.is_restricted_video or session.current_roles.project_participant or session.project.current_roles.account_member %}
+  {% if project_session.views.video and project_session.views.video.url %}
+    {%- if not project_session.is_restricted_video or project_session.current_roles.project_participant or project_session.project.current_roles.account_member %}
       <div class="details">
         <div class="details__box details__box--left">
           <div class="details__box__video bg-primary-dark embed-video-wrapper" data-cy="session-video">
-            {{ embed_video_player(session.views.video) }}
+            {{ embed_video_player(project_session.views.video) }}
           </div>
           <div class="details__box__control">
-            {{ video_action_bar(session.views.video, '', session) }}
+            {{ video_action_bar(project_session.views.video, '', project_session) }}
           </div>
         </div>
       </div>
@@ -60,9 +60,9 @@
           <div class="video_txt">
             <p>{{ faicon(icon='video-slash', icon_size='display1') }}</p>
             <p class="mui--text-light">{% trans %}The session has no attached video{% endtrans %}</p>
-            {% if not session.views.video and session.project.current_roles.editor %}
+            {% if not project_session.views.video and project_session.project.current_roles.editor %}
               <div>
-                <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ session.url_for('edit') }}" data-cy-admin="edit-session" aria-label="{% trans %}Add session video{% endtrans %}">{% trans %}Edit session{% endtrans %}</a>
+                <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project_session.url_for('edit') }}" data-cy-admin="edit-session" aria-label="{% trans %}Add session video{% endtrans %}">{% trans %}Edit session{% endtrans %}</a>
               </div>
             {%- endif %}
           </div>
@@ -70,16 +70,16 @@
       </div>
     </div>
   {%- endif %}
-  {% if session.proposal %}
-    <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" rel="noopener" data-cy="view-proposal">{{ faicon(icon='presentation') }} {% trans %}View submission for this session{% endtrans %}</a></p>
+  {% if project_session.proposal %}
+    <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ project_session.proposal.url_for('view') }}" target="_blank" rel="noopener" data-cy="view-proposal">{{ faicon(icon='presentation') }} {% trans %}View submission for this session{% endtrans %}</a></p>
   {% endif %}
-  {% if session.views.video or session.proposal %}
+  {% if project_session.views.video or project_session.proposal %}
   <hr class="modal__body__separator" />
   {% endif %}
-  {% if session.description %}
+  {% if project_session.description %}
     <div class="modal__body__section">
       <h3 class="mui--text-headline text-bold"><strong>{% trans %}Description{% endtrans %}</strong></h3>
-      <div class="mui--text-body2 markdown bg-primary">{{ session.description }}</div>
+      <div class="mui--text-body2 markdown bg-primary">{{ project_session.description }}</div>
     </div>
   {% endif %}
 </div>

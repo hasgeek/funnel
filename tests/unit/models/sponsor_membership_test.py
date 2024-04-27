@@ -11,7 +11,7 @@ from funnel import models
 from ...conftest import scoped_session
 
 
-@pytest.fixture()
+@pytest.fixture
 def citywatch_sponsor(
     db_session: scoped_session,
     project_expo2010: models.Project,
@@ -30,7 +30,7 @@ def citywatch_sponsor(
     return sponsor
 
 
-@pytest.fixture()
+@pytest.fixture
 def uu_sponsor(
     db_session: scoped_session,
     project_expo2010: models.Project,
@@ -49,7 +49,7 @@ def uu_sponsor(
     return sponsor
 
 
-@pytest.fixture()
+@pytest.fixture
 def dibbler_sponsor(
     db_session: scoped_session,
     project_expo2010: models.Project,

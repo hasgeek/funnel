@@ -7,7 +7,7 @@ from collections.abc import Iterable
 from datetime import datetime, timedelta
 from io import StringIO
 
-from flask import Response, current_app, render_template, request
+from flask import Response, current_app, request
 from pytz import BaseTzInfo
 from sqlalchemy.exc import IntegrityError
 
@@ -20,7 +20,12 @@ from ..auth import current_auth
 from ..models import ContactExchange, Project, TicketParticipant, db, sa_orm
 from ..typing import ReturnRenderWith, ReturnView
 from ..utils import format_twitter_handle
+from .helpers import LayoutTemplate
 from .login_session import requires_login
+
+
+class ScanContactTemplate(LayoutTemplate, template='scan_contact.html.jinja2'):
+    pass
 
 
 def contact_details(ticket_participant: TicketParticipant) -> dict[str, str | None]:
@@ -141,7 +146,7 @@ class ContactView(ClassView):
     @requires_login
     def scan(self) -> ReturnView:
         """Scan a badge."""
-        return render_template('scan_contact.html.jinja2')
+        return ScanContactTemplate().render_template()
 
     @route('scan/connect', endpoint='scan_connect', methods=['POST'])
     @requires_login

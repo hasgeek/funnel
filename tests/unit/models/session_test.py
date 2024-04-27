@@ -17,7 +17,7 @@ from ...conftest import scoped_session
 # TODO: Create a second parallel project and confirm they don't clash
 
 
-@pytest.fixture()
+@pytest.fixture
 def block_of_sessions(
     db_session: scoped_session, new_project: models.Project
 ) -> SimpleNamespace:

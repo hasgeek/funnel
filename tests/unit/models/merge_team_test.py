@@ -13,7 +13,7 @@ from funnel import models
 from ...conftest import scoped_session
 
 
-@pytest.fixture()
+@pytest.fixture
 def team_merge_data(db_session: scoped_session) -> SimpleNamespace:
     user1 = models.User(
         username='user1',

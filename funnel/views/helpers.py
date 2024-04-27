@@ -6,18 +6,20 @@ import gzip
 import zlib
 import zoneinfo
 from base64 import urlsafe_b64encode
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import nullcontext
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from importlib import resources
 from os import urandom
-from typing import Any, ContextManager, Literal
+from typing import Any, ContextManager, Literal, Protocol
 from urllib.parse import quote, unquote, urljoin
 
 import brotli
+from babel import Locale
 from flask import (
     Flask,
+    Request,
     Response,
     abort,
     current_app,
@@ -29,6 +31,7 @@ from flask import (
     session,
     url_for,
 )
+from flask.sessions import SessionMixin
 from furl import furl
 from pytz import BaseTzInfo, timezone as pytz_timezone, utc
 from werkzeug.exceptions import MethodNotAllowed, NotFound
@@ -36,15 +39,18 @@ from werkzeug.routing import BuildError, RequestRedirect
 from werkzeug.wrappers import Response as BaseResponse
 
 from baseframe import cache, statsd
-from coaster.sqlalchemy import RoleMixin
+from coaster.assets import WebpackManifest
+from coaster.sqlalchemy import RoleAccessProxy, RoleMixin
 from coaster.utils import utcnow
+from coaster.views import ClassView
 
 from .. import app, shortlinkapp
-from ..auth import current_auth
+from ..auth import CurrentAuth, current_auth
 from ..forms import supported_locales
-from ..models import Account, Shortlink, db, profanity
-from ..proxies import request_wants
+from ..models import Account, Project, Shortlink, db, profanity
+from ..proxies import RequestWants, request_wants
 from ..typing import ResponseType, ReturnResponse, ReturnView
+from ..utils import JinjaTemplateBase, jinja_global, jinja_undefined
 
 nocache_expires = utc.localize(datetime(1990, 1, 1))
 
@@ -65,6 +71,79 @@ with (resources.files('tzdata.zoneinfo') / 'tzdata.zi').open(
             valid_timezones[_tzold.lower()] = _tznew
 
 # MARK: Classes ------------------------------------------------------------------------
+
+
+class AppContextProtocol(Protocol):
+    """Read-only protocol for ``flask.g`` within Jinja2 templates."""
+
+    def __getattr__(self, name: str) -> Any: ...
+    def get(self, name: str, default: Any | None = None) -> Any: ...
+    def __contains__(self, item: str) -> bool: ...
+    def __iter__(self) -> Iterator[str]: ...
+
+
+class JinjaTemplate(JinjaTemplateBase, template=None):
+    """Jinja template dataclass base class with type hints for Jinja globals."""
+
+    # Globals provided by Jinja2
+    range: Callable = jinja_global()  # noqa: A003
+    dict: Callable = jinja_global()  # noqa: A003
+    lipsum: Callable = jinja_global()
+    cycler: Callable = jinja_global()
+    joiner: Callable = jinja_global()
+    namespace: Callable = jinja_global()
+
+    # Globals provided by Jinja2 i18n extension
+    _: Callable = jinja_global()
+    gettext: Callable = jinja_global()
+    ngettext: Callable = jinja_global()
+    pgettext: Callable = jinja_global()
+    npgettext: Callable = jinja_global()
+
+    # Globals provided by Flask when an app context is present
+    url_for: Callable[..., str] = jinja_global()  # Get URL for route
+    get_flashed_messages: Callable = jinja_global()  # Flash messages
+    config: Mapping = jinja_global()  # App config as a read-only dict
+    g: AppContextProtocol = jinja_global()  # App context data
+
+    # Globals provided by Flask when a request context is present (not typed `| None`
+    # here as only email templates are rendered outside a request)
+    request: Request = jinja_global()  # HTTP request data
+    session: SessionMixin = jinja_global()  # Cookie session
+
+    # Globals provided by Coaster, Baseframe and Funnel
+    current_auth: CurrentAuth = jinja_global()  # Auth data
+    current_view: ClassView = jinja_global()  # Current ClassView or ModelView
+    manifest: WebpackManifest = jinja_global()  # Webpack manifest loader
+    request_is_xhr: Callable[[], bool] = jinja_global()  # Legacy XHR test
+    get_locale: Callable[[], Locale] = jinja_global()  # User locale
+    csrf_token: Callable[[], str | bytes] = jinja_global()  # CSRF token
+    request_wants: RequestWants = jinja_global()  # Request flags
+
+
+class LayoutTemplate(JinjaTemplate, template='layout.html.jinja2'):
+    """Jinja templates that extend ``layout.html.jinja2``."""
+
+    search_query: str = jinja_undefined(default=None)
+
+
+class FormLayoutTemplate(LayoutTemplate, template='formlayout.html.jinja2'):
+    """Jinja templates that extend ``formlayout.html.jinja2``."""
+
+    autosave: bool = jinja_undefined(default=None)
+    ref_id: str = jinja_undefined(default=None)
+
+
+class ProjectLayout(LayoutTemplate, template='project_layout.html.jinja2'):
+    """Jinja templates that extend ``project_layout.html.jinja2``."""
+
+    project: Project | RoleAccessProxy[Project]
+
+
+class ProfileLayout(LayoutTemplate, template='profile_layout.html.jinja2'):
+    """Jinja templates that extend ``profile_layout.html.jinja2``."""
+
+    # TODO
 
 
 class SessionTimeouts(dict[str, timedelta]):
@@ -304,7 +383,7 @@ def autoset_timezone_and_locale() -> None:
             if remapped_timezone is not None:
                 user.timezone = remapped_timezone  # type: ignore[assignment]
     if user.auto_locale or not user.locale or str(user.locale) not in supported_locales:
-        user.locale = (  # pyright: ignore[reportGeneralTypeIssues]
+        user.locale = (  # pyright: ignore[reportAttributeAccessIssue]
             request.accept_languages.best_match(  # type: ignore[assignment]
                 supported_locales.keys()
             )
@@ -567,7 +646,9 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
     return redirect(url, code)
 
 
-def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]:
+def html_in_json(
+    template: str,
+) -> dict[str, str | Callable[[Mapping[str, Any]], ReturnView]]:
     """
     Render a HTML fragment in a JSON wrapper, for use with ``@render_with``.
 
@@ -577,7 +658,7 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
         def my_view(...) -> ReturnRenderWith: ...
     """
 
-    def render_json_with_status(kwargs: dict[str, Any]) -> ReturnResponse:
+    def render_json_with_status(kwargs: Mapping[str, Any]) -> ReturnResponse:
         """Render plain JSON."""
         return jsonify(
             status='ok',
@@ -591,7 +672,7 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
             },
         )
 
-    def render_html_in_json(kwargs: dict[str, Any]) -> ReturnResponse:
+    def render_html_in_json(kwargs: Mapping[str, Any]) -> ReturnResponse:
         """Render HTML fragment in JSON."""
         resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
         resp.content_type = 'application/x.html+json; charset=utf-8'
