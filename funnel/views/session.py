@@ -7,20 +7,37 @@ from typing import TYPE_CHECKING
 from flask import render_template, request
 
 from baseframe import _
-from coaster.sqlalchemy import failsafe_add
+from coaster.sqlalchemy import RoleAccessProxy, failsafe_add
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles, route
 
 from .. import app
 from ..auth import current_auth
 from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
-from ..models import Account, Project, Proposal, SavedSession, Session, db
+from ..models import Account, Project, Proposal, SavedSession, Session, Venue, db
 from ..proxies import request_wants
 from ..typing import ReturnView
 from .decorators import idempotent_request
-from .helpers import localize_date, render_redirect
+from .helpers import JinjaTemplate, ProjectLayout, render_redirect
 from .login_session import requires_login
 from .mixins import AccountCheckMixin, ProjectViewBase
 from .schedule import schedule_data, session_data, session_list_data
+
+
+class SessionViewPopupTemplate(
+    JinjaTemplate, template='session_view_popup.html.jinja2'
+):
+    project_session: Session | RoleAccessProxy[Session]
+
+
+class ProjectScheduleTemplate(ProjectLayout, template='project_schedule.html.jinja2'):
+    from_date: str | None
+    to_date: str | None
+    active_session: dict  # FIXME
+    sessions: list[dict]  # FIXME
+    timezone: str | None
+    venues: list[Venue | RoleAccessProxy[Venue]]
+    rooms: dict[str, dict[str, str]]
+    schedule: list[dict]  # FIXME
 
 
 def rooms_list(project: Project) -> list[tuple[str, str]]:
@@ -164,17 +181,13 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
     # @requires_roles({'reader'})
     def view(self) -> ReturnView:
         if request_wants.html_fragment:
-            return render_template(
-                'session_view_popup.html.jinja2',
-                session=self.obj.current_access(),
-                timezone=self.obj.project.timezone.zone,
-                localize_date=localize_date,
-            )
+            return SessionViewPopupTemplate(
+                project_session=self.obj.current_access(),
+            ).render_template()
         scheduled_sessions_list = session_list_data(
             self.obj.project.scheduled_sessions, with_modal_url='view'
         )
-        return render_template(
-            'project_schedule.html.jinja2',
+        return ProjectScheduleTemplate(
             project=self.obj.project.current_access(
                 datasets=('without_parent', 'related')
             ),
@@ -204,7 +217,7 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
                 with_slots=False,
                 scheduled_sessions=scheduled_sessions_list,
             ),
-        )
+        ).render_template()
 
     @route('edit', methods=['GET', 'POST'])
     @idempotent_request(['GET', 'POST'])

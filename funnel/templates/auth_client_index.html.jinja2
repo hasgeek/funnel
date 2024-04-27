@@ -19,13 +19,14 @@
     </thead>
     <tbody class="mui--text-subhead">
       {% for auth_client in auth_clients %}
-        {%- set link = auth_client.url_for() %}
+        {%- with link = auth_client.url_for() %}
         <tr>
           <td data-th="#"><a href="{{ link }}" title="{{ auth_client.title }}">{{ loop.index }}</a></td>
           <td data-th="Title"><a href="{{ link }}" title="{{ auth_client.title }}">{{ auth_client.title }}</a></td>
           <td data-th="Owner"><a href="{{ link }}" title="{{ auth_client.title }}">{{ auth_client.account.pickername }}</a></td>
           <td data-th="Website"><a href="{{ link }}" title="{{ auth_client.title }}">{{ auth_client.website }}</a></td>
         </tr>
+        {%- endwith %}
       {% else %}
         <tr>
           <td colspan="4">{% trans %}No applications have been registered{% endtrans %}</td>

@@ -13,7 +13,7 @@ Step 3: Turn the nested tree into HTML code.
 from __future__ import annotations
 
 import re
-from collections.abc import MutableMapping, Sequence
+from collections.abc import Sequence
 from functools import reduce
 from typing import Any, TypedDict
 
@@ -22,7 +22,7 @@ from markdown_it.renderer import RendererHTML
 from markdown_it.rules_core import StateCore
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
-from markdown_it.utils import OptionsDict
+from markdown_it.utils import EnvType, OptionsDict
 
 from coaster.utils import make_name
 
@@ -229,8 +229,8 @@ def toc_plugin(md: MarkdownIt, **opts: Any) -> None:
         tokens: Sequence[Token],
         idx: int,
         options: OptionsDict,
-        env: MutableMapping,
-    ):
+        env: EnvType,
+    ) -> str:
         open_html = f'<div class="{opts["container_class"]}">'
         if opts['container_header_html'] is not None:
             open_html = open_html + opts['container_header_html']
@@ -241,8 +241,8 @@ def toc_plugin(md: MarkdownIt, **opts: Any) -> None:
         tokens: Sequence[Token],
         idx: int,
         options: OptionsDict,
-        env: MutableMapping,
-    ):
+        env: EnvType,
+    ) -> str:
         footer = ''
         if opts['container_footer_html']:
             footer = opts['container_footer_html']
@@ -253,14 +253,14 @@ def toc_plugin(md: MarkdownIt, **opts: Any) -> None:
         tokens: Sequence[Token],
         idx: int,
         options: OptionsDict,
-        env: MutableMapping,
-    ):
+        env: EnvType,
+    ) -> str:
         items = find_elements(opts['include_level'], env['gstate'].tokens, opts)
         toc = items_to_tree(items)
         html = toc_item_to_html(toc, opts, md)
         return html
 
-    def grab_state(state: StateCore):
+    def grab_state(state: StateCore) -> None:
         state.env['gstate'] = state
 
     md.core.ruler.push('grab_state', grab_state)

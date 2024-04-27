@@ -69,6 +69,7 @@ from .helpers import (
     render_redirect,
     validate_rate_limit,
 )
+from .login import LogoutBrowserDataTemplate
 from .login_session import (
     del_sudo_preference_context,
     login_internal,
@@ -78,6 +79,8 @@ from .login_session import (
 )
 from .notification import dispatch_notification
 from .otp import OtpSession, OtpTimeoutError
+
+# MARK: View registry ------------------------------------------------------------------
 
 
 @Account.views()
@@ -287,6 +290,9 @@ def login_session_service(obj: LoginSession) -> str | None:
     if obj.login_service in login_registry:
         return login_registry[obj.login_service].title
     return None
+
+
+# MARK: Views --------------------------------------------------------------------------
 
 
 @route('/account', init_app=app)
@@ -863,9 +869,7 @@ class AccountView(ClassView):
             flash(_("Your account has been deleted"), 'success')
             logout_internal()
             db.session.commit()
-            return render_template(
-                'logout_browser_data.html.jinja2', next=url_for('index')
-            )
+            return LogoutBrowserDataTemplate(next=url_for('index')).render_template()
         return render_form(
             form=form,
             formid='account-delete',
