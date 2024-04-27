@@ -65,10 +65,8 @@
 {% endblock baseheadline %}
 
 {% block left_col %}
-  <div>
-    {{ pinned_update(project) }}
-    {{ project_about(project) }}
-  </div>
+  {{ pinned_update(project) }}
+  {{ project_about(project) }}
   {% if project.has_featured_proposals %}
     <div class="page-card">
       <div class="project-section" id="submissions">
