@@ -148,7 +148,7 @@
             </div>
           </div>
         {% endif %}
-        <div class="project-footer zero-padding zero-bottom-margin project-footer--main">
+        <div class="{% if not project.start_at %}full-width-btn {% endif %}project-footer zero-padding zero-bottom-margin project-footer--main">
           {{ registerblock(project) }}
         </div>
         <div class="mui--hidden-xs mui--hidden-sm">
@@ -160,11 +160,11 @@
 {% endmacro %}
 
 {% macro buy_button(project, include_eyebrow_text=true) %}
-  <div class="register-block__content">
+  <div class="register-block__content {% if current_page != 'project' %} register-block__btn--full-width{% endif %}">
     {% if include_eyebrow_text %}
       <span class="register-block__content__txt mui--text-light">{{ project.views.buy_button_eyebrow_text() }}</span>
     {% endif %}
-    <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary flex-content {% if current_page == 'project' %} fifty-width {% else %} register-block__btn--full-width{% endif %}">
+    <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary flex-content">
       {% if project.features.subscription %}
         <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Become a member{% endtrans %}</span>
       {%- else %}
@@ -179,7 +179,7 @@
 {% macro registerblock(project) %}
   <div class="register-block flex-content">
     {%- if project.features.rsvp_registered %}
-    <div class="register-block__content{% if current_page == 'project' %} fifty-width{% else %} register-block__btn--full-width{% endif %}">
+    <div class="register-block__content{% if current_page != 'project' %} register-block__btn--full-width{% endif %}">
         <span class="register-block__content__txt mui--text-light"></span>
         <a id="cancel-rsvp-btn" class="mui-btn mui-btn--accent mui-btn--raised register-block__btn js-register-btn" rel="modal:open" href="#register-modal" aria-haspopup="true">
           <span class="register-block__btn__txt register-block__btn__txt--hover" data-cy="registered">{% if project.features.follow_mode %}{% trans %}Following{% endtrans %}{% else %}{% trans %}Registered{% endtrans %}{% endif %}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class="mui--text-success fa-icon--left-margin") }}</span>
@@ -202,7 +202,7 @@
         </div>
       </div>
     {% elif project.features.rsvp %}
-      <div class="register-block__content {% if current_page == 'project' %} fifty-width {% else %} register-block__btn--full-width{% endif %}">
+      <div class="register-block__content {% if current_page != 'project' %} register-block__btn--full-width{% endif %}">
         {%- if current_auth.is_anonymous %}
           <a class="mui-btn mui-btn--raised {% if project.features.show_tickets %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
         {% elif project.features.rsvp_unregistered -%}
@@ -214,15 +214,15 @@
         {%- endif %}
       </div>
     {% elif project.buy_tickets_url.url -%}
-      <div class="register-block__content {% if current_page == 'project' %} fifty-width {% else %} register-block__btn--full-width{% endif %}">
+      <div class="register-block__content {% if current_page != 'project' %} register-block__btn--full-width{% endif %}">
         <a class="register-block__btn full-width-btn mui-btn mui-btn--primary" href="{{ project.buy_tickets_url.url }}" data-action="external register url" target="_blank" rel="noopener"><span>{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{{ project.views.register_button_text() }}</span></a>
       </div>
     {% elif project.features.rsvp_for_members -%}
-      <div class="register-block__content {% if current_page == 'project' %} fifty-width {% else %} register-block__btn--full-width{% endif %}">
+      <div class="register-block__content {% if current_page != 'project' %} register-block__btn--full-width{% endif %}">
         <button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}Registration for members only{% endtrans %}</button> </div>
     {% endif %}
     {% if project.current_roles.account_member %}
-      <div class="register-block__content {% if current_page == 'project' %} fifty-width {% else %} register-block__btn--full-width{% endif %}"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
+      <div class="register-block__content {% if current_page != 'project' %}register-block__btn--full-width{% endif %}"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
     {% elif project.features.show_tickets %}
       {{ buy_button(project) }}
     {%- endif %}
@@ -317,11 +317,11 @@
 {% macro project_details(project) %}
   <div>
     {% if project.view_for('edit_schedule').is_available() and not project.start_at %}
-      <p class="project-details__box__content--lesspadding propose"><a class="mui-btn mui-btn--raised mui-btn--dark display-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
+      <div class="project-details__box__content--lesspadding propose zero-padding zero-top-margin zero-bottom-margin"><a class="mui-btn mui-btn--raised mui-btn--dark display-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></div>
     {%- endif %}
 {#  {{ add_submission_btn(project) }} #}
     {%- if project.primary_venue %}
-      <span class="project-venue zero-padding"><a class="mui--text-hyperlink mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-ga="View venue">{{ faicon(icon='map-pin') }} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></span>
+      <span class="project-venue zero-padding"><a class="mui--text-hyperlink mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-ga="View venue">{{ faicon(icon='map-marker-alt') }} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></span>
     {%- endif %}
   </div>
 {% endmacro %}

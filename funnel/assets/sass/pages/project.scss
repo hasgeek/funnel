@@ -65,6 +65,7 @@
     .register-block__content__txt {
       font-size: 12px;
       line-height: 16px;
+      letter-spacing: -0.07rem;
       width: 100%;
       display: block;
       font-style: italic;
@@ -103,11 +104,11 @@
     align-self: flex-end;
   }
   .register-block__btn--full-width {
-    width: 100%;
+    width: 100% !important;
     margin-top: $mui-grid-padding;
   }
   .register-block__content:only-child {
-    width: 100%;
+    width: 100% !important;
     align-self: flex-end;
   }
 }
@@ -157,19 +158,20 @@
 
 @media (min-width: 768px) {
   .project-footer {
-    padding: 0 !important;
+    padding: 16px 0 0 !important;
     .register-block {
       display: block;
       .register-block__content {
-        width: 100%;
+        width: calc(50% - $mui-grid-padding/2);
         margin-right: 0;
         margin-bottom: $mui-grid-padding;
         .register-block__content__rsvp-txt {
           font-size: 12px;
         }
         .register-block__content__txt {
-          font-size: 14px;
-          line-height: 21px;
+          font-size: 12px;
+          line-height: 16px;
+          letter-spacing: -0.01rem;
           margin-bottom: $mui-grid-padding * 0.5;
         }
         .register-block__btn {
@@ -189,9 +191,6 @@
       display: flex;
       flex-direction: row;
       justify-content: space-between;
-    }
-    .fifty-width {
-      width: 48% !important;
     }
   }
 }
