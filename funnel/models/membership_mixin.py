@@ -353,11 +353,11 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
 
         # Perform sanity check. If nothing changed, just return self
         has_changes = False
-        if self.record_type == MembershipRecordTypeEnum.INVITE and _accept:
+        if (
+            self.record_type == MembershipRecordTypeEnum.INVITE and _accept
+        ) or self.record_type == MembershipRecordTypeEnum.MIGRATE:
             # If the existing record is an INVITE and this is an ACCEPT, we have
-            # a record change even if no data changed
-            has_changes = True
-        elif self.record_type == MembershipRecordTypeEnum.MIGRATE:
+            # a record change even if no data changed;
             # If this was a migrated record, replace it with an AMEND record even if no
             # data changed
             has_changes = True
