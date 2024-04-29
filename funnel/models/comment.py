@@ -16,7 +16,7 @@ from coaster.sqlalchemy import (
     role_check,
     with_roles,
 )
-from coaster.utils import LabeledEnum
+from coaster.utils import LabeledEnum, NameTitle
 
 from .account import (
     Account,
@@ -57,13 +57,13 @@ class COMMENTSET_STATE(LabeledEnum):  # noqa: N801
 
 class COMMENT_STATE(LabeledEnum):  # noqa: N801
     # If you add any new state, you need to migrate the check constraint as well
-    SUBMITTED = (1, 'submitted', __("Submitted"))
-    SCREENED = (2, 'screened', __("Screened"))
-    HIDDEN = (3, 'hidden', __("Hidden"))
-    SPAM = (4, 'spam', __("Spam"))
+    SUBMITTED = (1, NameTitle('submitted', __("Submitted")))
+    SCREENED = (2, NameTitle('screened', __("Screened")))
+    HIDDEN = (3, NameTitle('hidden', __("Hidden")))
+    SPAM = (4, NameTitle('spam', __("Spam")))
     # Deleted state for when there are replies to be preserved
-    DELETED = (5, 'deleted', __("Deleted"))
-    VERIFIED = (6, 'verified', __("Verified"))
+    DELETED = (5, NameTitle('deleted', __("Deleted")))
+    VERIFIED = (6, NameTitle('verified', __("Verified")))
 
     PUBLIC = {SUBMITTED, VERIFIED}
     REMOVED = {SPAM, DELETED}

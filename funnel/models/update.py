@@ -8,7 +8,7 @@ from typing import Any, Self
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, auto_init_default, role_check, with_roles
-from coaster.utils import LabeledEnum
+from coaster.utils import LabeledEnum, NameTitle
 
 from .account import Account
 from .base import (
@@ -35,15 +35,15 @@ __all__ = ['Update', 'VISIBILITY_STATE']
 
 
 class UPDATE_STATE(LabeledEnum):  # noqa: N801
-    DRAFT = (1, 'draft', __("Draft"))
-    PUBLISHED = (2, 'published', __("Published"))
-    DELETED = (3, 'deleted', __("Deleted"))
+    DRAFT = (1, NameTitle('draft', __("Draft")))
+    PUBLISHED = (2, NameTitle('published', __("Published")))
+    DELETED = (3, NameTitle('deleted', __("Deleted")))
 
 
 class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
-    PUBLIC = (1, 'public', __("Public"))
-    PARTICIPANTS = (2, 'participants', __("Participants"))
-    MEMBERS = (3, 'members', __("Members"))
+    PUBLIC = (1, NameTitle('public', __("Public")))
+    PARTICIPANTS = (2, NameTitle('participants', __("Participants")))
+    MEMBERS = (3, NameTitle('members', __("Members")))
 
 
 class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):

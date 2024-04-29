@@ -14,7 +14,7 @@ from ...models import (
     Rsvp,
 )
 from ...transports import email
-from ...transports.sms import MessageTemplate, SmsPriority, SmsTemplate
+from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from ..schedule import schedule_ical
@@ -168,12 +168,5 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
                 self.rsvp.project.joined_title,
                 self.rsvp.project.url_for(_external=True),
                 _("View project"),
-            ),
-        )
-
-    def sms(self) -> MessageTemplate:
-        return MessageTemplate(
-            message=_("You have cancelled your registration for {project}").format(
-                project=self.rsvp.project.joined_title,
             ),
         )

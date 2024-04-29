@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-from flask import render_template, url_for
+from flask import render_template
 from markupsafe import Markup, escape
 from werkzeug.utils import cached_property
 
@@ -21,7 +21,7 @@ from ...models import (
     Project,
     Proposal,
 )
-from ...transports.sms import OneLineTemplate, SmsPriority, SmsTemplate
+from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
@@ -101,20 +101,6 @@ class RenderCommentReportReceivedNotification(RenderNotification):
     def email_content(self) -> str:
         return render_template(
             'notifications/comment_report_received_email.html.jinja2', view=self
-        )
-
-    def sms(self) -> OneLineTemplate:
-        return OneLineTemplate(
-            text1=_("A comment has been reported as spam."),
-            url=shortlink(
-                url_for(
-                    'siteadmin_review_comment',
-                    report=self.report.uuid_b58,
-                    _external=True,
-                    **self.tracking_tags('sms'),
-                ),
-                shorter=True,
-            ),
         )
 
 
