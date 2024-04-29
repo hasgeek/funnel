@@ -22,7 +22,6 @@ from ...models import (
     OrganizationAdminMembershipRevokedNotification,
     sa,
 )
-from ...transports.sms import MessageTemplate
 from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotification
 
 
@@ -420,17 +419,6 @@ class RenderShared:
             user=self.membership.member.pickername,
             organization=self.organization.pickername,
             actor=(actor.pickername if actor is not None else _("(unknown)")),
-        )
-
-    def sms(self) -> MessageTemplate:
-        """SMS notification."""
-        actor = self.membership_actor()
-        return MessageTemplate(
-            message=self.activity_template().format(
-                user=self.membership.member.pickername,
-                organization=self.organization.pickername,
-                actor=(actor.pickername if actor is not None else _("(unknown)")),
-            )
         )
 
 

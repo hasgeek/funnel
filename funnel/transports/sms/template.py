@@ -16,9 +16,6 @@ __all__ = [
     'SmsPriority',
     'SmsTemplate',
     'WebOtpTemplate',
-    'OneLineTemplate',
-    'TwoLineTemplate',
-    'MessageTemplate',
 ]
 
 # MARK: Registered template processor --------------------------------------------------
@@ -418,75 +415,3 @@ class WebOtpTemplate(SmsTemplate):
         " https://has.gy/not-my-otp\n\n@hasgeek.com #{otp}"
     )
     message_priority = SmsPriority.URGENT
-
-
-class OneLineTemplate(SmsTemplate):
-    """Template for single line messages."""
-
-    registered_template = '{#var#}{#var#}{#var#}{#var#}\n\n{#var#} to stop - Hasgeek'
-    template = "{text1} {url}\n\n\n{unsubscribe_url} to stop - Hasgeek"
-    plaintext_template = "{text1} {url}"
-
-    text1: str
-    url: str
-    unsubscribe_url: str
-
-    def available_var_len(self) -> int:
-        """Discount the two URLs from available length."""
-        return self.template_var_len - len(self.url) - len(self.unsubscribe_url)
-
-    def truncate(self) -> None:
-        """Truncate text1 to fit."""
-        max_text_length = self.available_var_len()
-        if len(self.text1) > max_text_length:
-            self.text1 = self.text1[: max_text_length - 1] + '…'
-
-
-class TwoLineTemplate(SmsTemplate):
-    """Template for double line messages."""
-
-    registered_template = (
-        '{#var#}{#var#}\n\n{#var#}{#var#}\n\n{#var#} to stop - Hasgeek'
-    )
-    template = "{text1}\n\n{text2} {url}\n\n\n{unsubscribe_url} to stop - Hasgeek"
-    plaintext_template = "{text1}\n\n{text2} {url}"
-
-    text1: str
-    text2: str
-    url: str
-    unsubscribe_url: str
-
-    def available_var_len(self) -> int:
-        """Discount the two URLs from available length."""
-        return self.template_var_len - len(self.url) - len(self.unsubscribe_url)
-
-    def truncate(self) -> None:
-        """Truncate text1 and text2 to fit."""
-        max_text_length = self.available_var_len()
-        # `int()` always discards fractional values, so 100*0.33 + 100*0.66 == 99
-        max_text1_length = int(max_text_length * 0.33)
-        max_text2_length = int(max_text_length * 0.66)
-        if len(self.text1) > max_text1_length:
-            self.text1 = self.text1[: max_text1_length - 1] + '…'
-        if len(self.text2) > max_text2_length:
-            self.text2 = self.text2[: max_text2_length - 1] + '…'
-
-
-class MessageTemplate(OneLineTemplate):
-    """Template for a message without a URL."""
-
-    template = "{message}\n\n\n{unsubscribe_url} to stop - Hasgeek"
-    plaintext_template = "{message}"
-
-    message: str
-    unsubscribe_url: str
-
-    def available_var_len(self) -> int:
-        """Discount the unsubscribe URL from available length."""
-        return self.template_var_len - len(self.unsubscribe_url)
-
-    def truncate(self) -> None:
-        """Truncate message to fit."""
-        max_text_length = self.available_var_len()
-        if len(self.message) > max_text_length:
-            self.message = self.message[: max_text_length - 1] + '…'

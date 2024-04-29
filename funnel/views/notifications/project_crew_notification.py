@@ -23,8 +23,6 @@ from ...models import (
     ProjectMembership,
     sa,
 )
-from ...transports.sms import OneLineTemplate
-from ..helpers import shortlink
 from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotification
 
 
@@ -749,23 +747,6 @@ class RenderShared:
             user=self.membership.member.pickername,
             project=self.project.joined_title,
             actor=(actor.pickername if actor is not None else _("(unknown)")),
-        )
-
-    def sms(self) -> OneLineTemplate:
-        """SMS notification."""
-        actor = self.membership_actor()
-        return OneLineTemplate(
-            text1=self.activity_template().format(
-                user=self.membership.member.pickername,
-                project=self.project.joined_title,
-                actor=(actor.pickername if actor is not None else _("(unknown)")),
-            ),
-            url=shortlink(
-                self.project.url_for(
-                    'crew', _external=True, **self.tracking_tags('sms')
-                ),
-                shorter=True,
-            ),
         )
 
 
