@@ -386,11 +386,10 @@ def logout_client() -> ReturnView:
         return render_redirect(url_for('account'))
 
     # If there is a next destination, is it in the same domain as the client?
-    if 'next' in request.args:
-        if not auth_client.host_matches(request.args['next']):
-            # Host doesn't match. Assume CSRF and redirect to account without logout
-            flash(LOGOUT_ERRORMSG, 'danger')
-            return render_redirect(url_for('account'))
+    if 'next' in request.args and not auth_client.host_matches(request.args['next']):
+        # Host doesn't match. Assume CSRF and redirect to account without logout
+        flash(LOGOUT_ERRORMSG, 'danger')
+        return render_redirect(url_for('account'))
     # All good. Log them out and send them back
     logout_internal()
     db.session.commit()
@@ -574,10 +573,9 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             # Register a new user
             user = register_internal(None, userdata.fullname or '', None)
             extid.account = user
-            if userdata.username:
-                if Account.is_available_name(userdata.username):
-                    # Set a username for this user if it's available
-                    user.username = userdata.username
+            if userdata.username and Account.is_available_name(userdata.username):
+                # Set a username for this user if it's available
+                user.username = userdata.username
             new_registration = True
     else:  # We have an existing user account from extid or accountemail
         if current_auth and current_auth.user != user:

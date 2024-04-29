@@ -53,7 +53,7 @@ bleach==6.1.0
     # via
     #   baseframe
     #   coaster
-blinker==1.7.0
+blinker==1.8.1
     # via
     #   baseframe
     #   coaster
@@ -130,7 +130,7 @@ flask-babel==4.0.0
     # via
     #   -r requirements/base.in
     #   baseframe
-flask-caching==2.1.0
+flask-caching==2.2.0
     # via baseframe
 flask-executor==1.0.0
     # via -r requirements/base.in
@@ -322,7 +322,7 @@ pyisemail==2.0.1
     #   mxsniff
 pyjwt==2.8.0
     # via twilio
-pymdown-extensions==10.8
+pymdown-extensions==10.8.1
     # via coaster
 pyparsing==3.1.2
     # via httplib2
@@ -369,7 +369,7 @@ redis==5.0.4
     #   rq-dashboard
 redis-sentinel-url==1.0.1
     # via rq-dashboard
-regex==2024.4.16
+regex==2024.4.28
     # via nltk
 requests==2.31.0
     # via
@@ -407,7 +407,7 @@ semantic-version==2.10.0
     # via
     #   baseframe
     #   coaster
-sentry-sdk==2.0.0
+sentry-sdk==2.0.1
     # via baseframe
 six==1.16.0
     # via
