@@ -119,7 +119,7 @@ def when_vetinari_invites_ridcully(
     user_ridcully: models.User,
     org_ankhmorpork: models.Organization,
     role: str,
-):
+) -> models.AccountMembership:
     is_owner = role == 'owner'
     ridcully_admin = models.AccountMembership(
         member=user_ridcully,

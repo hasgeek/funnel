@@ -10,7 +10,7 @@ from funnel import app  # isort:skip
 from funnel.models import db  # isort:skip
 
 
-def drop_models():
+def drop_models() -> None:
     with app.test_request_context():
         db.drop_all()
 
