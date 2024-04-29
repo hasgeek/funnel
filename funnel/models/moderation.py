@@ -8,7 +8,7 @@ from uuid import UUID
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
-from coaster.utils import LabeledEnum
+from coaster.utils import LabeledEnum, NameTitle
 
 from .account import Account
 from .base import (
@@ -29,8 +29,8 @@ __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
 
 
 class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
-    OK = (1, 'ok', __("Not spam"))
-    SPAM = (2, 'spam', __("Spam"))
+    OK = (1, NameTitle('ok', __("Not spam")))
+    SPAM = (2, NameTitle('spam', __("Spam")))
 
 
 class CommentModeratorReport(UuidMixin, BaseMixin[UUID, Account], Model):

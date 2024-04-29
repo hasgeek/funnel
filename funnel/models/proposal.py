@@ -16,7 +16,7 @@ from coaster.sqlalchemy import (
     role_check,
     with_roles,
 )
-from coaster.utils import LabeledEnum
+from coaster.utils import LabeledEnum, NameTitle
 
 from .account import Account
 from .base import (
@@ -56,24 +56,23 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
     # Draft-state for future use, so people can save their proposals and submit only
     # when ready. If you add any new state, you need to add a migration to modify the
     # check constraint
-    DRAFT = (1, 'draft', __("Draft"))
-    SUBMITTED = (2, 'submitted', __("Submitted"))
-    CONFIRMED = (3, 'confirmed', __("Confirmed"))
-    WAITLISTED = (4, 'waitlisted', __("Waitlisted"))
-    REJECTED = (6, 'rejected', __("Rejected"))
-    CANCELLED = (7, 'cancelled', __("Cancelled"))
-    AWAITING_DETAILS = (8, 'awaiting_details', __("Awaiting details"))
-    UNDER_EVALUATION = (9, 'under_evaluation', __("Under evaluation"))
-    DELETED = (12, 'deleted', __("Deleted"))
+    DRAFT = (1, NameTitle('draft', __("Draft")))
+    SUBMITTED = (2, NameTitle('submitted', __("Submitted")))
+    CONFIRMED = (3, NameTitle('confirmed', __("Confirmed")))
+    WAITLISTED = (4, NameTitle('waitlisted', __("Waitlisted")))
+    REJECTED = (6, NameTitle('rejected', __("Rejected")))
+    CANCELLED = (7, NameTitle('cancelled', __("Cancelled")))
+    AWAITING_DETAILS = (8, NameTitle('awaiting_details', __("Awaiting details")))
+    UNDER_EVALUATION = (9, NameTitle('under_evaluation', __("Under evaluation")))
+    DELETED = (12, NameTitle('deleted', __("Deleted")))
 
     # These 3 are not in the editorial workflow anymore - Feb 23 2018
-    SHORTLISTED = (5, 'shortlisted', __("Shortlisted"))
+    SHORTLISTED = (5, NameTitle('shortlisted', __("Shortlisted")))
     SHORTLISTED_FOR_REHEARSAL = (
         10,
-        'shortlisted_for_rehearsal',
-        __("Shortlisted for rehearsal"),
+        NameTitle('shortlisted_for_rehearsal', __("Shortlisted for rehearsal")),
     )
-    REHEARSAL = (11, 'rehearsal', __("Rehearsal ongoing"))
+    REHEARSAL = (11, NameTitle('rehearsal', __("Rehearsal ongoing")))
 
     # Groups
     PUBLIC = {  # States visible to the public
