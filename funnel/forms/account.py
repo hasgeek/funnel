@@ -151,7 +151,7 @@ def pwned_password_validator(_form: Any, field: forms.PasswordField) -> None:
         return
 
     # If we have data, check for our hash suffix in the returned range of matches
-    count = matches.get(suffix, None)
+    count = matches.get(suffix)
     if count:  # not 0 and not None
         raise forms.validators.StopValidation(
             ngettext(

@@ -232,12 +232,11 @@ class JinjaTemplateBase:
         # Ensure cls doesn't have any default values. All template context must be
         # passed to `__init__` explicitly
         for attr, value in cls.__dict__.items():
-            if not is_dunder(attr):
-                if value is not ...:
-                    raise TypeError(
-                        "Template context variable cannot have a default value:"
-                        f" {attr} = {value!r}"
-                    )
+            if not is_dunder(attr) and value is not ...:
+                raise TypeError(
+                    "Template context variable cannot have a default value:"
+                    f" {attr} = {value!r}"
+                )
         if template:
             cls._template = template
         super().__init_subclass__()

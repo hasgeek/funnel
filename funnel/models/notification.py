@@ -83,6 +83,7 @@ and :class:`UserNotification`:
 from __future__ import annotations
 
 from collections.abc import Callable, Generator, Sequence
+from contextlib import suppress
 from dataclasses import dataclass
 from datetime import datetime
 from enum import ReprEnum
@@ -794,10 +795,8 @@ class NotificationRecipientProtoMixin:
         :param bool revoke: Mark the notification as revoked if document or fragment
             is missing
         """
-        try:
+        with suppress(NoResultFound):
             return bool(self.fragment and self.document or self.document)
-        except NoResultFound:
-            pass
         if revoke:
             self.is_revoked = True
             # Do not set `self.rollupid` because this is not a rollup

@@ -95,8 +95,6 @@ class Rn:
             op.execute(f'ALTER INDEX {qold} RENAME TO {qnew}')
         elif self.symbol == 'function':
             op.execute(f'ALTER FUNCTION {qold} RENAME TO {qnew}')
-        elif self.symbol == 'function':
-            op.execute(f'ALTER FUNCTION {qold} RENAME TO {qnew}')
         else:
             raise TypeError("Unknown symbol type in {self!r}")
 
@@ -138,7 +136,7 @@ class Rtable(Rn):
     triggers: list[Rn] | None = None
     functions: list[Rn] | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Set table and symbol type in lists."""
         self.symbol = 'table'
         for symbol, source in [

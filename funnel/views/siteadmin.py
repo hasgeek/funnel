@@ -417,9 +417,11 @@ class SiteadminView(ClassView):
             ):
                 if most_common_two[0].report_type == MODERATOR_REPORT_TYPE.SPAM:
                     comment_report.comment.mark_spam()
-                elif most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK:
-                    if not comment_report.comment.state.DELETED:
-                        comment_report.comment.mark_not_spam()
+                elif (
+                    most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK
+                    and not comment_report.comment.state.DELETED
+                ):
+                    comment_report.comment.mark_not_spam()
                 with db.session.no_autoflush:
                     CommentModeratorReport.query.filter_by(
                         comment=comment_report.comment

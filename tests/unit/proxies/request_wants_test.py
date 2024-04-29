@@ -164,7 +164,7 @@ def test_response_varies(fixture_app: Flask) -> None:
     rv = client.get('/no-vary')
     assert rv.status_code == 200
     assert rv.content_type == 'text/html; charset=utf-8'
-    assert rv.headers.get('Vary', None) is None
+    assert rv.headers.get('Vary') is None
 
     rv = client.get('/json_or_html')
     assert rv.status_code == 200

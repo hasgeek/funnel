@@ -127,7 +127,7 @@ def when_twoflower_visits_homepage(
 
 
 @when("they navigate to the login page")
-def when_navigate_to_login_page(app, live_server, page: Page):
+def when_navigate_to_login_page(app, live_server, page: Page) -> None:
     page.click('.header__button')
 
 

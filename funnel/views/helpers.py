@@ -376,12 +376,11 @@ def autoset_timezone_and_locale() -> None:
         user.auto_timezone
         or not user.timezone
         or str(user.timezone).lower() not in valid_timezones
-    ):
-        if request.cookies.get('timezone'):
-            cookie_timezone = unquote(request.cookies['timezone']).lower()
-            remapped_timezone = valid_timezones.get(cookie_timezone)
-            if remapped_timezone is not None:
-                user.timezone = remapped_timezone  # type: ignore[assignment]
+    ) and request.cookies.get('timezone'):
+        cookie_timezone = unquote(request.cookies['timezone']).lower()
+        remapped_timezone = valid_timezones.get(cookie_timezone)
+        if remapped_timezone is not None:
+            user.timezone = remapped_timezone  # type: ignore[assignment]
     if user.auto_locale or not user.locale or str(user.locale) not in supported_locales:
         user.locale = (  # pyright: ignore[reportAttributeAccessIssue]
             request.accept_languages.best_match(  # type: ignore[assignment]

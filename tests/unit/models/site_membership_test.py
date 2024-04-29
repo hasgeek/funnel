@@ -1,5 +1,7 @@
 """Tests for SiteMembership model."""
 
+from contextlib import suppress
+
 import pytest
 from sqlalchemy.exc import IntegrityError
 
@@ -16,11 +18,8 @@ def invalidate_cache(user: models.Account) -> None:
         'is_user_moderator',
         'is_site_editor',
     ):
-        try:
+        with suppress(KeyError):  # If not cached, ignore
             delattr(user, attr)
-        except KeyError:
-            # Not cached, ignore
-            pass
 
 
 def test_siteadmin_roles(
