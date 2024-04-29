@@ -180,6 +180,7 @@ astroid.bases.POSSIBLE_PROPERTIES.add('cached_property')
 [tool.pylint.message_control]
 max-line-length = 88
 disable = [
+  'abstract-method',                # Defer to static type checkers
   'attribute-defined-outside-init', # Defer to static type checkers
   'comparison-with-callable',       # Pylint is confused by SQLAlchemy attributes
   'cyclic-import',                  # We have tail imports all over
