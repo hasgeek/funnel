@@ -362,11 +362,12 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
             # data changed
             has_changes = True
         else:
-            # If it's not an ACCEPT, are the supplied data different from existing?
+            # If it's not an ACCEPT, is the supplied data different from existing?
             self._local_data_only = True
             for column_name, column_value in data.items():
                 if column_value != getattr(self, column_name):
                     has_changes = True
+                    break
             del self._local_data_only
         if not has_changes:
             # Nothing is changing. This is probably a form submit with no changes.
@@ -712,8 +713,6 @@ class AmendMembership(Generic[MembershipType]):
 def _confirm_enumerated_mixins(_mapper: Any, cls: type[Account]) -> None:
     """Confirm that the membership collection attributes actually exist."""
     expected_class = ImmutableMembershipMixin
-    if issubclass(cls, Account):
-        expected_class = ImmutableMembershipMixin
     for source in (
         cls.__active_membership_attrs__,
         cls.__noninvite_membership_attrs__,
