@@ -55,6 +55,7 @@ from ..registry import (
     LoginCallbackError,
     LoginInitError,
     LoginProviderData,
+    LoginProviderRegistry,
     login_registry,
 )
 from ..serializers import crossapp_serializer
@@ -63,7 +64,13 @@ from ..transports import TransportError, TransportRecipientError
 from ..typing import ReturnView
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import app_url_for, render_redirect, session_timeouts, validate_rate_limit
+from .helpers import (
+    JinjaTemplate,
+    app_url_for,
+    render_redirect,
+    session_timeouts,
+    validate_rate_limit,
+)
 from .login_session import (
     login_internal,
     logout_internal,
@@ -86,6 +93,24 @@ session_timeouts['temp_username'] = timedelta(minutes=15)
 block_iframe = {'X-Frame-Options': 'SAMEORIGIN'}
 
 LOGOUT_ERRORMSG = __("Are you trying to logout? Try again to confirm")
+
+# MARK: Templates ----------------------------------------------------------------------
+
+
+class LogoutBrowserDataTemplate(
+    JinjaTemplate, template='logout_browser_data.html.jinja2'
+):
+    next: str  # noqa: A003
+
+
+class AccountMergeTemplate(JinjaTemplate, template='account_merge.html.jinja2'):
+    form: forms.Form
+    user: Account
+    other_user: Account
+    login_registry: LoginProviderRegistry
+    formid: str
+    ref_id: str
+    title: str
 
 
 def get_otp_form(otp_session: OtpSession) -> OtpForm | RegisterOtpForm:
@@ -361,17 +386,14 @@ def logout_client() -> ReturnView:
         return render_redirect(url_for('account'))
 
     # If there is a next destination, is it in the same domain as the client?
-    if 'next' in request.args:
-        if not auth_client.host_matches(request.args['next']):
-            # Host doesn't match. Assume CSRF and redirect to account without logout
-            flash(LOGOUT_ERRORMSG, 'danger')
-            return render_redirect(url_for('account'))
+    if 'next' in request.args and not auth_client.host_matches(request.args['next']):
+        # Host doesn't match. Assume CSRF and redirect to account without logout
+        flash(LOGOUT_ERRORMSG, 'danger')
+        return render_redirect(url_for('account'))
     # All good. Log them out and send them back
     logout_internal()
     db.session.commit()
-    return render_template(
-        'logout_browser_data.html.jinja2', next=get_next_url(external=True)
-    )
+    return LogoutBrowserDataTemplate(next=get_next_url(external=True)).render_template()
 
 
 @app.route('/logout')
@@ -403,7 +425,7 @@ def account_logout() -> ReturnView:
         logout_internal()
         db.session.commit()
         flash(_("You are now logged out"), category='info')
-        return render_template('logout_browser_data.html.jinja2', next=get_next_url())
+        return LogoutBrowserDataTemplate(next=get_next_url()).render_template()
 
     if request_wants.json:
         return {'status': 'error', 'errors': form.errors}
@@ -551,10 +573,9 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             # Register a new user
             user = register_internal(None, userdata.fullname or '', None)
             extid.account = user
-            if userdata.username:
-                if Account.is_available_name(userdata.username):
-                    # Set a username for this user if it's available
-                    user.username = userdata.username
+            if userdata.username and Account.is_available_name(userdata.username):
+                # Set a username for this user if it's available
+                user.username = userdata.username
             new_registration = True
     else:  # We have an existing user account from extid or accountemail
         if current_auth and current_auth.user != user:
@@ -657,8 +678,7 @@ def account_merge() -> ReturnView:
             return render_redirect(get_next_url())
         session.pop('merge_buid', None)
         return render_redirect(get_next_url())
-    return render_template(
-        'account_merge.html.jinja2',
+    return AccountMergeTemplate(
         form=form,
         user=current_auth.user,
         other_user=other_user,
@@ -666,7 +686,7 @@ def account_merge() -> ReturnView:
         formid='mergeaccounts',
         ref_id='form-mergeaccounts',
         title=_("Merge accounts"),
-    )
+    ).render_template()
 
 
 # MARK: Future Hasjob login ------------------------------------------------------------

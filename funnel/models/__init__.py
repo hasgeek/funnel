@@ -43,6 +43,7 @@ __all__ = [
     "BaseScopedIdMixin",
     "BaseScopedIdNameMixin",
     "BaseScopedNameMixin",
+    "CheckinParticipantProtocol",
     "Comment",
     "CommentModeratorReport",
     "CommentReplyNotification",

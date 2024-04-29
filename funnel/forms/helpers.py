@@ -145,17 +145,20 @@ class EmailAddressAvailable:
         if has_error is not None:
             app.logger.error("Unknown email address validation code: %r", has_error)
 
-        if has_error is None and self.purpose == 'register':
-            # One last check: is there an existing claim? If so, stop the user from
-            # making a dupe account
-            if AccountEmailClaim.all(email=field.data).notempty():
-                raise forms.validators.StopValidation(
-                    _(
-                        "You or someone else has made an account with this email"
-                        " address but has not confirmed it. Do you need to reset your"
-                        " password?"
-                    )
+        # One last check: is there an existing claim? If so, stop the user from making a
+        # dupe account
+        if (
+            has_error is None
+            and self.purpose == 'register'
+            and AccountEmailClaim.all(email=field.data).notempty()
+        ):
+            raise forms.validators.StopValidation(
+                _(
+                    "You or someone else has made an account with this email"
+                    " address but has not confirmed it. Do you need to reset your"
+                    " password?"
                 )
+            )
 
 
 class PhoneNumberAvailable:

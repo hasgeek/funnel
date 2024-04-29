@@ -798,10 +798,13 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     @property
     def title_inline(self) -> str:
         """Suffix a colon if the title does not end in ASCII sentence punctuation."""
-        if self.title and self.tagline:
-            # pylint: disable=unsubscriptable-object
-            if self.title[-1] not in ('?', '!', ':', ';', '.', ','):
-                return self.title + ':'
+        # pylint: disable=unsubscriptable-object
+        if (
+            self.title
+            and self.tagline
+            and self.title[-1] not in ('?', '!', ':', ';', '.', ',')
+        ):
+            return self.title + ':'
         return self.title
 
     with_roles(title_inline, read={'all'}, datasets={'primary', 'without_parent'})
@@ -1400,14 +1403,14 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
                         session_dates_dict[date]['day_start_at']
                         .astimezone(self.timezone)
                         .strftime('%I:%M %p')
-                        if date in session_dates_dict.keys()
+                        if date in session_dates_dict
                         else None
                     ),
                     'day_end_at': (
                         session_dates_dict[date]['day_end_at']
                         .astimezone(self.timezone)
                         .strftime('%I:%M %p %Z')
-                        if date in session_dates_dict.keys()
+                        if date in session_dates_dict
                         else None
                     ),
                 }

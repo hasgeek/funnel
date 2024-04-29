@@ -8,7 +8,7 @@ from enum import Enum
 
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import DAILY, MONTHLY, rrule
-from flask import abort, render_template, url_for
+from flask import abort, url_for
 from pytz import utc
 
 from baseframe import cache
@@ -18,6 +18,7 @@ from coaster.views import ClassView, route
 from .. import app, executor
 from ..models import Account, Project, Proposal, Session, Update
 from .decorators import xml_response
+from .helpers import JinjaTemplate
 from .index import policy_pages
 
 # MARK: Sitemap models -----------------------------------------------------------------
@@ -55,6 +56,17 @@ class SitemapPage:
     lastmod: datetime | None = None
     changefreq: ChangeFreq | None = None
     priority: float | None = None
+
+
+# MARK: Templates ----------------------------------------------------------------------
+
+
+class SitemapTemplate(JinjaTemplate, template='sitemap.xml.jinja2'):
+    sitemap: list[SitemapPage]
+
+
+class SitemapIndexTemplate(JinjaTemplate, template='sitemapindex.xml.jinja2'):
+    sitemaps: list[SitemapIndex]
 
 
 # MARK: Helper functions ---------------------------------------------------------------
@@ -170,7 +182,9 @@ def changefreq_for_age(age: timedelta) -> ChangeFreq:
 
 
 @executor.job
-def query_account(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
+def query_account(
+    dtstart: datetime, dtend: datetime, changefreq: ChangeFreq
+) -> list[SitemapPage]:
     return [
         SitemapPage(
             account.urls['view'],
@@ -184,7 +198,9 @@ def query_account(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) ->
 
 
 @executor.job
-def query_project(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
+def query_project(
+    dtstart: datetime, dtend: datetime, changefreq: ChangeFreq
+) -> list[SitemapPage]:
     return [
         SitemapPage(
             project_url,
@@ -206,7 +222,9 @@ def query_project(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) ->
 
 
 @executor.job
-def query_update(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
+def query_update(
+    dtstart: datetime, dtend: datetime, changefreq: ChangeFreq
+) -> list[SitemapPage]:
     return [
         SitemapPage(
             update.urls['view'],
@@ -220,7 +238,9 @@ def query_update(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> 
 
 
 @executor.job
-def query_proposal(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
+def query_proposal(
+    dtstart: datetime, dtend: datetime, changefreq: ChangeFreq
+) -> list[SitemapPage]:
     return [
         SitemapPage(
             proposal.urls['view'],
@@ -234,7 +254,9 @@ def query_proposal(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -
 
 
 @executor.job
-def query_session(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
+def query_session(
+    dtstart: datetime, dtend: datetime, changefreq: ChangeFreq
+) -> list[SitemapPage]:
     return [
         SitemapPage(
             session.urls['view'],
@@ -286,10 +308,8 @@ class SitemapView(ClassView):
                 for date in all_sitemap_months(now)
             ]
         )
-        return render_template(
-            'sitemapindex.xml.jinja2',
-            sitemaps=sitemaps,
-        )
+
+        return SitemapIndexTemplate(sitemaps=sitemaps).render_template()
 
     @route('sitemap-static.xml')
     @xml_response
@@ -308,7 +328,7 @@ class SitemapView(ClassView):
             SitemapPage(url_for('policy', path=page.path, _external=True))
             for page in policy_pages
         ]
-        return render_template('sitemap.xml.jinja2', sitemap=pages)
+        return SitemapTemplate(sitemap=pages).render_template()
 
     # The following routes can't use `int:` prefix as that strips zero padding
 
@@ -330,11 +350,15 @@ class SitemapView(ClassView):
             query_proposal.submit(dtstart, dtend, changefreq),
             query_session.submit(dtstart, dtend, changefreq),
         ]
-        sitemap = [
+        sitemap: list[SitemapPage] = [
             link
             for query_results in (job.result() for job in jobs)
             for link in query_results
         ]
         # Sort pages by lastmod, in descending order
-        sitemap.sort(key=lambda page: page.lastmod, reverse=True)
-        return render_template('sitemap.xml.jinja2', sitemap=sitemap)
+        epoch = datetime(1970, 1, 1)
+        sitemap.sort(
+            key=lambda page: page.lastmod or epoch,
+            reverse=True,
+        )
+        return SitemapTemplate(sitemap=sitemap).render_template()

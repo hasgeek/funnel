@@ -2,7 +2,9 @@
 
 from flask import Flask
 
-from .request import request_wants, response_varies
+from .request import RequestWants, request_wants, response_varies
+
+__all__ = ['RequestWants', 'request_wants']
 
 
 def init_app(app: Flask) -> None:

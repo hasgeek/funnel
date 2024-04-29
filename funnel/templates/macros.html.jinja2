@@ -204,13 +204,13 @@
   </a>
 {% endmacro %}
 
-{% macro page_footer() %}
+{% macro about_page_footer(page=none) %}
   <footer class="sub-navbar-container sub-navbar-container--footer bg-accent">
     <nav class="sub-navbar mui-container" id="page-navbar">
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'index' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('about') }}">{% trans %}About Hasgeek{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if page == 'about' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('about') }}">{% trans %}About Hasgeek{% endtrans %}</a>
       <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="{{ url_for('profile', account='hasgeek') }}">{% trans %}Team &amp; careers{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'contact' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('contact') }}">{% trans %}Contact{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'policy' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('policy') }}">{% trans %}Site policies{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if page == 'contact' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('contact') }}">{% trans %}Contact{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if page == 'policy' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('policy') }}">{% trans %}Site policies{% endtrans %}</a>
     </nav>
   </footer>
 {% endmacro %}

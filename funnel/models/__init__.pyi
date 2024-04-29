@@ -217,6 +217,7 @@ from .shortlink import Shortlink
 from .site_membership import SiteMembership
 from .sponsor_membership import ProjectSponsorMembership, ProposalSponsorMembership
 from .sync_ticket import (
+    CheckinParticipantProtocol,
     SyncTicket,
     TicketClient,
     TicketEvent,
@@ -272,6 +273,7 @@ __all__ = [
     "BaseScopedIdMixin",
     "BaseScopedIdNameMixin",
     "BaseScopedNameMixin",
+    "CheckinParticipantProtocol",
     "Comment",
     "CommentModeratorReport",
     "CommentReplyNotification",

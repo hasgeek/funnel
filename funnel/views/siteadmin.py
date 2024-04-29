@@ -11,7 +11,7 @@ from functools import wraps
 from io import StringIO
 from typing import Any
 
-from flask import abort, current_app, flash, render_template, request, url_for
+from flask import abort, current_app, flash, request, url_for
 from sqlalchemy.dialects.postgresql import INTERVAL
 
 try:
@@ -40,8 +40,20 @@ from ..models import (
 )
 from ..typing import P, ReturnRenderWith, ReturnResponse, ReturnView, T
 from ..utils import abort_null
-from .helpers import render_redirect
+from .helpers import LayoutTemplate, render_redirect
 from .login_session import requires_login
+
+
+class SiteadminGenerateShortlinksTemplate(
+    LayoutTemplate, template='siteadmin_generate_shortlinks.html.jinja2'
+):
+    pass
+
+
+class AuthDashboardTemplate(LayoutTemplate, template='auth_dashboard.html.jinja2'):
+    user_count: int
+    mau: int
+
 
 # XXX: Replace with TypedDict when upgrading to Python 3.8+
 counts_template = {
@@ -145,7 +157,7 @@ class SiteadminView(ClassView):
     def dashboard(self) -> ReturnView:
         """Render siteadmin dashboard landing page."""
         user_count = User.active_count()
-        mau = (
+        mau: int = (
             db.session.query(sa.func.count(sa.func.distinct(LoginSession.account_id)))
             .select_from(LoginSession)
             .join(Account, LoginSession.account)
@@ -156,14 +168,12 @@ class SiteadminView(ClassView):
             .scalar()
         )
 
-        return render_template(
-            'auth_dashboard.html.jinja2', user_count=user_count, mau=mau
-        )
+        return AuthDashboardTemplate(user_count=user_count, mau=mau).render_template()
 
     @route('shortlink', endpoint='shortlink')
     def generate_shortlink(self) -> ReturnView:
         """Form to generate a custom shortlink."""
-        return render_template('siteadmin_generate_shortlinks.html.jinja2')
+        return SiteadminGenerateShortlinksTemplate().render_template()
 
     @route('data/users_by_month.csv', endpoint='dashboard_data_users_by_month')
     @requires_siteadmin
@@ -407,9 +417,11 @@ class SiteadminView(ClassView):
             ):
                 if most_common_two[0].report_type == MODERATOR_REPORT_TYPE.SPAM:
                     comment_report.comment.mark_spam()
-                elif most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK:
-                    if not comment_report.comment.state.DELETED:
-                        comment_report.comment.mark_not_spam()
+                elif (
+                    most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK
+                    and not comment_report.comment.state.DELETED
+                ):
+                    comment_report.comment.mark_not_spam()
                 with db.session.no_autoflush:
                     CommentModeratorReport.query.filter_by(
                         comment=comment_report.comment

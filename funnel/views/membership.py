@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from flask import abort, flash, render_template, request
+from flask import abort, flash, request
 
 from baseframe import _
 from baseframe.forms import Form, render_form
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import (
     ModelView,
     UrlChangeCheck,
@@ -37,10 +38,22 @@ from ..models import (
 )
 from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
-from .helpers import html_in_json, render_redirect
+from .helpers import LayoutTemplate, html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import AccountCheckMixin, AccountViewBase, ProjectViewBase
 from .notification import dispatch_notification
+
+# MARK: Templates ----------------------------------------------------------------------
+
+
+class MembershipInviteActionsTemplate(
+    LayoutTemplate, template='membership_invite_actions.html.jinja2'
+):
+    membership: ProjectMembership | RoleAccessProxy[ProjectMembership]
+    form: Form
+
+
+# MARK: Views --------------------------------------------------------------------------
 
 
 @Account.views('members')
@@ -409,11 +422,10 @@ class ProjectMembershipInviteView(ProjectMembershipViewBase):
     def invite(self) -> ReturnView:
         status_code = 200
         if request.method == 'GET':
-            return render_template(
-                'membership_invite_actions.html.jinja2',
+            return MembershipInviteActionsTemplate(
                 membership=self.obj.current_access(datasets=('primary', 'related')),
                 form=Form(),
-            )
+            ).render_template()
         membership_invite_form = ProjectCrewMembershipInviteForm()
         if membership_invite_form.validate_on_submit():
             if membership_invite_form.action.data == 'accept':

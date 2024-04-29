@@ -46,16 +46,20 @@ def _render_with_escape(
     # existing output. We must therefore recast the escaped string as a plain `str`
     _globals['_html_escape'] = lambda text: str(escapefunc(text))
 
-    new_render = types.FunctionType(
-        renderer.__code__,
-        _globals,
-        name=name,
-        argdefs=renderer.__defaults__,
-        closure=renderer.__closure__,
+    new_render = functools.update_wrapper(
+        types.FunctionType(
+            renderer.__code__,
+            _globals,
+            name=name,
+            argdefs=renderer.__defaults__,
+            closure=renderer.__closure__,
+        ),
+        renderer,
     )
-    new_render = functools.update_wrapper(new_render, renderer)
     new_render.__module__ = __name__
-    new_render.__kwdefaults__ = copy(renderer.__kwdefaults__)
+    new_render.__kwdefaults__ = copy(  # type: ignore[attr-defined]
+        renderer.__kwdefaults__
+    )
     new_render.__doc__ = renderer.__doc__
 
     @functools.wraps(renderer)

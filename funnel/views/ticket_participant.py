@@ -24,6 +24,7 @@ from .. import app
 from ..forms import TicketParticipantForm
 from ..models import (
     Account,
+    CheckinParticipantProtocol,
     EmailAddress,
     Project,
     SyncTicket,
@@ -99,7 +100,9 @@ def ticket_participant_data(
 
 
 def ticket_participant_checkin_data(
-    ticket_participant, project: Project, ticket_event: TicketEvent  # FIXME type
+    ticket_participant: CheckinParticipantProtocol,
+    project: Project,
+    ticket_event: TicketEvent,
 ) -> dict:
     puuid_b58 = uuid_to_base58(ticket_participant.uuid)
     data = {

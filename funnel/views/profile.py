@@ -123,7 +123,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             # We're using it because we want to define our own order here.
             # listed_projects already includes a filter on Project.state.PUBLISHED
             projects = self.obj.listed_projects.order_by(None)
-            all_projects = (
+            upcoming_projects = (
                 projects.filter(
                     sa.or_(
                         Project.state.LIVE,
@@ -138,8 +138,6 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                 .all()
             )
 
-            upcoming_projects = all_projects[:3]
-            all_projects = all_projects[3:]
             featured_project = (
                 projects.filter(
                     sa.or_(
@@ -207,10 +205,6 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             ctx = {
                 'template': template_name,
                 'profile': self.obj.current_access(),
-                'all_projects': [
-                    p.current_access(datasets=('without_parent', 'related'))
-                    for p in all_projects
-                ],
                 'unscheduled_projects': [
                     p.current_access(datasets=('without_parent', 'related'))
                     for p in unscheduled_projects
@@ -446,7 +440,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     def past_projects(self, page: int = 1, per_page: int = 10) -> ReturnRenderWith:
         projects = self.obj.listed_projects.order_by(None)
         past_projects = projects.filter(Project.state.PAST).order_by(
-            Project.start_at.desc()
+            Project.end_at.desc()
         )
         pagination = past_projects.paginate(page=page, per_page=per_page)
         return {
