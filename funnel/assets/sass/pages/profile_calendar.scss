@@ -168,7 +168,7 @@
 .fc-multimonth-title {
   font-size: 14px !important;
   font-variant: all-small-caps;
-  padding: $mui-grid-padding !important;
+  padding: $mui-grid-padding * 3 $mui-grid-padding $mui-grid-padding !important;
   text-align: left !important;
   font-weight: 600 !important;
 }
