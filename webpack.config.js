@@ -143,6 +143,10 @@ module.exports = {
           from: 'node_modules/prismjs/components/*.min.js',
           to: 'js/prismjs/components/[name].js',
         },
+        {
+          from: 'node_modules/@shoelace-style/shoelace/cdn',
+          to: 'js/shoelace',
+        },
       ],
     }),
     new webpack.DefinePlugin({
