@@ -159,6 +159,4 @@ class ProfileBannerForm(forms.Form):
 class FollowForm(forms.Form):
     """Form for following or unfollowing an account."""
 
-    follow = forms.BooleanField(
-        __("Follow?"), validators=[forms.validators.InputRequired()]
-    )
+    follow = forms.BooleanField(__("Follow?"))

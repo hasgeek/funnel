@@ -532,6 +532,8 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         primaryjoin=lambda: sa.and_(
             sa_orm.remote(AccountMembership.member_id) == Account.id,
             AccountMembership.is_active,
+            # No filter on AccountMembership.is_follower flag because the `follower`
+            # role is implicit, regardless of what `is_follower` is set to
         ),
         order_by=lambda: AccountMembership.granted_at.asc(),
         viewonly=True,

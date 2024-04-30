@@ -81,6 +81,7 @@ RESERVED_NAMES: set[str] = {
     'embed',
     'event',
     'events',
+    'follow',
     'followers',
     'following',
     'ftp',

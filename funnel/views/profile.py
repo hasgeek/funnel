@@ -304,9 +304,15 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @idempotent_request()
     def follow(self) -> ReturnView:
         """Follow an account."""
+        if self.obj == current_auth.user:
+            return {
+                'status': 'error',
+                'error': 'self_follow',
+                'error_description': _("You can’t follow your own account"),
+            }, 422
         form = FollowForm()
         if form.validate_on_submit():
-            existing_membership = self.obj.active_follower_memberships.filter(
+            existing_membership = self.obj.follower_memberships.filter(
                 AccountMembership.member == current_auth.user
             ).one_or_none()
             if form.follow.data:
@@ -325,11 +331,8 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                     return {'status': 'ok', 'following': True}, 201
                 # If actor has an existing record, maybe confirm a MIGRATE record or
                 # explicitly set is_follower=True
-                new_membership = existing_membership.replace(
-                    actor=current_auth.user, is_follower=True
-                )
-                if new_membership != existing_membership:
-                    db.session.commit()
+                existing_membership.replace(actor=current_auth.user, is_follower=True)
+                db.session.commit()
                 return {'status': 'ok', 'following': True}, 200
             # Unfollow
             if existing_membership:
@@ -339,10 +342,12 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                         'error': 'admin_unfollow',
                         'error_description': _("You are an admin of this account"),
                     }, 422
-                existing_membership.revoke(current_auth.user)
+                existing_membership.revoke_follower(current_auth.user)
                 db.session.commit()
                 return {'status': 'ok', 'following': False}, 201
+            # No existing
             return {'status': 'ok', 'following': False}, 200
+        # Form did not validate
         return {
             'status': 'error',
             'error': 'follow_form_invalid',
