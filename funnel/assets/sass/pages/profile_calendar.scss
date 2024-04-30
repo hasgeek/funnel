@@ -84,6 +84,15 @@
   display: block;
 }
 
+.fc-theme-standard .fc-scrollgrid {
+  border: none;
+}
+
+.fc-scrollgrid-section td,
+.fc-scrollgrid-section th {
+  border: none;
+}
+
 table.proposal-list-table tr {
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
@@ -171,20 +180,23 @@ table.proposal-list-table tr {
   gap: math.div($mui-grid-padding, 4);
 }
 
-.filter-menu {
-  position: absolute;
-  left: 158px;
-  padding: $mui-grid-padding;
-  background-color: $mui-bg-color-primary;
-  z-index: 1000;
-  box-shadow:
-    0 0 2px rgba(0, 0, 0, 0.12),
-    0 2px 2px rgba(0, 0, 0, 0.2);
-  border-radius: 0 16px 16px 16px;
-  min-width: 200px;
+.filter {
+  height: 30.6px;
+  .filter-menu {
+    position: absolute;
+    left: 158px;
+    padding: $mui-grid-padding;
+    background-color: $mui-bg-color-primary;
+    z-index: 1000;
+    box-shadow:
+      0 0 2px rgba(0, 0, 0, 0.12),
+      0 2px 2px rgba(0, 0, 0, 0.2);
+    border-radius: 0 16px 16px 16px;
+    min-width: 200px;
 
-  button {
-    width: 100%;
-    margin-top: $mui-grid-padding;
+    button {
+      width: 100%;
+      margin-top: $mui-grid-padding;
+    }
   }
 }
