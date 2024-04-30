@@ -150,9 +150,9 @@ class OtpSession(Generic[OptionalAccountType]):
         # to this cache entry in the user's cookie session. The cookie never contains
         # the actual OTP. See :func:`make_cached_token` for additional documentation.
         otp = newpin()
-        if isinstance(anchor, (AccountPhone, PhoneNumber)):
+        if isinstance(anchor, AccountPhone | PhoneNumber):
             phone = str(anchor)
-        if isinstance(anchor, (AccountEmail, AccountEmailClaim, EmailAddress)):
+        if isinstance(anchor, AccountEmail | AccountEmailClaim | EmailAddress):
             email = str(anchor)
         token = make_cached_token(
             {

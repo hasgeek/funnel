@@ -177,7 +177,7 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
 
     def __eq__(self, other: Any) -> sa.ColumnElement[bool]:  # type: ignore[override]
         """Return an expression for column == other."""
-        if isinstance(other, (str, bytes)):
+        if isinstance(other, str | bytes):
             return self.__clause_element__() == name_to_bigint(
                 other
             )  # type: ignore[return-value]

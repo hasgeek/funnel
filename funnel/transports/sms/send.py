@@ -163,7 +163,7 @@ def send_via_exotel(
         if r.status_code in (200, 201):
             # All good
             jsonresponse = r.json()
-            if isinstance(jsonresponse, (list, tuple)) and jsonresponse:
+            if isinstance(jsonresponse, list | tuple) and jsonresponse:
                 transactionid = jsonresponse[0].get('SMSMessage', {}).get('Sid')
             elif isinstance(jsonresponse, dict):
                 transactionid = jsonresponse.get('SMSMessage', {}).get('Sid')
