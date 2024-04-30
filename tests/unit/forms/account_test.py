@@ -29,7 +29,7 @@ def _policy_form_app_context(
         yield
 
 
-@pytest.fixture()
+@pytest.fixture
 def form(request: pytest.FixtureRequest) -> forms.PasswordPolicyForm:
     """Form fixture."""
     user = None
@@ -41,7 +41,7 @@ def form(request: pytest.FixtureRequest) -> forms.PasswordPolicyForm:
     return forms.PasswordPolicyForm(meta={'csrf': False}, edit_user=user)
 
 
-@pytest.mark.formdata()
+@pytest.mark.formdata
 def test_password_policy_form_no_data(form: forms.PasswordPolicyForm) -> None:
     """Test form validation for missing password."""
     assert form.validate() is False
@@ -81,7 +81,7 @@ def test_okay_password(form: forms.PasswordPolicyForm) -> None:
     assert form.suggestions == []
 
 
-@pytest.mark.enable_socket()
+@pytest.mark.enable_socket
 def test_pwned_password_validator() -> None:
     """Test the pwned password validator."""
     # Validation success = no return value, no exception

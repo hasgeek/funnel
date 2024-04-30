@@ -840,14 +840,14 @@ class SiteSearchView(ClassView):
         if stype is None or stype not in search_providers:
             return {
                 'status': 'ok',
-                'query': q,
+                'search_query': q,
                 'type': None,
                 'counts': search_counts(tsquery),
             }
         return {
             'status': 'ok',
             'type': stype,
-            'query': q,
+            'search_query': q,
             'counts': search_counts(tsquery),
             'results': search_results(tsquery, stype, page=page, per_page=per_page),
         }
@@ -876,11 +876,13 @@ class AccountSearchView(AccountViewBase):
         ):
             return {
                 'status': 'ok',
+                'search_query': q,
                 'type': None,
                 'counts': search_counts(tsquery, account=self.obj),
             }
         return {
             'status': 'ok',
+            'search_query': q,
             'account': self.obj.current_access(datasets=('primary', 'related')),
             'type': stype,
             'counts': search_counts(tsquery, account=self.obj),
@@ -913,12 +915,14 @@ class ProjectSearchView(ProjectViewBase):
         ):
             return {
                 'status': 'ok',
+                'search_query': q,
                 'project': self.obj.current_access(datasets=('primary', 'related')),
                 'type': None,
                 'counts': search_counts(tsquery, project=self.obj),
             }
         return {
             'status': 'ok',
+            'search_query': q,
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'type': stype,
             'counts': search_counts(tsquery, project=self.obj),

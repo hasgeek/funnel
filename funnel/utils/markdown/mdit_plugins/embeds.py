@@ -8,7 +8,7 @@ and mdit_py_plugins.colon_fence.
 from __future__ import annotations
 
 import re
-from collections.abc import MutableMapping, Sequence
+from collections.abc import Sequence
 from math import floor
 
 from markdown_it import MarkdownIt
@@ -16,7 +16,7 @@ from markdown_it.common.utils import charCodeAt
 from markdown_it.renderer import RendererHTML
 from markdown_it.rules_block import StateBlock
 from markdown_it.token import Token
-from markdown_it.utils import OptionsDict
+from markdown_it.utils import EnvType, OptionsDict
 
 __all__ = ['embeds_plugin']
 
@@ -43,7 +43,7 @@ def embeds_plugin(
         tokens: Sequence[Token],
         idx: int,
         options: OptionsDict,
-        env: MutableMapping,
+        env: EnvType,
     ) -> str:
         token = tokens[idx]
         content = md.utils.escapeHtml(token.content)

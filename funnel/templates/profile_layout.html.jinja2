@@ -203,40 +203,17 @@
         {% endif %}
         <ul class="grid projects" role="list">
           {% for project in open_cfp_projects %}
-            <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}"
+            <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4 js-cfp-projects {% if loop.index > 3 %}mui--hide{% endif %}"
               role="listitem">
               {{ projectcard(project, include_calendar=false, save_form_id_prefix='open_spf_') }}
             </li>
           {%- endfor -%}
         </ul>
-        {% if open_cfp_projects|length > 4 %}
+        {% if open_cfp_projects|length > 3 %}
           <div class="mui--text-center">
             <a href="#" onclick="return false;" data-target="show all cfp projects" class="jquery-show-all text-uppercase" data-projects="js-cfp-projects" data-ga="Show all cfp projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
         {% endif %}
-      </div>
-    </div>
-  {% endif %}
-{% endmacro %}
-
-{% macro all_projects_section(all_projects, heading=true) %}
-  {% if all_projects %}
-    <div class="projects-wrapper">
-      <div class="mui-container">
-        {% if heading %}
-        <div class="grid">
-          <div class="grid__col-12">
-            <h2 class="mui--text-headline text-bold project-headline">{% trans %}All projects{% endtrans %}</h2>
-          </div>
-        </div>
-        {% endif %}
-        <ul class="grid projects" role="list">
-          {% for project in all_projects %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(project, save_form_id_prefix='all_spf_') }}
-            </li>
-          {%- endfor -%}
-        </ul>
       </div>
     </div>
   {% endif %}
@@ -396,7 +373,7 @@
     </div>
   </div>
   <div class="mui-container {% if class %}{{ class }}{% endif %}">
-    <div class="profile {% if not profile.is_verified  %}profile--unverified{% endif %}">
+    <div class="profile">
       <div class="profile__banner">
         <div class="profile__banner__box">
           {%- if profile.is_verified and profile.banner_image_url.url %}

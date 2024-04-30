@@ -17,12 +17,12 @@ from baseframe import baseframe
 from funnel.views.decorators import idempotent_request
 
 
-@pytest.fixture()
+@pytest.fixture
 def call_log() -> SimpleQueue:
     return SimpleQueue()
 
 
-@pytest.fixture()
+@pytest.fixture
 def idempotent_test_app(call_log: SimpleQueue) -> Flask:
     app = Flask(__name__)
     app.config.from_prefixed_env()
@@ -54,7 +54,7 @@ def idempotent_test_app(call_log: SimpleQueue) -> Flask:
     return app
 
 
-@pytest.fixture()
+@pytest.fixture
 def _server(idempotent_test_app: Flask) -> Generator[None, None, None]:
     s = make_server('localhost', 3003, idempotent_test_app, threaded=True)
     t = Thread(target=s.serve_forever)

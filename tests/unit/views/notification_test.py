@@ -16,7 +16,7 @@ from funnel.views.notifications.mixins import TemplateVarMixin
 from ...conftest import Flask, TestClient, scoped_session
 
 
-@pytest.fixture()
+@pytest.fixture
 def phone_vetinari(
     db_session: scoped_session, user_vetinari: models.User
 ) -> models.AccountPhone:
@@ -27,7 +27,7 @@ def phone_vetinari(
     return accountphone
 
 
-@pytest.fixture()
+@pytest.fixture
 def notification_prefs_vetinari(
     db_session: scoped_session, user_vetinari: models.User
 ) -> models.NotificationPreferences:
@@ -46,7 +46,7 @@ def notification_prefs_vetinari(
     return prefs
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_update(
     db_session: scoped_session,
     user_vetinari: models.User,
@@ -67,7 +67,7 @@ def project_update(
     return update
 
 
-@pytest.fixture()
+@pytest.fixture
 def update_notification_recipient(
     db_session: scoped_session,
     user_vetinari: models.User,
@@ -96,7 +96,7 @@ def test_notification_recipient_is_user_vetinari(
     assert update_notification_recipient.recipient == user_vetinari
 
 
-@pytest.fixture()
+@pytest.fixture
 def unsubscribe_sms_short_url(
     update_notification_recipient: models.NotificationRecipient,
     phone_vetinari: models.AccountPhone,

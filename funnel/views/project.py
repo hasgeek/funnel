@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from json import JSONDecodeError
 from types import SimpleNamespace
 
-from flask import Response, abort, current_app, flash, render_template, request
+from flask import Response, abort, current_app, flash, request
 from flask_babel import format_number
 from markupsafe import Markup
 
@@ -45,7 +45,7 @@ from ..models import (
 from ..signals import project_data_change, project_role_change
 from ..typing import ReturnRenderWith, ReturnView
 from .decorators import idempotent_request
-from .helpers import html_in_json, render_redirect
+from .helpers import FormLayoutTemplate, html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import (
     requires_login,
@@ -54,6 +54,16 @@ from .login_session import (
 )
 from .mixins import AccountViewBase, DraftViewProtoMixin, ProjectViewBase
 from .notification import dispatch_notification
+
+# MARK: Templates ----------------------------------------------------------------------
+
+
+class ProjectCfpTemplate(FormLayoutTemplate, template='project_cfp.html.jinja2'):
+    project: Project
+    form: CfpForm
+
+
+# MARK: Helpers ------------------------------------------------------------------------
 
 
 @dataclass
@@ -284,6 +294,9 @@ def project_buy_button_eyebrow_text(obj: Project) -> str:
     if not custom_text:
         custom_text = _("Hybrid access (members only)")
     return custom_text
+
+
+# MARK: Views --------------------------------------------------------------------------
 
 
 @Account.views('project_new')
@@ -586,9 +599,10 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for('view_proposals'))
-        return render_template(
-            'project_cfp.html.jinja2', form=form, ref_id='form-cfp', project=self.obj
-        )
+
+        return ProjectCfpTemplate(
+            form=form, ref_id='form-cfp', project=self.obj
+        ).render_template()
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @requires_login

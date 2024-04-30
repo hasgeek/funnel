@@ -12,7 +12,7 @@ from funnel import models
 from ...conftest import LoginFixtureProtocol, TestClient, scoped_session
 
 
-@pytest.fixture()
+@pytest.fixture
 def org_uu_sponsorship(
     db_session: scoped_session,
     user_vetinari: models.User,
@@ -31,7 +31,7 @@ def org_uu_sponsorship(
     return sponsorship
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_vetinari_site_editor(
     db_session: scoped_session, user_vetinari: models.User
 ) -> models.SiteMembership:
@@ -43,7 +43,7 @@ def user_vetinari_site_editor(
     return site_editor
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_twoflower_not_site_editor(
     db_session: scoped_session, user_twoflower: models.User
 ) -> models.SiteMembership:

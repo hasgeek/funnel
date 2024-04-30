@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from flask import flash, render_template, request, url_for
+from collections.abc import Iterable
+
+from flask import flash, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form
@@ -33,8 +35,23 @@ from ..models import (
     db,
 )
 from ..typing import ReturnRenderWith, ReturnView
-from .helpers import render_redirect
+from .helpers import LayoutTemplate, render_redirect
 from .login_session import requires_login, requires_sudo
+
+# MARK: Templates ----------------------------------------------------------------------
+
+
+class AuthClientIndexTemplate(LayoutTemplate, template='auth_client_index.html.jinja2'):
+    auth_clients: Iterable[AuthClient]
+
+
+class AuthClientCredentialTemplate(
+    LayoutTemplate, template='auth_client_credential.html.jinja2'
+):
+    name: str
+    secret: str
+    cred: AuthClientCredential
+
 
 # MARK: Routes: client apps ------------------------------------------------------------
 
@@ -42,17 +59,16 @@ from .login_session import requires_login, requires_sudo
 @app.route('/apps')
 @requires_login
 def client_list() -> ReturnView:
-    return render_template(
-        'auth_client_index.html.jinja2',
+    return AuthClientIndexTemplate(
         auth_clients=AuthClient.all_for(current_auth.user),
-    )
+    ).render_template()
 
 
 @app.route('/apps/all')
 def client_list_all() -> ReturnView:
-    return render_template(
-        'auth_client_index.html.jinja2', auth_clients=AuthClient.all_for(None)
-    )
+    return AuthClientIndexTemplate(
+        auth_clients=AuthClient.all_for(None)
+    ).render_template()
 
 
 def available_client_owners() -> list[tuple[str, str]]:
@@ -201,12 +217,11 @@ class AuthClientView(UrlForView, ModelView[AuthClient]):
             cred, secret = AuthClientCredential.new(self.obj)
             cred.title = form.title.data
             db.session.commit()
-            return render_template(
-                'auth_client_credential.html.jinja2',
+            return AuthClientCredentialTemplate(
                 name=cred.name,
                 secret=secret,
                 cred=cred,
-            )
+            ).render_template()
         return render_form(
             form=form,
             title=_("New access key"),
