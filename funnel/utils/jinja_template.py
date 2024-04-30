@@ -126,7 +126,7 @@ class JinjaInspector(CodeGenerator):
         super().visit_Include(node, frame)
         template: str | list[str] | None = None
         include_template: Any = node.template
-        if isinstance(include_template, (nodes.Tuple, nodes.List)):
+        if isinstance(include_template, nodes.Tuple | nodes.List):
             try:
                 include_template = include_template.as_const(frame.eval_ctx)
             except nodes.Impossible:
@@ -138,7 +138,7 @@ class JinjaInspector(CodeGenerator):
             include_template = include_template.value
         if isinstance(include_template, str):
             template = include_template
-        elif isinstance(include_template, (tuple, list)):
+        elif isinstance(include_template, tuple | list):
             template = list(include_template)
         else:
             warnings.warn(

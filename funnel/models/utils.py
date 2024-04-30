@@ -290,7 +290,7 @@ def do_migrate_instances(
                         old_instance, new_instance
                     )
                     session.flush()
-                    if isinstance(result, (list, tuple, set)):
+                    if isinstance(result, list | tuple | set):
                         migrated_tables.update(result)
                     migrated_tables.add(model.__table__.name)
                 except IncompleteUserMigrationError:
