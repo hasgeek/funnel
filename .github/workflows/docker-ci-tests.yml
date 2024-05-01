@@ -1,4 +1,4 @@
-name: 'Pytest on docker'
+name: Pytest Docker
 
 on:
   push:
@@ -25,7 +25,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
-  test:
+  pytest-docker:
+    name: Pytest Docker
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
