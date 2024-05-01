@@ -27,7 +27,6 @@ const handleFollow = (thisForm) => {
       $accountFollowForms.find('button.js-unfollow-btn').addClass('mui--hide');
       toastr.success(window.gettext('You have unfollowed this account'));
     }
-    Form.updateFormNonce(response);
   };
 
   const onError = (error) => {
@@ -40,7 +39,7 @@ const handleFollow = (thisForm) => {
 };
 
 $(() => {
-  $('body').on('click', '.js-follow-form', function follow(event) {
+  $('html.userlogin body').on('click', '.js-follow-form', function follow(event) {
     event.preventDefault();
     handleFollow(this);
   });
