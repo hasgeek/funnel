@@ -1,9 +1,85 @@
 @use 'sass:math';
 @import '../base/variable';
 
-.calendar-container {
+.calendar {
   width: 100%;
-  min-height: 300px;
+  min-height: 100vh;
+
+  .calendar__wrapper__project-list {
+    .calendar__wrapper__project-list__table {
+      border-collapse: collapse;
+      overflow: hidden;
+      margin: 0 !important;
+      border-radius: 16px;
+      tr {
+        border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+      }
+
+      .calendar__wrapper__project-list__table__venue {
+        margin: $mui-grid-padding 0 0;
+        display: flex;
+        gap: $mui-grid-padding/4;
+      }
+    }
+  }
+
+  .calendar__wrapper__calendar__toolbar {
+    float: right;
+    padding: math.div($mui-grid-padding, 2) $mui-grid-padding;
+    width: 100%;
+    position: relative;
+    align-items: center;
+    z-index: 3;
+
+    .calendar__wrapper__calendar__toolbar__month {
+      font-size: 14px;
+      width: 100%;
+      height: 27px;
+      margin: math.div(-$mui-grid-padding, 2) math.div($mui-grid-padding, 2);
+      text-align: left;
+      font-variant: all-small-caps;
+    }
+
+    .calendar__wrapper__calendar__toolbar__filter {
+      height: 30.6px;
+      margin-right: math.div($mui-grid-padding, 1.25);
+      margin-top: math.div(-$mui-grid-padding, 8);
+    }
+
+    .calendar__wrapper__calendar__toolbar__filter__menu {
+      position: absolute;
+      left: 158px;
+      padding: $mui-grid-padding;
+      background-color: $mui-bg-color-primary;
+      z-index: 1000;
+      box-shadow:
+        0 0 2px rgba(0, 0, 0, 0.12),
+        0 2px 2px rgba(0, 0, 0, 0.2);
+      border-radius: 0 16px 16px 16px;
+      min-width: 200px;
+
+      button {
+        width: 100%;
+        margin-top: $mui-grid-padding;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .calendar__wrapper .calendar__wrapper__headline {
+      order: 2;
+    }
+    .calendar__wrapper .calendar__wrapper__project-list {
+      order: 2;
+    }
+    .calendar__wrapper .calendar__wrapper__calendar {
+      order: 1;
+      margin: -$mui-grid-padding-double 0 $mui-grid-padding * 1.5;
+      position: sticky;
+      top: $mui-grid-padding-double;
+      z-index: 2;
+    }
+  }
 }
 
 .fc-header-toolbar {
@@ -11,7 +87,7 @@
 }
 
 .fc {
-  margin: $mui-grid-padding auto;
+  margin: $mui-grid-padding auto 0;
   width: 100%;
   max-width: 100%;
 
@@ -54,7 +130,20 @@
   .fc-multimonth-month {
     justify-content: left;
     padding: 0;
-    background: #fff;
+  }
+  .fc-multimonth-header {
+    border-radius: 16px;
+  }
+  .fc-view-harness-active > .fc-view {
+    border-radius: 16px;
+    inset: 10px 0 0;
+  }
+  .fc-scroller-harness-liquid {
+    border-radius: 0 0 16px 16px;
+  }
+  .fc-multimonth {
+    margin-top: -66px;
+    border: none !important;
   }
 
   --fc-border-color: #fff;
@@ -71,42 +160,30 @@
   display: block;
 }
 
-table.proposal-list-table tr {
-  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+.fc-theme-standard .fc-scrollgrid {
+  border: none;
 }
 
-.flex-wrapper--baseline {
-  justify-content: right;
-  padding: math.div($mui-grid-padding, 2) $mui-grid-padding 0 0;
-  position: relative;
-  z-index: 3;
-}
-
-.fc-text-caption {
-  font-size: 14px;
-  font-variant: all-small-caps;
-}
-
-.fc-multimonth {
-  margin: -66px 0 0;
+.fc-scrollgrid-section td,
+.fc-scrollgrid-section th {
+  border: none;
 }
 
 .fc-multimonth-title {
   font-size: 14px !important;
   font-variant: all-small-caps;
-  padding: $mui-grid-padding !important;
+  padding: $mui-grid-padding * 3 $mui-grid-padding $mui-grid-padding !important;
   text-align: left !important;
   font-weight: 600 !important;
 }
 
-.mui-table {
-  border-collapse: collapse;
-  overflow: hidden;
-  margin: 0 !important;
-  border-radius: 16px;
+.fc-button {
+  padding: 0;
+  margin-left: math.div(-$mui-grid-padding, 4);
 }
+
 .fc-view-harness {
-  height: 270px !important;
+  height: 260px !important;
 }
 
 .fc-daygrid-day-frame {
@@ -134,44 +211,4 @@ table.proposal-list-table tr {
   opacity: 1;
   color: #1f2d3d;
   font-weight: 700;
-}
-
-@media (max-width: 768px) {
-  .calendar_mobile .grid__col-12 {
-    order: 2;
-  }
-  .calendar_mobile .proposal_list {
-    order: 2;
-  }
-  .calendar_mobile .calendar_mobile_container {
-    order: 1;
-    margin: -$mui-grid-padding-double 0 $mui-grid-padding * 1.5;
-    position: sticky;
-    top: $mui-grid-padding-double;
-    z-index: 2;
-  }
-}
-
-.proposal_venue {
-  margin: $mui-grid-padding 0 0;
-  display: flex;
-  gap: math.div($mui-grid-padding, 4);
-}
-
-.filter-menu {
-  position: absolute;
-  left: 158px;
-  padding: $mui-grid-padding;
-  background-color: $mui-bg-color-primary;
-  z-index: 1000;
-  box-shadow:
-    0 0 2px rgba(0, 0, 0, 0.12),
-    0 2px 2px rgba(0, 0, 0, 0.2);
-  border-radius: 0 16px 16px 16px;
-  min-width: 200px;
-
-  button {
-    width: 100%;
-    margin-top: $mui-grid-padding;
-  }
 }
