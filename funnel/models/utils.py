@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import Literal, NamedTuple, TypeVar, overload
 
 import phonenumbers
@@ -87,7 +88,7 @@ def getuser(name: str, anchor: bool = False) -> Account | AccountAndAnchor | Non
         return None
     else:
         # If it was not an email address or an @username, check if it's a phone number
-        try:
+        with suppress(phonenumbers.NumberParseException):
             # Assume unprefixed numbers to be a local number in one of our supported
             # regions, in order of priority. Also see
             # :func:`~funnel.models.phone_number.parse_phone_number` for similar
@@ -104,10 +105,8 @@ def getuser(name: str, anchor: bool = False) -> Account | AccountAndAnchor | Non
                         if anchor:
                             return AccountAndAnchor(accountphone.account, accountphone)
                         return accountphone.account
-            # No matching account phone? Continue to trying as a username
-        except phonenumbers.NumberParseException:
-            # This was not a parsable phone number. Continue to trying as a username
-            pass
+        # No matching account phone? Not parseable as a phone number? Continue to trying
+        # as a username
 
     # Last guess: username
     user = Account.get(name=name)
@@ -291,7 +290,7 @@ def do_migrate_instances(
                         old_instance, new_instance
                     )
                     session.flush()
-                    if isinstance(result, (list, tuple, set)):
+                    if isinstance(result, list | tuple | set):
                         migrated_tables.update(result)
                     migrated_tables.add(model.__table__.name)
                 except IncompleteUserMigrationError:

@@ -96,17 +96,17 @@ class ResourceRegistry(OrderedDict):
                 # Read once to avoid reparsing below
                 tokenscope = set(authtoken.effective_scope)
                 wildcardscope = usescope.split('/', 1)[0] + '/*'
-                if not (authtoken.auth_client.trusted and '*' in tokenscope):
-                    # If a trusted client has '*' in token scope, all good,
-                    # else check further
-                    if (usescope not in tokenscope) and (
-                        wildcardscope not in tokenscope
-                    ):
-                        # Client doesn't have access to this scope either
-                        # directly or via a wildcard
-                        return resource_auth_error(
-                            _("Token does not provide access to this resource")
-                        )
+                if (
+                    not (authtoken.auth_client.trusted and '*' in tokenscope)
+                    and (usescope not in tokenscope)
+                    and (wildcardscope not in tokenscope)
+                ):
+                    # If the client is trusted but doesn’t have '*' in token scope, or
+                    # the client doesn't have access to this scope either directly or
+                    # via a wildcard, raise an error
+                    return resource_auth_error(
+                        _("Token does not provide access to this resource")
+                    )
                 if trusted and not authtoken.auth_client.trusted:
                     return resource_auth_error(
                         _("This resource can only be accessed by trusted clients")

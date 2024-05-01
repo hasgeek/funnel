@@ -126,7 +126,7 @@ class JinjaInspector(CodeGenerator):
         super().visit_Include(node, frame)
         template: str | list[str] | None = None
         include_template: Any = node.template
-        if isinstance(include_template, (nodes.Tuple, nodes.List)):
+        if isinstance(include_template, nodes.Tuple | nodes.List):
             try:
                 include_template = include_template.as_const(frame.eval_ctx)
             except nodes.Impossible:
@@ -138,7 +138,7 @@ class JinjaInspector(CodeGenerator):
             include_template = include_template.value
         if isinstance(include_template, str):
             template = include_template
-        elif isinstance(include_template, (tuple, list)):
+        elif isinstance(include_template, tuple | list):
             template = list(include_template)
         else:
             warnings.warn(
@@ -232,12 +232,11 @@ class JinjaTemplateBase:
         # Ensure cls doesn't have any default values. All template context must be
         # passed to `__init__` explicitly
         for attr, value in cls.__dict__.items():
-            if not is_dunder(attr):
-                if value is not ...:
-                    raise TypeError(
-                        "Template context variable cannot have a default value:"
-                        f" {attr} = {value!r}"
-                    )
+            if not is_dunder(attr) and value is not ...:
+                raise TypeError(
+                    "Template context variable cannot have a default value:"
+                    f" {attr} = {value!r}"
+                )
         if template:
             cls._template = template
         super().__init_subclass__()

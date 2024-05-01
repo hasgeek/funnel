@@ -92,7 +92,7 @@ class MembershipRecordTypeEnum(IntTitle, ReprEnum):
     AMEND = 4, __("Amend")
     #: A migrate record says this used to be some other form of membership and has been
     #: created due to a technical change in the product
-    # Forthcoming: MIGRATE = 5, __("Migrate")
+    MIGRATE = 5, __("Migrate")
 
 
 # MARK: Exceptions ---------------------------------------------------------------------
@@ -309,6 +309,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
 
     with_roles(is_amendment, read={'member', 'editor'})
 
+    @hybrid_property
+    def is_migrated(self) -> bool:
+        """Test if membership record is migrated data."""
+        return self.record_type == MembershipRecordTypeEnum.MIGRATE
+
+    with_roles(is_migrated, read={'member', 'editor'})
+
     def __repr__(self) -> str:
         # pylint: disable=using-constant-test
         return (
@@ -346,16 +353,21 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
 
         # Perform sanity check. If nothing changed, just return self
         has_changes = False
-        if self.record_type == MembershipRecordTypeEnum.INVITE and _accept:
+        if (
+            self.record_type == MembershipRecordTypeEnum.INVITE and _accept
+        ) or self.record_type == MembershipRecordTypeEnum.MIGRATE:
             # If the existing record is an INVITE and this is an ACCEPT, we have
-            # a record change even if no data changed
+            # a record change even if no data changed;
+            # If this was a migrated record, replace it with an AMEND record even if no
+            # data changed
             has_changes = True
         else:
-            # If it's not an ACCEPT, are the supplied data different from existing?
+            # If it's not an ACCEPT, is the supplied data different from existing?
             self._local_data_only = True
             for column_name, column_value in data.items():
                 if column_value != getattr(self, column_name):
                     has_changes = True
+                    break
             del self._local_data_only
         if not has_changes:
             # Nothing is changing. This is probably a form submit with no changes.
@@ -370,7 +382,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
         new = self.copy_template(parent_id=self.parent_id, granted_by=actor)
         del self._local_data_only
 
-        # if existing record type is INVITE, then ACCEPT or amend as new INVITE
+        # if existing record type is INVITE, then ACCEPT or amend as new INVITE,
         # else replace it with AMEND
         if self.record_type == MembershipRecordTypeEnum.INVITE:
             if _accept:
@@ -680,7 +692,7 @@ class AmendMembership(Generic[MembershipType]):
             )
         self._new[attr] = value
 
-    def __enter__(self) -> AmendMembership:
+    def __enter__(self) -> Self:
         """Enter a `with` context."""
         return self
 
@@ -701,8 +713,6 @@ class AmendMembership(Generic[MembershipType]):
 def _confirm_enumerated_mixins(_mapper: Any, cls: type[Account]) -> None:
     """Confirm that the membership collection attributes actually exist."""
     expected_class = ImmutableMembershipMixin
-    if issubclass(cls, Account):
-        expected_class = ImmutableMembershipMixin
     for source in (
         cls.__active_membership_attrs__,
         cls.__noninvite_membership_attrs__,

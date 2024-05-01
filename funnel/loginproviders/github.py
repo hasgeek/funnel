@@ -45,7 +45,7 @@ class GitHubProvider(LoginProvider):
                     _("This server’s callback URL is misconfigured")
                 )
             raise LoginCallbackError(_("Unknown failure"))
-        code = request.args.get('code', None)
+        code = request.args.get('code')
         try:
             response = requests.post(
                 self.token_url,
@@ -84,7 +84,7 @@ class GitHubProvider(LoginProvider):
 
         email = None
         emails = []
-        if ghemails and isinstance(ghemails, (list, tuple)):
+        if ghemails and isinstance(ghemails, list | tuple):
             for result in ghemails:
                 if result.get('verified') and not result['email'].endswith(
                     '@users.noreply.github.com'

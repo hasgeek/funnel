@@ -25,7 +25,7 @@ from coaster.sqlalchemy import (
     role_check,
     with_roles,
 )
-from coaster.utils import LabeledEnum, buid, utcnow
+from coaster.utils import LabeledEnum, NameTitle, buid, utcnow
 
 from .. import app
 from . import types
@@ -64,18 +64,18 @@ __all__ = ['ProjectRsvpStateEnum', 'Project', 'ProjectLocation', 'ProjectRedirec
 
 
 class PROJECT_STATE(LabeledEnum):  # noqa: N801
-    DRAFT = (1, 'draft', __("Draft"))
-    PUBLISHED = (2, 'published', __("Published"))
-    WITHDRAWN = (3, 'withdrawn', __("Withdrawn"))
-    DELETED = (4, 'deleted', __("Deleted"))
+    DRAFT = (1, NameTitle('draft', __("Draft")))
+    PUBLISHED = (2, NameTitle('published', __("Published")))
+    WITHDRAWN = (3, NameTitle('withdrawn', __("Withdrawn")))
+    DELETED = (4, NameTitle('deleted', __("Deleted")))
     DELETABLE = {DRAFT, PUBLISHED, WITHDRAWN}
     PUBLISHABLE = {DRAFT, WITHDRAWN}
 
 
 class CFP_STATE(LabeledEnum):  # noqa: N801
-    NONE = (1, 'none', __("None"))
-    PUBLIC = (2, 'public', __("Public"))
-    CLOSED = (3, 'closed', __("Closed"))
+    NONE = (1, NameTitle('none', __("None")))
+    PUBLIC = (2, NameTitle('public', __("Public")))
+    CLOSED = (3, NameTitle('closed', __("Closed")))
     ANY = {NONE, PUBLIC, CLOSED}
 
 
@@ -798,10 +798,13 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     @property
     def title_inline(self) -> str:
         """Suffix a colon if the title does not end in ASCII sentence punctuation."""
-        if self.title and self.tagline:
-            # pylint: disable=unsubscriptable-object
-            if self.title[-1] not in ('?', '!', ':', ';', '.', ','):
-                return self.title + ':'
+        # pylint: disable=unsubscriptable-object
+        if (
+            self.title
+            and self.tagline
+            and self.title[-1] not in ('?', '!', ':', ';', '.', ',')
+        ):
+            return self.title + ':'
         return self.title
 
     with_roles(title_inline, read={'all'}, datasets={'primary', 'without_parent'})
@@ -1400,14 +1403,14 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
                         session_dates_dict[date]['day_start_at']
                         .astimezone(self.timezone)
                         .strftime('%I:%M %p')
-                        if date in session_dates_dict.keys()
+                        if date in session_dates_dict
                         else None
                     ),
                     'day_end_at': (
                         session_dates_dict[date]['day_end_at']
                         .astimezone(self.timezone)
                         .strftime('%I:%M %p %Z')
-                        if date in session_dates_dict.keys()
+                        if date in session_dates_dict
                         else None
                     ),
                 }

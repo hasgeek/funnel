@@ -5,7 +5,8 @@ from __future__ import annotations
 import base64
 import os
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any, Protocol, Self
+from uuid import UUID
 
 from coaster.sqlalchemy import with_roles
 
@@ -27,6 +28,7 @@ from .project import Project
 from .project_membership import project_child_role_map
 
 __all__ = [
+    'CheckinParticipantProtocol',
     'SyncTicket',
     'TicketClient',
     'TicketEvent',
@@ -67,6 +69,17 @@ ticket_event_ticket_type = sa.Table(
         nullable=False,
     ),
 )
+
+
+class CheckinParticipantProtocol(Protocol):
+    uuid: UUID
+    fullname: str
+    company: str
+    email: str | None
+    badge_printed: bool
+    checked_in: bool
+    ticket_type_titles: str  # Comma separated string
+    has_user: bool
 
 
 class GetTitleMixin(BaseScopedNameMixin):
@@ -361,7 +374,9 @@ class TicketParticipant(
                 self.ticket_events.remove(ticket_event)
 
     @classmethod
-    def checkin_list(cls, ticket_event: TicketEvent) -> list:  # TODO: List type?
+    def checkin_list(
+        cls, ticket_event: TicketEvent
+    ) -> list[CheckinParticipantProtocol]:
         """
         Return ticket participant details as a comma separated string.
 

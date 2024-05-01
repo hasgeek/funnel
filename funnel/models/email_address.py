@@ -672,12 +672,11 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
             return 'taken'
 
         # There is an existing but it's available for this owner. Any other concerns?
-        if new:
-            # Caller is asking to confirm this is not already belonging to this owner
-            if existing.is_exclusive():
-                # It's in an exclusive relationship, and we're already determined it's
-                # available to this owner, so it must be exclusive to them
-                return 'not_new'
+        if new and existing.is_exclusive():
+            # Caller is asking to confirm this is not already belonging to this owner:
+            # It's in an exclusive relationship, and we're already determined it's
+            # available to this owner, so it must be exclusive to them
+            return 'not_new'
         if existing.delivery_state.SOFT_FAIL:
             return 'soft_fail'
         if existing.delivery_state.HARD_FAIL:
@@ -850,13 +849,13 @@ def _validate_email(
     if old_value == value:
         # Old value is new value. Do nothing. Return without validating
         return
-    if old_value is NO_VALUE and inspect(target).has_identity is False:
+    if old_value is NO_VALUE and inspect(target).has_identity is False:  # noqa: SIM114
         # Old value is unknown and target is a transient object. Continue
         pass
-    elif value is None:
+    elif value is None:  # noqa: SIM114
         # Caller is trying to unset email. Allow this
         pass
-    elif old_value is None:
+    elif old_value is None:  # noqa: SIM114
         # Caller is trying to restore email. Allow but validate match for existing hash
         pass
     elif (
@@ -916,12 +915,11 @@ def _email_address_mixin_set_validator(
     old_value: EmailAddress | None,
     _initiator: Any,
 ) -> None:
-    if value != old_value and target.__email_for__:
-        if value is not None:
-            if value.is_blocked:
-                raise EmailAddressBlockedError("This email address has been blocked")
-            if not value.is_available_for(getattr(target, target.__email_for__)):
-                raise EmailAddressInUseError("This email address it not available")
+    if value != old_value and target.__email_for__ and value is not None:
+        if value.is_blocked:
+            raise EmailAddressBlockedError("This email address has been blocked")
+        if not value.is_available_for(getattr(target, target.__email_for__)):
+            raise EmailAddressInUseError("This email address it not available")
 
 
 @event.listens_for(OptionalEmailAddressMixin, 'mapper_configured', propagate=True)

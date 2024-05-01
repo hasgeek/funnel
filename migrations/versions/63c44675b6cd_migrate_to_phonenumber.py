@@ -228,12 +228,15 @@ def upgrade_() -> None:
                     or item.status_at > existing.msg_sms_delivered_at
                 ):
                     timestamps['msg_sms_delivered_at'] = item.status_at
-            elif item.status == SMS_STATUS_FAILED:
-                if item.status_at and (
+            elif (
+                item.status == SMS_STATUS_FAILED
+                and item.status_at
+                and (
                     not existing.msg_sms_failed_at
                     or item.status_at > existing.msg_sms_failed_at
-                ):
-                    timestamps['msg_sms_failed_at'] = item.status_at
+                )
+            ):
+                timestamps['msg_sms_failed_at'] = item.status_at
             if (
                 item.status in (SMS_STATUS_DELIVERED, SMS_STATUS_FAILED)
                 and item.status_at

@@ -16,7 +16,7 @@ from funnel.models import (  # isort:skip
 )
 
 
-def init_models():
+def init_models() -> None:
     with app.test_request_context():
         db.drop_all()
         db.create_all()
