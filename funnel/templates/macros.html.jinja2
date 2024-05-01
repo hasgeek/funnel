@@ -264,7 +264,7 @@
   </table>
 {%- endmacro %}
 
-{%- macro addFollowButton(profile, css_class='') %}
+{%- macro add_follow_button(profile, css_class='') %}
   {% set follow_formid = 'follow_form'  + profile.uuid_b58 %}
   <form id="{{ follow_formid }}" action="{{ profile.url_for('follow') }}" class="follow-form js-follow-form {% if css_class %}{{ css_class }}{% endif %}" data-account-id="{{ profile.uuid_b58 }}" method="post">
     {%- if current_auth.is_anonymous %}
@@ -292,7 +292,7 @@
     <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}" data-avatar-colour="{{ user.views and user.views.avatar_color_code or '' }}">{{ user.title|initials }}</div>
   {% endif %}
   {% if add_profile_link %}</a>{% endif %}
-  {{ addFollowButton(user, css_class='flex-order-last flex-item-align-end') }}
+  {{ add_follow_button(user, css_class='flex-order-last flex-item-align-end') }}
 {%- endmacro %}
 
 {%- macro profileavatar(account,  add_profile_link=true, css_class="") %}
@@ -308,7 +308,7 @@
     </div>
   </div>
   {% if add_profile_link %}<a href="{{ account.absolute_url }}" class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{%- else %}<span class="mui--text-dark mui--text-subhead text-bold nounderline">{% endif %}{{ account.title }}{% if add_profile_link %}</a>{%- else %}</span>{% endif %}
-  {{ addFollowButton(account, css_class=css_class) }}
+  {{ add_follow_button(account, css_class=css_class) }}
 {%- endmacro %}
 
 {%- macro list_sponsors(sponsors) %}
