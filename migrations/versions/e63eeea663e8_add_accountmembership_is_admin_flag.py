@@ -1,0 +1,63 @@
+"""Add AccountMembership.is_admin flag.
+
+Revision ID: e63eeea663e8
+Revises: 6994cbf757ab
+Create Date: 2024-03-27 19:54:41.758102
+
+"""
+
+import sqlalchemy as sa
+from alembic import op
+
+# revision identifiers, used by Alembic.
+revision: str = 'e63eeea663e8'
+down_revision: str = '6994cbf757ab'
+branch_labels: str | tuple[str, ...] | None = None
+depends_on: str | tuple[str, ...] | None = None
+
+account_membership = sa.table(
+    'account_membership',
+    sa.column('is_owner', sa.Boolean()),
+    sa.column('is_admin', sa.Boolean()),
+)
+
+
+def upgrade(engine_name: str = '') -> None:
+    """Upgrade all databases."""
+    # Do not modify. Edit `upgrade_` instead
+    globals().get(f'upgrade_{engine_name}', lambda: None)()
+
+
+def downgrade(engine_name: str = '') -> None:
+    """Downgrade all databases."""
+    # Do not modify. Edit `downgrade_` instead
+    globals().get(f'downgrade_{engine_name}', lambda: None)()
+
+
+def upgrade_() -> None:
+    """Upgrade default database."""
+    op.add_column(
+        'account_membership',
+        sa.Column('is_admin', sa.Boolean(), nullable=False, server_default=sa.true()),
+    )
+    op.alter_column('account_membership', 'is_admin', server_default=None)
+    op.create_check_constraint(
+        'account_membership_owner_is_admin_check',
+        'account_membership',
+        sa.or_(
+            sa.and_(
+                account_membership.c.is_owner.is_(True),
+                account_membership.c.is_admin.is_(True),
+            ),
+            account_membership.c.is_owner.is_(False),
+        ),
+    )
+
+
+def downgrade_() -> None:
+    """Downgrade default database."""
+    with op.batch_alter_table('account_membership', schema=None) as batch_op:
+        batch_op.drop_constraint(
+            'account_membership_owner_is_admin_check', type_='check'
+        )
+        batch_op.drop_column('is_admin')

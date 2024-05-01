@@ -18,8 +18,8 @@ from ...models import (
     Notification,
     NotificationRecipient,
     Project,
-    ProjectCrewMembershipNotification,
-    ProjectCrewMembershipRevokedNotification,
+    ProjectCrewNotification,
+    ProjectCrewRevokedNotification,
     ProjectMembership,
     sa,
 )
@@ -750,8 +750,8 @@ class RenderShared:
         )
 
 
-@ProjectCrewMembershipNotification.renderer
-class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
+@ProjectCrewNotification.renderer
+class RenderProjectCrewNotification(RenderShared, RenderNotification):
     """Render a notification for project crew invite/add/amend."""
 
     aliases = {'document': 'project', 'fragment': 'membership'}
@@ -772,17 +772,17 @@ class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
 
     def web(self) -> str:
         return render_template(
-            'notifications/project_crew_membership_granted_web.html.jinja2', view=self
+            'notifications/project_crew_granted_web.html.jinja2', view=self
         )
 
     def email_content(self) -> str:
         return render_template(
-            'notifications/project_crew_membership_granted_email.html.jinja2', view=self
+            'notifications/project_crew_granted_email.html.jinja2', view=self
         )
 
 
-@ProjectCrewMembershipRevokedNotification.renderer
-class RenderProjectCrewMembershipRevokedNotification(RenderShared, RenderNotification):
+@ProjectCrewRevokedNotification.renderer
+class RenderProjectCrewRevokedNotification(RenderShared, RenderNotification):
     """Render a notification for project crew revocation."""
 
     aliases = {'document': 'project', 'fragment': 'membership'}
@@ -799,11 +799,11 @@ class RenderProjectCrewMembershipRevokedNotification(RenderShared, RenderNotific
     def web(self) -> str:
         """Render for web."""
         return render_template(
-            'notifications/project_crew_membership_revoked_web.html.jinja2', view=self
+            'notifications/project_crew_revoked_web.html.jinja2', view=self
         )
 
     def email_content(self) -> str:
         """Render email content."""
         return render_template(
-            'notifications/project_crew_membership_revoked_email.html.jinja2', view=self
+            'notifications/project_crew_revoked_email.html.jinja2', view=self
         )

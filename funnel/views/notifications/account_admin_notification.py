@@ -14,12 +14,12 @@ from baseframe import _, __
 
 from ...models import (
     Account,
+    AccountAdminNotification,
+    AccountAdminRevokedNotification,
     AccountMembership,
     MembershipRecordTypeEnum,
     Notification,
     NotificationRecipient,
-    OrganizationAdminMembershipNotification,
-    OrganizationAdminMembershipRevokedNotification,
     sa,
 )
 from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotification
@@ -345,7 +345,7 @@ class RenderShared:
     emoji_prefix = "🔑 "
     reason = __("You are receiving this because you are an admin of this organization")
 
-    organization: Account
+    account: Account
     membership: AccountMembership
     notification: Notification
     notification_recipient: NotificationRecipient
@@ -397,8 +397,8 @@ class RenderShared:
                 f'{escape(membership.member.pickername)}</a>'
             ),
             organization=Markup(
-                f'<a href="{escape(cast(str, self.organization.absolute_url))}">'
-                f'{escape(self.organization.pickername)}</a>'
+                f'<a href="{escape(cast(str, self.account.absolute_url))}">'
+                f'{escape(self.account.pickername)}</a>'
             ),
             actor=(
                 (
@@ -417,16 +417,16 @@ class RenderShared:
         actor = self.membership_actor()
         return self.emoji_prefix + self.activity_template().format(
             user=self.membership.member.pickername,
-            organization=self.organization.pickername,
+            organization=self.account.pickername,
             actor=(actor.pickername if actor is not None else _("(unknown)")),
         )
 
 
-@OrganizationAdminMembershipNotification.renderer
-class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotification):
-    """Notify organization admins of new admins and role changes."""
+@AccountAdminNotification.renderer
+class RenderAccountAdminNotification(RenderShared, RenderNotification):
+    """Notify account admins of new admins and role changes."""
 
-    aliases = {'document': 'organization', 'fragment': 'membership'}
+    aliases = {'document': 'account', 'fragment': 'membership'}
     reason = __("You are receiving this because you are an admin of this organization")
     hero_image = 'img/email/chars-v1/access-granted.png'
     email_heading = __("Membership granted!")
@@ -445,23 +445,21 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     def web(self) -> str:
         """Render for web."""
         return render_template(
-            'notifications/organization_membership_granted_web.html.jinja2', view=self
+            'notifications/account_admin_granted_web.html.jinja2', view=self
         )
 
     def email_content(self) -> str:
         """Render email content."""
         return render_template(
-            'notifications/organization_membership_granted_email.html.jinja2', view=self
+            'notifications/account_admin_granted_email.html.jinja2', view=self
         )
 
 
-@OrganizationAdminMembershipRevokedNotification.renderer
-class RenderOrganizationAdminMembershipRevokedNotification(
-    RenderShared, RenderNotification
-):
-    """Notify organization admins of removed admins."""
+@AccountAdminRevokedNotification.renderer
+class RenderAccountAdminRevokedNotification(RenderShared, RenderNotification):
+    """Notify account admins of removed admins."""
 
-    aliases = {'document': 'organization', 'fragment': 'membership'}
+    aliases = {'document': 'account', 'fragment': 'membership'}
     reason = __("You are receiving this because you were an admin of this organization")
     hero_image = 'img/email/chars-v1/access-revoked.png'
     email_heading = __("Membership revoked")
@@ -480,11 +478,11 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     def web(self) -> str:
         """Render for web."""
         return render_template(
-            'notifications/organization_membership_revoked_web.html.jinja2', view=self
+            'notifications/account_admin_revoked_web.html.jinja2', view=self
         )
 
     def email_content(self) -> str:
         """Render email content."""
         return render_template(
-            'notifications/organization_membership_revoked_email.html.jinja2', view=self
+            'notifications/account_admin_revoked_email.html.jinja2', view=self
         )

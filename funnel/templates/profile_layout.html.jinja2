@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import img_size, saveprojectform, calendarwidget, projectcard, video_thumbnail %}
+{%- from "macros.html.jinja2" import img_size, saveprojectform, calendarwidget, projectcard, video_thumbnail, profileavatar, add_follow_button %}
 {%- from "js/schedule.js.jinja2" import schedule_template %}
 {% block title %}{{ profile.title }}{% endblock title %}
 
@@ -75,15 +75,7 @@
             <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details mui--hidden-xs mui--hidden-sm mui--hidden-md">
               <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
                 <div class="flex-wrapper flex-wrapper--center">
-                    <a href="{{ featured_project.account.absolute_url }}" class="profile-avatar margin-right" data-ga="View account">
-                    {%- if featured_project.account.logo_url.url %}
-                      <img src="{{ featured_project.account.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ featured_project.account.title }}"/>
-                    {% else %}
-                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.account.title }}"/>
-                    {% endif %}
-                    </a>
-                    <a href="{{ featured_project.account.absolute_url }}" class="profile-avatar-title mui--text-subhead text-bold mui--text-dark nounderline" data-ga="View account">{{ featured_project.account.title }}</a>
-                  </a>
+                  {{ profileavatar(featured_project.account, css_class='margin-left') }}
                 </div>
                 {%- if not current_auth.is_anonymous %}
                   {% set save_form_id = "spotlight_spfm_desktop_" + featured_project.uuid_b58 %}
@@ -363,6 +355,44 @@
   </div>
 {% endmacro %}
 
+{% macro profile_header_buttons(profile) %}
+  <div class="profile__btns flex-wrapper--center">
+    {% if profile.features.new_project() %}
+      <a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }} {% trans %}New project{% endtrans %}</a>
+    {% elif profile.features.make_public() %}
+      <a class="mui-btn mui-btn--raised mui-btn--primary" href="#make-public-modal" rel="modal:open" role="button" aria-haspopup="true" data-cy="profile-public">{% trans %}Make account public{% endtrans %}</a>
+      <div class="modal" id="make-public-modal" role="dialog" aria-labelledby="profile-public-modal-title" aria-modal="true" tabindex="-1">
+        <div class="modal__header">
+          <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+          <p class="mui--text-title text-bold mui--text-dark" id="profile-public-modal-title">{% trans %}Make this account public?{% endtrans %}</p>
+        </div>
+        <div class="modal__body">
+          <ul class="list--aligned mui--text-body2">
+            <li>{% trans %}Your account will be visible to anyone visiting the page{% endtrans %}</li>
+            <li>{% trans %}Your account will be listed in search results{% endtrans %}</li>
+            {# <li>{% trans %}You can host projects{% endtrans %}</li> -#}
+          </ul>
+          <form action="{{ profile.url_for('transition') }}" method="post">
+            {{ profile.forms.transition().hidden_tag() }}
+            <button name="transition" value="make_profile_public" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right" data-cy="make-public-btn">{% trans %}Make public{% endtrans %}</button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+    <form id="follow-form-{{ profile.uuid_b58 }}" action="{{ profile.url_for('follow') }}" class="follow-form js-follow-form {% if css_class %}{{ css_class }}{% endif %}" data-account-id="{{ profile.uuid_b58 }}" method="post">
+      {%- if current_auth.is_anonymous %}
+        <a class="mui-btn mui-btn--dark mui-btn--raised" href="{{ url_for('login', next=request.path) }}" data-ga="Login to follow account" aria-label="{% trans %}Login to follow this account{% endtrans %}">{% trans %}Follow{% endtrans %}</a>
+      {%- elif profile != current_auth.user and not profile.features.is_private() %}
+        <input type="hidden" name="follow" value=""/>
+        {% if not hide_unfollow %}
+          <button type="submit" value="false" class="mui-btn mui-btn--danger zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} js-unfollow-btn {% if not profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-xmark', icon_size='caption') }} {% trans %}Unfollow{% endtrans %}</button>
+        {% endif %}
+        <button type="submit" value="true" class="mui-btn mui-btn--primary mui-btn--raised zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} zero-left-margin js-follow-btn {% if profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-plus', icon_size='caption') }} {% trans %}Follow{% endtrans %}</button>
+      {%- endif %}
+    </form>
+  </div>
+{% endmacro %}
+
 {% macro profile_header(profile, class="", current_page='profile', title="") %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
@@ -403,30 +433,9 @@
                 </div>
               </div>
               <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
-                {% if profile.features.new_project() %}
-                  <a class="mui-btn mui-btn--primary mui-btn--raised profile-create-btn" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }} {% trans %}New project{% endtrans %}</a>
-                {% elif profile.features.make_public() %}
-                  <a class="mui-btn mui-btn--raised mui-btn--primary profile-create-btn" href="#make-public-modal" rel="modal:open" role="button" aria-haspopup="true" data-cy="profile-public">{% trans %}Make account public{% endtrans %}</a>
-                  <div class="modal" id="make-public-modal" role="dialog" aria-labelledby="profile-public-modal-title" aria-modal="true" tabindex="-1">
-                    <div class="modal__header">
-                      <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-                      <p class="mui--text-title text-bold mui--text-dark" id="profile-public-modal-title">{% trans %}Make this account public?{% endtrans %}</p>
-                    </div>
-                    <div class="modal__body">
-                      <ul class="list--aligned mui--text-body2">
-                        <li>{% trans %}Your account will be visible to anyone visiting the page{% endtrans %}</li>
-                        <li>{% trans %}Your account will be listed in search results{% endtrans %}</li>
-                        {# <li>{% trans %}You can host projects{% endtrans %}</li> -#}
-                      </ul>
-                      <form action="{{ profile.url_for('transition') }}" method="post">
-                        {{ profile.forms.transition().hidden_tag() }}
-                        <button name="transition" value="make_profile_public" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right" data-cy="make-public-btn">{% trans %}Make public{% endtrans %}</button>
-                      </form>
-                    </div>
-                  </div>
-                {% endif %}
+                {{ profile_header_buttons(profile) }}
                 {%- if profile.current_roles.admin %}
-                  <div class="display-inlineblock">{{ profile_admin_buttons(profile) }}</div>
+                  <div class="admin-btns">{{ profile_admin_buttons(profile) }}</div>
                 {% endif %}
               </div>
             </div>
@@ -455,11 +464,7 @@
             {%- endif %}
           </ul>
           <div class="mui--visible-xs-block mui--visible-sm-block">
-            {% if profile.features.new_project() %}
-              <div class="display-inlineblock profile-create-btn profile-create-btn--mobile"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }} {% trans %}New project{% endtrans %}</a></div>
-            {% elif profile.features.make_public() %}
-              <div class="display-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make account public{% endtrans %}</a></div>
-            {% endif %}
+            {{ profile_header_buttons(profile) }}
           </div>
         </div>
       </div>
@@ -472,11 +477,18 @@
           {% if profile.is_organization_profile %}
             <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
             <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'calendar' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'calendar' -%}{{ profile.url_for('calendar') }}{%- endif %}" data-cy-navbar="calendar">{% trans %}Calendar{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            {%- if profile.current_roles.admin %}{# TODO: Remove after consent flow #}
+              <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'followers' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'followers' -%}{{ profile.url_for('followers') }}{%- endif %}" data-cy-navbar="followers">{% trans %}Followers{% endtrans %} {% if profile.features.followers_count() %}<span class="mui--text-caption badge badge--primary badge--tab">{{ profile.features.followers_count() }}</span>{% endif %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            {%- endif %}
             <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-cy-navbar="admins">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {% elif not profile.features.is_private() %}
             <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for() }}">{% trans %}Sessions{% endtrans %}</a>
             <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'projects' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_participated_projects') }}">{% trans %}Projects{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
             <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'submissions' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_proposals') }}" data-cy="submissions">{% trans %}Submissions{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            {%- if profile.current_roles.admin %}{# TODO: Remove after consent flow #}
+              <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'following' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'following' -%}{{ profile.url_for('following') }}{%- endif %}" data-cy-navbar="following">{% trans %}Following{% endtrans %} {% if profile.features.following_count() %}<span class="mui--text-caption badge badge--primary badge--tab">{{ profile.features.following_count() }}</span>{% endif %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+              <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'followers' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'followers' -%}{{ profile.url_for('followers') }}{%- endif %}" data-cy-navbar="followers">{% trans %}Followers{% endtrans %} {% if profile.features.followers_count() %}<span class="mui--text-caption badge badge--primary badge--tab">{{ profile.features.followers_count() }}</span>{% endif %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            {%- endif %}
           {% endif %}
         </nav>
       </div>
@@ -499,6 +511,7 @@
 
 {% block footerscripts %}
   {% block innerscripts %}{% endblock innerscripts %}
+  <script src="{{ manifest('profile.js') }}" type="text/javascript"></script>
   {% if featured_project and featured_project.schedule_start_at -%}
     <script src="{{ manifest('schedule_view.js') }}" type="text/javascript"></script>
     <script type="text/javascript">

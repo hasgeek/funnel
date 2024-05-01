@@ -111,7 +111,7 @@ def then_user_gets_notification(
     ridcully_member: models.ProjectMembership,
 ) -> None:
     preview = models.PreviewNotification(
-        models.ProjectCrewMembershipNotification,
+        models.ProjectCrewNotification,
         document=ridcully_member.project,
         fragment=ridcully_member,
         user=ridcully_member.granted_by,
@@ -252,7 +252,10 @@ def given_vetinari_made_ridcully_admin_of_org(
     org_ankhmorpork: models.Organization,
 ) -> models.AccountMembership:
     ridcully_admin = models.AccountMembership(
-        member=user_ridcully, account=org_ankhmorpork, granted_by=user_vetinari
+        member=user_ridcully,
+        account=org_ankhmorpork,
+        granted_by=user_vetinari,
+        is_admin=True,
     )
     db_session.add(ridcully_admin)
     db_session.commit()
@@ -325,7 +328,7 @@ def then_notification_recipient_removal(
     ridcully_member: models.ProjectMembership,
 ) -> None:
     preview = models.PreviewNotification(
-        models.ProjectCrewMembershipRevokedNotification,
+        models.ProjectCrewRevokedNotification,
         document=ridcully_member.project,
         fragment=ridcully_member,
         user=ridcully_member.revoked_by,

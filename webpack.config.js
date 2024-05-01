@@ -27,6 +27,7 @@ module.exports = {
   entry: {
     app: path.resolve(__dirname, 'funnel/assets/js/app.js'),
     index: path.resolve(__dirname, 'funnel/assets/js/index.js'),
+    profile: path.resolve(__dirname, 'funnel/assets/js/profile.js'),
     profile_calendar: path.resolve(__dirname, 'funnel/assets/js/profile_calendar.js'),
     project_header: path.resolve(__dirname, 'funnel/assets/js/project_header.js'),
     project: path.resolve(__dirname, 'funnel/assets/js/project.js'),
