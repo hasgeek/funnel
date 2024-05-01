@@ -22,7 +22,7 @@ def testapp() -> Flask:
     new_app = Flask(__name__)
 
     @new_app.route('/')
-    def index():  # skipcq: PTC-W0065
+    def index() -> str:  # skipcq: PTC-W0065
         """Unused index view, only referred to via url_for."""
         return 'test_index'
 

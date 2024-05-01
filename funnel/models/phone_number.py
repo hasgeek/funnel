@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import warnings
+from contextlib import suppress
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, overload
 
@@ -159,7 +160,7 @@ def parse_phone_number(
     # with the _last_ valid candidate (as it's coupled with a
     # :class:`~funnel.models.account.AccountPhone` lookup)
     sms_invalid = False
-    try:
+    with suppress(phonenumbers.NumberParseException):
         for region in PHONE_LOOKUP_REGIONS:
             parsed_number = phonenumbers.parse(candidate, region)
             if phonenumbers.is_valid_number(parsed_number):
@@ -174,8 +175,6 @@ def parse_phone_number(
                 return phonenumbers.format_number(
                     parsed_number, phonenumbers.PhoneNumberFormat.E164
                 )
-    except phonenumbers.NumberParseException:
-        pass
     # We found a number that is valid, but the caller wanted it to be valid for SMS and
     # it isn't, so return a special flag
     if sms_invalid:
@@ -855,11 +854,9 @@ class PhoneNumberMixin(OptionalPhoneNumberMixin):
 def _clear_cached_properties(target: PhoneNumber) -> None:
     """Clear cached properties in :class:`PhoneNumber`."""
     for attr in ('parsed', 'formatted'):
-        try:
-            delattr(target, attr)
-        except KeyError:
+        with suppress(KeyError):
             # cached_property raises KeyError when there's no existing cached value
-            pass
+            delattr(target, attr)
 
 
 @event.listens_for(PhoneNumber.number, 'set', retval=True)
@@ -873,10 +870,10 @@ def _validate_number(
     if old_value == value:
         # Old value is new value. Do nothing. Return without validating
         return value
-    if old_value is NO_VALUE and inspect(target).has_identity is False:
+    if old_value is NO_VALUE and inspect(target).has_identity is False:  # noqa: SIM114
         # Old value is unknown and target is a transient object. Continue
         pass
-    elif value is None:
+    elif value is None:  # noqa: SIM114
         # Caller is trying to unset phone. Allow this
         pass
     elif old_value is None:

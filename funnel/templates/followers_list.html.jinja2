@@ -1,0 +1,20 @@
+{%- for account in accounts %}
+  <li class="user">
+    <div class="user__box">
+      {{ useravatar(account) }}
+      <div class="user__box__header">
+        <h3 class="mui--text-body2 user__box__fullname">{{ account.pickername }}</h3>
+      </div>
+    </div>
+  </li>
+{%- endfor %}
+{% if next_page %}
+  <li {% if followers %}
+      hx-get="{{ profile.url_for('followers', page=next_page) }}"
+      {% else -%}
+      hx-get="{{ profile.url_for('following', page=next_page) }}"
+      {%- endif %}
+      hx-trigger="revealed"
+      hx-swap="outerHTML">
+  </li>
+{% endif %}

@@ -83,6 +83,7 @@ and :class:`UserNotification`:
 from __future__ import annotations
 
 from collections.abc import Callable, Generator, Sequence
+from contextlib import suppress
 from dataclasses import dataclass
 from datetime import datetime
 from enum import ReprEnum
@@ -187,7 +188,7 @@ notification_categories: SimpleNamespace = SimpleNamespace(
     ),
     participant=NotificationCategory(
         3,
-        __("Projects I am participating in"),
+        __("My activities"),
         # Criteria: User has registered or proposed
         lambda user: (
             db.session.query(user.rsvps.exists()).scalar()
@@ -196,7 +197,7 @@ notification_categories: SimpleNamespace = SimpleNamespace(
     ),
     project_crew=NotificationCategory(
         4,
-        __("Projects I am a crew member in"),
+        __("My projects"),
         # Criteria: user has ever been a project crew member
         lambda user: db.session.query(
             user.projects_as_crew_memberships.exists()
@@ -204,7 +205,7 @@ notification_categories: SimpleNamespace = SimpleNamespace(
     ),
     account_admin=NotificationCategory(
         5,
-        __("Accounts I manage"),
+        __("My shared accounts"),
         # Criteria: user has ever been an organization admin
         lambda user: db.session.query(
             user.organization_admin_memberships.exists()
@@ -794,10 +795,8 @@ class NotificationRecipientProtoMixin:
         :param bool revoke: Mark the notification as revoked if document or fragment
             is missing
         """
-        try:
+        with suppress(NoResultFound):
             return bool(self.fragment and self.document or self.document)
-        except NoResultFound:
-            pass
         if revoke:
             self.is_revoked = True
             # Do not set `self.rollupid` because this is not a rollup

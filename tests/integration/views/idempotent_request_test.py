@@ -3,6 +3,7 @@
 # pylint: disable=redefined-outer-name
 
 from collections.abc import Generator
+from contextlib import suppress
 from queue import Empty, SimpleQueue
 from threading import Thread
 from time import sleep
@@ -110,18 +111,14 @@ def test_regular_route(
     assert not call_log.empty()
     assert call_log.qsize() == qsize
     all_calls = []
-    try:
+    with suppress(Empty):
         while True:
             all_calls.append(call_log.get_nowait())
-    except Empty:
-        pass
     assert all_calls == calls
     all_results = []
-    try:
+    with suppress(Empty):
         while True:
             all_results.append(results.get_nowait())
-    except Empty:
-        pass
     assert len(all_results) == 2
     # FIXME: Headers are missing in the response here, unclear why:
 

@@ -56,8 +56,8 @@ def fixtures(db_session: scoped_session) -> SimpleNamespace:
 @pytest.fixture
 def notification(
     db_session: scoped_session, fixtures: SimpleNamespace
-) -> models.OrganizationAdminMembershipNotification:
-    new_notification = models.OrganizationAdminMembershipNotification(
+) -> models.AccountAdminNotification:
+    new_notification = models.AccountAdminNotification(
         document=fixtures.org, fragment=fixtures.membership
     )
     db_session.add(new_notification)
@@ -69,7 +69,7 @@ def notification(
 def notification_recipient1(
     db_session: scoped_session,
     fixtures: SimpleNamespace,
-    notification: models.OrganizationAdminMembershipNotification,
+    notification: models.AccountAdminNotification,
 ) -> models.NotificationRecipient:
     nr = models.NotificationRecipient(
         eventid=notification.eventid,
@@ -86,7 +86,7 @@ def notification_recipient1(
 def notification_recipient2(
     db_session: scoped_session,
     fixtures: SimpleNamespace,
-    notification: models.OrganizationAdminMembershipNotification,
+    notification: models.AccountAdminNotification,
 ) -> models.NotificationRecipient:
     nr = models.NotificationRecipient(
         eventid=notification.eventid,

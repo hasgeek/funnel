@@ -27,16 +27,16 @@ __all__ = [
     'CommentReportReceivedNotification',
     'CommentReplyNotification',
     'NewCommentNotification',
-    'ProjectCrewMembershipNotification',
-    'ProjectCrewMembershipRevokedNotification',
+    'ProjectCrewNotification',
+    'ProjectCrewRevokedNotification',
     'ProposalReceivedNotification',
     'ProposalSubmittedNotification',
     'RegistrationCancellationNotification',
     'RegistrationConfirmationNotification',
     'ProjectStartingNotification',
     'ProjectTomorrowNotification',
-    'OrganizationAdminMembershipNotification',
-    'OrganizationAdminMembershipRevokedNotification',
+    'AccountAdminNotification',
+    'AccountAdminRevokedNotification',
 ]
 
 # MARK: Protocol and Mixin classes -----------------------------------------------------
@@ -79,11 +79,26 @@ class AccountPasswordNotification(
 
     category = notification_categories.account
     title = __("When my account password changes")
-    description = __("For your safety, in case this was not authorized")
+    description = __("For your attention, in case this was not authorized")
 
     exclude_actor = False
     dispatch_roles = ['owner']
     for_private_recipient = True
+
+
+class FollowerNotification(
+    DocumentIsAccount, Notification[Account, AccountMembership], type='follower'
+):
+    """Notification of a new follower."""
+
+    active = False
+
+    category = notification_categories.account
+    title = __("When I have a new follower")
+    description = __("See who is interested in your work")
+
+    exclude_actor = True  # The actor can't possibly receive this notification anyway
+    dispatch_roles = ['account_admin']
 
 
 # MARK: Project participant notifications ----------------------------------------------
@@ -95,7 +110,7 @@ class RegistrationConfirmationNotification(
     """Notification confirming registration to a project."""
 
     category = notification_categories.participant
-    title = __("When I register for a project")
+    title = __("When I register for a session")
     description = __("This will prompt a calendar entry in Gmail and other apps")
 
     dispatch_roles = ['owner']
@@ -123,7 +138,7 @@ class ProjectUpdateNotification(
     """Notification of a new update in a project."""
 
     category = notification_categories.participant
-    title = __("When a project has an update")
+    title = __("When there is an update")
     description = __(
         "Typically contains critical information such as video conference links"
     )
@@ -225,26 +240,26 @@ class CommentReplyNotification(Notification[Comment, Comment], type='comment_rep
 # MARK: Project crew notifications -----------------------------------------------------
 
 
-class ProjectCrewMembershipNotification(
+class ProjectCrewNotification(
     DocumentHasAccount,
     Notification[Project, ProjectMembership],
-    type='project_crew_membership_granted',
+    type='project_crew',
 ):
     """Notification of being granted crew membership (including role changes)."""
 
     category = notification_categories.project_crew
-    title = __("When a project crew member is added or removed")
+    title = __("When crew members change")
     description = __("Crew members have access to the project’s settings and data")
 
     dispatch_roles = ['member', 'project_crew']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
-class ProjectCrewMembershipRevokedNotification(
+class ProjectCrewRevokedNotification(
     DocumentHasAccount,
     Notification[Project, ProjectMembership],
-    type='project_crew_membership_revoked',
-    shadows=ProjectCrewMembershipNotification,
+    type='project_crew_revoked',
+    shadows=ProjectCrewNotification,
 ):
     """Notification of being removed from crew membership (including role changes)."""
 
@@ -278,13 +293,13 @@ class RegistrationReceivedNotification(
     exclude_actor = True
 
 
-# MARK: Organization admin notifications -----------------------------------------------
+# MARK: Account admin notifications ----------------------------------------------------
 
 
-class OrganizationAdminMembershipNotification(
+class AccountAdminNotification(
     DocumentIsAccount,
     Notification[Account, AccountMembership],
-    type='organization_membership_granted',
+    type='account_admin',
 ):
     """Notification of being granted admin membership (including role changes)."""
 
@@ -292,18 +307,20 @@ class OrganizationAdminMembershipNotification(
     title = __("When account admins change")
     description = __("Account admins control all projects under the account")
 
+    # Notify the affected individual and all account admins
     dispatch_roles = ['member', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
-class OrganizationAdminMembershipRevokedNotification(
+class AccountAdminRevokedNotification(
     DocumentIsAccount,
     Notification[Account, AccountMembership],
-    type='organization_membership_revoked',
-    shadows=OrganizationAdminMembershipNotification,
+    type='account_admin_revoked',
+    shadows=AccountAdminNotification,
 ):
-    """Notification of being granted admin membership (including role changes)."""
+    """Notification of admin membership being revoked."""
 
+    # Notify the affected individual and all account admins
     dispatch_roles = ['member', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 

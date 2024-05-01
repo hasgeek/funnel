@@ -11,23 +11,12 @@ from .send import (
     send_via_twilio,
     validate_exotel_token,
 )
-from .template import (
-    DLT_VAR_MAX_LENGTH,
-    MessageTemplate,
-    OneLineTemplate,
-    SmsPriority,
-    SmsTemplate,
-    TwoLineTemplate,
-    WebOtpTemplate,
-)
+from .template import DLT_VAR_MAX_LENGTH, SmsPriority, SmsTemplate, WebOtpTemplate
 
 __all__ = [
     "DLT_VAR_MAX_LENGTH",
-    "MessageTemplate",
-    "OneLineTemplate",
     "SmsPriority",
     "SmsTemplate",
-    "TwoLineTemplate",
     "WebOtpTemplate",
     "init",
     "make_exotel_token",

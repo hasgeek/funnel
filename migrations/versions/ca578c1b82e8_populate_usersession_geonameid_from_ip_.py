@@ -6,6 +6,7 @@ Create Date: 2021-04-28 18:02:29.867574
 
 """
 
+from contextlib import suppress
 from types import SimpleNamespace
 
 import progressbar.widgets
@@ -98,22 +99,18 @@ def upgrade() -> None:
                     lookup_country = None
                     lookup_asn = None
                     if geoip_city:
-                        try:
+                        with suppress(geoip2_errors.GeoIP2Error):
                             city_lookup = geoip_city.city(row.ipaddr)
                             lookup_city = city_lookup.city.geoname_id
                             lookup_subdivision = (
                                 city_lookup.subdivisions.most_specific.geoname_id
                             )
                             lookup_country = city_lookup.country.geoname_id
-                        except geoip2_errors.GeoIP2Error:
-                            pass
                     if geoip_asn:
-                        try:
+                        with suppress(geoip2_errors.GeoIP2Error):
                             lookup_asn = geoip_asn.asn(
                                 row.ipaddr
                             ).autonomous_system_number
-                        except geoip2_errors.GeoIP2Error:
-                            pass
                     conn.execute(
                         user_session.update()
                         .where(user_session.c.id == row.id)

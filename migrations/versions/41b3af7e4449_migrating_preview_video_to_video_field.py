@@ -116,16 +116,18 @@ def parse_video_url(video_url: str):
     return video_source, video_id
 
 
-def make_video_url(video_source: str, video_id: str):
-    if video_source == 'youtube':
-        return f'https://www.youtube.com/watch?v={video_id}'
-    elif video_source == 'vimeo':
-        return f'https://vimeo.com/{video_id}'
-    elif video_source == 'googledrive':
-        return f'https://drive.google.com/file/d/{video_id}/view'
-    elif video_source == 'raw':
-        return video_id
-    raise ValueError("Unknown video source")
+def make_video_url(video_source: str, video_id: str) -> str:
+    match video_source:
+        case 'youtube':
+            return f'https://www.youtube.com/watch?v={video_id}'
+        case 'vimeo':
+            return f'https://vimeo.com/{video_id}'
+        case 'googledrive':
+            return f'https://drive.google.com/file/d/{video_id}/view'
+        case 'raw':
+            return video_id
+        case _:
+            raise ValueError("Unknown video source")
 
 
 # MARK: Migrations ---------------------------------------------------------------------
