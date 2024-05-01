@@ -255,7 +255,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @route('followers', endpoint='followers')
     @requestargs(('page', int), ('per_page', int))
     @render_with('profile_followers.html.jinja2', json=True)
-    @requires_roles({'reader'})
+    @requires_roles({'admin'})  # TODO: Change to reader
     def followers(self, page: int = 1, per_page: int = 50) -> ReturnRenderWith:
         """Followers of an account."""
         pagination = self.obj.active_follower_memberships.paginate(
@@ -276,7 +276,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @route('following', endpoint='following')
     @requestargs(('page', int), ('per_page', int))
     @render_with('profile_following.html.jinja2')
-    @requires_roles({'reader'})
+    @requires_roles({'admin'})  # TODO: Change to reader
     def following(self, page: int = 1, per_page: int = 50) -> ReturnRenderWith:
         """Accounts being followed."""
         pagination = self.obj.active_following_memberships.paginate(
