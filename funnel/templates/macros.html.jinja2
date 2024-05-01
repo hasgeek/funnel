@@ -265,16 +265,15 @@
 {%- endmacro %}
 
 {%- macro add_follow_button(profile, css_class='') %}
-  {% set follow_formid = 'follow_form'  + profile.uuid_b58 %}
-  <form id="{{ follow_formid }}" action="{{ profile.url_for('follow') }}" class="follow-form js-follow-form {% if css_class %}{{ css_class }}{% endif %}" data-account-id="{{ profile.uuid_b58 }}" method="post">
-    {%- if current_auth.is_anonymous %}
-      <a class="mui-btn mui-btn--dark mui-btn--raised" href="{{ url_for('login', next=request.path) }}" data-ga="Login to follow account" aria-label="{% trans %}Login to follow this account{% endtrans %}">{% trans %}Follow{% endtrans %}</a>
-    {%- elif profile != current_auth.user and not profile.features.is_private() %}
-      <input type="hidden" name="follow" value=""/>
-      <button type="submit" value="false" class="mui-btn mui-btn--accent mui-btn--small zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} js-unfollow-btn mui--hide {% if not profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-check-solid', icon_size='subhead') }}</button>
-      <button type="submit" value="true" class="mui-btn mui-btn--primary mui-btn--small zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} zero-left-margin js-follow-btn {% if profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-plus', icon_size='subhead') }}</button>
-    {%- endif %}
-  </form>
+  {%- if current_auth and profile != current_auth.user and not profile.features.is_private() %}
+    {%- with follow_formid = 'follow_form'  + profile.uuid_b58 %}
+      <form id="{{ follow_formid }}" action="{{ profile.url_for('follow') }}" class="follow-form js-follow-form {% if css_class %}{{ css_class }}{% endif %}" data-account-id="{{ profile.uuid_b58 }}" method="post">
+        <input type="hidden" name="follow" value=""/>
+        <button type="submit" value="false" class="mui-btn mui-btn--accent mui-btn--small zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} js-unfollow-btn mui--hide {% if not profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-check-solid', icon_size='subhead') }}</button>
+        <button type="submit" value="true" class="mui-btn mui-btn--primary mui-btn--small zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} zero-left-margin js-follow-btn {% if profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-plus', icon_size='subhead') }}</button>
+      </form>
+    {%- endwith %}
+  {%- endif %}
 {%- endmacro %}
 
 {%- macro useravatar(user, css_class="", add_profile_link=true, size='medium') %}
