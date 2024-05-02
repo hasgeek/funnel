@@ -52,3 +52,26 @@
   opacity: 0.5;
   cursor: default;
 }
+
+sl-button::base:before,
+sl-button::base:after {
+  content: '';
+  position: absolute;
+  margin: 0;
+  outline: 0;
+  top: 50%;
+  -ms-transform: translate(0, -50%);
+  -webkit-transform: translate(0, -50%);
+  transform: translate(0, -50%);
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+sl-button::thumb:before {
+  background-color: transparentize($mui-primary-color, 0.4);
+}
+sl-button::thumb:after {
+  background-color: $mui-primary-color;
+  -ms-transform: translate(80%, -50%);
+  -webkit-transform: translate(80%, -50%);
+  transform: translate(80%, -50%);
+}

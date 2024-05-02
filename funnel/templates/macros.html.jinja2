@@ -428,9 +428,9 @@
       <div class="flex-wrapper flex-wrapper--center">
         <form action="{{ project.url_for('cfp_transition') }}" method="post" class="display-inlineblock mui--align-top right-padding">
           {{ csrf_tag() }}
-          <sl-switch size="large" class="js-toggle" {%- if project.cfp_state.OPEN %}checked{%- endif %}></sl-switch>
-          <input type="checkbox" name="open" id="open-sub" class="switch-input js-toggle" {%- if project.cfp_state.OPEN %}checked{%- endif %}/>
-          <label class="switch-label mui--pull-right" for="open-sub"></label>
+          <sl-switch size="large" type="checkbox" name="open" id="open-sub" class="js-toggle" {%- if project.cfp_state.OPEN %}checked{%- endif %}></sl-switch>
+{#         <input type="checkbox" name="open" id="open-sub" class="switch-input js-toggle" {%- if project.cfp_state.OPEN %}checked{%- endif %}/>
+  <label class="switch-label mui--pull-right" for="open-sub"></label> #}
         </form>
         <span data-toggle="tooltip" data-placement="top" title="{% trans %}Toggle to enable/disable submissions{% endtrans %}" aria-label="{% trans %}Open to receive submissions{% endtrans %}">{{ faicon(icon='info-circle', baseline=true) }}</span>
       </div>

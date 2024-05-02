@@ -12,6 +12,7 @@ export const Widgets = {
           const currentState = checkboxElem.checked;
           const previousState = !currentState;
           const formData = new FormData(checkbox.parent('form')[0]);
+          console.log(formData);
           if (!currentState) {
             formData.append(checkbox.attr('name'), false);
           }
@@ -46,7 +47,7 @@ export const Widgets = {
 
     const throttleSubmit = postForm();
 
-    $('body').on('change', checkboxId, function submitToggleSwitch() {
+    $('body').on('sl-change', checkboxId, function submitToggleSwitch() {
       throttleSubmit(this);
     });
 
@@ -58,6 +59,7 @@ export const Widgets = {
     const onSuccess = () => {
       $(cfpStatusDiv).toggleClass('mui--hide');
     };
+    console.log(checkboxId);
     this.activateToggleSwitch(checkboxId, onSuccess);
   },
   handleDelete(elementClass, onSucessFn) {
