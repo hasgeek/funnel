@@ -318,7 +318,7 @@
         </div>
       {%- elif project.account.description %}
         <div class="mui--text-body2 mui--text-light margin-bottom">
-          {{ project.account.description.html|preview(min=200, max=300) }}
+          {{ project.account.description|preview(min=200, max=300) }}
           <a href="{{ project.account.absolute_url }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class="mui--align-middle") }}</a>
         </div>
       {% endif %}
@@ -358,7 +358,7 @@
             </div>
           {%- elif sponsorship.member.description %}
             <div class="mui--text-body2 mui--text-light margin-bottom">
-              {{ sponsorship.member.description.html|preview(min=200, max=300) }}
+              {{ sponsorship.member.description|preview(min=200, max=300) }}
               {%- if sponsor_public %}
                 <a href="{{ sponsorship.member.absolute_url }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class="mui--align-middle") }}</a>
               {% endif %}
