@@ -55,7 +55,7 @@
                 </div>
                 <div class="grid__col-sm-6 grid__col-md-7 grid__col-lg-8 calendar__wrapper__project-list">
                   <div v-if="filteredEvents">
-                    <div class="overlay flex-wrapper flex-wrapper--center flex-wrapper--justify-center" v-if="loading"><span class="loading"></span></div>
+                    <div class="flex-wrapper flex-wrapper--center flex-wrapper--justify-center" v-if="loading"><span class="loading"></span></div>
                     <table class="calendar__wrapper__project-list__table mui-table card page-card">
                       <tbody>
                         <tr v-for="event in filteredEvents">
@@ -79,12 +79,11 @@
                 <div class="grid__col-sm-6 grid__col-md-5 grid__col-lg-4
                 calendar__wrapper__calendar">
                   <div class="page-card">
-                    <div class="flex-wrapper calendar__wrapper__calendar__toolbar">
-                      <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--dark" @click="prev"><faicon :icon="'chevron-left'" :baseline=false></faicon></button>
+                    <div class="flex-wrapper flex-wrapper--baseline calendar__wrapper__calendar__toolbar">
+                      <button class="mui-btn fc-button mui-btn--flat mui-btn--dark" @click="prev"><faicon :icon="'chevron-left'" :baseline=false></faicon></button>
                       <span class="calendar__wrapper__calendar__toolbar__month text-bold"> {{ date }} </span>
-                      <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--dark" @click="next"><faicon :icon="'chevron-right'" :baseline=false></faicon></button>
                       <div class="calendar__wrapper__calendar__toolbar__filter">
-                        <a href="#" onclick="return false;" @click="toggleFilterMenu" class="mui--text-title mui--text-light" aria-label="Filter calendar" role="button" aria-haspopup="true" aria-expanded="false"><faicon :icon="'filter'" :baseline=false></faicon></a>
+                        <a href="#" onclick="return false;" @click="toggleFilterMenu" class="mui--text-title mui--text-light" aria-label="Filter calendar" role="button" aria-haspopup="true" aria-expanded="false"><faicon :icon="'filter'" :icon_size="'caption'" :baseline=false></faicon></a>
                         <div class="calendar__wrapper__calendar__toolbar__filter__menu" v-if="showFilter">
                           <form v-on:submit.prevent="applyFilter">
                             <p class="mui--text-subtitle text-bold margin-bottom">{{ gettext('Format') }}</p>
@@ -134,6 +133,7 @@
                           </form>
                         </div>
                       </div>
+                      <button class="mui-btn fc-button mui-btn--flat mui-btn--dark" @click="next"><faicon :icon="'chevron-right'" :baseline=false></faicon></button>
                     </div>
                     <full-calendar ref="fullCalendar" :options="calendarOptions" />
                   </div>

@@ -49,7 +49,7 @@ class ZoomProvider(LoginProvider):
                     _("This server’s callback URL is misconfigured")
                 )
             raise LoginCallbackError(_("Unknown failure"))
-        code = request.args.get('code', None)
+        code = request.args.get('code')
         try:
             response = requests.post(
                 self.token_url,

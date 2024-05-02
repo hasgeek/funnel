@@ -41,10 +41,6 @@
 {% block contenthead %}
 {% endblock contenthead %}
 
-{% block baseheadline %}
-  {{ profile_header(profile) }}
-{% endblock baseheadline %}
-
 {% block basecontent %}
   {%- if profile.is_verified %}
     <div class="bg-accent">
@@ -52,7 +48,7 @@
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              <div class="markdown">
+              <div class="card profile-card zero-bottom-margin">
                 {{ profile.description }}
               </div>
             </div>

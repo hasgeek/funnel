@@ -94,8 +94,8 @@ class MarkdownTestRegistry:
                         config=config,
                         expected_output=(
                             None
-                            if exp.get(md_configname, None) is None
-                            else Markup(exp.get(md_configname, None))
+                            if (output := exp.get(md_configname)) is None
+                            else Markup(output)
                         ),
                     )
                     for md_configname, config in {

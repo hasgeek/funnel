@@ -134,18 +134,18 @@ def pytest_runtest_call(item: pytest.Function) -> None:
             typeguard.check_type(item.funcargs[attr], type_)
 
 
-def pytest_runtest_logreport(report: pytest.TestReport):
+def pytest_runtest_logreport(report: pytest.TestReport) -> None:
     """Add line numbers to log report, for easier discovery in code editors."""
     # Report location of test (failing line number if available, else test location)
     filename, line_no, domain = report.location
-    if report.longrepr is not None:
-        if (
-            repr_traceback := getattr(report.longrepr, 'reprtraceback', None)
-        ) is not None:
-            if (
-                repr_file_loc := repr_traceback.reprentries[0].reprfileloc
-            ).path == filename:
-                line_no = repr_file_loc.lineno
+    if (
+        report.longrepr is not None
+        and (repr_traceback := getattr(report.longrepr, 'reprtraceback', None))
+        is not None
+        and (repr_file_loc := repr_traceback.reprentries[0].reprfileloc).path
+        == filename
+    ):
+        line_no = repr_file_loc.lineno
     if report.nodeid.startswith(filename):
         # Only insert a line number if the existing nodeid refers to the same filename.
         # Needed for pytest-bdd, which constructs tests and refers the filename that
@@ -518,7 +518,7 @@ def _mock_config(request: pytest.FixtureRequest) -> Generator[None, None, None]:
     ) -> None:
         if key in saved_config:
             pytest.fail(f"Duplicate mock for {app_name}.config[{key!r}]")
-        if key in app_fixture.config:
+        if key in app_fixture.config:  # noqa: SIM401
             saved_config[key] = app_fixture.config[key]
         else:
             saved_config[key] = ...  # Sentinel value
@@ -590,7 +590,7 @@ def _app_events(
 ) -> Generator[None, None, None]:
     """Fixture to report Flask signals with a stack trace when debugging a test."""
 
-    def signal_handler(signal_name, *args: Any, **kwargs: Any):
+    def signal_handler(signal_name, *args: Any, **kwargs: Any) -> None:
         rich_console.print(f"[bold]Signal:[/] [yellow]{rich_escape(signal_name)}[/]")
         print_stack(2)  # Skip two stack frames from Blinker
 
@@ -646,7 +646,7 @@ def _database_events(
             return '<ReprError>'
 
     @event.listens_for(models.Model, 'init', propagate=True)
-    def event_init(obj: funnel_models.Model, args, kwargs):
+    def event_init(obj: funnel_models.Model, args, kwargs) -> None:
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
         rparams = f'{rargs, rkwargs}' if rargs else rkwargs
@@ -656,7 +656,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
-    def event_transient_to_pending(_session, obj: funnel_models.Model):
+    def event_transient_to_pending(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -666,7 +666,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
-    def event_pending_to_transient(_session, obj: funnel_models.Model):
+    def event_pending_to_transient(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -676,7 +676,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
-    def event_pending_to_persistent(_session, obj: funnel_models.Model):
+    def event_pending_to_persistent(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -686,7 +686,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
-    def event_loaded_as_persistent(_session, obj: funnel_models.Model):
+    def event_loaded_as_persistent(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -696,7 +696,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
-    def event_persistent_to_transient(_session, obj: funnel_models.Model):
+    def event_persistent_to_transient(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -706,7 +706,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
-    def event_persistent_to_deleted(_session, obj: funnel_models.Model):
+    def event_persistent_to_deleted(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -716,7 +716,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
-    def event_deleted_to_detached(_session, obj: funnel_models.Model):
+    def event_deleted_to_detached(_session, obj: funnel_models.Model) -> None:
         i = sa.inspect(obj)
         rich_console.print(
             "[bold]obj:[/] deleted → detached:"
@@ -724,7 +724,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
-    def event_persistent_to_detached(_session, obj: funnel_models.Model):
+    def event_persistent_to_detached(_session, obj: funnel_models.Model) -> None:
         i = sa.inspect(obj)
         rich_console.print(
             "[bold]obj:[/] persistent → detached:"
@@ -732,7 +732,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
-    def event_detached_to_persistent(_session, obj: funnel_models.Model):
+    def event_detached_to_persistent(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -742,7 +742,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
-    def event_deleted_to_persistent(session, obj: funnel_models.Model):
+    def event_deleted_to_persistent(session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -752,7 +752,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'do_orm_execute')
-    def event_do_orm_execute(orm_execute_state: sa_orm.ORMExecuteState):
+    def event_do_orm_execute(orm_execute_state: sa_orm.ORMExecuteState) -> None:
         state_is = []
         if orm_execute_state.is_column_load:
             state_is.append("is_column_load")
@@ -785,7 +785,7 @@ def _database_events(
     @event.listens_for(DatabaseSessionClass, 'after_begin')
     def event_after_begin(
         _session, transaction: sa_orm.SessionTransaction, _connection
-    ):
+    ) -> None:
         if transaction.nested:
             if transaction.parent and transaction.parent.nested:
                 rich_console.print("[bold]session:[/] BEGIN (double nested)")
@@ -796,7 +796,7 @@ def _database_events(
         print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_commit')
-    def event_after_commit(session: DatabaseSessionClass):
+    def event_after_commit(session: DatabaseSessionClass) -> None:
         rich_console.print(
             Text.assemble(
                 ('session:', 'bold'), ' COMMIT ', repr_highlighter(repr(session.info))
@@ -804,7 +804,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'after_flush')
-    def event_after_flush(session: DatabaseSessionClass, _flush_context):
+    def event_after_flush(session: DatabaseSessionClass, _flush_context) -> None:
         rich_console.print(
             Text.assemble(
                 ('session:', 'bold'), ' FLUSH ', repr_highlighter(repr(session.info))
@@ -812,7 +812,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'after_rollback')
-    def event_after_rollback(session: DatabaseSessionClass):
+    def event_after_rollback(session: DatabaseSessionClass) -> None:
         rich_console.print(
             Text.assemble(
                 ('session:', 'bold'), ' ROLLBACK ', repr_highlighter(repr(session.info))
@@ -821,7 +821,9 @@ def _database_events(
         print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
-    def event_after_soft_rollback(session: DatabaseSessionClass, _previous_transaction):
+    def event_after_soft_rollback(
+        session: DatabaseSessionClass, _previous_transaction
+    ) -> None:
         rich_console.print(
             Text.assemble(
                 ('session:', 'bold'),
@@ -834,7 +836,7 @@ def _database_events(
     @event.listens_for(DatabaseSessionClass, 'after_transaction_create')
     def event_after_transaction_create(
         _session, transaction: sa_orm.SessionTransaction
-    ):
+    ) -> None:
         if transaction.nested:
             if transaction.parent and transaction.parent.nested:
                 rich_console.print("[bold]transaction:[/] CREATE (savepoint)")
@@ -845,7 +847,9 @@ def _database_events(
         print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_transaction_end')
-    def event_after_transaction_end(_session, transaction: sa_orm.SessionTransaction):
+    def event_after_transaction_end(
+        _session, transaction: sa_orm.SessionTransaction
+    ) -> None:
         if transaction.nested:
             if transaction.parent and transaction.parent.nested:
                 rich_console.print("[bold]transaction:[/] END (double nested)")
@@ -961,7 +965,7 @@ def database(funnel, models, request: pytest.FixtureRequest, app: Flask) -> SQLA
             _truncate_all_tables(engine)
 
     @request.addfinalizer
-    def drop_tables():
+    def drop_tables() -> None:
         with app.app_context():
             models.db.drop_all()
 
@@ -1155,7 +1159,7 @@ def client(app: Flask, db_session: scoped_session) -> TestClient:
     client = TestClient(app, TestResponse, use_cookies=True)
     client_open = client.open
 
-    def commit_before_open(*args: Any, **kwargs: Any):
+    def commit_before_open(*args: Any, **kwargs: Any) -> TestResponse:
         db_session.commit()
         return client_open(*args, **kwargs)
 
@@ -1592,7 +1596,7 @@ def org_uu(
         models.AccountMembership(
             account=org,
             member=user_librarian,
-            is_owner=False,
+            is_admin=True,
             granted_by=user_ridcully,
         )
     )
@@ -1600,7 +1604,7 @@ def org_uu(
         models.AccountMembership(
             account=org,
             member=user_ponder_stibbons,
-            is_owner=False,
+            is_admin=True,
             granted_by=user_ridcully,
         )
     )
@@ -1639,7 +1643,7 @@ def org_citywatch(
     )
     db_session.add(
         models.AccountMembership(
-            account=org, member=user_carrot, is_owner=False, granted_by=user_vimes
+            account=org, member=user_carrot, is_admin=True, granted_by=user_vimes
         )
     )
     return org
@@ -1891,7 +1895,7 @@ def new_organization(
     admin_membership = models.AccountMembership(
         account=org,
         member=new_user_admin,
-        is_owner=False,
+        is_admin=True,
         granted_by=new_user_owner,
     )
     db_session.add(admin_membership)

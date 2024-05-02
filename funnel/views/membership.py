@@ -25,15 +25,15 @@ from ..forms import (
 )
 from ..models import (
     Account,
+    AccountAdminNotification,
+    AccountAdminRevokedNotification,
     AccountMembership,
     MembershipRevokedError,
-    Organization,
-    OrganizationAdminMembershipNotification,
-    OrganizationAdminMembershipRevokedNotification,
     Project,
-    ProjectCrewMembershipNotification,
-    ProjectCrewMembershipRevokedNotification,
+    ProjectCrewNotification,
+    ProjectCrewRevokedNotification,
     ProjectMembership,
+    User,
     db,
 )
 from ..proxies import request_wants
@@ -59,15 +59,16 @@ class MembershipInviteActionsTemplate(
 @Account.views('members')
 @route('/<account>/members', init_app=app)
 class OrganizationMembersView(AccountViewBase):
+
     def after_loader(self) -> ReturnView | None:
         """Don't render member views for user accounts."""
-        if not isinstance(self.obj, Organization):
-            # Only organization accounts have admin members
+        if isinstance(self.obj, User):
+            # Only non-user accounts have admin/owner members
             abort(404)
         return super().after_loader()
 
     @route('', methods=['GET', 'POST'])
-    @render_with('organization_membership.html.jinja2')
+    @render_with('account_admins.html.jinja2')
     @requires_roles({'reader', 'admin'})
     def members(self) -> ReturnRenderWith:
         """Render a list of organization admin members."""
@@ -117,13 +118,13 @@ class OrganizationMembersView(AccountViewBase):
                     }, 422
 
                 new_membership = AccountMembership(
-                    account=self.obj, granted_by=current_auth.user
+                    account=self.obj, granted_by=current_auth.user, is_admin=True
                 )
                 membership_form.populate_obj(new_membership)
                 db.session.add(new_membership)
                 db.session.commit()
                 dispatch_notification(
-                    OrganizationAdminMembershipNotification(
+                    AccountAdminNotification(
                         document=new_membership.account,
                         fragment=new_membership,
                     )
@@ -166,6 +167,8 @@ class OrganizationMembershipView(
             AccountMembership.uuid_b58 == membership,
         ).first_or_404()
         self.post_init()
+        if not self.obj.is_active:
+            abort(410)
         return self.after_loader()
 
     def post_init(self) -> None:
@@ -188,7 +191,9 @@ class OrganizationMembershipView(
 
                 try:
                     new_membership = previous_membership.replace(
-                        actor=current_auth.user, is_owner=membership_form.is_owner.data
+                        actor=current_auth.user,
+                        is_owner=membership_form.is_owner.data,
+                        is_admin=True,
                     )
                 except MembershipRevokedError:
                     return {
@@ -201,7 +206,7 @@ class OrganizationMembershipView(
                 if new_membership != previous_membership:
                     db.session.commit()
                     dispatch_notification(
-                        OrganizationAdminMembershipNotification(
+                        AccountAdminNotification(
                             document=new_membership.account,
                             fragment=new_membership,
                         )
@@ -248,18 +253,22 @@ class OrganizationMembershipView(
                         'status': 'error',
                         'error_description': _("You can’t revoke your own membership"),
                     }, 422
-                if previous_membership.is_active:
-                    previous_membership.revoke(actor=current_auth.user)
-                    db.session.commit()
-                    dispatch_notification(
-                        OrganizationAdminMembershipRevokedNotification(
-                            document=previous_membership.account,
-                            fragment=previous_membership,
-                        )
+                if not previous_membership.is_admin:
+                    return {
+                        'status': 'error',
+                        'error_description': _("This person is not an admin"),
+                    }, 422
+                previous_membership.revoke_member(current_auth.user)
+                db.session.commit()
+                dispatch_notification(
+                    AccountAdminRevokedNotification(
+                        document=previous_membership.account,
+                        fragment=previous_membership,
                     )
+                )
                 return {
                     'status': 'ok',
-                    'message': _("The member has been removed"),
+                    'message': _("The admin has been removed"),
                     'memberships': [
                         membership.current_access(
                             datasets=('without_parent', 'related')
@@ -290,7 +299,7 @@ class OrganizationMembershipView(
 
 @Project.views('crew')
 @route('/<account>/<project>/crew', init_app=app)
-class ProjectMembershipView(ProjectViewBase):
+class ProjectCrewView(ProjectViewBase):
     @route('', methods=['GET', 'POST'])
     @render_with(html_in_json('project_membership.html.jinja2'))
     def crew(self) -> ReturnRenderWith:
@@ -343,9 +352,7 @@ class ProjectMembershipView(ProjectViewBase):
                     self.obj, actor=current_auth.user, user=new_membership.member
                 )
                 dispatch_notification(
-                    ProjectCrewMembershipNotification(
-                        document=self.obj, fragment=new_membership
-                    )
+                    ProjectCrewNotification(document=self.obj, fragment=new_membership)
                 )
                 return {
                     'status': 'ok',
@@ -373,7 +380,7 @@ class ProjectMembershipView(ProjectViewBase):
         return {'status': 'ok', 'form': membership_form_html}
 
 
-class ProjectCrewMembershipBase(
+class ProjectMembershipViewBase(
     AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[ProjectMembership]
 ):
     route_model_map = {
@@ -402,7 +409,7 @@ class ProjectCrewMembershipBase(
 
 @ProjectMembership.views('invite')
 @route('/<account>/<project>/crew/<membership>/invite', init_app=app)
-class ProjectCrewMembershipInviteView(ProjectCrewMembershipBase):
+class ProjectMembershipInviteView(ProjectMembershipViewBase):
     def load(self, account: str, project: str, membership: str) -> ReturnView | None:
         resp = super().load(account, project, membership)
         if not self.obj.is_invite or self.obj.member != current_auth.user:
@@ -447,7 +454,7 @@ class ProjectCrewMembershipInviteView(ProjectCrewMembershipBase):
 
 @ProjectMembership.views('main')
 @route('/<account>/<project>/crew/<membership>', init_app=app)
-class ProjectCrewMembershipView(ProjectCrewMembershipBase):
+class ProjectMembershipView(ProjectMembershipViewBase):
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'account_admin'})
@@ -479,7 +486,7 @@ class ProjectCrewMembershipView(ProjectCrewMembershipBase):
                         self.obj.project, actor=current_auth.user, user=self.obj.member
                     )
                     dispatch_notification(
-                        ProjectCrewMembershipNotification(
+                        ProjectCrewNotification(
                             document=self.obj.project, fragment=new_membership
                         )
                     )
@@ -523,7 +530,7 @@ class ProjectCrewMembershipView(ProjectCrewMembershipBase):
                         self.obj.project, actor=current_auth.user, user=self.obj.member
                     )
                     dispatch_notification(
-                        ProjectCrewMembershipRevokedNotification(
+                        ProjectCrewRevokedNotification(
                             document=previous_membership.project,
                             fragment=previous_membership,
                         )

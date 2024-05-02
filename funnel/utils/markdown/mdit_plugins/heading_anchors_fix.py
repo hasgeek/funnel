@@ -21,7 +21,7 @@ def heading_anchors_fix(state: StateCore) -> None:
         if token.type == 'inline' and prev_token.type == 'heading_open':
             tree = token.children
             if tree is not None:
-                header_anchor_index = 0
+                header_anchor_index = 0  # noqa: SIM113
                 for inline_token in tree:
                     if (
                         inline_token.type == 'link_open'

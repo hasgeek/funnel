@@ -92,6 +92,7 @@ from .notification import (
 )
 from .organization import OrganizationForm, TeamForm
 from .profile import (
+    FollowForm,
     ProfileBannerForm,
     ProfileForm,
     ProfileLogoForm,
@@ -148,6 +149,7 @@ __all__ = [
     "EmailOtpForm",
     "EmailPrimaryForm",
     "FORM_SCHEMA_PLACEHOLDER",
+    "FollowForm",
     "LabelForm",
     "LabelOptionForm",
     "LoginForm",

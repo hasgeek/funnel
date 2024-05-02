@@ -71,14 +71,13 @@ def notify_user_data_changed(user: Account, changes: list[str]) -> None:
                     ]:
                         if {'phone', 'phone/*'}.intersection(tokenscope):
                             notify_changes.append(change)
-                    elif change in ['team-membership']:  # skipcq: PTC-W0048
-                        if {
-                            'organizations',
-                            'organizations/*',
-                            'teams',
-                            'teams/*',
-                        }.intersection(tokenscope):
-                            notify_changes.append(change)
+                    elif change in ['team-membership'] and {
+                        'organizations',
+                        'organizations/*',
+                        'teams',
+                        'teams/*',
+                    }.intersection(tokenscope):
+                        notify_changes.append(change)
                 if notify_changes:
                     send_auth_client_notice.queue(
                         str(token.auth_client.notification_uri),
