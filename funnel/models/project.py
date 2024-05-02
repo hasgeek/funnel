@@ -1139,6 +1139,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     sessions_with_video: DynamicMapped[Session] = with_roles(
         relationship(
             lazy='dynamic',
+            order_by=lambda: Session.start_at.desc(),
             primaryjoin=lambda: sa.and_(
                 Project.id == Session.project_id,
                 Session.video_id.is_not(None),
