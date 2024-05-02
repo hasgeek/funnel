@@ -154,15 +154,15 @@ class IndexView(ClassView):
 
         return IndexTemplate(
             upcoming_projects=[
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                p.current_access()
                 for p in upcoming_projects
             ],
             open_cfp_projects=[
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                p.current_access()
                 for p in open_cfp_projects
             ],
             featured_project=(
-                featured_project.current_access(datasets=('primary', 'related'))
+                featured_project.current_access()
                 if featured_project
                 else None
             ),
@@ -170,7 +170,7 @@ class IndexView(ClassView):
             featured_project_sessions=scheduled_sessions_list,
             featured_project_schedule=featured_project_schedule,
             featured_accounts=[
-                p.current_access(datasets=('primary', 'related'))
+                p.current_access()
                 for p in featured_accounts
             ],
         ).render_template()
