@@ -42,7 +42,7 @@
 {% endblock contenthead %}
 
 {% block basecontent %}
-  {%- if profile.is_verified %}
+  {%- if profile.is_verified and profile.description %}
     <div class="bg-accent">
       <div class="projects-wrapper">
         <div class="mui-container">
