@@ -230,7 +230,7 @@
     {%- if session.views.video %}
       <div class="mui--text-caption mui--text-light">
         {%- if session.views.video.duration %}<span>{{ session.views.video.duration|timedelta }}</span>{%- endif %}
-        {%- if session.views.video.uploaded_at %}<span class="mui--pull-right">{{ session.views.video.uploaded_at|longdate }}</span>{%- endif %}
+        {%- if session.start_at %}<span class="mui--pull-right">{{ session.start_at|longdate }}</span>{%- endif %}
       </div>
     {%- else %}
     <div class="mui--text-caption mui--text-light">
