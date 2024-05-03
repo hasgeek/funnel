@@ -369,7 +369,7 @@ class AccountView(ClassView):
             return render_redirect(get_next_url(default=url_for('account')))
         return render_form(
             form,
-            title=_("Edit account"),
+            title=_("Your account"),
             # Form with id 'form-account_edit' will have username validation
             # in account_formlayout.html.jinja2
             formid='account_edit',
