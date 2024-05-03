@@ -274,6 +274,20 @@ def user_agent_details(obj: LoginSession) -> dict[str, Any]:
             client_hints.get('sec-ch-ua-platform-version')
         )
         if platform_version:
+            if platform == "Windows":
+                # Windows platform version numbers are API versions, so remap
+                # https://learn.microsoft.com/en-us/microsoft-edge/web-platform/how-to-detect-win11#detecting-specific-windows-versions
+                windows_api_version: str | int
+                windows_api_version = platform_version.split('.')[0]
+                platform_version = ''
+                if windows_api_version.isdigit():
+                    windows_api_version = int(windows_api_version)
+                    if windows_api_version == 0:
+                        platform_version = '7/8/8.1'
+                    elif 1 <= int(windows_api_version) <= 10:
+                        platform_version = '10'
+                    elif windows_api_version >= 13:
+                        platform_version = '11'
             platform = f'{platform} {platform_version}'.strip()
         browser_version = get_ch_ua(
             client_hints.get('sec-ch-ua-full-version-list')

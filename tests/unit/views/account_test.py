@@ -283,6 +283,34 @@ def test_username_available(
             None,
             {'browser': 'Firefox 121.0', 'device_platform': 'macOS', 'mobile': False},
         ),
+        # Examples from https://wicg.github.io/ua-client-hints/#examples
+        (
+            '',
+            {
+                'sec-ch-ua': '"Examplary Browser"; v="73", ";Not?A.Brand"; v="27"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"Windows"',
+            },
+            {
+                'browser': 'Examplary Browser 73',
+                'device_platform': 'Windows',
+                'mobile': False,
+            },
+        ),
+        (
+            '',
+            {
+                'sec-ch-ua': '"Examplary Browser"; v="73", ";Not?A.Brand"; v="27"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"Windows"',
+                'sec-ch-ua-platform-version': '"14.0.0"',
+            },
+            {
+                'browser': 'Examplary Browser 73',
+                'device_platform': 'Windows 11',
+                'mobile': False,
+            },
+        ),
     ],
 )
 def test_user_agent_details(
