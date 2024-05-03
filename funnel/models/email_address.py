@@ -231,10 +231,11 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
     #: Does this email address work? Records last known delivery state
     _delivery_state: Mapped[int] = sa_orm.mapped_column(
         'delivery_state',
+        sa.SmallInteger,
         StateManager.check_constraint(
             'delivery_state',
             EMAIL_DELIVERY_STATE,
-            sa.Integer,
+            sa.SmallInteger,
             name='email_address_delivery_state_check',
         ),
         nullable=False,

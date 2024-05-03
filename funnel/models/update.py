@@ -55,7 +55,10 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
         'visibility_state',
         sa.SmallInteger,
         StateManager.check_constraint(
-            'visibility_state', VISIBILITY_STATE, sa.SmallInteger
+            'visibility_state',
+            VISIBILITY_STATE,
+            sa.SmallInteger,
+            name='update_visibility_state_check',
         ),
         default=VISIBILITY_STATE.PUBLIC,
         nullable=False,
@@ -68,7 +71,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin[int, Account], Model):
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.SmallInteger,
-        StateManager.check_constraint('state', UPDATE_STATE, sa.SmallInteger),
+        StateManager.check_constraint(
+            'state', UPDATE_STATE, sa.SmallInteger, name='update_state_check'
+        ),
         default=UPDATE_STATE.DRAFT,
         nullable=False,
         index=True,

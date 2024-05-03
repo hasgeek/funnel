@@ -88,6 +88,12 @@ class ProjectProposalView(ProjectViewBase):
             return render_redirect(self.obj.url_for())
 
         form = ProposalForm(model=Proposal, parent=self.obj)
+        if request.method == 'GET' and self.obj.proposal_templates:
+            # Apply a template since this project has one
+            # TODO: Selectable template
+            template = self.obj.proposal_templates[0]
+            form.title.data = template.title
+            form.body.data = template.body.text
         if form.validate_on_submit():
             proposal = Proposal(created_by=current_auth.user, project=self.obj)
             db.session.add(proposal)

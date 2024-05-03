@@ -86,7 +86,9 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
     _state: Mapped[str] = sa_orm.mapped_column(
         'state',
         sa.CHAR(1),
-        StateManager.check_constraint('state', RsvpStateEnum, sa.CHAR(1)),
+        StateManager.check_constraint(
+            'state', RsvpStateEnum, sa.CHAR(1), name='rsvp_state_check'
+        ),
         default=RsvpStateEnum.AWAITING,
         nullable=False,
     )
