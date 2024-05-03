@@ -439,6 +439,12 @@ class AccountForm(forms.Form):
             'autocapitalize': 'off',
         },
     )
+    tagline = forms.StringField(
+        __("Bio"),
+        validators=[forms.validators.Optional(), forms.validators.Length(max=160)],
+        filters=nullable_strip_filters,
+        description=__("A brief statement about yourself"),
+    )
     timezone = forms.SelectField(
         __("Timezone"),
         description=__(
