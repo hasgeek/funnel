@@ -16,6 +16,7 @@ $(() => {
       return {
         date: '',
         showFilter: false,
+        loading: false,
         calendarView: 'monthly',
         access: 'both',
         cfp: '',
@@ -49,6 +50,7 @@ $(() => {
             }
             return false;
           },
+          lazyFetching: false,
           eventTimeFormat: {
             // like '14:30:00'
             hour: '2-digit',
@@ -70,10 +72,12 @@ $(() => {
         this.events = this.calendar.getEvents();
       },
       prev() {
+        this.loading = true;
         this.calendar.prev();
         this.updateTitle();
       },
       next() {
+        this.loading = true;
         this.calendar.next();
         this.updateTitle();
       },
@@ -81,6 +85,7 @@ $(() => {
         this.showFilter = !this.showFilter;
       },
       applyFilter() {
+        this.loading = true;
         this.showFilter = false; // Close filter menu
         switch (this.calendarView) {
           case 'monthly':
@@ -113,6 +118,11 @@ $(() => {
             if (this.cfp) return event.cfp_open === this.cfp;
             return event;
           });
+      },
+    },
+    watch: {
+      events() {
+        this.loading = false;
       },
     },
   });

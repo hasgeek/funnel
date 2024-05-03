@@ -157,7 +157,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        StateManager.check_constraint('state', PROJECT_STATE, sa.Integer),
+        sa.SmallInteger,
+        StateManager.check_constraint(
+            'state', PROJECT_STATE, sa.SmallInteger, name='project_state_check'
+        ),
         default=PROJECT_STATE.DRAFT,
         nullable=False,
         index=True,
@@ -168,7 +171,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     )
     _cfp_state: Mapped[int] = sa_orm.mapped_column(
         'cfp_state',
-        StateManager.check_constraint('cfp_state', CFP_STATE, sa.Integer),
+        sa.SmallInteger,
+        StateManager.check_constraint(
+            'cfp_state', CFP_STATE, sa.SmallInteger, name='project_cfp_state_check'
+        ),
         default=CFP_STATE.NONE,
         nullable=False,
         index=True,
@@ -182,7 +188,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         sa_orm.mapped_column(
             sa.SmallInteger,
             StateManager.check_constraint(
-                'rsvp_state', ProjectRsvpStateEnum, sa.SmallInteger
+                'rsvp_state',
+                ProjectRsvpStateEnum,
+                sa.SmallInteger,
+                name='project_rsvp_state_check',
             ),
             default=ProjectRsvpStateEnum.NONE,
             nullable=False,
@@ -433,6 +442,13 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     # proposal.py
     proposals: DynamicMapped[Proposal] = relationship(
         lazy='dynamic', order_by=lambda: Proposal.seq, back_populates='project'
+    )
+    proposal_templates: Mapped[list[Proposal]] = relationship(
+        primaryjoin=lambda: sa.and_(
+            Proposal.project_id == Project.id, Proposal.state.TEMPLATE
+        ),
+        viewonly=True,
+        order_by=lambda: Proposal.seq,
     )
 
     # rsvp.py
@@ -1139,6 +1155,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     sessions_with_video: DynamicMapped[Session] = with_roles(
         relationship(
             lazy='dynamic',
+            order_by=lambda: Session.start_at.desc(),
             primaryjoin=lambda: sa.and_(
                 Project.id == Session.project_id,
                 Session.video_id.is_not(None),
