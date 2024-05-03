@@ -226,12 +226,16 @@ def session_mark_accessed(
     auth_client: AuthClient | None = None,
     ipaddr: str | None = None,
     user_agent: str | None = None,
+    client_hints: dict[str, str] | None = None,
 ) -> None:
     """
     Mark a session as currently active.
 
     :param auth_client: For API calls from clients, save the client instead of IP
         address and User-Agent
+    :param ipaddr: IP address (if called outside a request context)
+    :param user_agent: User agent string (if called outside a request context)
+    :param client_hints: Client hint headers (if called outside a request context)
     """
     # `accessed_at` will be different from the automatic `updated_at` in one
     # crucial context: when the session was revoked from a different session.
@@ -239,9 +243,7 @@ def session_mark_accessed(
     obj.accessed_at = sa.func.utcnow()
     with db.session.no_autoflush:
         if auth_client is not None:
-            if (
-                auth_client not in obj.auth_clients
-            ):  # self.auth_clients is defined via AuthClient.login_sessions
+            if auth_client not in obj.auth_clients:
                 obj.auth_clients.append(auth_client)
             else:
                 # If we've seen this client in this session before, only update the
@@ -253,38 +255,49 @@ def session_mark_accessed(
                     .values(accessed_at=sa.func.utcnow())
                 )
         else:
-            ipaddr = (request.remote_addr or '') if ipaddr is None else ipaddr
+            if ipaddr is None:
+                ipaddr = request.remote_addr or ''
             # Attempt to save geonameid and ASN from IP address
-            try:
-                if obj.geonameid_city is None or ipaddr != obj.ipaddr:
-                    city_lookup = geoip.city(ipaddr)
-                    if city_lookup:
-                        obj.geonameid_city = city_lookup.city.geoname_id
-                        obj.geonameid_subdivision = (
-                            city_lookup.subdivisions.most_specific.geoname_id
-                        )
-                        obj.geonameid_country = city_lookup.country.geoname_id
-            except (ValueError, GeoIP2Error):
-                obj.geonameid_city = None
-                obj.geonameid_subdivision = None
-                obj.geonameid_country = None
-            try:
-                if obj.geoip_asn is None or ipaddr != obj.ipaddr:
-                    asn_lookup = geoip.asn(ipaddr)
-                    if asn_lookup:
-                        obj.geoip_asn = asn_lookup.autonomous_system_number
-            except (ValueError, GeoIP2Error):
-                obj.geoip_asn = None
+            if ipaddr:
+                try:
+                    if obj.geonameid_city is None or ipaddr != obj.ipaddr:
+                        city_lookup = geoip.city(ipaddr)
+                        if city_lookup:
+                            obj.geonameid_city = city_lookup.city.geoname_id
+                            obj.geonameid_subdivision = (
+                                city_lookup.subdivisions.most_specific.geoname_id
+                            )
+                            obj.geonameid_country = city_lookup.country.geoname_id
+                except (ValueError, GeoIP2Error):
+                    obj.geonameid_city = None
+                    obj.geonameid_subdivision = None
+                    obj.geonameid_country = None
+                try:
+                    if obj.geoip_asn is None or ipaddr != obj.ipaddr:
+                        asn_lookup = geoip.asn(ipaddr)
+                        if asn_lookup:
+                            obj.geoip_asn = asn_lookup.autonomous_system_number
+                except (ValueError, GeoIP2Error):
+                    obj.geoip_asn = None
             # Save IP address and user agent if they've changed
             if ipaddr != obj.ipaddr:
                 obj.ipaddr = ipaddr
-            user_agent = (
-                (str(request.user_agent.string[:250]) or '')
-                if user_agent is None
-                else user_agent
-            )
+            if user_agent is None:
+                user_agent = request.user_agent.string
             if user_agent != obj.user_agent:
                 obj.user_agent = user_agent
+            # Process user agent client hints
+            if client_hints is None:
+                client_hints = {
+                    key: value
+                    for key, value in request.headers.items(lower=True)
+                    if key.startswith('sec-ch-ua')
+                }
+            if client_hints:
+                if obj.user_agent_client_hints is None:
+                    obj.user_agent_client_hints = client_hints
+                else:
+                    obj.user_agent_client_hints.update(client_hints)
 
     statsd.set('users.active_sessions', str(obj.uuid), rate=1)
     statsd.set('users.active_users', str(obj.account.uuid), rate=1)
@@ -294,6 +307,11 @@ def session_mark_accessed(
 @app.after_request
 def set_lastuser_cookie(response: ResponseType) -> ResponseType:
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
+    # Ask for user agent information
+    response.headers['Accept-CH'] = (
+        'Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Model,'
+        ' Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version'
+    )
     if (
         request_has_auth()
         and 'cookie' in current_auth
@@ -354,7 +372,12 @@ def update_user_session_timestamp(response: ResponseType) -> ResponseType:
         # callback, so we create a closure containing the necessary data in local vars
         login_session = current_auth.session
         ipaddr = request.remote_addr
-        user_agent = str(request.user_agent.string[:250])
+        user_agent = str(request.user_agent.string)
+        client_hints = {
+            key: value
+            for key, value in request.headers.items(lower=True)
+            if key.startswith('sec-ch-ua')
+        }
 
         @response.call_on_close
         def mark_session_accessed_after_response() -> None:
@@ -366,7 +389,9 @@ def update_user_session_timestamp(response: ResponseType) -> ResponseType:
                 # missing data should that be necessary (eg: during login)
                 db.session.add(login_session)
                 # 2. Update user session access timestamp
-                login_session.views.mark_accessed(ipaddr=ipaddr, user_agent=user_agent)
+                login_session.views.mark_accessed(
+                    ipaddr=ipaddr, user_agent=user_agent, client_hints=client_hints
+                )
                 # 3. Commit it
                 db.session.commit()
 

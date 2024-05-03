@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
+from . import types
 from .account import Account
 from .base import (
     BaseMixin,
@@ -107,6 +108,8 @@ class LoginSession(UuidMixin, BaseMixin[int, Account], Model):
     geoip_asn: Mapped[int | None] = sa_orm.mapped_column()
     #: User agent
     user_agent: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
+    #: User agent client hints
+    user_agent_client_hints: Mapped[types.jsonb | None]
     #: The login service that was used to make this session
     login_service: Mapped[str | None] = sa_orm.mapped_column()
 
