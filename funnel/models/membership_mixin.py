@@ -222,8 +222,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     record_type: Mapped[int] = with_roles(
         immutable(
             sa_orm.mapped_column(
+                sa.SmallInteger,
                 StateManager.check_constraint(
-                    'record_type', MembershipRecordTypeEnum, sa.Integer
+                    'record_type', MembershipRecordTypeEnum, sa.SmallInteger
                 ),
                 default=MembershipRecordTypeEnum.DIRECT_ADD,
                 nullable=False,

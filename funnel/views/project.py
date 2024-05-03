@@ -34,6 +34,7 @@ from ..models import (
     Account,
     Project,
     ProjectRsvpStateEnum,
+    Proposal,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
     Rsvp,
@@ -349,7 +350,9 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'featured_proposals': [
                 _p.current_access(datasets=('without_parent', 'related'))
-                for _p in self.obj.proposals.filter_by(featured=True)
+                for _p in self.obj.proposals.filter(
+                    Proposal.state.PUBLIC, Proposal.featured.is_(True)
+                )
             ],
             'rsvp': self.obj.rsvp_for(current_auth.user),
         }
@@ -364,7 +367,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'submissions': [
                 _p.current_access(datasets=('without_parent', 'related'))
-                for _p in self.obj.proposals
+                for _p in self.obj.proposals.filter(Proposal.state.PUBLIC)
             ],
         }
 
