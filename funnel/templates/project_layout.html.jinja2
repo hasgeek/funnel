@@ -338,8 +338,8 @@
               {{ faicon(icon='grip-vertical', baseline=false, css_class="margin-bottom drag-handle") }}
             {%- endif %}
           </div>
-          <div class="flex-wrapper flex-wrapper--center margin-bottom">
-            {{ profileavatar(sponsorship.member, css_class='flex-order-last flex-item-align-end') }}
+          <div class="flex-wrapper flex-wrapper--center flex-wrapper--wrap margin-bottom">
+            {{ profileavatar(sponsorship.member, css_class='flex-item-align-end') }}
             {% if current_auth.user and current_auth.user.is_site_editor %}
               <a href="{{ sponsorship.url_for('edit') }}" rel="modal:open" aria-label="{% trans %}Edit sponsor{% endtrans %}" data-ga="Edit sponsor" data-cy="edit-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='edit', baseline=false, css_class="mui--text-light mui--align-middle fa-icon--left-margin fa-icon--right-margin") }}</a>
               <a href="{{ sponsorship.url_for('remove') }}" rel="modal:open" aria-label="{% trans %}Remove sponsor{% endtrans %}" data-ga="Remove sponsor" data-cy="remove-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='trash-alt', baseline=false, css_class="mui--text-light mui--align-middle") }}</a>
