@@ -18,8 +18,8 @@
 
 {%- block avatar -%}
   {%- if view.is_rollup -%}
-    {{ useravatar(view.membership.project.account) }}
+    {{ useravatar(view.membership.project.account, add_follow_btn=false) }}
   {%- else -%}
-    {{ useravatar(view.actor) }}
+    {{ useravatar(view.actor, add_follow_btn=false) }}
   {%- endif -%}
 {%- endblock avatar -%}

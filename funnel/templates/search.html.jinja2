@@ -22,7 +22,7 @@
       {%- elif type == 'session' %}
         <div class="user">
           <div class="user__box">
-            {{ useravatar(item.obj.user) }}
+            {{ useravatar(item.obj.user, add_follow_btn=false) }}
             <div class="user__box__header comment__header__details__user">
               <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
               <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
@@ -39,7 +39,7 @@
       {%- elif type == 'submission' %}
         <div class="user">
           <div class="user__box">
-            {{ useravatar(item.obj.first_user) }}
+            {{ useravatar(item.obj.first_user, add_follow_btn=false) }}
             <div class="user__box__header comment__header__details__user">
               <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
               <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
@@ -55,7 +55,7 @@
       {%- elif type == 'update' %}
         <div class="user">
           <div class="user__box">
-            {{ useravatar(item.obj.created_by) }}
+            {{ useravatar(item.obj.created_by,  add_follow_btn=false) }}
             <div class="user__box__header comment__header__details__user">
               <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
               <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
@@ -68,7 +68,7 @@
       {%- elif type == 'comment' %}
         <div class="user">
           <div class="user__box">
-            {{ useravatar(item.obj.posted_by) }}
+            {{ useravatar(item.obj.posted_by, add_follow_btn=false) }}
             <div class="user__box__header comment__header__details__user">
               <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.obj.title }}</a></h4>
               <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ item.obj.created_at|date }} {%- if item.obj.edited_at %} {% trans date=item.obj.edited_at|date %}edited {{ date }}{% endtrans %}{% endif %}</p>
