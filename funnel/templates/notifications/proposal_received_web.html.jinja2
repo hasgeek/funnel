@@ -28,6 +28,6 @@
   {%- if view.is_rollup %}
     <div class="user__box__gravatar user__box__gravatar--initials">{{ faicon(icon='users', icon_size='headline', baseline=false) }}</div>
   {%- else %}
-    {%- if view.actor %}{{ useravatar(view.actor) }}{% endif %}
+    {%- if view.actor %}{{ useravatar(view.actor, add_follow_btn=false) }}{% endif %}
   {%- endif %}
 {%- endblock avatar %}

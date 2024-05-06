@@ -153,26 +153,15 @@ class IndexView(ClassView):
         )
 
         return IndexTemplate(
-            upcoming_projects=[
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
-                for p in upcoming_projects
-            ],
-            open_cfp_projects=[
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
-                for p in open_cfp_projects
-            ],
+            upcoming_projects=[p.current_access() for p in upcoming_projects],
+            open_cfp_projects=[p.current_access() for p in open_cfp_projects],
             featured_project=(
-                featured_project.current_access(datasets=('primary', 'related'))
-                if featured_project
-                else None
+                featured_project.current_access() if featured_project else None
             ),
             featured_project_venues=featured_project_venues,
             featured_project_sessions=scheduled_sessions_list,
             featured_project_schedule=featured_project_schedule,
-            featured_accounts=[
-                p.current_access(datasets=('primary', 'related'))
-                for p in featured_accounts
-            ],
+            featured_accounts=[p.current_access() for p in featured_accounts],
         ).render_template()
 
     @route('past.projects', endpoint='past_projects')
