@@ -365,7 +365,7 @@
             {%- if not membership.is_uncredited %}
               <div class="user right-padding">
                 <div class="user__box">
-                  {{ useravatar(membership.member, css_class="margin-right") }}
+                  {{ useravatar(membership.member, css_class="margin-right", follow_btn_css="flex-order-last margin-left") }}
                   <div class="user__box__header">
                     <p class="mui--text-body2 user__box__fullname">
                       {{ membership.member.fullname }}
