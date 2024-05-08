@@ -47,7 +47,7 @@ mpcontext = multiprocessing.get_context('fork')
 class RichDebuggedApplication(DebuggedApplication):
     """Werkzeug's DebuggedApplication augmented with rich.traceback in the console."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.error_console = Console(stderr=True)
 
@@ -322,8 +322,8 @@ class BackgroundWorker:
     def __init__(
         self,
         worker: Callable,
-        args: Iterable | None = None,
-        kwargs: dict | None = None,
+        args: Iterable[Any] | None = None,
+        kwargs: dict[str, Any] | None = None,
         probe_at: tuple[str, int] | None = None,
         timeout: int = 10,
         clean_stop: bool = True,
@@ -337,7 +337,7 @@ class BackgroundWorker:
         self.timeout = timeout
         self.clean_stop = clean_stop
         self.daemon = daemon
-        self._process: multiprocessing.context.ForkProcess | None = None
+        self._process: multiprocessing.process.BaseProcess | None = None
         self.mock_transports = mock_transports
 
         manager = mpcontext.Manager()
