@@ -230,8 +230,7 @@ const Utils = {
     });
   },
   copyToClipboard(elem) {
-    const textElem = document.querySelector(elem);
-    const stringToCopy = textElem.innerHTML;
+    const stringToCopy = elem.innerHTML;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(stringToCopy).then(
         () => toastr.success(window.gettext('Link copied')),
@@ -240,7 +239,7 @@ const Utils = {
     } else {
       const selection = window.getSelection();
       const range = document.createRange();
-      range.selectNodeContents(textElem);
+      range.selectNodeContents(elem);
       selection.removeAllRanges();
       selection.addRange(range);
       if (document.execCommand('copy')) {
