@@ -125,11 +125,6 @@
     <div class="top-padding project-details__box__title">
       <div class="project-banner__profile-details">
         {{ profileavatar(project.account, css_class='margin-left') }}
-        {% if project.features.subscription and project.current_roles.account_member %}
-          <span class="chip chip--bg-success project-banner__profile-details__badge text-bold">{{ faicon(icon='crown-solid', baseline=true, css_class="mui--text-success fa-icon--right-margin") }}{% trans %}Member{% endtrans %}</span>
-        {% elif project.features.subscription %}
-          <span class="chip project-banner__profile-details__badge text-bold">{{ faicon(icon='lock-alt', baseline=true, css_class="fa-icon--right-margin") }}{% trans %}For members{% endtrans %}</span>
-        {% endif %}
       </div>
       <h1 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-dark nounderline" data-cy="project-page">{{ project.title }}</a></h1>
       <p class="mui--text-title mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
