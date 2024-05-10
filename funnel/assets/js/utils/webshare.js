@@ -43,13 +43,13 @@ const WebShare = {
         event.preventDefault();
         const linkElem = this;
         if ($(linkElem).attr('data-shortlink')) {
-          Utils.copyToClipboard('.js-copy-url');
+          Utils.copyToClipboard($(linkElem).find('.js-copy-url')[0]);
         } else {
           Utils.fetchShortUrl($(linkElem).find('.js-copy-url').first().html())
             .then((shortlink) => {
               $(linkElem).find('.js-copy-url').text(shortlink);
               $(linkElem).attr('data-shortlink', true);
-              Utils.copyToClipboard('.js-copy-url');
+              Utils.copyToClipboard($(linkElem).find('.js-copy-url')[0]);
             })
             .catch((errMsg) => {
               toastr.error(errMsg);
