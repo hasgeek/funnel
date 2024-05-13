@@ -14,8 +14,8 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
 
-from coaster.gfm import markdown
 from coaster.sqlalchemy import JsonDict
+from coaster.utils import markdown
 
 
 def upgrade() -> None:
