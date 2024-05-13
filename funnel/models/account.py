@@ -263,7 +263,9 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.SmallInteger,
-        StateManager.check_constraint('state', ACCOUNT_STATE, sa.SmallInteger),
+        StateManager.check_constraint(
+            'state', ACCOUNT_STATE, sa.SmallInteger, name='account_state_check'
+        ),
         nullable=False,
         default=ACCOUNT_STATE.ACTIVE,
     )
@@ -277,7 +279,12 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     _profile_state: Mapped[int] = sa_orm.mapped_column(
         'profile_state',
         sa.SmallInteger,
-        StateManager.check_constraint('profile_state', PROFILE_STATE, sa.SmallInteger),
+        StateManager.check_constraint(
+            'profile_state',
+            PROFILE_STATE,
+            sa.SmallInteger,
+            name='account_profile_state_check',
+        ),
         nullable=False,
         default=PROFILE_STATE.AUTO,
     )

@@ -126,7 +126,6 @@ addopts = [
   '--allow-unix-socket',         # Required for Playwright tests
   '--allow-hosts=127.0.0.1,::1', # Add Docker IPs here
   '--strict-markers',
-  # '--typeguard-packages=funnel,tests',  # This breaks on toc.py in markdown
 ]
 markers = [
   'dbcommit: Test requires true database commits',
@@ -138,9 +137,14 @@ markers = [
   'mock_config("app", config_dict): Create mock configuration for a feature',
 ]
 bdd_features_base_dir = 'tests/features/'
-env = ['FLASK_ENV=testing', 'FLASK_TESTING=true']
+env = [
+  'FLASK_ENV=testing',
+  'FLASK_TESTING=true',
+  'FLASK_DEBUG_TB_ENABLED=false',
+]
 env_override_existing_values = false
 env_files = ['.env.testing', '.testenv', '.env', '.flaskenv']
+filterwarnings = ['ignore:.*:DeprecationWarning']
 
 [tool.pyright]
 venv = '.venv'

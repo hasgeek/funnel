@@ -13,15 +13,22 @@ import signal
 import socket
 import time
 import weakref
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Iterator
 from secrets import token_urlsafe
-from typing import Any, NamedTuple, Protocol, cast
+from typing import TYPE_CHECKING, Any, ContextManager, NamedTuple, Protocol, cast
 
 from flask import Flask
+from rich.console import Console
+from werkzeug.debug import DebuggedApplication
+from werkzeug.debug.tbtools import DebugTraceback
+from werkzeug.wrappers import Response
 
 from . import all_apps, app as main_app, transports
 from .models import db
 from .typing import ReturnView
+
+if TYPE_CHECKING:
+    from _typeshed.wsgi import StartResponse, WSGIEnvironment
 
 __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
 
@@ -33,6 +40,67 @@ __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
 # experience crashes, try setting the environment variable
 # `OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`
 mpcontext = multiprocessing.get_context('fork')
+
+# MARK: Werkzeug debugger
+
+
+class RichDebuggedApplication(DebuggedApplication):
+    """Werkzeug's DebuggedApplication augmented with rich.traceback in the console."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.error_console = Console(stderr=True)
+
+    # This function replicates the code of the original, except the last line, and
+    # may need periodic sync with upstream
+    def debug_application(
+        self, environ: WSGIEnvironment, start_response: StartResponse
+    ) -> Iterator[bytes]:
+        """Run the application and conserve the traceback frames."""
+        contexts: list[ContextManager[Any]] = []
+
+        if self.evalex:
+            environ['werkzeug.debug.preserve_context'] = contexts.append
+
+        app_iter = None
+        try:
+            app_iter = self.app(environ, start_response)
+            yield from app_iter
+            if hasattr(app_iter, 'close'):
+                app_iter.close()  # pyright: ignore[reportAttributeAccessIssue]
+        except Exception as e:  # noqa: B902  # pylint: disable=broad-exception-caught
+            if hasattr(app_iter, 'close'):
+                app_iter.close()  # type: ignore[union-attr]
+
+            tb = DebugTraceback(e, skip=1, hide=not self.show_hidden_frames)
+
+            for frame in tb.all_frames:
+                self.frames[id(frame)] = frame
+                self.frame_contexts[id(frame)] = contexts
+
+            is_trusted = bool(self.check_pin_trust(environ))
+            html = tb.render_debugger_html(
+                evalex=self.evalex,
+                secret=self.secret,
+                evalex_trusted=is_trusted,
+            )
+            response = Response(html, status=500, mimetype='text/html')
+
+            try:
+                yield from response(environ, start_response)
+            except Exception:  # noqa: B902  # pylint: disable=broad-exception-caught
+                # if we end up here there has been output but an error
+                # occurred.  in that situation we can do nothing fancy any
+                # more, better log something into the error log and fall
+                # back gracefully.
+                self.error_console.print(
+                    "Debugging middleware caught exception in streamed "
+                    "response at a point where response headers were already "
+                    "sent."
+                )
+
+            self.error_console.print_exception(show_locals=True, width=None)
+
 
 # MARK: Development and testing app multiplexer ----------------------------------------
 
@@ -254,8 +322,8 @@ class BackgroundWorker:
     def __init__(
         self,
         worker: Callable,
-        args: Iterable | None = None,
-        kwargs: dict | None = None,
+        args: Iterable[Any] | None = None,
+        kwargs: dict[str, Any] | None = None,
         probe_at: tuple[str, int] | None = None,
         timeout: int = 10,
         clean_stop: bool = True,
@@ -269,7 +337,7 @@ class BackgroundWorker:
         self.timeout = timeout
         self.clean_stop = clean_stop
         self.daemon = daemon
-        self._process: multiprocessing.context.ForkProcess | None = None
+        self._process: multiprocessing.process.BaseProcess | None = None
         self.mock_transports = mock_transports
 
         manager = mpcontext.Manager()

@@ -65,6 +65,7 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
     AWAITING_DETAILS = (8, NameTitle('awaiting_details', __("Awaiting details")))
     UNDER_EVALUATION = (9, NameTitle('under_evaluation', __("Under evaluation")))
     DELETED = (12, NameTitle('deleted', __("Deleted")))
+    TEMPLATE = (13, NameTitle('template', __("Template")))
 
     # These 3 are not in the editorial workflow anymore - Feb 23 2018
     SHORTLISTED = (5, NameTitle('shortlisted', __("Shortlisted")))
@@ -108,6 +109,7 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
         REJECTED,
         AWAITING_DETAILS,
         UNDER_EVALUATION,
+        TEMPLATE,
     }
     CANCELLABLE = {
         DRAFT,
@@ -161,7 +163,10 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        StateManager.check_constraint('state', PROPOSAL_STATE, sa.Integer),
+        sa.SmallInteger,
+        StateManager.check_constraint(
+            'state', PROPOSAL_STATE, sa.SmallInteger, name='proposal_state_check'
+        ),
         default=PROPOSAL_STATE.SUBMITTED,
         nullable=False,
     )
@@ -492,6 +497,28 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         type='danger',
     )
     def delete(self) -> None:
+        pass
+
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
+    @state.transition(
+        state.SUBMITTED,
+        state.TEMPLATE,
+        title=__("Convert to template"),
+        message=__("This proposal has been converted into a template"),
+        type='success',
+    )
+    def make_template(self) -> None:
+        pass
+
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
+    @state.transition(
+        state.TEMPLATE,
+        state.SUBMITTED,
+        title=__("Convert to submission"),
+        message=__("This proposal has been converted into a submission"),
+        type='success',
+    )
+    def undo_template(self) -> None:
         pass
 
     @property

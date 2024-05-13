@@ -32,7 +32,7 @@ $(() => {
 
   $(copyBtn).on('click', function clickCopyLink(event) {
     event.preventDefault();
-    Utils.copyToClipboard(shortlinkBox);
+    Utils.copyToClipboard($(shortlinkBox)[0]);
   });
 
   $(form).on('submit', (event) => {

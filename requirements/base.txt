@@ -37,7 +37,7 @@ arrow==1.3.0
     # via rq-dashboard
 attrs==23.2.0
     # via aiohttp
-babel==2.14.0
+babel==2.15.0
     # via
     #   -r requirements/base.in
     #   flask-babel
@@ -45,7 +45,7 @@ base58==2.1.1
     # via
     #   -r requirements/base.in
     #   coaster
-bcrypt==4.1.2
+bcrypt==4.1.3
     # via -r requirements/base.in
 better-profanity==0.6.1
     # via -r requirements/base.in
@@ -53,7 +53,7 @@ bleach==6.1.0
     # via
     #   baseframe
     #   coaster
-blinker==1.8.1
+blinker==1.8.2
     # via
     #   baseframe
     #   coaster
@@ -86,7 +86,7 @@ click==8.1.7
     #   rq
 crontab==1.0.1
     # via rq-scheduler
-cryptography==42.0.5
+cryptography==42.0.7
     # via -r requirements/base.in
 cssmin==0.2.0
     # via baseframe
@@ -94,7 +94,7 @@ cssselect==1.2.0
     # via premailer
 cssutils==2.10.2
     # via premailer
-dataclasses-json==0.6.4
+dataclasses-json==0.6.5
     # via -r requirements/base.in
 dnspython==2.6.1
     # via
@@ -103,7 +103,7 @@ dnspython==2.6.1
     #   pyisemail
 emoji==2.11.1
     # via baseframe
-filelock==3.13.4
+filelock==3.14.0
     # via tldextract
 flask==3.0.3
     # via
@@ -130,7 +130,7 @@ flask-babel==4.0.0
     # via
     #   -r requirements/base.in
     #   baseframe
-flask-caching==2.2.0
+flask-caching==2.3.0
     # via baseframe
 flask-executor==1.0.0
     # via -r requirements/base.in
@@ -219,13 +219,13 @@ itsdangerous==2.2.0
     #   -r requirements/base.in
     #   flask
     #   flask-wtf
-jinja2==3.1.3
+jinja2==3.1.4
     # via
     #   -r requirements/base.in
     #   flask
     #   flask-babel
     #   flask-flatpages
-joblib==1.4.0
+joblib==1.4.2
     # via nltk
 lazy-loader==0.4
     # via -r requirements/base.in
@@ -253,7 +253,7 @@ markupsafe==2.1.5
     #   mako
     #   werkzeug
     #   wtforms
-marshmallow==3.21.1
+marshmallow==3.21.2
     # via dataclasses-json
 maxminddb==2.6.1
     # via geoip2
@@ -286,7 +286,7 @@ packaging==24.0
     #   marshmallow
 passlib==1.7.4
     # via -r requirements/base.in
-phonenumbers==8.13.35
+phonenumbers==8.13.36
     # via -r requirements/base.in
 playwright==1.43.0
     # via -r requirements/base.in
@@ -313,7 +313,7 @@ pycparser==2.22
     # via cffi
 pyee==11.1.0
     # via playwright
-pygments==2.17.2
+pygments==2.18.0
     # via rich
 pyisemail==2.0.1
     # via
@@ -390,7 +390,7 @@ requests-oauthlib==1.3.1
     # via tweepy
 rich==13.7.1
     # via -r requirements/base.in
-rq==1.16.1
+rq==1.16.2
     # via
     #   -r requirements/base.in
     #   baseframe
@@ -407,7 +407,7 @@ semantic-version==2.10.0
     # via
     #   baseframe
     #   coaster
-sentry-sdk==2.0.1
+sentry-sdk==2.1.1
     # via baseframe
 six==1.16.0
     # via
@@ -423,7 +423,7 @@ sniffio==1.3.1
     # via
     #   anyio
     #   httpx
-sqlalchemy[asyncio]==2.0.29
+sqlalchemy[asyncio]==2.0.30
     # via
     #   -r requirements/base.in
     #   alembic
@@ -446,7 +446,7 @@ tldextract==5.1.2
     # via
     #   coaster
     #   mxsniff
-tqdm==4.66.2
+tqdm==4.66.4
     # via nltk
 tuspy==1.0.3
     # via pyvimeo
@@ -491,7 +491,7 @@ webencodings==0.5.1
     # via
     #   bleach
     #   html5lib
-werkzeug==3.0.2
+werkzeug==3.0.3
     # via
     #   -r requirements/base.in
     #   baseframe

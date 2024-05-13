@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import re
 from string import capwords
 from types import SimpleNamespace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import user_agents
 from flask import (
@@ -213,42 +214,143 @@ def user_not_likely_throwaway(obj: Account) -> bool:
     return obj.is_verified or bool(obj.phone)
 
 
-@LoginSession.views('user_agent_details')
-def user_agent_details(obj: LoginSession) -> dict[str, str]:
-    """Return a friendly identifier for the user's browser (HTTP user agent)."""
-    ua = user_agents.parse(obj.user_agent)
-    if ua.browser.family:
-        browser = f"{ua.browser.family or ''} {ua.browser.version_string or ''}".strip()
-    else:
-        browser = _("Unknown browser")
-    if ua.is_pc or ua.device.brand == "Generic":
-        device = ''
-    elif (
-        ua.device.model
-        and ua.device.brand
-        and ua.device.model.startswith(ua.device.brand)
-    ):
-        device = ua.device.model
-    else:
-        device = f"{ua.device.brand or ''} {ua.device.model or ''}".strip()
+_quoted_str_re = re.compile('"(.*?)"')
+_quoted_ua_re = re.compile(r'"(.*?)"\s*;\s*v\s*=\s*"(.*?)",?\s*')
+_fake_ua_re = re.compile(
+    r'\s*.?Not.A.Brand.?\s*|\s*.?Not.Your.Browser.?\s*', re.IGNORECASE
+)
 
-    if ua.os.family == "Mac OS X":
-        if ua.os.version_string.startswith('10.15.'):
-            # Safari, Firefox and Chrome report outdated version 10.15.7
-            os = "macOS"
+
+def get_ch_ua_string(ch_ua_str: str | None) -> str | None:
+    """Parse Sec-CH-UA-* single value header."""
+    if not ch_ua_str:
+        return None
+    match = _quoted_str_re.match(ch_ua_str)
+    if match:
+        return match[1] or None
+    return None
+
+
+def get_ch_ua(ch_ua: str | None) -> tuple[str, str] | None:
+    """Parse Sec-CH-UA or Sec-CH-UA-Full-Version-List header."""
+    if not ch_ua:
+        return None
+    results = [
+        (browser, version)
+        for browser, version in _quoted_ua_re.findall(ch_ua)
+        if not _fake_ua_re.match(browser)
+    ]
+    if len(results) > 1:
+        # Find and remove Chromium from results as it's duplicated
+        results = [
+            (browser, version)
+            for browser, version in results
+            if browser.lower() != 'chromium'
+        ]
+    if results:
+        return results[0]
+    return None
+
+
+@LoginSession.views('user_agent_details')
+def user_agent_details(obj: LoginSession) -> dict[str, Any]:
+    """Return a friendly identifier for the user's browser (HTTP user agent)."""
+    mobile: bool | None = None
+    browser: str = ''
+    device: str = ''
+    platform: str = ''
+
+    # Process client hints if available
+    client_hints = obj.user_agent_client_hints
+    if client_hints:
+        match client_hints.get('sec-ch-ua-mobile'):
+            case '?0':
+                mobile = False
+            case '?1':
+                mobile = True
+        device = get_ch_ua_string(client_hints.get('sec-ch-ua-model')) or ''
+        platform = get_ch_ua_string(client_hints.get('sec-ch-ua-platform')) or ''
+        platform_version = get_ch_ua_string(
+            client_hints.get('sec-ch-ua-platform-version')
+        )
+        if platform_version:
+            if platform == "Windows":
+                # Windows platform version numbers are API versions, so remap
+                # https://learn.microsoft.com/en-us/microsoft-edge/web-platform/how-to-detect-win11#detecting-specific-windows-versions
+                windows_api_version: str | int
+                windows_api_version = platform_version.split('.')[0]
+                platform_version = ''
+                if windows_api_version.isdigit():
+                    windows_api_version = int(windows_api_version)
+                    if windows_api_version == 0:
+                        platform_version = '7/8/8.1'
+                    elif 1 <= int(windows_api_version) <= 10:
+                        platform_version = '10'
+                    elif windows_api_version >= 13:
+                        platform_version = '11'
+            platform = f'{platform} {platform_version}'.strip()
+        browser_version = get_ch_ua(
+            client_hints.get('sec-ch-ua-full-version-list')
+            or client_hints.get('sec-ch-ua')
+        )
+        if browser_version:
+            browser = f'{browser_version[0]} {browser_version[1]}'.strip()
+
+    ua = user_agents.parse(obj.user_agent)
+    if mobile is None:
+        mobile = ua.is_mobile
+    if not browser:
+        if ua.browser.family:
+            browser = (
+                f"{ua.browser.family or ''} {ua.browser.version_string or ''}".strip()
+            )
         else:
-            # Microsoft Edge appears to report the correct version number
-            os = f"macOS {ua.os.version_string}"
-    else:
-        os = f"{ ua.os.family or ''} {ua.os.version_string or ''}".strip()
+            browser = _("Unknown browser")
+    if not device:
+        if ua.is_pc or (
+            ua.device.brand
+            and (
+                ua.device.brand == "Generic"
+                or ua.device.brand.startswith("Generic_Android")
+            )
+        ):
+            device = ''
+        elif (
+            ua.device.model
+            and ua.device.brand
+            and ua.device.model.startswith(ua.device.brand)
+        ):
+            device = ua.device.model
+        else:
+            device = f"{ua.device.brand or ''} {ua.device.model or ''}".strip()
+
+    if not platform:
+        if ua.os.family == "Mac OS X":
+            if (
+                ua.os.version_string.startswith('10.15.')
+                or ua.os.version_string == '10.15'
+            ):
+                # Safari, Firefox and Chrome report outdated version 10.15.7
+                platform = "macOS"
+            else:
+                # Microsoft Edge appears to report the correct version number
+                platform = f"macOS {ua.os.version_string}"
+        elif ua.os.family == "Android" and ua.os.version_string == "10":
+            # Android > 10 is usually reported as 10
+            platform = "Android"
+        elif ua.os.family == "Windows" and ua.os.version_string == "10":
+            # Windows 11 is reported as Windows 10
+            platform = "Windows"
+        else:
+            platform = f"{ ua.os.family or ''} {ua.os.version_string or ''}".strip()
 
     if device:
-        os_device = f'{device} ({os})'
-    elif os:
-        os_device = os
+        device_platform = f'{device} ({platform})'
+    elif platform:
+        device_platform = platform
     else:
-        os_device = _("Unknown device")
-    return {'browser': browser, 'os_device': os_device}
+        device_platform = _("Unknown device")
+    return {'browser': browser, 'device_platform': device_platform, 'mobile': mobile}
 
 
 @LoginSession.views('location')
@@ -369,7 +471,7 @@ class AccountView(ClassView):
             return render_redirect(get_next_url(default=url_for('account')))
         return render_form(
             form,
-            title=_("Edit account"),
+            title=_("Your account"),
             # Form with id 'form-account_edit' will have username validation
             # in account_formlayout.html.jinja2
             formid='account_edit',
