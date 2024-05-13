@@ -68,8 +68,10 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         action='store',
         default='rollback',
         choices=('rollback', 'truncate'),
-        help="Use db_session with 'rollback' (default) or 'truncate'"
-        " (slower but more production-like)",
+        help=(
+            "Use db_session with 'rollback' (default) or 'truncate' (slower but more"
+            " production-like)"
+        ),
     )
 
 
@@ -147,11 +149,11 @@ def pytest_runtest_logreport(report: pytest.TestReport) -> None:
     ):
         line_no = repr_file_loc.lineno
     if report.nodeid.startswith(filename):
-        # Only insert a line number if the existing nodeid refers to the same filename.
-        # Needed for pytest-bdd, which constructs tests and refers the filename that
-        # imported the scenario. This file will not have the actual test function, so
-        # no line number reference is possible; the `filename` in the report will refer
-        # to pytest-bdd internals
+        # Only insert a line number if the existing `nodeid`` refers to the same
+        # filename. Needed for pytest-bdd, which constructs tests and refers the
+        # filename that imported the scenario. This file will not have the actual test
+        # function, so no line number reference is possible; the `filename` in the
+        # report will refer to pytest-bdd internals
         report.nodeid = f'{filename}:{line_no}::{domain}'
 
 

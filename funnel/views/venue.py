@@ -117,8 +117,9 @@ class VenueView(AccountCheckMixin, UrlForView, ModelView[Venue]):
             .first_or_404()
         )
 
-    def post_init(self) -> None:
-        self.account = self.obj.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.project.account
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
@@ -200,8 +201,9 @@ class VenueRoomViewBase(AccountCheckMixin, UrlForView, ModelView[VenueRoom]):
             .first_or_404()
         )
 
-    def post_init(self) -> None:
-        self.account = self.obj.venue.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.venue.project.account
 
 
 @VenueRoom.views('main')

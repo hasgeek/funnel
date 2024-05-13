@@ -16,6 +16,7 @@ MATOMO_URL = 'https://matomo.test/'
 @pytest.fixture(scope='module')
 def matomo_sample_response() -> list[dict[str, str | int]]:
     """Sample response for method=Referrers.getSocials."""
+    # spell-checker: disable
     return [
         {
             "label": "LinkedIn",
@@ -60,6 +61,7 @@ def matomo_sample_response() -> list[dict[str, str | int]]:
             "idsubdatatable": 1,
         },
     ]
+    # spell-checker: enable
 
 
 def test_trend_symbol() -> None:
@@ -116,6 +118,7 @@ async def test_matomo_response_json_valid(
 
 @pytest.mark.parametrize(
     ('jsondata', 'url'),
+    # spell-checker: disable
     [
         (
             {'label': 'LinkedIn', 'nb_visits': 0, 'url': 'linkedin.com'},
@@ -141,6 +144,7 @@ async def test_matomo_response_json_valid(
         ({'label': 'path', 'nb_visits': 0, 'url': '/login'}, '/login'),
         ({'label': 'no-url', 'nb_visits': 0}, None),
     ],
+    # spell-checker: enable
 )
 def test_matomo_response_url(jsondata: dict, url: str | None) -> None:
     """Parse a valid URL from Matomo response data."""

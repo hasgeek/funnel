@@ -206,11 +206,11 @@ class TicketParticipantView(
             )
             .first_or_404()
         )
-        self.post_init()
-        return super().after_loader()
+        return self.after_loader()
 
-    def post_init(self) -> None:
-        self.account = self.obj.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.project.account
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'project_promoter'})

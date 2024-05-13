@@ -100,11 +100,11 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
-        self.post_init()
-        return super().after_loader()
+        return self.after_loader()
 
-    def post_init(self) -> None:
-        self.account = self.obj.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.project.account
 
     @route('', methods=['GET'])
     @render_with('update_details.html.jinja2')
