@@ -75,7 +75,7 @@ sttable==0.0.1
     # via -r requirements/test.in
 text-unidecode==1.3
     # via python-slugify
-tomlkit==0.12.4
+tomlkit==0.12.5
     # via -r requirements/test.in
 typeguard==4.2.1
     # via -r requirements/test.in
