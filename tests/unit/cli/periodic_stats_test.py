@@ -88,14 +88,12 @@ def test_resourcestats_trend_symbol() -> None:
     assert r.month_trend == '⏫'
 
 
-@pytest.mark.asyncio
 async def test_matomo_response_json_error(respx_mock: MockRouter) -> None:
     async with httpx.AsyncClient() as client:
         respx_mock.get(MATOMO_URL).mock(return_value=httpx.Response(500))
         assert await cli_stats.matomo_response_json(client, MATOMO_URL) == []
 
 
-@pytest.mark.asyncio
 async def test_matomo_response_json_valid(
     respx_mock: MockRouter, matomo_sample_response: list[dict[str, str | int]]
 ) -> None:
@@ -149,7 +147,6 @@ def test_matomo_response_url(jsondata: dict, url: str | None) -> None:
     assert cli_stats.MatomoResponse.from_dict(jsondata).get_url() == url
 
 
-@pytest.mark.asyncio
 @pytest.mark.mock_config('app', {'MATOMO_URL': None})
 async def test_matomo_data_noconfig() -> None:
     """Matomo stats returns an empty result when there's no config."""

@@ -127,6 +127,7 @@ addopts = [
   '--allow-hosts=127.0.0.1,::1', # Add Docker IPs here
   '--strict-markers',
 ]
+asyncio_mode = 'auto'
 markers = [
   'dbcommit: Test requires true database commits',
   'formdata(dict): HTTP form data for form fixture',
