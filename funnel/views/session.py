@@ -169,8 +169,9 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
             .first_or_404()
         )
 
-    def post_init(self) -> None:
-        self.account = self.obj.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.project.account
 
     @property
     def project_currently_saved(self) -> bool:

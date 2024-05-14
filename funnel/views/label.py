@@ -116,8 +116,9 @@ class LabelView(AccountCheckMixin, UrlForView, ModelView[Label]):
             .first_or_404()
         )
 
-    def post_init(self) -> None:
-        self.account = self.obj.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.project.account
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login

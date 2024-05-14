@@ -16,6 +16,7 @@ MATOMO_URL = 'https://matomo.test/'
 @pytest.fixture(scope='module')
 def matomo_sample_response() -> list[dict[str, str | int]]:
     """Sample response for method=Referrers.getSocials."""
+    # spell-checker: disable
     return [
         {
             "label": "LinkedIn",
@@ -60,6 +61,7 @@ def matomo_sample_response() -> list[dict[str, str | int]]:
             "idsubdatatable": 1,
         },
     ]
+    # spell-checker: enable
 
 
 def test_trend_symbol() -> None:
@@ -88,14 +90,12 @@ def test_resourcestats_trend_symbol() -> None:
     assert r.month_trend == '⏫'
 
 
-@pytest.mark.asyncio
 async def test_matomo_response_json_error(respx_mock: MockRouter) -> None:
     async with httpx.AsyncClient() as client:
         respx_mock.get(MATOMO_URL).mock(return_value=httpx.Response(500))
         assert await cli_stats.matomo_response_json(client, MATOMO_URL) == []
 
 
-@pytest.mark.asyncio
 async def test_matomo_response_json_valid(
     respx_mock: MockRouter, matomo_sample_response: list[dict[str, str | int]]
 ) -> None:
@@ -118,6 +118,7 @@ async def test_matomo_response_json_valid(
 
 @pytest.mark.parametrize(
     ('jsondata', 'url'),
+    # spell-checker: disable
     [
         (
             {'label': 'LinkedIn', 'nb_visits': 0, 'url': 'linkedin.com'},
@@ -143,13 +144,13 @@ async def test_matomo_response_json_valid(
         ({'label': 'path', 'nb_visits': 0, 'url': '/login'}, '/login'),
         ({'label': 'no-url', 'nb_visits': 0}, None),
     ],
+    # spell-checker: enable
 )
 def test_matomo_response_url(jsondata: dict, url: str | None) -> None:
     """Parse a valid URL from Matomo response data."""
     assert cli_stats.MatomoResponse.from_dict(jsondata).get_url() == url
 
 
-@pytest.mark.asyncio
 @pytest.mark.mock_config('app', {'MATOMO_URL': None})
 async def test_matomo_data_noconfig() -> None:
     """Matomo stats returns an empty result when there's no config."""

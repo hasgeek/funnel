@@ -166,13 +166,13 @@ class OrganizationMembershipView(
         self.obj = AccountMembership.query.filter(
             AccountMembership.uuid_b58 == membership,
         ).first_or_404()
-        self.post_init()
         if not self.obj.is_active:
             abort(410)
         return self.after_loader()
 
-    def post_init(self) -> None:
-        self.account = self.obj.account
+    @property
+    def account(self) -> Account:
+        return self.obj.account
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
@@ -400,11 +400,11 @@ class ProjectMembershipViewBase(
             )
             .first_or_404()
         )
-        self.post_init()
         return self.after_loader()
 
-    def post_init(self) -> None:
-        self.account = self.obj.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.project.account
 
 
 @ProjectMembership.views('invite')
