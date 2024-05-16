@@ -141,6 +141,16 @@
                 {% endif %}
               </div>
             </div>
+            {%- if featured_project and featured_project.features.show_featured_schedule %}
+              <div class="grid__col-12">
+                <div class="schedule-grid schedule-grid--compressed">
+                  <div class="schedule-table-container" id="project-schedule-table">
+                    <schedule></schedule>
+                  </div>
+                  {{ schedule_template() }}
+                </div>
+              </div>
+            {%- endif %}
           </div>
         </div>
       </div>
