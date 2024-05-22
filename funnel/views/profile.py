@@ -90,6 +90,7 @@ def template_switcher(templateargs: Mapping[str, Any]) -> str:
 @Account.views('main')
 @route('/<account>', init_app=app)
 class ProfileView(UrlChangeCheck, AccountViewBase):
+    """Account profile views."""
 
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
@@ -458,7 +459,10 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             'past_projects': [
                 {
                     'title': p.title,
-                    'datetime': date_filter(p.end_at_localized, format='dd MMM yyyy'),
+                    'datetime': date_filter(
+                        p.end_at_localized,  # type: ignore[arg-type]
+                        format='dd MMM yyyy',
+                    ),
                     'venue': p.primary_venue.city if p.primary_venue else p.location,
                     'url': p.url_for(),
                 }

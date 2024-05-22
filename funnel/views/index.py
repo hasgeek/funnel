@@ -184,7 +184,10 @@ class IndexView(ClassView):
             'past_projects': [
                 {
                     'title': p.title,
-                    'datetime': date_filter(p.end_at_localized, format='dd MMM yyyy'),
+                    'datetime': date_filter(
+                        p.end_at_localized,  # type: ignore[arg-type]
+                        format='dd MMM yyyy',
+                    ),
                     'venue': p.primary_venue.city if p.primary_venue else p.location,
                     'url': p.url_for(),
                 }

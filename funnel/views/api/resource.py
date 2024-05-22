@@ -10,7 +10,7 @@ from werkzeug.datastructures import MultiDict
 
 from baseframe import __
 from coaster.utils import getbool
-from coaster.views import jsonp, requestargs
+from coaster.views import jsonp, requestargs, requestvalues
 
 from ... import app
 from ...auth import current_auth
@@ -133,7 +133,7 @@ def api_result(
         status_code = 422
     params['status'] = status
     if _jsonp:
-        response = jsonp(params)
+        response: Response = jsonp(params)  # type: ignore[assignment]
     else:
         response = jsonify(params)
     response.status_code = status_code
@@ -205,7 +205,7 @@ def user_get_by_userid() -> ReturnView:
 
 @app.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
-@requestargs(('userid[]', abort_null))
+@requestvalues(('userid[]', abort_null))
 def user_get_by_userids(userid: list[str]) -> ReturnView:
     """
     Return users and organizations with the given userids (Lastuser internal userid).
@@ -253,7 +253,7 @@ def user_get_by_userids(userid: list[str]) -> ReturnView:
 
 @app.route('/api/1/user/get', methods=['GET', 'POST'])
 @requires_user_or_client_login
-@requestargs(('name', abort_null))
+@requestvalues(('name', abort_null))
 def user_get(name: str) -> ReturnView:
     """Return user with the given username or email address."""
     if not name:
@@ -278,7 +278,7 @@ def user_get(name: str) -> ReturnView:
 
 @app.route('/api/1/user/getusers', methods=['GET', 'POST'])
 @requires_user_or_client_login
-@requestargs(('name[]', abort_null))
+@requestvalues(('name[]', abort_null))
 def user_getall(name: list[str]) -> ReturnView:
     """Return users with the given username or email address."""
     names = name
@@ -311,7 +311,7 @@ def user_getall(name: list[str]) -> ReturnView:
 
 @app.route('/api/1/user/autocomplete', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
-@requestargs(('q', abort_null))
+@requestvalues(('q', abort_null))
 def user_autocomplete(q: str = '') -> ReturnView:
     """
     Return users matching the search term.
@@ -365,7 +365,7 @@ def user_autocomplete(q: str = '') -> ReturnView:
 
 @app.route('/api/1/profile/autocomplete')
 @requires_client_id_or_user_or_client_login
-@requestargs(('q', abort_null))
+@requestvalues(('q', abort_null))
 def profile_autocomplete(q: str = '') -> ReturnView:
     """Return accounts matching the search term."""
     if not q:

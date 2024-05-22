@@ -14,7 +14,7 @@ from sqlalchemy.exc import NoResultFound
 
 from baseframe import _, localize_timezone
 from coaster.utils import utcnow
-from coaster.views import render_with, requestargs, requires_roles, route
+from coaster.views import render_with, requestform, requires_roles, route
 
 from .. import app
 from ..models import Project, Proposal, Rsvp, Session, VenueRoom, db, sa
@@ -317,7 +317,7 @@ class ProjectScheduleView(ProjectViewBase):
     @route('update', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
-    @requestargs(('sessions', json.loads))
+    @requestform(('sessions', json.loads))
     def update_schedule(self, sessions: list[dict]) -> ReturnRenderWith:
         for session in sessions:
             try:

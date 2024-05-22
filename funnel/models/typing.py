@@ -10,7 +10,7 @@ from uuid import UUID
 from sqlalchemy import Table
 from sqlalchemy.orm import Mapped, declared_attr
 
-from coaster.sqlalchemy import LazyRoleSet, QueryProperty
+from coaster.sqlalchemy import LazyRoleSet, QueryProperty, RoleAccessProxy
 from coaster.utils import InspectableSet
 
 __all__ = [
@@ -63,6 +63,10 @@ class ModelRoleProtocol(Protocol):
     def actors_with(
         self, roles: Iterable[str], with_role: bool = False
     ) -> Iterator[Account | tuple[Account, str]]: ...
+
+    def current_access(
+        self, datasets: Sequence[str] | None = None
+    ) -> RoleAccessProxy: ...
 
 
 class ModelIdProtocol(

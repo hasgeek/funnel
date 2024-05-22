@@ -49,7 +49,7 @@ from ..auth import CurrentAuth, current_auth
 from ..forms import supported_locales
 from ..models import Account, Project, Shortlink, db, profanity
 from ..proxies import RequestWants, request_wants
-from ..typing import ResponseType, ReturnResponse, ReturnView
+from ..typing import ResponseType, ReturnResponse
 from ..utils import JinjaTemplateBase, jinja_global, jinja_undefined
 
 nocache_expires = utc.localize(datetime(1990, 1, 1))
@@ -647,7 +647,7 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
 
 def html_in_json(
     template: str,
-) -> dict[str, str | Callable[[Mapping[str, Any]], ReturnView]]:
+) -> Mapping[str, str | Callable[[Mapping[str, Any]], ReturnResponse]]:
     """
     Render a HTML fragment in a JSON wrapper, for use with ``@render_with``.
 
