@@ -85,7 +85,7 @@ def when_anonuser_navigates_login_and_submits(
     wait_until_recaptcha_loaded(page)
     selector = page.wait_for_selector('input[name=username]')
     assert selector is not None
-    selector.fill(username)
+    selector.fill(username)  # pylint: disable=possibly-used-before-assignment
     page.click('#form-passwordlogin button')
     return {'phone_or_email': phone_or_email, 'username': username}
 
@@ -106,7 +106,7 @@ def then_anonuser_prompted_name_and_otp(anon_username, live_server, page: Page) 
         pytest.fail("Unknown username type")
     selector = page.wait_for_selector('input[name=otp]')
     assert selector is not None
-    selector.fill(otp)
+    selector.fill(otp)  # pylint: disable=possibly-used-before-assignment
     page.click('#form-otp button')
 
 
@@ -205,7 +205,7 @@ def when_they_enter_email(page: Page, phone_or_email: str) -> dict[str, str]:
         pytest.fail("Unknown username type")
     selector = page.wait_for_selector('input[name=username]')
     assert selector is not None
-    selector.fill(username)
+    selector.fill(username)  # pylint: disable=possibly-used-before-assignment
     page.click('#form-passwordlogin button')
     return {'phone_or_email': phone_or_email, 'username': username}
 
