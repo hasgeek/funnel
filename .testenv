@@ -4,6 +4,8 @@
 FLASK_ENV=testing
 FLASK_TESTING=true
 FLASK_DEBUG_TB_ENABLED=false
+# Disable Recaptcha
+FLASK_RECAPTCHA_DISABLED=true
 # Enable CSRF so tests reflect production use
 FLASK_WTF_CSRF_ENABLED=true
 # Use Redis cache so that rate limit validation tests work, with Redis db
