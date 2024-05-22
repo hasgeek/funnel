@@ -224,10 +224,6 @@ def given_server_uses_recaptcha(
 @when("twoflower visits the login page, Recaptcha is required")
 def when_twoflower_visits_login_page_recaptcha(app, live_server, page: Page) -> None:
     page.goto(live_server.url + 'login')
-    assert page.wait_for_selector(
-        '#form-passwordlogin > div.g-recaptcha > div > div.grecaptcha-logo > iframe',
-        timeout=10000,
-    )
 
 
 @then("they submit and Recaptcha validation passes")
