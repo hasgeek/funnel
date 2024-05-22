@@ -113,6 +113,7 @@ class ResourceRegistry(OrderedDict):
                     )
                 # All good. Return the result value
                 try:
+                    # pylint: disable=possibly-used-before-assignment
                     result = f(authtoken, args, request.files)
                     response = jsonify({'status': 'ok', 'result': result})
                 except Exception as exc:  # noqa: B902  # pylint: disable=broad-except

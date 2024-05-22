@@ -712,7 +712,7 @@ def requires_sudo(f: Callable[P, ReturnView]) -> Callable[P, ReturnView]:
 
         return render_form(
             form=form,
-            title=title,
+            title=title,  # pylint: disable=possibly-used-before-assignment
             formid=formid,
             submit=_("Confirm"),
             ajax=False,
