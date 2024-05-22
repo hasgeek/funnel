@@ -77,19 +77,14 @@ def verifyscope(scope: Iterable, auth_client: AuthClient) -> list[str]:
                     ).format(scope=item)
                 )
             internal_resources.append(item)
-        else:
-            # Is this an internal wildcard resource?
-            if item.endswith('/*'):
-                wildcard_base = item[:-2]
-                for key in resource_registry:
-                    if key == wildcard_base or key.startswith(wildcard_base + '/'):
-                        if (
-                            resource_registry[key]['trusted']
-                            and not auth_client.trusted
-                        ):
-                            # Skip over trusted resources if the client is not trusted
-                            continue
-                        internal_resources.append(key)
+        elif item.endswith('/*'):  # Is this an internal wildcard resource?
+            wildcard_base = item[:-2]
+            for key in resource_registry:
+                if key == wildcard_base or key.startswith(wildcard_base + '/'):
+                    if resource_registry[key]['trusted'] and not auth_client.trusted:
+                        # Skip over trusted resources if the client is not trusted
+                        continue
+                    internal_resources.append(key)
 
     internal_resources.sort()
     return internal_resources
@@ -141,10 +136,7 @@ def oauth_auth_success(
     """Commit session and redirect to OAuth redirect URI."""
     clear_flashed_messages()
     db.session.commit()
-    if auth_client.confidential:
-        use_fragment = False
-    else:
-        use_fragment = True
+    use_fragment = not auth_client.confidential
     if token is not None:
         redirect_to = make_redirect_url(
             redirect_uri,
@@ -390,33 +382,33 @@ def oauth_make_token(
     # If token exists, add to the existing scope
     if token is not None:
         token.add_scope(scope)
-    else:
+    elif auth_client.confidential:
         # If there's no existing token, create one
-        if auth_client.confidential:
-            if user is None:
-                raise ValueError("User not provided")
-            token = AuthToken(  # nosec B106
-                account=user, auth_client=auth_client, scope=scope, token_type='bearer'
-            )
-            token = failsafe_add(
-                db.session, token, account=user, auth_client=auth_client
-            )
+        if user is None:
+            raise ValueError("User not provided")
+        token = AuthToken(
+            account=user,
+            auth_client=auth_client,
+            scope=scope,
+            token_type='bearer',  # noqa: S106
+        )
+        token = failsafe_add(db.session, token, account=user, auth_client=auth_client)
 
-        elif login_session is not None:
-            token = AuthToken(  # nosec B106
-                login_session=login_session,
-                auth_client=auth_client,
-                scope=scope,
-                token_type='bearer',
-            )
-            token = failsafe_add(
-                db.session,
-                token,
-                login_session=login_session,
-                auth_client=auth_client,
-            )
-        else:
-            raise ValueError("login_session not provided")
+    elif login_session is not None:
+        token = AuthToken(
+            login_session=login_session,
+            auth_client=auth_client,
+            scope=scope,
+            token_type='bearer',  # noqa: S106
+        )
+        token = failsafe_add(
+            db.session,
+            token,
+            login_session=login_session,
+            auth_client=auth_client,
+        )
+    else:
+        raise ValueError("login_session not provided")
     return token
 
 

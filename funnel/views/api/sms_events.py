@@ -86,9 +86,8 @@ def process_twilio_event() -> ReturnView:
             phone_number.mark_has_sms(True)
         if sms_message:
             sms_message.status = SmsStatusEnum.DELIVERED
-    else:
-        if sms_message:
-            sms_message.status = SmsStatusEnum.UNKNOWN
+    elif sms_message:
+        sms_message.status = SmsStatusEnum.UNKNOWN
     db.session.commit()
 
     current_app.logger.info(
@@ -175,9 +174,8 @@ def process_exotel_event(secret_token: str) -> ReturnView:
             phone_number.mark_has_sms(True)
         if sms_message:
             sms_message.status = SmsStatusEnum.DELIVERED
-    else:
-        if sms_message:
-            sms_message.status = SmsStatusEnum.UNKNOWN
+    elif sms_message:
+        sms_message.status = SmsStatusEnum.UNKNOWN
     db.session.commit()
 
     current_app.logger.info(

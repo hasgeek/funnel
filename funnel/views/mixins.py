@@ -150,7 +150,7 @@ class DraftViewProtoMixin:
         """
         obj = obj if obj is not None else self.obj
         if TYPE_CHECKING:
-            assert obj is not None  # nosec B101
+            assert obj is not None
         return db.session.get(Draft, (self.model.__tablename__, obj.uuid))
 
     def delete_draft(self, obj: ModelUuidProtocol | None = None) -> None:

@@ -25,7 +25,7 @@ def caption(
     return output.replace('[', '').replace(']', '')
 
 
-def footnote_extend_plugin(md: MarkdownIt, **opts: Any) -> None:
+def footnote_extend_plugin(md: MarkdownIt, **_opts: Any) -> None:
     if 'footnote_ref' not in md.get_active_rules()['inline']:
         return
     md.add_render_rule('footnote_caption', caption)

@@ -61,7 +61,7 @@ class ResourceRegistry(OrderedDict):
             )
 
         def decorator(
-            f: Callable[[AuthToken, MultiDict, MultiDict], Any]
+            f: Callable[[AuthToken, MultiDict, MultiDict], Any],
         ) -> Callable[[], ReturnResponse]:
             @wraps(f)
             def wrapper() -> ReturnResponse:
@@ -116,7 +116,7 @@ class ResourceRegistry(OrderedDict):
                     # pylint: disable=possibly-used-before-assignment
                     result = f(authtoken, args, request.files)
                     response = jsonify({'status': 'ok', 'result': result})
-                except Exception as exc:  # noqa: B902  # pylint: disable=broad-except
+                except Exception as exc:  # noqa: BLE001  # pylint: disable=broad-except
                     exception_catchall.send(exc)
                     response = jsonify(
                         {

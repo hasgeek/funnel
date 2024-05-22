@@ -873,10 +873,9 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                     form.populate_obj(proj_save)
                     db.session.add(proj_save)
                     db.session.commit()
-            else:
-                if proj_save is not None:
-                    db.session.delete(proj_save)
-                    db.session.commit()
+            elif proj_save is not None:
+                db.session.delete(proj_save)
+                db.session.commit()
             return {'status': 'ok'}
         return {
             'status': 'error',

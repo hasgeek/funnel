@@ -100,7 +100,7 @@ LOGOUT_ERRORMSG = __("Are you trying to logout? Try again to confirm")
 class LogoutBrowserDataTemplate(
     JinjaTemplate, template='logout_browser_data.html.jinja2'
 ):
-    next: str  # noqa: A003
+    next: str
 
 
 class AccountMergeTemplate(JinjaTemplate, template='account_merge.html.jinja2'):
@@ -201,7 +201,7 @@ def login() -> ReturnView:
             if success:
                 user = loginform.user
                 if TYPE_CHECKING:
-                    assert isinstance(user, User)  # nosec B101
+                    assert isinstance(user, User)
                 login_internal(user, login_service='password')
                 db.session.commit()
                 if loginform.weak_password:
@@ -305,7 +305,7 @@ def login() -> ReturnView:
                     # Register an account
                     user = register_internal(None, otp_form.fullname.data, None)
                     if TYPE_CHECKING:
-                        assert isinstance(user, User)  # nosec B101
+                        assert isinstance(user, User)
                     if otp_session.email:
                         db.session.add(user.add_email(otp_session.email, primary=True))
                     if otp_session.phone:
@@ -528,10 +528,10 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     """
     new_registration = False
     # 1. Check whether we have an existing UserExternalId
-    user, extid, accountemail = get_user_extid(service, userdata)
+    user, extid, account_email = get_user_extid(service, userdata)
     # If extid is not None, extid.account == user, guaranteed.
-    # If extid is None but accountemail is not None, user == accountemail.account
-    # However, if both extid and accountemail are present, they may be different users
+    # If extid is None but account_email is not None, user == account_email.account
+    # However, if both extid and account_email are present, they may be different users
     if extid is not None:
         extid.oauth_token = userdata.oauth_token
         extid.oauth_token_secret = userdata.oauth_token_secret
@@ -577,18 +577,18 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
                 # Set a username for this user if it's available
                 user.username = userdata.username
             new_registration = True
-    else:  # We have an existing user account from extid or accountemail
-        if current_auth and current_auth.user != user:
-            # Woah! Account merger handler required
-            # Always confirm with user before doing an account merger
-            session['merge_buid'] = user.buid
-        elif accountemail and accountemail.account != user:
-            # Once again, account merger required since the extid and accountemail are
-            # linked to different accounts
-            session['merge_buid'] = accountemail.account.buid
+    # We have an existing user account from extid or account_email
+    elif current_auth and current_auth.user != user:
+        # Woah! Account merger handler required
+        # Always confirm with user before doing an account merger
+        session['merge_buid'] = user.buid
+    elif account_email and account_email.account != user:
+        # Once again, account merger required since the extid and account_email are
+        # linked to different accounts
+        session['merge_buid'] = account_email.account.buid
 
     # Check for new email addresses
-    if userdata.email and not accountemail:
+    if userdata.email and not account_email:
         db.session.add(user.add_email(userdata.email))
 
     # If there are multiple email addresses, add any that are not already claimed.
@@ -615,7 +615,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 
     if not current_auth:  # If a user isn't already logged in, login now.
         if TYPE_CHECKING:
-            assert isinstance(user, User)  # nosec B101
+            assert isinstance(user, User)
         login_internal(user, login_service=service)
         flash(
             _("You have logged in via {service}").format(
@@ -659,7 +659,7 @@ def account_merge() -> ReturnView:
             new_user = merge_accounts(current_auth.user, other_user)
             if new_user is not None:
                 if TYPE_CHECKING:
-                    assert isinstance(new_user, User)  # nosec B101
+                    assert isinstance(new_user, User)
                 login_internal(
                     new_user,
                     login_service=(
@@ -792,7 +792,7 @@ def hasjobapp_login_callback(token: str) -> ReturnView:
     if login_session is not None:
         user = login_session.account
         if TYPE_CHECKING:
-            assert isinstance(user, User)  # nosec B101
+            assert isinstance(user, User)
         login_internal(user, login_session)
         db.session.commit()
         flash(_("You are now logged in"), category='success')

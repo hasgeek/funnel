@@ -5,7 +5,7 @@ from __future__ import annotations
 import smtplib
 from dataclasses import dataclass
 from email.utils import formataddr, getaddresses, make_msgid, parseaddr
-from typing import Union
+from typing import TypeAlias
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -30,7 +30,7 @@ __all__ = [
 ]
 
 # Email recipient type
-EmailRecipient = Union[Account, tuple[str | None, str], str]
+EmailRecipient: TypeAlias = Account | tuple[str | None, str] | str
 
 
 @dataclass
@@ -256,7 +256,7 @@ def send_email(
                 message = _("This email address is not valid")
             else:
                 message = _("This email address is not valid: {email}").format(
-                    email=list(exc.recipients.keys())[0]
+                    email=next(iter(exc.recipients.keys()))
                 )
         else:
             if len(to) == len(exc.recipients):

@@ -24,7 +24,7 @@ scenarios('account/register.feature')
 
 TWOFLOWER_EMAIL = 'twoflower@example.org'
 TWOFLOWER_PHONE = '+12015550123'
-TWOFLOWER_PASSWORD = 'te@pwd3289'  # nosec
+TWOFLOWER_PASSWORD = 'te@pwd3289'  # noqa: S105
 ANONYMOUS_PHONE = '8123456789'
 ANONYMOUS_EMAIL = 'anon@example.com'
 

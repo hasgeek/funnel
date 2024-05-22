@@ -18,6 +18,8 @@ from funnel import models
 
 from ...conftest import scoped_session
 
+RANGE = 1000
+
 
 class MockRandomBigint:
     """Mock for random_bigint that returns from a pre-determined sequence."""
@@ -26,7 +28,7 @@ class MockRandomBigint:
         self.sequence = sequence
         self.counter = 0
 
-    def __call__(self, smaller: bool = False) -> Any:
+    def __call__(self, smaller: bool = False) -> Any:  # noqa: ARG002
         value = self.sequence[self.counter % len(self.sequence)]
         self.counter += 1
         return value
@@ -36,27 +38,26 @@ class MockRandomBigint:
 def test_random_bigint() -> None:
     """Random numbers are within expected range (this test depends on luck)."""
     randset = set()
-    for _loop in range(1000):
+    for _loop in range(RANGE):
         num = models.shortlink.random_bigint()
         assert num != 0
         # Bigints are 64-bit (8 bytes). That gives us 63 bits + 1 bit for sign
         assert -(2**63) <= num <= 2**63 - 1
         randset.add(num)
-    # Ignore up to 2 collisions
-    assert len(randset) == 1000
+    assert len(randset) == RANGE
 
 
 @pytest.mark.flaky(reruns=2)
 def test_smaller_random_int() -> None:
     """Smaller random numbers are within expected range (this test depends on luck)."""
     randset = set()
-    for _loop in range(1000):
+    for _loop in range(RANGE):
         num = models.shortlink.random_bigint(True)
         # Smaller ids are 24-bit (3 bytes) and not signed, since they are significantly
         # within bigint sign bit range
         assert 0 < num <= 2**24 - 1
         randset.add(num)
-    assert len(randset) == 1000
+    assert len(randset) == RANGE
 
 
 def test_mock_random_bigint() -> None:
@@ -383,7 +384,7 @@ def test_shortlink_comparator() -> None:
     assert expr is not None
     # Inequality expression is not supported, nor is anything else
     with pytest.raises(NotImplementedError):
-        _expr = models.shortlink.Shortlink.name != 'example'  # noqa: F841
+        _expr = models.shortlink.Shortlink.name != 'example'
 
 
 @pytest.mark.usefixtures('app_context')

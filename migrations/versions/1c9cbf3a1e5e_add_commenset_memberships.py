@@ -100,7 +100,7 @@ class MEMBERSHIP_RECORD_TYPE:  # noqa: N801
     AMEND = 3
 
 
-def get_progressbar(label, maxval):
+def get_progressbar(label: str, maxval: int | None) -> ProgressBar:
     return ProgressBar(
         maxval=maxval,
         widgets=[
@@ -118,12 +118,12 @@ def get_progressbar(label, maxval):
 
 def upgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `upgrade_` instead
-    globals().get('upgrade_%s' % engine_name, lambda: None)()
+    globals().get(f'upgrade_{engine_name}', lambda: None)()
 
 
 def downgrade(engine_name: str = '') -> None:
     # Do not modify. Edit `downgrade_` instead
-    globals().get('downgrade_%s' % engine_name, lambda: None)()
+    globals().get(f'downgrade_{engine_name}', lambda: None)()
 
 
 def upgrade_() -> None:

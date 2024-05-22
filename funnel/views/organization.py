@@ -37,7 +37,7 @@ def people_and_teams(obj: Organization) -> list[tuple[Account, list[Team]]]:
     # than by object because teams are loaded separately in the two queries, and
     # SQLAlchemy's session management doesn't merge the instances.
     teams = [team for team in obj.teams if team.is_public]
-    result = [
+    return [
         (
             user,
             [
@@ -48,7 +48,6 @@ def people_and_teams(obj: Organization) -> list[tuple[Account, list[Team]]]:
         )
         for user in obj.people()
     ]
-    return result
 
 
 @Account.views('org')

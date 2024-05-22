@@ -115,24 +115,18 @@ def parse_phone_number(
 
 
 @overload
-def parse_phone_number(
-    candidate: str, sms: bool | Literal[True]
-) -> str | Literal[False] | None: ...
+def parse_phone_number(candidate: str, sms: bool) -> str | Literal[False] | None: ...
 
 
 @overload
 def parse_phone_number(
-    candidate: str,
-    sms: bool | Literal[True],
-    parsed: Literal[True],
+    candidate: str, sms: bool, parsed: Literal[True]
 ) -> phonenumbers.PhoneNumber | Literal[False] | None: ...
 
 
 @overload
 def parse_phone_number(
-    candidate: str,
-    sms: bool | Literal[True],
-    parsed: bool | Literal[False],
+    candidate: str, sms: bool, parsed: bool
 ) -> phonenumbers.PhoneNumber | Literal[False] | None: ...
 
 
@@ -366,10 +360,7 @@ class PhoneNumber(BaseMixin[int, 'Account'], Model):
         super().__init__()
         if not isinstance(phone, str):
             raise ValueError("A string phone number is required")
-        if not _pre_validated_formatted:
-            number = validate_phone_number(phone)
-        else:
-            number = phone
+        number = validate_phone_number(phone) if not _pre_validated_formatted else phone
         # Set the hash first so the phone column validator passes.
         self.blake2b160 = phone_blake2b160_hash(number, _pre_validated_formatted=True)
         self.number = number
@@ -800,11 +791,10 @@ class OptionalPhoneNumberMixin:
                 )
             else:
                 self.phone_number = None
+        elif __value is not None:
+            self.phone_number = PhoneNumber.add(__value)
         else:
-            if __value is not None:
-                self.phone_number = PhoneNumber.add(__value)
-            else:
-                self.phone_number = None
+            self.phone_number = None
 
     @property
     def phone_number_reference_is_active(self) -> bool:
@@ -870,10 +860,10 @@ def _validate_number(
     if old_value == value:
         # Old value is new value. Do nothing. Return without validating
         return value
-    if old_value is NO_VALUE and inspect(target).has_identity is False:  # noqa: SIM114
+    if old_value is NO_VALUE and inspect(target).has_identity is False:
         # Old value is unknown and target is a transient object. Continue
         pass
-    elif value is None:  # noqa: SIM114
+    elif value is None:
         # Caller is trying to unset phone. Allow this
         pass
     elif old_value is None:

@@ -75,8 +75,9 @@ def available_client_owners() -> list[tuple[str, str]]:
     """Return a list of possible client owners for the current user."""
     choices = []
     choices.append((current_auth.user.buid, current_auth.user.pickername))
-    for org in current_auth.user.organizations_as_owner:
-        choices.append((org.buid, org.pickername))
+    choices.extend(
+        (org.buid, org.pickername) for org in current_auth.user.organizations_as_owner
+    )
     return choices
 
 

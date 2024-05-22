@@ -45,10 +45,7 @@ def geo_get_by_names(
     """Get geoname records matching given URL stub names or geonameids."""
     geonames = []
     for n in name:
-        if n.isdigit():
-            geoname = db.session.get(GeoName, int(n))
-        else:
-            geoname = GeoName.get(n)
+        geoname = db.session.get(GeoName, int(n)) if n.isdigit() else GeoName.get(n)
         if geoname:
             geonames.append(geoname)
     return {

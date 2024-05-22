@@ -164,7 +164,7 @@ class TicketTypeForm(forms.Form):
         option_widget=forms.CheckboxInput(),
         allow_blank=True,
         get_label='title',
-        query_factory=lambda: [],
+        query_factory=list,
     )
 
 

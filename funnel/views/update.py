@@ -93,7 +93,12 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
     }
     SavedProjectForm = SavedProjectForm
 
-    def load(self, account: str, project: str, update: str) -> ReturnView | None:
+    def load(
+        self,
+        account: str,  # noqa: ARG002
+        project: str,  # noqa: ARG002
+        update: str,
+    ) -> ReturnView | None:
         self.obj = (
             Update.query.join(Project)
             .join(Account, Project.account)

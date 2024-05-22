@@ -11,7 +11,7 @@ import warnings
 from collections.abc import Callable, Generator
 from contextlib import ExitStack
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from difflib import unified_diff
 from dis import disassemble
 from functools import partial
@@ -44,7 +44,7 @@ from flask.wrappers import Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.session import Session as FsaSession
 from flask_wtf.csrf import generate_csrf
-from lxml.html import FormElement, HtmlElement, fromstring  # nosec
+from lxml.html import FormElement, HtmlElement, fromstring
 from rich.console import Console
 from rich.highlighter import RegexHighlighter, ReprHighlighter
 from rich.markup import escape as rich_escape
@@ -59,6 +59,8 @@ if TYPE_CHECKING:
     from funnel.devtest import BackgroundWorker, CapturedCalls
 
 # MARK: Pytest config ------------------------------------------------------------------
+
+MAX_DEADLOCK_RETRIES = 3
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -630,15 +632,14 @@ def _database_events(
     If a test is exhibiting unusual behaviour, add this fixture to trace db events::
 
         @pytest.mark.usefixtures('_database_events')
-        def test_whatever() -> None:
-            ...
+        def test_whatever() -> None: ...
     """
     repr_highlighter = ReprHighlighter()
 
     def safe_repr(entity: Any) -> str:
         try:
             return saferepr(entity)
-        except Exception:  # noqa: B902  # pylint: disable=broad-except
+        except Exception:  # noqa: BLE001  # pylint: disable=broad-except
             if hasattr(entity, '__class__'):
                 return f'<ReprError: class {entity.__class__.__qualname__}>'
             if hasattr(entity, '__qualname__'):
@@ -949,7 +950,7 @@ def _truncate_all_tables(engine: sa.Engine) -> None:
                 # on the assumption that this retry is safe for all operational errors.
                 # Any new type of non-transient error will be reported by the final
                 # raise.
-                if (deadlock_retries := deadlock_retries + 1) > 3:
+                if (deadlock_retries := deadlock_retries + 1) > MAX_DEADLOCK_RETRIES:
                     raise
                 transaction.rollback()
             time.sleep(1)
@@ -1012,7 +1013,7 @@ class BoundSession(FsaSession):
         mapper: Any | None = None,
         clause: Any | None = None,
         bind: sa.engine.Engine | sa.engine.Connection | None = None,
-        **kwargs: Any,
+        **_kwargs: Any,
     ) -> sa.engine.Engine | sa.engine.Connection:
         if bind is not None:
             return bind
@@ -1118,7 +1119,7 @@ class TestClient(FlaskClient):
 
     if TYPE_CHECKING:
 
-        def open(  # type: ignore[override]  # noqa: A001
+        def open(  # type: ignore[override]
             self,
             *args: Any,
             buffered: bool = False,
@@ -1379,7 +1380,7 @@ def user_death(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(
         username='death',
         fullname="Death",
-        joined_at=datetime(1970, 1, 1, tzinfo=timezone.utc),
+        joined_at=datetime(1970, 1, 1, tzinfo=UTC),
     )
     user.is_protected = True
     db_session.add(user)
@@ -1395,9 +1396,7 @@ def user_mort(models, db_session: scoped_session) -> funnel_models.User:
     priority when merging user accounts. Unlike Death, Mort does not have a username or
     profile, so Mort will acquire it from a merged user.
     """
-    user = models.User(
-        fullname="Mort", joined_at=datetime(1987, 11, 12, tzinfo=timezone.utc)
-    )
+    user = models.User(fullname="Mort", joined_at=datetime(1987, 11, 12, tzinfo=UTC))
     db_session.add(user)
     return user
 
@@ -2033,10 +2032,7 @@ def fail_with_diff() -> Callable[[str, str], None]:
     def func(left: str, right: str) -> None:
         if left != right:
             difference = unified_diff(left.split('\n'), right.split('\n'))
-            msg = []
-            for line in difference:
-                if not line.startswith(' '):
-                    msg.append(line)
+            msg = [line for line in difference if not line.startswith(' ')]
             pytest.fail('\n'.join(msg), pytrace=False)
 
     return func

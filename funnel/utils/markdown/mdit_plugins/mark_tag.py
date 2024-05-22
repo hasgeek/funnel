@@ -67,14 +67,12 @@ def _post_process(state: StateInline, delimiters: list[Delimiter]) -> None:
     lone_markers = []
     maximum = len(delimiters)
 
-    for i in range(0, maximum):
+    for i in range(maximum):
         start_delim = delimiters[i]
         if start_delim.marker != ord(EQUALS_CHAR):
-            i += 1
             continue
 
         if start_delim.end == -1:
-            i += 1
             continue
 
         end_delim = delimiters[start_delim.end]
@@ -95,7 +93,7 @@ def _post_process(state: StateInline, delimiters: list[Delimiter]) -> None:
 
         end_token = state.tokens[end_delim.token - 1]
 
-        if end_token.type == 'text' and end_token == EQUALS_CHAR:  # nosec
+        if end_token.type == 'text' and end_token == EQUALS_CHAR:
             lone_markers.append(end_delim.token - 1)
 
     # If a marker sequence has an odd number of characters, it's split
@@ -137,21 +135,21 @@ def post_process(state: StateInline) -> None:
 
 
 def mark_open(
-    renderer: RendererHTML,
-    tokens: Sequence[Token],
-    idx: int,
-    options: OptionsDict,
-    env: EnvType,
+    renderer: RendererHTML,  # noqa: ARG001
+    tokens: Sequence[Token],  # noqa: ARG001
+    idx: int,  # noqa: ARG001
+    options: OptionsDict,  # noqa: ARG001
+    env: EnvType,  # noqa: ARG001
 ) -> str:
     return '<mark>'
 
 
 def mark_close(
-    renderer: RendererHTML,
-    tokens: Sequence[Token],
-    idx: int,
-    options: OptionsDict,
-    env: EnvType,
+    renderer: RendererHTML,  # noqa: ARG001
+    tokens: Sequence[Token],  # noqa: ARG001
+    idx: int,  # noqa: ARG001
+    options: OptionsDict,  # noqa: ARG001
+    env: EnvType,  # noqa: ARG001
 ) -> str:
     return '</mark>'
 

@@ -120,7 +120,7 @@ def resource_error(
 
 
 def api_result(
-    status: Literal['ok'] | Literal['error'] | Literal[200] | Literal[201],
+    status: Literal['ok', 'error', 200, 201],
     _jsonp: bool = False,
     **params: Any,
 ) -> Response:
@@ -467,7 +467,9 @@ def login_beacon_json(client_id: str) -> ReturnView:
 @app.route('/api/1/id')
 @resource_registry.resource('id', __("Read your name and basic account data"))
 def resource_id(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Return user's basic identity."""
     if 'all' in args and getbool(args['all']):
@@ -488,7 +490,9 @@ def resource_id(
 @app.route('/api/1/session/verify', methods=['POST'])
 @resource_registry.resource('session/verify', __("Verify user session"), scope='id')
 def session_verify(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Verify a UserSession."""
     sessionid = abort_null(args['sessionid'])
@@ -510,7 +514,9 @@ def session_verify(
 @app.route('/api/1/email')
 @resource_registry.resource('email', __("Read your email address"))
 def resource_email(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Return user's email addresses."""
     if 'all' in args and getbool(args['all']):
@@ -528,7 +534,9 @@ def resource_email(
 @app.route('/api/1/phone')
 @resource_registry.resource('phone', __("Read your phone number"))
 def resource_phone(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Return user's phone numbers."""
     if 'all' in args and getbool(args['all']):
@@ -546,7 +554,9 @@ def resource_phone(
     trusted=True,
 )
 def resource_login_providers(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Return user's login providers' data."""
     service: str | None = abort_null(args.get('service'))
@@ -568,7 +578,9 @@ def resource_login_providers(
     'organizations', __("Read the organizations you are a member of")
 )
 def resource_organizations(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,  # noqa: ARG001
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Return user's organizations and teams that they are a member of."""
     return get_userinfo(
@@ -582,7 +594,9 @@ def resource_organizations(
 @app.route('/api/1/teams')
 @resource_registry.resource('teams', __("Read the list of teams in your organizations"))
 def resource_teams(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,  # noqa: ARG001
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Return user's organizations' teams."""
     return get_userinfo(

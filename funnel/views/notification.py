@@ -137,8 +137,7 @@ class RenderNotification:
     Subclasses must be registered against the specific notification type like this::
 
         @MyNotification.renderer
-        class MyNotificationView(NotificationView):
-            ...
+        class MyNotificationView(NotificationView): ...
     """
 
     #: Aliases for document and fragment, to make render methods clearer
@@ -470,7 +469,7 @@ def dispatch_notification(*notifications: Notification) -> None:
 
         dispatch_notification(
             MyNotification(document=doc, fragment=None),
-            MyOtherNotification(document=doc, fragment=frag)
+            MyOtherNotification(document=doc, fragment=frag),
         )
 
     This function performs a database commit to ensure notifications are available to
@@ -507,7 +506,7 @@ def dispatch_notification(*notifications: Notification) -> None:
 
 
 def transport_worker_wrapper(
-    func: Callable[[NotificationRecipient, RenderNotification], None]
+    func: Callable[[NotificationRecipient, RenderNotification], None],
 ) -> Callable[[Sequence[tuple[int, UUID]]], None]:
     """Create working context for a notification transport dispatch worker."""
 
@@ -658,7 +657,7 @@ def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -
 
 @rqjob()
 def dispatch_notification_recipients_job(
-    notification_recipient_ids: Sequence[tuple[int, UUID]]
+    notification_recipient_ids: Sequence[tuple[int, UUID]],
 ) -> None:
     """Process notifications for users and enqueue transport delivery."""
     # TODO: Can this be a single query instead of a loop of queries?

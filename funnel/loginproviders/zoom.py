@@ -19,9 +19,9 @@ __all__ = ['ZoomProvider']
 
 class ZoomProvider(LoginProvider):
     at_username = False
-    auth_url = 'https://zoom.us/oauth/authorize?response_type=code'  # nosec
-    token_url = 'https://zoom.us/oauth/token?grant_type=authorization_code'  # nosec
-    user_info_url = 'https://api.zoom.us/v2/users/me'  # nosec
+    auth_url = 'https://zoom.us/oauth/authorize?response_type=code'
+    token_url = 'https://zoom.us/oauth/token?grant_type=authorization_code'  # noqa: S105
+    user_info_url = 'https://api.zoom.us/v2/users/me'
 
     def do(self, callback_url: str) -> ReturnView:
         session['oauth_callback'] = callback_url

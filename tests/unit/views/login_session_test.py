@@ -28,10 +28,7 @@ def test_save_session_next_url(
     result: str,
 ) -> None:
     """Test if save_session_next_url() behaves appropriately."""
-    if nextarg:
-        test_url = f'/test_url?next={nextarg}'
-    else:
-        test_url = '/test_url'
+    test_url = f'/test_url?next={nextarg}' if nextarg else '/test_url'
     with app.test_request_context(path=test_url, method=method):
         if existing:
             session['next'] = existing

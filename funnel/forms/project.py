@@ -292,7 +292,7 @@ class ProjectTransitionForm(forms.Form):
 class ProjectCfpTransitionForm(forms.Form):
     """Form for transitioning a project's submission state."""
 
-    open = forms.BooleanField(  # noqa: A003
+    open = forms.BooleanField(
         __("Open submissions"), validators=[forms.validators.InputRequired()]
     )
 
@@ -379,14 +379,14 @@ class ProjectRegisterForm(forms.Form):
     )
 
     def validate_form(self, field: forms.Field) -> None:
-        if not self.form.data:
+        if not field.data:
             return
-        if self.form.data and not self.schema:
+        if field.data and not self.schema:
             raise forms.validators.StopValidation(
                 _("This registration is not expecting any form fields")
             )
         if self.schema:
-            form_keys = set(cast(dict, self.form.data).keys())
+            form_keys = set(cast(dict, field.data).keys())
             schema_keys = {i['name'] for i in self.schema['fields']}
             if not form_keys.issubset(schema_keys):
                 invalid_keys = form_keys.difference(schema_keys)

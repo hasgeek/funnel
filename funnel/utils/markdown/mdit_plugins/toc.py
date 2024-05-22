@@ -191,8 +191,7 @@ def toc_item_to_html(item: TocItem, options: dict, md: MarkdownIt) -> str:
             + '</li>'
         )
         html = html + li
-    html = html + f"</{options['list_type']}>"
-    return html
+    return html + f"</{options['list_type']}>"
 
 
 def toc_plugin(md: MarkdownIt, **opts: Any) -> None:
@@ -225,11 +224,11 @@ def toc_plugin(md: MarkdownIt, **opts: Any) -> None:
         return True
 
     def toc_open(
-        renderer: RendererHTML,
-        tokens: Sequence[Token],
-        idx: int,
-        options: OptionsDict,
-        env: EnvType,
+        renderer: RendererHTML,  # noqa: ARG001
+        tokens: Sequence[Token],  # noqa: ARG001
+        idx: int,  # noqa: ARG001
+        options: OptionsDict,  # noqa: ARG001
+        env: EnvType,  # noqa: ARG001
     ) -> str:
         open_html = f'<div class="{opts["container_class"]}">'
         if opts['container_header_html'] is not None:
@@ -237,11 +236,11 @@ def toc_plugin(md: MarkdownIt, **opts: Any) -> None:
         return open_html
 
     def toc_close(
-        renderer: RendererHTML,
-        tokens: Sequence[Token],
-        idx: int,
-        options: OptionsDict,
-        env: EnvType,
+        renderer: RendererHTML,  # noqa: ARG001
+        tokens: Sequence[Token],  # noqa: ARG001
+        idx: int,  # noqa: ARG001
+        options: OptionsDict,  # noqa: ARG001
+        env: EnvType,  # noqa: ARG001
     ) -> str:
         footer = ''
         if opts['container_footer_html']:
@@ -249,16 +248,15 @@ def toc_plugin(md: MarkdownIt, **opts: Any) -> None:
         return footer + '</div>'
 
     def toc_body(
-        renderer: RendererHTML,
-        tokens: Sequence[Token],
-        idx: int,
-        options: OptionsDict,
+        renderer: RendererHTML,  # noqa: ARG001
+        tokens: Sequence[Token],  # noqa: ARG001
+        idx: int,  # noqa: ARG001
+        options: OptionsDict,  # noqa: ARG001
         env: EnvType,
     ) -> str:
         items = find_elements(opts['include_level'], env['gstate'].tokens, opts)
         toc = items_to_tree(items)
-        html = toc_item_to_html(toc, opts, md)
-        return html
+        return toc_item_to_html(toc, opts, md)
 
     def grab_state(state: StateCore) -> None:
         state.env['gstate'] = state

@@ -63,7 +63,7 @@ class ProjectVenueView(ProjectViewBase):
     def update_venue_settings(self) -> ReturnView:
         if request.json is None:
             return {'status': 'error', 'error': _("Invalid data")}, 400
-        for venue_uuid_b58 in request.json.keys():
+        for venue_uuid_b58 in request.json:
             venue = Venue.query.filter_by(uuid_b58=venue_uuid_b58).first()
             if venue is not None:
                 venue.seq = request.json[venue_uuid_b58]['seq']
