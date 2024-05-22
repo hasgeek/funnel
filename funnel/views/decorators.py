@@ -31,7 +31,7 @@ def xml_response(f: Callable[P, str]) -> Callable[P, Response]:
 
 
 def xhr_only(
-    redirect_to: str | Callable[[], str] | None = None
+    redirect_to: str | Callable[[], str] | None = None,
 ) -> Callable[[Callable[P, T]], Callable[P, T | ReturnResponse]]:
     """Render a view only when it's an XHR request."""
 
@@ -201,7 +201,7 @@ def idempotent_request(
         'PATCH',
         'DELETE',
     ),
-    timeout: int | float = 10,
+    timeout: float = 10,
 ) -> Callable[[Callable[P, ReturnView]], Callable[P, ReturnView]]:
     """
     Make a submit request idempotent using a cache, gracefully handling dupe requests.

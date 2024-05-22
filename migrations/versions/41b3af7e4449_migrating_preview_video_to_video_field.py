@@ -37,7 +37,7 @@ proposal = table(
 troublesome_filename = 'preview-video-troublesome.csv'
 
 
-def parse_video_url(video_url: str):
+def parse_video_url(video_url: str) -> tuple[str, str]:
     video_source = 'raw'
     video_id = video_url
 
@@ -48,7 +48,7 @@ def parse_video_url(video_url: str):
     if parsed.netloc in ['youtube.com', 'www.youtube.com', 'm.youtube.com']:
         if parsed.path == '/watch':
             queries = urllib.parse.parse_qs(parsed.query)
-            if 'v' in queries and queries['v']:
+            if queries.get('v'):
                 video_id = queries['v'][0]
                 video_source = 'youtube'
             else:
@@ -91,7 +91,7 @@ def parse_video_url(video_url: str):
     elif parsed.netloc == 'drive.google.com':
         if parsed.path.startswith('/open'):
             queries = urllib.parse.parse_qs(parsed.query)
-            if 'id' in queries and queries['id']:
+            if queries.get('id'):
                 video_id = queries['id'][0]
                 video_source = 'googledrive'
             else:

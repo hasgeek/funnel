@@ -407,8 +407,8 @@ class ScheduleVenueRoomView(VenueRoomViewBase):
         )
         if current_session is not None:
             if TYPE_CHECKING:
-                assert current_session.start_at is not None  # nosec B101
-                assert current_session.end_at is not None  # nosec B101
+                assert current_session.start_at is not None
+                assert current_session.end_at is not None
             current_session.start_at = localize_date(
                 current_session.start_at, to_tz=self.obj.venue.project.timezone
             )
@@ -418,8 +418,8 @@ class ScheduleVenueRoomView(VenueRoomViewBase):
         nextdiff = None
         if next_session is not None:
             if TYPE_CHECKING:
-                assert next_session.start_at is not None  # nosec B101
-                assert next_session.end_at is not None  # nosec B101
+                assert next_session.start_at is not None
+                assert next_session.end_at is not None
             next_session.start_at = localize_date(
                 next_session.start_at, to_tz=self.obj.venue.project.timezone
             )

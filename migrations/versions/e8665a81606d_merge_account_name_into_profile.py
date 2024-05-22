@@ -1,4 +1,3 @@
-# type: ignore
 """Merge account_name into profile.
 
 Revision ID: e8665a81606d
@@ -224,7 +223,7 @@ def upgrade() -> None:
     )
     # Insert additional profiles from account_name
     existing_profiles = sa.select(profile.c.uuid)
-    account_name_data = sa.select(
+    account_name_data = sa.select(  # type: ignore[call-overload]
         account_name.c.id,
         account_name.c.created_at,
         account_name.c.updated_at,

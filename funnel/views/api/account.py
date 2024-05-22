@@ -100,11 +100,11 @@ def account_username_availability() -> ReturnView:
     # 400/422 is the wrong code as the request is valid and the error is app content
     return {
         'status': 'error',
-        'error': 'validation_failure',  # FIXME: Change to 'error': 'validation'
+        'error': 'validation_failure',
         # Use the first known error as the description
         'error_description': (
             str(form.username.errors[0])
             if form.username.errors
-            else str(list(form.errors.values())[0][0])
+            else str(next(iter(form.errors.values()))[0])
         ),
     }, 200

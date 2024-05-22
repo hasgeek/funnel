@@ -41,7 +41,7 @@ proposal = table(
 )
 
 
-def get_progressbar(label, maxval):
+def get_progressbar(label: str, maxval: int | None) -> ProgressBar:
     return ProgressBar(
         maxval=maxval,
         widgets=[
@@ -57,7 +57,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def proposal_body(row):
+def proposal_body(row: sa.Row) -> str:
     """Return text for proposal body."""
     # This template does not have localization because it adapts data from when the
     # website was English-only. CRLF line endings are used as per the HTTP form spec

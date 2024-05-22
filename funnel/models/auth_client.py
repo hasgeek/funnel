@@ -211,7 +211,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin[int, Account], Model):
         if netloc:
             return netloc in (
                 urllib.parse.urlsplit(r).netloc
-                for r in (tuple(self.redirect_uris) + (str(self.website),))
+                for r in (*tuple(self.redirect_uris), str(self.website))
             )
         return False
 
@@ -243,9 +243,8 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin[int, Account], Model):
         if self.account:
             if AuthClientPermissions.get(self, actor):
                 return True
-        else:
-            if AuthClientTeamPermissions.all_for(self, actor).notempty():
-                return True
+        elif AuthClientTeamPermissions.all_for(self, actor).notempty():
+            return True
         return False
 
     @classmethod
@@ -603,7 +602,7 @@ class AuthToken(ScopeMixin, BaseMixin[int, Account], Model):
         ).one_or_none()
 
     @classmethod
-    def all(cls, accounts: Query | Collection[Account]) -> list[Self]:  # noqa: A003
+    def all(cls, accounts: Query | Collection[Account]) -> list[Self]:
         """Return all AuthToken for the specified accounts."""
         query = cls.query.join(AuthClient)
         if isinstance(accounts, QueryBaseClass):
@@ -617,10 +616,10 @@ class AuthToken(ScopeMixin, BaseMixin[int, Account], Model):
         else:
             count = len(accounts)
             if count == 1:
-                # Cast users into a list/tuple before accessing [0], as the source
+                # Extract the element as an iterable instead of using [0], as the source
                 # may not be an actual list with indexed access. For example,
                 # Organization.owner_users is a DynamicAssociationProxy.
-                return query.filter(AuthToken.account == tuple(accounts)[0]).all()
+                return query.filter(AuthToken.account == next(iter(accounts))).all()
             if count > 1:
                 return query.filter(
                     AuthToken.account_id.in_([u.id for u in accounts])
@@ -639,7 +638,6 @@ class AuthToken(ScopeMixin, BaseMixin[int, Account], Model):
 class AuthClientPermissions(BaseMixin[int, Account], Model):
     """Permissions assigned to an account on a client app."""
 
-    __tablename__ = 'auth_client_permissions'
     __tablename__ = 'auth_client_permissions'
     #: User account that has these permissions
     account_id: Mapped[int] = sa_orm.mapped_column(

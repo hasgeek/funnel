@@ -18,7 +18,7 @@ __all__ = ['GitHubProvider']
 class GitHubProvider(LoginProvider):
     at_username = True
     auth_url = 'https://github.com/login/oauth/authorize'
-    token_url = 'https://github.com/login/oauth/access_token'  # nosec
+    token_url = 'https://github.com/login/oauth/access_token'  # noqa: S105
     user_info_url = 'https://api.github.com/user'
     user_emails_url = 'https://api.github.com/user/emails'
 
@@ -83,13 +83,15 @@ class GitHubProvider(LoginProvider):
             ) from exc
 
         email = None
-        emails = []
         if ghemails and isinstance(ghemails, list | tuple):
-            for result in ghemails:
-                if result.get('verified') and not result['email'].endswith(
-                    '@users.noreply.github.com'
-                ):
-                    emails.append(result['email'])
+            emails = [
+                item['email']
+                for item in ghemails
+                if item.get('verified')
+                and not item['email'].endswith('@users.noreply.github.com')
+            ]
+        else:
+            emails = []
         if emails:
             email = emails[0]
         return LoginProviderData(

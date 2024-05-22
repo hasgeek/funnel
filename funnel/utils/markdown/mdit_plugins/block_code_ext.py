@@ -21,8 +21,7 @@ def fence(
     env: EnvType,
 ) -> str:
     output = RendererHTML.fence(renderer, tokens, idx, options, env)
-    output = output.replace('<pre><code>', '<pre><code class="language-none">')
-    return output
+    return output.replace('<pre><code>', '<pre><code class="language-none">')
 
 
 def code_block(
@@ -33,11 +32,10 @@ def code_block(
     env: EnvType,
 ) -> str:
     output = RendererHTML.code_block(renderer, tokens, idx, options, env)
-    output = output.replace('<pre><code>', '<pre><code class="language-none">')
-    return output
+    return output.replace('<pre><code>', '<pre><code class="language-none">')
 
 
-def block_code_extend_plugin(md: MarkdownIt, **opts: Any) -> None:
+def block_code_extend_plugin(md: MarkdownIt, **_opts: Any) -> None:
     """Add CSS class ``language-none`` for code fences with no language identifier."""
     md.add_render_rule('fence', fence)
     md.add_render_rule('code_block', code_block)

@@ -155,8 +155,8 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
 
     def load(
         self,
-        account: str,  # skipcq: PYL-W0613
-        project: str,  # skipcq: PYL-W0613
+        account: str,  # noqa: ARG002
+        project: str,  # noqa: ARG002
         proposal: str,
     ) -> ReturnView | None:
         # `account` and `project` are part of the URL, but unnecessary for loading

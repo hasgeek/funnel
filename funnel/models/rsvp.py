@@ -76,7 +76,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         grants={'owner'},
         datasets={'primary', 'without_parent'},
     )
-    form: Mapped[types.jsonb | None] = with_roles(
+    form: Mapped[types.Jsonb | None] = with_roles(
         sa_orm.mapped_column(),
         rw={'owner'},
         read={'project_promoter'},

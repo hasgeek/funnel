@@ -117,7 +117,7 @@ class AllCommentsView(ClassView):
     def view(self, page: int = 1, per_page: int = 20) -> ReturnRenderWith:
         query = CommentsetMembership.for_user(current_auth.user)
         pagination = query.paginate(page=page, per_page=per_page, max_per_page=100)
-        result = {
+        return {
             'commentset_memberships': [
                 {
                     'parent_type': cm.commentset.parent_type,
@@ -141,7 +141,6 @@ class AllCommentsView(ClassView):
             'prev_num': pagination.prev_num,
             'count': pagination.total,
         }
-        return result
 
 
 def do_post_comment(

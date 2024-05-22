@@ -14,8 +14,9 @@ import socket
 import time
 import weakref
 from collections.abc import Callable, Iterable, Iterator
+from contextlib import AbstractContextManager
 from secrets import token_urlsafe
-from typing import TYPE_CHECKING, Any, ContextManager, NamedTuple, Protocol, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, Protocol, Self, cast
 
 from flask import Flask
 from rich.console import Console
@@ -57,7 +58,7 @@ class RichDebuggedApplication(DebuggedApplication):
         self, environ: WSGIEnvironment, start_response: StartResponse
     ) -> Iterator[bytes]:
         """Run the application and conserve the traceback frames."""
-        contexts: list[ContextManager[Any]] = []
+        contexts: list[AbstractContextManager[Any]] = []
 
         if self.evalex:
             environ['werkzeug.debug.preserve_context'] = contexts.append
@@ -68,7 +69,7 @@ class RichDebuggedApplication(DebuggedApplication):
             yield from app_iter
             if hasattr(app_iter, 'close'):
                 app_iter.close()  # pyright: ignore[reportAttributeAccessIssue]
-        except Exception as e:  # noqa: B902  # pylint: disable=broad-exception-caught
+        except Exception as e:  # noqa: BLE001  # pylint: disable=broad-exception-caught
             if hasattr(app_iter, 'close'):
                 app_iter.close()  # type: ignore[union-attr]
 
@@ -76,7 +77,7 @@ class RichDebuggedApplication(DebuggedApplication):
 
             for frame in tb.all_frames:
                 self.frames[id(frame)] = frame
-                self.frame_contexts[id(frame)] = contexts
+                self.frame_contexts[id(frame)] = contexts  # pyright: ignore[reportArgumentType]
 
             is_trusted = bool(self.check_pin_trust(environ))
             html = tb.render_debugger_html(
@@ -88,7 +89,7 @@ class RichDebuggedApplication(DebuggedApplication):
 
             try:
                 yield from response(environ, start_response)
-            except Exception:  # noqa: B902  # pylint: disable=broad-exception-caught
+            except Exception:  # noqa: BLE001  # pylint: disable=broad-exception-caught
                 # if we end up here there has been output but an error
                 # occurred.  in that situation we can do nothing fancy any
                 # more, better log something into the error log and fall
@@ -112,7 +113,7 @@ info_app = Flask(__name__)
 def info_index(_ignore_path: str = '') -> ReturnView:
     """Info app provides a guide to access the server."""
     info = "Add the following entries to /etc/hosts to access:\n\n"
-    max_host_len = max(len(host) for host in devtest_app.apps_by_host.keys())
+    max_host_len = max(len(host) for host in devtest_app.apps_by_host)
     for host, app in devtest_app.apps_by_host.items():
         space_padding = ' ' * (max_host_len - len(host) + 2)
         info += (
@@ -184,7 +185,7 @@ class HostPort(NamedTuple):
 class CapturedSms(NamedTuple):
     phone: str
     message: str
-    vars: dict[str, str]  # noqa: A003
+    vars: dict[str, str]
 
 
 class CapturedEmail(NamedTuple):
@@ -271,10 +272,10 @@ def _prepare_subprocess(
             subject: str,
             to: list[Any],
             content: str,
-            attachments: Any = None,
+            attachments: Any = None,  # noqa: ARG001
             from_email: Any | None = None,
-            headers: dict | None = None,
-            base_url: str | None = None,
+            headers: dict | None = None,  # noqa: ARG001
+            base_url: str | None = None,  # noqa: ARG001
         ) -> str:
             capture = CapturedEmail(
                 subject,
@@ -289,7 +290,7 @@ def _prepare_subprocess(
         def mock_sms(
             phone: Any,
             message: transports.sms.SmsTemplate,
-            callback: bool = True,
+            callback: bool = True,  # noqa: ARG001
         ) -> str:
             capture = CapturedSms(str(phone), str(message), message.vars())
             calls.sms.append(capture)
@@ -440,11 +441,11 @@ class BackgroundWorker:
             )
         return f"<BackgroundWorker with pid {self.pid}>"
 
-    def __enter__(self) -> BackgroundWorker:
+    def __enter__(self) -> Self:
         """Start server in a context manager."""
         self.start()
         return self
 
-    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
+    def __exit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
         """Finalise a context manager."""
         self.stop()

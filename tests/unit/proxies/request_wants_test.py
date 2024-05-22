@@ -2,7 +2,6 @@
 
 # pylint: disable=import-error,redefined-outer-name
 
-
 import pytest
 from flask import Flask
 

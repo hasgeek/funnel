@@ -74,7 +74,7 @@ GeonameModel.init_flask_sqlalchemy(db)
 def _emit_engine_directives(
     dbapi_connection: DBAPIConnection, _connection_record: Any
 ) -> None:
-    """Always use UTC timezone on PostgreSQL."""
+    """Use UTC timezone on PostgreSQL."""
     cursor = dbapi_connection.cursor()
     cursor.execute("SET TIME ZONE 'UTC';")
     cursor.close()

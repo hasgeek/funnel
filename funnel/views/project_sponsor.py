@@ -60,7 +60,7 @@ class ProjectSponsorLandingView(ProjectViewBase):
         if request.method == 'POST':
             if form.validate_on_submit():
                 if TYPE_CHECKING:
-                    assert isinstance(form.member.data, Account)  # nosec B101
+                    assert isinstance(form.member.data, Account)
                 existing_sponsorship = ProjectSponsorMembership.query.filter(
                     ProjectSponsorMembership.is_active,
                     ProjectSponsorMembership.project == self.obj,

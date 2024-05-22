@@ -388,7 +388,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
             raise ValueError("Value is not an email address") from exc
         self.email = email
         # email_canonical is set by `email`'s validator
-        assert self.email_canonical is not None  # nosec
+        assert self.email_canonical is not None  # noqa: S101
         self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
 
     def is_exclusive(self) -> bool:
@@ -780,11 +780,10 @@ class OptionalEmailAddressMixin:
             else:
                 self.email_address = None
 
+        elif __value is not None:
+            self.email_address = EmailAddress.add(__value)
         else:
-            if __value is not None:
-                self.email_address = EmailAddress.add(__value)
-            else:
-                self.email_address = None
+            self.email_address = None
 
     @property
     def email_address_reference_is_active(self) -> bool:
@@ -850,13 +849,13 @@ def _validate_email(
     if old_value == value:
         # Old value is new value. Do nothing. Return without validating
         return
-    if old_value is NO_VALUE and inspect(target).has_identity is False:  # noqa: SIM114
+    if old_value is NO_VALUE and inspect(target).has_identity is False:
         # Old value is unknown and target is a transient object. Continue
         pass
-    elif value is None:  # noqa: SIM114
+    elif value is None:
         # Caller is trying to unset email. Allow this
         pass
-    elif old_value is None:  # noqa: SIM114
+    elif old_value is None:
         # Caller is trying to restore email. Allow but validate match for existing hash
         pass
     elif (

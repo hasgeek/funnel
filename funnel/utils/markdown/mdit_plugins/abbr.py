@@ -7,6 +7,7 @@ Ported from javascript plugin markdown-it-abbr.
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
@@ -18,7 +19,12 @@ __all__ = ['abbr_plugin']
 abbr_def_re = re.compile(r'^\s*\*\[(.+?)\]:(.+)$')
 
 
-def abbr_def(state: StateBlock, start_line: int, end_line: int, silent: bool) -> bool:
+def abbr_def(
+    state: StateBlock,
+    start_line: int,
+    end_line: int,  # noqa: ARG001
+    silent: bool,
+) -> bool:
     """Store abbreviation definitions in env and remove them from content."""
     pos = state.bMarks[start_line] + state.tShift[start_line]
     maximum = state.eMarks[start_line]
@@ -81,10 +87,13 @@ def abbr_replace(state: StateCore) -> None:
             block_token_index += 1
             continue
         tokens = block_token.children
+        assert tokens is not None  # noqa: S101
 
-        token_index = len(tokens) - 1  # type: ignore[arg-type]
+        token_index = len(tokens) - 1
         while token_index >= 0:
-            current_token = tokens[token_index]  # type: ignore[index]
+            if TYPE_CHECKING:
+                assert tokens is not None
+            current_token = tokens[token_index]
             if current_token.type != 'text':
                 token_index -= 1
                 continue

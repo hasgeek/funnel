@@ -21,6 +21,8 @@ from .decorators import xml_response
 from .helpers import JinjaTemplate
 from .index import policy_pages
 
+LAST_MONTH = 12
+
 # MARK: Sitemap models -----------------------------------------------------------------
 
 
@@ -130,7 +132,7 @@ def validate_daterange(
     except ValueError:
         abort(404)
     now = utcnow()
-    if month < 1 or month > 12:
+    if month < 1 or month > LAST_MONTH:
         abort(404)
     if (year, month) < (earliest_date.year, earliest_date.month):
         abort(404)

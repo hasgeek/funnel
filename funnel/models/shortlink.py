@@ -7,7 +7,7 @@ import re
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from collections.abc import Iterable
 from os import urandom
-from typing import Any, Literal, overload
+from typing import Literal, overload
 
 from furl import furl
 from sqlalchemy.exc import IntegrityError
@@ -175,12 +175,10 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
     If the provided name is invalid, :func:`name_to_bigint` will raise exceptions.
     """
 
-    def __eq__(self, other: Any) -> sa.ColumnElement[bool]:  # type: ignore[override]
+    def __eq__(self, other: object) -> sa.ColumnElement[bool]:  # type: ignore[override]
         """Return an expression for column == other."""
         if isinstance(other, str | bytes):
-            return self.__clause_element__() == name_to_bigint(
-                other
-            )  # type: ignore[return-value]
+            return self.__clause_element__() == name_to_bigint(other)  # type: ignore[return-value]
         return sa.sql.expression.false()
 
     is_ = __eq__  # type: ignore[assignment]
@@ -207,7 +205,7 @@ class Shortlink(NoIdMixin, Model):
     is_new = False
 
     # id of this shortlink, saved as a bigint (8 bytes)
-    id: Mapped[int] = with_roles(  # noqa: A003
+    id: Mapped[int] = with_roles(
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
         # handling collisions. This needs an "immutable after commit" handler
         sa_orm.mapped_column(
@@ -258,10 +256,9 @@ class Shortlink(NoIdMixin, Model):
 
     @sa_orm.validates('url')
     def _validate_url(self, _key: str, value: str) -> str:
-        value = str(normalize_url(value))
-        # If URL hashes are added to the model, the value must be set here using
-        # `url_blake2b160_hash(value)`
-        return value
+        # If URL hashes are added to the Shortlink model, the hash value must be set
+        # here using `url_blake2b160_hash(value)`
+        return str(normalize_url(value))
 
     # MARK: Methods
 

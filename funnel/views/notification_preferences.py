@@ -181,7 +181,8 @@ class AccountNotificationView(ClassView):
         # if they'd like to resubscribe
         try:
             payload = token_serializer().loads(
-                token, max_age=365 * 86400  # Validity 1 year (365 days)
+                token,
+                max_age=365 * 86400,  # Validity 1 year (365 days)
             )
         except itsdangerous.SignatureExpired:
             # Link has expired. It's been over a year!
@@ -312,7 +313,7 @@ class AccountNotificationView(ClassView):
             token_type = session.get('unsub_token_type') or request.form['token_type']
 
         # MARK: Signed tokens (email)
-        if token_type == 'signed':  # nosec
+        if token_type == 'signed':  # noqa: S105
             try:
                 # Token will be in session in the GET request, and in request.form
                 # in the POST request because we'll move it over during the GET request.
@@ -333,7 +334,7 @@ class AccountNotificationView(ClassView):
                 return render_redirect(url_for('notification_preferences'))
 
         # MARK: Cached tokens (SMS)
-        elif token_type == 'cached':  # nosec
+        elif token_type == 'cached':  # noqa: S105
             # Enforce a rate limit per IP on cached tokens, to slow down enumeration.
             # Some ISPs use carrier-grade NAT and will have a single IP for a very
             # large number of users, so we have generous limits. 100 unsubscribes per
