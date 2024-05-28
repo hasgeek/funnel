@@ -3,7 +3,7 @@
 {% block title %}{% trans %}Get shortlink with additional tags{% endtrans %}{% endblock title %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ manifest('css/form.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ webpack('css/form.css') }}" />
 {% endblock pageheaders %}
 
 {% block content %}
@@ -82,5 +82,5 @@
 {% endblock content %}
 
 {% block footerscripts %}
-  <script src="{{ manifest('shortlink_form.js') }}" type="text/javascript"></script>
+  <script src="{{ webpack('shortlink_form.js') }}" type="text/javascript"></script>
 {% endblock footerscripts %}

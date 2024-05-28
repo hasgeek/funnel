@@ -2,8 +2,8 @@
 {% block title %}{{ title }}{% endblock title %}
 
 {% block layoutheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ manifest('css/form.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ manifest('css/app.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ webpack('css/form.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ webpack('css/app.css') }}" />
 {% endblock layoutheaders %}
 
 {% block contentwrapper %}
@@ -21,9 +21,9 @@
 {% endblock serviceworker %}
 
 {% block footerscripts %}
-  <script src="{{ manifest('form.js') }}" type="text/javascript"></script>
+  <script src="{{ webpack('form.js') }}" type="text/javascript"></script>
   {%- if autosave %}
-    <script src="{{ manifest('autosave_form.js') }}" type="text/javascript"></script>
+    <script src="{{ webpack('autosave_form.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
       $(function() {
         var config = {
