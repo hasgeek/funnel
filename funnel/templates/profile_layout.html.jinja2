@@ -511,9 +511,9 @@
 
 {% block footerscripts %}
   {% block innerscripts %}{% endblock innerscripts %}
-  <script src="{{ manifest('profile.js') }}" type="text/javascript"></script>
+  <script src="{{ webpack('profile.js') }}" type="text/javascript"></script>
   {% if featured_project and featured_project.schedule_start_at -%}
-    <script src="{{ manifest('schedule_view.js') }}" type="text/javascript"></script>
+    <script src="{{ webpack('schedule_view.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
       $(function() {
         var scheduleConfig = {
