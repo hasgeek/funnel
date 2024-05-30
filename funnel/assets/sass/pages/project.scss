@@ -94,6 +94,9 @@
       &:hover {
         border-color: $mui-text-danger;
       }
+      .register-block__btn__member-txt {
+        font-size: 12px;
+      }
     }
     .register-block__btn.mui--is-disabled:hover {
       border-color: inherit;

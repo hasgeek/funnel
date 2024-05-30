@@ -3,7 +3,6 @@
   {% extends "project_layout.html.jinja2" %}
 {%- else -%}
   {% extends "project_spa_layout.html.jinja2" %}
-  {%- from "project_layout.html.jinja2" import pinned_update, project_about with context %}
 {% endif %}
 {% block titleblock %}{% block title %}{{ project.title }}{%- endblock title %}{%- endblock titleblock %}
 {%- from "macros.html.jinja2" import proposal_card, video_thumbnail, projectcard %}
@@ -65,8 +64,30 @@
 {% endblock baseheadline %}
 
 {% block left_col %}
-  {{ pinned_update(project) }}
-  {{ project_about(project) }}
+  {% with pinned_update = project.pinned_update %}{%- if pinned_update %}
+    <ul class="mui-list--unstyled page-card pinned {% if current_page != 'project' %}pinned--inner{%- endif %}">
+      <li>
+        <p class="top-padding left-padding right-padding zero-bottom-margin">{{ faicon(icon='thumbtack', baseline=false, css_class="mui--text-light mui--align-middle fa-icon--right-margin") }}<span class="pinned__heading mui--text-subhead mui--text-light">{% trans %}Pinned update{% endtrans %}</span></p>
+        <a href="{{ pinned_update.urls['view'] }}" class="pinned__update">
+          <p class="pinned__update__heading mui-container"><span class="mui--text-subhead text-bold mui--text-dark">{{ pinned_update.title }}</span> <span class="mui--text-subhead mui--text-light pinned__update__body">{%- if not pinned_update.is_currently_restricted %}{{ pinned_update.body.html|preview }} <span class="chip">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class="mui--align-middle") }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
+        </a>
+      </li>
+    </ul>
+  {%- endif %}{%- endwith %}
+  {% if project.view_for('edit').is_available() and project.state.DRAFT %}
+    <div class="page-card page-card--nooverflow">
+      <div class="alert alert--warning zero-top-margin zero-bottom-margin">
+        <a href="{{ project.url_for('settings') }}" class="alert__text nounderline">{% trans %}This project is not published. Visit settings to publish{% endtrans %} {{ faicon(icon='arrow-right') }}</a>
+      </div>
+    </div>
+  {% endif %}
+  <div class="page-card">
+    <div class="project-section">
+      <div class="about bg-primary" id="about">
+        <div class="markdown">{{ project.description }}</div>
+      </div>
+    </div>
+  </div>
   {% if project.has_featured_proposals %}
     <div class="page-card">
       <div class="project-section" id="submissions">
