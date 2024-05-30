@@ -205,7 +205,7 @@ class AccountMembership(ImmutableMembershipMixin, Model):
 
 @event.listens_for(AccountMembership.is_owner, 'set')
 def _ensure_owner_is_admin_too(
-    target: AccountMembership, value: Any, old_value: Any, _initiator: Any
+    target: AccountMembership, value: Any, _old_value: Any, _initiator: Any
 ) -> None:
     if value:
         try:

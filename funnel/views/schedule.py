@@ -14,7 +14,7 @@ from sqlalchemy.exc import NoResultFound
 
 from baseframe import _, localize_timezone
 from coaster.utils import utcnow
-from coaster.views import render_with, requestargs, requires_roles, route
+from coaster.views import render_with, requestform, requires_roles, route
 
 from .. import app
 from ..models import Project, Proposal, Rsvp, Session, VenueRoom, db, sa
@@ -317,7 +317,7 @@ class ProjectScheduleView(ProjectViewBase):
     @route('update', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
-    @requestargs(('sessions', json.loads))
+    @requestform(('sessions', json.loads))
     def update_schedule(self, sessions: list[dict]) -> ReturnRenderWith:
         for session in sessions:
             try:
@@ -407,8 +407,8 @@ class ScheduleVenueRoomView(VenueRoomViewBase):
         )
         if current_session is not None:
             if TYPE_CHECKING:
-                assert current_session.start_at is not None  # nosec B101
-                assert current_session.end_at is not None  # nosec B101
+                assert current_session.start_at is not None
+                assert current_session.end_at is not None
             current_session.start_at = localize_date(
                 current_session.start_at, to_tz=self.obj.venue.project.timezone
             )
@@ -418,8 +418,8 @@ class ScheduleVenueRoomView(VenueRoomViewBase):
         nextdiff = None
         if next_session is not None:
             if TYPE_CHECKING:
-                assert next_session.start_at is not None  # nosec B101
-                assert next_session.end_at is not None  # nosec B101
+                assert next_session.start_at is not None
+                assert next_session.end_at is not None
             next_session.start_at = localize_date(
                 next_session.start_at, to_tz=self.obj.venue.project.timezone
             )

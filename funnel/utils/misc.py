@@ -25,6 +25,7 @@ __all__ = [
 ]
 
 MASK_DIGITS = str.maketrans('0123456789', '•' * 10)
+TWITTER_HANDLE_MAXLENGTH = 16  # 15 + '@' prefix
 
 # MARK: Utilities ----------------------------------------------------------------------
 
@@ -130,13 +131,17 @@ def extract_twitter_handle(handle: str) -> str | None:
 
     parsed_handle = urllib.parse.urlsplit(handle)
     if (
-        (parsed_handle.netloc and parsed_handle.netloc != 'twitter.com')
-        or (not parsed_handle.netloc and len(handle) > 16)
+        (
+            parsed_handle.netloc
+            and parsed_handle.netloc
+            not in ('twitter.com', 'www.twitter.com', 'x.com', 'www.x.com')
+        )
+        or (not parsed_handle.netloc and len(handle) > TWITTER_HANDLE_MAXLENGTH)
         or (not parsed_handle.path)
     ):
         return None
 
-    return str([part for part in parsed_handle.path.split('/') if part][0]).replace(
+    return str(next(part for part in parsed_handle.path.split('/') if part)).replace(
         '@', ''
     )
 

@@ -20,10 +20,10 @@ class ExplaraAttendeeDict(TypedDict, total=False):
     name: str
     email: str
     Phone: str
-    phoneNo: str  # noqa: N815
-    ticketNo: str  # noqa: N815
-    ticketName: str  # noqa: N815
-    orderNo: str  # noqa: N815
+    phoneNo: str
+    ticketNo: str
+    ticketName: str
+    orderNo: str
     status: str
 
 

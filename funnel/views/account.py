@@ -88,16 +88,14 @@ from .otp import OtpSession, OtpTimeoutError
 def emails_sorted(obj: Account) -> list[AccountEmail]:
     """Return sorted list of email addresses for account page UI."""
     primary = obj.primary_email
-    items = sorted(obj.emails, key=lambda i: (i != primary, i.email or ''))
-    return items
+    return sorted(obj.emails, key=lambda i: (i != primary, i.email or ''))
 
 
 @Account.views()
 def phones_sorted(obj: Account) -> list[AccountPhone]:
     """Return sorted list of phone numbers for account page UI."""
     primary = obj.primary_phone
-    items = sorted(obj.phones, key=lambda i: (i != primary, i.phone or ''))
-    return items
+    return sorted(obj.phones, key=lambda i: (i != primary, i.phone or ''))
 
 
 @Account.views('locale')
@@ -135,8 +133,7 @@ def organizations_as_admin(
     if limit is not None:
         orgmems = orgmems.limit(limit)
 
-    orgs = [_om.current_access() for _om in orgmems]
-    return orgs
+    return [_om.current_access() for _om in orgmems]
 
 
 @Account.views()
@@ -639,7 +636,7 @@ class AccountView(ClassView):
         if form.validate_on_submit():
             OtpSession.delete()
             if TYPE_CHECKING:
-                assert otp_session.email is not None  # nosec B101
+                assert otp_session.email is not None
             existing = AccountEmail.get(otp_session.email)
             if existing is None:
                 # This email address is available to claim. If there are no other email
@@ -863,7 +860,7 @@ class AccountView(ClassView):
         if form.validate_on_submit():
             OtpSession.delete()
             if TYPE_CHECKING:
-                assert otp_session.phone is not None  # nosec B101
+                assert otp_session.phone is not None
             existing = AccountPhone.get(otp_session.phone)
             if existing is None:
                 # This phone number is available to claim. If there are no other

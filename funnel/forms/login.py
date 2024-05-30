@@ -214,7 +214,7 @@ class LoginForm(forms.RecaptchaForm):
         # From here on `self.user` is guaranteed to be a `User` instance, but mypy
         # can't infer and must be told
         if TYPE_CHECKING:
-            assert isinstance(self.user, User)  # nosec
+            assert isinstance(self.user, User)
 
         # If user does not have a password, ask for a password reset. Since
         # :class:`PasswordlessLoginIntercept` already intercepts for a blank password,

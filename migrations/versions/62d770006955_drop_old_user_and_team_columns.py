@@ -289,7 +289,7 @@ def downgrade() -> None:
                 FROM "user", "old_user"
                 WHERE "{table}"."{new}" = "user"."id"
                 AND "user"."uuid" = "old_user"."uuid";
-                '''
+                '''  # noqa: S608
             )
         )
 
@@ -302,7 +302,7 @@ def downgrade() -> None:
                 FROM "team", "old_team"
                 WHERE "{table}"."{new}" = "team"."id"
                 AND "team"."uuid" = "old_team"."uuid";
-                '''
+                '''  # noqa: S608
             )
         )
 

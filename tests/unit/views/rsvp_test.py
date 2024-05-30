@@ -3,6 +3,7 @@
 # pylint: disable=redefined-outer-name
 
 import datetime
+from http import HTTPStatus
 
 import pytest
 from flask import Flask
@@ -108,7 +109,7 @@ def test_valid_registration_form_schema(
             }
         ),
     )
-    assert rv.status_code == 303
+    assert rv.status_code == HTTPStatus.SEE_OTHER
 
 
 def test_invalid_registration_form_schema(

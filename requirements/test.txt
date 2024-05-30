@@ -14,12 +14,12 @@
     #   baseframe
 beautifulsoup4==4.12.3
     # via -r requirements/test.in
-coverage[toml]==7.4.4
+coverage[toml]==7.5.1
     # via
     #   -r requirements/test.in
     #   coveralls
     #   pytest-cov
-coveralls==4.0.0
+coveralls==4.0.1
     # via -r requirements/test.in
 docopt==0.6.2
     # via coveralls
@@ -45,7 +45,7 @@ pytest==8.0.0
     #   pytest-playwright
     #   pytest-rerunfailures
     #   pytest-socket
-pytest-asyncio==0.23.6
+pytest-asyncio==0.23.7
     # via -r requirements/test.in
 pytest-base-url==2.1.0
     # via pytest-playwright

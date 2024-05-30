@@ -126,7 +126,7 @@ def run_migrations_online() -> None:
     for name in bind_names:
         engines[name] = {'engine': current_app.extensions['migrate'].db.engines[name]}
 
-    for _name, rec in engines.items():
+    for rec in engines.values():
         engine = rec['engine']
         rec['connection'] = conn = engine.connect()
 
@@ -140,12 +140,11 @@ def run_migrations_online() -> None:
             # Do not pass an engine_name parameter when there is only one default bind
             # This allows legacy migrations to run before models with binds are
             # introduced.
-            rec = list(engines.values())[0]
-            # Bandit thinks '_upgrades' is a password, so `# nosec` is required
-            context.configure(  # nosec
+            rec = next(iter(engines.values()))
+            context.configure(
                 connection=rec['connection'],
-                upgrade_token='_upgrades',
-                downgrade_token='_downgrades',
+                upgrade_token='_upgrades',  # noqa: S106
+                downgrade_token='_downgrades',  # noqa: S106
                 target_metadata=get_metadata(''),
                 process_revision_directives=process_revision_directives,
                 **current_app.extensions['migrate'].configure_args,
@@ -171,7 +170,7 @@ def run_migrations_online() -> None:
 
         for rec in engines.values():
             rec['transaction'].commit()
-    except:  # noqa: B001, E722
+    except:
         for rec in engines.values():
             rec['transaction'].rollback()
         raise

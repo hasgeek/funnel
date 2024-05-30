@@ -108,11 +108,12 @@
   {% raw %}
     <script type="text/x-template" id="member-template">
       <div class="member mui--clearfix">
-        <div class="user__box mui--pull-left">
+        <div class="user__box user__box--topalign mui--pull-left">
           <useravatar :user='membership.member' :addprofilelink=true></useravatar>
           <div class="user__box__header">
             <h3 class="mui--text-body2 user__box__fullname">{{ membership.member.fullname }} <span v-if="membership.label" class="badge">{{ membership.label }}</span></h3>
-            <h3 v-if="membership.member.username" class="mui--text-caption user__box__userid"><span  data-cy="member">@{{ membership.member.username }}</span></h3>
+            <h3 v-if="membership.member.username" class="mui--text-caption user__box__userid"><span data-cy="member">@{{ membership.member.username }}</span></h3>
+            <h3 v-if="membership.bio" class="mui--text-caption user__box__fullname">{{ membership.bio }}</h3>
           </div>
         </div>
         <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles mui--pull-right">

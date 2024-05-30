@@ -17,8 +17,10 @@ pytestmark = pytest.mark.filterwarnings(
 @pytest.fixture
 def user(db_session: scoped_session) -> models.User:
     """User fixture."""
-    new_user = models.User(  # nosec
-        username='user', fullname="User", password='test_password'
+    new_user = models.User(
+        username='user',
+        fullname="User",
+        password='test_password',  # noqa: S106
     )
     db_session.add(new_user)
     db_session.commit()
@@ -28,8 +30,9 @@ def user(db_session: scoped_session) -> models.User:
 @pytest.fixture
 def user_nameless(db_session: scoped_session) -> models.User:
     """User fixture without a username."""
-    new_user = models.User(  # nosec
-        fullname="Nameless User", password='test_password_nameless'
+    new_user = models.User(
+        fullname="Nameless User",
+        password='test_password_nameless',  # noqa: S106
     )
     db_session.add(new_user)
     new_user.add_email('nameless@example.com')
@@ -40,8 +43,10 @@ def user_nameless(db_session: scoped_session) -> models.User:
 @pytest.fixture
 def user_named(db_session: scoped_session) -> models.User:
     """User fixture with a username."""
-    new_user = models.User(  # nosec
-        username='user_named', fullname="Named User", password='test_password_named'
+    new_user = models.User(
+        username='user_named',
+        fullname="Named User",
+        password='test_password_named',  # noqa: S106
     )
     db_session.add(new_user)
     new_user.add_email('named@example.com')

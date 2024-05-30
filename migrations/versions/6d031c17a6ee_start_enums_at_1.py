@@ -114,7 +114,7 @@ def upgrade_() -> None:
                 .values(**{column_name: value})
             )
         if not check_name:
-            check_name = table_name + '_' + column_name + '_check'
+            check_name = table_name + '_' + column_name + '_check'  # noqa: PLW2901
         op.create_check_constraint(
             check_name, table_name, column(column_name).in_(values)
         )

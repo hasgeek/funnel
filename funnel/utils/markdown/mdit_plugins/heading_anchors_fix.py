@@ -21,7 +21,7 @@ def heading_anchors_fix(state: StateCore) -> None:
         if token.type == 'inline' and prev_token.type == 'heading_open':
             tree = token.children
             if tree is not None:
-                header_anchor_index = 0  # noqa: SIM113
+                header_anchor_index = 0
                 for inline_token in tree:
                     if (
                         inline_token.type == 'link_open'
@@ -44,6 +44,6 @@ def heading_anchors_fix(state: StateCore) -> None:
         prev_token = token
 
 
-def heading_anchors_fix_plugin(md: MarkdownIt, **opts: Any) -> None:
+def heading_anchors_fix_plugin(md: MarkdownIt, **_opts: Any) -> None:
     if 'anchor' in md.get_active_rules()['core']:
         md.core.ruler.after('anchor', 'heading_anchors_fix', heading_anchors_fix)

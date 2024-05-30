@@ -181,10 +181,10 @@ class NotificationCategory:
 
 #: Registry of notification categories
 notification_categories: SimpleNamespace = SimpleNamespace(
-    none=NotificationCategory(0, __("Uncategorized"), lambda user: False),
-    account=NotificationCategory(1, __("My account"), lambda user: True),
+    none=NotificationCategory(0, __("Uncategorized"), lambda _user: False),
+    account=NotificationCategory(1, __("My account"), lambda _user: True),
     subscriptions=NotificationCategory(
-        2, __("My subscriptions and billing"), lambda user: False
+        2, __("My subscriptions and billing"), lambda _user: False
     ),
     participant=NotificationCategory(
         3,
@@ -278,7 +278,7 @@ class NotificationType(Generic[_D, _F], Protocol):
 
     type_: str
     eventid: UUID
-    id: UUID  # noqa: A003
+    id: UUID
     eventid_b58: str
     document: _D
     document_uuid: UUID
@@ -321,7 +321,7 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     )
 
     #: Notification id
-    id: Mapped[UUID] = immutable(  # noqa: A003
+    id: Mapped[UUID] = immutable(
         sa_orm.mapped_column(
             postgresql.UUID,
             primary_key=True,
@@ -635,9 +635,9 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
             from ..models import MyNotificationType
             from .views import NotificationView
 
+
             @MyNotificationType.renderer
-            class MyNotificationView(NotificationView):
-                ...
+            class MyNotificationView(NotificationView): ...
         """
         if cls.cls_type in cls.renderers:
             raise TypeError(
@@ -717,8 +717,7 @@ class PreviewNotification(NotificationType):
     To be used with :class:`NotificationFor`::
 
         NotificationFor(
-            PreviewNotification(NotificationType, document, fragment, actor),
-            recipient
+            PreviewNotification(NotificationType, document, fragment, actor), recipient
         )
     """
 
@@ -1375,7 +1374,7 @@ class NotificationPreferences(BaseMixin[int, Account], Model):
         )
 
     @sa_orm.validates('notification_type')
-    def _valid_notification_type(self, key: str, value: str | None) -> str:
+    def _valid_notification_type(self, _key: str, value: str | None) -> str:
         if value == '':  # Special-cased name for main preferences
             return value
         if value is None or value not in notification_type_registry:
@@ -1390,7 +1389,7 @@ auto_init_default(Notification.eventid)
 
 
 @event.listens_for(Notification, 'mapper_configured', propagate=True)
-def _register_notification_types(mapper_: Any, cls: type[Notification]) -> None:
+def _register_notification_types(_mapper: Any, cls: type[Notification]) -> None:
     # Don't register the base class itself, or inactive types
     if cls is not Notification:
         # Add the subclass to the registry

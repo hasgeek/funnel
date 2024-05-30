@@ -19,6 +19,7 @@ from coaster.utils import MARKDOWN_HTML_TAGS, buid, md5sum, newsecret
 from .. import __
 from ..utils.markdown import MarkdownString, markdown_mailer
 from ..utils.mustache import mustache_md
+from . import types
 from .account import Account
 from .base import (
     BaseNameMixin,
@@ -32,7 +33,6 @@ from .base import (
     sa_orm,
 )
 from .helpers import IntTitle
-from .types import jsonb
 
 __all__ = [
     'MailerState',
@@ -244,7 +244,7 @@ class MailerRecipient(BaseScopedIdMixin[int, Account], Model):
         sa.String(32), nullable=False, index=True
     )
 
-    data: Mapped[jsonb] = sa_orm.mapped_column()
+    data: Mapped[types.Jsonb] = sa_orm.mapped_column()
 
     is_sent: Mapped[bool] = sa_orm.mapped_column(default=False)
 

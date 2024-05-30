@@ -75,13 +75,13 @@ class TabNode:
     children: list[TabsetNode] = field(default_factory=list)
     _opening: ClassVar[str] = (
         '<div role="tabpanel"{class_attr} id="{tab_id}-panel"'
-        + ' aria-labelledby="{tab_id}" tabindex="0">'
+        ' aria-labelledby="{tab_id}" tabindex="0">'
     )
     _closing: ClassVar[str] = '</div>'
     _item_html: ClassVar[str] = (
         '<li role="presentation"{class_attr}>'
-        + '<a role="tab" href="javascript:void(0)" id="{tab_id}"'
-        + ' aria-controls="{tab_id}-panel"{accessibility}>{title}</a></li>'
+        '<a role="tab" href="javascript:void(0)" id="{tab_id}"'
+        ' aria-controls="{tab_id}-panel"{accessibility}>{title}</a></li>'
     )
 
     def _class_attr(self, classes: list[str] | None = None) -> str:

@@ -194,11 +194,11 @@ class SnsValidator:
         plaintext = self._get_text_to_sign(message).encode()
         signature = base64.b64decode(message.get('Signature', ''))
         try:
-            public_key.verify(  # nosec
+            public_key.verify(
                 signature,
                 plaintext,
                 PKCS1v15(),
-                SHA1(),  # nosec  # skipcq: PTC-W1003
+                SHA1(),  # noqa: S303
             )
         except InvalidSignature as exc:
             raise SnsSignatureFailureError("Signature mismatch") from exc

@@ -45,10 +45,7 @@ class MarkdownModel(Generic[_M]):
         """Reparse Markdown fields, optionally for a single config profile."""
         if config and config not in self.config_fields:
             return
-        if config:
-            fields = self.config_fields[config]
-        else:
-            fields = self.fields
+        fields = self.config_fields[config] if config else self.fields
 
         iter_list: Iterable[_M]
 

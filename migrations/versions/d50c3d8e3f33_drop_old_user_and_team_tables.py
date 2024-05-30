@@ -1,4 +1,3 @@
-# type: ignore
 """Drop old user and team tables.
 
 Revision ID: d50c3d8e3f33
