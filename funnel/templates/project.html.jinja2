@@ -74,7 +74,7 @@
       </li>
     </ul>
   {%- endif %}{%- endwith %}
-  {% if project.state.DRAFT and project.view_for('edit').is_available() %}
+  {% if project.state.DRAFT and project.view_for('settings').is_available() %}
     <div class="page-card page-card--nooverflow">
       <div class="alert alert--warning zero-top-margin zero-bottom-margin">
         <a href="{{ project.url_for('settings') }}" class="alert__text nounderline">{% trans %}This project is not published. Visit settings to publish{% endtrans %} {{ faicon(icon='arrow-right') }}</a>
