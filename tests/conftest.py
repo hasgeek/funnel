@@ -20,15 +20,7 @@ from io import StringIO
 from pprint import saferepr
 from textwrap import indent
 from types import MethodType, ModuleType, SimpleNamespace
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    NamedTuple,
-    Protocol,
-    cast,
-    get_type_hints,
-    runtime_checkable,
-)
+from typing import TYPE_CHECKING, Any, NamedTuple, Protocol, Self, cast, get_type_hints
 from unittest.mock import patch
 
 import flask
@@ -134,7 +126,7 @@ def pytest_runtest_call(item: pytest.Function) -> None:
         )
 
     for attr, type_ in annotations.items():
-        if attr in item.funcargs:
+        if attr in item.funcargs and not getattr(type_, '_is_protocol', False):
             typeguard.check_type(item.funcargs[attr], type_)
 
 
@@ -349,7 +341,6 @@ def rich_console() -> Console:
     return Console(highlight=False)
 
 
-@runtime_checkable
 class PrintStackProtocol(Protocol):
     def __call__(self, skip: int = 0, limit: int | None = None) -> None: ...
 
@@ -1170,8 +1161,20 @@ def client(app: Flask, db_session: scoped_session) -> TestClient:
     return client
 
 
-@runtime_checkable
+class BackgroundWorkerProtocol(Protocol):
+    """Background worker for typeguard."""
+
+    def start(self) -> None: ...
+    def stop(self) -> None: ...
+    def __enter__(self) -> Self: ...
+    def __exit__(
+        self, exc_type: object, exc_value: object, traceback: object
+    ) -> None: ...
+
+
 class LiveServerProtocol(Protocol):
+    """Live server for typeguard."""
+
     background_worker: BackgroundWorker
     transport_calls: CapturedCalls
     url: str
@@ -1247,7 +1250,6 @@ def csrf_token(app: Flask, client: TestClient) -> str:
     return token
 
 
-@runtime_checkable
 class LoginFixtureProtocol(Protocol):
     def as_(self, user: funnel_models.User) -> None: ...
 
@@ -1287,7 +1289,6 @@ def login(
 # MARK: Users
 
 
-@runtime_checkable
 class GetUserProtocol(Protocol):
     usermap: dict[str, str]
 
@@ -1778,7 +1779,6 @@ def client_hex(
     return auth_client
 
 
-@runtime_checkable
 class CredProtocol(Protocol):
     cred: funnel_models.AuthClientCredential
     secret: str

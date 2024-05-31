@@ -7,7 +7,16 @@ import re
 import string
 from collections.abc import Callable, Iterable, Mapping
 from functools import wraps
-from typing import Any, Concatenate, ParamSpec, Self, SupportsIndex, TypeVar, cast
+from typing import (
+    Any,
+    Concatenate,
+    ParamSpec,
+    Self,
+    SupportsIndex,
+    TypeVar,
+    cast,
+    no_type_check,
+)
 
 __all__ = ['MarkdownString', 'markdown_escape']
 
@@ -88,6 +97,7 @@ def _escape_argspec(
     return obj
 
 
+@no_type_check  # For TypeGuard, since this is used within class definition below
 def _simple_escaping_wrapper(
     func: Callable[Concatenate[Any, _P], str],
 ) -> Callable[Concatenate[Any, _P], MarkdownString]:
