@@ -52,7 +52,7 @@ class ProjectForm(forms.Form):
 
     title = forms.StringField(
         __("Title"),
-        validators=[forms.validators.DataRequired()],
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         filters=[forms.filters.strip()],
     )
     tagline = forms.StringField(
