@@ -25,7 +25,10 @@ class VenueForm(forms.Form):
     title = forms.StringField(
         __("Name"),
         description=__("Name of the venue"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=Venue.__title_length__),
+        ],
         filters=[forms.filters.strip()],
     )
     description = forms.MarkdownField(
@@ -88,7 +91,10 @@ class VenueRoomForm(forms.Form):
     title = forms.StringField(
         __("Name"),
         description=__("Name of the room"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=VenueRoom.__title_length__),
+        ],
         filters=[forms.filters.strip()],
     )
     description = forms.MarkdownField(
