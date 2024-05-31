@@ -108,7 +108,7 @@
       </div>
     </div>
   {%- endif %}
-  <div class="project-details__box project-banner__right flex-wrapper flex-wrapper--space-between project-banner__right--flex-direction {% if not project.livestream_urls and not project.banner_video_url.url or not project.bg_image.url %}project-banner__right--smaller{%- endif %} subproject-page__hide">
+  <div class="project-banner__right flex-wrapper flex-wrapper--space-between project-banner__right--flex-direction {% if not project.livestream_urls and not project.banner_video_url.url or not project.bg_image.url %}project-banner__right--smaller{%- endif %} subproject-page__hide">
     <div class="top-padding project-details__box__title">
       <div class="project-banner__profile-details">
         {{ profileavatar(project.account, css_class='margin-left') }}
