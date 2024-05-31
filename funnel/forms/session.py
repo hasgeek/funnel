@@ -17,7 +17,10 @@ class SessionForm(forms.Form):
 
     title = forms.StringField(
         __("Title"),
-        validators=[forms.validators.DataRequired()],
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=Session.__title_length__),
+        ],
         filters=[forms.filters.strip()],
     )
     venue_room_id = forms.SelectField(

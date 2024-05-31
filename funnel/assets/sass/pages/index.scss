@@ -48,6 +48,11 @@
     .spotlight-container__details {
       margin-top: 40px;
     }
+    .mui-btn + .mui-btn {
+      margin-left: 0;
+      padding: 2px 10px;
+      border-radius: 4px;
+    }
   }
 }
 

@@ -33,7 +33,7 @@ class AuthClientForm(forms.Form):
 
     title = forms.StringField(
         __("Application title"),
-        validators=[forms.validators.DataRequired()],
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         filters=[forms.filters.strip()],
         description=__("The name of your application"),
     )

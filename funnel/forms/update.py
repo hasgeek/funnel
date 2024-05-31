@@ -15,7 +15,10 @@ class UpdateForm(forms.Form):
 
     title = forms.StringField(
         __("Title"),
-        validators=[forms.validators.DataRequired()],
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=Update.__title_length__),
+        ],
         filters=[forms.filters.strip()],
     )
     body = forms.MarkdownField(
