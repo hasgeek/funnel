@@ -101,14 +101,7 @@
               <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-ga="Add new project">
                 <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left">
                   <div class="flex-wrapper flex-wrapper--center">
-                    <span class="profile-avatar margin-right">
-                      {%- if profile.logo_url.url %}
-                        <img src="{{ profile.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ profile.title }}"/>
-                      {% else %}
-                        <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ profile.title }}"/>
-                      {% endif %}
-                    </span>
-                    <span class="profile-avatar-title mui--text-body2 text-bold mui--text-dark">{{ profile.title }}</span>
+                    {{ profileavatar(profile, add_profile_link=false, css_class='flex-item-align-end margin-right') }}
                   </div>
                 </div>
                 <div class="card__image-wrapper">
