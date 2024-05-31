@@ -126,6 +126,7 @@
       margin: 0;
       width: 100%;
       display: none;
+      font-weight: 600;
       justify-content: space-between;
 
       .calendar__month__counting {
@@ -187,6 +188,10 @@
           }
         }
 
+        .calendar__weekdays__dates__date--flex {
+          width: auto !important;
+        }
+
         .calendar__weekdays__dates__date--today {
           .calendar__weekdays__dates__date__day {
             color: $mui-text-dark;
@@ -221,6 +226,9 @@
           margin: auto;
           z-index: 1;
           border: 1px solid $mui-primary-color-lighter;
+        }
+        .calendar__weekdays__dates__date--flex:after {
+          margin: 0 -8px !important;
         }
         .calendar__weekdays__dates__date--active:before {
           content: '';
@@ -296,6 +304,10 @@
 
       .calendar__weekdays__dates--latest {
         display: flex;
+      }
+
+      .calendar__weekdays__dates--justify {
+        justify-content: space-between;
       }
     }
   }

@@ -63,11 +63,13 @@
       display: none;
     }
     .register-block__content__txt {
-      font-size: 9px;
+      font-size: 12px;
       line-height: 16px;
+      letter-spacing: -0.07rem;
       width: 100%;
       display: block;
       font-style: italic;
+      font-weight: 600;
       margin-bottom: $mui-grid-padding * 0.25;
     }
     .register-block__btn {
@@ -92,6 +94,9 @@
       &:hover {
         border-color: $mui-text-danger;
       }
+      .register-block__btn__member-txt {
+        font-size: 12px;
+      }
     }
     .register-block__btn.mui--is-disabled:hover {
       border-color: inherit;
@@ -101,8 +106,12 @@
     width: calc(50% - $mui-grid-padding/2);
     align-self: flex-end;
   }
+  .register-block__btn--full-width {
+    width: 100% !important;
+    margin-top: $mui-grid-padding;
+  }
   .register-block__content:only-child {
-    width: 100%;
+    width: 100% !important;
     align-self: flex-end;
   }
 }
@@ -111,7 +120,7 @@
   .register-block {
     .register-block__content {
       .register-block__content__txt {
-        font-size: 10px;
+        font-size: 12px;
       }
     }
   }
@@ -152,18 +161,20 @@
 
 @media (min-width: 768px) {
   .project-footer {
+    padding: 16px 0 0 !important;
     .register-block {
       display: block;
       .register-block__content {
-        width: 100%;
+        width: calc(50% - $mui-grid-padding/2);
         margin-right: 0;
         margin-bottom: $mui-grid-padding;
         .register-block__content__rsvp-txt {
           font-size: 12px;
         }
         .register-block__content__txt {
-          font-size: 14px;
-          line-height: 21px;
+          font-size: 12px;
+          line-height: 16px;
+          letter-spacing: -0.01rem;
           margin-bottom: $mui-grid-padding * 0.5;
         }
         .register-block__btn {
@@ -178,6 +189,11 @@
           }
         }
       }
+    }
+    .flex-content {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
     }
   }
 }
@@ -370,6 +386,7 @@
         .calendar__weekdays .calendar__weekdays__dates--latest {
           display: flex;
           margin-bottom: $mui-grid-padding * 0.5;
+          font-weight: 600;
         }
 
         .calendar__weekdays .calendar__weekdays__dates:last-child {
@@ -390,6 +407,9 @@
         }
       }
     }
+  }
+  .project-banner__right--flex-direction {
+    flex-direction: column;
   }
 }
 
@@ -433,13 +453,13 @@
     }
     .project-banner__left {
       width: 67%;
-      margin: 0 $mui-grid-padding 0 0;
+      margin: 0 $mui-grid-padding * 2 0 0;
       .embed-video-wrapper--shaped {
         border-radius: 16px;
       }
     }
     .project-banner__right {
-      width: 33%;
+      width: auto;
     }
   }
   .project-banner.project-banner--inner {
@@ -447,7 +467,7 @@
       width: 25%;
     }
     .project-banner__right--smaller {
-      width: 75%;
+      width: auto;
     }
   }
 }
@@ -557,10 +577,9 @@
 }
 
 .project-section__map {
-  height: 400px;
+  height: 300px;
   width: 100%;
   z-index: 0;
-  margin: 0 0 $mui-grid-padding;
   position: relative;
   outline: none;
 }
