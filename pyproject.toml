@@ -31,6 +31,7 @@ deps-file = "requirements/base.in"
 exclude-deps = [
   "argon2-cffi",     # Optional dep for passlib
   "bcrypt",          # Optional dep for passlib
+  "flask-moreshell", # Auto-imported by Flask
   "greenlet",        # Optional dep for SQLAlchemy's asyncio support
   "gunicorn",        # Not imported, used as server
   "linkify-it-py",   # Optional dep for markdown-it-py

@@ -29,6 +29,8 @@ from .models import db
 from .typing import ReturnView
 
 if TYPE_CHECKING:
+    from multiprocessing.process import BaseProcess
+
     from _typeshed.wsgi import StartResponse, WSGIEnvironment
 
 __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
@@ -338,7 +340,7 @@ class BackgroundWorker:
         self.timeout = timeout
         self.clean_stop = clean_stop
         self.daemon = daemon
-        self._process: multiprocessing.process.BaseProcess | None = None
+        self._process: BaseProcess | None = None
         self.mock_transports = mock_transports
 
         manager = mpcontext.Manager()
