@@ -1767,7 +1767,6 @@ def client_hex(
 
     Owned by UU (owner) and administered by Ponder Stibbons (no corresponding role).
     """
-    # TODO: AuthClient needs to move to account (nee profile) as the parent model
     auth_client = models.AuthClient(
         title="Hex",
         account=org_uu,
