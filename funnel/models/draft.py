@@ -17,9 +17,9 @@ class Draft(NoIdMixin, Model):
 
     __tablename__ = 'draft'
 
-    table: Mapped[types.text] = sa_orm.mapped_column(primary_key=True)
+    table: Mapped[types.Text] = sa_orm.mapped_column(primary_key=True)
     table_row_id: Mapped[UUID] = sa_orm.mapped_column(primary_key=True)
-    body: Mapped[types.jsonb_dict | None]  # Optional only when instance is new
+    body: Mapped[types.JsonbDict | None]  # Optional only when instance is new
     revision: Mapped[UUID | None]
 
     @property

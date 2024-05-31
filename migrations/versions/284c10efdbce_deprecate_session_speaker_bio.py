@@ -32,7 +32,7 @@ session = table(
 )
 
 
-def get_progressbar(label, maxval):
+def get_progressbar(label: str, maxval: int | None) -> ProgressBar:
     return ProgressBar(
         maxval=maxval,
         widgets=[
@@ -48,7 +48,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def session_description(row):
+def session_description(row: sa.Row) -> str:
     description = f"{row.description_text.strip()}\r\n"
     if row.speaker_bio_text:
         description += f"\r\n### Speaker bio\r\n\r\n{row.speaker_bio_text.strip()}\r\n"

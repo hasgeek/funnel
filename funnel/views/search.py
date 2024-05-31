@@ -194,7 +194,8 @@ class ProjectSearch(SearchInAccountProvider):
     def all_query(self, tsquery: sa.Function) -> Query[Project]:
         """Search entire site for projects."""
         return (
-            Project.query.join(Account, Project.account).filter(
+            Project.query.join(Account, Project.account)
+            .filter(
                 Account.profile_state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Project.search_vector.bool_op('@@')(tsquery),
@@ -509,7 +510,7 @@ class CommentSearch(SearchInProjectProvider):
     model = Comment
     has_title = False  # Comments don't have titles
 
-    def hltitle_column(self, tsquery: sa.Function) -> sa.ColumnElement:
+    def hltitle_column(self, tsquery: sa.Function) -> sa.ColumnElement:  # noqa: ARG002
         """Comments don't have titles, so return a null expression here."""
         return expression.null()
 
@@ -685,7 +686,7 @@ def clean_matched_text(text: str) -> str:
 class SearchCountType(TypedDict, total=False):
     """Typed dictionary for :func:`search_counts`."""
 
-    type: str  # noqa: A003
+    type: str
     label: str
     count: int
     job: Any

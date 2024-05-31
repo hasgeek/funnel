@@ -767,7 +767,7 @@ class RenderProjectCrewNotification(RenderShared, RenderNotification):
         """Actual actor who granted (or edited) the membership, for the template."""
         actor = (membership or self.membership).granted_by
         if TYPE_CHECKING:
-            assert actor is not None  # nosec B101
+            assert actor is not None
         return actor
 
     def web(self) -> str:

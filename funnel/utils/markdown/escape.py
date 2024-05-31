@@ -7,7 +7,16 @@ import re
 import string
 from collections.abc import Callable, Iterable, Mapping
 from functools import wraps
-from typing import Any, Concatenate, ParamSpec, Self, SupportsIndex, TypeVar, cast
+from typing import (
+    Any,
+    Concatenate,
+    ParamSpec,
+    Self,
+    SupportsIndex,
+    TypeVar,
+    cast,
+    no_type_check,
+)
 
 __all__ = ['MarkdownString', 'markdown_escape']
 
@@ -88,8 +97,9 @@ def _escape_argspec(
     return obj
 
 
+@no_type_check  # For TypeGuard, since this is used within class definition below
 def _simple_escaping_wrapper(
-    func: Callable[Concatenate[Any, _P], str]
+    func: Callable[Concatenate[Any, _P], str],
 ) -> Callable[Concatenate[Any, _P], MarkdownString]:
     @wraps(func)
     def wrapped(self: Any, *args: _P.args, **kwargs: _P.kwargs) -> MarkdownString:
@@ -107,7 +117,7 @@ class MarkdownString(str):
 
     def __new__(
         cls, base: Any = '', encoding: str | None = None, errors: str = 'strict'
-    ) -> MarkdownString:
+    ) -> Self:
         if hasattr(base, '__markdown__'):
             base = base.__markdown__()
 
@@ -240,7 +250,7 @@ class MarkdownString(str):
 
     rpartition.__doc__ = str.rpartition.__doc__
 
-    def format(self, *args: Any, **kwargs: Any) -> Self:  # noqa: A003
+    def format(self, *args: Any, **kwargs: Any) -> Self:
         formatter = _MarkdownEscapeFormatter(self.escape)
         return self.__class__(formatter.vformat(self, args, kwargs))
 
@@ -248,7 +258,8 @@ class MarkdownString(str):
 
     # pylint: disable=redefined-builtin
     def format_map(
-        self, map: Mapping[str, Any]  # type: ignore[override]  # noqa: A002
+        self,
+        map: Mapping[str, Any],  # type: ignore[override]  # noqa: A002
     ) -> Self:
         formatter = _MarkdownEscapeFormatter(self.escape)
         return self.__class__(formatter.vformat(self, (), map))

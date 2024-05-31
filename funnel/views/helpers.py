@@ -7,12 +7,12 @@ import zlib
 import zoneinfo
 from base64 import urlsafe_b64encode
 from collections.abc import Callable, Iterator, Mapping
-from contextlib import nullcontext
+from contextlib import AbstractContextManager, nullcontext
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from importlib import resources
 from os import urandom
-from typing import Any, ContextManager, Literal, Protocol
+from typing import Any, Literal, Protocol
 from urllib.parse import quote, unquote, urljoin
 
 import brotli
@@ -49,7 +49,7 @@ from ..auth import CurrentAuth, current_auth
 from ..forms import supported_locales
 from ..models import Account, Project, Shortlink, db, profanity
 from ..proxies import RequestWants, request_wants
-from ..typing import ResponseType, ReturnResponse, ReturnView
+from ..typing import ResponseType, ReturnResponse
 from ..utils import JinjaTemplateBase, jinja_global, jinja_undefined
 
 nocache_expires = utc.localize(datetime(1990, 1, 1))
@@ -86,8 +86,8 @@ class JinjaTemplate(JinjaTemplateBase, template=None):
     """Jinja template dataclass base class with type hints for Jinja globals."""
 
     # Globals provided by Jinja2
-    range: Callable = jinja_global()  # noqa: A003
-    dict: Callable = jinja_global()  # noqa: A003
+    range: Callable = jinja_global()
+    dict: Callable = jinja_global()
     lipsum: Callable = jinja_global()
     cycler: Callable = jinja_global()
     joiner: Callable = jinja_global()
@@ -206,7 +206,7 @@ app.after_request(session_timeouts.crosscheck_session)
 # MARK: Utilities ----------------------------------------------------------------------
 
 
-def app_context() -> ContextManager:
+def app_context() -> AbstractContextManager:
     """Return an app context if one is not active."""
     if current_app:
         return nullcontext()
@@ -515,7 +515,7 @@ def validate_rate_limit(
 # This number can be increased to 4 as volumes grow, but will result in a 6 char token
 TOKEN_BYTES_LEN = 3
 # Changing this prefix will break existing tokens. Do not change
-TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # nosec
+TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # noqa: S105
 
 
 def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
@@ -562,7 +562,10 @@ def delete_cached_token(token: str) -> bool:
 # calls with an `str` type, not a literal string
 
 
-def compress(data: bytes, algorithm: Literal['br', 'gzip', 'deflate'] | str) -> bytes:
+def compress(
+    data: bytes,
+    algorithm: Literal['br', 'gzip', 'deflate'] | str,  # noqa: PYI051
+) -> bytes:
     """
     Compress data using Gzip, Deflate or Brotli.
 
@@ -578,7 +581,10 @@ def compress(data: bytes, algorithm: Literal['br', 'gzip', 'deflate'] | str) -> 
     raise ValueError(f"Unknown compression algorithm: {algorithm}")
 
 
-def decompress(data: bytes, algorithm: Literal['br', 'gzip', 'deflate'] | str) -> bytes:
+def decompress(
+    data: bytes,
+    algorithm: Literal['br', 'gzip', 'deflate'] | str,  # noqa: PYI051
+) -> bytes:
     """
     Uncompress data using Gzip, Deflate or Brotli.
 
@@ -647,7 +653,7 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
 
 def html_in_json(
     template: str,
-) -> dict[str, str | Callable[[Mapping[str, Any]], ReturnView]]:
+) -> Mapping[str, str | Callable[[Mapping[str, Any]], ReturnResponse]]:
     """
     Render a HTML fragment in a JSON wrapper, for use with ``@render_with``.
 

@@ -35,8 +35,10 @@ here:
       - GET
       - Can be used to download the file. (xlsx, pdf, json, rar)
 """
+# spell-checker:ignore TRAI ijson HTTPX apikey anext
 
 import asyncio
+from http import HTTPStatus
 
 import click
 import httpx
@@ -99,17 +101,18 @@ async def get_mnrl_json_file_list(apikey: str) -> list[str]:
     response = await httpx.AsyncClient(http2=True).get(
         f'https://mnrl.trai.gov.in/api/mnrl/files/{apikey}', timeout=300
     )
-    if response.status_code == 401:
+    # MNRL makes non-standard use of HTTP 407 to indicate API key expiry
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
         raise KeyInvalidError()
-    if response.status_code == 407:
+    if response.status_code == HTTPStatus.PROXY_AUTHENTICATION_REQUIRED:
         raise KeyExpiredError()
     response.raise_for_status()
 
     result = response.json()
     # Fallback tests for non-200 status codes in a 200 response (current API behaviour)
-    if result['status'] == 401:
+    if result['status'] == HTTPStatus.UNAUTHORIZED:
         raise KeyInvalidError()
-    if result['status'] == 407:
+    if result['status'] == HTTPStatus.PROXY_AUTHENTICATION_REQUIRED:
         raise KeyExpiredError()
     return [row['file_name'] for row in result['mnrl_files']['json']]
 
@@ -139,20 +142,20 @@ async def forget_phone_numbers(phone_numbers: set[str], prefix: str) -> None:
     """Mark phone numbers as forgotten."""
     for unprefixed in phone_numbers:
         number = prefix + unprefixed
-        userphone = AccountPhone.get(number)
-        if userphone is not None:
-            # TODO: Dispatch a notification to userphone.account, but since the
+        account_phone = AccountPhone.get(number)
+        if account_phone is not None:
+            # TODO: Dispatch a notification to account_phone.account, but since the
             # notification will not know the phone number (it'll already be forgotten),
             # we need a new db model to contain custom messages
             # TODO: Also delay dispatch until the full MNRL scan is complete -- their
             # backup contact phone number may also have expired. That means this
             # function will create notifications and return them, leaving dispatch to
             # the outermost function
-            rprint(f"{userphone} - owned by {userphone.account.pickername}")
+            rprint(f"{account_phone} - owned by {account_phone.account.pickername}")
             # TODO: MNRL isn't foolproof. Don't delete! Instead, notify the user and
             # only delete if they don't respond (How? Maybe delete and send them a
             # re-add token?)
-            # db.session.delete(userphone)
+            # db.session.delete(account_phone)
         phone_number = PhoneNumber.get(number)
         if phone_number is not None:
             rprint(
@@ -234,7 +237,7 @@ async def process_mnrl_files(
         try:
             # TODO: Change this to `notifications = await task` then return them too
             await task
-        except Exception as exc:  # noqa: B902  # pylint: disable=broad-except
+        except Exception as exc:  # noqa: BLE001  # pylint: disable=broad-except
             app.logger.exception("%s in forget_phone_numbers", repr(exc))
     return revoked_phone_numbers, mnrl_total_count, failures
 
@@ -254,7 +257,7 @@ async def process_mnrl(apikey: str) -> None:
     except httpx.HTTPError as exc:
         err = f"{exc!r} in MNRL API getting download list"
         rprint(f"[red]{err}")
-        raise click.ClickException(err)
+        raise click.ClickException(err) from exc
 
     revoked_phone_numbers, mnrl_total_count, failures = await process_mnrl_files(
         apikey, existing_phone_numbers, phone_prefix, mnrl_filenames

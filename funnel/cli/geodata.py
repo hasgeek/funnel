@@ -10,6 +10,7 @@ import zipfile
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
+from http import HTTPStatus
 from urllib.parse import urljoin
 
 import click
@@ -29,6 +30,9 @@ from ..models import (
     GeoName,
     db,
 )
+
+ONE_DAY = 86400
+POPULATION_THRESHOLD = 15000
 
 csv.field_size_limit(sys.maxsize)
 
@@ -99,7 +103,7 @@ class GeoAdminRecord:
 class GeoAltNameRecord:
     """Geonames alt name record."""
 
-    id: str  # noqa: A003
+    id: str
     geonameid: str
     lang: str
     title: str
@@ -111,13 +115,10 @@ class GeoAltNameRecord:
 
 def downloadfile(basepath: str, filename: str, folder: str | None = None) -> None:
     """Download a geoname record file."""
-    if not folder:
-        folder_file = filename
-    else:
-        folder_file = os.path.join(folder, filename)
+    folder_file = filename if not folder else os.path.join(folder, filename)
     if (
         os.path.exists(folder_file)
-        and (time.time() - os.path.getmtime(folder_file)) < 86400
+        and (time.time() - os.path.getmtime(folder_file)) < ONE_DAY
     ):
         click.echo(f"Skipping re-download of recent {filename}")
         return
@@ -132,7 +133,7 @@ def downloadfile(basepath: str, filename: str, folder: str | None = None) -> Non
         task = progress.add_task(f"Downloading {filename}", total=None)
         url = urljoin(basepath, filename)
         r = requests.get(url, stream=True, timeout=30)
-        if r.status_code == 200:
+        if r.status_code == HTTPStatus.OK:
             filesize = int(r.headers.get('content-length', 0))
             if filesize:
                 progress.update(task, total=filesize)
@@ -246,7 +247,7 @@ def load_geonames(filename: str) -> None:
                     (
                         rec.population.isdigit()
                         and int(rec.population != 0)
-                        and int(rec.population) < 15000
+                        and int(rec.population) < POPULATION_THRESHOLD
                     )
                     or not rec.population.isdigit()
                 ):

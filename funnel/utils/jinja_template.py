@@ -50,10 +50,10 @@ class JinjaInspector(CodeGenerator):
 
         :return: Tuple of template name, source, filename, up_to_date callable
         """
-        assert env.loader is not None  # nosec B101
+        assert env.loader is not None  # noqa: S101
         for each in templates:
             try:
-                return (each,) + env.loader.get_source(env, each)
+                return (each, *env.loader.get_source(env, each))
             except TemplateNotFound:
                 continue
         raise TemplatesNotFound(templates)
@@ -205,12 +205,12 @@ class JinjaInspector(CodeGenerator):
 # MARK: Typed template dataclass -------------------------------------------------------
 
 
-def jinja_global(*, init: Literal[False] = False) -> Any:
+def jinja_global(*, init: Literal[False] = False) -> Any:  # noqa: ARG001
     """Sentinel for a Jinja2 environment global value."""
     return ...
 
 
-def jinja_undefined(*, default: Literal[None] = None) -> Any:
+def jinja_undefined(*, default: Literal[None] = None) -> Any:  # noqa: ARG001
     """Sentinel for an optional Jinja2 context variable."""
     return ...
 
@@ -285,8 +285,7 @@ class JinjaTemplateBase:
         if env is None:
             env = current_app.jinja_env
         jinja_source, filename = cls.jinja_source(env, template)
-        python_source = env.compile(jinja_source, cls._template, filename, raw=True)
-        return python_source
+        return env.compile(jinja_source, cls._template, filename, raw=True)
 
     @classmethod
     def jinja_validate_syntax(

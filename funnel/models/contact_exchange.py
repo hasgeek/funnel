@@ -38,7 +38,7 @@ __all__ = ['ContactExchange']
 class ProjectId:
     """Holder for minimal :class:`~funnel.models.project.Project` information."""
 
-    id: int  # noqa: A003
+    id: int
     uuid: UUID
     uuid_b58: str
     title: str
@@ -211,7 +211,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         # We don't do it here, but this can easily be converted into a dictionary of
         # `{project: dates}` using `dict(result)`
 
-        groups = [
+        return [
             (
                 k,
                 [
@@ -236,8 +236,6 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
                 ),
             )
         ]
-
-        return groups
 
     @classmethod
     def contacts_for_project_and_date(

@@ -46,7 +46,7 @@ def dbcreate() -> None:
 @app.cli.command('baseframe_translations_path')
 def baseframe_translations_path() -> None:
     """Show path to Baseframe translations."""
-    click.echo(list(baseframe_translations.translation_directories)[0])
+    click.echo(next(iter(baseframe_translations.translation_directories)))
 
 
 @app.cli.command('checkenv')

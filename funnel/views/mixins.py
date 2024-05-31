@@ -32,7 +32,10 @@ from .login_session import requires_login
 class AccountCheckMixin:
     """Base class checks for suspended accounts."""
 
-    account: Account
+    if TYPE_CHECKING:
+        # Define `account` as a read-only attribute (for this mixin!)
+        @property
+        def account(self) -> Account: ...
 
     def after_loader(self) -> ReturnView | None:
         """Post-process loader."""
@@ -55,6 +58,7 @@ class ProjectViewBase(
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
     project: Project
+    account: Account
 
     def load(self, account: str, project: str, **_kwargs: Any) -> ReturnView | None:
         obj = (
@@ -78,10 +82,10 @@ class ProjectViewBase(
         elif obj.state.DELETED:
             abort(410)
         self.obj = obj
-        self.post_init()
+        self.account = obj.account
         return self.after_loader()
 
-    def post_init(self) -> None:
+    def post_load(self) -> None:
         self.project = project = self.obj
         self.account = project.account
 
@@ -101,8 +105,9 @@ class AccountViewBase(AccountCheckMixin, UrlForView, ModelView[Account]):
             abort(404)
         return obj
 
-    def post_init(self) -> None:
-        self.account = self.obj
+    @property
+    def account(self) -> Account:
+        return self.obj
 
 
 @route('/<account>/<project>/ticket_event/<name>')
@@ -126,8 +131,9 @@ class TicketEventViewBase(AccountCheckMixin, UrlForView, ModelView[TicketEvent])
             .one_or_404()
         )
 
-    def post_init(self) -> None:
-        self.account = self.obj.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.project.account
 
 
 # FIXME: Make this a generic like ModelView
@@ -144,7 +150,7 @@ class DraftViewProtoMixin:
         """
         obj = obj if obj is not None else self.obj
         if TYPE_CHECKING:
-            assert obj is not None  # nosec B101
+            assert obj is not None
         return db.session.get(Draft, (self.model.__tablename__, obj.uuid))
 
     def delete_draft(self, obj: ModelUuidProtocol | None = None) -> None:

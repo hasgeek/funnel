@@ -421,7 +421,9 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
             else (
                 removed_account
                 if self.state.SPAM
-                else unknown_account if self._posted_by is None else self._posted_by
+                else unknown_account
+                if self._posted_by is None
+                else self._posted_by
             )
         )
 
@@ -445,7 +447,9 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
         return (
             message_deleted
             if self.state.DELETED
-            else message_removed if self.state.SPAM else self._message
+            else message_removed
+            if self.state.SPAM
+            else self._message
         )
 
     @message.inplace.setter
@@ -506,16 +510,15 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
         if len(self.replies) > 0:
             self.posted_by = None
             self.message = ''
+        elif self.in_reply_to and self.in_reply_to.state.DELETED:
+            # If the comment this is replying to is deleted, ask it to reconsider
+            # removing itself
+            in_reply_to = self.in_reply_to
+            in_reply_to.replies.remove(self)
+            db.session.delete(self)
+            in_reply_to.delete()
         else:
-            if self.in_reply_to and self.in_reply_to.state.DELETED:
-                # If the comment this is replying to is deleted, ask it to reconsider
-                # removing itself
-                in_reply_to = self.in_reply_to
-                in_reply_to.replies.remove(self)
-                db.session.delete(self)
-                in_reply_to.delete()
-            else:
-                db.session.delete(self)
+            db.session.delete(self)
 
     @state.transition(None, state.SPAM)
     def mark_spam(self) -> None:

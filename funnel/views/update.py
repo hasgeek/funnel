@@ -93,18 +93,23 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Update
     }
     SavedProjectForm = SavedProjectForm
 
-    def load(self, account: str, project: str, update: str) -> ReturnView | None:
+    def load(
+        self,
+        account: str,  # noqa: ARG002
+        project: str,  # noqa: ARG002
+        update: str,
+    ) -> ReturnView | None:
         self.obj = (
             Update.query.join(Project)
             .join(Account, Project.account)
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
-        self.post_init()
-        return super().after_loader()
+        return self.after_loader()
 
-    def post_init(self) -> None:
-        self.account = self.obj.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.project.account
 
     @route('', methods=['GET'])
     @render_with('update_details.html.jinja2')

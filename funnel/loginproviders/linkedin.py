@@ -19,7 +19,7 @@ __all__ = ['LinkedInProvider']
 
 class LinkedInProvider(LoginProvider):
     auth_url = 'https://www.linkedin.com/oauth/v2/authorization?response_type=code'
-    token_url = 'https://www.linkedin.com/oauth/v2/accessToken'  # nosec
+    token_url = 'https://www.linkedin.com/oauth/v2/accessToken'  # noqa: S105
     user_info = (
         'https://api.linkedin.com/v2/me?'
         'projection=(id,localizedFirstName,localizedLastName)'
@@ -126,7 +126,7 @@ class LinkedInProvider(LoginProvider):
             ) from exc
 
         email_address = ''
-        if 'elements' in email_info and email_info['elements']:
+        if email_info.get('elements'):
             email_address = email_info['elements'][0]['handle~']['emailAddress']
 
         return LoginProviderData(

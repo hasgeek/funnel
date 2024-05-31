@@ -39,7 +39,7 @@ all_apps = [app, shortlinkapp, unsubscribeapp]
 
 mail = Mail()
 pages = FlatPages()
-manifest = WebpackManifest(filepath='static/build/manifest.json')
+webpack = WebpackManifest(filepath='static/build/manifest.json', jinja_global='webpack')
 
 redis_store = FlaskRedis(decode_responses=True, config_prefix='CACHE_REDIS')
 rq = RQ()
@@ -117,7 +117,7 @@ for each_app in all_apps:
         phonenumbers.PhoneNumberFormat.INTERNATIONAL,
     )
     proxies.init_app(each_app)
-    manifest.init_app(each_app)
+    webpack.init_app(each_app)
     db.init_app(each_app)
     mail.init_app(each_app)
 

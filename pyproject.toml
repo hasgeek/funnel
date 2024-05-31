@@ -31,6 +31,7 @@ deps-file = "requirements/base.in"
 exclude-deps = [
   "argon2-cffi",     # Optional dep for passlib
   "bcrypt",          # Optional dep for passlib
+  "flask-moreshell", # Auto-imported by Flask
   "greenlet",        # Optional dep for SQLAlchemy's asyncio support
   "gunicorn",        # Not imported, used as server
   "linkify-it-py",   # Optional dep for markdown-it-py
@@ -127,6 +128,7 @@ addopts = [
   '--allow-hosts=127.0.0.1,::1', # Add Docker IPs here
   '--strict-markers',
 ]
+asyncio_mode = 'auto'
 markers = [
   'dbcommit: Test requires true database commits',
   'formdata(dict): HTTP form data for form fixture',
@@ -190,7 +192,7 @@ disable = [
   'cyclic-import',                  # We have tail imports all over
   'duplicate-code',                 # Too many false positives
   'fixme',                          # Our workflow is to tag for future fixes
-  'invalid-name',                   # Flake8 covers our naming convention requirements
+  'invalid-name',                   # Ruff covers our naming convention requirements
   'line-too-long',                  # Long lines are okay if Black doesn't wrap them
   'no-member',                      # Pylint gets confused over how some members become part of an instance
   'no-value-for-parameter',         # False positives with SQLAlchemy's hybrid_method
@@ -231,63 +233,6 @@ skips = [
 skips = ['**/*_test.py', '**/test_*.py', '**/conftest.py']
 
 [tool.ruff]
-# This is a slight customisation of the default rules
-# 1. Rule E402 (module-level import not top-level) is disabled as isort handles it
-# 2. Rule E501 (line too long) is left to Black; some strings are worse for wrapping
-
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-lint.select = ["E", "F"]
-lint.ignore = ["E402", "E501"]
-
-# Allow autofix for all enabled rules (when `--fix`) is provided.
-lint.fixable = [
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "I",
-  "N",
-  "Q",
-  "S",
-  "T",
-  "W",
-  "ANN",
-  "ARG",
-  "BLE",
-  "COM",
-  "DJ",
-  "DTZ",
-  "EM",
-  "ERA",
-  "EXE",
-  "FBT",
-  "ICN",
-  "INP",
-  "ISC",
-  "NPY",
-  "PD",
-  "PGH",
-  "PIE",
-  "PL",
-  "PT",
-  "PTH",
-  "PYI",
-  "RET",
-  "RSE",
-  "RUF",
-  "SIM",
-  "SLF",
-  "TCH",
-  "TID",
-  "TRY",
-  "UP",
-  "YTT",
-]
-lint.unfixable = []
-
 # Exclude a variety of commonly ignored directories.
 exclude = [
   ".bzr",
@@ -315,15 +260,105 @@ exclude = [
 # Same as Black.
 line-length = 88
 
-# Allow unused variables when underscore-prefixed.
-lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
 # Target Python 3.11
 target-version = "py311"
 
-[tool.ruff.lint.mccabe]
-# Unlike Flake8, default to a complexity level of 10.
-max-complexity = 10
+[tool.ruff.format]
+docstring-code-format = true
+quote-style = "preserve"
+
+[tool.ruff.lint]
+select = [
+  "A",     # flake8-builtins
+  "ANN",   # flake8-annotations
+  "ARG",   # flake8-unused-arguments
+  "ASYNC", # flake8-async
+  "B",     # flake8-bugbear
+  "BLE",   # flake8-blind-except
+  "C",     # pylint convention
+  "D",     # pydocstyle
+  "C4",    # flake8-comprehensions
+  "E",     # Error
+  "EM",    # flake8-errmsg
+  "EXE",   # flake8-executable
+  "F",     # pyflakes
+  "FA",    # flake8-future-annotations
+  "FLY",   # flynt
+  "G",     # flake8-logging-format
+  "I",     # isort
+  "INP",   # flake8-no-pep420
+  "INT",   # flake8-gettext
+  "ISC",   # flake8-implicit-str-concat
+  "N",     # pep8-naming
+  "PERF",  # Perflint
+  "PGH",   # pygrep-hooks
+  "PIE",   # flake8-pie
+  "PL",    # pylint
+  "PT",    # flake8-pytest-style
+  "PYI",   # flake8-pyi
+  "RET",   # flake8-return
+  "RUF",   # ruff
+  "S",     # flake8-bandit
+  "SIM",   # flake8-simplify
+  "SLOT",  # flake8-slots
+  "T20",   # flake8-print
+  "TRIO",  # flake8-trio
+  "UP",    # pyupgrade
+  "W",     # Warnings
+  "YTT",   # flake8-2020
+]
+ignore = [
+  "ANN002",  # `*args` is implicit `Any`
+  "ANN003",  # `**kwargs` is implicit `Any`
+  "ANN101",  # `self` type is implicit
+  "ANN102",  # `cls` type is implicit
+  "ANN401",  # Allow `Any` type
+  "C901",
+  "D101",
+  "D102",
+  "D103",
+  "D105",    # Magic methods don't need docstrings
+  "D106",    # Nested classes don't need docstrings
+  "D107",    # `__init__` doesn't need a docstring
+  "D203",    # No blank lines before class docstring
+  "D212",    # Allow multiline docstring to start on next line after quotes
+  "D213",    # But also allow multiline docstring to start right after quotes
+  "E402",    # Allow top-level imports after statements
+  "E501",    # Allow long lines if the formatter can't fix it
+  "EM101",   # Allow Exception("string")
+  "EM102",   # Allow Exception(f"string")
+  "ISC001",  # Allow implicitly concatenated string literals (required for formatter)
+  "PLR2004", # Too many false positives
+  "PLR0911", # Alow multiple return statements
+  "PLR0912", # Some functions are complex
+  "PLR0913", # Some functions need many args
+  "PLR0915", # Too many statements are okay
+  "RUF012",  # Allow mutable ClassVar without annotation (conflicts with SQLAlchemy)
+  "SLOT000", # Don't require `__slots__` for subclasses of str
+]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow these characters in strings
+allowed-confusables = ["‘", "’", "–"]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"__init__.py" = ["E402"] # Allow non-top-level imports
+"tests/**.py" = [
+  "ARG001", # Context manager fixtures may not be used within a test
+  "ANN001", # Args don't need types (usually fixtures)
+  "D401",   # Fixture docstrings shouldn't be imperative
+  "N802",   # Fixture returning a class may be named per class name convention
+  "N803",   # Args don't require naming convention (fixture could be a class)
+  "N999",   # Module name may have a CamelCased class name in it
+  "S101",   # Allow assert
+]
+"tests/**/__init__.py" = ["D104"] # Allow empty marker `__init__.py` files
+"migrations/**.py" = [
+  "INP001", # This folder is not a package
+]
 
 [tool.ruff.lint.isort]
 # These config options should match isort config above under [tool.isort]
@@ -346,3 +381,6 @@ repo = ['funnel']
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
 mark-parentheses = false
+
+[tool.ruff.lint.pyupgrade]
+keep-runtime-typing = true

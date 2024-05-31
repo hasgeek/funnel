@@ -3,7 +3,6 @@
 # pylint: disable=not-callable
 # mypy: disable-error-code=index
 
-
 import pytest
 
 from funnel.utils.markdown import MarkdownConfig

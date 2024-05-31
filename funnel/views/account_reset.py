@@ -55,7 +55,7 @@ def reset() -> ReturnView:
         user = form.user
         anchor = form.anchor
         if TYPE_CHECKING:
-            assert isinstance(user, Account)  # nosec
+            assert isinstance(user, Account)
         if not anchor:
             # User has no phone or email. Maybe they logged in via Twitter
             # and set a local username and password, but no email. Could happen
@@ -128,7 +128,7 @@ def reset_with_token(token: str, cookietest: bool = False) -> ReturnView:
 
 
 @app.route('/account/reset/<buid>/<secret>')
-def reset_with_token_legacy(buid: str, secret: str) -> ReturnView:
+def reset_with_token_legacy(buid: str, secret: str) -> ReturnView:  # noqa: ARG001
     """Old links with separate user id and secret are no longer valid."""
     flash(
         _(

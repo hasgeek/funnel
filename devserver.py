@@ -31,7 +31,7 @@ if __name__ == '__main__':
     os.environ['FLASK_ENV'] = 'development'  # Needed for coaster.app.init_app
     os.environ.setdefault('FLASK_DEBUG', '1')
     debug_mode = os.environ['FLASK_DEBUG'].lower() not in {'0', 'false', 'no'}
-    ssl_context: str | Literal['adhoc'] | tuple[str, str] | None
+    ssl_context: str | Literal['adhoc'] | tuple[str, str] | None  # noqa: PYI051
     ssl_context = os.environ.get('FLASK_DEVSERVER_HTTPS')
     if ssl_context is not None:
         if not ssl_context:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
 from hashlib import sha1
+from http import HTTPStatus
 from typing import Any, NoReturn
 
 import requests
@@ -76,10 +77,14 @@ class PasswordStrengthValidator:
         self.user_input_fields = user_input_fields
         self.message = message or self.default_message
 
-    def __call__(self, form: forms.Form, field: forms.PasswordField) -> None:
-        user_inputs = []
-        for field_name in self.user_input_fields:
-            user_inputs.append(getattr(form, field_name).data)
+    def __call__(
+        self,
+        form: PasswordChangeForm | PasswordCreateForm | PasswordResetForm,
+        field: forms.PasswordField,
+    ) -> None:
+        user_inputs = [
+            getattr(form, field_name).data for field_name in self.user_input_fields
+        ]
 
         if (edit_user := getattr(form, 'edit_user', None)) is not None:
             if edit_user.username:
@@ -87,22 +92,16 @@ class PasswordStrengthValidator:
             if edit_user.fullname:
                 user_inputs.append(edit_user.fullname)
 
-            for accountemail in edit_user.emails:
-                user_inputs.append(str(accountemail))
-            for emailclaim in edit_user.emailclaims:
-                user_inputs.append(str(emailclaim))
-
-            for accountphone in edit_user.phones:
-                user_inputs.append(str(accountphone))
+            user_inputs.extend(str(i) for i in edit_user.emails)
+            user_inputs.extend(str(i) for i in edit_user.emailclaims)
+            user_inputs.extend(str(i) for i in edit_user.phones)
 
         tested_password = check_password_strength(
             field.data or '', user_inputs=user_inputs if user_inputs else None
         )
         # Stick password strength into the form for logging in the view and possibly
         # rendering into UI
-        form.password_strength = (  # pyright: ignore[reportGeneralTypeIssues]
-            tested_password.score
-        )
+        form.password_strength = tested_password.score
         # No test failures? All good then
         if not tested_password.is_weak:
             return
@@ -127,7 +126,7 @@ def pwned_password_validator(_form: Any, field: forms.PasswordField) -> None:
 
     try:
         rv = requests.get(f'https://api.pwnedpasswords.com/range/{prefix}', timeout=10)
-        if rv.status_code != 200:
+        if rv.status_code != HTTPStatus.OK:
             # API call had an error and we can't proceed with validation.
             return
         # This API returns minimal plaintext containing ``suffix:count``, one per line.
@@ -213,14 +212,9 @@ class PasswordPolicyForm(forms.Form):
         if self.edit_user:
             if self.edit_user.fullname:
                 user_inputs.append(self.edit_user.fullname)
-
-            for accountemail in self.edit_user.emails:
-                user_inputs.append(str(accountemail))
-            for emailclaim in self.edit_user.emailclaims:
-                user_inputs.append(str(emailclaim))
-
-            for accountphone in self.edit_user.phones:
-                user_inputs.append(str(accountphone))
+            user_inputs.extend(str(i) for i in self.edit_user.emails)
+            user_inputs.extend(str(i) for i in self.edit_user.emailclaims)
+            user_inputs.extend(str(i) for i in self.edit_user.phones)
 
         tested_password = check_password_strength(
             field.data, user_inputs=user_inputs if user_inputs else None

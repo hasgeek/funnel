@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.sql import column, table
 
-from coaster.gfm import markdown
+from coaster.utils import markdown
 
 # revision identifiers, used by Alembic.
 revision = '222b78a8508d'

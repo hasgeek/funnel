@@ -151,11 +151,12 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
     }
 
     SavedProjectForm = SavedProjectForm
+    account: Account
 
     def load(
         self,
-        account: str,  # skipcq: PYL-W0613
-        project: str,  # skipcq: PYL-W0613
+        account: str,  # noqa: ARG002
+        project: str,  # noqa: ARG002
         proposal: str,
     ) -> ReturnView | None:
         # `account` and `project` are part of the URL, but unnecessary for loading
@@ -183,7 +184,7 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
         self.account = redirect.proposal.project.account
         return render_redirect(redirect.proposal.url_for(), 308)
 
-    def post_init(self) -> None:
+    def post_load(self) -> None:
         self.account = self.obj.project.account
 
     @route('')
@@ -455,11 +456,11 @@ class ProposalMembershipView(
         if obj.revoked_at is not None:
             abort(410)
         self.obj = obj
-        self.post_init()
         return self.after_loader()
 
-    def post_init(self) -> None:
-        self.account = self.obj.proposal.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.proposal.project.account
 
     def collaborators(self) -> list[RoleAccessProxy[ProposalMembership]]:
         return [

@@ -53,7 +53,7 @@ class BadgeDict(TypedDict):
 
 
 def ticket_participant_badge_data(
-    ticket_participants: Iterable[TicketParticipant], project: Project
+    ticket_participants: Iterable[TicketParticipant],
 ) -> list[BadgeDict]:
     badges: list[BadgeDict] = []
     for ticket_participant in ticket_participants:
@@ -100,9 +100,7 @@ def ticket_participant_data(
 
 
 def ticket_participant_checkin_data(
-    ticket_participant: CheckinParticipantProtocol,
-    project: Project,
-    ticket_event: TicketEvent,
+    ticket_participant: CheckinParticipantProtocol, project: Project
 ) -> dict:
     puuid_b58 = uuid_to_base58(ticket_participant.uuid)
     data = {
@@ -206,11 +204,11 @@ class TicketParticipantView(
             )
             .first_or_404()
         )
-        self.post_init()
-        return super().after_loader()
+        return self.after_loader()
 
-    def post_init(self) -> None:
-        self.account = self.obj.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.project.account
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'project_promoter'})
@@ -230,13 +228,13 @@ class TicketParticipantView(
     @render_with('badge.html.jinja2')
     @requires_roles({'project_promoter', 'project_usher'})
     def badge(self) -> ReturnRenderWith:
-        return {'badges': ticket_participant_badge_data([self.obj], self.obj.project)}
+        return {'badges': ticket_participant_badge_data([self.obj])}
 
     @route('label_badge', methods=['GET'])
     @render_with('label_badge.html.jinja2')
     @requires_roles({'project_promoter', 'project_usher'})
     def label_badge(self) -> ReturnRenderWith:
-        return {'badges': ticket_participant_badge_data([self.obj], self.obj.project)}
+        return {'badges': ticket_participant_badge_data([self.obj])}
 
 
 @user_data_changed.connect
@@ -299,9 +297,7 @@ class TicketEventParticipantView(TicketEventViewBase):
         ticket_participants = []
         for ticket_participant in TicketParticipant.checkin_list(self.obj):
             ticket_participants.append(
-                ticket_participant_checkin_data(
-                    ticket_participant, self.obj.project, self.obj
-                )
+                ticket_participant_checkin_data(ticket_participant, self.obj.project)
             )
             if ticket_participant.checked_in:
                 checkin_count += 1
@@ -326,9 +322,7 @@ class TicketEventParticipantView(TicketEventViewBase):
         )
         return {
             'badge_template': self.obj.badge_template,
-            'badges': ticket_participant_badge_data(
-                ticket_participants, self.obj.project
-            ),
+            'badges': ticket_participant_badge_data(ticket_participants),
         }
 
     @route('label_badges')
@@ -344,9 +338,7 @@ class TicketEventParticipantView(TicketEventViewBase):
         )
         return {
             'badge_template': self.obj.badge_template,
-            'badges': ticket_participant_badge_data(
-                ticket_participants, self.obj.project
-            ),
+            'badges': ticket_participant_badge_data(ticket_participants),
         }
 
 

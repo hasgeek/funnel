@@ -56,6 +56,7 @@ class ProjectMembership(ImmutableMembershipMixin, Model):
                 'is_promoter',
                 'is_usher',
                 'label',
+                'bio',
             }
         },
         'project_crew': {
@@ -81,6 +82,7 @@ class ProjectMembership(ImmutableMembershipMixin, Model):
             'label',
             'member',
             'project',
+            'bio',
         },
         'without_parent': {
             'urls',
@@ -91,6 +93,7 @@ class ProjectMembership(ImmutableMembershipMixin, Model):
             'is_usher',
             'label',
             'member',
+            'bio',
         },
         'related': {
             'urls',
@@ -100,6 +103,7 @@ class ProjectMembership(ImmutableMembershipMixin, Model):
             'is_promoter',
             'is_usher',
             'label',
+            'bio',
         },
     }
 
@@ -157,6 +161,13 @@ class ProjectMembership(ImmutableMembershipMixin, Model):
         if kwargs:
             args.append(kwargs)
         return tuple(args)
+
+    @property
+    def bio(self) -> str | None:
+        """Member's biography line, from their account."""
+        # TODO: Use the account membership label if available (requires discovery of
+        # account membership instance)
+        return self.member.tagline
 
     @cached_property
     def offered_roles(self) -> set[str]:

@@ -25,7 +25,7 @@ class VideoData(TypedDict):
     """Dictionary for video data, as used in templates."""
 
     source: str
-    id: str  # noqa: A003
+    id: str
     url: str
     embeddable_url: str
     duration: float
@@ -42,9 +42,9 @@ def video_cache_key(obj: VideoMixin) -> str:
 def get_video_cache(obj: VideoMixin) -> VideoData | None:
     data = redis_store.hgetall(video_cache_key(obj))
     if data:
-        if 'uploaded_at' in data and data['uploaded_at']:
+        if data.get('uploaded_at'):
             data['uploaded_at'] = parse_isoformat(data['uploaded_at'], naive=False)
-        if 'duration' in data and data['duration']:
+        if data.get('duration'):
             data['duration'] = float(data['duration'])
     return data
 

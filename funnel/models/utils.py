@@ -63,7 +63,7 @@ def getuser(name: str, anchor: bool = False) -> Account | AccountAndAnchor | Non
     accountemail: AccountEmail | AccountEmailClaim | None = None
     accountphone: AccountPhone | None = None
     # Treat an '@' or '~' prefix as a username lookup, removing the prefix
-    if name.startswith('@') or name.startswith('~'):
+    if name.startswith(('@', '~')):
         name = name[1:]
     # If there's an '@' in the middle, treat as an email address
     elif '@' in name:
@@ -241,7 +241,7 @@ def do_migrate_instances(
 
         # Now check for multi-column indexes
         for constraint in table.constraints:
-            if isinstance(constraint, (PrimaryKeyConstraint, UniqueConstraint)):
+            if isinstance(constraint, PrimaryKeyConstraint | UniqueConstraint):
                 for column in constraint.columns:
                     if column in target_columns:
                         # The target column (typically account_id) is part of a unique

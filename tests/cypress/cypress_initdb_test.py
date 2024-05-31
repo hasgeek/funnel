@@ -22,14 +22,14 @@ def init_models() -> None:
         db.create_all()
 
         user_admin = User(username='admin_user', fullname='admin-user')
-        user_admin.password = 'admin-user129_Ftz'  # nosec
+        user_admin.password = 'admin-user129_Ftz'  # noqa: S105
         user_admin_email = AccountEmail(
             email='adminuser@example.com', account=user_admin
         )
         db.session.add(user_admin.add_phone('+918123456789', primary=True))
 
         user = User(username='member_user', fullname='member-user')
-        user.password = 'member-user341_Wer'  # nosec
+        user.password = 'member-user341_Wer'  # noqa: S105
         user_email = AccountEmail(email='memberuser@example.com', account=user)
         db.session.add(user.add_phone('+12015550123', primary=True))
 
@@ -37,30 +37,30 @@ def init_models() -> None:
             username='profile_cypress',
             fullname='profile-cypress',
         )
-        profile_owner.password = 'profile-cypress123_St'  # nosec
+        profile_owner.password = 'profile-cypress123_St'  # noqa: S105
         profile_owner_email = AccountEmail(
             email='profileowner@example.com', account=profile_owner
         )
         db.session.add(profile_owner.add_phone('+15062345678', primary=True))
 
         promoter = User(username='promoter_user', fullname='promoter-user')
-        promoter.password = 'promoter-user34_qQE'  # nosec
+        promoter.password = 'promoter-user34_qQE'  # noqa: S105
         promoter_email = AccountEmail(email='promoter@example.com', account=promoter)
 
         usher = User(username='usher_cypress', fullname='usher-cypress')
-        usher.password = 'usher-cypress566_YUt'  # nosec
+        usher.password = 'usher-cypress566_YUt'  # noqa: S105
         usher_email = AccountEmail(email='usher@example.com', account=usher)
 
         editor = User(username='editor_cypress', fullname='editor-cypress')
-        editor.password = 'editor-cypress9_GH'  # nosec
+        editor.password = 'editor-cypress9_GH'  # noqa: S105
         editor_email = AccountEmail(email='editor@example.com', account=editor)
         db.session.add(editor.add_phone('+447400123456', primary=True))
 
         user2 = User(username='hg_user', fullname='hg-user')
-        user2.password = 'hg-user5_HE'  # nosec
+        user2.password = 'hg-user5_HE'  # noqa: S105
 
         user3 = User(username='new_user', fullname='new-user')
-        user3.password = 'new-user11_EveryOne'  # nosec
+        user3.password = 'new-user11_EveryOne'  # noqa: S105
 
         sm = SiteMembership(
             member=profile_owner, is_site_editor=True, granted_by=profile_owner

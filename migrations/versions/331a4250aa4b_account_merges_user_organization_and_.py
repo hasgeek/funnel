@@ -74,18 +74,18 @@ class Rn:
     old_table_name: str | None = None
 
     def _do(self, current_name: str, future_name: str) -> None:
-        """Internal function for performing the operation."""
+        """Perform the operation (internal)."""
         qtable = sa.quoted_name(self.table_name, None) if self.table_name else None
         qold = sa.quoted_name(current_name, None)
         qnew = sa.quoted_name(future_name, None)
         if self.symbol == 'column':
-            assert self.table_name is not None  # nosec B101
+            assert self.table_name is not None  # noqa: S101
             op.alter_column(self.table_name, current_name, new_column_name=future_name)
         elif self.symbol == 'constraint':
-            assert self.table_name is not None  # nosec B101
+            assert self.table_name is not None  # noqa: S101
             op.execute(f'ALTER TABLE {qtable} RENAME CONSTRAINT {qold} TO {qnew}')
         elif self.symbol == 'trigger':
-            assert self.table_name is not None  # nosec B101
+            assert self.table_name is not None  # noqa: S101
             op.execute(f'ALTER TRIGGER {qold} ON {qtable} RENAME TO {qnew}')
         elif self.symbol == 'sequence':
             op.execute(f'ALTER SEQUENCE {qold} RENAME TO {qnew}')
@@ -603,7 +603,6 @@ def downgrade(engine_name: str = '') -> None:
 
 def upgrade_() -> None:
     """Upgrade database bind ''."""
-
     # This upgrade has multiple parts:
     # 1. Rename user -> account and various other tables and reference columns
     # 2. Add extra columns to account table

@@ -48,7 +48,7 @@ def upgrade() -> None:
                 FROM "user", "old_user"
                 WHERE "{table}"."{old}" = "old_user"."id"
                 AND "old_user"."uuid" = "user"."uuid";
-                '''
+                '''  # noqa: S608
             )
         )
 
@@ -61,7 +61,7 @@ def upgrade() -> None:
                 FROM "team", "old_team"
                 WHERE "{table}"."{old}" = "old_team"."id"
                 AND "old_team"."uuid" = "team"."uuid";
-                '''
+                '''  # noqa: S608
             )
         )
 

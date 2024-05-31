@@ -149,7 +149,7 @@ def upgrade_() -> None:
                 )
                 .returning(phone_number.c.id)
             ).first()
-            assert pn_id is not None  # nosec B101
+            assert pn_id is not None  # noqa: S101
         conn.execute(
             user_phone.update()
             .where(user_phone.c.id == item.id)
@@ -281,7 +281,7 @@ def upgrade_() -> None:
                 )
                 .returning(phone_number.c.id)
             ).first()
-            assert pn_id is not None  # nosec B101
+            assert pn_id is not None  # noqa: S101
         conn.execute(
             sms_message.update()
             .where(sms_message.c.id == item.id)

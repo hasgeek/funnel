@@ -74,7 +74,7 @@ GET_AND_POST = frozenset({'GET', 'POST'})
 #: Form id for sudo OTP form
 FORMID_SUDO_OTP = 'sudo-otp'
 #: Form id for sudo password form
-FORMID_SUDO_PASSWORD = 'sudo-password'  # nosec
+FORMID_SUDO_PASSWORD = 'sudo-password'  # noqa: S105
 
 # MARK: Registry entries ---------------------------------------------------------------
 
@@ -425,8 +425,7 @@ def reload_for_cookies(f: Callable[P, ReturnView]) -> Callable[P, ReturnView]:
         @route('/path')
         @reload_for_cookies
         @requires_login
-        def view() -> ReturnView:
-            ...
+        def view() -> ReturnView: ...
     """
 
     @wraps(f)
@@ -451,7 +450,7 @@ def reload_for_cookies(f: Callable[P, ReturnView]) -> Callable[P, ReturnView]:
 
 
 def requires_user_not_spammy(
-    get_current: Callable[..., str] | None = None
+    get_current: Callable[..., str] | None = None,
 ) -> Callable[[Callable[P, ReturnView]], Callable[P, ReturnView]]:
     """Decorate a view to require the user to prove they are not likely a spammer."""
 
@@ -484,16 +483,18 @@ def requires_user_not_spammy(
 
 @overload
 def requires_login(
-    __p: str,
+    __message_or_func: str,
 ) -> Callable[[Callable[P, T]], Callable[P, T | ReturnResponse]]: ...
 
 
 @overload
-def requires_login(__p: Callable[P, T]) -> Callable[P, T | ReturnResponse]: ...
+def requires_login(
+    __message_or_func: Callable[P, T],
+) -> Callable[P, T | ReturnResponse]: ...
 
 
 def requires_login(
-    __p: str | Callable[P, T]
+    __message_or_func: str | Callable[P, T],
 ) -> (
     Callable[[Callable[P, T]], Callable[P, T | ReturnResponse]]
     | Callable[P, T | ReturnResponse]
@@ -504,21 +505,21 @@ def requires_login(
     Usage::
 
         @requires_login
-        def view_requiring_login():
-            ...
+        def view_requiring_login(): ...
+
 
         @requires_login(__("Message to be shown"))
-        def view_requiring_login_with_custom_message():
-            ...
+        def view_requiring_login_with_custom_message(): ...
+
 
         @requires_login('')
-        def view_requiring_login_with_no_message():
-            ...
+        def view_requiring_login_with_no_message(): ...
     """
-    if callable(__p):
-        message = __("You need to be logged in for that page")
-    else:
-        message = __p
+    message = (
+        __('You need to be logged in for that page')
+        if callable(__message_or_func)
+        else __message_or_func
+    )
 
     def decorator(f: Callable[P, T]) -> Callable[P, T | ReturnResponse]:
         @wraps(f)
@@ -535,8 +536,8 @@ def requires_login(
 
         return wrapper
 
-    if callable(__p):
-        return decorator(__p)
+    if callable(__message_or_func):
+        return decorator(__message_or_func)
     return decorator
 
 
@@ -639,8 +640,8 @@ def requires_sudo(f: Callable[P, ReturnView]) -> Callable[P, ReturnView]:
                 # User does not have a password but has contact info. Try to send an OTP
                 # to their phone, falling back to email
                 context = get_sudo_preference_context()
-                accountphone = current_auth.user.transport_for_sms(context=context)
-                accountemail = current_auth.user.default_email(context=context)
+                accountphone = current_auth.user.transport_for_sms(context)
+                accountemail = current_auth.user.default_email(context)
                 otp_session = OtpSession.make(
                     'sudo',
                     user=current_auth.user,
@@ -712,7 +713,7 @@ def requires_sudo(f: Callable[P, ReturnView]) -> Callable[P, ReturnView]:
 
         return render_form(
             form=form,
-            title=title,
+            title=title,  # pylint: disable=possibly-used-before-assignment
             formid=formid,
             submit=_("Confirm"),
             ajax=False,
@@ -794,7 +795,7 @@ def requires_user_or_client_login(f: Callable[P, T]) -> Callable[P, T | ReturnRe
 
 
 def requires_client_id_or_user_or_client_login(
-    f: Callable[P, T]
+    f: Callable[P, T],
 ) -> Callable[P, T | ReturnResponse]:
     """
     Decorate view to require a client_id and session, or a user, or client login.

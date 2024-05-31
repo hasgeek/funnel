@@ -212,7 +212,7 @@ def test_template_var_mixin() -> None:
     # Confirm deletion works
     del t1.project
     with pytest.raises(AttributeError):
-        t1.project  # pylint: disable=pointless-statement
+        _ = t1.project
     with pytest.raises(AttributeError):
         del t1.project
 

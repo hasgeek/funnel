@@ -697,7 +697,9 @@ class AmendMembership(Generic[MembershipType]):
         """Enter a `with` context."""
         return self
 
-    def __exit__(self, exc_type: Any, _exc_value: Any, _traceback: Any) -> None:
+    def __exit__(
+        self, exc_type: object, _exc_value: object, _traceback: object
+    ) -> None:
         """Exit a `with` context and replace the membership record."""
         if exc_type is None:
             object.__setattr__(
