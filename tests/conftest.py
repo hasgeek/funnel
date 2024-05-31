@@ -11,7 +11,7 @@ import warnings
 from collections.abc import Callable, Generator
 from contextlib import ExitStack
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from difflib import unified_diff
 from dis import disassemble
 from functools import partial
@@ -20,15 +20,7 @@ from io import StringIO
 from pprint import saferepr
 from textwrap import indent
 from types import MethodType, ModuleType, SimpleNamespace
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    NamedTuple,
-    Protocol,
-    cast,
-    get_type_hints,
-    runtime_checkable,
-)
+from typing import TYPE_CHECKING, Any, NamedTuple, Protocol, Self, cast, get_type_hints
 from unittest.mock import patch
 
 import flask
@@ -44,7 +36,7 @@ from flask.wrappers import Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.session import Session as FsaSession
 from flask_wtf.csrf import generate_csrf
-from lxml.html import FormElement, HtmlElement, fromstring  # nosec
+from lxml.html import FormElement, HtmlElement, fromstring
 from rich.console import Console
 from rich.highlighter import RegexHighlighter, ReprHighlighter
 from rich.markup import escape as rich_escape
@@ -60,6 +52,8 @@ if TYPE_CHECKING:
 
 # MARK: Pytest config ------------------------------------------------------------------
 
+MAX_DEADLOCK_RETRIES = 3
+
 
 def pytest_addoption(parser: pytest.Parser) -> None:
     """Allow db_session to be configured in the command line."""
@@ -68,8 +62,10 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         action='store',
         default='rollback',
         choices=('rollback', 'truncate'),
-        help="Use db_session with 'rollback' (default) or 'truncate'"
-        " (slower but more production-like)",
+        help=(
+            "Use db_session with 'rollback' (default) or 'truncate' (slower but more"
+            " production-like)"
+        ),
     )
 
 
@@ -130,7 +126,7 @@ def pytest_runtest_call(item: pytest.Function) -> None:
         )
 
     for attr, type_ in annotations.items():
-        if attr in item.funcargs:
+        if attr in item.funcargs and not getattr(type_, '_is_protocol', False):
             typeguard.check_type(item.funcargs[attr], type_)
 
 
@@ -147,11 +143,11 @@ def pytest_runtest_logreport(report: pytest.TestReport) -> None:
     ):
         line_no = repr_file_loc.lineno
     if report.nodeid.startswith(filename):
-        # Only insert a line number if the existing nodeid refers to the same filename.
-        # Needed for pytest-bdd, which constructs tests and refers the filename that
-        # imported the scenario. This file will not have the actual test function, so
-        # no line number reference is possible; the `filename` in the report will refer
-        # to pytest-bdd internals
+        # Only insert a line number if the existing `nodeid`` refers to the same
+        # filename. Needed for pytest-bdd, which constructs tests and refers the
+        # filename that imported the scenario. This file will not have the actual test
+        # function, so no line number reference is possible; the `filename` in the
+        # report will refer to pytest-bdd internals
         report.nodeid = f'{filename}:{line_no}::{domain}'
 
 
@@ -345,7 +341,6 @@ def rich_console() -> Console:
     return Console(highlight=False)
 
 
-@runtime_checkable
 class PrintStackProtocol(Protocol):
     def __call__(self, skip: int = 0, limit: int | None = None) -> None: ...
 
@@ -628,15 +623,14 @@ def _database_events(
     If a test is exhibiting unusual behaviour, add this fixture to trace db events::
 
         @pytest.mark.usefixtures('_database_events')
-        def test_whatever() -> None:
-            ...
+        def test_whatever() -> None: ...
     """
     repr_highlighter = ReprHighlighter()
 
     def safe_repr(entity: Any) -> str:
         try:
             return saferepr(entity)
-        except Exception:  # noqa: B902  # pylint: disable=broad-except
+        except Exception:  # noqa: BLE001  # pylint: disable=broad-except
             if hasattr(entity, '__class__'):
                 return f'<ReprError: class {entity.__class__.__qualname__}>'
             if hasattr(entity, '__qualname__'):
@@ -947,7 +941,7 @@ def _truncate_all_tables(engine: sa.Engine) -> None:
                 # on the assumption that this retry is safe for all operational errors.
                 # Any new type of non-transient error will be reported by the final
                 # raise.
-                if (deadlock_retries := deadlock_retries + 1) > 3:
+                if (deadlock_retries := deadlock_retries + 1) > MAX_DEADLOCK_RETRIES:
                     raise
                 transaction.rollback()
             time.sleep(1)
@@ -1010,7 +1004,7 @@ class BoundSession(FsaSession):
         mapper: Any | None = None,
         clause: Any | None = None,
         bind: sa.engine.Engine | sa.engine.Connection | None = None,
-        **kwargs: Any,
+        **_kwargs: Any,
     ) -> sa.engine.Engine | sa.engine.Connection:
         if bind is not None:
             return bind
@@ -1116,7 +1110,7 @@ class TestClient(FlaskClient):
 
     if TYPE_CHECKING:
 
-        def open(  # type: ignore[override]  # noqa: A001
+        def open(  # type: ignore[override]
             self,
             *args: Any,
             buffered: bool = False,
@@ -1167,8 +1161,20 @@ def client(app: Flask, db_session: scoped_session) -> TestClient:
     return client
 
 
-@runtime_checkable
+class BackgroundWorkerProtocol(Protocol):
+    """Background worker for typeguard."""
+
+    def start(self) -> None: ...
+    def stop(self) -> None: ...
+    def __enter__(self) -> Self: ...
+    def __exit__(
+        self, exc_type: object, exc_value: object, traceback: object
+    ) -> None: ...
+
+
 class LiveServerProtocol(Protocol):
+    """Live server for typeguard."""
+
     background_worker: BackgroundWorker
     transport_calls: CapturedCalls
     url: str
@@ -1244,7 +1250,6 @@ def csrf_token(app: Flask, client: TestClient) -> str:
     return token
 
 
-@runtime_checkable
 class LoginFixtureProtocol(Protocol):
     def as_(self, user: funnel_models.User) -> None: ...
 
@@ -1284,7 +1289,6 @@ def login(
 # MARK: Users
 
 
-@runtime_checkable
 class GetUserProtocol(Protocol):
     usermap: dict[str, str]
 
@@ -1377,7 +1381,7 @@ def user_death(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(
         username='death',
         fullname="Death",
-        joined_at=datetime(1970, 1, 1, tzinfo=timezone.utc),
+        joined_at=datetime(1970, 1, 1, tzinfo=UTC),
     )
     user.is_protected = True
     db_session.add(user)
@@ -1393,9 +1397,7 @@ def user_mort(models, db_session: scoped_session) -> funnel_models.User:
     priority when merging user accounts. Unlike Death, Mort does not have a username or
     profile, so Mort will acquire it from a merged user.
     """
-    user = models.User(
-        fullname="Mort", joined_at=datetime(1987, 11, 12, tzinfo=timezone.utc)
-    )
+    user = models.User(fullname="Mort", joined_at=datetime(1987, 11, 12, tzinfo=UTC))
     db_session.add(user)
     return user
 
@@ -1765,7 +1767,6 @@ def client_hex(
 
     Owned by UU (owner) and administered by Ponder Stibbons (no corresponding role).
     """
-    # TODO: AuthClient needs to move to account (nee profile) as the parent model
     auth_client = models.AuthClient(
         title="Hex",
         account=org_uu,
@@ -1777,7 +1778,6 @@ def client_hex(
     return auth_client
 
 
-@runtime_checkable
 class CredProtocol(Protocol):
     cred: funnel_models.AuthClientCredential
     secret: str
@@ -2031,10 +2031,7 @@ def fail_with_diff() -> Callable[[str, str], None]:
     def func(left: str, right: str) -> None:
         if left != right:
             difference = unified_diff(left.split('\n'), right.split('\n'))
-            msg = []
-            for line in difference:
-                if not line.startswith(' '):
-                    msg.append(line)
+            msg = [line for line in difference if not line.startswith(' ')]
             pytest.fail('\n'.join(msg), pytrace=False)
 
     return func

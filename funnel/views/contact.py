@@ -13,7 +13,7 @@ from sqlalchemy.exc import IntegrityError
 
 from baseframe import _
 from coaster.utils import getbool, make_name, midnight_to_utc, utcnow
-from coaster.views import ClassView, render_with, requestargs, route
+from coaster.views import ClassView, render_with, requestform, route
 
 from .. import app
 from ..auth import current_auth
@@ -150,7 +150,7 @@ class ContactView(ClassView):
 
     @route('scan/connect', endpoint='scan_connect', methods=['POST'])
     @requires_login
-    @requestargs('puk', 'key')
+    @requestform('puk', 'key')
     def connect(self, puk: str, key: str) -> ReturnView:
         """Verify a badge scan and create a contact."""
         ticket_participant = TicketParticipant.query.filter_by(puk=puk, key=key).first()

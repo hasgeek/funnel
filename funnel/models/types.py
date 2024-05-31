@@ -24,19 +24,19 @@ __all__ = [
     'smallint',
     'timestamp',
     'timestamp_now',
-    'unicode',
-    'text',
-    'jsonb',
-    'jsonb_dict',
-    'char2',
-    'char3',
-    'str3',
-    'str16',
+    'Unicode',
+    'Text',
+    'Jsonb',
+    'JsonbDict',
+    'Char2',
+    'Char3',
+    'Str3',
+    'Str16',
 ]
 
-unicode: TypeAlias = Annotated[str, mapped_column(sa.Unicode())]
-text: TypeAlias = Annotated[str, mapped_column(sa.UnicodeText())]
-jsonb: TypeAlias = Annotated[
+Unicode: TypeAlias = Annotated[str, mapped_column(sa.Unicode())]
+Text: TypeAlias = Annotated[str, mapped_column(sa.UnicodeText())]
+Jsonb: TypeAlias = Annotated[
     dict,
     sa_orm.mapped_column(
         # FIXME: mutable_json_type assumes `dict|list`, not just `dict`
@@ -45,7 +45,7 @@ jsonb: TypeAlias = Annotated[
         )
     ),
 ]
-jsonb_dict: TypeAlias = Annotated[
+JsonbDict: TypeAlias = Annotated[
     dict,
     sa_orm.mapped_column(
         # FIXME: mutable_json_type assumes `dict|list`, not just `dict`
@@ -58,7 +58,7 @@ jsonb_dict: TypeAlias = Annotated[
 ]
 
 # Specialised types
-char2: TypeAlias = Annotated[str, mapped_column(sa.CHAR(2))]
-char3: TypeAlias = Annotated[str, mapped_column(sa.CHAR(3))]
-str3: TypeAlias = Annotated[str, mapped_column(sa.Unicode(3))]
-str16: TypeAlias = Annotated[str, mapped_column(sa.Unicode(16))]
+Char2: TypeAlias = Annotated[str, mapped_column(sa.CHAR(2))]
+Char3: TypeAlias = Annotated[str, mapped_column(sa.CHAR(3))]
+Str3: TypeAlias = Annotated[str, mapped_column(sa.Unicode(3))]
+Str16: TypeAlias = Annotated[str, mapped_column(sa.Unicode(16))]

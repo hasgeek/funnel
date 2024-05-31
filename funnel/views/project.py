@@ -3,6 +3,7 @@
 import csv
 import io
 from dataclasses import dataclass
+from datetime import timedelta
 from json import JSONDecodeError
 from types import SimpleNamespace
 
@@ -12,7 +13,7 @@ from markupsafe import Markup
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
-from coaster.utils import getbool, make_name
+from coaster.utils import getbool, make_name, utcnow
 from coaster.views import get_next_url, render_with, requires_roles, route
 
 from .. import app
@@ -34,6 +35,7 @@ from ..models import (
     Account,
     Project,
     ProjectRsvpStateEnum,
+    Proposal,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
     Rsvp,
@@ -64,6 +66,8 @@ class ProjectCfpTemplate(FormLayoutTemplate, template='project_cfp.html.jinja2')
 
 
 # MARK: Helpers ------------------------------------------------------------------------
+
+TIMEDELTA_1DAY = timedelta(days=1)
 
 
 @dataclass
@@ -244,6 +248,19 @@ def feature_project_has_no_sessions(obj: Project) -> bool:
     return bool(obj.state.PUBLISHED and not obj.start_at)
 
 
+@Project.features('show_featured_schedule', property=True)
+def project_show_featured_schedule(obj: Project) -> bool:
+    """Show full schedule on homepage only when it's live or upcoming in 24 hours."""
+    now = utcnow()
+    return bool(
+        obj.start_at  # If this is None, then schedule_start_at will also be None
+        and obj.end_at  # This is to make static type checkers happy
+        and obj.schedule_start_at  # Explicitly check for Session objects existing
+        and obj.start_at <= (now + TIMEDELTA_1DAY)
+        and now < obj.end_at
+    )
+
+
 @Project.features('comment_new')
 def feature_project_comment_new(obj: Project) -> bool:
     return obj.current_roles.participant
@@ -349,7 +366,9 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'featured_proposals': [
                 _p.current_access(datasets=('without_parent', 'related'))
-                for _p in self.obj.proposals.filter_by(featured=True)
+                for _p in self.obj.proposals.filter(
+                    Proposal.state.PUBLIC, Proposal.featured.is_(True)
+                )
             ],
             'rsvp': self.obj.rsvp_for(current_auth.user),
         }
@@ -364,7 +383,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'submissions': [
                 _p.current_access(datasets=('without_parent', 'related'))
-                for _p in self.obj.proposals
+                for _p in self.obj.proposals.filter(Proposal.state.PUBLIC)
             ],
         }
 
@@ -854,10 +873,9 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                     form.populate_obj(proj_save)
                     db.session.add(proj_save)
                     db.session.commit()
-            else:
-                if proj_save is not None:
-                    db.session.delete(proj_save)
-                    db.session.commit()
+            elif proj_save is not None:
+                db.session.delete(proj_save)
+                db.session.commit()
             return {'status': 'ok'}
         return {
             'status': 'error',

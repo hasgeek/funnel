@@ -3,9 +3,9 @@
 # pylint: disable=redefined-outer-name
 
 from collections.abc import Generator
-from contextlib import nullcontext as does_not_raise
+from contextlib import AbstractContextManager, nullcontext as does_not_raise
 from types import SimpleNamespace
-from typing import ContextManager, cast
+from typing import cast
 
 import pytest
 from flask import Flask
@@ -14,6 +14,8 @@ from requests_mock import Mocker
 from baseframe.forms import PasswordField, StopValidation
 
 from funnel import forms
+
+MAX_PASSWORD_STRENGTH = 4
 
 
 @pytest.fixture(autouse=True)
@@ -76,7 +78,7 @@ def test_okay_password(form: forms.PasswordPolicyForm) -> None:
     assert form.validate() is True
     assert form.edit_user is not None
     assert form.is_weak is False
-    assert form.password_strength == 4
+    assert form.password_strength == MAX_PASSWORD_STRENGTH
     assert form.warning == ''
     assert form.suggestions == []
 
@@ -158,7 +160,7 @@ D10B1F9D5901978256CE5B2AD832F292D5A:e'''
     ],
 )
 def test_mangled_response_pwned_password_validator(
-    requests_mock: Mocker, text: str, expectation: ContextManager
+    requests_mock: Mocker, text: str, expectation: AbstractContextManager
 ) -> None:
     """Test that the validator successfully parses mangled output in the API."""
     requests_mock.get('https://api.pwnedpasswords.com/range/7C4A8', text=text)

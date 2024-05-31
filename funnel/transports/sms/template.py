@@ -195,7 +195,7 @@ class SmsTemplate:
     def truncate(self) -> None:
         """Truncate variables (subclasses may override as necessary)."""
 
-    def format(self) -> None:  # noqa: A003
+    def format(self) -> None:
         """Format template with variables."""
         # Format plaintext before truncation
         object.__setattr__(
@@ -272,7 +272,7 @@ class SmsTemplate:
             # variable, which will call `__setattr__`. At this point `_plaintext` has
             # already been set by `.format()` and should not be reset.
 
-    def vars(self) -> dict[str, Any]:  # noqa: A003
+    def vars(self) -> dict[str, Any]:
         """Return a dictionary of variables in the template."""
         return dict(self._format_kwargs)
 
@@ -286,7 +286,7 @@ class SmsTemplate:
                 f" (currently {len(cls.registered_template)} chars)"
             )
 
-        # 2. Check for incorrect reprentations of `{#var#}` (spaces, casing)
+        # 2. Check for incorrect representations of `{#var#}` (spaces, casing)
         for varmatch in _var_variant_re.findall(cls.registered_template):
             if varmatch != '{#var#}':
                 raise ValueError(

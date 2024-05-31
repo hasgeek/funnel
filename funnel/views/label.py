@@ -50,8 +50,8 @@ class ProjectLabelView(ProjectViewBase):
             # and those values are also available at `form.data`.
             # But in case there are options, the option values are in the list
             # in the order they appeared on the create form.
-            titlelist = request.values.getlist('title')
-            emojilist = request.values.getlist('icon_emoji')
+            titlelist = request.form.getlist('title')
+            emojilist = request.form.getlist('icon_emoji')
             # first values of both lists belong to the parent label
             titlelist.pop(0)
             emojilist.pop(0)
@@ -66,7 +66,7 @@ class ProjectLabelView(ProjectViewBase):
             self.obj.all_labels.append(label)
             self.obj.all_labels.reorder()
 
-            for title, emoji in zip(titlelist, emojilist):
+            for title, emoji in zip(titlelist, emojilist, strict=True):
                 subform = LabelOptionForm(
                     MultiDict({'title': title, 'icon_emoji': emoji}),
                     # parent form has valid CSRF token
@@ -116,8 +116,9 @@ class LabelView(AccountCheckMixin, UrlForView, ModelView[Label]):
             .first_or_404()
         )
 
-    def post_init(self) -> None:
-        self.account = self.obj.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.project.account
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
@@ -125,27 +126,29 @@ class LabelView(AccountCheckMixin, UrlForView, ModelView[Label]):
     @requires_roles({'project_editor'})
     def edit(self) -> ReturnRenderWith:
         emptysubform = LabelOptionForm(MultiDict({}))
-        subforms = []
+        subforms: list[LabelOptionForm] = []
         if self.obj.is_main_label:
             form = LabelForm(obj=self.obj, model=Label, parent=self.obj.project)
             if self.obj.has_options:
-                for subl in self.obj.options:
-                    subforms.append(LabelOptionForm(obj=subl, parent=self.obj.project))
+                subforms.extend(
+                    LabelOptionForm(obj=subl, parent=self.obj.project)
+                    for subl in self.obj.options
+                )
         else:
             flash(_("Only main labels can be edited"), category='error')
             return render_redirect(self.obj.project.url_for('labels'))
 
         if form.validate_on_submit():
-            namelist = request.values.getlist('name')
-            titlelist = request.values.getlist('title')
-            emojilist = request.values.getlist('icon_emoji')
+            namelist = request.form.getlist('name')
+            titlelist = request.form.getlist('title')
+            emojilist = request.form.getlist('icon_emoji')
 
             namelist.pop(0)
             titlelist.pop(0)
             emojilist.pop(0)
 
             for counter, (name, title, emoji) in enumerate(
-                zip(namelist, titlelist, emojilist)
+                zip(namelist, titlelist, emojilist, strict=True)
             ):
                 if name:
                     # existing option

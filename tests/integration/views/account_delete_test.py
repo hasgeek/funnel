@@ -32,8 +32,7 @@ def given_coowner(
         if membership.member == current_user:
             if membership.is_owner:
                 return membership
-            membership = membership.replace(actor=current_user, is_owner=True)
-            return membership
+            return membership.replace(actor=current_user, is_owner=True)
     membership = models.AccountMembership(
         member=current_user,
         granted_by=current_user,

@@ -137,7 +137,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    parsed_location: Mapped[types.jsonb_dict]
+    parsed_location: Mapped[types.JsonbDict]
 
     website: Mapped[furl | None] = with_roles(
         sa_orm.mapped_column(UrlType, nullable=True),
@@ -157,7 +157,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        StateManager.check_constraint('state', PROJECT_STATE, sa.Integer),
+        sa.SmallInteger,
+        StateManager.check_constraint(
+            'state', PROJECT_STATE, sa.SmallInteger, name='project_state_check'
+        ),
         default=PROJECT_STATE.DRAFT,
         nullable=False,
         index=True,
@@ -168,7 +171,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     )
     _cfp_state: Mapped[int] = sa_orm.mapped_column(
         'cfp_state',
-        StateManager.check_constraint('cfp_state', CFP_STATE, sa.Integer),
+        sa.SmallInteger,
+        StateManager.check_constraint(
+            'cfp_state', CFP_STATE, sa.SmallInteger, name='project_cfp_state_check'
+        ),
         default=CFP_STATE.NONE,
         nullable=False,
         index=True,
@@ -182,7 +188,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         sa_orm.mapped_column(
             sa.SmallInteger,
             StateManager.check_constraint(
-                'rsvp_state', ProjectRsvpStateEnum, sa.SmallInteger
+                'rsvp_state',
+                ProjectRsvpStateEnum,
+                sa.SmallInteger,
+                name='project_rsvp_state_check',
             ),
             default=ProjectRsvpStateEnum.NONE,
             nullable=False,
@@ -247,7 +256,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
-    boxoffice_data: Mapped[types.jsonb_dict] = with_roles(
+    boxoffice_data: Mapped[types.JsonbDict] = with_roles(
         sa_orm.mapped_column(),
         # This is an attribute, but we deliberately use `call` instead of `read` to
         # block this from dictionary enumeration. FIXME: Break up this dictionary into
@@ -433,6 +442,13 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     # proposal.py
     proposals: DynamicMapped[Proposal] = relationship(
         lazy='dynamic', order_by=lambda: Proposal.seq, back_populates='project'
+    )
+    proposal_templates: Mapped[list[Proposal]] = relationship(
+        primaryjoin=lambda: sa.and_(
+            Proposal.project_id == Project.id, Proposal.state.TEMPLATE
+        ),
+        viewonly=True,
+        order_by=lambda: Proposal.seq,
     )
 
     # rsvp.py
@@ -1465,11 +1481,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
         param bool desc: Use descending order (default True)
         """
-        clause = sa.case(
+        return sa.case(
             (cls.start_at.is_not(None), cls.start_at),
             else_=cls.published_at,
         )
-        return clause
 
     @classmethod
     def all_unsorted(cls) -> Query[Self]:
@@ -1481,7 +1496,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         )
 
     @classmethod
-    def all(cls) -> Query[Self]:  # noqa: A003
+    def all(cls) -> Query[Self]:
         """Return all published projects, ordered by date."""
         return cls.all_unsorted().order_by(cls.order_by_date())
 

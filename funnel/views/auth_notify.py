@@ -113,10 +113,8 @@ def notify_org_data_changed(
             client_users.setdefault(token.auth_client, []).append(token.effective_user)
     # Now we have a list of clients to notify and a list of users to notify them with
     for auth_client, users in client_users.items():
-        if user is not None and user in users:
-            notify_user = user
-        else:
-            notify_user = users[0]  # First user available
+        # First available user of the client if the current user is not a user
+        notify_user = user if user is not None and user in users else users[0]
         if auth_client.trusted and auth_client.notification_uri:
             send_auth_client_notice.queue(
                 str(auth_client.notification_uri),

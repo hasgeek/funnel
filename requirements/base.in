@@ -17,6 +17,7 @@ Flask-Executor
 Flask-FlatPages
 flask-mailman
 Flask-Migrate
+flask-moreshell
 Flask-Redis
 Flask-RQ2
 Flask-SQLAlchemy

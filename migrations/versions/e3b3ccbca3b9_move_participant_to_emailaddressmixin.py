@@ -1,4 +1,3 @@
-# type: ignore
 """Move Participant to EmailAddressMixin.
 
 Revision ID: e3b3ccbca3b9
@@ -64,7 +63,7 @@ email_address = table(
 # MARK: Functions ----------------------------------------------------------------------
 
 
-def get_progressbar(label, maxval):
+def get_progressbar(label: str, maxval: int | None) -> ProgressBar:
     return ProgressBar(
         maxval=maxval,
         widgets=[
@@ -83,7 +82,7 @@ def get_progressbar(label, maxval):
 # These are copied from models/email_address.py:
 
 
-def canonical_email_representation(email):
+def canonical_email_representation(email: str) -> list[str]:
     if '@' not in email:
         raise ValueError("Not an email address")
     mailbox, domain = email.split('@', 1)
@@ -107,20 +106,20 @@ def canonical_email_representation(email):
     return representations
 
 
-def email_normalized(email):
+def email_normalized(email: str) -> str:
     mailbox, domain = email.split('@', 1)
     mailbox = mailbox.lower()
     domain = idna.encode(domain, uts46=True).decode()
     return f'{mailbox}@{domain}'
 
 
-def email_blake2b160_hash(email):
+def email_blake2b160_hash(email: str) -> bytes:
     return hashlib.blake2b(
         email_normalized(email).encode('utf-8'), digest_size=20
     ).digest()
 
 
-def email_domain(email):
+def email_domain(email: str) -> str:
     return idna.encode(email.split('@', 1)[1], uts46=True).decode()
 
 
@@ -150,7 +149,7 @@ def upgrade() -> None:
             participant.c.created_at,
         ).order_by(participant.c.id)
     )
-    dupe_counter = {}  # (project_id, blake2b160): counter
+    dupe_counter: dict[tuple[int, bytes], int] = {}  # (project_id, blake2b160): counter
     for counter, item in enumerate(items):
         email = item.email.strip()
         if not is_email(email, check_dns=False, diagnose=False):

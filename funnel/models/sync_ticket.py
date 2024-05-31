@@ -345,10 +345,7 @@ class TicketParticipant(
     ) -> TicketParticipant:
         ticket_participant = cls.get(current_project, current_email)
         accountemail = AccountEmail.get(current_email)
-        if accountemail is not None:
-            participant = accountemail.account
-        else:
-            participant = None
+        participant = accountemail.account if accountemail is not None else None
         if ticket_participant is not None:
             ticket_participant.participant = participant
             ticket_participant._set_fields(fields)  # pylint: disable=protected-access

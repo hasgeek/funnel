@@ -7,7 +7,6 @@ from types import SimpleNamespace
 from typing import LiteralString, cast
 
 import pytest
-import sqlalchemy as sa
 import sqlalchemy.orm as sa_orm
 from flask_babel import lazy_gettext as lazy_gettext_base
 from furl import furl
@@ -163,7 +162,7 @@ def test_add_to_class() -> None:
 
     assert hasattr(ReferenceClass, 'spameggs')
     assert not hasattr(ReferenceClass, 'spameggs_property')
-    assert ReferenceClass.spameggs is spameggs_property  # pyright: ignore
+    assert ReferenceClass.spameggs is spameggs_property  # pyright: ignore[reportAttributeAccessIssue]
     assert ReferenceClass().spameggs == 'is_spameggs'  # type: ignore[attr-defined]
 
     # Existing attributes cannot be replaced
@@ -180,9 +179,7 @@ def image_models(
 ) -> Generator[SimpleNamespace, None, None]:
     class MyImageModel(models.Model):
         __tablename__ = 'test_my_image_model'
-        id: Mapped[int] = sa_orm.mapped_column(  # noqa: A003
-            sa.Integer, primary_key=True
-        )
+        id: Mapped[int] = sa_orm.mapped_column(primary_key=True)
         image_url: Mapped[furl] = sa_orm.mapped_column(models.ImgeeType)
 
     new_models = [MyImageModel]

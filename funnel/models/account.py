@@ -263,7 +263,9 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.SmallInteger,
-        StateManager.check_constraint('state', ACCOUNT_STATE, sa.SmallInteger),
+        StateManager.check_constraint(
+            'state', ACCOUNT_STATE, sa.SmallInteger, name='account_state_check'
+        ),
         nullable=False,
         default=ACCOUNT_STATE.ACTIVE,
     )
@@ -277,7 +279,12 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     _profile_state: Mapped[int] = sa_orm.mapped_column(
         'profile_state',
         sa.SmallInteger,
-        StateManager.check_constraint('profile_state', PROFILE_STATE, sa.SmallInteger),
+        StateManager.check_constraint(
+            'profile_state',
+            PROFILE_STATE,
+            sa.SmallInteger,
+            name='account_profile_state_check',
+        ),
         nullable=False,
         default=PROFILE_STATE.AUTO,
     )
@@ -1358,7 +1365,10 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         )
 
     @with_roles(call={'owner'})
-    def transport_for_email(self, context: Model | None = None) -> AccountEmail | None:
+    def transport_for_email(
+        self,
+        context: Model | None = None,  # noqa: ARG002
+    ) -> AccountEmail | None:
         """Return user's preferred email address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE:
@@ -1366,7 +1376,10 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_sms(self, context: Model | None = None) -> AccountPhone | None:
+    def transport_for_sms(
+        self,
+        context: Model | None = None,  # noqa: ARG002
+    ) -> AccountPhone | None:
         """Return user's preferred phone number within a context."""
         # TODO: Per-account/project customization is a future option
         if (
@@ -1379,21 +1392,24 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
 
     @with_roles(call={'owner'})
     def transport_for_webpush(
-        self, context: Model | None = None
+        self,
+        context: Model | None = None,  # noqa: ARG002
     ) -> None:  # TODO  # pragma: no cover
         """Return user's preferred webpush transport address within a context."""
-        return None
+        return
 
     @with_roles(call={'owner'})
     def transport_for_telegram(
-        self, context: Model | None = None
+        self,
+        context: Model | None = None,  # noqa: ARG002
     ) -> None:  # TODO  # pragma: no cover
         """Return user's preferred Telegram transport address within a context."""
-        return None
+        return
 
     @with_roles(call={'owner'})
     def transport_for_whatsapp(
-        self, context: Model | None = None
+        self,
+        context: Model | None = None,  # noqa: ARG002
     ) -> AccountPhone | None:
         """Return user's preferred WhatsApp transport address within a context."""
         # TODO: Per-account/project customization is a future option
@@ -1514,7 +1530,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
             if callable(
                 freeze := getattr(membership, 'freeze_member_attribution', None)
             ):
-                membership = freeze(self)
+                membership = freeze(self)  # noqa: PLW2901
             if membership.revoke_on_member_delete:
                 membership.revoke(actor=self)
         # TODO: freeze fullname in unrevoked memberships (pending title column there)
@@ -1682,7 +1698,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         return None
 
     @classmethod
-    def all(  # noqa: A003
+    def all(
         cls,
         buids: Iterable[str] | None = None,
         names: Iterable[str] | None = None,
@@ -1710,7 +1726,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         if defercols:
             query = query.options(*cls._defercols())
         for account in query.all():
-            account = account.merged_account()
+            account = account.merged_account()  # noqa: PLW2901
             if account.state.ACTIVE:
                 accounts.add(account)
         return list(accounts)
@@ -1861,7 +1877,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         return cls.validate_name_candidate(name) is None
 
     @sa_orm.validates('name')
-    def _validate_name(self, key: str, value: str | None) -> str | None:
+    def _validate_name(self, _key: str, value: str | None) -> str | None:
         """Validate the value of Account.name."""
         if value is None:
             return value
@@ -1882,7 +1898,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         return value
 
     @sa_orm.validates('logo_url', 'banner_image_url')
-    def _validate_nullable(self, key: str, value: str | None) -> str | None:
+    def _validate_nullable(self, _key: str, value: str | None) -> str | None:
         """Convert blank values into None."""
         return value if value else None
 
@@ -1946,7 +1962,7 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
     # Make :attr:`type_` available under the name `type`, but declare this at the very
     # end of the class to avoid conflicts with the Python `type` global that is
     # used for type-hinting
-    type: Mapped[str] = sa_orm.synonym('type_')  # noqa: A003
+    type: Mapped[str] = sa_orm.synonym('type_')
 
 
 Account.__active_membership_attrs__.add('active_organization_admin_memberships')
@@ -2018,7 +2034,7 @@ Account.userid = Account.uuid_b64
 class DuckTypeAccount(RoleMixin):
     """User singleton constructor. Duck types a regular user object."""
 
-    id: None = None  # noqa: A003
+    id: None = None
     created_at: None = None
     updated_at: None = None
     uuid: None = None
@@ -2079,7 +2095,7 @@ class DuckTypeAccount(RoleMixin):
             return self.pickername
         return format(self.pickername, format_spec)
 
-    def url_for(self, *args: Any, **kwargs: Any) -> Literal['']:
+    def url_for(self, *_args: Any, **_kwargs: Any) -> Literal['']:
         """Return blank URL for anything to do with this user."""
         return ''
 
@@ -2269,9 +2285,8 @@ class AccountEmail(EmailAddressMixin, BaseMixin[int, Account], Model):
         """Set or unset this email address as primary."""
         if value:
             self.account.primary_email = self
-        else:
-            if self.account.primary_email == self:
-                self.account.primary_email = None
+        elif self.account.primary_email == self:
+            self.account.primary_email = None
 
     @overload
     @classmethod
@@ -2553,7 +2568,7 @@ class AccountEmailClaim(EmailAddressMixin, BaseMixin[int, Account], Model):
         )
 
     @classmethod
-    def all(cls, email: str) -> Query[Self]:  # noqa: A003
+    def all(cls, email: str) -> Query[Self]:
         """
         Return all instances with the matching email address.
 
@@ -2629,9 +2644,8 @@ class AccountPhone(PhoneNumberMixin, BaseMixin[int, Account], Model):
     def primary(self, value: bool) -> None:
         if value:
             self.account.primary_phone = self
-        else:
-            if self.account.primary_phone == self:
-                self.account.primary_phone = None
+        elif self.account.primary_phone == self:
+            self.account.primary_phone = None
 
     @overload
     @classmethod

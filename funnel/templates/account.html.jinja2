@@ -7,10 +7,10 @@
 {%- block pageheaders %}
   <link rel="stylesheet"
         type="text/css"
-        href="{{ manifest('css/login_form.css') }}"/>
+        href="{{ webpack('css/login_form.css') }}"/>
   <link rel="stylesheet"
         type="text/css"
-        href="{{ manifest('css/account.css') }}"/>
+        href="{{ webpack('css/account.css') }}"/>
 {%- endblock pageheaders %}
 {% block bodyattrs -%}
   class="bg-primary tabs-navbar"
@@ -271,9 +271,9 @@
             <div class="card__body">
               <ul class="list--aligned list--border grid-no-left-padding zero-bottom-margin">
                 {% for auth_token in authtokens %}
-                  <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between top-padding bottom-padding">
+                  <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session top-padding bottom-padding">
                     <div>
-                      <p class="mui--text-body2 zero-bottom-margin">
+                      <p class="mui--text-body zero-bottom-margin">
                         <a href="{{ auth_token.auth_client.website }}"
                            rel="nofollow"
                            {% if auth_token.auth_client.trusted -%}
@@ -286,7 +286,7 @@
                         </a>
                         — {{ auth_token.auth_client.description }}
                       </p>
-                      <p class="mui--text-light zero-bottom-margin">
+                      <p class="login-session__body mui--text-light zero-bottom-margin">
                         {%- if auth_token.last_used %}
                           {%- trans since=auth_token.created_at|date('dd MMM YYYY'), last_used=auth_token.last_used|age %}Since {{ since }} – last used {{ last_used }}{% endtrans %}
                         {%- else %}
@@ -330,73 +330,71 @@
                       user_agent=login_session.user_agent,
                       since=login_session.created_at|age,
                       last_active=login_session.accessed_at|age %}
-                    <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session">
+                    <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session top-padding bottom-padding">
                       <div>
-                        <ul class="bullet-separated-list"
+                        <p class="mui--text-body zero-bottom-margin"
                             title="{{ user_agent }}"
                             data-toggle="tooltip"
                             data-placement="bottom">
-                          <li class="login-session__heading">
-                            {%- trans browser=ua['browser'], device=ua['os_device'] -%}
-                            {{ browser }} on {{ device }}
-                          {%- endtrans -%}
-                        </li>
-                      </ul>
-                      <p class="login-session__body mui--text-light">
-                        {%- if login_service %}
-                          {%- trans %}Since {{ since }} via {{ login_service }} – last active {{ last_active }}{% endtrans %}
-                        {%- else %}
-                          {%- trans %}Since {{ since }} – last active {{ last_active }}{% endtrans %}
-                        {%- endif -%}
-                      </p>
-                      <p class="login-session__body mui--text-light">
-                        {% trans ipaddr=login_session.ipaddr %}{{ location }} – estimated from {{ ipaddr }}{% endtrans %}
-                      </p>
-                    </div>
-                    <div>
-                      {%- if login_session == current_auth.session %}
-                        {{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=true, css_class="mui--text-success input-align-icon") }}
-                      {%- else -%}
-                        <button type="submit"
+                            {%- trans browser=ua['browser'], device=ua['device_platform'] -%}
+                              {{ browser }} on {{ device }}
+                            {%- endtrans -%}
+                        </p>
+                        <p class="login-session__body mui--text-light zero-bottom-margin">
+                          {%- if login_service %}
+                            {%- trans %}Since {{ since }} via {{ login_service }} – last active {{ last_active }}{% endtrans %}
+                          {%- else %}
+                            {%- trans %}Since {{ since }} – last active {{ last_active }}{% endtrans %}
+                          {%- endif -%}
+                        </p>
+                        <p class="login-session__body mui--text-light">
+                          {% trans ipaddr=login_session.ipaddr %}{{ location }} – estimated from {{ ipaddr }}{% endtrans %}
+                        </p>
+                      </div>
+                      <div>
+                        {%- if login_session == current_auth.session %}
+                          {{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=true, css_class="mui--text-success input-align-icon") }}
+                        {%- else -%}
+                          <button type="submit"
                                 name="sessionid"
                                 value="{{ login_session.buid }}"
                                 title="{% trans %}Logout{% endtrans %}"
                                 aria-label="{% trans %}Logout{% endtrans %}"
                                 class="mui-btn mui-btn--small mui-btn--flat mui-btn--nostyle">
-                          {{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle mui--text-hyperlink") }}
-                        </button>
-                      {%- endif -%}
-                    </div>
-                  </li>
-                {%- endwith %}
-              {%- endfor %}
-            </ul>
-          </div>
-        </form>
+                            {{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle mui--text-hyperlink") }}
+                          </button>
+                        {%- endif -%}
+                      </div>
+                    </li>
+                  {%- endwith %}
+                {%- endfor %}
+              </ul>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-    <div class="grid__col-xs-12">
-      <div class="card">
-        <div class="card__header--danger flex-wrapper flex-wrapper--baseline flex-wrapper--space-between">
-          <h3 class="card__header__title mui--text-title text-bold mui--text-danger">{% trans %}Delete account{% endtrans %}</h3>
-          {{ faicon(icon='exclamation-triangle', icon_size='subhead', baseline=true, css_class="mui--text-danger input-align-icon") }}
-        </div>
-        <div class="card__body">
-            <p>{% trans -%}
-            If you no longer need this account, you can delete it. If you have a duplicate account, you can merge it by adding the same phone number or email address here. No deletion necessary.
-            {%- endtrans %}</p>
-        </div>
-        <div class="mui-divider"></div>
-        <div class="card__footer">
-          <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--danger" href="{{ url_for('account_delete') }}" data-cy="change-password">{% trans %}Delete this account{% endtrans %}</a>
+      <div class="grid__col-xs-12">
+        <div class="card">
+          <div class="card__header--danger flex-wrapper flex-wrapper--baseline flex-wrapper--space-between">
+            <h3 class="card__header__title mui--text-title text-bold mui--text-danger">{% trans %}Delete account{% endtrans %}</h3>
+            {{ faicon(icon='exclamation-triangle', icon_size='subhead', baseline=true, css_class="mui--text-danger input-align-icon") }}
+          </div>
+          <div class="card__body">
+              <p>{% trans -%}
+              If you no longer need this account, you can delete it. If you have a duplicate account, you can merge it by adding the same phone number or email address here. No deletion necessary.
+              {%- endtrans %}</p>
+          </div>
+          <div class="mui-divider"></div>
+          <div class="card__footer">
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--danger" href="{{ url_for('account_delete') }}" data-cy="change-password">{% trans %}Delete this account{% endtrans %}</a>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 {%- endblock basecontent %}
 {% block footerscripts -%}
-  <script src="{{ manifest('form.js') }}" type="text/javascript"></script>
+  <script src="{{ webpack('form.js') }}" type="text/javascript"></script>
   {{ ajaxform('email-primary-form', request) }}
   {{ ajaxform('phone-primary-form', request) }}
   <script type="text/javascript">

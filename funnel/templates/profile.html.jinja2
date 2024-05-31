@@ -2,10 +2,10 @@
 {%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, useravatar, proposal_card %}
 
 {%- block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ manifest('css/index.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ manifest('css/profile.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ webpack('css/index.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ webpack('css/profile.css') }}" />
   {% if featured_project and featured_project.schedule_start_at -%}
-    <link rel="stylesheet" type="text/css" href="{{ manifest('css/schedule.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ webpack('css/schedule.css') }}"/>
   {%- endif %}
   <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
   <script type="application/ld+json">
@@ -42,7 +42,7 @@
 {% endblock contenthead %}
 
 {% block basecontent %}
-  {%- if profile.is_verified %}
+  {%- if profile.is_verified and profile.description %}
     <div class="bg-accent">
       <div class="projects-wrapper">
         <div class="mui-container">
@@ -229,7 +229,7 @@
 {% endblock basecontent %}
 
 {% block innerscripts %}
-  <script src="{{ manifest('index.js') }}" type="text/javascript"></script>
+  <script src="{{ webpack('index.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var tickets;

@@ -61,29 +61,29 @@ class GeoCountryInfo(BaseNameMixin, GeonameModel):
         primaryjoin=lambda: GeoCountryInfo.id == sa_orm.foreign(GeoName.id),
         back_populates='has_country',
     )
-    iso_alpha2: Mapped[types.char2 | None] = sa_orm.mapped_column(
+    iso_alpha2: Mapped[types.Char2 | None] = sa_orm.mapped_column(
         sa.CHAR(2), unique=True
     )
-    iso_alpha3: Mapped[types.char3 | None] = sa_orm.mapped_column(unique=True)
+    iso_alpha3: Mapped[types.Char3 | None] = sa_orm.mapped_column(unique=True)
     iso_numeric: Mapped[int | None]
-    fips_code: Mapped[types.str3 | None]
+    fips_code: Mapped[types.Str3 | None]
     capital: Mapped[str | None]
     area_in_sqkm: Mapped[Decimal | None]
     population: Mapped[types.bigint | None]
-    continent: Mapped[types.char2 | None]
-    tld: Mapped[types.str3 | None]
-    currency_code: Mapped[types.char3 | None]
+    continent: Mapped[types.Char2 | None]
+    tld: Mapped[types.Str3 | None]
+    currency_code: Mapped[types.Char3 | None]
     currency_name: Mapped[str | None]
-    phone: Mapped[types.str16 | None]
-    postal_code_format: Mapped[types.unicode | None]
-    postal_code_regex: Mapped[types.unicode | None]
+    phone: Mapped[types.Str16 | None]
+    postal_code_format: Mapped[types.Unicode | None]
+    postal_code_regex: Mapped[types.Unicode | None]
     languages: Mapped[list[str] | None] = sa_orm.mapped_column(
         ARRAY(sa.Unicode, dimensions=1)
     )
     neighbours: Mapped[list[str] | None] = sa_orm.mapped_column(
         ARRAY(sa.CHAR(2), dimensions=1)
     )
-    equivalent_fips_code: Mapped[types.str3]
+    equivalent_fips_code: Mapped[types.Str3]
 
     __table_args__ = (
         sa.Index(
@@ -258,13 +258,17 @@ class GeoName(BaseNameMixin, GeonameModel):
             return (
                 self.admin1code.title
                 if self.admin1code
-                else self.admin1_ref.title if self.admin1_ref else ''
+                else self.admin1_ref.title
+                if self.admin1_ref
+                else ''
             ) or ''
         if self.has_admin2code:
             return (
                 self.admin2code.title
                 if self.admin2code
-                else self.admin2_ref.title if self.admin2_ref else ''
+                else self.admin2_ref.title
+                if self.admin2_ref
+                else ''
             ) or ''
         return self.ascii_title or self.title
 
@@ -273,10 +277,7 @@ class GeoName(BaseNameMixin, GeonameModel):
         """Return a disambiguation title for this geoname record."""
         title = self.use_title
         country = self.country_id
-        if country == 'US':
-            state = self.admin1
-        else:
-            state = None
+        state = self.admin1 if country == 'US' else None
         suffix = None
 
         if (self.fclass, self.fcode) == ('L', 'CONT'):
@@ -288,10 +289,7 @@ class GeoName(BaseNameMixin, GeonameModel):
             country = None
             state = None
         elif self.has_admin1code:
-            if country in ('CA', 'CN', 'AF'):
-                suffix = 'province'
-            else:
-                suffix = 'state'
+            suffix = 'province' if country in ('CA', 'CN', 'AF') else 'state'
             state = None
         elif self.has_admin2code:
             if country == 'US':

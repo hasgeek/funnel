@@ -123,7 +123,7 @@ def test_auth_untrusted_confidential(
     assert rv.status_code == 200
     data = rv.get_json()
     # Confirm we have an access token
-    assert data['token_type'] == 'bearer'
+    assert data['token_type'] == 'bearer'  # noqa: S105
     assert data['access_token'] is not None
     assert data['scope'] == authtoken_params['scope']
 

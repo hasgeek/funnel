@@ -222,8 +222,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin[UUID, Account]):
     record_type: Mapped[int] = with_roles(
         immutable(
             sa_orm.mapped_column(
+                sa.SmallInteger,
                 StateManager.check_constraint(
-                    'record_type', MembershipRecordTypeEnum, sa.Integer
+                    'record_type', MembershipRecordTypeEnum, sa.SmallInteger
                 ),
                 default=MembershipRecordTypeEnum.DIRECT_ADD,
                 nullable=False,
@@ -696,7 +697,9 @@ class AmendMembership(Generic[MembershipType]):
         """Enter a `with` context."""
         return self
 
-    def __exit__(self, exc_type: Any, _exc_value: Any, _traceback: Any) -> None:
+    def __exit__(
+        self, exc_type: object, _exc_value: object, _traceback: object
+    ) -> None:
         """Exit a `with` context and replace the membership record."""
         if exc_type is None:
             object.__setattr__(

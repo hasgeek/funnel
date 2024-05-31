@@ -1,4 +1,3 @@
-# type: ignore
 """Change Vote table to use composite pkey.
 
 Revision ID: 6ebbe0cc8e19

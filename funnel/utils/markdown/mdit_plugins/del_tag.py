@@ -13,21 +13,21 @@ __all__ = ['del_plugin']
 
 
 def del_open(
-    renderer: RendererHTML,
-    tokens: Sequence[Token],
-    idx: int,
-    options: OptionsDict,
-    env: EnvType,
+    renderer: RendererHTML,  # noqa: ARG001
+    tokens: Sequence[Token],  # noqa: ARG001
+    idx: int,  # noqa: ARG001
+    options: OptionsDict,  # noqa: ARG001
+    env: EnvType,  # noqa: ARG001
 ) -> str:
     return '<del>'
 
 
 def del_close(
-    renderer: RendererHTML,
-    tokens: Sequence[Token],
-    idx: int,
-    options: OptionsDict,
-    env: EnvType,
+    renderer: RendererHTML,  # noqa: ARG001
+    tokens: Sequence[Token],  # noqa: ARG001
+    idx: int,  # noqa: ARG001
+    options: OptionsDict,  # noqa: ARG001
+    env: EnvType,  # noqa: ARG001
 ) -> str:
     return '</del>'
 

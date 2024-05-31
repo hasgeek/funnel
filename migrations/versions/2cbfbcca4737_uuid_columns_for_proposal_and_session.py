@@ -23,7 +23,7 @@ proposal = table('proposal', column('id', sa.Integer()), column('uuid', sa.Uuid(
 session = table('session', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 
-def get_progressbar(label, maxval):
+def get_progressbar(label: str, maxval: int | None) -> ProgressBar:
     return ProgressBar(
         maxval=maxval,
         widgets=[

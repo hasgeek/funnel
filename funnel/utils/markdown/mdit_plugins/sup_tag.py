@@ -78,21 +78,21 @@ def tokenize(state: StateInline, silent: bool) -> bool:
 
 
 def sup_open(
-    renderer: RendererHTML,
-    tokens: Sequence[Token],
-    idx: int,
-    options: OptionsDict,
-    env: EnvType,
+    renderer: RendererHTML,  # noqa: ARG001
+    tokens: Sequence[Token],  # noqa: ARG001
+    idx: int,  # noqa: ARG001
+    options: OptionsDict,  # noqa: ARG001
+    env: EnvType,  # noqa: ARG001
 ) -> str:
     return '<sup>'
 
 
 def sup_close(
-    renderer: RendererHTML,
-    tokens: Sequence[Token],
-    idx: int,
-    options: OptionsDict,
-    env: EnvType,
+    renderer: RendererHTML,  # noqa: ARG001
+    tokens: Sequence[Token],  # noqa: ARG001
+    idx: int,  # noqa: ARG001
+    options: OptionsDict,  # noqa: ARG001
+    env: EnvType,  # noqa: ARG001
 ) -> str:
     return '</sup>'
 

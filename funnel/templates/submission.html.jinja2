@@ -15,10 +15,10 @@
 {%- block pageheaders -%}
   <link rel="stylesheet"
         type="text/css"
-        href="{{ manifest('css/submission.css') }}"/>
+        href="{{ webpack('css/submission.css') }}"/>
   <link rel="stylesheet"
         type="text/css"
-        href="{{ manifest('css/comments.css') }}"/>
+        href="{{ webpack('css/comments.css') }}"/>
 {%- endblock pageheaders -%}
 {%- block bodyattrs -%}
   class="bg-accent no-sticky-header mobile-header proposal-page subproject-page {% if proposal.views.video or proposal.session and proposal.session.views.video %}mobile-hide-livestream{% endif %}"
@@ -365,7 +365,7 @@
             {%- if not membership.is_uncredited %}
               <div class="user right-padding">
                 <div class="user__box">
-                  {{ useravatar(membership.member, css_class="margin-right") }}
+                  {{ useravatar(membership.member, css_class="margin-right", follow_btn_css="flex-order-last margin-left") }}
                   <div class="user__box__header">
                     <p class="mui--text-body2 user__box__fullname">
                       {{ membership.member.fullname }}
@@ -440,8 +440,8 @@
     </div>
   {% endblock left_col %}
   {% block footerinnerscripts %}
-    <script src="{{ manifest('submission.js') }}" type="text/javascript"></script>
-    <script src="{{ manifest('comments.js') }}" type="text/javascript"></script>
+    <script src="{{ webpack('submission.js') }}" type="text/javascript"></script>
+    <script src="{{ webpack('comments.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
     window.Hasgeek.subpageTitle = {{ self.title()|tojson }};
     window.Hasgeek.subpageHasVideo = {% if proposal.views.video or proposal.session and proposal.session.views.video %}true{% else %}false{% endif %};

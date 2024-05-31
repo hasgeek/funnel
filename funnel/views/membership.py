@@ -59,7 +59,6 @@ class MembershipInviteActionsTemplate(
 @Account.views('members')
 @route('/<account>/members', init_app=app)
 class OrganizationMembersView(AccountViewBase):
-
     def after_loader(self) -> ReturnView | None:
         """Don't render member views for user accounts."""
         if isinstance(self.obj, User):
@@ -162,17 +161,17 @@ class OrganizationMembershipView(
 ):
     route_model_map = {'account': 'account.urlname', 'membership': 'uuid_b58'}
 
-    def load(self, account: str, membership: str) -> ReturnView | None:
+    def load(self, account: str, membership: str) -> ReturnView | None:  # noqa: ARG002
         self.obj = AccountMembership.query.filter(
             AccountMembership.uuid_b58 == membership,
         ).first_or_404()
-        self.post_init()
         if not self.obj.is_active:
             abort(410)
         return self.after_loader()
 
-    def post_init(self) -> None:
-        self.account = self.obj.account
+    @property
+    def account(self) -> Account:
+        return self.obj.account
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
@@ -400,11 +399,11 @@ class ProjectMembershipViewBase(
             )
             .first_or_404()
         )
-        self.post_init()
         return self.after_loader()
 
-    def post_init(self) -> None:
-        self.account = self.obj.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.project.account
 
 
 @ProjectMembership.views('invite')

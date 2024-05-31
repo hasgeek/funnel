@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from flask import render_template, request
 
 from baseframe import _
@@ -54,14 +52,13 @@ def rooms_list(project: Project) -> list[tuple[str, str]]:
 
 def get_form_template(form: SessionForm) -> ReturnView:
     """Render Session form html."""
-    form_template = render_template(
+    return render_template(
         'session_form.html.jinja2',
         form=form,
         formid='session_new',
         ref_id='session_form',
         title=_("Edit session"),
     )
-    return form_template
 
 
 def session_edit(
@@ -109,8 +106,6 @@ def session_edit(
             else:
                 db.session.add(session)
         db.session.commit()
-        if TYPE_CHECKING:  # FIXME: Needed for Mypy in pre-commit only, unclear why
-            assert session is not None  # nosec B101
         session.project.update_schedule_timestamps()
         db.session.commit()
         if request_wants.html_in_json:
@@ -161,7 +156,12 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
     }
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, account: str, project: str, session: str) -> Session:
+    def loader(
+        self,
+        account: str,  # noqa: ARG002
+        project: str,  # noqa: ARG002
+        session: str,
+    ) -> Session:
         return (
             Session.query.join(Project, Session.project_id == Project.id)
             .join(Account, Project.account)
@@ -169,8 +169,9 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
             .first_or_404()
         )
 
-    def post_init(self) -> None:
-        self.account = self.obj.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.project.account
 
     @property
     def project_currently_saved(self) -> bool:
@@ -274,10 +275,9 @@ class SessionView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Sessi
                     created = True
                     form.populate_obj(session_save)
                     db.session.commit()
-            else:
-                if session_save is not None:
-                    db.session.delete(session_save)
-                    db.session.commit()
+            elif session_save is not None:
+                db.session.delete(session_save)
+                db.session.commit()
             return {'status': 'ok'}, 201 if created else 200
         return {
             'status': 'error',
