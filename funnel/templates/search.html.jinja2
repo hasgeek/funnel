@@ -16,7 +16,7 @@
   {% for item in results['items'] %}
     <div class="tab-content__results grid__col-sm-12 {%- if type == 'project' or type == 'account' %} grid__col-sm-6 grid__col-lg-4{% endif %}">
       {%- if type == 'project' %}
-        {{ projectcard(item.obj, save_form_id_prefix='search_', snippet_html=item.snippet_html) }}
+        {{ projectcard(item.obj, snippet_html=item.snippet_html) }}
       {%- elif type == 'account' %}
         {{ profilecard(item.obj, item.snippet_html) }}
       {%- elif type == 'session' %}
