@@ -239,6 +239,14 @@
   }
 }
 
+.follow-form {
+  .mui-btn--accent {
+    margin-left: 0;
+    padding: 2px 10px;
+    border-radius: 4px;
+  }
+}
+
 @media (min-width: 768px) {
   .project-header {
     position: relative;
@@ -298,6 +306,12 @@
     }
     .project-banner__profile-details__badge {
       margin-left: auto;
+    }
+    .mui-btn + .mui-btn,
+    .mui-btn--accent {
+      margin-left: 0;
+      padding: 2px 10px;
+      border-radius: 4px;
     }
   }
 

@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import faicon, img_size, saveprojectform, calendarwidget, projectcard, video_thumbnail, profileavatar %}
+{%- from "macros.html.jinja2" import faicon, img_size, calendarwidget, projectcard, video_thumbnail, profileavatar %}
 {%- from "js/schedule.js.jinja2" import schedule_template %}
 {% block title %}{{ profile.title }}{% endblock title %}
 
@@ -77,10 +77,6 @@
                 <div class="flex-wrapper flex-wrapper--center">
                   {{ profileavatar(featured_project.account, css_class='margin-left') }}
                 </div>
-                {%- if not current_auth.is_anonymous %}
-                  {% set save_form_id = "spotlight_spfm_desktop_" + featured_project.uuid_b58 %}
-                  <div>{{ saveprojectform(featured_project, formid=save_form_id) }}</div>
-                {% endif %}
               </div>
               <h3 class="mui--text-headline text-bold" data-cy="spotlight-project"><a href="{{ featured_project.url_for() }}" class="mui--text-dark nounderline">{{ featured_project.title }}</a></h3>
               <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
@@ -102,10 +98,6 @@
                     </span>
                     <span class="profile-avatar-title mui--text-body2 text-bold mui--text-dark">{{ featured_project.account.title }}</span>
                   </div>
-                  {%- if not current_auth.is_anonymous %}
-                    {% set save_form_id = "spotlight_spfm_mobile_" + featured_project.uuid_b58 %}
-                    <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(featured_project, formid=save_form_id) }}</div>
-                  {% endif %}
                 </div>
                 <div class="card__image-wrapper {% if not featured_project.bg_image.url %}card__image-wrapper--default{% endif %}">
                   <a href="{{ featured_project.url_for() }}" data-cy-title="{{ featured_project.title }}" data-ga="View featured project">
@@ -173,7 +165,7 @@
         <ul class="mui-list--unstyled grid upcoming" role="list">
           {% for project in upcoming_projects %}
           <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4" role="listitem">
-            {{ projectcard(project, save_form_id_prefix='upcoming_spf_') }}
+            {{ projectcard(project) }}
           </li>
           {%- endfor -%}
         </ul>
@@ -197,7 +189,7 @@
           {% for project in open_cfp_projects %}
             <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4 js-cfp-projects {% if loop.index > 3 %}mui--hide{% endif %}"
               role="listitem">
-              {{ projectcard(project, include_calendar=false, save_form_id_prefix='open_spf_') }}
+              {{ projectcard(project, include_calendar=false) }}
             </li>
           {%- endfor -%}
         </ul>
@@ -381,13 +373,13 @@
     {% endif %}
     <form id="follow-form-{{ profile.uuid_b58 }}" action="{{ profile.url_for('follow') }}" class="follow-form js-follow-form {% if css_class %}{{ css_class }}{% endif %}" data-account-id="{{ profile.uuid_b58 }}" method="post">
       {%- if current_auth.is_anonymous %}
-        <a class="mui-btn mui-btn--dark mui-btn--raised" href="{{ url_for('login', next=request.path) }}" data-ga="Login to follow account" aria-label="{% trans %}Login to follow this account{% endtrans %}">{% trans %}Follow{% endtrans %}</a>
+        <a class="mui-btn mui-btn--dark mui-btn__icon mui-btn--raised" href="{{ url_for('login', next=request.path) }}" data-ga="Login to follow account" aria-label="{% trans %}Login to follow this account{% endtrans %}">{% trans %}Follow{% endtrans %}</a>
       {%- elif profile != current_auth.user and not profile.features.is_private() %}
         <input type="hidden" name="follow" value=""/>
         {% if not hide_unfollow %}
-          <button type="submit" value="false" class="mui-btn mui-btn--danger zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} js-unfollow-btn {% if not profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-xmark', icon_size='caption') }} {% trans %}Unfollow{% endtrans %}</button>
+          <button type="submit" value="false" class="mui-btn mui-btn--danger mui-btn__icon zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} js-unfollow-btn {% if not profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-xmark', icon_size='subhead', baseline=false, css_class='icon_left') }} {% trans %}Unfollow{% endtrans %}</button>
         {% endif %}
-        <button type="submit" value="true" class="mui-btn mui-btn--primary mui-btn--raised zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} zero-left-margin js-follow-btn {% if profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-plus', icon_size='caption') }} {% trans %}Follow{% endtrans %}</button>
+        <button type="submit" value="true" class="mui-btn mui-btn--primary mui-btn--raised mui-btn__icon zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} zero-left-margin js-follow-btn {% if profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-plus', icon_size='subhead', baseline=false, css_class='icon-left') }} {% trans %}Follow{% endtrans %}</button>
       {%- endif %}
     </form>
   </div>

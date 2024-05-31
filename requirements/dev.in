@@ -6,6 +6,7 @@ mypy-json-report
 pip-compile-multi
 po2json
 pre-commit
+ptpython
 pylint
 pyupgrade
 reformat-gherkin

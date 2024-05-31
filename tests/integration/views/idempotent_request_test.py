@@ -99,6 +99,7 @@ def test_regular_route(
                 f'http://localhost:3003/{path}',
                 params={'id': num},
                 data={'data': num},
+                timeout=10,
             )
         )
 
