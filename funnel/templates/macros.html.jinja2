@@ -180,8 +180,7 @@
             <h3 class="card__body__title mui--text-subhead {% if not project.start_at %} card__body__subtitle {% endif %}"><span class="text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
           {% endif %}
         {% elif include_details %}
-          <h3 class="card__body__subtitle mui--text-subhead text-bold">{{ project.title }}</h3>
-          <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
+          <h3 class="card__body__title mui--text-subhead {% if not project.start_at %} card__body__subtitle {% endif %}"><span class="text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
           {% if project.cfp_state.OPEN and project.cfp_end_at_localized %}
             <hr class="separator" />
             <p class="mui--text-caption zero-bottom-margin secondary-color-txt">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>
