@@ -55,7 +55,7 @@ repos:
       - id: pyupgrade
         args: ['--keep-runtime-typing', '--py311-plus']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.6
+    rev: v0.4.7
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
@@ -73,7 +73,7 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/fredrikaverpil/creosote
-    rev: v3.0.0
+    rev: v3.0.1
     hooks:
       - id: creosote
   - repo: https://github.com/shellcheck-py/shellcheck-py
