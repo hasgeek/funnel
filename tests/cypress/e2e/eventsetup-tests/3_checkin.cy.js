@@ -35,8 +35,12 @@ describe('Checkin of attendees', () => {
     });
 
     cy.get(`a[data-testid="${ticketEvents[0].title}"]`).click();
-    cy.get('td[data-testid="ticket-participant"]').contains(ticketParticipants[0].fullname);
-    cy.get('td[data-testid="ticket-participant"]').contains(ticketParticipants[1].fullname);
+    cy.get('td[data-testid="ticket-participant"]').contains(
+      ticketParticipants[0].fullname
+    );
+    cy.get('td[data-testid="ticket-participant"]').contains(
+      ticketParticipants[1].fullname
+    );
     cy.checkin(user.username);
     cy.get('a[data-testid="back-to-setup"]').click();
 

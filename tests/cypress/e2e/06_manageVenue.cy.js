@@ -36,7 +36,9 @@ describe('Manage project venue', () => {
 
       cy.get(`[data-testid="${venues[1].venue_title}"]`).click();
       cy.get('[data-testid="set-primary-venue"]').click();
-      cy.get(`[data-testid="${venues[1].venue_title}"]`).find('em').contains('(primary)');
+      cy.get(`[data-testid="${venues[1].venue_title}"]`)
+        .find('em')
+        .contains('(primary)');
 
       venues.forEach((venue) => {
         cy.get(`.card[data-testid="${venue.venue_title}-rooms"]`)

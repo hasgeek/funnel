@@ -14,7 +14,9 @@ export class ProjectPage {
     await this.page.locator('input#title').fill(projectName);
     await this.page.locator('input#location').type(project.location);
     await this.page.locator('input#tagline').type(project.tagline);
-    await this.page.locator('#field-description .cm-editor .cm-line').fill(project.description);
+    await this.page
+      .locator('#field-description .cm-editor .cm-line')
+      .fill(project.description);
     await this.page.getByTestId('form-submit-btn').click();
   }
 
@@ -34,9 +36,13 @@ export class ProjectPage {
       await this.page.getByTestId('add-labels').click();
       await this.page.locator('input#title').fill(label.title);
       if (label.sublabels) {
-        for (let i=0; i<label.sublabels.length; i++) {
+        for (let i = 0; i < label.sublabels.length; i++) {
           await this.page.locator('#add-sublabel-form').click();
-          await this.page.locator('#child-form > .ui-draggable-box').locator(`nth=${i}`).locator('input#title').type(label.sublabels[i]);
+          await this.page
+            .locator('#child-form > .ui-draggable-box')
+            .locator(`nth=${i}`)
+            .locator('input#title')
+            .type(label.sublabels[i]);
         }
       }
       if (label.adminLabel) {
@@ -44,49 +50,57 @@ export class ProjectPage {
       }
       await this.page.getByTestId('save-label').click();
     }
-    await this.page.getByTestId("project-page").click();
+    await this.page.getByTestId('project-page').click();
   }
 
   async addVenue() {
-    await this.page.getByTestId('project-menu').locator("visible=true").click();
-    await this.page.getByTestId('settings').locator("visible=true").waitFor();
-    await this.page.getByTestId('settings').locator("visible=true").click();
+    await this.page.getByTestId('project-menu').locator('visible=true').click();
+    await this.page.getByTestId('settings').locator('visible=true').waitFor();
+    await this.page.getByTestId('settings').locator('visible=true').click();
     await this.page.getByTestId('manage-venues').click();
     for (let venue of project.venues) {
       await this.page.getByTestId('new-venue').click();
       await this.page.locator('input#title').fill(venue.title);
       await this.page.locator('#field-description .cm-editor .cm-line').waitFor(2000);
-      await this.page.locator('#field-description .cm-editor .cm-line').fill(venue.title);
+      await this.page
+        .locator('#field-description .cm-editor .cm-line')
+        .fill(venue.title);
       await this.page.getByTestId('form-submit-btn').click();
-      await this.page.locator(`.card[data-testid="${venue.title}-rooms"] a[data-testid="add-room"]`)
-      .click();
+      await this.page
+        .locator(`.card[data-testid="${venue.title}-rooms"] a[data-testid="add-room"]`)
+        .click();
       await this.page.locator('input#title').fill(venue.room);
       await this.page.locator('#field-description .cm-editor .cm-line').waitFor(2000);
-      await this.page.locator('#field-description .cm-editor .cm-line').fill(venue.room);
+      await this.page
+        .locator('#field-description .cm-editor .cm-line')
+        .fill(venue.room);
       await this.page.getByTestId('form-submit-btn').click();
       await this.page.getByTestId(venue.room).isVisible();
     }
-    await this.page.getByTestId("project-page").click();
+    await this.page.getByTestId('project-page').click();
   }
 
   async openCFP() {
     await this.page.getByTestId('submissions').click();
     await this.page.getByTestId('add-cfp').click();
-    await this.page.locator('#field-instructions .cm-editor .cm-line').fill(project.cfp_instructions);
+    await this.page
+      .locator('#field-instructions .cm-editor .cm-line')
+      .fill(project.cfp_instructions);
     await this.page.getByTestId('add-cfp').click();
-    await this.page.locator('label.switch-label').locator("visible=true").click();
+    await this.page.locator('label.switch-label').locator('visible=true').click();
   }
 
-  async addProject(owner, crew=[]) {
+  async addProject(owner, crew = []) {
     let randomProjectName = Math.random().toString(36).substring(2, 7);
-    let projectNameCapitalize = randomProjectName.charAt(0).toUpperCase() + randomProjectName.slice(1);
+    let projectNameCapitalize =
+      randomProjectName.charAt(0).toUpperCase() + randomProjectName.slice(1);
     let loginPage;
     loginPage = new LoginPage(this.page);
     await loginPage.login(`/${owner.owns_profile}`, owner.username, owner.password);
     await this.createNewProject(projectNameCapitalize);
     let crewForm = new ProjectCrewFormPage(this.page);
     await this.page.getByTestId('crew').click();
-    for(let member of crew) {
+    for (let member of crew) {
       await crewForm.addMember(member.username, member.role);
     }
     await this.publishProject();
@@ -94,5 +108,4 @@ export class ProjectPage {
     await loginPage.logout();
     return randomProjectName;
   }
-
 }

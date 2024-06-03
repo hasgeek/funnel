@@ -22,27 +22,18 @@
       "room": "Zoom"
     },
     {
-    "title": "Hasgeek House",
-    "room": "Second floor room"
+      "title": "Hasgeek House",
+      "room": "Second floor room"
     }
   ],
   "labels": [
     {
       "title": "Tracks",
-      "sublabels": [
-        "AI Engineering",
-        "Data Science",
-        "Devops"
-      ]
+      "sublabels": ["AI Engineering", "Data Science", "Devops"]
     },
     {
       "title": "Type",
-      "sublabels": [
-        "Full talk",
-        "BOF/Panel discussion",
-        "Lighting talk",
-        "Demo"
-      ]
+      "sublabels": ["Full talk", "BOF/Panel discussion", "Lighting talk", "Demo"]
     },
     {
       "title": "Status",

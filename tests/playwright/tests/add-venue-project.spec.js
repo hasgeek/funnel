@@ -7,18 +7,24 @@ const { editor } = require('../fixtures/user.json');
 test('Add venue to project', async ({ page }) => {
   let loginPage;
   loginPage = new LoginPage(page);
-  await loginPage.login(`/${editor.owns_profile}/${editor.project}`, editor.username, editor.password);
+  await loginPage.login(
+    `/${editor.owns_profile}/${editor.project}`,
+    editor.username,
+    editor.password
+  );
 
-  await page.getByTestId('project-menu').locator("visible=true").click();
-  await page.getByTestId('settings').locator("visible=true").waitFor();
-  await page.getByTestId('settings').locator("visible=true").click();
+  await page.getByTestId('project-menu').locator('visible=true').click();
+  await page.getByTestId('settings').locator('visible=true').waitFor();
+  await page.getByTestId('settings').locator('visible=true').click();
   await page.getByTestId('manage-venues').click();
 
   for (let venue of venues) {
     await page.getByTestId('new-venue').click();
     await page.locator('input#title').fill(venue.venue_title);
-    await page.locator('#field-description .cm-editor .cm-line').fill(venue.venue_description);
-    if(venue.venue_address1) {
+    await page
+      .locator('#field-description .cm-editor .cm-line')
+      .fill(venue.venue_description);
+    if (venue.venue_address1) {
       await page.locator('input#address1').fill(venue.venue_address1);
       await page.locator('input#address2').fill(venue.venue_address2);
       await page.locator('input#city').fill(venue.venue_city);
@@ -26,21 +32,26 @@ test('Add venue to project', async ({ page }) => {
       await page.locator('input#postcode').fill(venue.venue_postcode);
     }
     await page.getByTestId('form-submit-btn').click();
-  };
+  }
 
   await page.getByTestId(`${venues[1].venue_title}`).click();
   await page.getByTestId('set-primary-venue').click();
-  await page.locator(`data-testid=${venues[1].venue_title}-rooms em`, { hasText: 'Details' }).isVisible();
+  await page
+    .locator(`data-testid=${venues[1].venue_title}-rooms em`, { hasText: 'Details' })
+    .isVisible();
 
   for (let venue of venues) {
-    await page.locator(`.card[data-testid="${venue.venue_title}-rooms"] a[data-testid="add-room"]`)
+    await page
+      .locator(
+        `.card[data-testid="${venue.venue_title}-rooms"] a[data-testid="add-room"]`
+      )
       .click();
     await page.locator('input#title').fill(venue.room.title);
-    await page.locator('#field-description .cm-editor .cm-line').fill(venue.room.description);
+    await page
+      .locator('#field-description .cm-editor .cm-line')
+      .fill(venue.room.description);
     await page.locator('input#bgcolor').fill(venue.room.bgcolor);
     await page.getByTestId('form-submit-btn').click();
     await page.getByTestId(`${venue.room.title}`).isVisible();
-  };
-
-
+  }
 });

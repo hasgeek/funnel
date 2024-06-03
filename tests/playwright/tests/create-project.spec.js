@@ -4,11 +4,19 @@ const { LoginPage } = require('../page/login');
 const { ProjectPage } = require('../page/create-project');
 const { ProjectCrewFormPage } = require('../page/project-crew-form');
 const project = require('../fixtures/project.json');
-const { owner, admin, promoter, usher, editor, hguser } = require('../fixtures/user.json');
+const {
+  owner,
+  admin,
+  promoter,
+  usher,
+  editor,
+  hguser,
+} = require('../fixtures/user.json');
 
 test('To create project, edit, publish and add crew', async ({ page }) => {
   let randomProjectName = Math.random().toString(36).substring(2, 7);
-  let projectNameCapitalize = randomProjectName.charAt(0).toUpperCase() + randomProjectName.slice(1);
+  let projectNameCapitalize =
+    randomProjectName.charAt(0).toUpperCase() + randomProjectName.slice(1);
   let loginPage;
   loginPage = new LoginPage(page);
   await loginPage.login(`/${admin.owns_profile}`, admin.username, admin.password);
@@ -37,5 +45,4 @@ test('To create project, edit, publish and add crew', async ({ page }) => {
   await crewForm.addMember(editor.username, 'editor');
   await crewForm.addMember(hguser.username, 'usher', false);
   await crewForm.deleteMember(promoter.username);
-
 });

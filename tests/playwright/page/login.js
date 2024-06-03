@@ -1,5 +1,4 @@
 export class LoginPage {
-
   constructor(page) {
     this.page = page;
     this.loginBtn = this.page.getByTestId('login');
@@ -18,8 +17,11 @@ export class LoginPage {
     await this.passwordBtn.click();
     await this.passwordInputBox.fill(password);
     await Promise.all([
-      this.page.waitForResponse(response => response.url().includes("/login") && response.status() === 200, {timeout: 60000}),
-      this.submitBtn.click()
+      this.page.waitForResponse(
+        (response) => response.url().includes('/login') && response.status() === 200,
+        { timeout: 60000 }
+      ),
+      this.submitBtn.click(),
     ]);
   }
 
@@ -28,5 +30,4 @@ export class LoginPage {
     await this.loginOutBtn.waitFor();
     await this.loginOutBtn.click();
   }
-
 }
