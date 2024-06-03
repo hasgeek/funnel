@@ -39,7 +39,7 @@ from .login_session import requires_login
 session_timeouts['unsub_token'] = timedelta(minutes=15)
 session_timeouts['unsub_token_type'] = timedelta(minutes=15)
 
-# --- Account notifications tab --------------------------------------------------------
+# MARK: Account notifications tab ------------------------------------------------------
 
 unsubscribe_link_expired = __(
     "That unsubscribe link has expired. However, you can manage your preferences from"
@@ -136,7 +136,6 @@ class AccountNotificationView(ClassView):
     def set_notification_preference(self) -> ReturnRenderWith:
         """Set one notification preference."""
         form = SetNotificationPreferenceForm()
-        del form.form_nonce
         if form.validate():
             if (
                 form.notification_type.data
@@ -155,26 +154,21 @@ class AccountNotificationView(ClassView):
                 is_new = False
             prefs.set_transport(form.transport.data, form.enabled.data)
             db.session.commit()
-            return (
-                {
-                    'status': 'ok',
-                    'notification_type': prefs.notification_type,
-                    'preferences': {
-                        transport: prefs.by_transport(transport)
-                        for transport in platform_transports
-                    },
-                    'message': form.status_message(),
+            return {
+                'status': 'ok',
+                'notification_type': prefs.notification_type,
+                'preferences': {
+                    transport: prefs.by_transport(transport)
+                    for transport in platform_transports
                 },
-                201 if is_new else 200,
-            )
-        return (
-            {
-                'status': 'error',
-                'error': 'csrf',
-                'error_description': form.status_message(),
-            },
-            400,
-        )
+                'message': form.status_message(),
+            }, (201 if is_new else 200)
+
+        return {
+            'status': 'error',
+            'error': 'csrf',
+            'error_description': form.status_message(),
+        }, 400
 
     @route(
         'unsubscribe/<token>',
@@ -187,7 +181,8 @@ class AccountNotificationView(ClassView):
         # if they'd like to resubscribe
         try:
             payload = token_serializer().loads(
-                token, max_age=365 * 86400  # Validity 1 year (365 days)
+                token,
+                max_age=365 * 86400,  # Validity 1 year (365 days)
             )
         except itsdangerous.SignatureExpired:
             # Link has expired. It's been over a year!
@@ -317,8 +312,8 @@ class AccountNotificationView(ClassView):
         if not token_type:
             token_type = session.get('unsub_token_type') or request.form['token_type']
 
-        # --- Signed tokens (email)
-        if token_type == 'signed':  # nosec
+        # MARK: Signed tokens (email)
+        if token_type == 'signed':  # noqa: S105
             try:
                 # Token will be in session in the GET request, and in request.form
                 # in the POST request because we'll move it over during the GET request.
@@ -338,8 +333,8 @@ class AccountNotificationView(ClassView):
                 flash(unsubscribe_link_invalid, 'error')
                 return render_redirect(url_for('notification_preferences'))
 
-        # --- Cached tokens (SMS)
-        elif token_type == 'cached':  # nosec
+        # MARK: Cached tokens (SMS)
+        elif token_type == 'cached':  # noqa: S105
             # Enforce a rate limit per IP on cached tokens, to slow down enumeration.
             # Some ISPs use carrier-grade NAT and will have a single IP for a very
             # large number of users, so we have generous limits. 100 unsubscribes per

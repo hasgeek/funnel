@@ -26,7 +26,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  pytest:
+    name: Pytest
+    timeout-minutes: 10
     runs-on: ${{ matrix.os }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -125,7 +127,11 @@ jobs:
           psql -h localhost -U postgres geoname_testing -c "grant all privileges on schema public to $(whoami); grant all privileges on all tables in schema public to $(whoami); grant all privileges on all sequences in schema public to $(whoami);"
       - name: Test with pytest
         run: |
-          pytest --disable-warnings --gherkin-terminal-reporter -vv --showlocals --cov=funnel
+          pytest --disable-warnings --gherkin-terminal-reporter -vv --showlocals --ignore=tests/e2e
+      - name: Browser tests with pytest
+        timeout-minutes: 5
+        run: |
+          pytest --disable-warnings --gherkin-terminal-reporter -vv --showlocals --cov-append --cov=funnel tests/e2e
       - name: Prepare coverage report
         run: |
           mkdir -p coverage
@@ -139,7 +145,7 @@ jobs:
           parallel: true
 
   finish:
-    needs: test
+    needs: pytest
     runs-on: ubuntu-latest
     steps:
       - name: Publish to Coveralls

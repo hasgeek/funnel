@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from flask import abort, render_template, request, url_for
+from flask import abort, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -14,10 +14,19 @@ from ..forms import OrganizationForm, TeamForm
 from ..models import Account, Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
 from ..typing import ReturnView
-from .helpers import render_redirect
+from .helpers import LayoutTemplate, render_redirect
 from .login_session import requires_login, requires_sudo, requires_user_not_spammy
 
-# --- Routes: Organizations ---------------------------------------------------
+# MARK: Templates ----------------------------------------------------------------------
+
+
+class OrganizationTeamsTemplate(
+    LayoutTemplate, template='organization_teams.html.jinja2'
+):
+    org: Account
+
+
+# MARK: Routes: Organizations ----------------------------------------------------------
 
 
 @Organization.views()
@@ -28,7 +37,7 @@ def people_and_teams(obj: Organization) -> list[tuple[Account, list[Team]]]:
     # than by object because teams are loaded separately in the two queries, and
     # SQLAlchemy's session management doesn't merge the instances.
     teams = [team for team in obj.teams if team.is_public]
-    result = [
+    return [
         (
             user,
             [
@@ -39,7 +48,6 @@ def people_and_teams(obj: Organization) -> list[tuple[Account, list[Team]]]:
         )
         for user in obj.people()
     ]
-    return result
 
 
 @Account.views('org')
@@ -129,7 +137,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView[Account]):
     @requires_roles({'admin'})
     def teams(self) -> ReturnView:
         """Render list of teams."""
-        return render_template('organization_teams.html.jinja2', org=self.obj)
+        return OrganizationTeamsTemplate(org=self.obj).render_template()
 
     @route('teams/new', methods=['GET', 'POST'])
     @requires_roles({'admin'})

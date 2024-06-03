@@ -6,6 +6,7 @@ Create Date: 2021-04-30 04:07:47.387372
 
 """
 
+from typing import Any
 from uuid import uuid4
 
 import progressbar.widgets
@@ -55,7 +56,7 @@ proposal_membership = table(
 )
 
 
-def membership_values(proposal_row):
+def membership_values(proposal_row: sa.Row) -> dict[str, Any]:
     return {
         'id': uuid4().hex,
         'created_at': sa.func.now(),
@@ -68,7 +69,7 @@ def membership_values(proposal_row):
     }
 
 
-def get_progressbar(label, maxval):
+def get_progressbar(label: str, maxval: int | None) -> ProgressBar:
     return ProgressBar(
         maxval=maxval,
         widgets=[

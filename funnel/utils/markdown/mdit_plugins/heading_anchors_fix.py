@@ -44,6 +44,6 @@ def heading_anchors_fix(state: StateCore) -> None:
         prev_token = token
 
 
-def heading_anchors_fix_plugin(md: MarkdownIt, **opts: Any) -> None:
+def heading_anchors_fix_plugin(md: MarkdownIt, **_opts: Any) -> None:
     if 'anchor' in md.get_active_rules()['core']:
         md.core.ruler.after('anchor', 'heading_anchors_fix', heading_anchors_fix)

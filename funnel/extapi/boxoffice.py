@@ -23,7 +23,7 @@ class Boxoffice:
         else:
             self.base_url = base_url
 
-    def get_orders(self, ic: str):  # TODO: Return type annotation
+    def get_orders(self, ic: str) -> list[dict]:  # TODO: Return type annotation
         url = urljoin(
             self.base_url,
             f'ic/{ic}/orders?access_token={self.access_token}',
@@ -33,25 +33,25 @@ class Boxoffice:
     def get_tickets(self, ic: str) -> list[ExtTicketsDict]:
         tickets: list[ExtTicketsDict] = []
         for order in self.get_orders(ic):
-            for line_item in order.get('line_items'):
-                if line_item.get('assignee'):
+            for line_item in order.get('line_items', []):
+                if assignee := line_item.get('assignee', {}):
                     status = line_item.get('line_item_status')
                     tickets.append(
                         {
-                            'fullname': line_item.get('assignee').get('fullname', ''),
-                            'email': line_item.get('assignee').get('email'),
-                            'phone': line_item.get('assignee').get('phone', ''),
+                            'fullname': assignee.get('fullname', ''),
+                            'email': assignee.get('email'),
+                            'phone': assignee.get('phone', ''),
                             'twitter': extract_twitter_handle(
-                                line_item.get('assignee').get('twitter', '')
+                                assignee.get('twitter', '')
                             ),
-                            'company': line_item.get('assignee').get('company'),
-                            'city': line_item.get('assignee').get('city', ''),
-                            'job_title': line_item.get('assignee').get('jobtitle', ''),
-                            'ticket_no': str(line_item.get('line_item_seq')),
-                            'ticket_type': line_item.get('item', {}).get('title', '')[
+                            'company': assignee.get('company'),
+                            'city': assignee.get('city', ''),
+                            'job_title': assignee.get('jobtitle', ''),
+                            'ticket_no': str(line_item.get('line_item_seq', '')),
+                            'ticket_type': line_item.get('ticket', {}).get('title', '')[
                                 :80
                             ],
-                            'order_no': str(order.get('invoice_no')),
+                            'order_no': str(order.get('invoice_no', '')),
                             'status': status,
                         }
                     )

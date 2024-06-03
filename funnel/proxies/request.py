@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from functools import wraps
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, TypeVar, cast
 
 from flask import has_request_context, request
 from flask.globals import request_ctx
@@ -13,12 +13,18 @@ from werkzeug.utils import cached_property
 
 from ..typing import ResponseType, T
 
-__all__ = ['request_wants']
+__all__ = ['request_wants', 'RequestWants']
+
+
+RequestWantsType = TypeVar('RequestWantsType', bound='RequestWants')
 
 
 def test_uses(
     *headers: str,
-) -> Callable[[Callable[[RequestWants], T]], cached_property[T | None]]:
+) -> Callable[
+    [Callable[[RequestWantsType], T]],  # pyright: ignore[reportInvalidTypeVarUse]
+    cached_property[T | None],
+]:
     """
     Identify HTTP headers accessed in this test, to be set in the response Vary header.
 
@@ -26,9 +32,9 @@ def test_uses(
     method into a cached property.
     """
 
-    def decorator(f: Callable[[RequestWants], T]) -> cached_property[T | None]:
+    def decorator(f: Callable[[RequestWantsType], T]) -> cached_property[T | None]:
         @wraps(f)
-        def wrapper(self: RequestWants) -> T | None:
+        def wrapper(self: RequestWantsType) -> T | None:
             self.response_vary.update(headers)
             if not has_request_context():
                 return None
@@ -57,7 +63,7 @@ class RequestWants:
     def __bool__(self) -> bool:
         return has_request_context()
 
-    # --- request_wants tests ----------------------------------------------------------
+    # MARK: request_wants tests --------------------------------------------------------
 
     @test_uses('Accept')
     def json(self) -> bool:
@@ -116,7 +122,7 @@ class RequestWants:
         """Content of user prompt in HTMX."""
         return request.environ.get('HTTP_HX_PROMPT')
 
-    # --- End of request_wants tests ---------------------------------------------------
+    # MARK: End of request_wants tests -------------------------------------------------
 
     if TYPE_CHECKING:
 

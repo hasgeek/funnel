@@ -11,6 +11,6 @@
   <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem"
       hx-get="{{ profile.url_for('past_sessions', page=next_page) }}"
       hx-trigger="revealed"
-      hx-swap="outerHTML"><span><span class="mui--text-title mui--text-light">Loading</span><span class="loading"></span></span>
+      hx-swap="outerHTML"><span><span class="mui--text-title mui--text-light">{% trans %}Loading{% endtrans %}</span><span class="loading"></span></span>
   </li>
 {% endif %}

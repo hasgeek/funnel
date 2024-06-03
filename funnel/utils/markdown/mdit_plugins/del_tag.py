@@ -2,32 +2,32 @@
 
 from __future__ import annotations
 
-from collections.abc import MutableMapping, Sequence
+from collections.abc import Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
 from markdown_it.token import Token
-from markdown_it.utils import OptionsDict
+from markdown_it.utils import EnvType, OptionsDict
 
 __all__ = ['del_plugin']
 
 
 def del_open(
-    renderer: RendererHTML,
-    tokens: Sequence[Token],
-    idx: int,
-    options: OptionsDict,
-    env: MutableMapping,
+    renderer: RendererHTML,  # noqa: ARG001
+    tokens: Sequence[Token],  # noqa: ARG001
+    idx: int,  # noqa: ARG001
+    options: OptionsDict,  # noqa: ARG001
+    env: EnvType,  # noqa: ARG001
 ) -> str:
     return '<del>'
 
 
 def del_close(
-    renderer: RendererHTML,
-    tokens: Sequence[Token],
-    idx: int,
-    options: OptionsDict,
-    env: MutableMapping,
+    renderer: RendererHTML,  # noqa: ARG001
+    tokens: Sequence[Token],  # noqa: ARG001
+    idx: int,  # noqa: ARG001
+    options: OptionsDict,  # noqa: ARG001
+    env: EnvType,  # noqa: ARG001
 ) -> str:
     return '</del>'
 

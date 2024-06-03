@@ -58,11 +58,9 @@ def proposal_label_form(
                 ),
             )
 
-    form = ProposalLabelForm(
+    return ProposalLabelForm(
         obj=proposal.formlabels if proposal is not None else None, meta={'csrf': False}
     )
-    del form.form_nonce
-    return form
 
 
 def proposal_label_admin_form(
@@ -102,11 +100,9 @@ def proposal_label_admin_form(
                 ),
             )
 
-    form = ProposalLabelAdminForm(
+    return ProposalLabelAdminForm(
         obj=proposal.formlabels if proposal is not None else None, meta={'csrf': False}
     )
-    del form.form_nonce
-    return form
 
 
 @Proposal.forms('featured')

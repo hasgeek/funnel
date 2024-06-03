@@ -9,8 +9,14 @@ from typing import TYPE_CHECKING, Any
 from werkzeug.utils import cached_property
 
 from baseframe import _, __
-from coaster.sqlalchemy import LazyRoleSet, RoleAccessProxy, StateManager, with_roles
-from coaster.utils import LabeledEnum
+from coaster.sqlalchemy import (
+    LazyRoleSet,
+    RoleAccessProxy,
+    StateManager,
+    role_check,
+    with_roles,
+)
+from coaster.utils import LabeledEnum, NameTitle
 
 from .account import (
     Account,
@@ -37,7 +43,7 @@ from .helpers import MarkdownCompositeBasic, MessageComposite, add_search_trigge
 __all__ = ['Comment', 'Commentset']
 
 
-# --- Constants ------------------------------------------------------------------------
+# MARK: Constants ----------------------------------------------------------------------
 
 
 class COMMENTSET_STATE(LabeledEnum):  # noqa: N801
@@ -51,13 +57,13 @@ class COMMENTSET_STATE(LabeledEnum):  # noqa: N801
 
 class COMMENT_STATE(LabeledEnum):  # noqa: N801
     # If you add any new state, you need to migrate the check constraint as well
-    SUBMITTED = (1, 'submitted', __("Submitted"))
-    SCREENED = (2, 'screened', __("Screened"))
-    HIDDEN = (3, 'hidden', __("Hidden"))
-    SPAM = (4, 'spam', __("Spam"))
+    SUBMITTED = (1, NameTitle('submitted', __("Submitted")))
+    SCREENED = (2, NameTitle('screened', __("Screened")))
+    HIDDEN = (3, NameTitle('hidden', __("Hidden")))
+    SPAM = (4, NameTitle('spam', __("Spam")))
     # Deleted state for when there are replies to be preserved
-    DELETED = (5, 'deleted', __("Deleted"))
-    VERIFIED = (6, 'verified', __("Verified"))
+    DELETED = (5, NameTitle('deleted', __("Deleted")))
+    VERIFIED = (6, NameTitle('verified', __("Verified")))
 
     PUBLIC = {SUBMITTED, VERIFIED}
     REMOVED = {SPAM, DELETED}
@@ -78,7 +84,7 @@ message_deleted = MessageComposite(__("[deleted]"), 'del')
 message_removed = MessageComposite(__("[removed]"), 'del')
 
 
-# --- Models ---------------------------------------------------------------------------
+# MARK: Models -------------------------------------------------------------------------
 
 
 class Commentset(UuidMixin, BaseMixin[int, Account], Model):
@@ -87,7 +93,9 @@ class Commentset(UuidMixin, BaseMixin[int, Account], Model):
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
         sa.SmallInteger,
-        StateManager.check_constraint('state', COMMENTSET_STATE, sa.SmallInteger),
+        StateManager.check_constraint(
+            'state', COMMENTSET_STATE, sa.SmallInteger, name='commentset_state_check'
+        ),
         nullable=False,
         default=COMMENTSET_STATE.OPEN,
     )
@@ -204,14 +212,14 @@ class Commentset(UuidMixin, BaseMixin[int, Account], Model):
 
     with_roles(last_comment, read={'all'}, datasets={'primary'})
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        parent_roles = self.parent.roles_for(actor, anchors)
-        if 'participant' in parent_roles or 'commenter' in parent_roles:
-            roles.add('parent_participant')
-        return roles
+    @role_check('parent_participant')
+    def has_parent_participant_role(
+        self, actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Confirm if the actor is a participant in the parent object."""
+        return (parent := self.parent) is not None and parent.roles_for(actor).has_any(
+            {'participant', 'commenter'}
+        )
 
     @with_roles(call={'all'})
     @state.requires(state.NOT_DISABLED)
@@ -330,7 +338,10 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        StateManager.check_constraint('state', COMMENT_STATE, sa.Integer),
+        sa.SmallInteger,
+        StateManager.check_constraint(
+            'state', COMMENT_STATE, sa.SmallInteger, name='comment_state_check'
+        ),
         default=COMMENT_STATE.SUBMITTED,
         nullable=False,
     )
@@ -410,7 +421,9 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
             else (
                 removed_account
                 if self.state.SPAM
-                else unknown_account if self._posted_by is None else self._posted_by
+                else unknown_account
+                if self._posted_by is None
+                else self._posted_by
             )
         )
 
@@ -434,7 +447,9 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
         return (
             message_deleted
             if self.state.DELETED
-            else message_removed if self.state.SPAM else self._message
+            else message_removed
+            if self.state.SPAM
+            else self._message
         )
 
     @message.inplace.setter
@@ -495,16 +510,15 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
         if len(self.replies) > 0:
             self.posted_by = None
             self.message = ''
+        elif self.in_reply_to and self.in_reply_to.state.DELETED:
+            # If the comment this is replying to is deleted, ask it to reconsider
+            # removing itself
+            in_reply_to = self.in_reply_to
+            in_reply_to.replies.remove(self)
+            db.session.delete(self)
+            in_reply_to.delete()
         else:
-            if self.in_reply_to and self.in_reply_to.state.DELETED:
-                # If the comment this is replying to is deleted, ask it to reconsider
-                # removing itself
-                in_reply_to = self.in_reply_to
-                in_reply_to.replies.remove(self)
-                db.session.delete(self)
-                in_reply_to.delete()
-            else:
-                db.session.delete(self)
+            db.session.delete(self)
 
     @state.transition(None, state.SPAM)
     def mark_spam(self) -> None:
@@ -521,12 +535,12 @@ class Comment(UuidMixin, BaseMixin[int, Account], Model):
             CommentModeratorReport.reported_by == account,
         ).notempty()
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        roles.add('reader')
-        return roles
+    @role_check('reader')
+    def has_reader_role(
+        self, _actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Everyone is always a reader (for now)."""
+        return True
 
 
 add_search_trigger(Comment, 'search_vector')

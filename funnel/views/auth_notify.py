@@ -29,7 +29,7 @@ def notify_session_revoked(session: LoginSession) -> None:
     for auth_client in session.auth_clients:
         if auth_client.trusted and auth_client.notification_uri:
             send_auth_client_notice.queue(
-                auth_client.notification_uri,
+                str(auth_client.notification_uri),
                 data={
                     'userid': session.account.buid,  # XXX: Deprecated parameter
                     'buid': session.account.buid,
@@ -71,17 +71,16 @@ def notify_user_data_changed(user: Account, changes: list[str]) -> None:
                     ]:
                         if {'phone', 'phone/*'}.intersection(tokenscope):
                             notify_changes.append(change)
-                    elif change in ['team-membership']:  # skipcq: PTC-W0048
-                        if {
-                            'organizations',
-                            'organizations/*',
-                            'teams',
-                            'teams/*',
-                        }.intersection(tokenscope):
-                            notify_changes.append(change)
+                    elif change in ['team-membership'] and {
+                        'organizations',
+                        'organizations/*',
+                        'teams',
+                        'teams/*',
+                    }.intersection(tokenscope):
+                        notify_changes.append(change)
                 if notify_changes:
                     send_auth_client_notice.queue(
-                        token.auth_client.notification_uri,
+                        str(token.auth_client.notification_uri),
                         data={
                             'userid': user.buid,  # XXX: Deprecated parameter
                             'buid': user.buid,
@@ -114,13 +113,11 @@ def notify_org_data_changed(
             client_users.setdefault(token.auth_client, []).append(token.effective_user)
     # Now we have a list of clients to notify and a list of users to notify them with
     for auth_client, users in client_users.items():
-        if user is not None and user in users:
-            notify_user = user
-        else:
-            notify_user = users[0]  # First user available
+        # First available user of the client if the current user is not a user
+        notify_user = user if user is not None and user in users else users[0]
         if auth_client.trusted and auth_client.notification_uri:
             send_auth_client_notice.queue(
-                auth_client.notification_uri,
+                str(auth_client.notification_uri),
                 data={
                     'userid': notify_user.buid,  # XXX: Deprecated parameter
                     'buid': notify_user.buid,

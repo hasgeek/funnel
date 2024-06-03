@@ -19,7 +19,6 @@ from ..helpers import progressive_rate_limit_validator, validate_rate_limit
 def password_policy_check() -> ReturnView:
     """Check if a password meets policy criteria (strength, embedded personal info)."""
     form = PasswordPolicyForm(edit_user=current_auth.user)
-    form.form_nonce.data = form.form_nonce.get_default()
 
     if form.validate_on_submit():
         return {
@@ -49,7 +48,6 @@ def password_policy_check() -> ReturnView:
 def account_username_availability() -> ReturnView:
     """Check whether a username is available for the taking."""
     form = UsernameAvailableForm(edit_user=current_auth.user)
-    del form.form_nonce
 
     # FIXME: Rate limiting must happen _before_ hitting the database.
 
@@ -102,11 +100,11 @@ def account_username_availability() -> ReturnView:
     # 400/422 is the wrong code as the request is valid and the error is app content
     return {
         'status': 'error',
-        'error': 'validation_failure',  # FIXME: Change to 'error': 'validation'
+        'error': 'validation_failure',
         # Use the first known error as the description
         'error_description': (
             str(form.username.errors[0])
             if form.username.errors
-            else str(list(form.errors.values())[0][0])
+            else str(next(iter(form.errors.values()))[0])
         ),
     }, 200

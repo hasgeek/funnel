@@ -1,13 +1,13 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ page.title }}{% endblock title %}
-{%- from "macros.html.jinja2" import page_footer %}
+{%- from "macros.html.jinja2" import about_page_footer %}
 
 {% block top_title %}
   <h1 class="mui--text-headline"><strong>{{ self.title() }}</strong></h1>
 {% endblock top_title %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ manifest('css/about.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ webpack('css/about.css') }}" />
 {% endblock pageheaders %}
 
 {% block contentwrapper -%}
@@ -36,7 +36,7 @@
 {%- endblock contentwrapper %}
 
 {% block basefooter %}
-  {{ page_footer() }}
+  {{ about_page_footer('policy') }}
 {% endblock basefooter %}
 
 {% block footerscripts %}

@@ -93,6 +93,11 @@
             <a href="{{ project.url_for('ticket_events') }}" class="nounderline flex-wrapper mui--text-dark" data-testid="scan-checkin"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='barcode-read', icon_size='title', baseline=false, css_class="mui--text-light") }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Badge scanner{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Scan participant badges at in-person events{% endtrans %}</span></span></a>
           </li>
         {% endif %}
+        {% if project.view_for('assign_parent_project').is_available() %}
+          <li class="margin-bottom">
+            <a href="{{ project.url_for('assign_parent_project') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="assign-parent"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='list-tree', icon_size='title', baseline=false, css_class="mui--text-light") }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Group projects{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Assign a parent project{% endtrans %}</span></span></a>
+          </li>
+        {% endif %}
         </ul>
       </div>
     </div>

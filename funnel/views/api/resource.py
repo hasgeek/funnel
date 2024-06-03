@@ -10,7 +10,7 @@ from werkzeug.datastructures import MultiDict
 
 from baseframe import __
 from coaster.utils import getbool
-from coaster.views import jsonp, requestargs
+from coaster.views import jsonp, requestargs, requestvalues
 
 from ... import app
 from ...auth import current_auth
@@ -120,7 +120,7 @@ def resource_error(
 
 
 def api_result(
-    status: Literal['ok'] | Literal['error'] | Literal[200] | Literal[201],
+    status: Literal['ok', 'error', 200, 201],
     _jsonp: bool = False,
     **params: Any,
 ) -> Response:
@@ -133,7 +133,7 @@ def api_result(
         status_code = 422
     params['status'] = status
     if _jsonp:
-        response = jsonp(params)
+        response: Response = jsonp(params)  # type: ignore[assignment]
     else:
         response = jsonify(params)
     response.status_code = status_code
@@ -144,7 +144,7 @@ def api_result(
     return response
 
 
-# --- Client access endpoints -------------------------------------------------
+# MARK: Client access endpoints --------------------------------------------------------
 
 
 @app.route('/api/1/token/verify', methods=['POST'])
@@ -205,7 +205,7 @@ def user_get_by_userid() -> ReturnView:
 
 @app.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
-@requestargs(('userid[]', abort_null))
+@requestvalues(('userid[]', abort_null))
 def user_get_by_userids(userid: list[str]) -> ReturnView:
     """
     Return users and organizations with the given userids (Lastuser internal userid).
@@ -253,7 +253,7 @@ def user_get_by_userids(userid: list[str]) -> ReturnView:
 
 @app.route('/api/1/user/get', methods=['GET', 'POST'])
 @requires_user_or_client_login
-@requestargs(('name', abort_null))
+@requestvalues(('name', abort_null))
 def user_get(name: str) -> ReturnView:
     """Return user with the given username or email address."""
     if not name:
@@ -278,7 +278,7 @@ def user_get(name: str) -> ReturnView:
 
 @app.route('/api/1/user/getusers', methods=['GET', 'POST'])
 @requires_user_or_client_login
-@requestargs(('name[]', abort_null))
+@requestvalues(('name[]', abort_null))
 def user_getall(name: list[str]) -> ReturnView:
     """Return users with the given username or email address."""
     names = name
@@ -311,7 +311,7 @@ def user_getall(name: list[str]) -> ReturnView:
 
 @app.route('/api/1/user/autocomplete', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
-@requestargs(('q', abort_null))
+@requestvalues(('q', abort_null))
 def user_autocomplete(q: str = '') -> ReturnView:
     """
     Return users matching the search term.
@@ -365,7 +365,7 @@ def user_autocomplete(q: str = '') -> ReturnView:
 
 @app.route('/api/1/profile/autocomplete')
 @requires_client_id_or_user_or_client_login
-@requestargs(('q', abort_null))
+@requestvalues(('q', abort_null))
 def profile_autocomplete(q: str = '') -> ReturnView:
     """Return accounts matching the search term."""
     if not q:
@@ -418,7 +418,7 @@ def profile_autocomplete(q: str = '') -> ReturnView:
     )
 
 
-# --- Public endpoints --------------------------------------------------------
+# MARK: Public endpoints ---------------------------------------------------------------
 
 
 @app.route('/api/1/login/beacon.html')
@@ -461,13 +461,15 @@ def login_beacon_json(client_id: str) -> ReturnView:
     return response
 
 
-# --- Token-based resource endpoints ------------------------------------------
+# MARK: Token-based resource endpoints -------------------------------------------------
 
 
 @app.route('/api/1/id')
 @resource_registry.resource('id', __("Read your name and basic account data"))
 def resource_id(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Return user's basic identity."""
     if 'all' in args and getbool(args['all']):
@@ -488,7 +490,9 @@ def resource_id(
 @app.route('/api/1/session/verify', methods=['POST'])
 @resource_registry.resource('session/verify', __("Verify user session"), scope='id')
 def session_verify(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Verify a UserSession."""
     sessionid = abort_null(args['sessionid'])
@@ -510,7 +514,9 @@ def session_verify(
 @app.route('/api/1/email')
 @resource_registry.resource('email', __("Read your email address"))
 def resource_email(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Return user's email addresses."""
     if 'all' in args and getbool(args['all']):
@@ -528,7 +534,9 @@ def resource_email(
 @app.route('/api/1/phone')
 @resource_registry.resource('phone', __("Read your phone number"))
 def resource_phone(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Return user's phone numbers."""
     if 'all' in args and getbool(args['all']):
@@ -546,7 +554,9 @@ def resource_phone(
     trusted=True,
 )
 def resource_login_providers(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Return user's login providers' data."""
     service: str | None = abort_null(args.get('service'))
@@ -568,7 +578,9 @@ def resource_login_providers(
     'organizations', __("Read the organizations you are a member of")
 )
 def resource_organizations(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,  # noqa: ARG001
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Return user's organizations and teams that they are a member of."""
     return get_userinfo(
@@ -582,7 +594,9 @@ def resource_organizations(
 @app.route('/api/1/teams')
 @resource_registry.resource('teams', __("Read the list of teams in your organizations"))
 def resource_teams(
-    authtoken: AuthToken, args: MultiDict, files: MultiDict | None = None
+    authtoken: AuthToken,
+    args: MultiDict,  # noqa: ARG001
+    files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
     """Return user's organizations' teams."""
     return get_userinfo(

@@ -6,18 +6,20 @@ import gzip
 import zlib
 import zoneinfo
 from base64 import urlsafe_b64encode
-from collections.abc import Callable, Mapping
-from contextlib import nullcontext
+from collections.abc import Callable, Iterator, Mapping
+from contextlib import AbstractContextManager, nullcontext
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from importlib import resources
 from os import urandom
-from typing import Any, ContextManager
-from urllib.parse import quote, unquote, urljoin, urlsplit
+from typing import Any, Literal, Protocol
+from urllib.parse import quote, unquote, urljoin
 
 import brotli
+from babel import Locale
 from flask import (
     Flask,
+    Request,
     Response,
     abort,
     current_app,
@@ -29,6 +31,7 @@ from flask import (
     session,
     url_for,
 )
+from flask.sessions import SessionMixin
 from furl import furl
 from pytz import BaseTzInfo, timezone as pytz_timezone, utc
 from werkzeug.exceptions import MethodNotAllowed, NotFound
@@ -36,22 +39,25 @@ from werkzeug.routing import BuildError, RequestRedirect
 from werkzeug.wrappers import Response as BaseResponse
 
 from baseframe import cache, statsd
-from coaster.sqlalchemy import RoleMixin
+from coaster.assets import WebpackManifest
+from coaster.sqlalchemy import RoleAccessProxy, RoleMixin
 from coaster.utils import utcnow
+from coaster.views import ClassView
 
 from .. import app, shortlinkapp
-from ..auth import current_auth
+from ..auth import CurrentAuth, current_auth
 from ..forms import supported_locales
-from ..models import Account, Shortlink, db, profanity
-from ..proxies import request_wants
-from ..typing import ResponseType, ReturnResponse, ReturnView
+from ..models import Account, Project, Shortlink, db, profanity
+from ..proxies import RequestWants, request_wants
+from ..typing import ResponseType, ReturnResponse
+from ..utils import JinjaTemplateBase, jinja_global, jinja_undefined
 
 nocache_expires = utc.localize(datetime(1990, 1, 1))
 
 # Six avatar colours defined in _variable.scss
 avatar_color_count = 6
 
-# --- Timezone data --------------------------------------------------------------------
+# MARK: Timezone data ------------------------------------------------------------------
 
 # Get all known timezones from zoneinfo and make a lowercased lookup table
 valid_timezones = {_tz.lower(): _tz for _tz in zoneinfo.available_timezones()}
@@ -64,7 +70,80 @@ with (resources.files('tzdata.zoneinfo') / 'tzdata.zi').open(
             _tzlink, _tznew, _tzold = _tzline.strip().split()
             valid_timezones[_tzold.lower()] = _tznew
 
-# --- Classes --------------------------------------------------------------------------
+# MARK: Classes ------------------------------------------------------------------------
+
+
+class AppContextProtocol(Protocol):
+    """Read-only protocol for ``flask.g`` within Jinja2 templates."""
+
+    def __getattr__(self, name: str) -> Any: ...
+    def get(self, name: str, default: Any | None = None) -> Any: ...
+    def __contains__(self, item: str) -> bool: ...
+    def __iter__(self) -> Iterator[str]: ...
+
+
+class JinjaTemplate(JinjaTemplateBase, template=None):
+    """Jinja template dataclass base class with type hints for Jinja globals."""
+
+    # Globals provided by Jinja2
+    range: Callable = jinja_global()
+    dict: Callable = jinja_global()
+    lipsum: Callable = jinja_global()
+    cycler: Callable = jinja_global()
+    joiner: Callable = jinja_global()
+    namespace: Callable = jinja_global()
+
+    # Globals provided by Jinja2 i18n extension
+    _: Callable = jinja_global()
+    gettext: Callable = jinja_global()
+    ngettext: Callable = jinja_global()
+    pgettext: Callable = jinja_global()
+    npgettext: Callable = jinja_global()
+
+    # Globals provided by Flask when an app context is present
+    url_for: Callable[..., str] = jinja_global()  # Get URL for route
+    get_flashed_messages: Callable = jinja_global()  # Flash messages
+    config: Mapping = jinja_global()  # App config as a read-only dict
+    g: AppContextProtocol = jinja_global()  # App context data
+
+    # Globals provided by Flask when a request context is present (not typed `| None`
+    # here as only email templates are rendered outside a request)
+    request: Request = jinja_global()  # HTTP request data
+    session: SessionMixin = jinja_global()  # Cookie session
+
+    # Globals provided by Coaster, Baseframe and Funnel
+    current_auth: CurrentAuth = jinja_global()  # Auth data
+    current_view: ClassView = jinja_global()  # Current ClassView or ModelView
+    manifest: WebpackManifest = jinja_global()  # Webpack manifest loader
+    request_is_xhr: Callable[[], bool] = jinja_global()  # Legacy XHR test
+    get_locale: Callable[[], Locale] = jinja_global()  # User locale
+    csrf_token: Callable[[], str | bytes] = jinja_global()  # CSRF token
+    request_wants: RequestWants = jinja_global()  # Request flags
+
+
+class LayoutTemplate(JinjaTemplate, template='layout.html.jinja2'):
+    """Jinja templates that extend ``layout.html.jinja2``."""
+
+    search_query: str = jinja_undefined(default=None)
+
+
+class FormLayoutTemplate(LayoutTemplate, template='formlayout.html.jinja2'):
+    """Jinja templates that extend ``formlayout.html.jinja2``."""
+
+    autosave: bool = jinja_undefined(default=None)
+    ref_id: str = jinja_undefined(default=None)
+
+
+class ProjectLayout(LayoutTemplate, template='project_layout.html.jinja2'):
+    """Jinja templates that extend ``project_layout.html.jinja2``."""
+
+    project: Project | RoleAccessProxy[Project]
+
+
+class ProfileLayout(LayoutTemplate, template='profile_layout.html.jinja2'):
+    """Jinja templates that extend ``profile_layout.html.jinja2``."""
+
+    # TODO
 
 
 class SessionTimeouts(dict[str, timedelta]):
@@ -124,10 +203,10 @@ class SessionTimeouts(dict[str, timedelta]):
 session_timeouts = SessionTimeouts()
 app.after_request(session_timeouts.crosscheck_session)
 
-# --- Utilities ------------------------------------------------------------------------
+# MARK: Utilities ----------------------------------------------------------------------
 
 
-def app_context() -> ContextManager:
+def app_context() -> AbstractContextManager:
     """Return an app context if one is not active."""
     if current_app:
         return nullcontext()
@@ -284,9 +363,10 @@ def localize_date(
     return date
 
 
-def get_scheme_netloc(uri: str) -> tuple[str, str]:
-    parsed_uri = urlsplit(uri)
-    return (parsed_uri.scheme, parsed_uri.netloc)
+def get_scheme_netloc(uri: str | furl) -> tuple[str | None, str | None]:
+    if isinstance(uri, str):
+        uri = furl(uri)
+    return uri.scheme, uri.netloc
 
 
 def autoset_timezone_and_locale() -> None:
@@ -296,14 +376,13 @@ def autoset_timezone_and_locale() -> None:
         user.auto_timezone
         or not user.timezone
         or str(user.timezone).lower() not in valid_timezones
-    ):
-        if request.cookies.get('timezone'):
-            cookie_timezone = unquote(request.cookies['timezone']).lower()
-            remapped_timezone = valid_timezones.get(cookie_timezone)
-            if remapped_timezone is not None:
-                user.timezone = remapped_timezone  # type: ignore[assignment]
+    ) and request.cookies.get('timezone'):
+        cookie_timezone = unquote(request.cookies['timezone']).lower()
+        remapped_timezone = valid_timezones.get(cookie_timezone)
+        if remapped_timezone is not None:
+            user.timezone = remapped_timezone  # type: ignore[assignment]
     if user.auto_locale or not user.locale or str(user.locale) not in supported_locales:
-        user.locale = (  # pyright: ignore[reportGeneralTypeIssues]
+        user.locale = (  # pyright: ignore[reportAttributeAccessIssue]
             request.accept_languages.best_match(  # type: ignore[assignment]
                 supported_locales.keys()
             )
@@ -325,21 +404,21 @@ def progressive_rate_limit_validator(
     # prev_token will be None on the first call to the validator. Count the first
     # call, but don't retain the previous token
     if prev_token is None:
-        return (True, False)
+        return True, False
 
     # User is typing, so current token is previous token plus extra chars. Don't
     # count this as a new call, and keep the longer current token as the reference
     if token.startswith(prev_token):
-        return (False, False)
+        return False, False
 
     # User is backspacing (current < previous), so keep the previous token as the
     # reference in case they retype the deleted characters
     if prev_token.startswith(token):
-        return (False, True)
+        return False, True
 
     # Current token is differing from previous token, meaning this is a new query.
     # Increment the counter, discard previous token and use current token as ref
-    return (True, False)
+    return True, False
 
 
 def validate_rate_limit(
@@ -436,7 +515,7 @@ def validate_rate_limit(
 # This number can be increased to 4 as volumes grow, but will result in a 6 char token
 TOKEN_BYTES_LEN = 3
 # Changing this prefix will break existing tokens. Do not change
-TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # nosec
+TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # noqa: S105
 
 
 def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
@@ -479,34 +558,46 @@ def delete_cached_token(token: str) -> bool:
     return cache.delete(TEXT_TOKEN_PREFIX + token)
 
 
-def compress(data: bytes, algorithm: str) -> bytes:
+# `compress` and `decompress` are typed to accept ``| str`` because `compress_response`
+# calls with an `str` type, not a literal string
+
+
+def compress(
+    data: bytes,
+    algorithm: Literal['br', 'gzip', 'deflate'] | str,  # noqa: PYI051
+) -> bytes:
     """
     Compress data using Gzip, Deflate or Brotli.
 
-    :param algorithm: One of ``gzip``, ``deflate`` or ``br``
+    :param algorithm: One of ``br``, ``gzip`` or ``deflate``
     """
-    if algorithm == 'gzip':
-        return gzip.compress(data)
-    if algorithm == 'deflate':
-        return zlib.compress(data)
-    if algorithm == 'br':
-        return brotli.compress(data)
-    raise ValueError("Unknown compression algorithm")
+    match algorithm:
+        case 'gzip':
+            return gzip.compress(data)
+        case 'deflate':
+            return zlib.compress(data)
+        case 'br':
+            return brotli.compress(data)
+    raise ValueError(f"Unknown compression algorithm: {algorithm}")
 
 
-def decompress(data: bytes, algorithm: str) -> bytes:
+def decompress(
+    data: bytes,
+    algorithm: Literal['br', 'gzip', 'deflate'] | str,  # noqa: PYI051
+) -> bytes:
     """
     Uncompress data using Gzip, Deflate or Brotli.
 
-    :param algorithm: One of ``gzip``, ``deflate`` or ``br``
+    :param algorithm: One of ``br``, ``gzip`` or ``deflate``
     """
-    if algorithm == 'gzip':
-        return gzip.decompress(data)
-    if algorithm == 'deflate':
-        return zlib.decompress(data)
-    if algorithm == 'br':
-        return brotli.decompress(data)
-    raise ValueError("Unknown compression algorithm")
+    match algorithm:
+        case 'gzip':
+            return gzip.decompress(data)
+        case 'deflate':
+            return zlib.decompress(data)
+        case 'br':
+            return brotli.decompress(data)
+    raise ValueError(f"Unknown compression algorithm: {algorithm}")
 
 
 def compress_response(response: BaseResponse) -> None:
@@ -517,7 +608,8 @@ def compress_response(response: BaseResponse) -> None:
     :func:`~funnel.views.decorators.etag_cache_for_user`.
     """
     if (  # pylint: disable=too-many-boolean-expressions
-        response.content_length is not None
+        not response.direct_passthrough
+        and response.content_length is not None
         and response.content_length > 500
         and 200 <= response.status_code < 300
         and 'Content-Encoding' not in response.headers
@@ -525,10 +617,7 @@ def compress_response(response: BaseResponse) -> None:
         and (
             response.mimetype.startswith('text/')
             or response.mimetype
-            in (
-                'application/json',
-                'application/javascript',
-            )
+            in ('application/json', 'application/javascript', 'application/x.html+json')
         )
     ):
         algorithm = request.accept_encodings.best_match(('br', 'gzip', 'deflate'))
@@ -538,7 +627,7 @@ def compress_response(response: BaseResponse) -> None:
             response.vary.add('Accept-Encoding')
 
 
-# --- Template helpers -----------------------------------------------------------------
+# MARK: Template helpers ---------------------------------------------------------------
 
 
 def render_redirect(url: str, code: int = 303) -> ReturnResponse:
@@ -562,10 +651,19 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
     return redirect(url, code)
 
 
-def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]:
-    """Render a HTML fragment in a JSON wrapper, for use with ``@render_with``."""
+def html_in_json(
+    template: str,
+) -> Mapping[str, str | Callable[[Mapping[str, Any]], ReturnResponse]]:
+    """
+    Render a HTML fragment in a JSON wrapper, for use with ``@render_with``.
 
-    def render_json_with_status(kwargs: dict[str, Any]) -> ReturnResponse:
+    ::
+
+        @render_with(html_in_json('template.html.jinja2'))
+        def my_view(...) -> ReturnRenderWith: ...
+    """
+
+    def render_json_with_status(kwargs: Mapping[str, Any]) -> ReturnResponse:
         """Render plain JSON."""
         return jsonify(
             status='ok',
@@ -579,7 +677,7 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
             },
         )
 
-    def render_html_in_json(kwargs: dict[str, Any]) -> ReturnResponse:
+    def render_html_in_json(kwargs: Mapping[str, Any]) -> ReturnResponse:
         """Render HTML fragment in JSON."""
         resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
         resp.content_type = 'application/x.html+json; charset=utf-8'
@@ -592,7 +690,7 @@ def html_in_json(template: str) -> dict[str, str | Callable[[dict], ReturnView]]
     }
 
 
-# --- Filters and URL constructors -----------------------------------------------------
+# MARK: Filters and URL constructors ---------------------------------------------------
 
 
 @app.template_filter('url_join')
@@ -626,7 +724,7 @@ def shortlink(url: str, actor: Account | None = None, shorter: bool = True) -> s
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
 
 
-# --- Request/response handlers --------------------------------------------------------
+# MARK: Request/response handlers ------------------------------------------------------
 
 
 @app.before_request

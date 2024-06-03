@@ -14,18 +14,17 @@ def test_project_crew_membership(
     new_user_owner: models.User,
     new_project: models.Project,
 ) -> None:
-    """Test that project crew members get their roles from ProjectCrewMembership."""
+    """Test that project crew members get their roles from ProjectMembership."""
     # new_user is account admin
     assert 'admin' in new_project.account.roles_for(new_user_owner)
     # but it has no role in the project yet
-    assert (
-        'editor'
-        not in new_project.roles_for(  # pylint: disable=protected-access
-            new_user_owner
-        )._contents()
-    )
+    # pylint: disable=protected-access
+    assert 'editor' not in new_project.roles_for(new_user_owner)._contents()
+    assert 'project_editor' not in new_project.roles_for(new_user_owner)._contents()
     assert 'promoter' not in new_project.roles_for(new_user_owner)
+    assert 'project_promoter' not in new_project.roles_for(new_user_owner)
     assert 'usher' not in new_project.roles_for(new_user_owner)
+    assert 'project_usher' not in new_project.roles_for(new_user_owner)
 
     previous_membership = (
         models.ProjectMembership.query.filter(models.ProjectMembership.is_active)
@@ -136,7 +135,10 @@ def test_membership_amend(
     org_ankhmorpork: models.Organization,
 ) -> None:
     ridcully_admin = models.AccountMembership(
-        member=user_ridcully, account=org_ankhmorpork, granted_by=user_vetinari
+        member=user_ridcully,
+        account=org_ankhmorpork,
+        granted_by=user_vetinari,
+        is_admin=True,
     )
     db_session.add(ridcully_admin)
     ridcully_member = models.ProjectMembership(

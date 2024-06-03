@@ -7,7 +7,7 @@ import re
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from collections.abc import Iterable
 from os import urandom
-from typing import Any, Literal, overload
+from typing import Literal, overload
 
 from furl import furl
 from sqlalchemy.exc import IntegrityError
@@ -32,7 +32,7 @@ from .helpers import profanity
 __all__ = ['Shortlink']
 
 
-# --- Constants ------------------------------------------------------------------------
+# MARK: Constants ----------------------------------------------------------------------
 
 #: Size for for SMS and other length-sensitive uses. This can be raised from 3 to 4
 #: bytes as usage grows
@@ -55,7 +55,7 @@ NAME_MASK = b'AAAAAAAAAAA='  # 11 bytes + 1 padding byte
 _valid_name_re = re.compile('^[A-Za-z0-9_-]*$')
 
 
-# --- Helpers --------------------------------------------------------------------------
+# MARK: Helpers ------------------------------------------------------------------------
 
 
 def normalize_url(url: str | furl, default_scheme: str = 'https') -> furl:
@@ -175,12 +175,10 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
     If the provided name is invalid, :func:`name_to_bigint` will raise exceptions.
     """
 
-    def __eq__(self, other: Any) -> sa.ColumnElement[bool]:  # type: ignore[override]
+    def __eq__(self, other: object) -> sa.ColumnElement[bool]:  # type: ignore[override]
         """Return an expression for column == other."""
-        if isinstance(other, (str, bytes)):
-            return self.__clause_element__() == name_to_bigint(
-                other
-            )  # type: ignore[return-value]
+        if isinstance(other, str | bytes):
+            return self.__clause_element__() == name_to_bigint(other)  # type: ignore[return-value]
         return sa.sql.expression.false()
 
     is_ = __eq__  # type: ignore[assignment]
@@ -194,7 +192,7 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
         )
 
 
-# --- Models ---------------------------------------------------------------------------
+# MARK: Models -------------------------------------------------------------------------
 
 
 class Shortlink(NoIdMixin, Model):
@@ -207,7 +205,7 @@ class Shortlink(NoIdMixin, Model):
     is_new = False
 
     # id of this shortlink, saved as a bigint (8 bytes)
-    id: Mapped[int] = with_roles(  # noqa: A003
+    id: Mapped[int] = with_roles(
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
         # handling collisions. This needs an "immutable after commit" handler
         sa_orm.mapped_column(
@@ -248,7 +246,7 @@ class Shortlink(NoIdMixin, Model):
         """Compare name to id in a SQL expression."""
         return ShortLinkToBigIntComparator(cls.id)
 
-    # --- Validators
+    # MARK: Validators
 
     @sa_orm.validates('id')
     def _validate_id_not_zero(self, _key: str, value: int) -> int:
@@ -258,12 +256,11 @@ class Shortlink(NoIdMixin, Model):
 
     @sa_orm.validates('url')
     def _validate_url(self, _key: str, value: str) -> str:
-        value = str(normalize_url(value))
-        # If URL hashes are added to the model, the value must be set here using
-        # `url_blake2b160_hash(value)`
-        return value
+        # If URL hashes are added to the Shortlink model, the hash value must be set
+        # here using `url_blake2b160_hash(value)`
+        return str(normalize_url(value))
 
-    # --- Methods
+    # MARK: Methods
 
     def __repr__(self) -> str:
         """Return string representation of self."""

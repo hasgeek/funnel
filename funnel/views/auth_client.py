@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from flask import flash, render_template, request, url_for
+from collections.abc import Iterable
+
+from flask import flash, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form
@@ -33,34 +35,49 @@ from ..models import (
     db,
 )
 from ..typing import ReturnRenderWith, ReturnView
-from .helpers import render_redirect
+from .helpers import LayoutTemplate, render_redirect
 from .login_session import requires_login, requires_sudo
 
-# --- Routes: client apps -----------------------------------------------------
+# MARK: Templates ----------------------------------------------------------------------
+
+
+class AuthClientIndexTemplate(LayoutTemplate, template='auth_client_index.html.jinja2'):
+    auth_clients: Iterable[AuthClient]
+
+
+class AuthClientCredentialTemplate(
+    LayoutTemplate, template='auth_client_credential.html.jinja2'
+):
+    name: str
+    secret: str
+    cred: AuthClientCredential
+
+
+# MARK: Routes: client apps ------------------------------------------------------------
 
 
 @app.route('/apps')
 @requires_login
 def client_list() -> ReturnView:
-    return render_template(
-        'auth_client_index.html.jinja2',
+    return AuthClientIndexTemplate(
         auth_clients=AuthClient.all_for(current_auth.user),
-    )
+    ).render_template()
 
 
 @app.route('/apps/all')
 def client_list_all() -> ReturnView:
-    return render_template(
-        'auth_client_index.html.jinja2', auth_clients=AuthClient.all_for(None)
-    )
+    return AuthClientIndexTemplate(
+        auth_clients=AuthClient.all_for(None)
+    ).render_template()
 
 
 def available_client_owners() -> list[tuple[str, str]]:
     """Return a list of possible client owners for the current user."""
     choices = []
     choices.append((current_auth.user.buid, current_auth.user.pickername))
-    for org in current_auth.user.organizations_as_owner:
-        choices.append((org.buid, org.pickername))
+    choices.extend(
+        (org.buid, org.pickername) for org in current_auth.user.organizations_as_owner
+    )
     return choices
 
 
@@ -201,12 +218,11 @@ class AuthClientView(UrlForView, ModelView[AuthClient]):
             cred, secret = AuthClientCredential.new(self.obj)
             cred.title = form.title.data
             db.session.commit()
-            return render_template(
-                'auth_client_credential.html.jinja2',
+            return AuthClientCredentialTemplate(
                 name=cred.name,
                 secret=secret,
                 cred=cred,
-            )
+            ).render_template()
         return render_form(
             form=form,
             title=_("New access key"),
@@ -250,7 +266,7 @@ class AuthClientView(UrlForView, ModelView[AuthClient]):
         )
 
 
-# --- Routes: client credentials ----------------------------------------------
+# MARK: Routes: client credentials -----------------------------------------------------
 
 
 @AuthClientCredential.views('main')
@@ -281,7 +297,7 @@ class AuthClientCredentialView(UrlForView, ModelView[AuthClientCredential]):
         )
 
 
-# --- Routes: client app permissions ------------------------------------------
+# MARK: Routes: client app permissions -------------------------------------------------
 
 
 @AuthClientPermissions.views('main')

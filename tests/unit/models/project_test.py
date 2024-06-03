@@ -2,6 +2,7 @@
 
 # pylint: disable=redefined-outer-name
 
+from contextlib import suppress
 from datetime import datetime, timedelta
 
 import pytest
@@ -21,11 +22,8 @@ def invalidate_cache(project: models.Project) -> None:
         'start_at_localized',
         'end_at_localized',
     ):
-        try:
+        with suppress(KeyError):  # If not in cache, ignore
             delattr(project, attr)
-        except KeyError:
-            # Not in cache, ignore
-            pass
 
 
 @pytest.mark.flaky(reruns=1)  # Rerun in case assert with timedelta fails
@@ -227,7 +225,7 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def second_organization(
     db_session: scoped_session, new_user2: models.User
 ) -> models.Organization:

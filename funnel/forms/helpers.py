@@ -23,7 +23,7 @@ from ..models import (
     parse_video_url,
 )
 
-# --- Error messages -------------------------------------------------------------------
+# MARK: Error messages -----------------------------------------------------------------
 
 MSG_EMAIL_INVALID = _("This does not appear to be a valid email address")
 MSG_EMAIL_BLOCKED = __("This email address has been blocked from use")
@@ -145,17 +145,20 @@ class EmailAddressAvailable:
         if has_error is not None:
             app.logger.error("Unknown email address validation code: %r", has_error)
 
-        if has_error is None and self.purpose == 'register':
-            # One last check: is there an existing claim? If so, stop the user from
-            # making a dupe account
-            if AccountEmailClaim.all(email=field.data).notempty():
-                raise forms.validators.StopValidation(
-                    _(
-                        "You or someone else has made an account with this email"
-                        " address but has not confirmed it. Do you need to reset your"
-                        " password?"
-                    )
+        # One last check: is there an existing claim? If so, stop the user from making a
+        # dupe account
+        if (
+            has_error is None
+            and self.purpose == 'register'
+            and AccountEmailClaim.all(email=field.data).notempty()
+        ):
+            raise forms.validators.StopValidation(
+                _(
+                    "You or someone else has made an account with this email"
+                    " address but has not confirmed it. Do you need to reset your"
+                    " password?"
                 )
+            )
 
 
 class PhoneNumberAvailable:
@@ -237,7 +240,7 @@ def image_url_validator() -> forms.validators.ValidUrl:
     )
 
 
-def video_url_list_validator(form: forms.Form, field: forms.Field) -> None:
+def video_url_list_validator(_form: forms.Form, field: forms.Field) -> None:
     """Validate all video URLs to be acceptable."""
     for url in field.data:
         try:
@@ -248,7 +251,7 @@ def video_url_list_validator(form: forms.Form, field: forms.Field) -> None:
             ) from None
 
 
-def video_url_validator(form: forms.Form, field: forms.Field) -> None:
+def video_url_validator(_form: forms.Form, field: forms.Field) -> None:
     """Validate the video URL to be acceptable."""
     try:
         parse_video_url(field.data)
@@ -274,7 +277,7 @@ def format_json(data: dict | str | None) -> str:
     return ''
 
 
-def validate_and_convert_json(form: forms.Form, field: forms.Field) -> None:
+def validate_and_convert_json(_form: forms.Form, field: forms.Field) -> None:
     """Confirm form data is valid JSON, and store it back as a parsed dict."""
     if field.data is None:
         return

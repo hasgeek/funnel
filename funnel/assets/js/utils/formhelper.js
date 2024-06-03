@@ -50,7 +50,6 @@ const Form = {
     return errorMsg;
   },
   handleAjaxError(errorResponse) {
-    Form.updateFormNonce(errorResponse.responseJSON);
     const errorMsg = Form.getResponseError(errorResponse);
     return errorMsg;
   },
@@ -61,11 +60,6 @@ const Form = {
   },
   getActionUrl(formId) {
     return $(`#${formId}`).attr('action');
-  },
-  updateFormNonce(response) {
-    if (response && response.form_nonce) {
-      $('input[name="form_nonce"]').val(response.form_nonce);
-    }
   },
   preventSubmitOnEnter(id) {
     $(`#${id}`).on('keyup keypress', (e) => {

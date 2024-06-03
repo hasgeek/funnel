@@ -48,7 +48,7 @@ class SesProcessor(SesProcessorAbc):
 
     def bounce(self, ses_event: SesEvent) -> None:
         """Record an SES email bounce event."""
-        assert ses_event.bounce is not None  # nosec
+        assert ses_event.bounce is not None  # noqa: S101
         for bounced in ses_event.bounce.bounced_recipients:
             email_address = self._email_address(bounced.email)
             if ses_event.bounce.is_hard_bounce:
@@ -64,7 +64,7 @@ class SesProcessor(SesProcessorAbc):
 
     def delayed(self, ses_event: SesEvent) -> None:
         """Record an SES email delayed event."""
-        assert ses_event.delivery_delay is not None  # nosec
+        assert ses_event.delivery_delay is not None  # noqa: S101
         for failed in ses_event.delivery_delay.delayed_recipients:
             email_address = self._email_address(failed.email)
             email_address.mark_soft_fail()
@@ -86,7 +86,7 @@ class SesProcessor(SesProcessorAbc):
         when there was a single recipient to the original email.
         https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-contents.html#event-publishing-retrieving-sns-contents-complaint-object
         """
-        assert ses_event.complaint is not None  # nosec
+        assert ses_event.complaint is not None  # noqa: S101
         if len(ses_event.complaint.complained_recipients) == 1:
             for complained in ses_event.complaint.complained_recipients:
                 if ses_event.complaint.complaint_feedback_type == 'not-spam':
@@ -125,7 +125,7 @@ class SesProcessor(SesProcessorAbc):
         the documentation.
         https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-examples.html#event-publishing-retrieving-sns-send
         """
-        assert ses_event.delivery is not None  # nosec
+        assert ses_event.delivery is not None  # noqa: S101
         for sent in ses_event.delivery.recipients:
             email_address = self._email_address(sent)
             email_address.mark_sent()

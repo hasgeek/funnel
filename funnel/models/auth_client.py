@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from hashlib import blake2b, sha256
 from typing import Any, Self, cast, overload
 
+from furl import furl
 from sqlalchemy.orm import attribute_keyed_dict, load_only
 from sqlalchemy.orm.query import Query as QueryBaseClass
 from werkzeug.utils import cached_property
@@ -23,6 +24,7 @@ from .base import (
     Mapped,
     Model,
     Query,
+    UrlType,
     UuidMixin,
     db,
     declarative_mixin,
@@ -54,7 +56,7 @@ class ScopeMixin:
     def _scope(cls) -> Mapped[str]:
         """Database column for storing scopes as a space-separated string."""
         return sa_orm.mapped_column(
-            'scope', sa.UnicodeText, nullable=cls.__scope_null_allowed__
+            'scope', sa.Unicode, nullable=cls.__scope_null_allowed__
         )
 
     @property
@@ -116,18 +118,16 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin[int, Account], Model):
         sa_orm.mapped_column(), read={'all'}, write={'owner'}
     )
     #: Website
-    website: Mapped[str] = with_roles(
-        sa_orm.mapped_column(sa.UnicodeText, nullable=False),  # FIXME: Use UrlType
-        read={'all'},
-        write={'owner'},
+    website: Mapped[furl] = with_roles(
+        sa_orm.mapped_column(UrlType, nullable=False), read={'all'}, write={'owner'}
     )
     #: Redirect URIs (one or more)
     _redirect_uris: Mapped[str | None] = sa_orm.mapped_column(
         'redirect_uri', sa.UnicodeText, nullable=True, default=''
     )
     #: Back-end notification URI (TODO: deprecated, needs better architecture)
-    notification_uri: Mapped[str | None] = with_roles(  # FIXME: Use UrlType
-        sa_orm.mapped_column(sa.UnicodeText, nullable=True, default=''), rw={'owner'}
+    notification_uri: Mapped[furl | None] = with_roles(
+        sa_orm.mapped_column(UrlType, nullable=True, default=''), rw={'owner'}
     )
     #: Active flag
     active: Mapped[bool] = sa_orm.mapped_column(default=True)
@@ -211,7 +211,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin[int, Account], Model):
         if netloc:
             return netloc in (
                 urllib.parse.urlsplit(r).netloc
-                for r in (tuple(self.redirect_uris) + (self.website,))
+                for r in (*tuple(self.redirect_uris), str(self.website))
             )
         return False
 
@@ -243,9 +243,8 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin[int, Account], Model):
         if self.account:
             if AuthClientPermissions.get(self, actor):
                 return True
-        else:
-            if AuthClientTeamPermissions.all_for(self, actor).notempty():
-                return True
+        elif AuthClientTeamPermissions.all_for(self, actor).notempty():
+            return True
         return False
 
     @classmethod
@@ -327,10 +326,8 @@ class AuthClientCredential(BaseMixin[int, Account], Model):
         if not candidate:
             return False
         if self.secret_hash.startswith('blake2b$32$'):
-            return (
-                self.secret_hash
-                == 'blake2b$32$'
-                + blake2b(candidate.encode(), digest_size=32).hexdigest()
+            return self.secret_hash == (
+                'blake2b$32$' + blake2b(candidate.encode(), digest_size=32).hexdigest()
             )
         # Older credentials, before the switch to Blake2b:
         if self.secret_hash.startswith('sha256$'):
@@ -391,7 +388,7 @@ class AuthCode(ScopeMixin, BaseMixin[int, Account], Model):
     code: Mapped[str] = sa_orm.mapped_column(
         sa.String(44), insert_default=newsecret, default=None, nullable=False
     )
-    redirect_uri: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
+    redirect_uri: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
     used: Mapped[bool] = sa_orm.mapped_column(default=False)
 
     def is_valid(self) -> bool:
@@ -605,7 +602,7 @@ class AuthToken(ScopeMixin, BaseMixin[int, Account], Model):
         ).one_or_none()
 
     @classmethod
-    def all(cls, accounts: Query | Collection[Account]) -> list[Self]:  # noqa: A003
+    def all(cls, accounts: Query | Collection[Account]) -> list[Self]:
         """Return all AuthToken for the specified accounts."""
         query = cls.query.join(AuthClient)
         if isinstance(accounts, QueryBaseClass):
@@ -619,10 +616,10 @@ class AuthToken(ScopeMixin, BaseMixin[int, Account], Model):
         else:
             count = len(accounts)
             if count == 1:
-                # Cast users into a list/tuple before accessing [0], as the source
+                # Extract the element as an iterable instead of using [0], as the source
                 # may not be an actual list with indexed access. For example,
                 # Organization.owner_users is a DynamicAssociationProxy.
-                return query.filter(AuthToken.account == tuple(accounts)[0]).all()
+                return query.filter(AuthToken.account == next(iter(accounts))).all()
             if count > 1:
                 return query.filter(
                     AuthToken.account_id.in_([u.id for u in accounts])
@@ -642,7 +639,6 @@ class AuthClientPermissions(BaseMixin[int, Account], Model):
     """Permissions assigned to an account on a client app."""
 
     __tablename__ = 'auth_client_permissions'
-    __tablename__ = 'auth_client_permissions'
     #: User account that has these permissions
     account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), default=None, nullable=False
@@ -658,7 +654,7 @@ class AuthClientPermissions(BaseMixin[int, Account], Model):
     )
     #: The permissions as a string of tokens
     access_permissions: Mapped[str] = sa_orm.mapped_column(
-        'permissions', sa.UnicodeText, default='', nullable=False
+        'permissions', sa.Unicode, default='', nullable=False
     )
 
     # Only one assignment per account and client
@@ -734,7 +730,7 @@ class AuthClientTeamPermissions(BaseMixin[int, Account], Model):
     )
     #: The permissions as a string of tokens
     access_permissions: Mapped[str] = sa_orm.mapped_column(
-        'permissions', sa.UnicodeText, default='', nullable=False
+        'permissions', sa.Unicode, default='', nullable=False
     )
 
     # Only one assignment per team and client

@@ -23,13 +23,13 @@ TEST_NEW_EMAIL = 'rincewind@example.com'
 TEST_NEW_PHONE = '+918123456789'
 
 
-@pytest.fixture()
+@pytest.fixture
 def useremail_rincewind(user_rincewind: models.User) -> models.AccountEmail:
     """Email address for user fixture."""
     return user_rincewind.add_email(TEST_NEW_EMAIL)
 
 
-@pytest.fixture()
+@pytest.fixture
 def userphone_rincewind(user_rincewind: models.User) -> models.AccountPhone:
     """Phone number for user fixture."""
     return user_rincewind.add_phone(TEST_NEW_PHONE)

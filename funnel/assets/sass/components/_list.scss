@@ -67,10 +67,10 @@
 .bullet-separated-list--flex {
   padding-left: 0;
   display: flex;
-  list-style: inside;
+  list-style-type: none;
   margin: 0;
   li {
-    padding: 0 3px;
+    padding: 0 8px 0 0;
     span.bullet-separated-list__span {
       position: relative;
       left: -7px;
@@ -78,7 +78,13 @@
   }
   li:first-child {
     list-style-type: none;
-    padding-left: 0;
+    padding: 0 20px 0 0;
+  }
+  li:nth-child(2) {
+    list-style-type: disc;
+  }
+  li:last-child {
+    padding: 0;
   }
 }
 
@@ -86,13 +92,17 @@
   .bullet-separated-list {
     padding-left: 0;
     display: flex;
-    list-style: inside;
+    list-style-type: disc;
     li {
-      padding: 0 8px;
+      padding: 0 20px 0 0;
     }
     li:first-child {
+      margin-left: -8px;
       list-style-type: none;
       padding-left: 0;
+    }
+    li:last-child {
+      padding: 0;
     }
   }
 }

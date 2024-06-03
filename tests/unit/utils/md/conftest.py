@@ -94,8 +94,8 @@ class MarkdownTestRegistry:
                         config=config,
                         expected_output=(
                             None
-                            if exp.get(md_configname, None) is None
-                            else Markup(exp.get(md_configname, None))
+                            if (output := exp.get(md_configname)) is None
+                            else Markup(output)
                         ),
                     )
                     for md_configname, config in {
@@ -128,7 +128,7 @@ class MarkdownTestRegistry:
             [
                 (md_testname, md_configname)
                 for md_testname, test in cls.test_map.items()
-                for md_configname in test.keys()
+                for md_configname in test
             ]
             if cls.test_map is not None
             else []
@@ -174,8 +174,9 @@ class MarkdownTestRegistry:
                 existing_class = []
             elif isinstance(existing_class, str):
                 existing_class = [existing_class]
-            op['class'] = existing_class + [
-                'success' if case.expected_output == case.output else 'failed'
+            op['class'] = [
+                *existing_class,
+                'success' if case.expected_output == case.output else 'failed',
             ]
             body = template.find('body')
             assert isinstance(body, Tag)

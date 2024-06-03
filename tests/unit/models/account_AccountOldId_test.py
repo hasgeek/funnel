@@ -17,10 +17,7 @@ class TestAccountOldId(TestDatabaseFixture):
         self.db_session.commit()
         with self.app.test_request_context('/'):
             merged = models.merge_accounts(crusoe, bathound)
-            if merged == crusoe:
-                other = bathound
-            else:
-                other = crusoe
+            other = bathound if merged == crusoe else crusoe
             old_account = models.AccountOldId.get(other.uuid)
             assert isinstance(old_account, models.AccountOldId)
             assert old_account.old_account == other

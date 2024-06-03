@@ -66,7 +66,9 @@ def proposals_can_be_reordered(obj: Project) -> bool:
     return obj.current_roles.editor
 
 
-# --- Routes ------------------------------------------------------------------
+# MARK: Routes -------------------------------------------------------------------------
+
+
 @Project.views('proposal_new')
 @route('/<account>/<project>', init_app=app)
 class ProjectProposalView(ProjectViewBase):
@@ -86,6 +88,12 @@ class ProjectProposalView(ProjectViewBase):
             return render_redirect(self.obj.url_for())
 
         form = ProposalForm(model=Proposal, parent=self.obj)
+        if request.method == 'GET' and self.obj.proposal_templates:
+            # Apply a template since this project has one
+            # TODO: Selectable template
+            template = self.obj.proposal_templates[0]
+            form.title.data = template.title
+            form.body.data = template.body.text
         if form.validate_on_submit():
             proposal = Proposal(created_by=current_auth.user, project=self.obj)
             db.session.add(proposal)
@@ -143,11 +151,12 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
     }
 
     SavedProjectForm = SavedProjectForm
+    account: Account
 
     def load(
         self,
-        account: str,  # skipcq: PYL-W0613
-        project: str,  # skipcq: PYL-W0613
+        account: str,  # noqa: ARG002
+        project: str,  # noqa: ARG002
         proposal: str,
     ) -> ReturnView | None:
         # `account` and `project` are part of the URL, but unnecessary for loading
@@ -175,7 +184,7 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
         self.account = redirect.proposal.project.account
         return render_redirect(redirect.proposal.url_for(), 308)
 
-    def post_init(self) -> None:
+    def post_load(self) -> None:
         self.account = self.obj.project.account
 
     @route('')
@@ -261,15 +270,12 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
                         ],
                     ),
                 }, 201
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("Pick a user to be added"),
-                    'errors': collaborator_form.errors,
-                    'form_nonce': collaborator_form.form_nonce.data,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error_description': _("Pick a user to be added"),
+                'errors': collaborator_form.errors,
+            }, 400
+
         return render_form(
             form=collaborator_form,
             title='',
@@ -378,10 +384,11 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
                 'status': 'ok',
                 'message': _("This submission is no longer featured"),
             }
-        return (
-            {'status': 'error', 'error': 'validation', 'errors': featured_form.errors},
-            422,
-        )
+        return {
+            'status': 'error',
+            'error': 'validation',
+            'errors': featured_form.errors,
+        }, 422
 
     @route('schedule', methods=['GET', 'POST'])
     @requires_login
@@ -449,11 +456,11 @@ class ProposalMembershipView(
         if obj.revoked_at is not None:
             abort(410)
         self.obj = obj
-        self.post_init()
         return self.after_loader()
 
-    def post_init(self) -> None:
-        self.account = self.obj.proposal.project.account
+    @property
+    def account(self) -> Account:
+        return self.obj.proposal.project.account
 
     def collaborators(self) -> list[RoleAccessProxy[ProposalMembership]]:
         return [

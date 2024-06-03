@@ -6,14 +6,14 @@ Ported from markdown_it.rules_inline.strikethrough.
 
 from __future__ import annotations
 
-from collections.abc import MutableMapping, Sequence
+from collections.abc import Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
 from markdown_it.rules_inline import StateInline
 from markdown_it.rules_inline.state_inline import Delimiter
 from markdown_it.token import Token
-from markdown_it.utils import OptionsDict
+from markdown_it.utils import EnvType, OptionsDict
 
 __all__ = ['ins_plugin']
 
@@ -67,14 +67,12 @@ def _post_process(state: StateInline, delimiters: list[Delimiter]) -> None:
     lone_markers = []
     maximum = len(delimiters)
 
-    for i in range(0, maximum):
+    for i in range(maximum):
         start_delim = delimiters[i]
         if start_delim.marker != ord(PLUS_CHAR):
-            i += 1
             continue
 
         if start_delim.end == -1:
-            i += 1
             continue
 
         end_delim = delimiters[start_delim.end]
@@ -95,7 +93,7 @@ def _post_process(state: StateInline, delimiters: list[Delimiter]) -> None:
 
         end_token = state.tokens[end_delim.token - 1]
 
-        if end_token.type == 'text' and end_token == PLUS_CHAR:  # nosec
+        if end_token.type == 'text' and end_token == PLUS_CHAR:
             lone_markers.append(end_delim.token - 1)
 
     # If a marker sequence has an odd number of characters, it's split
@@ -120,21 +118,21 @@ def _post_process(state: StateInline, delimiters: list[Delimiter]) -> None:
 
 
 def ins_open(
-    renderer: RendererHTML,
-    tokens: Sequence[Token],
-    idx: int,
-    options: OptionsDict,
-    env: MutableMapping,
+    renderer: RendererHTML,  # noqa: ARG001
+    tokens: Sequence[Token],  # noqa: ARG001
+    idx: int,  # noqa: ARG001
+    options: OptionsDict,  # noqa: ARG001
+    env: EnvType,  # noqa: ARG001
 ) -> str:
     return '<ins>'
 
 
 def ins_close(
-    renderer: RendererHTML,
-    tokens: Sequence[Token],
-    idx: int,
-    options: OptionsDict,
-    env: MutableMapping,
+    renderer: RendererHTML,  # noqa: ARG001
+    tokens: Sequence[Token],  # noqa: ARG001
+    idx: int,  # noqa: ARG001
+    options: OptionsDict,  # noqa: ARG001
+    env: EnvType,  # noqa: ARG001
 ) -> str:
     return '</ins>'
 

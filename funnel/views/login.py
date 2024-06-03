@@ -55,6 +55,7 @@ from ..registry import (
     LoginCallbackError,
     LoginInitError,
     LoginProviderData,
+    LoginProviderRegistry,
     login_registry,
 )
 from ..serializers import crossapp_serializer
@@ -63,7 +64,13 @@ from ..transports import TransportError, TransportRecipientError
 from ..typing import ReturnView
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import app_url_for, render_redirect, session_timeouts, validate_rate_limit
+from .helpers import (
+    JinjaTemplate,
+    app_url_for,
+    render_redirect,
+    session_timeouts,
+    validate_rate_limit,
+)
 from .login_session import (
     login_internal,
     logout_internal,
@@ -87,6 +94,24 @@ block_iframe = {'X-Frame-Options': 'SAMEORIGIN'}
 
 LOGOUT_ERRORMSG = __("Are you trying to logout? Try again to confirm")
 
+# MARK: Templates ----------------------------------------------------------------------
+
+
+class LogoutBrowserDataTemplate(
+    JinjaTemplate, template='logout_browser_data.html.jinja2'
+):
+    next: str
+
+
+class AccountMergeTemplate(JinjaTemplate, template='account_merge.html.jinja2'):
+    form: forms.Form
+    user: Account
+    other_user: Account
+    login_registry: LoginProviderRegistry
+    formid: str
+    ref_id: str
+    title: str
+
 
 def get_otp_form(otp_session: OtpSession) -> OtpForm | RegisterOtpForm:
     """Return variant of OTP form depending on whether there's a user account."""
@@ -101,7 +126,6 @@ def render_otp_form(
     form: OtpForm | RegisterOtpForm, cancel_url: str, action: str
 ) -> ReturnView:
     """Render OTP form."""
-    form.form_nonce.data = form.form_nonce.get_default()
     return (
         render_template(
             'otpform.html.jinja2',
@@ -177,7 +201,7 @@ def login() -> ReturnView:
             if success:
                 user = loginform.user
                 if TYPE_CHECKING:
-                    assert isinstance(user, User)  # nosec B101
+                    assert isinstance(user, User)
                 login_internal(user, login_service='password')
                 db.session.commit()
                 if loginform.weak_password:
@@ -281,7 +305,7 @@ def login() -> ReturnView:
                     # Register an account
                     user = register_internal(None, otp_form.fullname.data, None)
                     if TYPE_CHECKING:
-                        assert isinstance(user, User)  # nosec B101
+                        assert isinstance(user, User)
                     if otp_session.email:
                         db.session.add(user.add_email(otp_session.email, primary=True))
                     if otp_session.phone:
@@ -362,17 +386,14 @@ def logout_client() -> ReturnView:
         return render_redirect(url_for('account'))
 
     # If there is a next destination, is it in the same domain as the client?
-    if 'next' in request.args:
-        if not auth_client.host_matches(request.args['next']):
-            # Host doesn't match. Assume CSRF and redirect to account without logout
-            flash(LOGOUT_ERRORMSG, 'danger')
-            return render_redirect(url_for('account'))
+    if 'next' in request.args and not auth_client.host_matches(request.args['next']):
+        # Host doesn't match. Assume CSRF and redirect to account without logout
+        flash(LOGOUT_ERRORMSG, 'danger')
+        return render_redirect(url_for('account'))
     # All good. Log them out and send them back
     logout_internal()
     db.session.commit()
-    return render_template(
-        'logout_browser_data.html.jinja2', next=get_next_url(external=True)
-    )
+    return LogoutBrowserDataTemplate(next=get_next_url(external=True)).render_template()
 
 
 @app.route('/logout')
@@ -404,7 +425,7 @@ def account_logout() -> ReturnView:
         logout_internal()
         db.session.commit()
         flash(_("You are now logged out"), category='info')
-        return render_template('logout_browser_data.html.jinja2', next=get_next_url())
+        return LogoutBrowserDataTemplate(next=get_next_url()).render_template()
 
     if request_wants.json:
         return {'status': 'error', 'errors': form.errors}
@@ -507,10 +528,10 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     """
     new_registration = False
     # 1. Check whether we have an existing UserExternalId
-    user, extid, accountemail = get_user_extid(service, userdata)
+    user, extid, account_email = get_user_extid(service, userdata)
     # If extid is not None, extid.account == user, guaranteed.
-    # If extid is None but accountemail is not None, user == accountemail.account
-    # However, if both extid and accountemail are present, they may be different users
+    # If extid is None but account_email is not None, user == account_email.account
+    # However, if both extid and account_email are present, they may be different users
     if extid is not None:
         extid.oauth_token = userdata.oauth_token
         extid.oauth_token_secret = userdata.oauth_token_secret
@@ -552,23 +573,22 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             # Register a new user
             user = register_internal(None, userdata.fullname or '', None)
             extid.account = user
-            if userdata.username:
-                if Account.is_available_name(userdata.username):
-                    # Set a username for this user if it's available
-                    user.username = userdata.username
+            if userdata.username and Account.is_available_name(userdata.username):
+                # Set a username for this user if it's available
+                user.username = userdata.username
             new_registration = True
-    else:  # We have an existing user account from extid or accountemail
-        if current_auth and current_auth.user != user:
-            # Woah! Account merger handler required
-            # Always confirm with user before doing an account merger
-            session['merge_buid'] = user.buid
-        elif accountemail and accountemail.account != user:
-            # Once again, account merger required since the extid and accountemail are
-            # linked to different accounts
-            session['merge_buid'] = accountemail.account.buid
+    # We have an existing user account from extid or account_email
+    elif current_auth and current_auth.user != user:
+        # Woah! Account merger handler required
+        # Always confirm with user before doing an account merger
+        session['merge_buid'] = user.buid
+    elif account_email and account_email.account != user:
+        # Once again, account merger required since the extid and account_email are
+        # linked to different accounts
+        session['merge_buid'] = account_email.account.buid
 
     # Check for new email addresses
-    if userdata.email and not accountemail:
+    if userdata.email and not account_email:
         db.session.add(user.add_email(userdata.email))
 
     # If there are multiple email addresses, add any that are not already claimed.
@@ -595,7 +615,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 
     if not current_auth:  # If a user isn't already logged in, login now.
         if TYPE_CHECKING:
-            assert isinstance(user, User)  # nosec B101
+            assert isinstance(user, User)
         login_internal(user, login_service=service)
         flash(
             _("You have logged in via {service}").format(
@@ -639,7 +659,7 @@ def account_merge() -> ReturnView:
             new_user = merge_accounts(current_auth.user, other_user)
             if new_user is not None:
                 if TYPE_CHECKING:
-                    assert isinstance(new_user, User)  # nosec B101
+                    assert isinstance(new_user, User)
                 login_internal(
                     new_user,
                     login_service=(
@@ -658,8 +678,7 @@ def account_merge() -> ReturnView:
             return render_redirect(get_next_url())
         session.pop('merge_buid', None)
         return render_redirect(get_next_url())
-    return render_template(
-        'account_merge.html.jinja2',
+    return AccountMergeTemplate(
         form=form,
         user=current_auth.user,
         other_user=other_user,
@@ -667,10 +686,10 @@ def account_merge() -> ReturnView:
         formid='mergeaccounts',
         ref_id='form-mergeaccounts',
         title=_("Merge accounts"),
-    )
+    ).render_template()
 
 
-# --- Future Hasjob login --------------------------------------------------------------
+# MARK: Future Hasjob login ------------------------------------------------------------
 
 # Hasjob login flow:
 
@@ -773,7 +792,7 @@ def hasjobapp_login_callback(token: str) -> ReturnView:
     if login_session is not None:
         user = login_session.account
         if TYPE_CHECKING:
-            assert isinstance(user, User)  # nosec B101
+            assert isinstance(user, User)
         login_internal(user, login_session)
         db.session.commit()
         flash(_("You are now logged in"), category='success')

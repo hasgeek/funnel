@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, TypeVar
 
 import phonenumbers
 from flask import current_app, flash, render_template, request, session, url_for
@@ -49,7 +49,7 @@ from .helpers import (
 
 session_timeouts['otp'] = timedelta(minutes=15)
 
-# --- Exceptions -----------------------------------------------------------------------
+# MARK: Exceptions ---------------------------------------------------------------------
 
 
 class OtpError(Exception):
@@ -68,21 +68,21 @@ class OtpUserError(OtpError, Forbidden):
     """OTP is being used by a different user."""
 
 
-# --- Typing ---------------------------------------------------------------------------
+# MARK: Typing -------------------------------------------------------------------------
 
 #: Tell mypy that the type of ``OtpSession.user`` is same as ``OtpSession.make(user)``.
-#: We need both ``Account`` and ``Optional[Account]`` so that the value of
+#: We need both ``Account`` and ``Account | None`` so that the value of
 #: ``loginform.user``  can be passed to :meth:`OtpSession.make`. This usage is
 #: documented in PEP 484: https://peps.python.org/pep-0484/#user-defined-generic-types
-OptionalAccountType = TypeVar('OptionalAccountType', Account, Optional[Account])
+OptionalAccountType = TypeVar('OptionalAccountType', Account, Account | None)
 #: Define type for subclasses
 OtpSessionType = TypeVar('OtpSessionType', bound='OtpSession')
 
-# --- Registry -------------------------------------------------------------------------
+# MARK: Registry -----------------------------------------------------------------------
 
 _reason_subclasses: dict[str, type[OtpSession]] = {}
 
-# --- Classes --------------------------------------------------------------------------
+# MARK: Classes ------------------------------------------------------------------------
 
 
 @dataclass
@@ -108,13 +108,15 @@ class OtpSession(Generic[OptionalAccountType]):
     link_token: str | None = None
 
     # __new__ gets called before __init__ and can replace the class that is created
-    def __new__(cls, reason: str, **kwargs: Any) -> OtpSession:  # pylint: disable=W0221
+    def __new__(  # pylint: disable=W0221  # noqa: PYI034
+        cls, reason: str, **_kwargs: Any
+    ) -> OtpSession:
         """Return a subclass that contains the appropriate methods for given reason."""
         if reason not in _reason_subclasses:
             raise TypeError(f"Unknown OtpSession reason {reason}")
 
         use_cls = _reason_subclasses[reason]
-        return super().__new__(use_cls)
+        return super().__new__(use_cls)  # pyright: ignore[reportArgumentType]
 
     # __init_subclass__ gets called for ``class Subclass(OtpSession, reason='...'):``
     # and receives `reason` as a kwarg. However, declaring it in the method signature
@@ -150,9 +152,9 @@ class OtpSession(Generic[OptionalAccountType]):
         # to this cache entry in the user's cookie session. The cookie never contains
         # the actual OTP. See :func:`make_cached_token` for additional documentation.
         otp = newpin()
-        if isinstance(anchor, (AccountPhone, PhoneNumber)):
+        if isinstance(anchor, AccountPhone | PhoneNumber):
             phone = str(anchor)
-        if isinstance(anchor, (AccountEmail, AccountEmailClaim, EmailAddress)):
+        if isinstance(anchor, AccountEmail | AccountEmailClaim | EmailAddress):
             email = str(anchor)
         token = make_cached_token(
             {
@@ -329,7 +331,7 @@ class OtpSession(Generic[OptionalAccountType]):
                 pass
 
 
-class OtpSessionForLogin(OtpSession[Optional[Account]], reason='login'):
+class OtpSessionForLogin(OtpSession[Account | None], reason='login'):
     """OtpSession variant for login."""
 
     def send_sms(
@@ -395,10 +397,7 @@ class OtpSessionForLogin(OtpSession[Optional[Account]], reason='login'):
         """Email a login OTP to the user."""
         if not self.email:
             return None
-        if self.user is not None:
-            fullname = self.user.fullname
-        else:
-            fullname = ''
+        fullname = self.user.fullname if self.user is not None else ''
         subject = _("Login OTP {otp}").format(otp=self.otp)
         content = render_template(
             'email_login_otp.html.jinja2',
@@ -525,10 +524,12 @@ class OtpSessionForNewPhone(OtpSession[Account], reason='add-phone'):
     """OtpSession variant for adding a phone number."""
 
     def send_email(
-        self, flash_success: bool = True, flash_failure: bool = True
+        self,
+        flash_success: bool = True,  # noqa: ARG002
+        flash_failure: bool = True,  # noqa: ARG002
     ) -> None:
         """OTP for phone does not require email."""
-        return None
+        return
 
 
 class OtpSessionForNewEmail(OtpSession[Account], reason='add-email'):

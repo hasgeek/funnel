@@ -7,20 +7,25 @@ from collections.abc import Iterable
 from datetime import datetime, timedelta
 from io import StringIO
 
-from flask import Response, current_app, render_template, request
+from flask import Response, current_app, request
 from pytz import BaseTzInfo
 from sqlalchemy.exc import IntegrityError
 
 from baseframe import _
 from coaster.utils import getbool, make_name, midnight_to_utc, utcnow
-from coaster.views import ClassView, render_with, requestargs, route
+from coaster.views import ClassView, render_with, requestform, route
 
 from .. import app
 from ..auth import current_auth
 from ..models import ContactExchange, Project, TicketParticipant, db, sa_orm
 from ..typing import ReturnRenderWith, ReturnView
 from ..utils import format_twitter_handle
+from .helpers import LayoutTemplate
 from .login_session import requires_login
+
+
+class ScanContactTemplate(LayoutTemplate, template='scan_contact.html.jinja2'):
+    pass
 
 
 def contact_details(ticket_participant: TicketParticipant) -> dict[str, str | None]:
@@ -141,11 +146,11 @@ class ContactView(ClassView):
     @requires_login
     def scan(self) -> ReturnView:
         """Scan a badge."""
-        return render_template('scan_contact.html.jinja2')
+        return ScanContactTemplate().render_template()
 
     @route('scan/connect', endpoint='scan_connect', methods=['POST'])
     @requires_login
-    @requestargs('puk', 'key')
+    @requestform('puk', 'key')
     def connect(self, puk: str, key: str) -> ReturnView:
         """Verify a badge scan and create a contact."""
         ticket_participant = TicketParticipant.query.filter_by(puk=puk, key=key).first()

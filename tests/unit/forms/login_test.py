@@ -14,22 +14,25 @@ pytestmark = pytest.mark.filterwarnings(
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def user(db_session: scoped_session) -> models.User:
     """User fixture."""
-    new_user = models.User(  # nosec
-        username='user', fullname="User", password='test_password'
+    new_user = models.User(
+        username='user',
+        fullname="User",
+        password='test_password',  # noqa: S106
     )
     db_session.add(new_user)
     db_session.commit()
     return new_user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_nameless(db_session: scoped_session) -> models.User:
     """User fixture without a username."""
-    new_user = models.User(  # nosec
-        fullname="Nameless User", password='test_password_nameless'
+    new_user = models.User(
+        fullname="Nameless User",
+        password='test_password_nameless',  # noqa: S106
     )
     db_session.add(new_user)
     new_user.add_email('nameless@example.com')
@@ -37,11 +40,13 @@ def user_nameless(db_session: scoped_session) -> models.User:
     return new_user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_named(db_session: scoped_session) -> models.User:
     """User fixture with a username."""
-    new_user = models.User(  # nosec
-        username='user_named', fullname="Named User", password='test_password_named'
+    new_user = models.User(
+        username='user_named',
+        fullname="Named User",
+        password='test_password_named',  # noqa: S106
     )
     db_session.add(new_user)
     new_user.add_email('named@example.com')
@@ -49,7 +54,7 @@ def user_named(db_session: scoped_session) -> models.User:
     return new_user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_email(db_session: scoped_session, user: models.User) -> models.AccountEmail:
     """Email address for user fixture."""
     retval = user.add_email('user@example.com')
@@ -57,7 +62,7 @@ def user_email(db_session: scoped_session, user: models.User) -> models.AccountE
     return retval
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_phone(db_session: scoped_session, user: models.User) -> models.AccountPhone:
     """Phone number for user fixture."""
     retval = user.add_phone('+912345678901')

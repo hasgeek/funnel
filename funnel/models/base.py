@@ -2,19 +2,22 @@
 
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import sqlalchemy as sa
 import sqlalchemy.exc as sa_exc
 import sqlalchemy.orm as sa_orm
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Table
+from sqlalchemy import Table, event
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.engine import Engine
+from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import DeclarativeBase, Mapped, declarative_mixin, declared_attr
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType
 
 from coaster.sqlalchemy import (
+    AppenderQuery,
     BaseIdNameMixin,
     BaseMixin,
     BaseNameMixin,
@@ -37,15 +40,18 @@ from coaster.sqlalchemy import (
     with_roles,
 )
 
+if TYPE_CHECKING:
+    from _typeshed.dbapi import DBAPIConnection
 
-class Model(ModelBase, DeclarativeBase):
+
+class Model(AsyncAttrs, ModelBase, DeclarativeBase):
     """Base for all models."""
 
     __table__: ClassVar[Table]
     __with_timezone__ = True
 
 
-class GeonameModel(ModelBase, DeclarativeBase):
+class GeonameModel(AsyncAttrs, ModelBase, DeclarativeBase):
     """Base for geoname models."""
 
     __table__: ClassVar[Table]
@@ -64,7 +70,18 @@ Model.init_flask_sqlalchemy(db)
 GeonameModel.init_flask_sqlalchemy(db)
 
 
+@event.listens_for(Engine, 'connect')
+def _emit_engine_directives(
+    dbapi_connection: DBAPIConnection, _connection_record: Any
+) -> None:
+    """Use UTC timezone on PostgreSQL."""
+    cursor = dbapi_connection.cursor()
+    cursor.execute("SET TIME ZONE 'UTC';")
+    cursor.close()
+
+
 __all__ = [
+    'AppenderQuery',
     'backref',
     'BaseIdNameMixin',
     'BaseMixin',
@@ -78,6 +95,7 @@ __all__ = [
     'declared_attr',
     'DynamicMapped',
     'GeonameModel',
+    'hybrid_method',
     'hybrid_property',
     'LocaleType',
     'Mapped',

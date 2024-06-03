@@ -1,4 +1,4 @@
-"""MDIT renderer and helpers for tabs."""
+"""Markdown-It renderer and helpers for tabs."""
 
 from __future__ import annotations
 
@@ -6,12 +6,20 @@ from dataclasses import dataclass, field
 from functools import reduce
 from typing import Any, ClassVar
 
+from markdown_it.renderer import RendererProtocol
 from markdown_it.token import Token
+from markdown_it.utils import EnvType, OptionsDict
 
 __all__ = ['render_tab']
 
 
-def render_tab(self, tokens: list[Token], idx, _options, env):
+def render_tab(
+    _renderer: RendererProtocol,
+    tokens: list[Token],
+    idx: int,
+    _options: OptionsDict,
+    env: EnvType,
+) -> str:
     if 'manager' not in env:
         env['manager'] = TabsManager(tokens)
 
@@ -40,7 +48,7 @@ class TabsetNode:
         return tabs
 
     @property
-    def html_open(self):
+    def html_open(self) -> str:
         items_html = ''.join([item.html_tab_item for item in self.children])
         return (
             f'<div id="{self.tabset_id}" class="md-tabset">'
@@ -52,7 +60,7 @@ class TabsetNode:
         return 'md-tabset-' + self._tabset_id
 
     @tabset_id.setter
-    def tabset_id(self, value) -> None:
+    def tabset_id(self, value: str) -> None:
         self._tabset_id = value
 
 
@@ -67,16 +75,16 @@ class TabNode:
     children: list[TabsetNode] = field(default_factory=list)
     _opening: ClassVar[str] = (
         '<div role="tabpanel"{class_attr} id="{tab_id}-panel"'
-        + ' aria-labelledby="{tab_id}" tabindex="0">'
+        ' aria-labelledby="{tab_id}" tabindex="0">'
     )
     _closing: ClassVar[str] = '</div>'
     _item_html: ClassVar[str] = (
         '<li role="presentation"{class_attr}>'
-        + '<a role="tab" href="javascript:void(0)" id="{tab_id}"'
-        + ' aria-controls="{tab_id}-panel"{accessibility}>{title}</a></li>'
+        '<a role="tab" href="javascript:void(0)" id="{tab_id}"'
+        ' aria-controls="{tab_id}-panel"{accessibility}>{title}</a></li>'
     )
 
-    def _class_attr(self, classes=None):
+    def _class_attr(self, classes: list[str] | None = None) -> str:
         if classes is None:
             classes = []
         classes = classes + self._active_class
@@ -85,7 +93,7 @@ class TabNode:
         return f' class="{" ".join(classes)}"' if len(classes) > 0 else ''
 
     @property
-    def _item_aria(self):
+    def _item_aria(self) -> str:
         if self.is_first:
             return ' tabindex="0" aria-selected="true"'
         return ' tabindex="-1" aria-selected="false"'
@@ -98,11 +106,11 @@ class TabNode:
         return tabsets
 
     @property
-    def _active_class(self):
+    def _active_class(self) -> list[str]:
         return ['md-tab-active'] if self.is_first else []
 
     @property
-    def title(self):
+    def title(self) -> str:
         tab_title = ' '.join(self.info.strip().split()[1:])
         return tab_title or 'Tab ' + str(self.parent.children.index(self) + 1)
 
@@ -111,7 +119,7 @@ class TabNode:
         return 'md-tab-' + self._tab_id
 
     @tab_id.setter
-    def tab_id(self, value) -> None:
+    def tab_id(self, value: str) -> None:
         self._tab_id = value
 
     @property
@@ -137,7 +145,7 @@ class TabNode:
         return self._closing + (self.parent.html_close if self.is_last else '')
 
     @property
-    def html_tab_item(self):
+    def html_tab_item(self) -> str:
         return self._item_html.format(
             tab_id=self.tab_id,
             tabset_id=self.parent.tabset_id,
@@ -211,7 +219,7 @@ class TabsManager:
         ]
 
     def _tab_token_pair(
-        self, tab_tokens: list[dict[str, Any]], start=0
+        self, tab_tokens: list[dict[str, Any]], start: int = 0
     ) -> tuple[int, int] | None:
         i = 1
         while i < len(tab_tokens):
@@ -223,7 +231,7 @@ class TabsManager:
             i += 1
         if i >= len(tab_tokens):
             return None
-        return (start, start + i)
+        return start, start + i
 
     def index(self, start: int | None = None) -> TabNode | None:
         if start is not None:

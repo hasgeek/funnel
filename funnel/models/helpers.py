@@ -8,7 +8,7 @@ import warnings
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Any, ClassVar, TypeVar, get_type_hints
+from typing import Any, ClassVar, Self, TypeVar, get_type_hints
 
 from better_profanity import profanity
 from furl import furl
@@ -65,6 +65,7 @@ RESERVED_NAMES: set[str] = {
     'brand',
     'brands',
     'by',
+    'calendar',
     'client',
     'clients',
     'comments',
@@ -80,6 +81,9 @@ RESERVED_NAMES: set[str] = {
     'embed',
     'event',
     'events',
+    'follow',
+    'followers',
+    'following',
     'ftp',
     'funnel',
     'funnels',
@@ -224,6 +228,7 @@ def add_to_class(cls: type, name: str | None = None) -> Callable[[T], T]:
         def new_method(self, *args):
             pass
 
+
         @add_to_class(ExistingClass, 'new_property')
         @property
         def existing_class_new_property(self):
@@ -264,13 +269,12 @@ def reopen(cls: ReopenedType) -> Callable[[type], ReopenedType]:
         @reopen(ExistingClass)
         class __ExistingClass:
             @property
-            def new_property(self):
-                ...
+            def new_property(self): ...
 
     This is equivalent to::
 
-        def new_property(self):
-            ...
+        def new_property(self): ...
+
 
         ExistingClass.new_property = property(new_property)
 
@@ -433,9 +437,11 @@ def add_search_trigger(model: type[Model], column_name: str) -> dict[str, str]:
             ...
             search_vector: Mapped[str] = sa_orm.mapped_column(
                 TSVectorType(
-                    'name', 'title', *indexed_columns,
+                    'name',
+                    'title',
+                    *indexed_columns,
                     weights={'name': 'A', 'title': 'B'},
-                    regconfig='english'
+                    regconfig='english',
                 ),
                 nullable=False,
                 deferred=True,
@@ -443,11 +449,10 @@ def add_search_trigger(model: type[Model], column_name: str) -> dict[str, str]:
 
             __table_args__ = (
                 sa.Index(
-                    'ix_mymodel_search_vector',
-                    'search_vector',
-                    postgresql_using='gin'
+                    'ix_mymodel_search_vector', 'search_vector', postgresql_using='gin'
                 ),
             )
+
 
         add_search_trigger(MyModel, 'search_vector')
 
@@ -500,7 +505,7 @@ def add_search_trigger(model: type[Model], column_name: str) -> dict[str, str]:
 
         CREATE TRIGGER {trigger_name} BEFORE INSERT OR UPDATE OF {source_columns}
         ON {table_name} FOR EACH ROW EXECUTE PROCEDURE {function_name}();
-        '''.format(  # nosec
+        '''.format(
             function_name=pgquote(function_name),
             column_name=pgquote(column_name),
             trigger_expr=trigger_expr,
@@ -511,7 +516,7 @@ def add_search_trigger(model: type[Model], column_name: str) -> dict[str, str]:
     )
 
     update_statement = (
-        f'UPDATE {pgquote(model.__tablename__)}'  # nosec
+        f'UPDATE {pgquote(model.__tablename__)}'  # noqa: S608
         f' SET {pgquote(column_name)} = {update_expr};'
     )
 
@@ -638,7 +643,7 @@ class MarkdownCompositeBase(MutableComposite):
 
     def __composite_values__(self) -> tuple[str | None, str | None]:
         """Return composite values for SQLAlchemy."""
-        return (self._text, self._html)
+        return self._text, self._html
 
     # Return a string representation of the text (see class decorator)
     def __str__(self) -> str:
@@ -687,7 +692,7 @@ class MarkdownCompositeBase(MutableComposite):
         """Return JSON-compatible rendering of composite."""
         return {'text': self._text, 'html': self._html}
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Compare for equality."""
         return (
             isinstance(other, self.__class__)
@@ -695,7 +700,7 @@ class MarkdownCompositeBase(MutableComposite):
             or self._text == other
         )
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         """Compare for inequality."""
         return not self.__eq__(other)
 
@@ -706,7 +711,7 @@ class MarkdownCompositeBase(MutableComposite):
     def __getstate__(self) -> tuple[str | None, str | None]:
         """Get state for pickling."""
         # Return state for pickling
-        return (self._text, self._html)
+        return self._text, self._html
 
     def __setstate__(self, state: tuple[str | None, str | None]) -> None:
         """Set state from pickle."""
@@ -719,7 +724,7 @@ class MarkdownCompositeBase(MutableComposite):
         return bool(self._text)
 
     @classmethod
-    def coerce(cls: type[_MC], key: str, value: Any) -> _MC:
+    def coerce(cls, _key: str, value: Any) -> Self:
         """Allow a composite column to be assigned a string value."""
         return cls(value)
 

@@ -9,11 +9,11 @@ from ...conftest import LoginFixtureProtocol, TestClient
 
 # Sample password that will pass zxcvbn's complexity validation, but will be flagged
 # by the pwned password validator
-PWNED_PASSWORD = 'thisisone1'  # nosec
+PWNED_PASSWORD = 'thisisone1'  # noqa: S105
 
 
 @pytest.mark.flaky(reruns=2)  # Web service could fail occasionally
-@pytest.mark.enable_socket()
+@pytest.mark.enable_socket
 def test_pwned_password(
     client: TestClient,
     csrf_token: str,

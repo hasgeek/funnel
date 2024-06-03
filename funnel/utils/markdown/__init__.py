@@ -2,7 +2,7 @@
 
 __protected__ = ['mdit_plugins', 'tabs']
 
-# --- Everything below this line is auto-generated using `make initpy` -----------------
+# MARK: Everything below this line is auto-generated using `make initpy` ---------------
 
 from . import base, escape, mdit_plugins, tabs
 from .base import (

@@ -84,7 +84,6 @@ class AllNotificationsView(ClassView):
     @requires_login
     def mark_read(self, eventid_b58: str) -> ReturnRenderWith:
         form = forms.Form()
-        del form.form_nonce
         if form.validate_on_submit():
             nr = NotificationRecipient.get_for(current_auth.user, eventid_b58)
             if nr is None:
@@ -102,7 +101,6 @@ class AllNotificationsView(ClassView):
     @requires_login
     def mark_unread(self, eventid_b58: str) -> ReturnRenderWith:
         form = forms.Form()
-        del form.form_nonce
         if form.validate_on_submit():
             nr = NotificationRecipient.get_for(current_auth.user, eventid_b58)
             if nr is None:

@@ -44,7 +44,7 @@ __all__ = [
 ]
 
 
-# --- Exceptions -----------------------------------------------------------------------
+# MARK: Exceptions ---------------------------------------------------------------------
 
 
 class LoginPasswordResetException(Exception):  # noqa: N818
@@ -63,7 +63,7 @@ class RegisterWithOtp(Exception):  # noqa: N818
     """Exception to signal for new account registration after OTP validation."""
 
 
-# --- Validators -----------------------------------------------------------------------
+# MARK: Validators ---------------------------------------------------------------------
 
 
 # Validator specifically for LoginForm
@@ -90,7 +90,7 @@ class PasswordlessLoginIntercept:
             raise forms.validators.StopValidation(self.message)
 
 
-# --- Forms ----------------------------------------------------------------------------
+# MARK: Forms --------------------------------------------------------------------------
 
 
 @Account.forms('login')
@@ -214,7 +214,7 @@ class LoginForm(forms.RecaptchaForm):
         # From here on `self.user` is guaranteed to be a `User` instance, but mypy
         # can't infer and must be told
         if TYPE_CHECKING:
-            assert isinstance(self.user, User)  # nosec
+            assert isinstance(self.user, User)
 
         # If user does not have a password, ask for a password reset. Since
         # :class:`PasswordlessLoginIntercept` already intercepts for a blank password,

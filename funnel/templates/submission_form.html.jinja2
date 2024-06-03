@@ -5,7 +5,7 @@
 {% block title %}{{ title }}{% endblock title %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ manifest('css/submission_form.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ webpack('css/submission_form.css') }}" />
 {% endblock pageheaders %}
 
 {% block contenthead %}
@@ -142,7 +142,7 @@
 
 {% block innerscripts %}
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
-  <script src="{{ manifest('submission_form.js') }}" type="text/javascript"></script>
+  <script src="{{ webpack('submission_form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var sortUrl;

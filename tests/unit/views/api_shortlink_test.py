@@ -16,14 +16,16 @@ from ...conftest import (
     scoped_session,
 )
 
+SHORT_SHORTLINK_WITH_PATH = 5
 
-@pytest.fixture()
+
+@pytest.fixture
 def create_shortlink(app_context: AppContext) -> str:
     """URL for creating a shortlink."""
     return url_for('create_shortlink')
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_rincewind_site_editor(
     db_session: scoped_session, user_rincewind: models.User
 ) -> models.SiteMembership:
@@ -79,7 +81,8 @@ def test_create_shortlink(
     assert rv.json is not None
     sl1 = furl(rv.json['shortlink'])
     assert sl1.netloc == app.config['SHORTLINK_DOMAIN']
-    assert len(str(sl1.path)) <= 5  # API defaults to the shorter form (max 4 chars)
+    # API defaults to the shorter form (max 4 chars)
+    assert len(str(sl1.path)) <= SHORT_SHORTLINK_WITH_PATH
 
     # Asking for it again will return the same link
     rv = client.post(
@@ -99,7 +102,8 @@ def test_create_shortlink(
     assert rv.json is not None
     sl3 = furl(rv.json['shortlink'])
     assert sl3.netloc == app.config['SHORTLINK_DOMAIN']
-    assert len(str(sl3.path)) <= 5  # API defaults to the shorter form (max 4 chars)
+    # API defaults to the shorter form (max 4 chars)
+    assert len(str(sl3.path)) <= SHORT_SHORTLINK_WITH_PATH
     assert sl3.path != sl1.path  # We got a different shortlink
     assert rv.json['url'] == user_rincewind.url_for(
         _external=True, utm_campaign='webshare'
@@ -117,7 +121,8 @@ def test_create_shortlink_longer(
     assert rv.json is not None
     sl1 = furl(rv.json['shortlink'])
     assert sl1.netloc == app.config['SHORTLINK_DOMAIN']
-    assert len(str(sl1.path)) > 5  # The shortlink is no longer limited to 4 chars
+    # The shortlink is no longer limited to 4 chars
+    assert len(str(sl1.path)) > SHORT_SHORTLINK_WITH_PATH
 
 
 def test_create_shortlink_name_unauthorized(

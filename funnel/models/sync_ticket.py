@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import base64
 import os
-from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING, Any, Self
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Protocol, Self
+from uuid import UUID
 
-from coaster.sqlalchemy import LazyRoleSet, with_roles
+from coaster.sqlalchemy import with_roles
 
 from .account import Account, AccountEmail
 from .base import (
@@ -27,6 +28,7 @@ from .project import Project
 from .project_membership import project_child_role_map
 
 __all__ = [
+    'CheckinParticipantProtocol',
     'SyncTicket',
     'TicketClient',
     'TicketEvent',
@@ -67,6 +69,17 @@ ticket_event_ticket_type = sa.Table(
         nullable=False,
     ),
 )
+
+
+class CheckinParticipantProtocol(Protocol):
+    uuid: UUID
+    fullname: str
+    company: str
+    email: str | None
+    badge_printed: bool
+    checked_in: bool
+    ticket_type_titles: str  # Comma separated string
+    has_user: bool
 
 
 class GetTitleMixin(BaseScopedNameMixin):
@@ -258,8 +271,8 @@ class TicketParticipant(
     participant_id: Mapped[int | None] = sa_orm.mapped_column(
         sa.ForeignKey('account.id'), default=None, nullable=True
     )
-    participant: Mapped[Account | None] = relationship(
-        back_populates='ticket_participants'
+    participant: Mapped[Account | None] = with_roles(
+        relationship(back_populates='ticket_participants'), grants={'member'}
     )
     project_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('project.id'), default=None, nullable=False
@@ -270,8 +283,9 @@ class TicketParticipant(
         grants_via={None: project_child_role_map},
     )
 
-    scanned_contacts: Mapped[ContactExchange] = relationship(
-        passive_deletes=True, back_populates='ticket_participant'
+    scanned_contacts: Mapped[ContactExchange] = with_roles(
+        relationship(passive_deletes=True, back_populates='ticket_participant'),
+        grants_via={'account': {'scanner'}},
     )
 
     ticket_events: Mapped[list[TicketEvent]] = relationship(
@@ -294,18 +308,6 @@ class TicketParticipant(
         'member': {'read': {'email'}},
         'scanner': {'read': {'email'}},
     }
-
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        if actor is not None:
-            if actor == self.participant:
-                roles.add('member')
-            cx = db.session.get(ContactExchange, (actor.id, self.id))
-            if cx is not None:
-                roles.add('scanner')
-        return roles
 
     @property
     def avatar(self) -> str:
@@ -343,10 +345,7 @@ class TicketParticipant(
     ) -> TicketParticipant:
         ticket_participant = cls.get(current_project, current_email)
         accountemail = AccountEmail.get(current_email)
-        if accountemail is not None:
-            participant = accountemail.account
-        else:
-            participant = None
+        participant = accountemail.account if accountemail is not None else None
         if ticket_participant is not None:
             ticket_participant.participant = participant
             ticket_participant._set_fields(fields)  # pylint: disable=protected-access
@@ -372,7 +371,9 @@ class TicketParticipant(
                 self.ticket_events.remove(ticket_event)
 
     @classmethod
-    def checkin_list(cls, ticket_event: TicketEvent) -> list:  # TODO: List type?
+    def checkin_list(
+        cls, ticket_event: TicketEvent
+    ) -> list[CheckinParticipantProtocol]:
         """
         Return ticket participant details as a comma separated string.
 

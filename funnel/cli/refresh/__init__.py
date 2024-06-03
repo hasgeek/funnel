@@ -6,6 +6,8 @@ from ... import app
 
 refresh = AppGroup('refresh', help="Refresh or purge caches")
 
-from . import markdown  # isort:skip  # noqa: F401
+from . import markdown
 
 app.cli.add_command(refresh)
+
+__all__ = ['refresh', 'markdown']

@@ -21,7 +21,8 @@ down_revision = '530c22761e27'
 branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
-# --- Tables ---------------------------------------------------------------------------
+# MARK: Tables -------------------------------------------------------------------------
+
 proposal = table(
     'proposal',
     column('id', sa.Integer()),
@@ -31,12 +32,12 @@ proposal = table(
 )
 
 
-# --- Functions ------------------------------------------------------------------------
+# MARK: Functions ----------------------------------------------------------------------
 
 troublesome_filename = 'preview-video-troublesome.csv'
 
 
-def parse_video_url(video_url: str):
+def parse_video_url(video_url: str) -> tuple[str, str]:
     video_source = 'raw'
     video_id = video_url
 
@@ -47,7 +48,7 @@ def parse_video_url(video_url: str):
     if parsed.netloc in ['youtube.com', 'www.youtube.com', 'm.youtube.com']:
         if parsed.path == '/watch':
             queries = urllib.parse.parse_qs(parsed.query)
-            if 'v' in queries and queries['v']:
+            if queries.get('v'):
                 video_id = queries['v'][0]
                 video_source = 'youtube'
             else:
@@ -90,7 +91,7 @@ def parse_video_url(video_url: str):
     elif parsed.netloc == 'drive.google.com':
         if parsed.path.startswith('/open'):
             queries = urllib.parse.parse_qs(parsed.query)
-            if 'id' in queries and queries['id']:
+            if queries.get('id'):
                 video_id = queries['id'][0]
                 video_source = 'googledrive'
             else:
@@ -115,19 +116,21 @@ def parse_video_url(video_url: str):
     return video_source, video_id
 
 
-def make_video_url(video_source: str, video_id: str):
-    if video_source == 'youtube':
-        return f'https://www.youtube.com/watch?v={video_id}'
-    elif video_source == 'vimeo':
-        return f'https://vimeo.com/{video_id}'
-    elif video_source == 'googledrive':
-        return f'https://drive.google.com/file/d/{video_id}/view'
-    elif video_source == 'raw':
-        return video_id
-    raise ValueError("Unknown video source")
+def make_video_url(video_source: str, video_id: str) -> str:
+    match video_source:
+        case 'youtube':
+            return f'https://www.youtube.com/watch?v={video_id}'
+        case 'vimeo':
+            return f'https://vimeo.com/{video_id}'
+        case 'googledrive':
+            return f'https://drive.google.com/file/d/{video_id}/view'
+        case 'raw':
+            return video_id
+        case _:
+            raise ValueError("Unknown video source")
 
 
-# --- Migrations -----------------------------------------------------------------------
+# MARK: Migrations ---------------------------------------------------------------------
 
 
 def upgrade() -> None:

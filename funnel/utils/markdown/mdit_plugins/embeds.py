@@ -4,11 +4,12 @@ Markdown-it-py plugin to handle embeds.
 Ported from mdit_py_plugins.container
 and mdit_py_plugins.colon_fence.
 """
+# spell-checker:ignore mdit
 
 from __future__ import annotations
 
 import re
-from collections.abc import MutableMapping, Sequence
+from collections.abc import Sequence
 from math import floor
 
 from markdown_it import MarkdownIt
@@ -16,7 +17,7 @@ from markdown_it.common.utils import charCodeAt
 from markdown_it.renderer import RendererHTML
 from markdown_it.rules_block import StateBlock
 from markdown_it.token import Token
-from markdown_it.utils import OptionsDict
+from markdown_it.utils import EnvType, OptionsDict
 
 __all__ = ['embeds_plugin']
 
@@ -27,6 +28,7 @@ LOADING_PLACEHOLDER = {
 }
 
 VALIDATE_RE = re.compile(r'^{\s*([a-zA-Z0-9_\-]+)\s*}.*$')
+INDENT = 4
 
 
 def embeds_plugin(
@@ -34,26 +36,25 @@ def embeds_plugin(
     name: str,
     marker: str = '`',
 ) -> None:
-    def validate(params: str, *args) -> bool:
+    def validate(params: str, *_args) -> bool:
         results = VALIDATE_RE.findall(params.strip())
         return len(results) != 0 and results[0] == name
 
     def render(
-        renderer: RendererHTML,
+        renderer: RendererHTML,  # noqa: ARG001
         tokens: Sequence[Token],
         idx: int,
-        options: OptionsDict,
-        env: MutableMapping,
+        options: OptionsDict,  # noqa: ARG001
+        env: EnvType,  # noqa: ARG001
     ) -> str:
         token = tokens[idx]
         content = md.utils.escapeHtml(token.content)
         placeholder = LOADING_PLACEHOLDER.get(name, '')
         return (
             f'<div class="md-embed md-embed-{name}">'
-            + f'<div class="embed-loading">{placeholder}</div>'
-            + '<pre class="embed-content">'
-            + content
-            + '</pre><div class="embed-container"></div></div>\n'
+            f'<div class="embed-loading">{placeholder}</div>'
+            f'<pre class="embed-content">{content}'
+            '</pre><div class="embed-container"></div></div>\n'
         )
 
     min_markers = 3
@@ -105,8 +106,8 @@ def embeds_plugin(
         while True:
             next_line += 1
             if next_line >= end_line:
-                # unclosed block should be autoclosed by end of document.
-                # also block seems to be autoclosed by end of parent
+                # unclosed block should be auto-closed by end of document.
+                # also block seems to be auto-closed by end of parent
                 break
 
             start = state.bMarks[next_line] + state.tShift[next_line]
@@ -121,7 +122,7 @@ def embeds_plugin(
             if marker_char != ord(state.src[start]):
                 continue
 
-            if state.sCount[next_line] - state.blkIndent >= 4:
+            if state.sCount[next_line] - state.blkIndent >= INDENT:
                 # closing fence should be indented less than 4 spaces
                 continue
 

@@ -37,7 +37,7 @@ from ..utils import abort_null
 from .helpers import render_redirect
 from .mixins import AccountViewBase, ProjectViewBase
 
-# --- Definitions ----------------------------------------------------------------------
+# MARK: Definitions --------------------------------------------------------------------
 
 _Q = TypeVar('_Q', bound=Query)
 _ST = TypeVar('_ST', bound=ModelSearchProtocol)
@@ -60,7 +60,7 @@ match_text_breakpoint_re = re.compile('[¦\r\n].*')
 # regex here.
 html_whitespace_re = re.compile(r'\s+', re.ASCII)
 
-# --- Search provider types ------------------------------------------------------------
+# MARK: Search provider types ----------------------------------------------------------
 
 
 class SearchProvider(Generic[_ST]):
@@ -132,7 +132,7 @@ class SearchProvider(Generic[_ST]):
             type_=sa.UnicodeText,
         )
 
-    # --- Query methods
+    # MARK: Query methods
 
     def add_order_by(self, tsquery: sa.Function, query: _Q) -> _Q:
         """Add an order_by condition to the query."""
@@ -182,7 +182,7 @@ class SearchInProjectProvider(SearchInAccountProvider[_ST]):
         )
 
 
-# --- Search providers -----------------------------------------------------------------
+# MARK: Search providers ---------------------------------------------------------------
 
 
 class ProjectSearch(SearchInAccountProvider):
@@ -194,7 +194,8 @@ class ProjectSearch(SearchInAccountProvider):
     def all_query(self, tsquery: sa.Function) -> Query[Project]:
         """Search entire site for projects."""
         return (
-            Project.query.join(Account, Project.account).filter(
+            Project.query.join(Account, Project.account)
+            .filter(
                 Account.profile_state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Project.search_vector.bool_op('@@')(tsquery),
@@ -509,7 +510,7 @@ class CommentSearch(SearchInProjectProvider):
     model = Comment
     has_title = False  # Comments don't have titles
 
-    def hltitle_column(self, tsquery: sa.Function) -> sa.ColumnElement:
+    def hltitle_column(self, tsquery: sa.Function) -> sa.ColumnElement:  # noqa: ARG002
         """Comments don't have titles, so return a null expression here."""
         return expression.null()
 
@@ -648,7 +649,7 @@ search_providers: dict[str, SearchProvider] = {
 }
 
 
-# --- Utilities ---------------------------------------------------------------
+# MARK: Utilities ----------------------------------------------------------------------
 
 
 def escape_quotes(text: str) -> Markup:
@@ -679,13 +680,13 @@ def clean_matched_text(text: str) -> str:
     )
 
 
-# --- Search functions --------------------------------------------------------
+# MARK: Search functions ---------------------------------------------------------------
 
 
 class SearchCountType(TypedDict, total=False):
     """Typed dictionary for :func:`search_counts`."""
 
-    type: str  # noqa: A003
+    type: str
     label: str
     count: int
     job: Any
@@ -818,7 +819,7 @@ def search_results(
     }
 
 
-# --- Views -------------------------------------------------------------------
+# MARK: Views --------------------------------------------------------------------------
 
 
 @route('/', init_app=app)
@@ -840,14 +841,14 @@ class SiteSearchView(ClassView):
         if stype is None or stype not in search_providers:
             return {
                 'status': 'ok',
-                'query': q,
+                'search_query': q,
                 'type': None,
                 'counts': search_counts(tsquery),
             }
         return {
             'status': 'ok',
             'type': stype,
-            'query': q,
+            'search_query': q,
             'counts': search_counts(tsquery),
             'results': search_results(tsquery, stype, page=page, per_page=per_page),
         }
@@ -876,11 +877,13 @@ class AccountSearchView(AccountViewBase):
         ):
             return {
                 'status': 'ok',
+                'search_query': q,
                 'type': None,
                 'counts': search_counts(tsquery, account=self.obj),
             }
         return {
             'status': 'ok',
+            'search_query': q,
             'account': self.obj.current_access(datasets=('primary', 'related')),
             'type': stype,
             'counts': search_counts(tsquery, account=self.obj),
@@ -913,12 +916,14 @@ class ProjectSearchView(ProjectViewBase):
         ):
             return {
                 'status': 'ok',
+                'search_query': q,
                 'project': self.obj.current_access(datasets=('primary', 'related')),
                 'type': None,
                 'counts': search_counts(tsquery, project=self.obj),
             }
         return {
             'status': 'ok',
+            'search_query': q,
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'type': stype,
             'counts': search_counts(tsquery, project=self.obj),

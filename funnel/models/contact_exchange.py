@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Collection, Sequence
+from collections.abc import Collection
 from dataclasses import dataclass
 from datetime import date as date_type, datetime
 from itertools import groupby
@@ -12,7 +12,7 @@ from uuid import UUID
 from pytz import BaseTzInfo, timezone
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from coaster.sqlalchemy import LazyRoleSet
+from coaster.sqlalchemy import with_roles
 from coaster.utils import uuid_to_base58
 
 from .account import Account
@@ -38,7 +38,7 @@ __all__ = ['ContactExchange']
 class ProjectId:
     """Holder for minimal :class:`~funnel.models.project.Project` information."""
 
-    id: int  # noqa: A003
+    id: int
     uuid: UUID
     uuid_b58: str
     title: str
@@ -62,7 +62,9 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
     account_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('account.id', ondelete='CASCADE'), primary_key=True, default=None
     )
-    account: Mapped[Account] = relationship(back_populates='scanned_contacts')
+    account: Mapped[Account] = with_roles(
+        relationship(back_populates='scanned_contacts'), grants={'owner'}
+    )
     #: Participant whose contact was scanned
     ticket_participant_id: Mapped[int] = sa_orm.mapped_column(
         sa.ForeignKey('ticket_participant.id', ondelete='CASCADE'),
@@ -70,8 +72,9 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         default=None,
         index=True,
     )
-    ticket_participant: Mapped[TicketParticipant] = relationship(
-        back_populates='scanned_contacts'
+    ticket_participant: Mapped[TicketParticipant] = with_roles(
+        relationship(back_populates='scanned_contacts'),
+        grants_via={'participant': {'subject'}},
     )
     #: Datetime at which the scan happened
     scanned_at: Mapped[datetime] = sa_orm.mapped_column(
@@ -100,17 +103,6 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         },
         'subject': {'read': {'account', 'ticket_participant', 'scanned_at'}},
     }
-
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        if actor is not None:
-            if actor == self.account:
-                roles.add('owner')
-            if actor == self.ticket_participant.participant:
-                roles.add('subject')
-        return roles
 
     @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
@@ -219,7 +211,7 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
         # We don't do it here, but this can easily be converted into a dictionary of
         # `{project: dates}` using `dict(result)`
 
-        groups = [
+        return [
             (
                 k,
                 [
@@ -244,8 +236,6 @@ class ContactExchange(TimestampMixin, RoleMixin, Model):
                 ),
             )
         ]
-
-        return groups
 
     @classmethod
     def contacts_for_project_and_date(

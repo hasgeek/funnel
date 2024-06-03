@@ -194,7 +194,7 @@ def test_getuser_anchor(
     )
     assert models.getuser('mort@example.net', True) == (user_mort, user_mort.email)
 
-    # Retrival by email claim only works when there is no verified email address
+    # Retrieval by email claim only works when there is no verified email address
     assert models.getuser('twoflower@example.org', True) != (
         user_wolfgang,
         user_wolfgang.emailclaims[0],
@@ -241,13 +241,13 @@ def test_getextid(db_session: scoped_session, user_rincewind: models.User) -> No
     service = 'sample-service'
     userid = 'rincewind@sample-service'
 
-    externalid = models.AccountExternalId(  # nosec
+    externalid = models.AccountExternalId(
         service=service,
         account=user_rincewind,
         userid=userid,
         username='rincewind',
-        oauth_token='sample-service-token',
-        oauth_token_type='Bearer',
+        oauth_token='sample-service-token',  # noqa: S106
+        oauth_token_type='Bearer',  # noqa: S106
     )
 
     db_session.add(externalid)

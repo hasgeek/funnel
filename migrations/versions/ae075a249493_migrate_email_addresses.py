@@ -23,7 +23,7 @@ branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
 
-# --- Tables ---------------------------------------------------------------------------
+# MARK: Tables -------------------------------------------------------------------------
 
 
 user_email = table(
@@ -75,10 +75,10 @@ email_address = table(
 )
 
 
-# --- Functions ------------------------------------------------------------------------
+# MARK: Functions ----------------------------------------------------------------------
 
 
-def get_progressbar(label, maxval):
+def get_progressbar(label: str, maxval: int | None) -> ProgressBar:
     return ProgressBar(
         maxval=maxval,
         widgets=[
@@ -97,7 +97,7 @@ def get_progressbar(label, maxval):
 # These are copied from models/email_address.py:
 
 
-def canonical_email_representation(email):
+def canonical_email_representation(email: str) -> list[str]:
     if '@' not in email:
         raise ValueError("Not an email address")
     mailbox, domain = email.split('@', 1)
@@ -121,48 +121,46 @@ def canonical_email_representation(email):
     return representations
 
 
-def email_normalized(email):
+def email_normalized(email: str) -> str:
     mailbox, domain = email.split('@', 1)
     mailbox = mailbox.lower()
     domain = idna.encode(domain, uts46=True).decode()
     return f'{mailbox}@{domain}'
 
 
-def email_blake2b160_hash(email):
+def email_blake2b160_hash(email: str) -> bytes:
     return hashlib.blake2b(
         email_normalized(email).encode('utf-8'), digest_size=20
     ).digest()
 
 
-def email_blake2b128_hash(email):
+def email_blake2b128_hash(email: str) -> bytes:
     # This does not perform IDNA encoding as the original code that used 128-bit hashes
     # did not process IDNA encoding either
     return hashlib.blake2b(email.lower().encode('utf-8'), digest_size=16).digest()
 
 
-def email_md5sum(email):
+def email_md5sum(email: str) -> str:
     # This does not perform IDNA encoding as the original code that used 128-bit hashes
     # did not process IDNA encoding either
-    return hashlib.md5(  # nosec  # skipcq: PTC-W1003
-        email.lower().encode('utf-8')
-    ).hexdigest()
+    return hashlib.md5(email.lower().encode('utf-8'), usedforsecurity=False).hexdigest()
 
 
-def email_domain(email):
+def email_domain(email: str) -> str:
     return idna.encode(email.split('@', 1)[1], uts46=True).decode()
 
 
-def email_domain_naive(email):
+def email_domain_naive(email: str) -> str:
     return email.lower().split('@', 1)[1]
 
 
-# --- Migrations -----------------------------------------------------------------------
+# MARK: Migrations ---------------------------------------------------------------------
 
 
 def upgrade() -> None:
     conn = op.get_bind()
 
-    # --- UserEmail --------------------------------------------------------------------
+    # MARK: UserEmail ------------------------------------------------------------------
     op.add_column(
         'user_email', sa.Column('email_address_id', sa.Integer(), nullable=True)
     )
@@ -241,7 +239,7 @@ def upgrade() -> None:
     op.drop_column('user_email', 'domain')
     op.drop_column('user_email', 'md5sum')
 
-    # --- UserEmailClaim ---------------------------------------------------------------
+    # MARK: UserEmailClaim -------------------------------------------------------------
     op.add_column(
         'user_email_claim', sa.Column('email_address_id', sa.Integer(), nullable=True)
     )
@@ -330,7 +328,7 @@ def upgrade() -> None:
     op.drop_column('user_email_claim', 'domain')
     op.drop_column('user_email_claim', 'md5sum')
 
-    # --- Proposal ---------------------------------------------------------------------
+    # MARK: Proposal -------------------------------------------------------------------
     op.add_column(
         'proposal', sa.Column('email_address_id', sa.Integer(), nullable=True)
     )
@@ -408,7 +406,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     conn = op.get_bind()
 
-    # --- Proposal ---------------------------------------------------------------------
+    # MARK: Proposal -------------------------------------------------------------------
     op.add_column(
         'proposal',
         sa.Column('email', sa.VARCHAR(length=80), autoincrement=False, nullable=True),
@@ -437,7 +435,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_proposal_email_address_id'), table_name='proposal')
     op.drop_column('proposal', 'email_address_id')
 
-    # --- UserEmailClaim ---------------------------------------------------------------
+    # MARK: UserEmailClaim -------------------------------------------------------------
     op.add_column(
         'user_email_claim',
         sa.Column('md5sum', sa.VARCHAR(length=32), autoincrement=False, nullable=True),
@@ -505,7 +503,7 @@ def downgrade() -> None:
     )
     op.drop_column('user_email_claim', 'email_address_id')
 
-    # --- UserEmail --------------------------------------------------------------------
+    # MARK: UserEmail ------------------------------------------------------------------
     op.add_column(
         'user_email',
         sa.Column('md5sum', sa.VARCHAR(length=32), autoincrement=False, nullable=True),
@@ -560,6 +558,6 @@ def downgrade() -> None:
     op.create_index('ix_user_email_domain', 'user_email', ['domain'], unique=False)
     op.drop_column('user_email', 'email_address_id')
 
-    # --- Drop imported contents and restart sequence ----------------------------------
+    # MARK: Drop imported contents and restart sequence --------------------------------
     op.get_bind().execute(email_address.delete())
     op.execute(sa.text('ALTER SEQUENCE email_address_id_seq RESTART'))

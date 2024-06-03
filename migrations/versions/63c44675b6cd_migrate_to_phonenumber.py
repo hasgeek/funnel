@@ -106,7 +106,7 @@ def upgrade_() -> None:
     """Upgrade database bind ''."""
     conn = op.get_bind()
 
-    # --- UserPhone --------------------------------------------------------------------
+    # MARK: UserPhone ------------------------------------------------------------------
     op.add_column(
         'user_phone', sa.Column('phone_number_id', sa.Integer(), nullable=True)
     )
@@ -149,7 +149,7 @@ def upgrade_() -> None:
                 )
                 .returning(phone_number.c.id)
             ).first()
-            assert pn_id is not None  # nosec B101
+            assert pn_id is not None  # noqa: S101
         conn.execute(
             user_phone.update()
             .where(user_phone.c.id == item.id)
@@ -172,7 +172,7 @@ def upgrade_() -> None:
     op.drop_column('user_phone', 'phone')
     op.drop_column('user_phone', 'gets_text')
 
-    # --- SmsMessage -------------------------------------------------------------------
+    # MARK: SmsMessage -----------------------------------------------------------------
     # Remove rows with no `transactionid`, as the data is not validated in any way
     conn.execute(sa.delete(sms_message).where(sms_message.c.transactionid.is_(None)))
     op.add_column(
@@ -228,12 +228,15 @@ def upgrade_() -> None:
                     or item.status_at > existing.msg_sms_delivered_at
                 ):
                     timestamps['msg_sms_delivered_at'] = item.status_at
-            elif item.status == SMS_STATUS_FAILED:
-                if item.status_at and (
+            elif (
+                item.status == SMS_STATUS_FAILED
+                and item.status_at
+                and (
                     not existing.msg_sms_failed_at
                     or item.status_at > existing.msg_sms_failed_at
-                ):
-                    timestamps['msg_sms_failed_at'] = item.status_at
+                )
+            ):
+                timestamps['msg_sms_failed_at'] = item.status_at
             if (
                 item.status in (SMS_STATUS_DELIVERED, SMS_STATUS_FAILED)
                 and item.status_at
@@ -278,7 +281,7 @@ def upgrade_() -> None:
                 )
                 .returning(phone_number.c.id)
             ).first()
-            assert pn_id is not None  # nosec B101
+            assert pn_id is not None  # noqa: S101
         conn.execute(
             sms_message.update()
             .where(sms_message.c.id == item.id)
@@ -315,7 +318,7 @@ def downgrade_() -> None:
     """Downgrade database bind ''."""
     conn = op.get_bind()
 
-    # --- SmsMessage -------------------------------------------------------------------
+    # MARK: SmsMessage -----------------------------------------------------------------
     op.add_column(
         'sms_message',
         sa.Column(
@@ -344,7 +347,7 @@ def downgrade_() -> None:
     op.drop_index(op.f('ix_sms_message_phone_number_id'), 'sms_message')
     op.drop_column('sms_message', 'phone_number_id')
 
-    # --- UserPhone --------------------------------------------------------------------
+    # MARK: UserPhone ------------------------------------------------------------------
     op.add_column(
         'user_phone',
         sa.Column(

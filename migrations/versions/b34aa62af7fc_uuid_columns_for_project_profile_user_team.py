@@ -44,7 +44,7 @@ team = table(
 )
 
 
-def get_progressbar(label, maxval):
+def get_progressbar(label: str, maxval: int | None) -> ProgressBar:
     return ProgressBar(
         maxval=maxval,
         widgets=[
@@ -63,7 +63,7 @@ def get_progressbar(label, maxval):
 def upgrade() -> None:
     conn = op.get_bind()
 
-    # --- Project
+    # MARK: Project
     op.add_column('project', sa.Column('uuid', sa.Uuid(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(project))
     progress = get_progressbar("Projects", count)
@@ -78,7 +78,7 @@ def upgrade() -> None:
     op.alter_column('project', 'uuid', nullable=False)
     op.create_unique_constraint('project_uuid_key', 'project', ['uuid'])
 
-    # --- Profile
+    # MARK: Profile
     op.add_column('profile', sa.Column('uuid', sa.Uuid(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(profile))
     progress = get_progressbar("Profiles", count)
@@ -97,7 +97,7 @@ def upgrade() -> None:
     op.drop_constraint('profile_userid_key', 'profile', type_='unique')
     op.drop_column('profile', 'userid')
 
-    # --- Team
+    # MARK: Team
     op.add_column('team', sa.Column('uuid', sa.Uuid(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(team))
     progress = get_progressbar("Teams", count)
@@ -116,7 +116,7 @@ def upgrade() -> None:
     op.drop_constraint('team_userid_key', 'team', type_='unique')
     op.drop_column('team', 'userid')
 
-    # --- User
+    # MARK: User
     op.add_column('user', sa.Column('uuid', sa.Uuid(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(user))
     progress = get_progressbar("Users", count)
@@ -139,7 +139,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     conn = op.get_bind()
 
-    # --- User
+    # MARK: User
     op.add_column('user', sa.Column('userid', sa.String(22), nullable=True))
     op.create_unique_constraint('user_userid_key', 'user', ['userid'])
     count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(user))
@@ -158,7 +158,7 @@ def downgrade() -> None:
     op.drop_constraint('user_uuid_key', 'user', type_='unique')
     op.drop_column('user', 'uuid')
 
-    # --- Team
+    # MARK: Team
     op.add_column('team', sa.Column('userid', sa.String(22), nullable=True))
     op.create_unique_constraint('team_userid_key', 'team', ['userid'])
     count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(team))
@@ -177,7 +177,7 @@ def downgrade() -> None:
     op.drop_constraint('team_uuid_key', 'team', type_='unique')
     op.drop_column('team', 'uuid')
 
-    # --- Profile
+    # MARK: Profile
     op.add_column('profile', sa.Column('userid', sa.String(22), nullable=True))
     op.create_unique_constraint('profile_userid_key', 'profile', ['userid'])
     count = conn.scalar(sa.select(sa.func.count(sa.text('*'))).select_from(profile))
@@ -196,6 +196,6 @@ def downgrade() -> None:
     op.drop_constraint('profile_uuid_key', 'profile', type_='unique')
     op.drop_column('profile', 'uuid')
 
-    # --- Project
+    # MARK: Project
     op.drop_constraint('project_uuid_key', 'project', type_='unique')
     op.drop_column('project', 'uuid')

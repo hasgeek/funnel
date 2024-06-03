@@ -10,7 +10,7 @@ from flask import current_app
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
-from coaster.utils import DataclassFromType, LabeledEnum
+from coaster.utils import DataclassFromType, LabeledEnum, NameTitle
 
 from . import types
 from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
@@ -34,10 +34,10 @@ __all__ = ['RSVP_STATUS', 'RsvpStateEnum', 'Rsvp']
 class RSVP_STATUS(LabeledEnum):  # noqa: N801
     # If you add any new state, you need to add a migration to modify the check
     # constraint
-    YES = ('Y', 'yes', __("Going"))
-    NO = ('N', 'no', __("Not going"))
-    MAYBE = ('M', 'maybe', __("Maybe"))
-    AWAITING = ('A', 'awaiting', __("Awaiting"))
+    YES = ('Y', NameTitle('yes', __("Going")))
+    NO = ('N', NameTitle('no', __("Not going")))
+    MAYBE = ('M', NameTitle('maybe', __("Maybe")))
+    AWAITING = ('A', NameTitle('awaiting', __("Awaiting")))
 
 
 @dataclass(frozen=True)
@@ -76,7 +76,7 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         grants={'owner'},
         datasets={'primary', 'without_parent'},
     )
-    form: Mapped[types.jsonb | None] = with_roles(
+    form: Mapped[types.Jsonb | None] = with_roles(
         sa_orm.mapped_column(),
         rw={'owner'},
         read={'project_promoter'},
@@ -86,7 +86,9 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
     _state: Mapped[str] = sa_orm.mapped_column(
         'state',
         sa.CHAR(1),
-        StateManager.check_constraint('state', RsvpStateEnum, sa.CHAR(1)),
+        StateManager.check_constraint(
+            'state', RsvpStateEnum, sa.CHAR(1), name='rsvp_state_check'
+        ),
         default=RsvpStateEnum.AWAITING,
         nullable=False,
     )

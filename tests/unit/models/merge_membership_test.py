@@ -9,19 +9,21 @@ from funnel import models
 from ...conftest import scoped_session
 
 
-@pytest.fixture()
+@pytest.fixture
 def death_membership(
     db_session: scoped_session,
     org_ankhmorpork: models.Organization,
     user_death: models.User,
 ) -> models.AccountMembership:
-    membership = models.AccountMembership(account=org_ankhmorpork, member=user_death)
+    membership = models.AccountMembership(
+        account=org_ankhmorpork, member=user_death, is_admin=True
+    )
     db_session.add(membership)
     db_session.commit()
     return membership
 
 
-@pytest.fixture()
+@pytest.fixture
 def death_owner_membership(
     db_session: scoped_session,
     org_ankhmorpork: models.Organization,
@@ -35,21 +37,21 @@ def death_owner_membership(
     return membership
 
 
-@pytest.fixture()
+@pytest.fixture
 def rincewind_membership(
     db_session: scoped_session,
     org_ankhmorpork: models.Organization,
     user_rincewind: models.User,
 ) -> models.AccountMembership:
     membership = models.AccountMembership(
-        account=org_ankhmorpork, member=user_rincewind
+        account=org_ankhmorpork, member=user_rincewind, is_admin=True
     )
     db_session.add(membership)
     db_session.commit()
     return membership
 
 
-@pytest.fixture()
+@pytest.fixture
 def rincewind_owner_membership(
     db_session: scoped_session,
     org_ankhmorpork: models.Organization,
@@ -63,7 +65,7 @@ def rincewind_owner_membership(
     return membership
 
 
-# --- Tests ----------------------------------------------------------------------------
+# MARK: Tests --------------------------------------------------------------------------
 
 
 def test_merge_without_membership(
@@ -260,7 +262,7 @@ def test_merge_multiple_memberships(
     db_session.add(uu_death_owner_membership)
     db_session.commit()
     uu_rincewind_membership = models.AccountMembership(
-        account=org_uu, member=user_rincewind, is_owner=False
+        account=org_uu, member=user_rincewind, is_admin=True
     )
     db_session.add(uu_rincewind_membership)
     db_session.commit()

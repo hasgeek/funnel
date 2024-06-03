@@ -25,7 +25,7 @@
 <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
 {%- endmacro %}
 
-{% macro calendarwidget(calendar, compact=true) %}
+{% macro calendarwidget(calendar, compact=true, flex=false) %}
   <div class="card__calendar {% if compact %} card__calendar--compact {% endif %}" aria-hidden="true">
     <div class="calendar">
       {% set event = namespace(month='', year='', first_week='', previous='', next='') %}
@@ -42,15 +42,15 @@
               {% set event.next = true %}
             {% endif %}
           {% endif %}
-          <p class="calendar__month {% if week.upcoming %}calendar__month--upcoming{% endif %} {% if event.first_week == week %}calendar__month--upcoming--first calendar__month--latest{% endif %} {% if week.month != event.month %}calendar__month--unique{% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__month--latest{% endif %}"><span class="calendar__month__counting" data-today="{{ calendar.today }}" data-month="{{ week.month }}"></span><span class="calendar__month__name mui--text-light">{{ week.month }} {{ week.year }}</span></p>
+          <p class="calendar__month {% if week.upcoming %}calendar__month--upcoming{% endif %} {% if event.first_week == week %}calendar__month--upcoming--first calendar__month--latest{% endif %} {% if week.month != event.month %}calendar__month--unique{% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__month--latest{% endif %}{% if flex %} zero-padding{% endif %}"><span class="calendar__month__counting" data-today="{{ calendar.today }}" data-month="{{ week.month }}"></span><span class="calendar__month__name mui--text-light">{{ week.month }} {{ week.year }}</span></p>
           {% set event.month = week.month %}
           {% set event.year = week.year %}
-          <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first calendar__weekdays__dates--latest {% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__weekdays__dates--latest {% endif %}" data-month="{{ week.month }}">
+          <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first calendar__weekdays__dates--latest {% endif %} {% if flex %} calendar__weekdays__dates--justify {% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__weekdays__dates--latest {% endif %}" data-month="{{ week.month }}">
             <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--left">
               {% if event.previous %}{{ faicon(icon='chevron-left', icon_size='caption', baseline=false, css_class="calendar__weekdays__dates__icon__next") }}{% endif %}
             </p>
             {% for date in week.dates %}
-              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %} {% if date.isoformat >= calendar.today %} calendar__weekdays__dates__date--latest{% endif %} calendar__weekdays__dates__date--{{ (loop.index - 1) % 7 }}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
+            <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %} {% if date.isoformat >= calendar.today %} calendar__weekdays__dates__date--latest{% endif %} {% if flex %}calendar__weekdays__dates__date--flex {% endif %} {% if date.count > 0 and flex %} calendar__weekdays__dates__date--flex {% endif %} calendar__weekdays__dates__date--{{ (loop.index - 1) % 7 }}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
                 <span class="calendar__weekdays__dates__date__day">{{ date.day }}</span>
                 <span class="calendar__weekdays__dates__date__name">{{ calendar.days[(loop.index - 1) % 7] }}</span>
                 {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} – {{ date.day_end_at }}</span>{% endif %}
@@ -144,24 +144,13 @@
   </div>
 {% endmacro %}
 
-{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, include_profile=true, include_details=true, save_form_id_prefix='spf_', add_bookmark=true, snippet_html=none) %}
+{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, include_profile=true, include_details=true, snippet_html=none) %}
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-testid="{{ project.title }}" data-ga="View project">
     {%- if include_profile %}
     <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left">
-      <div class="flex-wrapper flex-wrapper--center">
-        <span class="profile-avatar margin-right">
-          {%- if project.account.logo_url.url %}
-            <img src="{{ project.account.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ project.account.title }}"/>
-          {% else %}
-            <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ project.account.title }}"/>
-          {% endif %}
-        </span>
-        <span class="profile-avatar-title mui--text-body2 text-bold mui--text-dark">{{ project.account.title }}</span>
+      <div class="flex-wrapper flex-wrapper--center flex-wrapper-full-width">
+        {{ profileavatar(project.account, add_profile_link=false, css_class='flex-item-align-end') }}
       </div>
-      {%- if not current_auth.is_anonymous and add_bookmark %}
-        {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
-        <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(project, formid=save_form_id) }}</div>
-      {% endif %}
     </div>
     {% endif %}
     <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
@@ -191,8 +180,7 @@
             <h3 class="card__body__title mui--text-subhead {% if not project.start_at %} card__body__subtitle {% endif %}"><span class="text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
           {% endif %}
         {% elif include_details %}
-          <h3 class="card__body__subtitle mui--text-subhead text-bold">{{ project.title }}</h3>
-          <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
+          <h3 class="card__body__title mui--text-subhead {% if not project.start_at %} card__body__subtitle {% endif %}"><span class="text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
           {% if project.cfp_state.OPEN and project.cfp_end_at_localized %}
             <hr class="separator" />
             <p class="mui--text-caption zero-bottom-margin secondary-color-txt">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>
@@ -211,13 +199,13 @@
   </a>
 {% endmacro %}
 
-{% macro page_footer() %}
+{% macro about_page_footer(page=none) %}
   <footer class="sub-navbar-container sub-navbar-container--footer bg-accent">
     <nav class="sub-navbar mui-container" id="page-navbar">
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'index' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('about') }}">{% trans %}About Hasgeek{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if page == 'about' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('about') }}">{% trans %}About Hasgeek{% endtrans %}</a>
       <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="{{ url_for('profile', account='hasgeek') }}">{% trans %}Team &amp; careers{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'contact' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('contact') }}">{% trans %}Contact{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'policy' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('policy') }}">{% trans %}Site policies{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if page == 'contact' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('contact') }}">{% trans %}Contact{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if page == 'policy' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('policy') }}">{% trans %}Site policies{% endtrans %}</a>
     </nav>
   </footer>
 {% endmacro %}
@@ -237,7 +225,7 @@
     {%- if session.views.video %}
       <div class="mui--text-caption mui--text-light">
         {%- if session.views.video.duration %}<span>{{ session.views.video.duration|timedelta }}</span>{%- endif %}
-        {%- if session.views.video.uploaded_at %}<span class="mui--pull-right">{{ session.views.video.uploaded_at|longdate }}</span>{%- endif %}
+        {%- if session.start_at %}<span class="mui--pull-right">{{ session.start_at|longdate }}</span>{%- endif %}
       </div>
     {%- else %}
     <div class="mui--text-caption mui--text-light">
@@ -249,7 +237,7 @@
 
 {%- macro proposal_list(proposals, project='', css_class="", spa=false) %}
   <table id="submissions-table" class="proposal-list-table mui-table">
-    <tbody>
+    <tbody class="bg-primary">
       {%- with reorderable=project and project.features.reorder_proposals() %}
       {% for proposal in proposals %}
         <tr id="{{ proposal.uuid_b58 }}" {%- if reorderable %}class="sortable" data-drag-placeholder="proposal-placeholder" draggable="true"{%- endif %}>
@@ -271,7 +259,19 @@
   </table>
 {%- endmacro %}
 
-{%- macro useravatar(user, css_class="", add_profile_link=true, size='medium') %}
+{%- macro add_follow_button(profile, css_class='') %}
+  {%- if current_auth and profile != current_auth.user and not profile.features.is_private() %}
+    {%- with follow_formid = 'follow_form' + profile.uuid_b58 %}
+      <form id="{{ follow_formid }}" action="{{ profile.url_for('follow') }}" class="follow-form js-follow-form {% if css_class %}{{ css_class }}{% endif %}" data-account-id="{{ profile.uuid_b58 }}" method="post">
+        <input type="hidden" name="follow" value=""/>
+        <button type="submit" value="false" class="mui-btn mui-btn--accent mui-btn--small zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} js-unfollow-btn mui--hide {% if not profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-check-solid', icon_size='subhead') }}</button>
+        <button type="submit" value="true" class="mui-btn mui-btn--primary mui-btn--small zero-bottom-margin zero-top-margin {% if buttonclass %}{{ buttonclass }}{% endif %} zero-left-margin js-follow-btn {% if profile.current_roles.follower %}mui--hide{%- endif %}" href="{{ profile.url_for('follow') }}" onclick="this.form.follow.value=this.value">{{ faicon(icon='user-plus', icon_size='subhead') }}</button>
+      </form>
+    {%- endwith %}
+  {%- endif %}
+{%- endmacro %}
+
+{%- macro useravatar(user, css_class="", add_profile_link=true, size='medium', add_follow_btn=true, follow_btn_css="flex-order-last flex-item-align-end") %}
   {% if size == 'big' %}
     {%- set imgsize = 160 %}
   {%- elif size == 'medium' %}
@@ -286,6 +286,25 @@
     <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}" data-avatar-colour="{{ user.views and user.views.avatar_color_code or '' }}">{{ user.title|initials }}</div>
   {% endif %}
   {% if add_profile_link %}</a>{% endif %}
+  {% if add_follow_btn %}
+    {{ add_follow_button(user, css_class=follow_btn_css) }}
+  {% endif %}
+{%- endmacro %}
+
+{%- macro profileavatar(account,  add_profile_link=true, css_class="") %}
+  <div class="user user--smaller">
+    <div class="user__box zero-padding">
+      {% if add_profile_link %}<a href="{{ account.absolute_url }}" class="nounderline">{% endif %}
+        {%- if account.logo_url.url %}
+          <img class="user__box__gravatar" src="{{ account.logo_url.resize(img_size.profile_logo_small) }}" alt="{{ account.title }}"/>
+        {%- else %}
+          <div class="user__box__gravatar user__box__gravatar--initials">{{ account.title|initials }}</div>
+        {% endif %}
+       {% if add_profile_link %}</a>{% endif %}
+    </div>
+  </div>
+  {% if add_profile_link %}<a href="{{ account.absolute_url }}" class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{%- else %}<span class="mui--text-dark mui--text-subhead text-bold nounderline">{% endif %}{{ account.title }}{% if add_profile_link %}</a>{%- else %}</span>{% endif %}
+  {{ add_follow_button(account, css_class=css_class) }}
 {%- endmacro %}
 
 {%- macro list_sponsors(sponsors) %}
@@ -329,7 +348,7 @@
             {%- for membership in proposal.memberships %}{% if not membership.is_uncredited %}
               <div class="user user--smaller right-padding">
                 <div class="user__box">
-                  {{ useravatar(membership.member, add_profile_link=true, size='small') }}
+                  {{ useravatar(membership.member, css_class="margin-right", add_profile_link=true, size='small', follow_btn_css="flex-order-last margin-left") }}
                   <div class="user__box__header">
                     <p class="mui--text-caption user__box__fullname">{{ membership.member.fullname }} {%- if membership.label %} <span class="badge">{{ membership.label }}</span>{% endif %}</p>
                   </div>

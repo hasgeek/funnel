@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from datetime import datetime, timedelta
 from enum import ReprEnum
 from typing import TYPE_CHECKING, Any, Literal, Self, cast, overload
@@ -20,12 +20,12 @@ from werkzeug.utils import cached_property
 from baseframe import __, localize_timezone
 from coaster.sqlalchemy import (
     DynamicAssociationProxy,
-    LazyRoleSet,
     ManagedState,
     StateManager,
+    role_check,
     with_roles,
 )
-from coaster.utils import LabeledEnum, buid, utcnow
+from coaster.utils import LabeledEnum, NameTitle, buid, utcnow
 
 from .. import app
 from . import types
@@ -60,22 +60,22 @@ from .helpers import (
 __all__ = ['ProjectRsvpStateEnum', 'Project', 'ProjectLocation', 'ProjectRedirect']
 
 
-# --- Constants ---------------------------------------------------------------
+# MARK: Constants -------------------------------------------------------------
 
 
 class PROJECT_STATE(LabeledEnum):  # noqa: N801
-    DRAFT = (1, 'draft', __("Draft"))
-    PUBLISHED = (2, 'published', __("Published"))
-    WITHDRAWN = (3, 'withdrawn', __("Withdrawn"))
-    DELETED = (4, 'deleted', __("Deleted"))
+    DRAFT = (1, NameTitle('draft', __("Draft")))
+    PUBLISHED = (2, NameTitle('published', __("Published")))
+    WITHDRAWN = (3, NameTitle('withdrawn', __("Withdrawn")))
+    DELETED = (4, NameTitle('deleted', __("Deleted")))
     DELETABLE = {DRAFT, PUBLISHED, WITHDRAWN}
     PUBLISHABLE = {DRAFT, WITHDRAWN}
 
 
 class CFP_STATE(LabeledEnum):  # noqa: N801
-    NONE = (1, 'none', __("None"))
-    PUBLIC = (2, 'public', __("Public"))
-    CLOSED = (3, 'closed', __("Closed"))
+    NONE = (1, NameTitle('none', __("None")))
+    PUBLIC = (2, NameTitle('public', __("Public")))
+    CLOSED = (3, NameTitle('closed', __("Closed")))
     ANY = {NONE, PUBLIC, CLOSED}
 
 
@@ -85,7 +85,7 @@ class ProjectRsvpStateEnum(IntTitle, ReprEnum):
     MEMBERS = 3, __("Only members can register")
 
 
-# --- Models ------------------------------------------------------------------
+# MARK: Models ----------------------------------------------------------------
 
 
 class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
@@ -102,11 +102,12 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     account: Mapped[Account] = with_roles(
         relationship(foreign_keys=[account_id], back_populates='projects'),
         read={'all'},
-        # If account grants an 'admin' role, make it 'account_admin' here
+        # Remap account roles for use in project
         grants_via={
             None: {
+                'owner': 'account_owner',
                 'admin': 'account_admin',
-                'follower': 'account_participant',
+                'follower': 'account_follower',
                 'member': 'account_member',
             }
         },
@@ -136,7 +137,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    parsed_location: Mapped[types.jsonb_dict]
+    parsed_location: Mapped[types.JsonbDict]
 
     website: Mapped[furl | None] = with_roles(
         sa_orm.mapped_column(UrlType, nullable=True),
@@ -156,7 +157,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        StateManager.check_constraint('state', PROJECT_STATE, sa.Integer),
+        sa.SmallInteger,
+        StateManager.check_constraint(
+            'state', PROJECT_STATE, sa.SmallInteger, name='project_state_check'
+        ),
         default=PROJECT_STATE.DRAFT,
         nullable=False,
         index=True,
@@ -167,7 +171,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     )
     _cfp_state: Mapped[int] = sa_orm.mapped_column(
         'cfp_state',
-        StateManager.check_constraint('cfp_state', CFP_STATE, sa.Integer),
+        sa.SmallInteger,
+        StateManager.check_constraint(
+            'cfp_state', CFP_STATE, sa.SmallInteger, name='project_cfp_state_check'
+        ),
         default=CFP_STATE.NONE,
         nullable=False,
         index=True,
@@ -181,7 +188,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         sa_orm.mapped_column(
             sa.SmallInteger,
             StateManager.check_constraint(
-                'rsvp_state', ProjectRsvpStateEnum, sa.SmallInteger
+                'rsvp_state',
+                ProjectRsvpStateEnum,
+                sa.SmallInteger,
+                name='project_rsvp_state_check',
             ),
             default=ProjectRsvpStateEnum.NONE,
             nullable=False,
@@ -246,7 +256,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
-    boxoffice_data: Mapped[types.jsonb_dict] = with_roles(
+    boxoffice_data: Mapped[types.JsonbDict] = with_roles(
         sa_orm.mapped_column(),
         # This is an attribute, but we deliberately use `call` instead of `read` to
         # block this from dictionary enumeration. FIXME: Break up this dictionary into
@@ -281,7 +291,9 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     parent_project: Mapped[Project | None] = relationship(
         remote_side='Project.id', back_populates='subprojects'
     )
-    subprojects: Mapped[list[Project]] = relationship(back_populates='parent_project')
+    subprojects: Mapped[list[Project]] = relationship(
+        back_populates='parent_project', order_by=lambda: Project.order_by_date().desc()
+    )
 
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or account admins.
@@ -294,7 +306,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
     livestream_urls: Mapped[list[str] | None] = with_roles(
         sa_orm.mapped_column(
-            sa.ARRAY(sa.UnicodeText, dimensions=1),
+            sa.ARRAY(sa.Unicode, dimensions=1),
             nullable=True,  # For legacy data
             server_default=sa.text("'{}'::text[]"),
             default=None,
@@ -339,7 +351,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         deferred=True,
     )
 
-    # --- Backrefs and relationships
+    # MARK: Backrefs and relationships
 
     redirects: Mapped[list[ProjectRedirect]] = relationship(back_populates='project')
     locations: Mapped[list[ProjectLocation]] = relationship(back_populates='project')
@@ -372,7 +384,16 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
             ),
             viewonly=True,
         ),
-        grants_via={'member': {'editor', 'promoter', 'usher', 'participant', 'crew'}},
+        # Get subset of roles via offered_roles property
+        grants_via={
+            'member': {
+                'crew': {'crew', 'project_crew'},
+                'editor': {'editor', 'project_editor'},
+                'participant': {'participant', 'project_participant'},
+                'promoter': {'promoter', 'project_promoter'},
+                'usher': {'usher', 'project_usher'},
+            }
+        },
     )
 
     active_editor_memberships: DynamicMapped[ProjectMembership] = relationship(
@@ -405,16 +426,29 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         viewonly=True,
     )
 
-    crew = DynamicAssociationProxy[Account]('active_crew_memberships', 'member')
-    editors = DynamicAssociationProxy[Account]('active_editor_memberships', 'member')
-    promoters = DynamicAssociationProxy[Account](
-        'active_promoter_memberships', 'member'
+    crew: DynamicAssociationProxy[Account, ProjectMembership] = DynamicAssociationProxy(
+        'active_crew_memberships', 'member'
     )
-    ushers = DynamicAssociationProxy[Account]('active_usher_memberships', 'member')
+    editors: DynamicAssociationProxy[Account, ProjectMembership] = (
+        DynamicAssociationProxy('active_editor_memberships', 'member')
+    )
+    promoters: DynamicAssociationProxy[Account, ProjectMembership] = (
+        DynamicAssociationProxy('active_promoter_memberships', 'member')
+    )
+    ushers: DynamicAssociationProxy[Account, ProjectMembership] = (
+        DynamicAssociationProxy('active_usher_memberships', 'member')
+    )
 
     # proposal.py
     proposals: DynamicMapped[Proposal] = relationship(
         lazy='dynamic', order_by=lambda: Proposal.seq, back_populates='project'
+    )
+    proposal_templates: Mapped[list[Proposal]] = relationship(
+        primaryjoin=lambda: sa.and_(
+            Proposal.project_id == Project.id, Proposal.state.TEMPLATE
+        ),
+        viewonly=True,
+        order_by=lambda: Proposal.seq,
     )
 
     # rsvp.py
@@ -461,7 +495,9 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
+    sponsors: DynamicAssociationProxy[Account, ProjectSponsorMembership] = (
+        DynamicAssociationProxy('sponsor_memberships', 'member')
+    )
 
     # sync_ticket.py
     ticket_clients: Mapped[list[TicketClient]] = relationship(back_populates='project')
@@ -502,6 +538,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     def rooms(self) -> list[VenueRoom]:
         return [room for venue in self.venues for room in venue.rooms]
 
+    # MARK: Model config
+
     __table_args__ = (
         sa.UniqueConstraint('account_id', 'name'),
         sa.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
@@ -539,6 +577,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
                 'created_at',  # From TimestampMixin, used for vCal render timestamp
                 'updated_at',  # From TimestampMixin, used for vCal render timestamp
                 'subprojects',
+                'parent_project',
             },
             'call': {
                 'features',  # From RegistryMixin
@@ -568,6 +607,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
             'title',  # From BaseScopedNameMixin
         },
     }
+
+    # MARK: Conditional states
 
     state.add_conditional_state(
         'PAST',
@@ -609,12 +650,14 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         'HAS_PROPOSALS',
         cfp_state.ANY,
         lambda project: db.session.query(project.proposals.exists()).scalar(),
+        lambda project: project.proposals.exists(),
         label=('has_proposals', __("Has submissions")),
     )
     cfp_state.add_conditional_state(
         'HAS_SESSIONS',
         cfp_state.ANY,
         lambda project: db.session.query(project.sessions.exists()).scalar(),
+        lambda project: project.sessions.exists(),
         label=('has_sessions', __("Has sessions")),
     )
     cfp_state.add_conditional_state(
@@ -658,6 +701,8 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         cfp_state.EXPIRED,
     )
 
+    # MARK: Magic methods
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
@@ -682,6 +727,33 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         if not format_spec:
             return self.joined_title
         return format(self.joined_title, format_spec)
+
+    # MARK: Methods and properties
+
+    @role_check('member_participant')
+    def has_member_participant_role(
+        self, actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Confirm if the actor is both a participant and an account member."""
+        if actor is None:
+            return False
+        roles = self.roles_for(actor)
+        if 'participant' in roles and 'account_member' in roles:
+            return True
+        return False
+
+    @has_member_participant_role.iterable
+    def _(self) -> Iterable[Account]:
+        """All participants who are also account members."""
+        # TODO: This iterable causes a loop of SQL queries. It will be far more
+        # efficient to SQL JOIN the data sources once they are single-table sources.
+        # Rsvp needs to merge into ProjectMembership, and AccountMembership needs to
+        # replace the hacky "membership project" data source.
+        return (
+            account
+            for account in self.actors_with({'participant'})
+            if 'account_member' in self.roles_for(account)
+        )
 
     @with_roles(call={'editor'})
     @cfp_state.transition(
@@ -742,10 +814,13 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     @property
     def title_inline(self) -> str:
         """Suffix a colon if the title does not end in ASCII sentence punctuation."""
-        if self.title and self.tagline:
-            # pylint: disable=unsubscriptable-object
-            if self.title[-1] not in ('?', '!', ':', ';', '.', ','):
-                return self.title + ':'
+        # pylint: disable=unsubscriptable-object
+        if (
+            self.title
+            and self.tagline
+            and self.title[-1] not in ('?', '!', ':', ';', '.', ',')
+        ):
+            return self.title + ':'
         return self.title
 
     with_roles(title_inline, read={'all'}, datasets={'primary', 'without_parent'})
@@ -764,7 +839,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     with_roles(title_suffix, read={'all'})
 
     @property
-    def title_parts(self) -> list[str]:
+    def title_parts(self) -> tuple[str] | tuple[str, str]:
         """
         Return the hierarchy of titles of this project.
 
@@ -777,9 +852,9 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         """
         if self.short_title == self.title:
             # Project title does not derive from account title, so use both
-            return [self.account.title, self.title]
+            return (self.account.title, self.title)
         # Project title extends account title, so account title is not needed
-        return [self.title]
+        return (self.title,)
 
     with_roles(title_parts, read={'all'})
 
@@ -925,21 +1000,19 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         return Rsvp.get_for(self, account, create)
 
     def rsvps_with(self, state: RsvpStateEnum) -> Query[Rsvp]:
+        # pylint: disable=protected-access
         return self.rsvps.join(Account).filter(
-            Account.state.ACTIVE,
-            Rsvp._state == state,  # pylint: disable=protected-access
+            Account.state.ACTIVE, Rsvp._state == state
         )
 
     def rsvp_counts(self) -> dict[str, int]:
+        # pylint: disable=protected-access
         return {
             row[0]: row[1]
-            for row in db.session.query(
-                Rsvp._state,  # pylint: disable=protected-access
-                sa.func.count(Rsvp._state),  # pylint: disable=protected-access
-            )
+            for row in db.session.query(Rsvp._state, sa.func.count(Rsvp._state))
             .join(Account)
             .filter(Account.state.ACTIVE, Rsvp.project == self)
-            .group_by(Rsvp._state)  # pylint: disable=protected-access
+            .group_by(Rsvp._state)
             .all()
         }
 
@@ -956,13 +1029,12 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         self.start_at = self.schedule_start_at
         self.end_at = self.schedule_end_at
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
-        roles.add('reader')
-        return roles
+    @role_check('reader')
+    def has_reader_role(
+        self, _actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Unconditionally grant reader role (for now)."""
+        return True
 
     def is_safe_to_delete(self) -> bool:
         """Return True if project has no proposals."""
@@ -1083,6 +1155,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     sessions_with_video: DynamicMapped[Session] = with_roles(
         relationship(
             lazy='dynamic',
+            order_by=lambda: Session.start_at.desc(),
             primaryjoin=lambda: sa.and_(
                 Project.id == Session.project_id,
                 Session.video_id.is_not(None),
@@ -1347,14 +1420,14 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
                         session_dates_dict[date]['day_start_at']
                         .astimezone(self.timezone)
                         .strftime('%I:%M %p')
-                        if date in session_dates_dict.keys()
+                        if date in session_dates_dict
                         else None
                     ),
                     'day_end_at': (
                         session_dates_dict[date]['day_end_at']
                         .astimezone(self.timezone)
                         .strftime('%I:%M %p %Z')
-                        if date in session_dates_dict.keys()
+                        if date in session_dates_dict
                         else None
                     ),
                 }
@@ -1408,11 +1481,10 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
 
         param bool desc: Use descending order (default True)
         """
-        clause = sa.case(
+        return sa.case(
             (cls.start_at.is_not(None), cls.start_at),
             else_=cls.published_at,
         )
-        return clause
 
     @classmethod
     def all_unsorted(cls) -> Query[Self]:
@@ -1424,7 +1496,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         )
 
     @classmethod
-    def all(cls) -> Query[Self]:  # noqa: A003
+    def all(cls) -> Query[Self]:
         """Return all published projects, ordered by date."""
         return cls.all_unsorted().order_by(cls.order_by_date())
 
@@ -1575,6 +1647,7 @@ if TYPE_CHECKING:
     from .saved import SavedProject
     from .sync_ticket import TicketClient, TicketEvent, TicketParticipant, TicketType
 
+# MARK: Additional column properties
 
 # Whether the project has any featured proposals. Returns `None` instead of
 # a boolean if the project does not have any proposal.

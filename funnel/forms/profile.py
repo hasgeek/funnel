@@ -13,6 +13,7 @@ __all__ = [
     'ProfileLogoForm',
     'ProfileBannerForm',
     'ProfileTransitionForm',
+    'FollowForm',
 ]
 
 
@@ -61,6 +62,10 @@ class ProfileForm(OrganizationForm):
     def __post_init__(self) -> None:
         """Prepare form for use."""
         self.logo_url.profile = self.account.name or self.account.buid
+        if self.account.is_user_profile:
+            self.make_for_user()
+        if not self.account.is_verified:
+            del self.description
 
     def make_for_user(self) -> None:
         """Customise form for a user account."""
@@ -148,3 +153,10 @@ class ProfileBannerForm(forms.Form):
         """Prepare form for use."""
         self.banner_image_url.widget_type = 'modal'
         self.banner_image_url.profile = self.account.name or self.account.buid
+
+
+@Account.forms('follow')
+class FollowForm(forms.Form):
+    """Form for following or unfollowing an account."""
+
+    follow = forms.BooleanField(__("Follow?"))

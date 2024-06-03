@@ -55,7 +55,7 @@
                     <p class="mui--text-light mui--text-caption zero-bottom-margin">
                       {% if orgmem.is_owner %}
                         {% trans %}Owner{% endtrans %}
-                      {% else %}
+                      {% elif orgmem.is_admin %}
                         {% trans %}Admin{% endtrans %}
                       {% endif %}
                     </p>

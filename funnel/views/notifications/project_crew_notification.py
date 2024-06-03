@@ -18,13 +18,11 @@ from ...models import (
     Notification,
     NotificationRecipient,
     Project,
-    ProjectCrewMembershipNotification,
-    ProjectCrewMembershipRevokedNotification,
+    ProjectCrewNotification,
+    ProjectCrewRevokedNotification,
     ProjectMembership,
     sa,
 )
-from ...transports.sms import OneLineTemplate
-from ..helpers import shortlink
 from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotification
 
 
@@ -751,26 +749,9 @@ class RenderShared:
             actor=(actor.pickername if actor is not None else _("(unknown)")),
         )
 
-    def sms(self) -> OneLineTemplate:
-        """SMS notification."""
-        actor = self.membership_actor()
-        return OneLineTemplate(
-            text1=self.activity_template().format(
-                user=self.membership.member.pickername,
-                project=self.project.joined_title,
-                actor=(actor.pickername if actor is not None else _("(unknown)")),
-            ),
-            url=shortlink(
-                self.project.url_for(
-                    'crew', _external=True, **self.tracking_tags('sms')
-                ),
-                shorter=True,
-            ),
-        )
 
-
-@ProjectCrewMembershipNotification.renderer
-class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
+@ProjectCrewNotification.renderer
+class RenderProjectCrewNotification(RenderShared, RenderNotification):
     """Render a notification for project crew invite/add/amend."""
 
     aliases = {'document': 'project', 'fragment': 'membership'}
@@ -786,22 +767,22 @@ class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
         """Actual actor who granted (or edited) the membership, for the template."""
         actor = (membership or self.membership).granted_by
         if TYPE_CHECKING:
-            assert actor is not None  # nosec B101
+            assert actor is not None
         return actor
 
     def web(self) -> str:
         return render_template(
-            'notifications/project_crew_membership_granted_web.html.jinja2', view=self
+            'notifications/project_crew_granted_web.html.jinja2', view=self
         )
 
     def email_content(self) -> str:
         return render_template(
-            'notifications/project_crew_membership_granted_email.html.jinja2', view=self
+            'notifications/project_crew_granted_email.html.jinja2', view=self
         )
 
 
-@ProjectCrewMembershipRevokedNotification.renderer
-class RenderProjectCrewMembershipRevokedNotification(RenderShared, RenderNotification):
+@ProjectCrewRevokedNotification.renderer
+class RenderProjectCrewRevokedNotification(RenderShared, RenderNotification):
     """Render a notification for project crew revocation."""
 
     aliases = {'document': 'project', 'fragment': 'membership'}
@@ -818,11 +799,11 @@ class RenderProjectCrewMembershipRevokedNotification(RenderShared, RenderNotific
     def web(self) -> str:
         """Render for web."""
         return render_template(
-            'notifications/project_crew_membership_revoked_web.html.jinja2', view=self
+            'notifications/project_crew_revoked_web.html.jinja2', view=self
         )
 
     def email_content(self) -> str:
         """Render email content."""
         return render_template(
-            'notifications/project_crew_membership_revoked_email.html.jinja2', view=self
+            'notifications/project_crew_revoked_email.html.jinja2', view=self
         )

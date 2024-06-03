@@ -15,13 +15,15 @@ def test_open_homepage(
     page: Page,
     db_session: scoped_session,
     org_uu: models.Organization,
-):
+) -> None:
     page.goto(live_server.url)
     expect(page).to_have_title(re.compile("Test Hasgeek"))
     expect(page.get_by_text("Past sessions")).to_be_visible()
 
 
-def test_transport_mock_sms(live_server: LiveServerProtocol, page: Page, app: Flask):
+def test_transport_mock_sms(
+    live_server: LiveServerProtocol, page: Page, app: Flask
+) -> None:
     page.goto(app.url_for('login'))
     textbox = page.locator('#username')
     textbox.fill("8123456789")

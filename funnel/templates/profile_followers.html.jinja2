@@ -1,0 +1,63 @@
+{%- if not request_wants.html_fragment -%}
+  {% extends "profile_layout.html.jinja2" %}
+{%- else -%}
+  {% extends "followers_list.html.jinja2" %}
+{% endif %}
+
+{%- block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ webpack('css/index.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ webpack('css/profile.css') }}" />
+  {% if featured_project and featured_project.schedule_start_at -%}
+    <link rel="stylesheet" type="text/css" href="{{ webpack('css/schedule.css') }}"/>
+  {%- endif %}
+  <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+       "@type" : "WebSite",
+       "name" : {{ config['SITE_TITLE']|tojson }},
+       "url" : {{ url_for('index', _external=true)|tojson }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ url_for('search', _external=true) }}?q={query}",
+        "query-input": "required name=query"
+      }
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Organization",
+      "name" : {{ profile.title|tojson }},
+      {%- if profile.banner_image_url.url %}
+      "logo" : {{ profile.banner_image_url.url|tojson }},
+      {%- elif profile.logo_url.url %}
+      "logo" : {{ profile.logo_url.url|tojson }},
+      {% endif %}
+      "url" : {{ profile.url_for(_external=true)|tojson }}
+    }
+  </script>
+{%- endblock pageheaders %}
+
+{% block bodyattrs %}class="bg-primary no-sticky-header mobile-header"{% endblock bodyattrs %}
+
+{% block baseheadline %}
+  {{ profile_header(profile, class="mui--hidden-xs mui--hidden-sm", current_page="followers", title=_("Followers")) }}
+{% endblock baseheadline %}
+
+{% block basecontent %}
+  <div class="bg-accent">
+    <div class="mui-container">
+      <div class="page-content">
+        <div class="grid">
+          <div class="grid__col-xs-12">
+            <h2 class="project-headline">{% trans %}Followers{% endtrans %}</h2>
+            <ul class="mui-list--unstyled list--border">
+              <li hx-get="{{ profile.url_for('followers', page=1) }}" hx-trigger="intersect" hx-swap="outerHTML"></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock basecontent %}

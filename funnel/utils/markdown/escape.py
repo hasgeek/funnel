@@ -1,12 +1,22 @@
 """Markdown escaper."""
 
+# pyright: reportAssignmentType=false
 from __future__ import annotations
 
 import re
 import string
 from collections.abc import Callable, Iterable, Mapping
 from functools import wraps
-from typing import Any, Concatenate, ParamSpec, Self, SupportsIndex, TypeVar, cast
+from typing import (
+    Any,
+    Concatenate,
+    ParamSpec,
+    Self,
+    SupportsIndex,
+    TypeVar,
+    cast,
+    no_type_check,
+)
 
 __all__ = ['MarkdownString', 'markdown_escape']
 
@@ -87,13 +97,12 @@ def _escape_argspec(
     return obj
 
 
+@no_type_check  # For TypeGuard, since this is used within class definition below
 def _simple_escaping_wrapper(
-    func: Callable[Concatenate[Any, _P], str]
+    func: Callable[Concatenate[Any, _P], str],
 ) -> Callable[Concatenate[Any, _P], MarkdownString]:
     @wraps(func)
-    def wrapped(
-        self: MarkdownString, *args: _P.args, **kwargs: _P.kwargs
-    ) -> MarkdownString:
+    def wrapped(self: Any, *args: _P.args, **kwargs: _P.kwargs) -> MarkdownString:
         _escape_argspec(cast(list, args), enumerate(args), self.escape)
         _escape_argspec(kwargs, kwargs.items(), self.escape)
         return self.__class__(func(self, *args, **kwargs))
@@ -108,7 +117,7 @@ class MarkdownString(str):
 
     def __new__(
         cls, base: Any = '', encoding: str | None = None, errors: str = 'strict'
-    ) -> MarkdownString:
+    ) -> Self:
         if hasattr(base, '__markdown__'):
             base = base.__markdown__()
 
@@ -142,7 +151,7 @@ class MarkdownString(str):
             return cls(dunder_markdown())
         return cls(markdown_escape_re.sub(r'\\\1', text))
 
-    # These additional methods are borrowed from the implementation in markupsafe
+    # These additional methods are borrowed from the implementation in MarkupSafe
 
     def __add__(self, other: Any) -> Self:
         if isinstance(other, str) or hasattr(other, '__markdown__'):
@@ -212,25 +221,20 @@ class MarkdownString(str):
     title = _simple_escaping_wrapper(str.title)  # type: ignore[assignment]
     lower = _simple_escaping_wrapper(str.lower)  # type: ignore[assignment]
     upper = _simple_escaping_wrapper(str.upper)  # type: ignore[assignment]
-    replace = _simple_escaping_wrapper(str.replace)  # type: ignore[assignment]
-    ljust = _simple_escaping_wrapper(str.ljust)  # type: ignore[assignment]
-    rjust = _simple_escaping_wrapper(str.rjust)  # type: ignore[assignment]
-    lstrip = _simple_escaping_wrapper(str.lstrip)  # type: ignore[assignment]
-    rstrip = _simple_escaping_wrapper(str.rstrip)  # type: ignore[assignment]
-    center = _simple_escaping_wrapper(str.center)  # type: ignore[assignment]
-    strip = _simple_escaping_wrapper(str.strip)  # type: ignore[assignment]
-    translate = _simple_escaping_wrapper(str.translate)  # type: ignore[assignment]
+    replace = _simple_escaping_wrapper(str.replace)
+    ljust = _simple_escaping_wrapper(str.ljust)
+    rjust = _simple_escaping_wrapper(str.rjust)
+    lstrip = _simple_escaping_wrapper(str.lstrip)
+    rstrip = _simple_escaping_wrapper(str.rstrip)
+    center = _simple_escaping_wrapper(str.center)
+    strip = _simple_escaping_wrapper(str.strip)
+    translate = _simple_escaping_wrapper(str.translate)
     expandtabs = _simple_escaping_wrapper(str.expandtabs)  # type: ignore[assignment]
     swapcase = _simple_escaping_wrapper(str.swapcase)  # type: ignore[assignment]
-    zfill = _simple_escaping_wrapper(str.zfill)  # type: ignore[assignment]
+    zfill = _simple_escaping_wrapper(str.zfill)
     casefold = _simple_escaping_wrapper(str.casefold)  # type: ignore[assignment]
-
-    removeprefix = _simple_escaping_wrapper(  # type: ignore[assignment]
-        str.removeprefix
-    )
-    removesuffix = _simple_escaping_wrapper(  # type: ignore[assignment]
-        str.removesuffix
-    )
+    removeprefix = _simple_escaping_wrapper(str.removeprefix)
+    removesuffix = _simple_escaping_wrapper(str.removesuffix)
 
     def partition(self, sep: str) -> tuple[Self, Self, Self]:
         left, sep, right = super().partition(self.escape(sep))
@@ -246,7 +250,7 @@ class MarkdownString(str):
 
     rpartition.__doc__ = str.rpartition.__doc__
 
-    def format(self, *args: Any, **kwargs: Any) -> Self:  # noqa: A003
+    def format(self, *args: Any, **kwargs: Any) -> Self:
         formatter = _MarkdownEscapeFormatter(self.escape)
         return self.__class__(formatter.vformat(self, args, kwargs))
 
@@ -254,7 +258,8 @@ class MarkdownString(str):
 
     # pylint: disable=redefined-builtin
     def format_map(
-        self, map: Mapping[str, Any]  # type: ignore[override]  # noqa: A002
+        self,
+        map: Mapping[str, Any],  # type: ignore[override]  # noqa: A002
     ) -> Self:
         formatter = _MarkdownEscapeFormatter(self.escape)
         return self.__class__(formatter.vformat(self, (), map))

@@ -3,7 +3,7 @@
 # pylint: disable=redefined-outer-name
 
 from base64 import urlsafe_b64decode
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from unittest.mock import patch
 from urllib.parse import urlsplit
@@ -16,13 +16,13 @@ from werkzeug.routing import BuildError
 import funnel.views.helpers as vhelpers
 
 
-@pytest.fixture()
+@pytest.fixture
 def testapp() -> Flask:
     """Create a test app with an `index` view."""
     new_app = Flask(__name__)
 
     @new_app.route('/')
-    def index():  # skipcq: PTC-W0065
+    def index() -> str:  # skipcq: PTC-W0065
         """Unused index view, only referred to via url_for."""
         return 'test_index'
 
@@ -36,7 +36,7 @@ class MockUrandom:
         self.sequence = sequence
         self.counter = 0
 
-    def __call__(self, length: int) -> Any:
+    def __call__(self, length: int) -> Any:  # noqa: ARG002
         value = self.sequence[self.counter % len(self.sequence)]
         self.counter += 1
         return value
@@ -164,7 +164,7 @@ def test_cached_token() -> None:
     """Test simplistic use of cached tokens (for SMS unsubscribe)."""
     test_payload = {
         'hello': 'world',
-        'dt_aware': datetime(2010, 12, 15, tzinfo=timezone.utc),
+        'dt_aware': datetime(2010, 12, 15, tzinfo=UTC),
         'dt_naive': datetime(2010, 12, 15),
     }
     token = vhelpers.make_cached_token(test_payload)
@@ -192,13 +192,13 @@ def test_cached_token_profanity_reuse() -> None:
         wraps=mockids,
     ) as mockid:
         token = vhelpers.make_cached_token(test_payload)
-        assert token == 'okay'  # nosec
+        assert token == 'okay'  # # noqa: S105
         # Profanity filter skipped the first candidate
         assert mockid.call_count == 2
         mockid.reset_mock()
 
         token = vhelpers.make_cached_token(test_payload)
-        assert token == 'new0'  # nosec
+        assert token == 'new0'  # # noqa: S105
         # Dupe filter passed over the second 'okay'
         assert mockid.call_count == 2
         mockid.reset_mock()

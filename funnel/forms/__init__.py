@@ -1,6 +1,6 @@
 """Forms provide an interface between views and models, validating data before save."""
 
-# --- Everything below this line is auto-generated using `make initpy` -----------------
+# MARK: Everything below this line is auto-generated using `make initpy` ---------------
 
 from . import (
     account,
@@ -92,6 +92,7 @@ from .notification import (
 )
 from .organization import OrganizationForm, TeamForm
 from .profile import (
+    FollowForm,
     ProfileBannerForm,
     ProfileForm,
     ProfileLogoForm,
@@ -99,6 +100,7 @@ from .profile import (
 )
 from .project import (
     CfpForm,
+    ProjectAssignParentForm,
     ProjectBannerForm,
     ProjectCfpTransitionForm,
     ProjectFeaturedForm,
@@ -147,6 +149,7 @@ __all__ = [
     "EmailOtpForm",
     "EmailPrimaryForm",
     "FORM_SCHEMA_PLACEHOLDER",
+    "FollowForm",
     "LabelForm",
     "LabelOptionForm",
     "LoginForm",
@@ -180,6 +183,7 @@ __all__ = [
     "ProfileForm",
     "ProfileLogoForm",
     "ProfileTransitionForm",
+    "ProjectAssignParentForm",
     "ProjectBannerForm",
     "ProjectBoxofficeForm",
     "ProjectCfpTransitionForm",

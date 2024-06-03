@@ -55,7 +55,7 @@ def test_username_available(
     assert rv.get_json() == {
         'status': 'error',
         'error': 'validation_failure',
-        'error_description': "This username has been taken",
+        'error_description': "This username is taken",
     }
 
     # Mis-formatted usernames will render an explanatory error
@@ -73,100 +73,257 @@ def test_username_available(
 
 
 @pytest.mark.parametrize(
-    ('user_agent', 'output'),
+    ('user_agent', 'client_hints', 'output'),
     [
         (
-            'Mozilla/5.0 (Linux; Android 12; LE2121) AppleWebKit/537.36'
-            ' (KHTML, like Gecko) Chrome/101.0.4951.48 Mobile Safari/537.36',
+            'Mozilla/5.0 (Linux; Android 12; LE2121) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.48 Mobile Safari/537.36',
+            None,
             {
                 'browser': 'Chrome Mobile 101.0.4951',
-                'os_device': 'OnePlus LE2121 (Android 12)',
+                'device_platform': 'OnePlus LE2121 (Android 12)',
+                'mobile': True,
             },
         ),
         (
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-            ' (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
-            {'browser': 'Chrome 104.0.0', 'os_device': 'macOS'},
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
+            None,
+            {'browser': 'Chrome 104.0.0', 'device_platform': 'macOS', 'mobile': False},
         ),
         (
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            ' (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36',
-            {'browser': 'Chrome 91.0.4472', 'os_device': 'Windows 10'},
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36',
+            None,
+            {
+                'browser': 'Chrome 91.0.4472',
+                'device_platform': 'Windows',
+                'mobile': False,
+            },
         ),
         (
-            'Mozilla/5.0 (X11; CrOS x86_64 13904.97.0) AppleWebKit/537.36'
-            ' (KHTML, like Gecko) Chrome/91.0.4472.167 Safari/537.36',
-            {'browser': 'Chrome 91.0.4472', 'os_device': 'Chrome OS 13904.97.0'},
+            'Mozilla/5.0 (X11; CrOS x86_64 13904.97.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.167 Safari/537.36',
+            None,
+            {
+                'browser': 'Chrome 91.0.4472',
+                'device_platform': 'Chrome OS 13904.97.0',
+                'mobile': False,
+            },
         ),
         (
             'python-requests/2.2.1 CPython/3.4.3 Linux/3.13.0-121-generic',
-            {'browser': 'Python Requests 2.2', 'os_device': 'Linux 3.13.0'},
+            None,
+            {
+                'browser': 'Python Requests 2.2',
+                'device_platform': 'Linux 3.13.0',
+                'mobile': False,
+            },
         ),
         (
-            'Mozilla/5.0 (Linux; Android 11) AppleWebKit/537.36 (KHTML, like Gecko)'
-            ' Chrome/92.0.4515.115 Mobile Safari/537.36',
-            {'browser': 'Chrome Mobile 92.0.4515', 'os_device': 'Android 11'},
+            'Mozilla/5.0 (Linux; Android 11) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.115 Mobile Safari/537.36',
+            None,
+            {
+                'browser': 'Chrome Mobile 92.0.4515',
+                'device_platform': 'Android 11',
+                'mobile': True,
+            },
         ),
         (
             'Mozilla/5.0 (Android 10; Mobile; rv:92.0) Gecko/92.0 Firefox/92.0',
-            {'browser': 'Firefox Mobile 92.0', 'os_device': 'Android 10'},
+            None,
+            {
+                'browser': 'Firefox Mobile 92.0',
+                'device_platform': 'Android',
+                'mobile': True,
+            },
         ),
         (
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            ' (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 Edg/104.0.1293.63',
-            {'browser': 'Edge 104.0.1293', 'os_device': 'Windows 10'},
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 Edg/104.0.1293.63',
+            None,
+            {
+                'browser': 'Edge 104.0.1293',
+                'device_platform': 'Windows',
+                'mobile': False,
+            },
         ),
         (
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_5_1) AppleWebKit/537.36'
-            ' (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 Edg/104.0.1293.63',
-            {'browser': 'Edge 104.0.1293', 'os_device': 'macOS 12.5.1'},
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_5_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 Edg/104.0.1293.63',
+            None,
+            {
+                'browser': 'Edge 104.0.1293',
+                'device_platform': 'macOS 12.5.1',
+                'mobile': False,
+            },
         ),
         (
-            'Mozilla/5.0 (Linux; Android 10; Pixel 3 XL) AppleWebKit/537.36'
-            ' (KHTML, like Gecko) Chrome/104.0.5112.97 Mobile Safari/537.36'
-            ' EdgA/100.0.1185.50',
+            'Mozilla/5.0 (Linux; Android 10; Pixel 3 XL) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.97 Mobile Safari/537.36 EdgA/100.0.1185.50',
+            None,
             {
                 'browser': 'Edge Mobile 100.0.1185',
-                'os_device': 'Google Pixel 3 XL (Android 10)',
+                'device_platform': 'Google Pixel 3 XL (Android)',
+                'mobile': True,
             },
         ),
         (
-            'Mozilla/5.0 (iPhone; CPU iPhone OS 15_6_1 like Mac OS X)'
-            ' AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0'
-            ' EdgiOS/100.1185.50 Mobile/15E148 Safari/605.1.15',
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 15_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 EdgiOS/100.1185.50 Mobile/15E148 Safari/605.1.15',
+            None,
             {
                 'browser': 'Edge Mobile 100.1185.50',
-                'os_device': 'Apple iPhone (iOS 15.6.1)',
+                'device_platform': 'Apple iPhone (iOS 15.6.1)',
+                'mobile': True,
             },
         ),
         (
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; Xbox; Xbox One)'
-            ' AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
-            ' Edge/44.18363.8131',
-            {'browser': 'Edge 44.18363.8131', 'os_device': 'Windows 10'},
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; Xbox; Xbox One) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 Edge/44.18363.8131',
+            None,
+            {
+                'browser': 'Edge 44.18363.8131',
+                'device_platform': 'Windows',
+                'mobile': False,
+            },
         ),
         (
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            ' (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 OPR/90.0.4480.54',
-            {'browser': 'Opera 90.0.4480', 'os_device': 'Windows 10'},
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 OPR/90.0.4480.54',
+            None,
+            {
+                'browser': 'Opera 90.0.4480',
+                'device_platform': 'Windows',
+                'mobile': False,
+            },
         ),
         (
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)'
-            ' Chrome/104.0.0.0 Safari/537.36 OPR/90.0.4480.54',
-            {'browser': 'Opera 90.0.4480', 'os_device': 'Linux'},
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 OPR/90.0.4480.54',
+            None,
+            {'browser': 'Opera 90.0.4480', 'device_platform': 'Linux', 'mobile': False},
         ),
         (
-            'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36'
-            ' (KHTML, like Gecko) Chrome/104.0.0.0 YaBrowser/22.7.3 Yowser/2.5'
-            ' Safari/537.36',
-            {'browser': 'Yandex Browser 22.7.3', 'os_device': 'Windows 10'},
+            'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 YaBrowser/22.7.3 Yowser/2.5 Safari/537.36',
+            None,
+            {
+                'browser': 'Yandex Browser 22.7.3',
+                'device_platform': 'Windows',
+                'mobile': False,
+            },
+        ),
+        (
+            'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+            None,
+            {
+                'browser': 'Chrome Mobile 124.0.0',
+                'device_platform': 'Android',
+                'mobile': True,
+            },
+        ),
+        (
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            {
+                'sec-ch-ua': '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+                'sec-ch-ua-model': '""',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"macOS"',
+                'sec-ch-ua-platform-version': '"14.4.1"',
+                'sec-ch-ua-full-version-list': '"Chromium";v="124.0.6367.118", "Google Chrome";v="124.0.6367.118", "Not-A.Brand";v="99.0.0.0"',
+            },
+            {
+                'browser': 'Google Chrome 124.0.6367.118',
+                'device_platform': 'macOS 14.4.1',
+                'mobile': False,
+            },
+        ),
+        (
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.35',
+            {
+                'sec-ch-ua': '"Microsoft Edge";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
+                'sec-ch-ua-model': '""',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"macOS"',
+                'sec-ch-ua-platform-version': '"14.4.1"',
+                'sec-ch-ua-full-version-list': '"Microsoft Edge";v="113.0.1774.35", "Chromium";v="113.0.5672.63", "Not-A.Brand";v="24.0.0.0"',
+            },
+            {
+                'browser': 'Microsoft Edge 113.0.1774.35',
+                'device_platform': 'macOS 14.4.1',
+                'mobile': False,
+            },
+        ),
+        (
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            {
+                'sec-ch-ua': '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+                'sec-ch-ua-model': '""',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"macOS"',
+                'sec-ch-ua-platform-version': '"14.4.1"',
+            },
+            {
+                'browser': 'Google Chrome 124',
+                'device_platform': 'macOS 14.4.1',
+                'mobile': False,
+            },
+        ),
+        (
+            'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+            {
+                'sec-ch-ua': '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+                'sec-ch-ua-mobile': '?1',
+                'sec-ch-ua-model': '"Pixel 5"',
+                'sec-ch-ua-platform': '"Android"',
+                'sec-ch-ua-platform-version': '"13"',
+            },
+            {
+                'browser': 'Google Chrome 124',
+                'device_platform': 'Pixel 5 (Android 13)',
+                'mobile': True,
+            },
+        ),
+        (
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15',
+            None,
+            {'browser': 'Safari 17.4.1', 'device_platform': 'macOS', 'mobile': False},
+        ),
+        (
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0',
+            None,
+            {'browser': 'Firefox 121.0', 'device_platform': 'macOS', 'mobile': False},
+        ),
+        # Examples from https://wicg.github.io/ua-client-hints/#examples
+        (
+            '',
+            {
+                'sec-ch-ua': '"Examplary Browser"; v="73", ";Not?A.Brand"; v="27"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"Windows"',
+            },
+            {
+                'browser': 'Examplary Browser 73',
+                'device_platform': 'Windows',
+                'mobile': False,
+            },
+        ),
+        (
+            '',
+            {
+                'sec-ch-ua': '"Examplary Browser"; v="73", ";Not?A.Brand"; v="27"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"Windows"',
+                'sec-ch-ua-platform-version': '"14.0.0"',
+            },
+            {
+                'browser': 'Examplary Browser 73',
+                'device_platform': 'Windows 11',
+                'mobile': False,
+            },
         ),
     ],
 )
-def test_user_agent_details(user_agent: str, output: dict) -> None:
+def test_user_agent_details(
+    user_agent: str, client_hints: dict | None, output: dict
+) -> None:
     assert (
         user_agent_details(
-            cast(models.LoginSession, SimpleNamespace(user_agent=user_agent))
+            cast(
+                models.LoginSession,
+                SimpleNamespace(
+                    user_agent=user_agent, user_agent_client_hints=client_hints
+                ),
+            )
         )
         == output
     )

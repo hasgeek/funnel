@@ -41,11 +41,11 @@ RINCEWIND_EMAIL = 'rincewind@example.com'
 LOGIN_USERNAMES = [RINCEWIND_USERNAME, RINCEWIND_EMAIL, RINCEWIND_PHONE]
 
 # Test credentials
-COMPLEX_TEST_PASSWORD = 'f7kN{$a58p^AmL@$'  # nosec
-WRONG_PASSWORD = 'wrong-password'  # nosec
-BLANK_PASSWORD = ''  # nosec
-WEAK_TEST_PASSWORD = 'password'  # nosec
-TEST_OAUTH_TOKEN = 'test_oauth_token'  # nosec
+COMPLEX_TEST_PASSWORD = 'f7kN{$a58p^AmL@$'  # noqa: S105
+WRONG_PASSWORD = 'wrong-password'  # noqa: S105
+BLANK_PASSWORD = ''
+WEAK_TEST_PASSWORD = 'password'  # noqa: S105
+TEST_OAUTH_TOKEN = 'test_oauth_token'  # noqa: S105
 
 # Functions to patch to capture OTPs
 PATCH_SMS_SEND = 'funnel.transports.sms.send_sms'
@@ -63,27 +63,27 @@ PATCH_LOGINHUB_CALLBACK = 'funnel.loginproviders.github.GitHubProvider.callback'
 @pytest.fixture(scope='session')
 def loginhub() -> Generator[LoginProvider, None, None]:
     """Fake login provider for tests."""
-    login_registry['loginhub'] = GitHubProvider(  # nosec
+    login_registry['loginhub'] = GitHubProvider(
         'loginhub',
         "Login Hub",
         at_login=True,
         priority=False,
         icon='github',
         key='no-key',
-        secret='no-secret',
+        secret='no-secret',  # noqa: S106
     )
     yield login_registry['loginhub']
     del login_registry['loginhub']
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_rincewind_with_password(user_rincewind: models.User) -> models.User:
     """User fixture with a password."""
     user_rincewind.password = COMPLEX_TEST_PASSWORD
     return user_rincewind
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_rincewind_phone(
     db_session: scoped_session, user_rincewind: models.User
 ) -> models.AccountPhone:
@@ -93,7 +93,7 @@ def user_rincewind_phone(
     return accountphone
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_rincewind_email(
     db_session: scoped_session, user_rincewind: models.User
 ) -> models.AccountEmail:
@@ -103,14 +103,14 @@ def user_rincewind_email(
     return accountemail
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_rincewind_with_weak_password(user_rincewind: models.User) -> models.User:
     """User fixture with a weak password."""
     user_rincewind.password = WEAK_TEST_PASSWORD
     return user_rincewind
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_loginhub_do(loginhub: LoginProvider) -> Generator[Callable, None, None]:
     """Mock LoginHub login provider's do method."""
     with patch(
@@ -120,7 +120,7 @@ def mock_loginhub_do(loginhub: LoginProvider) -> Generator[Callable, None, None]
         yield mock
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_loginhub_callback(
     loginhub: Iterator[LoginProvider],
 ) -> Generator[Callable, None, None]:
@@ -437,7 +437,7 @@ def test_user_has_sudo(
     assert rv.status_code == 303
 
 
-@pytest.mark.dbcommit()
+@pytest.mark.dbcommit
 def test_user_password_sudo_prompt(
     client: TestClient,
     login: LoginFixtureProtocol,
@@ -452,7 +452,7 @@ def test_user_password_sudo_prompt(
         assert rv.form('form-sudo-password') is not None
 
 
-@pytest.mark.dbcommit()
+@pytest.mark.dbcommit
 @pytest.mark.usefixtures('user_rincewind_phone')
 def test_user_otp_sudo_timedout(
     client: TestClient, login: LoginFixtureProtocol, user_rincewind: models.User

@@ -3,22 +3,24 @@
 import csv
 import io
 from dataclasses import dataclass
+from datetime import timedelta
 from json import JSONDecodeError
 from types import SimpleNamespace
 
-from flask import Response, abort, current_app, flash, render_template, request
+from flask import Response, abort, current_app, flash, request
 from flask_babel import format_number
 from markupsafe import Markup
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
-from coaster.utils import getbool, make_name
+from coaster.utils import getbool, make_name, utcnow
 from coaster.views import get_next_url, render_with, requires_roles, route
 
 from .. import app
 from ..auth import current_auth
 from ..forms import (
     CfpForm,
+    ProjectAssignParentForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
@@ -33,6 +35,7 @@ from ..models import (
     Account,
     Project,
     ProjectRsvpStateEnum,
+    Proposal,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
     Rsvp,
@@ -43,7 +46,8 @@ from ..models import (
 )
 from ..signals import project_data_change, project_role_change
 from ..typing import ReturnRenderWith, ReturnView
-from .helpers import html_in_json, render_redirect
+from .decorators import idempotent_request
+from .helpers import FormLayoutTemplate, html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import (
     requires_login,
@@ -52,6 +56,18 @@ from .login_session import (
 )
 from .mixins import AccountViewBase, DraftViewProtoMixin, ProjectViewBase
 from .notification import dispatch_notification
+
+# MARK: Templates ----------------------------------------------------------------------
+
+
+class ProjectCfpTemplate(FormLayoutTemplate, template='project_cfp.html.jinja2'):
+    project: Project
+    form: CfpForm
+
+
+# MARK: Helpers ------------------------------------------------------------------------
+
+TIMEDELTA_1DAY = timedelta(days=1)
 
 
 @dataclass
@@ -232,6 +248,19 @@ def feature_project_has_no_sessions(obj: Project) -> bool:
     return bool(obj.state.PUBLISHED and not obj.start_at)
 
 
+@Project.features('show_featured_schedule', property=True)
+def project_show_featured_schedule(obj: Project) -> bool:
+    """Show full schedule on homepage only when it's live or upcoming in 24 hours."""
+    now = utcnow()
+    return bool(
+        obj.start_at  # If this is None, then schedule_start_at will also be None
+        and obj.end_at  # This is to make static type checkers happy
+        and obj.schedule_start_at  # Explicitly check for Session objects existing
+        and obj.start_at <= (now + TIMEDELTA_1DAY)
+        and now < obj.end_at
+    )
+
+
 @Project.features('comment_new')
 def feature_project_comment_new(obj: Project) -> bool:
     return obj.current_roles.participant
@@ -272,6 +301,19 @@ def project_register_button_text(obj: Project) -> str:
     if rsvp is not None and rsvp.state.YES:
         return _("Registered")
     return _("Register")
+
+
+@Project.views('buy_button_eyebrow_text')
+def project_buy_button_eyebrow_text(obj: Project) -> str:
+    custom_text = (
+        obj.boxoffice_data.get('buy_btn_eyebrow_txt') if obj.boxoffice_data else None
+    )
+    if not custom_text:
+        custom_text = _("Hybrid access (members only)")
+    return custom_text
+
+
+# MARK: Views --------------------------------------------------------------------------
 
 
 @Account.views('project_new')
@@ -324,7 +366,9 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'featured_proposals': [
                 _p.current_access(datasets=('without_parent', 'related'))
-                for _p in self.obj.proposals.filter_by(featured=True)
+                for _p in self.obj.proposals.filter(
+                    Proposal.state.PUBLIC, Proposal.featured.is_(True)
+                )
             ],
             'rsvp': self.obj.rsvp_for(current_auth.user),
         }
@@ -339,7 +383,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'submissions': [
                 _p.current_access(datasets=('without_parent', 'related'))
-                for _p in self.obj.proposals
+                for _p in self.obj.proposals.filter(Proposal.state.PUBLIC)
             ],
         }
 
@@ -471,8 +515,6 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                 db.session.commit()
 
             return render_redirect(self.obj.url_for())
-        # Reset nonce to avoid conflict with autosave
-        form.form_nonce.data = form.form_nonce.get_default()
         return render_form(
             form=form,
             title=_("Edit project"),
@@ -576,9 +618,10 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for('view_proposals'))
-        return render_template(
-            'project_cfp.html.jinja2', form=form, ref_id='form-cfp', project=self.obj
-        )
+
+        return ProjectCfpTemplate(
+            form=form, ref_id='form-cfp', project=self.obj
+        ).render_template()
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @requires_login
@@ -594,6 +637,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                 is_subscription=boxoffice_data.get('is_subscription', True),
                 register_form_schema=boxoffice_data.get('register_form_schema'),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
+                buy_btn_eyebrow_txt=boxoffice_data.get('buy_btn_eyebrow_txt', ''),
                 has_membership=boxoffice_data.get('has_membership', False),
             ),
             model=Project,
@@ -608,6 +652,9 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             )
             self.obj.boxoffice_data['register_button_txt'] = (
                 form.register_button_txt.data
+            )
+            self.obj.boxoffice_data['buy_btn_eyebrow_txt'] = (
+                form.buy_btn_eyebrow_txt.data
             )
             self.obj.boxoffice_data['has_membership'] = form.has_membership.data
             db.session.commit()
@@ -641,6 +688,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         return render_redirect(self.obj.url_for())
 
     @route('cfp_transition', methods=['POST'])
+    @idempotent_request()
     @requires_login
     @requires_roles({'editor'})
     def cfp_transition(self) -> ReturnView:
@@ -679,6 +727,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         }
 
     @route('register', methods=['POST'])
+    @idempotent_request()
     @requires_login
     def register(self) -> ReturnView:
         """Register for project as a participant."""
@@ -713,6 +762,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         return render_redirect(self.obj.url_for())
 
     @route('deregister', methods=['POST'])
+    @idempotent_request()
     @requires_login
     def deregister(self) -> ReturnView:
         """Unregister from project as a participant."""
@@ -805,12 +855,12 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         return self.get_rsvp_state_csv(RsvpStateEnum.MAYBE)
 
     @route('save', methods=['POST'])
+    @idempotent_request()
     @requires_login
     @requires_roles({'reader'})
     def save(self) -> ReturnView:
         """Save (bookmark) a project."""
         form = self.SavedProjectForm()
-        form.form_nonce.data = form.form_nonce.get_default()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
                 account=current_auth.user, project=self.obj
@@ -823,21 +873,15 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                     form.populate_obj(proj_save)
                     db.session.add(proj_save)
                     db.session.commit()
-            else:
-                if proj_save is not None:
-                    db.session.delete(proj_save)
-                    db.session.commit()
-            # Send new form nonce
-            return {'status': 'ok', 'form_nonce': form.form_nonce.data}
-        return (
-            {
-                'status': 'error',
-                'error': 'project_save_form_invalid',
-                'error_description': _("This page timed out. Reload and try again"),
-                'form_nonce': form.form_nonce.data,
-            },
-            400,
-        )
+            elif proj_save is not None:
+                db.session.delete(proj_save)
+                db.session.commit()
+            return {'status': 'ok'}
+        return {
+            'status': 'error',
+            'error': 'project_save_form_invalid',
+            'error_description': _("This page timed out. Reload and try again"),
+        }, 400
 
     @route('admin', methods=['GET', 'POST'])
     @render_with('project_admin.html.jinja2')
@@ -919,3 +963,16 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                 'message': _("This project is no longer featured"),
             }
         return render_redirect(get_next_url(referrer=True))
+
+    @route('assign_parent_project', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def assign_parent_project(self) -> ReturnView:
+        form = ProjectAssignParentForm(obj=self.obj, user=current_auth.user)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            return render_redirect(self.obj.url_for())
+        return render_form(
+            form=form, title=_("Assign a parent project"), submit=_("Assign")
+        )

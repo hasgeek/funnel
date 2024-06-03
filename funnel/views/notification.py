@@ -49,7 +49,7 @@ __all__ = [
 @NotificationFor.views('render', cached_property=True)
 def render_notification_recipient(obj: NotificationRecipient) -> RenderNotification:
     """Render web notifications for the user."""
-    return Notification.renderers[obj.notification.type](obj)
+    return Notification.renderers[obj.notification.type_](obj)
 
 
 @dataclass
@@ -137,8 +137,7 @@ class RenderNotification:
     Subclasses must be registered against the specific notification type like this::
 
         @MyNotification.renderer
-        class MyNotificationView(NotificationView):
-            ...
+        class MyNotificationView(NotificationView): ...
     """
 
     #: Aliases for document and fragment, to make render methods clearer
@@ -225,10 +224,10 @@ class RenderNotification:
             if self.notification.for_private_recipient:
                 # Do not include a timestamp when it's a private notification, as that
                 # can be used to identify the event
-                campaign = self.notification.type
+                campaign = self.notification.type_
             else:
                 campaign = (
-                    f'{self.notification.type}'
+                    f'{self.notification.type_}'
                     f'-{self.notification.created_at.strftime("%Y%m%d-%H%M")}'
                 )
         return {
@@ -258,7 +257,7 @@ class RenderNotification:
             # https://github.com/pylint-dev/pylint/issues/8486
             {
                 'buid': self.notification_recipient.recipient.buid,
-                'notification_type': self.notification.type,
+                'notification_type': self.notification.type_,
                 'transport': transport,
                 'hash': (
                     anchor.transport_hash
@@ -292,7 +291,7 @@ class RenderNotification:
             # https://github.com/pylint-dev/pylint/issues/8486
             {
                 'buid': self.notification_recipient.recipient.buid,
-                'notification_type': self.notification.type,
+                'notification_type': self.notification.type_,
                 'transport': transport,
                 'hash': (
                     anchor.transport_hash
@@ -356,7 +355,7 @@ class RenderNotification:
             in self.notification.role_provider_obj.current_roles
         )
 
-    # --- Overrideable render methods
+    # MARK: Overrideable render methods
 
     @property
     def actor(self) -> Account | None:
@@ -447,7 +446,7 @@ class RenderNotification:
         return self.text()
 
 
-# --- Dispatch functions ---------------------------------------------------------------
+# MARK: Dispatch functions -------------------------------------------------------------
 
 # This has four parts:
 # 1. Front function `dispatch_notification` is called from views or signal handlers. It
@@ -470,7 +469,7 @@ def dispatch_notification(*notifications: Notification) -> None:
 
         dispatch_notification(
             MyNotification(document=doc, fragment=None),
-            MyOtherNotification(document=doc, fragment=frag)
+            MyOtherNotification(document=doc, fragment=frag),
         )
 
     This function performs a database commit to ensure notifications are available to
@@ -499,15 +498,15 @@ def dispatch_notification(*notifications: Notification) -> None:
     )
     for notification in notifications:
         statsd.incr(
-            'notification.dispatch', tags={'notification_type': notification.type}
+            'notification.dispatch', tags={'notification_type': notification.type_}
         )
 
 
-# --- Transports -----------------------------------------------------------------------
+# MARK: Transports ---------------------------------------------------------------------
 
 
 def transport_worker_wrapper(
-    func: Callable[[NotificationRecipient, RenderNotification], None]
+    func: Callable[[NotificationRecipient, RenderNotification], None],
 ) -> Callable[[Sequence[tuple[int, UUID]]], None]:
     """Create working context for a notification transport dispatch worker."""
 
@@ -570,7 +569,7 @@ def dispatch_transport_email(
                     str(notification_recipient.notification.title),
                     # pylint: disable=consider-using-f-string
                     '{type}-notification.{domain}'.format(
-                        type=notification_recipient.notification.type,
+                        type=notification_recipient.notification.type_,
                         domain=app.config['DEFAULT_DOMAIN'],
                     ),
                     # pylint: enable=consider-using-f-string
@@ -625,7 +624,7 @@ def dispatch_transport_sms(
 # Add transport workers here as their worker methods are written
 transport_workers = {'email': dispatch_transport_email, 'sms': dispatch_transport_sms}
 
-# --- Notification background workers --------------------------------------------------
+# MARK: Notification background workers ------------------------------------------------
 
 DISPATCH_BATCH_SIZE = 10
 
@@ -651,14 +650,14 @@ def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -
                 statsd.incr(
                     'notification.recipient',
                     count=len(notification_recipient_ids),
-                    tags={'notification_type': notification.type},
+                    tags={'notification_type': notification.type_},
                 )
                 # Continue to the next batch
 
 
 @rqjob()
 def dispatch_notification_recipients_job(
-    notification_recipient_ids: Sequence[tuple[int, UUID]]
+    notification_recipient_ids: Sequence[tuple[int, UUID]],
 ) -> None:
     """Process notifications for users and enqueue transport delivery."""
     # TODO: Can this be a single query instead of a loop of queries?

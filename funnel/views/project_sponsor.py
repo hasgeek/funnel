@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from flask import abort, flash, render_template, request
+from flask import abort, flash, request
 
 from baseframe import _
 from baseframe.forms import Form
@@ -17,9 +17,28 @@ from ..auth import current_auth
 from ..forms import ProjectSponsorForm
 from ..models import Account, Project, ProjectSponsorMembership, db, sa_orm
 from ..typing import ReturnView
-from .helpers import render_redirect
+from .helpers import JinjaTemplate, jinja_undefined, render_redirect
 from .login_session import requires_login, requires_site_editor
 from .mixins import ProjectViewBase
+
+# MARK: Templates ----------------------------------------------------------------------
+
+
+# FIXME: This template seems to do multiple unrelated things given the optional args
+class ProjectSponsorPopupTemplate(
+    JinjaTemplate, template='project_sponsor_popup.html.jinja2'
+):
+    form: Form
+    action: str
+    ref_id: str
+    title: str = jinja_undefined(default=None)
+    message: str = jinja_undefined(default=None)
+    remove: bool = jinja_undefined(default=None)
+    project: Project = jinja_undefined(default=None)
+    sponsorship: ProjectSponsorMembership = jinja_undefined(default=None)
+
+
+# MARK: Views --------------------------------------------------------------------------
 
 
 def edit_sponsor_form(obj: ProjectSponsorMembership) -> ProjectSponsorForm:
@@ -41,24 +60,21 @@ class ProjectSponsorLandingView(ProjectViewBase):
         if request.method == 'POST':
             if form.validate_on_submit():
                 if TYPE_CHECKING:
-                    assert isinstance(form.member.data, Account)  # nosec
+                    assert isinstance(form.member.data, Account)
                 existing_sponsorship = ProjectSponsorMembership.query.filter(
                     ProjectSponsorMembership.is_active,
                     ProjectSponsorMembership.project == self.obj,
                     ProjectSponsorMembership.member == form.member.data,
                 ).one_or_none()
                 if existing_sponsorship is not None:
-                    return (
-                        {
-                            'status': 'error',
-                            'error_description': _(
-                                "{sponsor} is already a sponsor"
-                            ).format(sponsor=form.member.data.pickername),
-                            'errors': form.errors,
-                            'form_nonce': form.form_nonce.data,
-                        },
-                        400,
-                    )
+                    return {
+                        'status': 'error',
+                        'error_description': _("{sponsor} is already a sponsor").format(
+                            sponsor=form.member.data.pickername
+                        ),
+                        'errors': form.errors,
+                    }, 400
+
                 sponsor_membership = ProjectSponsorMembership(
                     project=self.obj,
                     granted_by=current_auth.user,
@@ -68,22 +84,18 @@ class ProjectSponsorLandingView(ProjectViewBase):
                 db.session.commit()
                 flash(_("Sponsor has been added"), 'info')
                 return render_redirect(self.obj.url_for())
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("Sponsor could not be added"),
-                    'errors': form.errors,
-                    'form_nonce': form.form_nonce.data,
-                },
-                400,
-            )
-        return render_template(
-            'project_sponsor_popup.html.jinja2',
+            return {
+                'status': 'error',
+                'error_description': _("Sponsor could not be added"),
+                'errors': form.errors,
+            }, 400
+
+        return ProjectSponsorPopupTemplate(
             project=self.obj,
             form=form,
             action=self.obj.url_for('add_sponsor'),
             ref_id='add_sponsor',
-        )
+        ).render_template()
 
     @route('reorder', methods=['POST'])
     @requestform('target', 'other', ('before', getbool))
@@ -153,23 +165,19 @@ class ProjectSponsorView(
                     return render_redirect(self.obj.project.url_for())
 
             else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_description': _("Sponsor could not be edited"),
-                        'errors': form.errors,
-                        'form_nonce': form.form_nonce.data,
-                    },
-                    400,
-                )
-        return render_template(
-            'project_sponsor_popup.html.jinja2',
+                return {
+                    'status': 'error',
+                    'error_description': _("Sponsor could not be edited"),
+                    'errors': form.errors,
+                }, 400
+
+        return ProjectSponsorPopupTemplate(
             project=self.obj.project,
             form=form,
             action=self.obj.url_for('edit'),
             ref_id='edit_sponsor',
             sponsorship=self.obj,
-        )
+        ).render_template()
 
     @route('remove', methods=['GET', "POST"])
     def remove(self) -> ReturnView:
@@ -181,18 +189,13 @@ class ProjectSponsorView(
                 flash(_("Sponsor has been removed"), 'info')
                 return render_redirect(self.obj.project.url_for())
 
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("Sponsor could not be removed"),
-                    'errors': form.errors,
-                    'form_nonce': form.form_nonce.data,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error_description': _("Sponsor could not be removed"),
+                'errors': form.errors,
+            }, 400
 
-        return render_template(
-            'project_sponsor_popup.html.jinja2',
+        return ProjectSponsorPopupTemplate(
             form=form,
             title=_("Remove sponsor?"),
             message=_("Remove ‘{sponsor}’ as a sponsor?").format(
@@ -201,4 +204,4 @@ class ProjectSponsorView(
             action=self.obj.url_for('remove'),
             ref_id='remove_sponsor',
             remove=True,
-        )
+        ).render_template()

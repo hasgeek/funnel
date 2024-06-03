@@ -1,9 +1,9 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% trans %}About Hasgeek{% endtrans %}{% endblock title %}
-{%- from "macros.html.jinja2" import page_footer %}
+{%- from "macros.html.jinja2" import about_page_footer %}
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ manifest('css/about.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ webpack('css/about.css') }}" />
 {% endblock pageheaders %}
 
 {% block contenthead %}
@@ -47,7 +47,7 @@
 {%- endblock contentwrapper %}
 
 {% block basefooter %}
-  {{ page_footer() }}
+  {{ about_page_footer('about') }}
 {% endblock basefooter %}
 
 {% block footerscripts %}

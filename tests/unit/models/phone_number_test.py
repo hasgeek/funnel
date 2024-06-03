@@ -3,9 +3,9 @@
 # pylint: disable=redefined-outer-name
 
 from collections.abc import Generator
-from contextlib import nullcontext as does_not_raise
+from contextlib import AbstractContextManager, nullcontext as does_not_raise
 from types import SimpleNamespace
-from typing import Any, ContextManager
+from typing import Any
 
 import phonenumbers
 import pytest
@@ -115,7 +115,7 @@ def phone_models(
         )
 
 
-@pytest.fixture()
+@pytest.fixture
 def refcount_data() -> Generator[set[models.PhoneNumber], None, None]:
     refcount_signal_fired: set[models.PhoneNumber] = set()
 
@@ -194,7 +194,7 @@ def test_parse_phone_number(
 def test_validate_phone_number(
     candidate: str | phonenumbers.PhoneNumber,
     expected: str | None,
-    raises: ContextManager,
+    raises: AbstractContextManager,
 ) -> None:
     with raises:
         assert models.validate_phone_number(candidate) == expected
@@ -225,7 +225,7 @@ def test_validate_phone_number(
 def test_canonical_phone_number(
     candidate: str | phonenumbers.PhoneNumber,
     expected: str | None,
-    raises: ContextManager,
+    raises: AbstractContextManager,
 ) -> None:
     with raises:
         assert models.canonical_phone_number(candidate) == expected
@@ -477,7 +477,7 @@ def test_phone_number_add() -> None:
         models.PhoneNumber.add('invalid')
 
     with pytest.raises(models.PhoneNumberInvalidError):
-        models.PhoneNumber.add(None)  # pyright: ignore[reportGeneralTypeIssues]
+        models.PhoneNumber.add(None)  # pyright: ignore[reportArgumentType]
 
 
 @pytest.mark.usefixtures('db_session')

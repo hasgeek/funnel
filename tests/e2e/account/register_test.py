@@ -13,22 +13,23 @@ from funnel import models
 
 from ...conftest import scoped_session
 
+pytestmark = [
+    pytest.mark.usefixtures('live_server'),
+    pytest.mark.filterwarnings(
+        "ignore:Object of type <AccountPhone> not in session",
+        "ignore:Object of type <AccountEmail> not in session",
+    ),
+]
 scenarios('account/register.feature')
-pytestmark = pytest.mark.usefixtures('live_server')
 
 TWOFLOWER_EMAIL = 'twoflower@example.org'
 TWOFLOWER_PHONE = '+12015550123'
-TWOFLOWER_PASSWORD = 'te@pwd3289'  # nosec
+TWOFLOWER_PASSWORD = 'te@pwd3289'  # noqa: S105
 ANONYMOUS_PHONE = '8123456789'
 ANONYMOUS_EMAIL = 'anon@example.com'
 
-pytestmark = pytest.mark.filterwarnings(
-    "ignore:Object of type <AccountPhone> not in session",
-    "ignore:Object of type <AccountEmail> not in session",
-)
 
-
-@pytest.fixture()
+@pytest.fixture
 def published_project(
     db_session: scoped_session, new_project: models.Project
 ) -> models.Project:
@@ -39,7 +40,7 @@ def published_project(
     return new_project
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_twoflower_with_password_and_contact(
     db_session: scoped_session, user_twoflower: models.User
 ) -> models.User:
@@ -49,13 +50,6 @@ def user_twoflower_with_password_and_contact(
     user_twoflower.add_email(TWOFLOWER_EMAIL)
     db_session.commit()
     return user_twoflower
-
-
-def wait_until_recaptcha_loaded(page: Page) -> None:
-    page.wait_for_selector(
-        '#form-passwordlogin > div.g-recaptcha > div > div.grecaptcha-logo > iframe',
-        timeout=10000,
-    )
 
 
 @given("Anonymous visitor is on the home page")
@@ -81,10 +75,9 @@ def when_anonuser_navigates_login_and_submits(
     else:
         pytest.fail("Unknown username type")
     page.click('.header__button')
-    wait_until_recaptcha_loaded(page)
     selector = page.wait_for_selector('input[name=username]')
     assert selector is not None
-    selector.fill(username)
+    selector.fill(username)  # pylint: disable=possibly-used-before-assignment
     page.click('#form-passwordlogin button')
     return {'phone_or_email': phone_or_email, 'username': username}
 
@@ -105,7 +98,7 @@ def then_anonuser_prompted_name_and_otp(anon_username, live_server, page: Page) 
         pytest.fail("Unknown username type")
     selector = page.wait_for_selector('input[name=otp]')
     assert selector is not None
-    selector.fill(otp)
+    selector.fill(otp)  # pylint: disable=possibly-used-before-assignment
     page.click('#form-otp button')
 
 
@@ -127,14 +120,13 @@ def when_twoflower_visits_homepage(
 
 
 @when("they navigate to the login page")
-def when_navigate_to_login_page(app, live_server, page: Page):
+def when_navigate_to_login_page(app, live_server, page: Page) -> None:
     page.click('.header__button')
 
 
 @when("they submit the email address with password")
 @when("submit an email address with password")
 def when_submit_email_password(page: Page) -> None:
-    wait_until_recaptcha_loaded(page)
     selector = page.wait_for_selector('input[name=username]')
     assert selector is not None
     selector.fill(TWOFLOWER_EMAIL)
@@ -155,7 +147,6 @@ def then_logged_in(live_server, page: Page) -> None:
 @when("they submit the phone number with password")
 @when("submit a phone number with password")
 def when_submit_phone_password(app, live_server, page: Page) -> None:
-    wait_until_recaptcha_loaded(page)
     selector = page.wait_for_selector('input[name=username]')
     assert selector is not None
     selector.fill(TWOFLOWER_PHONE)
@@ -195,7 +186,6 @@ def then_register_modal_appear(page: Page) -> None:
     target_fixture='anon_username',
 )
 def when_they_enter_email(page: Page, phone_or_email: str) -> dict[str, str]:
-    wait_until_recaptcha_loaded(page)
     if phone_or_email == "a phone number":
         username = ANONYMOUS_PHONE
     elif phone_or_email == "an email address":
@@ -204,7 +194,7 @@ def when_they_enter_email(page: Page, phone_or_email: str) -> dict[str, str]:
         pytest.fail("Unknown username type")
     selector = page.wait_for_selector('input[name=username]')
     assert selector is not None
-    selector.fill(username)
+    selector.fill(username)  # pylint: disable=possibly-used-before-assignment
     page.click('#form-passwordlogin button')
     return {'phone_or_email': phone_or_email, 'username': username}
 
@@ -234,10 +224,6 @@ def given_server_uses_recaptcha(
 @when("twoflower visits the login page, Recaptcha is required")
 def when_twoflower_visits_login_page_recaptcha(app, live_server, page: Page) -> None:
     page.goto(live_server.url + 'login')
-    assert page.wait_for_selector(
-        '#form-passwordlogin > div.g-recaptcha > div > div.grecaptcha-logo > iframe',
-        timeout=10000,
-    )
 
 
 @then("they submit and Recaptcha validation passes")

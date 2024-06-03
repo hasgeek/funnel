@@ -2,7 +2,6 @@
 
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
-
 from collections.abc import Generator
 from types import SimpleNamespace
 
@@ -30,7 +29,7 @@ hash_map = {
 }
 
 
-@pytest.fixture()
+@pytest.fixture
 def refcount_data() -> Generator[set[models.EmailAddress], None, None]:
     refcount_signal_fired: set[models.EmailAddress] = set()
 

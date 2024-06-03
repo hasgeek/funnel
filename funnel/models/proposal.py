@@ -12,11 +12,11 @@ from baseframe import __
 from baseframe.filters import preview
 from coaster.sqlalchemy import (
     DynamicAssociationProxy,
-    LazyRoleSet,
     StateManager,
+    role_check,
     with_roles,
 )
-from coaster.utils import LabeledEnum
+from coaster.utils import LabeledEnum, NameTitle
 
 from .account import Account
 from .base import (
@@ -49,31 +49,31 @@ __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalSuuidRedirect']
 _marker = object()
 
 
-# --- Constants ------------------------------------------------------------------
+# MARK: Constants ----------------------------------------------------------------
 
 
 class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
     # Draft-state for future use, so people can save their proposals and submit only
     # when ready. If you add any new state, you need to add a migration to modify the
     # check constraint
-    DRAFT = (1, 'draft', __("Draft"))
-    SUBMITTED = (2, 'submitted', __("Submitted"))
-    CONFIRMED = (3, 'confirmed', __("Confirmed"))
-    WAITLISTED = (4, 'waitlisted', __("Waitlisted"))
-    REJECTED = (6, 'rejected', __("Rejected"))
-    CANCELLED = (7, 'cancelled', __("Cancelled"))
-    AWAITING_DETAILS = (8, 'awaiting_details', __("Awaiting details"))
-    UNDER_EVALUATION = (9, 'under_evaluation', __("Under evaluation"))
-    DELETED = (12, 'deleted', __("Deleted"))
+    DRAFT = (1, NameTitle('draft', __("Draft")))
+    SUBMITTED = (2, NameTitle('submitted', __("Submitted")))
+    CONFIRMED = (3, NameTitle('confirmed', __("Confirmed")))
+    WAITLISTED = (4, NameTitle('waitlisted', __("Waitlisted")))
+    REJECTED = (6, NameTitle('rejected', __("Rejected")))
+    CANCELLED = (7, NameTitle('cancelled', __("Cancelled")))
+    AWAITING_DETAILS = (8, NameTitle('awaiting_details', __("Awaiting details")))
+    UNDER_EVALUATION = (9, NameTitle('under_evaluation', __("Under evaluation")))
+    DELETED = (12, NameTitle('deleted', __("Deleted")))
+    TEMPLATE = (13, NameTitle('template', __("Template")))
 
     # These 3 are not in the editorial workflow anymore - Feb 23 2018
-    SHORTLISTED = (5, 'shortlisted', __("Shortlisted"))
+    SHORTLISTED = (5, NameTitle('shortlisted', __("Shortlisted")))
     SHORTLISTED_FOR_REHEARSAL = (
         10,
-        'shortlisted_for_rehearsal',
-        __("Shortlisted for rehearsal"),
+        NameTitle('shortlisted_for_rehearsal', __("Shortlisted for rehearsal")),
     )
-    REHEARSAL = (11, 'rehearsal', __("Rehearsal ongoing"))
+    REHEARSAL = (11, NameTitle('rehearsal', __("Rehearsal ongoing")))
 
     # Groups
     PUBLIC = {  # States visible to the public
@@ -109,6 +109,7 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
         REJECTED,
         AWAITING_DETAILS,
         UNDER_EVALUATION,
+        TEMPLATE,
     }
     CANCELLABLE = {
         DRAFT,
@@ -123,7 +124,7 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
     # SHORLISTABLE = {SUBMITTED, AWAITING_DETAILS, UNDER_EVALUATION}
 
 
-# --- Models ------------------------------------------------------------------
+# MARK: Models ----------------------------------------------------------------
 
 
 class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model):
@@ -162,7 +163,10 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
 
     _state: Mapped[int] = sa_orm.mapped_column(
         'state',
-        StateManager.check_constraint('state', PROPOSAL_STATE, sa.Integer),
+        sa.SmallInteger,
+        StateManager.check_constraint(
+            'state', PROPOSAL_STATE, sa.SmallInteger, name='proposal_state_check'
+        ),
         default=PROPOSAL_STATE.SUBMITTED,
         nullable=False,
     )
@@ -355,6 +359,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         'SCHEDULED',
         state.CONFIRMED,
         lambda proposal: proposal.session is not None and proposal.session.scheduled,
+        lambda proposal: sa.and_(
+            proposal.session.isnot(None), proposal.session.scheduled
+        ),
         label=('scheduled', __("Confirmed &amp; scheduled")),
     )
 
@@ -492,6 +499,28 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
     def delete(self) -> None:
         pass
 
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
+    @state.transition(
+        state.SUBMITTED,
+        state.TEMPLATE,
+        title=__("Convert to template"),
+        message=__("This proposal has been converted into a template"),
+        type='success',
+    )
+    def make_template(self) -> None:
+        pass
+
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
+    @state.transition(
+        state.TEMPLATE,
+        state.SUBMITTED,
+        title=__("Convert to submission"),
+        message=__("This proposal has been converted into a submission"),
+        type='success',
+    )
+    def undo_template(self) -> None:
+        pass
+
     @property
     def first_user(self) -> Account:
         """Return the first credited member on the proposal, or creator if none."""
@@ -537,23 +566,23 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
     def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
-    sponsors = DynamicAssociationProxy[Account]('sponsor_memberships', 'member')
+    sponsors: DynamicAssociationProxy[Account, ProposalSponsorMembership] = (
+        DynamicAssociationProxy('sponsor_memberships', 'member')
+    )
 
-    def roles_for(
-        self, actor: Account | None = None, anchors: Sequence = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        if self.state.DRAFT:
-            if 'reader' in roles:
-                # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
-                roles.remove('reader')
-        else:
-            roles.add('reader')
+    @role_check('reader')
+    def has_reader_role(
+        self, _actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Grant reader role if the proposal is not a draft."""
+        return not self.state.DRAFT
 
-        if roles.has_any(('project_participant', 'submitter')):
-            roles.add('commenter')
-
-        return roles
+    @role_check('commenter')
+    def has_commenter_role(
+        self, actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Grant 'commenter' role to any participant or submitter."""
+        return self.roles_for(actor).has_any(('project_participant', 'submitter'))
 
     @classmethod
     def all_public(cls) -> Query[Self]:

@@ -120,30 +120,30 @@ initpy: initpy-models initpy-forms initpy-loginproviders initpy-transports initp
 
 initpy-models:
 	mkinit --inplace --relative --black --lazy_loader_typed funnel/models/__init__.py
-	isort funnel/models/__init__.py funnel/models/__init__.pyi
-	black funnel/models/__init__.py funnel/models/__init__.pyi
+	ruff check --fix funnel/models/__init__.py funnel/models/__init__.pyi
+	ruff format funnel/models/__init__.py funnel/models/__init__.pyi
 
 initpy-forms:
 	mkinit --inplace --relative --black funnel/forms/__init__.py
-	isort funnel/forms/__init__.py
-	black funnel/forms/__init__.py
+	ruff check --fix funnel/forms/__init__.py
+	ruff format funnel/forms/__init__.py
 
 initpy-loginproviders:
 	mkinit --inplace --relative --black funnel/loginproviders/__init__.py
-	isort funnel/loginproviders/__init__.py
-	black funnel/loginproviders/__init__.py
+	ruff check --fix funnel/loginproviders/__init__.py
+	ruff format funnel/loginproviders/__init__.py
 
 initpy-transports:
 	# Do not auto-gen funnel/transports/__init__.py, only sub-packages
 	mkinit --inplace --relative --black funnel/transports/email
-	mkinit --inplace --relative --black  funnel/transports/sms
-	isort funnel/transports/*/__init__.py
-	black funnel/transports/*/__init__.py
+	mkinit --inplace --relative --black funnel/transports/sms
+	ruff check --fix funnel/transports/*/__init__.py
+	ruff format funnel/transports/*/__init__.py
 
 initpy-utils:
 	mkinit --inplace --relative --black --recursive funnel/utils
-	isort funnel/utils/__init__.py funnel/utils/*/__init__.py funnel/utils/*/*/__init__.py
-	black funnel/utils/__init__.py funnel/utils/*/__init__.py funnel/utils/*/*/__init__.py
+	ruff check --fix funnel/utils/__init__.py funnel/utils/*/__init__.py funnel/utils/*/*/__init__.py
+	ruff format funnel/utils/__init__.py funnel/utils/*/__init__.py funnel/utils/*/*/__init__.py
 
 install-npm:
 	npm install

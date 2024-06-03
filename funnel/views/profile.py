@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
-from flask import abort, current_app, flash, render_template, request
+from flask import abort, current_app, flash, jsonify, render_template, request
 
 from baseframe import _
-from baseframe.filters import date_filter
+from baseframe.filters import date_filter, datetime_filter
 from baseframe.forms import render_form
+from coaster.utils import parse_isoformat
 from coaster.views import (
     UrlChangeCheck,
     get_next_url,
@@ -21,13 +23,15 @@ from coaster.views import (
 from .. import app
 from ..auth import current_auth
 from ..forms import (
+    FollowForm,
     ProfileBannerForm,
     ProfileForm,
     ProfileLogoForm,
     ProfileTransitionForm,
 )
-from ..models import Account, Project, Session, db, sa
+from ..models import Account, AccountMembership, Project, Session, db, sa
 from ..typing import ReturnRenderWith, ReturnView
+from .decorators import idempotent_request
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
 from .mixins import AccountViewBase
@@ -67,7 +71,18 @@ def feature_profile_is_private(obj: Account) -> bool:
     return not obj.current_roles.admin and not bool(obj.profile_state.ACTIVE_AND_PUBLIC)
 
 
-def template_switcher(templateargs: dict[str, Any]) -> str:
+@Account.features('followers_count')
+def feature_profile_followers_count(obj: Account) -> int:
+    return obj.active_follower_memberships.count()
+
+
+@Account.features('following_count')
+def feature_profile_following_count(obj: Account) -> int:
+    return obj.active_following_memberships.count()
+
+
+def template_switcher(templateargs: Mapping[str, Any]) -> str:
+    templateargs = dict(templateargs)
     template = templateargs.pop('template')
     return render_template(template, **templateargs)
 
@@ -75,6 +90,8 @@ def template_switcher(templateargs: dict[str, Any]) -> str:
 @Account.views('main')
 @route('/<account>', init_app=app)
 class ProfileView(UrlChangeCheck, AccountViewBase):
+    """Account profile views."""
+
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
     def view(self) -> ReturnRenderWith:
@@ -94,7 +111,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
 
             ctx = {
                 'template': template_name,
-                'profile': self.obj.current_access(datasets=('primary', 'related')),
+                'profile': self.obj.current_access(),
                 'tagged_sessions': [
                     session.current_access() for session in tagged_sessions
                 ],
@@ -107,7 +124,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             # We're using it because we want to define our own order here.
             # listed_projects already includes a filter on Project.state.PUBLISHED
             projects = self.obj.listed_projects.order_by(None)
-            all_projects = (
+            upcoming_projects = (
                 projects.filter(
                     sa.or_(
                         Project.state.LIVE,
@@ -122,8 +139,6 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                 .all()
             )
 
-            upcoming_projects = all_projects[:3]
-            all_projects = all_projects[3:]
             featured_project = (
                 projects.filter(
                     sa.or_(
@@ -190,11 +205,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
 
             ctx = {
                 'template': template_name,
-                'profile': self.obj.current_access(datasets=('primary', 'related')),
-                'all_projects': [
-                    p.current_access(datasets=('without_parent', 'related'))
-                    for p in all_projects
-                ],
+                'profile': self.obj.current_access(),
                 'unscheduled_projects': [
                     p.current_access(datasets=('without_parent', 'related'))
                     for p in unscheduled_projects
@@ -242,6 +253,158 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
 
         return ctx
 
+    @route('followers', endpoint='followers')
+    @requestargs(('page', int), ('per_page', int))
+    @render_with('profile_followers.html.jinja2', json=True)
+    @requires_roles({'admin'})  # TODO: Change to reader
+    def followers(self, page: int = 1, per_page: int = 50) -> ReturnRenderWith:
+        """Followers of an account."""
+        pagination = self.obj.active_follower_memberships.paginate(
+            page=page, per_page=per_page
+        )
+        return {
+            'status': 'ok',
+            'profile': self.obj.current_access(),
+            'count': self.obj.active_follower_memberships.count(),
+            'followers': True,
+            'next_page': (
+                pagination.page + 1 if pagination.page < pagination.pages else ''
+            ),
+            'total_pages': pagination.pages,
+            'accounts': [p.member.current_access() for p in pagination.items],
+        }
+
+    @route('following', endpoint='following')
+    @requestargs(('page', int), ('per_page', int))
+    @render_with('profile_following.html.jinja2')
+    @requires_roles({'admin'})  # TODO: Change to reader
+    def following(self, page: int = 1, per_page: int = 50) -> ReturnRenderWith:
+        """Accounts being followed."""
+        pagination = self.obj.active_following_memberships.paginate(
+            page=page, per_page=per_page
+        )
+        return {
+            'status': 'ok',
+            'profile': self.obj.current_access(),
+            'count': self.obj.active_following_memberships.count(),
+            'following': True,
+            'next_page': (
+                pagination.page + 1 if pagination.page < pagination.pages else ''
+            ),
+            'total_pages': pagination.pages,
+            'accounts': [
+                p.account.current_access()
+                for p in pagination.items
+                if p.account.profile_state.ACTIVE_AND_PUBLIC
+            ],
+        }
+
+    @route('follow', methods=['POST'], endpoint='follow')
+    @requires_login
+    @requires_roles({'reader'})
+    @idempotent_request()
+    def follow(self) -> ReturnView:
+        """Follow an account."""
+        if self.obj == current_auth.user:
+            return {
+                'status': 'error',
+                'error': 'self_follow',
+                'error_description': _("You can’t follow your own account"),
+            }, 422
+        form = FollowForm()
+        if form.validate_on_submit():
+            existing_membership = self.obj.follower_memberships.filter(
+                AccountMembership.member == current_auth.user
+            ).one_or_none()
+            if form.follow.data:
+                if not existing_membership:
+                    membership = AccountMembership(
+                        account=self.obj,
+                        member=current_auth.user,
+                        granted_by=current_auth.user,
+                        is_owner=False,
+                        is_admin=False,
+                        is_follower=True,
+                    )
+                    db.session.add(membership)
+                    db.session.commit()
+                    # TODO: Dispatch notification for new follower
+                    return {'status': 'ok', 'following': True}, 201
+                # If actor has an existing record, maybe confirm a MIGRATE record or
+                # explicitly set is_follower=True
+                existing_membership.replace(actor=current_auth.user, is_follower=True)
+                db.session.commit()
+                return {'status': 'ok', 'following': True}, 200
+            # Unfollow
+            if existing_membership:
+                if existing_membership.is_admin:
+                    return {
+                        'status': 'error',
+                        'error': 'admin_unfollow',
+                        'error_description': _("You are an admin of this account"),
+                    }, 422
+                existing_membership.revoke_follower(current_auth.user)
+                db.session.commit()
+                return {'status': 'ok', 'following': False}, 201
+            # No existing
+            return {'status': 'ok', 'following': False}, 200
+        # Form did not validate
+        return {
+            'status': 'error',
+            'error': 'follow_form_invalid',
+            'error_description': _("This page timed out. Reload and try again"),
+        }, 422
+
+    @route('calendar')
+    @requestargs(('start', parse_isoformat), ('end', parse_isoformat))
+    @render_with(
+        {
+            'text/html': 'profile_calendar.html.jinja2',
+            'application/json': lambda json_data: jsonify(json_data['projects']),
+        }
+    )
+    def calendar(
+        self, start: str | None = None, end: str | None = None
+    ) -> ReturnRenderWith:
+        projects = []
+        if start is not None and end is not None:
+            all_projects = self.obj.listed_projects.order_by(None)
+            if end > start:
+                filtered_projects = (
+                    all_projects.filter(
+                        Project.start_at >= start,
+                        Project.end_at < end,
+                    )
+                    .order_by(Project.order_by_date())
+                    .all()
+                )
+                projects = [
+                    {
+                        'title': p.title,
+                        'start': p.start_at,
+                        'end': p.end_at,
+                        # start_at_localized is guaranteed type `datetime` here:
+                        'date_str': datetime_filter(
+                            p.start_at_localized,  # type: ignore[arg-type]
+                            format='dd MMM yyyy',
+                        ),
+                        'time': datetime_filter(
+                            p.start_at_localized,  # type: ignore[arg-type]
+                            format='hh:mm a',
+                        ),
+                        'venue': (
+                            p.primary_venue.city if p.primary_venue else p.location
+                        ),
+                        'cfp_open': bool(p.cfp_state.OPEN),
+                        'member_access': bool(
+                            p.features.rsvp_for_members or p.features.subscription
+                        ),
+                        'url': p.url_for(),
+                    }
+                    for p in filtered_projects
+                ]
+        return {'profile': self.obj.current_access(), 'projects': projects}
+
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
     def user_participated_projects(self) -> ReturnRenderWith:
@@ -253,7 +416,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
         }
 
         return {
-            'profile': self.obj.current_access(datasets=('primary', 'related')),
+            'profile': self.obj.current_access(),
             'participated_projects': [
                 project.current_access(datasets=('without_parent', 'related'))
                 for project in participated_projects
@@ -270,7 +433,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
         submitted_proposals = self.obj.public_proposals
 
         return {
-            'profile': self.obj.current_access(datasets=('primary', 'related')),
+            'profile': self.obj.current_access(),
             'submitted_proposals': [
                 proposal.current_access(datasets=('without_parent', 'related'))
                 for proposal in submitted_proposals
@@ -283,7 +446,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     def past_projects(self, page: int = 1, per_page: int = 10) -> ReturnRenderWith:
         projects = self.obj.listed_projects.order_by(None)
         past_projects = projects.filter(Project.state.PAST).order_by(
-            Project.start_at.desc()
+            Project.end_at.desc()
         )
         pagination = past_projects.paginate(page=page, per_page=per_page)
         return {
@@ -296,7 +459,10 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
             'past_projects': [
                 {
                     'title': p.title,
-                    'datetime': date_filter(p.end_at_localized, format='dd MMM yyyy'),
+                    'datetime': date_filter(
+                        p.end_at_localized,  # type: ignore[arg-type]
+                        format='dd MMM yyyy',
+                    ),
                     'venue': p.primary_venue.city if p.primary_venue else p.location,
                     'url': p.url_for(),
                 }
@@ -334,11 +500,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @requires_roles({'admin'})
     @requires_user_not_spammy()
     def edit(self) -> ReturnView:
-        form = ProfileForm(
-            obj=self.obj, model=Account, account=self.obj, edit_user=current_auth.user
-        )
-        if self.obj.is_user_profile:
-            form.make_for_user()
+        form = ProfileForm(obj=self.obj, account=self.obj, edit_user=current_auth.user)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
@@ -404,6 +566,8 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_banner(self) -> ReturnRenderWith:
+        if not self.obj.is_verified:
+            abort(403)
         form = ProfileBannerForm(account=self.obj)
         edit_logo_url = self.obj.url_for('edit_banner_image_url')
         delete_logo_url = self.obj.url_for('remove_banner')
@@ -416,6 +580,8 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
     @route('edit_banner', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_banner_image_url(self) -> ReturnView:
+        if not self.obj.is_verified:
+            abort(403)
         form = ProfileBannerForm(obj=self.obj, account=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():

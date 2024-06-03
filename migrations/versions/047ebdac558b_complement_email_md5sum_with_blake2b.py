@@ -38,7 +38,7 @@ user_email_claim = table(
 )
 
 
-def get_progressbar(label, maxval):
+def get_progressbar(label: str, maxval: int | None) -> ProgressBar:
     return ProgressBar(
         maxval=maxval,
         widgets=[
@@ -68,8 +68,8 @@ def upgrade() -> None:
             sa.update(user_email)
             .where(user_email.c.id == item.id)
             .values(
-                md5sum=hashlib.md5(  # nosec  # skipcq: PTC-W1003
-                    item.email.lower().encode()
+                md5sum=hashlib.md5(
+                    item.email.lower().encode(), usedforsecurity=False
                 ).hexdigest(),
                 blake2b=hashlib.blake2b(
                     item.email.lower().encode(), digest_size=16
@@ -96,8 +96,8 @@ def upgrade() -> None:
             sa.update(user_email_claim)
             .where(user_email_claim.c.id == item.id)
             .values(
-                md5sum=hashlib.md5(  # nosec  # skipcq: PTC-W1003
-                    item.email.lower().encode(),
+                md5sum=hashlib.md5(
+                    item.email.lower().encode(), usedforsecurity=False
                 ).hexdigest(),
                 blake2b=hashlib.blake2b(
                     item.email.lower().encode(), digest_size=16

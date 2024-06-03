@@ -94,6 +94,19 @@
   box-shadow: none;
 }
 
+.mui-btn--danger {
+  background: $mui-bg-color-primary;
+  color: $mui-text-danger;
+  border: 1px solid $mui-text-danger;
+}
+
+.mui-btn__icon {
+  display: flex;
+  flex-direction: row;
+  gap: $mui-grid-padding/2;
+  align-items: center;
+}
+
 .mui-btn--accent.mui--is-disabled,
 .mui-btn--accent.mui--is-disabled:hover,
 .mui-btn--accent.mui--is-disabled:active,

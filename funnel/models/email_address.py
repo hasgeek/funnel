@@ -231,10 +231,11 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
     #: Does this email address work? Records last known delivery state
     _delivery_state: Mapped[int] = sa_orm.mapped_column(
         'delivery_state',
+        sa.SmallInteger,
         StateManager.check_constraint(
             'delivery_state',
             EMAIL_DELIVERY_STATE,
-            sa.Integer,
+            sa.SmallInteger,
             name='email_address_delivery_state_check',
         ),
         nullable=False,
@@ -387,7 +388,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
             raise ValueError("Value is not an email address") from exc
         self.email = email
         # email_canonical is set by `email`'s validator
-        assert self.email_canonical is not None  # nosec
+        assert self.email_canonical is not None  # noqa: S101
         self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
 
     def is_exclusive(self) -> bool:
@@ -502,7 +503,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
     def get(
         cls,
         email: str,
-    ) -> EmailAddress | None: ...
+    ) -> Self | None: ...
 
     @overload
     @classmethod
@@ -510,7 +511,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
         cls,
         *,
         blake2b160: bytes,
-    ) -> EmailAddress | None: ...
+    ) -> Self | None: ...
 
     @overload
     @classmethod
@@ -518,7 +519,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
         cls,
         *,
         email_hash: str,
-    ) -> EmailAddress | None: ...
+    ) -> Self | None: ...
 
     @classmethod
     def get(
@@ -527,7 +528,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
         *,
         blake2b160: bytes | None = None,
         email_hash: str | None = None,
-    ) -> EmailAddress | None:
+    ) -> Self | None:
         """
         Get an :class:`EmailAddress` instance by email address or its hash.
 
@@ -557,7 +558,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
         return query
 
     @classmethod
-    def _get_existing(cls, email: str) -> EmailAddress | None:
+    def _get_existing(cls, email: str) -> Self | None:
         """
         Get an existing :class:`EmailAddress` instance.
 
@@ -567,10 +568,10 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
             return None
         if cls.get_canonical(email, is_blocked=True).notempty():
             raise EmailAddressBlockedError("Email address is blocked")
-        return EmailAddress.get(email)
+        return cls.get(email)
 
     @classmethod
-    def add(cls, email: str) -> EmailAddress:
+    def add(cls, email: str) -> Self:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -586,12 +587,12 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
             if not existing.email:
                 existing.email = email
             return existing
-        new_email = EmailAddress(email)
+        new_email = cls(email)
         db.session.add(new_email)
         return new_email
 
     @classmethod
-    def add_for(cls, owner: Account | None, email: str) -> EmailAddress:
+    def add_for(cls, owner: Account | None, email: str) -> Self:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -605,7 +606,7 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
             # No exclusive lock found? Let it be used then
             existing.email = email
             return existing
-        new_email = EmailAddress(email)
+        new_email = cls(email)
         db.session.add(new_email)
         return new_email
 
@@ -672,12 +673,11 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
             return 'taken'
 
         # There is an existing but it's available for this owner. Any other concerns?
-        if new:
-            # Caller is asking to confirm this is not already belonging to this owner
-            if existing.is_exclusive():
-                # It's in an exclusive relationship, and we're already determined it's
-                # available to this owner, so it must be exclusive to them
-                return 'not_new'
+        if new and existing.is_exclusive():
+            # Caller is asking to confirm this is not already belonging to this owner:
+            # It's in an exclusive relationship, and we're already determined it's
+            # available to this owner, so it must be exclusive to them
+            return 'not_new'
         if existing.delivery_state.SOFT_FAIL:
             return 'soft_fail'
         if existing.delivery_state.HARD_FAIL:
@@ -780,11 +780,10 @@ class OptionalEmailAddressMixin:
             else:
                 self.email_address = None
 
+        elif __value is not None:
+            self.email_address = EmailAddress.add(__value)
         else:
-            if __value is not None:
-                self.email_address = EmailAddress.add(__value)
-            else:
-                self.email_address = None
+            self.email_address = None
 
     @property
     def email_address_reference_is_active(self) -> bool:
@@ -916,12 +915,11 @@ def _email_address_mixin_set_validator(
     old_value: EmailAddress | None,
     _initiator: Any,
 ) -> None:
-    if value != old_value and target.__email_for__:
-        if value is not None:
-            if value.is_blocked:
-                raise EmailAddressBlockedError("This email address has been blocked")
-            if not value.is_available_for(getattr(target, target.__email_for__)):
-                raise EmailAddressInUseError("This email address it not available")
+    if value != old_value and target.__email_for__ and value is not None:
+        if value.is_blocked:
+            raise EmailAddressBlockedError("This email address has been blocked")
+        if not value.is_available_for(getattr(target, target.__email_for__)):
+            raise EmailAddressInUseError("This email address it not available")
 
 
 @event.listens_for(OptionalEmailAddressMixin, 'mapper_configured', propagate=True)

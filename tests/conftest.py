@@ -11,7 +11,7 @@ import warnings
 from collections.abc import Callable, Generator
 from contextlib import ExitStack
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from difflib import unified_diff
 from dis import disassemble
 from functools import partial
@@ -20,15 +20,7 @@ from io import StringIO
 from pprint import saferepr
 from textwrap import indent
 from types import MethodType, ModuleType, SimpleNamespace
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    NamedTuple,
-    Protocol,
-    cast,
-    get_type_hints,
-    runtime_checkable,
-)
+from typing import TYPE_CHECKING, Any, NamedTuple, Protocol, Self, cast, get_type_hints
 from unittest.mock import patch
 
 import flask
@@ -44,7 +36,7 @@ from flask.wrappers import Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.session import Session as FsaSession
 from flask_wtf.csrf import generate_csrf
-from lxml.html import FormElement, HtmlElement, fromstring  # nosec
+from lxml.html import FormElement, HtmlElement, fromstring
 from rich.console import Console
 from rich.highlighter import RegexHighlighter, ReprHighlighter
 from rich.markup import escape as rich_escape
@@ -58,7 +50,9 @@ if TYPE_CHECKING:
     import funnel.models as funnel_models
     from funnel.devtest import BackgroundWorker, CapturedCalls
 
-# --- Pytest config --------------------------------------------------------------------
+# MARK: Pytest config ------------------------------------------------------------------
+
+MAX_DEADLOCK_RETRIES = 3
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -68,8 +62,10 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         action='store',
         default='rollback',
         choices=('rollback', 'truncate'),
-        help="Use db_session with 'rollback' (default) or 'truncate'"
-        " (slower but more production-like)",
+        help=(
+            "Use db_session with 'rollback' (default) or 'truncate' (slower but more"
+            " production-like)"
+        ),
     )
 
 
@@ -100,8 +96,8 @@ def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:
         module_file = item.module.__file__ if item.module is not None else ''
         for counter, path in enumerate(test_order):
             if path in module_file:
-                return (counter, module_file)
-        return (-1, module_file)
+                return counter, module_file
+        return -1, module_file
 
     items.sort(key=sort_key)
 
@@ -130,11 +126,32 @@ def pytest_runtest_call(item: pytest.Function) -> None:
         )
 
     for attr, type_ in annotations.items():
-        if attr in item.funcargs:
+        if attr in item.funcargs and not getattr(type_, '_is_protocol', False):
             typeguard.check_type(item.funcargs[attr], type_)
 
 
-# --- Playwright browser config --------------------------------------------------------
+def pytest_runtest_logreport(report: pytest.TestReport) -> None:
+    """Add line numbers to log report, for easier discovery in code editors."""
+    # Report location of test (failing line number if available, else test location)
+    filename, line_no, domain = report.location
+    if (
+        report.longrepr is not None
+        and (repr_traceback := getattr(report.longrepr, 'reprtraceback', None))
+        is not None
+        and (repr_file_loc := repr_traceback.reprentries[0].reprfileloc).path
+        == filename
+    ):
+        line_no = repr_file_loc.lineno
+    if report.nodeid.startswith(filename):
+        # Only insert a line number if the existing `nodeid`` refers to the same
+        # filename. Needed for pytest-bdd, which constructs tests and refers the
+        # filename that imported the scenario. This file will not have the actual test
+        # function, so no line number reference is possible; the `filename` in the
+        # report will refer to pytest-bdd internals
+        report.nodeid = f'{filename}:{line_no}::{domain}'
+
+
+# MARK: Playwright browser config ------------------------------------------------------
 
 
 @pytest.fixture(scope='session')
@@ -143,7 +160,7 @@ def browser_context_args(browser_context_args: dict) -> dict:
     return browser_context_args | {'ignore_https_errors': True}
 
 
-# --- Import fixtures ------------------------------------------------------------------
+# MARK: Import fixtures ----------------------------------------------------------------
 
 
 @pytest.fixture(scope='session')
@@ -176,7 +193,7 @@ def funnel_devtest() -> ModuleType:
     return pytest.importorskip('funnel.devtest')
 
 
-# --- Fixtures -------------------------------------------------------------------------
+# MARK: Fixtures -----------------------------------------------------------------------
 
 
 _meta_refresh_content_re = re.compile(
@@ -263,7 +280,7 @@ class TestResponse(Response):
                     kwargs['method'] = self.method
                 return client.open(path, data=data, **kwargs)
 
-            for form in self._parsed_html.forms:  # type: ignore[attr-defined]
+            for form in self._parsed_html.forms:
                 form.submit = MethodType(_submit, form)  # type: ignore[attr-defined]
         return self._parsed_html
 
@@ -324,7 +341,6 @@ def rich_console() -> Console:
     return Console(highlight=False)
 
 
-@runtime_checkable
 class PrintStackProtocol(Protocol):
     def __call__(self, skip: int = 0, limit: int | None = None) -> None: ...
 
@@ -448,14 +464,14 @@ def unsubscribeapp(funnel) -> Flask:
     return funnel.unsubscribeapp
 
 
-@pytest.fixture()
+@pytest.fixture
 def app_context(app: Flask) -> Generator[AppContext, None, None]:
     """Create an app context for the test."""
     with app.app_context() as ctx:
         yield ctx
 
 
-@pytest.fixture()
+@pytest.fixture
 def request_context(app: Flask) -> Generator[RequestContext, None, None]:
     """Create a request context with default values for the test."""
     with app.test_request_context() as ctx:
@@ -497,7 +513,7 @@ def _mock_config(request: pytest.FixtureRequest) -> Generator[None, None, None]:
     ) -> None:
         if key in saved_config:
             pytest.fail(f"Duplicate mock for {app_name}.config[{key!r}]")
-        if key in app_fixture.config:
+        if key in app_fixture.config:  # noqa: SIM401
             saved_config[key] = app_fixture.config[key]
         else:
             saved_config[key] = ...  # Sentinel value
@@ -569,7 +585,7 @@ def _app_events(
 ) -> Generator[None, None, None]:
     """Fixture to report Flask signals with a stack trace when debugging a test."""
 
-    def signal_handler(signal_name, *args: Any, **kwargs: Any):
+    def signal_handler(signal_name, *args: Any, **kwargs: Any) -> None:
         rich_console.print(f"[bold]Signal:[/] [yellow]{rich_escape(signal_name)}[/]")
         print_stack(2)  # Skip two stack frames from Blinker
 
@@ -597,7 +613,7 @@ def _app_events(
     flask.appcontext_popped.disconnect(appcontext_popped, app)
 
 
-@pytest.fixture()
+@pytest.fixture
 def _database_events(
     models: ModuleType, rich_console: Console, print_stack: PrintStackProtocol
 ) -> Generator[None, None, None]:
@@ -607,15 +623,14 @@ def _database_events(
     If a test is exhibiting unusual behaviour, add this fixture to trace db events::
 
         @pytest.mark.usefixtures('_database_events')
-        def test_whatever() -> None:
-            ...
+        def test_whatever() -> None: ...
     """
     repr_highlighter = ReprHighlighter()
 
     def safe_repr(entity: Any) -> str:
         try:
             return saferepr(entity)
-        except Exception:  # noqa: B902  # pylint: disable=broad-except
+        except Exception:  # noqa: BLE001  # pylint: disable=broad-except
             if hasattr(entity, '__class__'):
                 return f'<ReprError: class {entity.__class__.__qualname__}>'
             if hasattr(entity, '__qualname__'):
@@ -625,7 +640,7 @@ def _database_events(
             return '<ReprError>'
 
     @event.listens_for(models.Model, 'init', propagate=True)
-    def event_init(obj: funnel_models.Model, args, kwargs):
+    def event_init(obj: funnel_models.Model, args, kwargs) -> None:
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
         rparams = f'{rargs, rkwargs}' if rargs else rkwargs
@@ -635,7 +650,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
-    def event_transient_to_pending(_session, obj: funnel_models.Model):
+    def event_transient_to_pending(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -645,7 +660,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
-    def event_pending_to_transient(_session, obj: funnel_models.Model):
+    def event_pending_to_transient(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -655,7 +670,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
-    def event_pending_to_persistent(_session, obj: funnel_models.Model):
+    def event_pending_to_persistent(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -665,7 +680,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
-    def event_loaded_as_persistent(_session, obj: funnel_models.Model):
+    def event_loaded_as_persistent(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -675,7 +690,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
-    def event_persistent_to_transient(_session, obj: funnel_models.Model):
+    def event_persistent_to_transient(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -685,7 +700,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
-    def event_persistent_to_deleted(_session, obj: funnel_models.Model):
+    def event_persistent_to_deleted(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -695,7 +710,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
-    def event_deleted_to_detached(_session, obj: funnel_models.Model):
+    def event_deleted_to_detached(_session, obj: funnel_models.Model) -> None:
         i = sa.inspect(obj)
         rich_console.print(
             "[bold]obj:[/] deleted → detached:"
@@ -703,7 +718,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
-    def event_persistent_to_detached(_session, obj: funnel_models.Model):
+    def event_persistent_to_detached(_session, obj: funnel_models.Model) -> None:
         i = sa.inspect(obj)
         rich_console.print(
             "[bold]obj:[/] persistent → detached:"
@@ -711,7 +726,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
-    def event_detached_to_persistent(_session, obj: funnel_models.Model):
+    def event_detached_to_persistent(_session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -721,7 +736,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
-    def event_deleted_to_persistent(session, obj: funnel_models.Model):
+    def event_deleted_to_persistent(session, obj: funnel_models.Model) -> None:
         rich_console.print(
             Text.assemble(
                 ('obj:', 'bold'),
@@ -731,7 +746,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'do_orm_execute')
-    def event_do_orm_execute(orm_execute_state: sa_orm.ORMExecuteState):
+    def event_do_orm_execute(orm_execute_state: sa_orm.ORMExecuteState) -> None:
         state_is = []
         if orm_execute_state.is_column_load:
             state_is.append("is_column_load")
@@ -764,7 +779,7 @@ def _database_events(
     @event.listens_for(DatabaseSessionClass, 'after_begin')
     def event_after_begin(
         _session, transaction: sa_orm.SessionTransaction, _connection
-    ):
+    ) -> None:
         if transaction.nested:
             if transaction.parent and transaction.parent.nested:
                 rich_console.print("[bold]session:[/] BEGIN (double nested)")
@@ -775,7 +790,7 @@ def _database_events(
         print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_commit')
-    def event_after_commit(session: DatabaseSessionClass):
+    def event_after_commit(session: DatabaseSessionClass) -> None:
         rich_console.print(
             Text.assemble(
                 ('session:', 'bold'), ' COMMIT ', repr_highlighter(repr(session.info))
@@ -783,7 +798,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'after_flush')
-    def event_after_flush(session: DatabaseSessionClass, _flush_context):
+    def event_after_flush(session: DatabaseSessionClass, _flush_context) -> None:
         rich_console.print(
             Text.assemble(
                 ('session:', 'bold'), ' FLUSH ', repr_highlighter(repr(session.info))
@@ -791,7 +806,7 @@ def _database_events(
         )
 
     @event.listens_for(DatabaseSessionClass, 'after_rollback')
-    def event_after_rollback(session: DatabaseSessionClass):
+    def event_after_rollback(session: DatabaseSessionClass) -> None:
         rich_console.print(
             Text.assemble(
                 ('session:', 'bold'), ' ROLLBACK ', repr_highlighter(repr(session.info))
@@ -800,7 +815,9 @@ def _database_events(
         print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
-    def event_after_soft_rollback(session: DatabaseSessionClass, _previous_transaction):
+    def event_after_soft_rollback(
+        session: DatabaseSessionClass, _previous_transaction
+    ) -> None:
         rich_console.print(
             Text.assemble(
                 ('session:', 'bold'),
@@ -813,7 +830,7 @@ def _database_events(
     @event.listens_for(DatabaseSessionClass, 'after_transaction_create')
     def event_after_transaction_create(
         _session, transaction: sa_orm.SessionTransaction
-    ):
+    ) -> None:
         if transaction.nested:
             if transaction.parent and transaction.parent.nested:
                 rich_console.print("[bold]transaction:[/] CREATE (savepoint)")
@@ -824,7 +841,9 @@ def _database_events(
         print_stack(0, 5)
 
     @event.listens_for(DatabaseSessionClass, 'after_transaction_end')
-    def event_after_transaction_end(_session, transaction: sa_orm.SessionTransaction):
+    def event_after_transaction_end(
+        _session, transaction: sa_orm.SessionTransaction
+    ) -> None:
         if transaction.nested:
             if transaction.parent and transaction.parent.nested:
                 rich_console.print("[bold]transaction:[/] END (double nested)")
@@ -922,7 +941,7 @@ def _truncate_all_tables(engine: sa.Engine) -> None:
                 # on the assumption that this retry is safe for all operational errors.
                 # Any new type of non-transient error will be reported by the final
                 # raise.
-                if (deadlock_retries := deadlock_retries + 1) > 3:
+                if (deadlock_retries := deadlock_retries + 1) > MAX_DEADLOCK_RETRIES:
                     raise
                 transaction.rollback()
             time.sleep(1)
@@ -940,14 +959,14 @@ def database(funnel, models, request: pytest.FixtureRequest, app: Flask) -> SQLA
             _truncate_all_tables(engine)
 
     @request.addfinalizer
-    def drop_tables():
+    def drop_tables() -> None:
         with app.app_context():
             models.db.drop_all()
 
     return models.db
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session_truncate(
     funnel, app, database: SQLAlchemy, app_context
 ) -> Generator[scoped_session, None, None]:
@@ -985,7 +1004,7 @@ class BoundSession(FsaSession):
         mapper: Any | None = None,
         clause: Any | None = None,
         bind: sa.engine.Engine | sa.engine.Connection | None = None,
-        **kwargs: Any,
+        **_kwargs: Any,
     ) -> sa.engine.Engine | sa.engine.Connection:
         if bind is not None:
             return bind
@@ -1006,7 +1025,7 @@ class BoundSession(FsaSession):
         return self.bindcts[None].connection
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session_rollback(
     funnel, app: Flask, database: SQLAlchemy, app_context: AppContext
 ) -> Generator[scoped_session, None, None]:
@@ -1048,7 +1067,7 @@ db_session_implementations = {
 }
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session(request: pytest.FixtureRequest) -> scoped_session:
     """
     Database session fixture.
@@ -1068,7 +1087,7 @@ def db_session(request: pytest.FixtureRequest) -> scoped_session:
 
     * The ``--dbsession`` command-line option defaults to ``rollback`` but can be set to
       ``truncate``, changing it for the entire pytest session
-    * An individual test can be decorated with ``@pytest.mark.dbcommit()``
+    * An individual test can be decorated with ``@pytest.mark.dbcommit``
     * A test module or package can override the ``db_session`` fixture to return one of
       the underlying fixtures, thereby overriding both of the above behaviours
     """
@@ -1091,7 +1110,7 @@ class TestClient(FlaskClient):
 
     if TYPE_CHECKING:
 
-        def open(  # type: ignore[override]  # noqa: A001
+        def open(  # type: ignore[override]
             self,
             *args: Any,
             buffered: bool = False,
@@ -1128,13 +1147,13 @@ class TestClient(FlaskClient):
         ) -> TestResponse: ...
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(app: Flask, db_session: scoped_session) -> TestClient:
     """Provide a test client that commits the db session before any action."""
     client = TestClient(app, TestResponse, use_cookies=True)
     client_open = client.open
 
-    def commit_before_open(*args: Any, **kwargs: Any):
+    def commit_before_open(*args: Any, **kwargs: Any) -> TestResponse:
         db_session.commit()
         return client_open(*args, **kwargs)
 
@@ -1142,8 +1161,20 @@ def client(app: Flask, db_session: scoped_session) -> TestClient:
     return client
 
 
-@runtime_checkable
+class BackgroundWorkerProtocol(Protocol):
+    """Background worker for typeguard."""
+
+    def start(self) -> None: ...
+    def stop(self) -> None: ...
+    def __enter__(self) -> Self: ...
+    def __exit__(
+        self, exc_type: object, exc_value: object, traceback: object
+    ) -> None: ...
+
+
 class LiveServerProtocol(Protocol):
+    """Live server for typeguard."""
+
     background_worker: BackgroundWorker
     transport_calls: CapturedCalls
     url: str
@@ -1206,7 +1237,7 @@ def live_server(
             )
 
 
-@pytest.fixture()
+@pytest.fixture
 def csrf_token(app: Flask, client: TestClient) -> str:
     """Supply a CSRF token for use in form submissions."""
     field_name = app.config.get('WTF_CSRF_FIELD_NAME', 'csrf_token')
@@ -1219,14 +1250,13 @@ def csrf_token(app: Flask, client: TestClient) -> str:
     return token
 
 
-@runtime_checkable
 class LoginFixtureProtocol(Protocol):
     def as_(self, user: funnel_models.User) -> None: ...
 
     def logout(self) -> None: ...
 
 
-@pytest.fixture()
+@pytest.fixture
 def login(
     app: Flask, client: TestClient, db_session: scoped_session
 ) -> LoginFixtureProtocol:
@@ -1246,31 +1276,29 @@ def login(
         # TODO: Test this
         client.delete_cookie('lastuser', domain=app.config['LASTUSER_COOKIE_DOMAIN'])
 
-    return SimpleNamespace(  # pyright: ignore[reportGeneralTypeIssues]
-        as_=as_, logout=logout
-    )
+    return SimpleNamespace(as_=as_, logout=logout)  # pyright: ignore[reportReturnType]
 
 
-# --- Sample data: users, organizations, projects, etc ---------------------------------
+# MARK: Sample data --------------------------------------------------------------------
 
 # These names are adapted from the Discworld universe. Backstories can be found at:
 # * https://discworld.fandom.com/
 # * https://wiki.lspace.org/
 
 
-# --- Users
+# MARK: Users
 
 
-@runtime_checkable
 class GetUserProtocol(Protocol):
     usermap: dict[str, str]
 
     def __call__(self, user: str) -> funnel_models.User: ...
 
 
-@pytest.fixture()
+@pytest.fixture
 def getuser(request: pytest.FixtureRequest) -> GetUserProtocol:
     """Get a user fixture by their name."""
+    # spell-checker: disable
     usermap = {
         "Twoflower": 'user_twoflower',
         "Rincewind": 'user_rincewind',
@@ -1301,6 +1329,7 @@ def getuser(request: pytest.FixtureRequest) -> GetUserProtocol:
         "Wolfgang": 'user_wolfgang',
         "Om": 'user_om',
     }
+    # spell-checker: enable
 
     def func(user: str) -> funnel_models.User:
         if user not in usermap:
@@ -1313,7 +1342,7 @@ def getuser(request: pytest.FixtureRequest) -> GetUserProtocol:
     return func
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_twoflower(models, db_session: scoped_session) -> funnel_models.User:
     """
     Twoflower is a tourist from the Agatean Empire who goes on adventures.
@@ -1327,7 +1356,7 @@ def user_twoflower(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_rincewind(models, db_session: scoped_session) -> funnel_models.User:
     """
     Rincewind is a wizard and a former member of Unseen University.
@@ -1340,7 +1369,7 @@ def user_rincewind(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_death(models, db_session: scoped_session) -> funnel_models.User:
     """
     Death is the epoch user, present at the beginning and always having the last word.
@@ -1352,14 +1381,14 @@ def user_death(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(
         username='death',
         fullname="Death",
-        joined_at=datetime(1970, 1, 1, tzinfo=timezone.utc),
+        joined_at=datetime(1970, 1, 1, tzinfo=UTC),
     )
     user.is_protected = True
     db_session.add(user)
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_mort(models, db_session: scoped_session) -> funnel_models.User:
     """
     Mort is Death's apprentice, and a site admin in tests.
@@ -1368,14 +1397,12 @@ def user_mort(models, db_session: scoped_session) -> funnel_models.User:
     priority when merging user accounts. Unlike Death, Mort does not have a username or
     profile, so Mort will acquire it from a merged user.
     """
-    user = models.User(
-        fullname="Mort", joined_at=datetime(1987, 11, 12, tzinfo=timezone.utc)
-    )
+    user = models.User(fullname="Mort", joined_at=datetime(1987, 11, 12, tzinfo=UTC))
     db_session.add(user)
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_susan(models, db_session: scoped_session) -> funnel_models.User:
     """
     Susan Sto Helit (also written Sto-Helit) is Death's grand daughter.
@@ -1387,7 +1414,7 @@ def user_susan(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_lutze(models, db_session: scoped_session) -> funnel_models.User:
     """
     Lu-Tze is a history monk and sweeper at the Monastery of Oi-Dong.
@@ -1399,7 +1426,7 @@ def user_lutze(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_ridcully(models, db_session: scoped_session) -> funnel_models.User:
     """
     Mustrum Ridcully, archchancellor of Unseen University.
@@ -1411,7 +1438,7 @@ def user_ridcully(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_librarian(models, db_session: scoped_session) -> funnel_models.User:
     """
     Librarian of Unseen University, currently an orangutan.
@@ -1423,7 +1450,7 @@ def user_librarian(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_ponder_stibbons(models, db_session: scoped_session) -> funnel_models.User:
     """
     Ponder Stibbons, maintainer of Hex, the computer powered by an Anthill Inside.
@@ -1435,7 +1462,7 @@ def user_ponder_stibbons(models, db_session: scoped_session) -> funnel_models.Us
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_vetinari(models, db_session: scoped_session) -> funnel_models.User:
     """
     Havelock Vetinari, patrician (aka dictator) of Ankh-Morpork.
@@ -1447,7 +1474,7 @@ def user_vetinari(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_vimes(models, db_session: scoped_session) -> funnel_models.User:
     """
     Samuel Vimes, commander of the Ankh-Morpork City Watch.
@@ -1459,7 +1486,7 @@ def user_vimes(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_carrot(models, db_session: scoped_session) -> funnel_models.User:
     """
     Carrot Ironfoundersson, captain of the Ankh-Morpork City Watch.
@@ -1471,7 +1498,7 @@ def user_carrot(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_angua(models, db_session: scoped_session) -> funnel_models.User:
     """
     Delphine Angua von Überwald, member of the Ankh-Morpork City Watch, and foreigner.
@@ -1489,7 +1516,7 @@ def user_angua(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_dibbler(models, db_session: scoped_session) -> funnel_models.User:
     """
     Cut Me Own Throat (or C.M.O.T) Dibbler, huckster who exploits small opportunities.
@@ -1501,7 +1528,7 @@ def user_dibbler(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_wolfgang(models, db_session: scoped_session) -> funnel_models.User:
     """
     Wolfgang von Überwald, brother of Angua, violent shapeshifter.
@@ -1514,7 +1541,7 @@ def user_wolfgang(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_om(models, db_session: scoped_session) -> funnel_models.User:
     """
     Great God Om of the theocracy of Omnia, who has lost his believers.
@@ -1527,10 +1554,10 @@ def user_om(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-# --- Organizations
+# MARK: Organizations
 
 
-@pytest.fixture()
+@pytest.fixture
 def org_ankhmorpork(
     models, db_session: scoped_session, user_vetinari: funnel_models.User
 ) -> funnel_models.Organization:
@@ -1547,7 +1574,7 @@ def org_ankhmorpork(
     return org
 
 
-@pytest.fixture()
+@pytest.fixture
 def org_uu(
     models,
     db_session: scoped_session,
@@ -1571,7 +1598,7 @@ def org_uu(
         models.AccountMembership(
             account=org,
             member=user_librarian,
-            is_owner=False,
+            is_admin=True,
             granted_by=user_ridcully,
         )
     )
@@ -1579,14 +1606,14 @@ def org_uu(
         models.AccountMembership(
             account=org,
             member=user_ponder_stibbons,
-            is_owner=False,
+            is_admin=True,
             granted_by=user_ridcully,
         )
     )
     return org
 
 
-@pytest.fixture()
+@pytest.fixture
 def org_citywatch(
     models,
     db_session: scoped_session,
@@ -1618,18 +1645,19 @@ def org_citywatch(
     )
     db_session.add(
         models.AccountMembership(
-            account=org, member=user_carrot, is_owner=False, granted_by=user_vimes
+            account=org, member=user_carrot, is_admin=True, granted_by=user_vimes
         )
     )
     return org
 
 
-# --- Projects
+# MARK: Projects
+
 # Fixtures from this point on drift away from Discworld, to reflect the unique contours
 # of the product being tested. Maintaining fidelity to Discworld is hard.
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_expo2010(
     models,
     db_session: scoped_session,
@@ -1650,7 +1678,7 @@ def project_expo2010(
     return project
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_expo2011(
     models,
     db_session: scoped_session,
@@ -1671,7 +1699,7 @@ def project_expo2011(
     return project
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_ai1(
     models,
     db_session: scoped_session,
@@ -1701,7 +1729,7 @@ def project_ai1(
     return project
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_ai2(
     models,
     db_session: scoped_session,
@@ -1727,10 +1755,10 @@ def project_ai2(
     return project
 
 
-# --- Client apps
+# MARK: Client apps
 
 
-@pytest.fixture()
+@pytest.fixture
 def client_hex(
     models, db_session: scoped_session, org_uu: funnel_models.Organization
 ) -> funnel_models.AuthClient:
@@ -1739,7 +1767,6 @@ def client_hex(
 
     Owned by UU (owner) and administered by Ponder Stibbons (no corresponding role).
     """
-    # TODO: AuthClient needs to move to account (nee profile) as the parent model
     auth_client = models.AuthClient(
         title="Hex",
         account=org_uu,
@@ -1751,13 +1778,12 @@ def client_hex(
     return auth_client
 
 
-@runtime_checkable
 class CredProtocol(Protocol):
     cred: funnel_models.AuthClientCredential
     secret: str
 
 
-@pytest.fixture()
+@pytest.fixture
 def client_hex_credential(
     models, db_session: scoped_session, client_hex: funnel_models.AuthClient
 ) -> CredProtocol:
@@ -1766,7 +1792,7 @@ def client_hex_credential(
     return cast(CredProtocol, SimpleNamespace(cred=cred, secret=secret))
 
 
-@pytest.fixture()
+@pytest.fixture
 def all_fixtures(  # pylint: disable=too-many-locals
     db_session: scoped_session,
     user_twoflower: funnel_models.User,
@@ -1799,8 +1825,7 @@ def all_fixtures(  # pylint: disable=too-many-locals
     return SimpleNamespace(**locals())
 
 
-# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-# --- Old fixtures, to be removed when tests are updated -------------------------------
+# MARK: Old fixtures, to be removed when tests are updated -----------------------------
 
 
 TEST_DATA = {
@@ -1825,7 +1850,7 @@ TEST_DATA = {
 }
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_user(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['testuser'])
     db_session.add(user)
@@ -1833,7 +1858,7 @@ def new_user(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_user2(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['testuser2'])
     db_session.add(user)
@@ -1841,7 +1866,7 @@ def new_user2(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_user_owner(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['test_org_owner'])
     db_session.add(user)
@@ -1849,7 +1874,7 @@ def new_user_owner(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_user_admin(models, db_session: scoped_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['test_org_admin'])
     db_session.add(user)
@@ -1857,7 +1882,7 @@ def new_user_admin(models, db_session: scoped_session) -> funnel_models.User:
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_organization(
     models,
     db_session: scoped_session,
@@ -1870,7 +1895,7 @@ def new_organization(
     admin_membership = models.AccountMembership(
         account=org,
         member=new_user_admin,
-        is_owner=False,
+        is_admin=True,
         granted_by=new_user_owner,
     )
     db_session.add(admin_membership)
@@ -1878,7 +1903,7 @@ def new_organization(
     return org
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_team(
     models,
     db_session: scoped_session,
@@ -1892,7 +1917,7 @@ def new_team(
     return team
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_project(
     models,
     db_session: scoped_session,
@@ -1912,7 +1937,7 @@ def new_project(
     return project
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_project2(
     models,
     db_session: scoped_session,
@@ -1932,7 +1957,7 @@ def new_project2(
     return project
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_main_label(
     models, db_session: scoped_session, new_project: funnel_models.Project
 ) -> funnel_models.Label:
@@ -1952,7 +1977,7 @@ def new_main_label(
     return main_label_a
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_main_label_unrestricted(
     models, db_session: scoped_session, new_project: funnel_models.Project
 ) -> funnel_models.Label:
@@ -1972,7 +1997,7 @@ def new_main_label_unrestricted(
     return main_label_b
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_label(
     models, db_session: scoped_session, new_project: funnel_models.Project
 ) -> funnel_models.Label:
@@ -1983,7 +2008,7 @@ def new_label(
     return label_b
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_proposal(
     models,
     db_session: scoped_session,
@@ -2001,15 +2026,12 @@ def new_proposal(
     return proposal
 
 
-@pytest.fixture()
+@pytest.fixture
 def fail_with_diff() -> Callable[[str, str], None]:
     def func(left: str, right: str) -> None:
         if left != right:
             difference = unified_diff(left.split('\n'), right.split('\n'))
-            msg = []
-            for line in difference:
-                if not line.startswith(' '):
-                    msg.append(line)
+            msg = [line for line in difference if not line.startswith(' ')]
             pytest.fail('\n'.join(msg), pytrace=False)
 
     return func

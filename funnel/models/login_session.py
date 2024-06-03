@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
+from . import types
 from .account import Account
 from .base import (
     BaseMixin,
@@ -40,15 +41,15 @@ class LoginSessionError(Exception):
 
 
 class LoginSessionExpiredError(LoginSessionError):
-    """This user session has expired and cannot be marked as currently active."""
+    """User session has expired and cannot be marked as currently active."""
 
 
 class LoginSessionRevokedError(LoginSessionError):
-    """This user session has been revoked and cannot be marked as currently active."""
+    """User session has been revoked and cannot be marked as currently active."""
 
 
 class LoginSessionInactiveUserError(LoginSessionError):
-    """This user is not in ACTIVE state and cannot have a currently active session."""
+    """User is not in ACTIVE state and cannot have a currently active session."""
 
 
 LOGIN_SESSION_VALIDITY_PERIOD = timedelta(days=365)
@@ -106,7 +107,9 @@ class LoginSession(UuidMixin, BaseMixin[int, Account], Model):
     #: User's network, from IP address
     geoip_asn: Mapped[int | None] = sa_orm.mapped_column()
     #: User agent
-    user_agent: Mapped[str] = sa_orm.mapped_column(sa.UnicodeText, nullable=False)
+    user_agent: Mapped[str] = sa_orm.mapped_column(sa.Unicode, nullable=False)
+    #: User agent client hints
+    user_agent_client_hints: Mapped[types.Jsonb | None]
     #: The login service that was used to make this session
     login_service: Mapped[str | None] = sa_orm.mapped_column()
 
