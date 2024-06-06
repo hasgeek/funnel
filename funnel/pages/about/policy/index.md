@@ -6,4 +6,4 @@ title: Site policies
 4. [Cancellation, return and refund policy](refunds)
 5. [Community guidelines](community)
 6. [Code of conduct](code)
-6. [Prevention of Sexual Harassment Policy](posh)
+7. [Prevention of Sexual Harassment Policy](posh)

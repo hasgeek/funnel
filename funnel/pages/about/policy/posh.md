@@ -4,7 +4,7 @@ We believe in creating fair and equitable environments within the organization, 
 
 ## Prevention of Sexual Harassment Policy
 
-The purpose of this policy is to prevent any acts of sexual harassment and to provide redressal in the event of sexual harassment at the workplace. At Hasgeek, we nurture safety, dignity and the drawing of clear boundaries with zero tolerance of misconduct of any sort. 
+The purpose of this policy is to prevent any acts of sexual harassment and to provide redressal in the event of sexual harassment at the workplace. At Hasgeek, we nurture safety, dignity and the drawing of clear boundaries with zero tolerance of misconduct of any sort.
 
 This policy has been created in accordance with the provisions of The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013.
 
@@ -24,7 +24,7 @@ Sexual harassment includes any one or more of the following unwelcome acts or be
 
 4.  Showing pornography
 
-5.  Physical stalking 
+5.  Physical stalking
 
 6.  Voyeurism
 
@@ -72,11 +72,11 @@ This policy is applicable:
 
 4.  virtual spaces
 
-All the above are classified as "workplace" 
+All the above are classified as "workplace"
 
 ### To whom does it apply?
 
--  This policy is applicable to all employees:
+-   This policy is applicable to all employees:
 
 -   for any work on regular, temporary, ad-hoc or daily wage basis
 
@@ -86,7 +86,6 @@ All the above are classified as "workplace" 
 
 This policy is applicable also for community members or an outsider or third party who has visited the workplace.
 
-
 ## Redressal
 
 The process for submitting a complaint is as follows:
@@ -95,7 +94,7 @@ The process for submitting a complaint is as follows:
 
 2.  **Submit the complaint within 3 months of the incident**: Submit the complaint within 3 months of the occurrence or 6 months if there are exceptional circumstances due to which you cannot submit the complaint earlier.
 
-3.  **Keep documents for evidence**: We advise you to be vigilant and keep any document with you which can be used to substantiate an  allegation. The redressal system will work based on other evidence if you cannot produce any documentary evidence.
+3.  **Keep documents for evidence**: We advise you to be vigilant and keep any document with you which can be used to substantiate an allegation. The redressal system will work based on other evidence if you cannot produce any documentary evidence.
 
 ## Confidentiality:
 
@@ -117,19 +116,19 @@ After a complaint is submitted, the redressal process is as follows:
 
 1.  They will be made aware of the details of the allegation and also the name of the complainant as it would be necessary for proper inquiry.
 
-2.  No unfair acts of retaliation or unethical action will be tolerated.
+1.  No unfair acts of retaliation or unethical action will be tolerated.
 
-3.  The complainant can ask for conciliation: The complainant has the opportunity to ask for conciliation proceedings. A request for conciliation should be made within 2 weeks of receiving a reply from the respondent.
+1.  The complainant can ask for conciliation: The complainant has the opportunity to ask for conciliation proceedings. A request for conciliation should be made within 2 weeks of receiving a reply from the respondent.
 
 1.  Conciliation is a practical mechanism through which issues are resolved or misunderstandings cleared. It doesn't mean acceptance of complaint by the respondent.
 
-2.  In such conciliations, the complainant cannot demand monetary compensation.
+1.  In such conciliations, the complainant cannot demand monetary compensation.
 
-4.  A settlement is reached between the complainant and respondent: In case a settlement is arrived at, the committee will record & report the same to the employer for taking appropriate action.
+1.  A settlement is reached between the complainant and respondent: In case a settlement is arrived at, the committee will record & report the same to the employer for taking appropriate action.
 
 1.  The Committee shall provide the copies of the settlement as recorded during conciliation to the complainant and the respondent.
 
-2.  The respondent complies with the terms and conditions.
+1.  The respondent complies with the terms and conditions.
 
 ### Inquiry
 
@@ -141,17 +140,17 @@ If no settlement is reached between the parties, or if the respondent is not com
 
 3.  The ICC questions witnesses: If required, the person who has been named as a witness will need to provide the necessary information to assist in resolving the matter satisfactorily. The Committee shall call upon all witnesses mentioned by both the parties.
 
-1.  The Committee shall also call upon any witnesses it feels may provide necessary and vital information in regards to the inquiry.
+4.  The Committee shall also call upon any witnesses it feels may provide necessary and vital information in regards to the inquiry.
 
-4.  The ICC requests for documents: The ICC can ask for specific documents from a person if it feels that they are important for the purpose of investigation.
+5.  The ICC requests for documents: The ICC can ask for specific documents from a person if it feels that they are important for the purpose of investigation.
 
-5.  The ICC completes its investigation and prepares a report: The Committee should complete its investigation within 90 days of a complaint of sexual harassment and prepare an inquiry report that includes the recommended decision and the reasons for arriving at the decision.
+6.  The ICC completes its investigation and prepares a report: The Committee should complete its investigation within 90 days of a complaint of sexual harassment and prepare an inquiry report that includes the recommended decision and the reasons for arriving at the decision.
 
-6.  The ICC notifies the complainant and respondent: Notification of the decision and the reasons shall be individually given to the respondent and complainant on the same day.
+7.  The ICC notifies the complainant and respondent: Notification of the decision and the reasons shall be individually given to the respondent and complainant on the same day.
 
-7.  The ICC shares the report with the employer or District Officer: The Committee should share the report with the employer (or the District Officer) within 10 days of completion of the investigation.
+8.  The ICC shares the report with the employer or District Officer: The Committee should share the report with the employer (or the District Officer) within 10 days of completion of the investigation.
 
-8.  The employer or District Officer takes action against the respondent: The employer or the District Officer will act on the recommendations of the Committee within 60 days of the receipt of the report.
+9.  The employer or District Officer takes action against the respondent: The employer or the District Officer will act on the recommendations of the Committee within 60 days of the receipt of the report.
 
 Any party aggrieved by the report can prefer an appeal in the appropriate Court or Tribunal in accordance with the service rules within 90 days of the recommendation been given to the employer/District Officer.
 
@@ -187,7 +186,7 @@ Retaliation cases must be treated as seriously as an alleged case of sexual hara
 
 **Confidentiality**: The contents of the complaint made, the identity of the complainant, respondent and witnesses, any information relating to conciliation and inquiry proceedings, recommendations of the ICC and the action taken by the employer shall not be published, communicated or made known to the public, press and media in any manner.
 
- Any person contravening the confidentiality clause is subject to disciplinary action as prescribed in the Sexual Harassment of Women at Workplace Act, 2013.
+Any person contravening the confidentiality clause is subject to disciplinary action as prescribed in the Sexual Harassment of Women at Workplace Act, 2013.
 
 ### Protecting the respondent
 
@@ -198,6 +197,7 @@ If the ICC finds that the complainant has maliciously given a false complaint ag
 **Recommend disciplinary action against the complainant**: If the ICC arrives at the conclusion that the allegation against the respondent is malicious, they must recommend the employer to take appropriate action against the complainant.
 
 ## Roles and Responsibilities
+
 To ensure a safe workplace, every one, including ICC members, have roles and responsibilities.
 
 ### Internal Complaints Committee
