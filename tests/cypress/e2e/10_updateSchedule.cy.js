@@ -1,18 +1,16 @@
-/* eslint-disable global-require */
-describe('Add schedule and livestream', () => {
-  const { editor } = require('../fixtures/user.json');
-  const siteEditor = require('../fixtures/user.json').owner;
-  const session = require('../fixtures/session.json');
-  const proposal = require('../fixtures/proposal.json');
-  const project = require('../fixtures/project.json');
-  const dayjs = require('dayjs');
+import dayjs from 'dayjs';
 
+import { owner as siteEditor, editor } from '../fixtures/user.json';
+import session from '../fixtures/session.json';
+import proposal from '../fixtures/proposal.json';
+import project from '../fixtures/project.json';
+
+describe('Add schedule and livestream', () => {
   it('Add schedule and livestream', () => {
-    cy.server();
-    cy.route('**/sessions/new').as('new-session-form');
-    cy.route('POST', '**/sessions/new').as('add-new-session');
-    cy.route('**/schedule').as('session-form');
-    cy.route('POST', '**/schedule').as('add-session');
+    cy.intercept('**/sessions/new').as('new-session-form');
+    cy.intercept('POST', '**/sessions/new').as('add-new-session');
+    cy.intercept('**/schedule').as('session-form');
+    cy.intercept('POST', '**/schedule').as('add-session');
 
     cy.login('/', editor.username, editor.password);
 

@@ -1,8 +1,7 @@
-/* eslint-disable global-require */
-describe('Verify roles of promoter', () => {
-  const { promoter } = require('../fixtures/user.json');
-  const project = require('../fixtures/project.json');
+import { promoter } from '../fixtures/user.json';
+import project from '../fixtures/project.json';
 
+describe('Verify roles of promoter', () => {
   it('Access available for promoter in project settings', () => {
     cy.login('/', promoter.username, promoter.password);
 

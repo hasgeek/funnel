@@ -1,5 +1,7 @@
 import 'jquery-modal';
 import 'trunk8';
+import pace from 'pace-js';
+
 import Utils from './utils/helper';
 import WebShare from './utils/webshare';
 import ScrollHelper from './utils/scrollhelper';
@@ -15,8 +17,6 @@ import './utils/getDevicePixelRatio';
 import setTimezoneCookie from './utils/timezone';
 import './utils/follow_action';
 import 'muicss/dist/js/mui';
-
-const pace = require('pace-js');
 
 $(() => {
   /* eslint-disable no-console */

@@ -1,16 +1,14 @@
-/* eslint-disable global-require */
-describe('Add a new submission', () => {
-  const { user, usher } = require('../fixtures/user.json');
-  const proposal = require('../fixtures/proposal.json');
-  const project = require('../fixtures/project.json');
+import { user, usher } from '../fixtures/user.json';
+import proposal from '../fixtures/proposal.json';
+import project from '../fixtures/project.json';
 
+describe('Add a new submission', () => {
   it('Add submission', () => {
-    cy.server();
-    cy.route('GET', '**/admin').as('fetch-admin-panel');
-    cy.route('GET', '**/updates?*').as('fetch-updates');
-    cy.route('POST', '**/new').as('post-comment');
-    cy.route('GET', '**/collaborator/*').as('get-collaborator-form');
-    cy.route('POST', '**/collaborator/new').as('add-collaborator');
+    cy.intercept('GET', '**/admin').as('fetch-admin-panel');
+    cy.intercept('GET', '**/updates?*').as('fetch-updates');
+    cy.intercept('POST', '**/new').as('post-comment');
+    cy.intercept('GET', '**/collaborator/*').as('get-collaborator-form');
+    cy.intercept('POST', '**/collaborator/new').as('add-collaborator');
 
     cy.login('/', user.username, user.password);
 

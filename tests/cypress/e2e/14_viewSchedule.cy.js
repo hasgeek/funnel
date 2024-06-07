@@ -1,14 +1,13 @@
-/* eslint-disable global-require */
-describe('View schedule of p roject', () => {
-  const project = require('../fixtures/project.json');
-  const session = require('../fixtures/session.json');
-  const proposal = require('../fixtures/proposal.json');
-  const { user } = require('../fixtures/user.json');
-  const dayjs = require('dayjs');
+import dayjs from 'dayjs';
 
+import project from '../fixtures/project.json';
+import session from '../fixtures/session.json';
+import proposal from '../fixtures/proposal.json';
+import { user } from '../fixtures/user.json';
+
+describe('View schedule of project', () => {
   it('View schedule', () => {
-    cy.server();
-    cy.route('GET', '**/schedule/*').as('view-session');
+    cy.intercept('GET', '**/schedule/*').as('view-session');
 
     cy.visit('/');
     cy.get('.upcoming')

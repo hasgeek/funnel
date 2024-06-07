@@ -1,11 +1,9 @@
-/* eslint-disable global-require */
-describe('Responding yes to attend a project', () => {
-  const { user } = require('../fixtures/user.json');
-  const project = require('../fixtures/project.json');
+import { user } from '../fixtures/user.json';
+import project from '../fixtures/project.json';
 
+describe('Responding yes to attend a project', () => {
   it('Respond to attend a project', () => {
-    cy.server();
-    cy.route('POST', '**/save').as('bookmark-project');
+    cy.intercept('POST', '**/save').as('bookmark-project');
 
     cy.login('/testcypressproject', user.username, user.password);
 

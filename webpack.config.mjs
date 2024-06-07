@@ -1,15 +1,20 @@
 process.traceDeprecation = true;
 
-const webpack = require('webpack');
-const ESLintPlugin = require('eslint-webpack-plugin');
-const path = require('path');
-const { InjectManifest } = require('workbox-webpack-plugin');
-const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+import { createRequire } from 'node:module';
+import webpack from 'webpack';
+import ESLintPlugin from 'eslint-webpack-plugin';
+import path from 'path';
+import { InjectManifest } from 'workbox-webpack-plugin';
+import { WebpackManifestPlugin } from 'webpack-manifest-plugin';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+import { fileURLToPath } from 'url';
 
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const nodeEnv = process.env.NODE_ENV || 'production';
 
-module.exports = {
+export default {
   resolve: {
     fallback: {
       fs: false,

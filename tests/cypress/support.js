@@ -13,8 +13,6 @@ Cypress.Commands.add('logout', () => {
 });
 
 Cypress.Commands.add('fill_login_details', (username, password) => {
-  cy.server();
-
   cy.get('.field-username').type(username, { log: false });
   cy.get('a[data-cy="password-login"]').click();
   cy.get('.field-password').type(password, { log: false });
@@ -23,9 +21,8 @@ Cypress.Commands.add('fill_login_details', (username, password) => {
 });
 
 Cypress.Commands.add('add_profile_member', (username, field, role, fail = false) => {
-  cy.server();
-  cy.route('**/new').as('member-form');
-  cy.route('POST', '**/new').as('add-member');
+  cy.intercept('**/new').as('member-form');
+  cy.intercept('POST', '**/new').as('add-member');
 
   cy.wait(2000);
   cy.get('button[data-cy-btn="add-member"]').click();
@@ -57,9 +54,8 @@ Cypress.Commands.add('add_profile_member', (username, field, role, fail = false)
 });
 
 Cypress.Commands.add('add_member', (username, role, fail = false) => {
-  cy.server();
-  cy.route('**/new').as('member-form');
-  cy.route('POST', '**/new').as('add-member');
+  cy.intercept('**/new').as('member-form');
+  cy.intercept('POST', '**/new').as('add-member');
 
   cy.wait(2000);
   cy.get('button[data-cy-btn="add-member"]').click();
@@ -91,9 +87,8 @@ Cypress.Commands.add('add_member', (username, role, fail = false) => {
 });
 
 Cypress.Commands.add('checkin', (ticketParticipant) => {
-  cy.server();
-  cy.route('POST', '**/ticket_participants/checkin').as('checkin');
-  cy.route('**/ticket_participants/json').as('ticket-participant-list');
+  cy.intercept('POST', '**/ticket_participants/checkin').as('checkin');
+  cy.intercept('**/ticket_participants/json').as('ticket-participant-list');
 
   cy.get('td[data-cy="ticket-participant"]')
     .contains(ticketParticipant)

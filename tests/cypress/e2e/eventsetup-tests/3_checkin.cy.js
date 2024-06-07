@@ -1,11 +1,9 @@
-/* eslint-disable global-require */
-describe('Checkin of attendees', () => {
-  const { promoter } = require('../../fixtures/user.json');
-  const { user } = require('../../fixtures/user.json');
-  const project = require('../../fixtures/project.json');
-  const ticketEvents = require('../../fixtures/ticket_events.json');
-  const ticketParticipants = require('../../fixtures/ticket_participants.json');
+import { user, promoter } from '../../fixtures/user.json';
+import project from '../../fixtures/project.json';
+import ticketEvents from '../../fixtures/ticket_events.json';
+import ticketParticipants from '../../fixtures/ticket_participants.json';
 
+describe('Checkin of attendees', () => {
   it('Checkin of attendees', () => {
     cy.login('/', promoter.username, promoter.password);
 

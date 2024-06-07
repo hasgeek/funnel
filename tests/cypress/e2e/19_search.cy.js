@@ -1,13 +1,11 @@
-/* eslint-disable global-require */
-describe('Test search feature', () => {
-  const profile = require('../fixtures/profile.json');
-  const project = require('../fixtures/project.json');
-  const proposal = require('../fixtures/proposal.json');
-  const session = require('../fixtures/session.json');
+import profile from '../fixtures/profile.json';
+import project from '../fixtures/project.json';
+import proposal from '../fixtures/proposal.json';
+import session from '../fixtures/session.json';
 
+describe('Test search feature', () => {
   it('Search', () => {
-    cy.server();
-    cy.route('/search?**').as('search');
+    cy.intercept('/search?**').as('search');
 
     cy.visit('/');
     cy.get('input[name="q"]').type('Javascript');

@@ -1,15 +1,12 @@
-/* eslint-disable global-require */
-describe('Confirm submission comment subscription', () => {
-  const { editor, newuser } = require('../fixtures/user.json');
-  const member = require('../fixtures/user.json').user;
-  const proposal = require('../fixtures/proposal.json');
-  const project = require('../fixtures/project.json');
+import { user as member, editor, newuser } from '../fixtures/user.json';
+import proposal from '../fixtures/proposal.json';
+import project from '../fixtures/project.json';
 
+describe('Confirm submission comment subscription', () => {
   it('Confirm proposal', () => {
-    cy.server();
-    cy.route('POST', '**/new').as('post-comment');
-    cy.route('POST', '**/subscribe').as('post-subscribe');
-    cy.route('GET', '**/updates?*').as('fetch-updates');
+    cy.intercept('POST', '**/new').as('post-comment');
+    cy.intercept('POST', '**/subscribe').as('post-subscribe');
+    cy.intercept('GET', '**/updates?*').as('fetch-updates');
 
     cy.login('/', member.username, member.password);
     cy.get('#hgnav').find('a[data-cy="my-account"]').click();

@@ -1,13 +1,11 @@
-/* eslint-disable global-require */
-describe('View and update print status of badge', () => {
-  const { admin } = require('../../fixtures/user.json');
-  const project = require('../../fixtures/project.json');
-  const ticketEvents = require('../../fixtures/ticket_events.json');
+import { admin } from '../../fixtures/user.json';
+import project from '../../fixtures/project.json';
+import ticketEvents from '../../fixtures/ticket_events.json';
 
+describe('View and update print status of badge', () => {
   it('View badges to be printed', () => {
-    cy.server();
-    cy.route('POST', '**/ticket_participants/checkin?*').as('checkin');
-    cy.route('**/ticket_participants/json').as('ticket-participant-list');
+    cy.intercept('POST', '**/ticket_participants/checkin?*').as('checkin');
+    cy.intercept('**/ticket_participants/json').as('ticket-participant-list');
 
     cy.login('/testcypressproject', admin.username, admin.password);
 

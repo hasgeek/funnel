@@ -1,11 +1,10 @@
-/* eslint-disable global-require */
-describe('Add CFP and labels to project', () => {
-  const { editor } = require('../fixtures/user.json');
-  const cfp = require('../fixtures/cfp.json');
-  const profile = require('../fixtures/profile.json');
-  const project = require('../fixtures/project.json');
-  const labels = require('../fixtures/labels.json');
+import { editor } from '../fixtures/user.json';
+import cfp from '../fixtures/cfp.json';
+import profile from '../fixtures/profile.json';
+import project from '../fixtures/project.json';
+import labels from '../fixtures/labels.json';
 
+describe('Add CFP and labels to project', () => {
   it('Add CFP and labels', () => {
     var boxCoords = {};
 

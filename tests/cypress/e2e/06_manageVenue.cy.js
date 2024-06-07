@@ -1,9 +1,8 @@
-/* eslint-disable global-require */
-describe('Manage project venue', () => {
-  const { editor } = require('../fixtures/user.json');
-  const profile = require('../fixtures/profile.json');
-  const project = require('../fixtures/project.json');
+import { editor } from '../fixtures/user.json';
+import profile from '../fixtures/profile.json';
+import project from '../fixtures/project.json';
 
+describe('Manage project venue', () => {
   it('Add venue', () => {
     cy.login(`/${profile.title}/${project.url}`, editor.username, editor.password);
 

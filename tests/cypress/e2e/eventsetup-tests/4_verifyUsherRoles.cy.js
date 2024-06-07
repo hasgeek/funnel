@@ -1,8 +1,7 @@
-/* eslint-disable global-require */
-describe('Verify roles of usher', () => {
-  const { usher } = require('../../fixtures/user.json');
-  const project = require('../../fixtures/project.json');
+import { usher } from '../../fixtures/user.json';
+import project from '../../fixtures/project.json';
 
+describe('Verify roles of usher', () => {
   it('Access available for usher in project settings', () => {
     cy.login('/', usher.username, usher.password);
 

@@ -1,9 +1,8 @@
-/* eslint-disable global-require */
-describe('View project videos page', () => {
-  const project = require('../fixtures/project.json');
-  const session = require('../fixtures/session.json');
-  const proposal = require('../fixtures/proposal.json');
+import project from '../fixtures/project.json';
+import session from '../fixtures/session.json';
+import proposal from '../fixtures/proposal.json';
 
+describe('View project videos page', () => {
   it('View project videos page', () => {
     cy.visit('/');
     cy.get('.upcoming')
