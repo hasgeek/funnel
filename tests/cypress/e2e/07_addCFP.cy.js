@@ -4,7 +4,6 @@ describe('Add CFP and labels to project', () => {
   const cfp = require('../fixtures/cfp.json');
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
-  const dayjs = require('dayjs');
   const labels = require('../fixtures/labels.json');
 
   it('Add CFP and labels', () => {
@@ -106,17 +105,24 @@ describe('Add CFP and labels to project', () => {
 
     cy.get('.ui-draggable-box').then(($target) => {
       boxCoords = $target[1].getBoundingClientRect();
-      cy.get('.ui-draggable-box')
-        .eq(0)
-        .find('.drag-handle')
-        .trigger('mouseover', { which: 1, force: true, view: window })
-        .trigger('mousedown', { which: 1, force: true, view: window })
-        .trigger('mousemove', {
-          pageX: boxCoords.left,
-          pageY: boxCoords.bottom + boxCoords.height,
-          view: window,
-        })
-        .trigger('mouseup', { force: true, view: window });
+      cy.get('.ui-draggable-box').eq(0);
+      cy.get('.ui-draggable-box').find('.drag-handle');
+      cy.get('.ui-draggable-box').trigger('mouseover', {
+        which: 1,
+        force: true,
+        view: window,
+      });
+      cy.get('.ui-draggable-box').trigger('mousedown', {
+        which: 1,
+        force: true,
+        view: window,
+      });
+      cy.get('.ui-draggable-box').trigger('mousemove', {
+        pageX: boxCoords.left,
+        pageY: boxCoords.bottom + boxCoords.height,
+        view: window,
+      });
+      cy.get('.ui-draggable-box').trigger('mouseup', { force: true, view: window });
     });
 
     cy.get('button[data-cy="save-label-seq"]').click();

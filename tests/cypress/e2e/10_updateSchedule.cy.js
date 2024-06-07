@@ -25,7 +25,8 @@ describe('Add schedule and livestream', () => {
     cy.get('a[data-cy="edit-schedule"').click();
     cy.location('pathname').should('contain', 'schedule');
     const tomorrow = dayjs().add(1, 'days').format('YYYY-MM-DD');
-    cy.get('#select-date').type(tomorrow).click();
+    cy.get('#select-date').type(tomorrow);
+    cy.get('#select-date').click();
     cy.get('.js-unscheduled').click();
     cy.get('.fc-agenda-axis')
       .contains(session.timecolumn)
@@ -42,11 +43,10 @@ describe('Add schedule and livestream', () => {
     cy.get('#session-save').click();
     cy.wait('@add-new-session');
 
-    cy.get('.js-unscheduled')
-      .trigger('mousedown', { which: 1 })
-      .trigger('mousemove', { pageX: 230, pageY: 550 })
-      .trigger('mousemove', { pageX: 230, pageY: 570 })
-      .trigger('mouseup', { force: true });
+    cy.get('.js-unscheduled').trigger('mousedown', { which: 1 });
+    cy.get('.js-unscheduled').trigger('mousemove', { pageX: 230, pageY: 550 });
+    cy.get('.js-unscheduled').trigger('mousemove', { pageX: 230, pageY: 570 });
+    cy.get('.js-unscheduled').trigger('mouseup', { force: true });
     cy.wait('@session-form');
     cy.get('select#venue_room_id').select(proposal.room, { force: true });
     cy.get('#session-save').click();

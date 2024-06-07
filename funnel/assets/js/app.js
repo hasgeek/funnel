@@ -33,7 +33,7 @@ $(() => {
       'Unable to connect. Check connection and refresh the page',
     ),
     rateLimitError: window.gettext('This is unusually high activity. Try again later'),
-    error: window.gettext('An error occured when submitting the form'),
+    error: window.gettext('An error occurred when submitting the form'),
   };
 
   Utils.collapse();

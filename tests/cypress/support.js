@@ -103,7 +103,7 @@ Cypress.Commands.add('checkin', (ticketParticipant) => {
   cy.wait('@checkin', { timeout: 15000 });
   cy.wait('@ticket-participant-list', { timeout: 20000 });
   cy.wait('@ticket-participant-list', { timeout: 20000 });
-  cy.wait('@ticket-participant-list', { timeout: 20000 }).then((xhr) => {
+  cy.wait('@ticket-participant-list', { timeout: 20000 }).then(() => {
     cy.get('button[data-cy="cancel-checkin"]').should('exist');
   });
 });

@@ -1,7 +1,6 @@
 /* eslint-disable global-require */
 describe('Profile', () => {
   const { owner } = require('../fixtures/user.json');
-  const profile = require('../fixtures/profile.json');
   const sponsor = require('../fixtures/sponsor.json');
 
   it('Create a new profile', () => {

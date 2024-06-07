@@ -1,5 +1,5 @@
 import TableSearch from './utils/tablesearch';
-import SortItem from './utils/sort';
+import sortItem from './utils/sort';
 import { Widgets } from './utils/form_widgets';
 
 $(() => {
@@ -24,7 +24,7 @@ $(() => {
     }
 
     if (sort.permission) {
-      SortItem($(sort.wrapperElem), sort.placeholder, sort.url);
+      sortItem($(sort.wrapperElem), sort.placeholder, sort.url);
     }
 
     if (openSubmission) {

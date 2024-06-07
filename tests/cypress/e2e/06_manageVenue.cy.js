@@ -47,7 +47,8 @@ describe('Manage project venue', () => {
         cy.get('#field-description')
           .find('.cm-editor .cm-line')
           .type(venue.room.description, { force: true });
-        cy.get('#bgcolor').clear().type(venue.room.bgcolor);
+        cy.get('#bgcolor').clear();
+        cy.get('#bgcolor').type(venue.room.bgcolor);
         cy.get('button[data-cy="form-submit-btn"]').click();
         cy.location('pathname').should(
           'include',

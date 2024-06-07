@@ -1,7 +1,6 @@
 /* eslint-disable global-require */
 describe('Add a new submission', () => {
-  const { user, editor, usher } = require('../fixtures/user.json');
-  const profile = require('../fixtures/profile.json');
+  const { user, usher } = require('../fixtures/user.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
 
@@ -57,7 +56,8 @@ describe('Add a new submission', () => {
     cy.get('.select2-results__option').contains(usher.username).click();
     cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');
     cy.wait(1000);
-    cy.get('#field-label').click().type('Editor');
+    cy.get('#field-label').click();
+    cy.get('#field-label').type('Editor');
     cy.get('.modal').find('button[data-cy="form-submit-btn"]:visible').click();
     cy.wait('@add-collaborator');
     cy.get('a.modal__close:visible').click();

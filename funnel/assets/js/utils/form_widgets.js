@@ -202,7 +202,9 @@ export class MapMarker {
           $(`#${self.field.mapId}`).removeClass('mui--hide');
         }
       },
-      onlocationnotfound() {},
+      onlocationnotfound() {
+        // Ignore this event
+      },
       oninitialized() {
         // Locationpicker sets latitude and longitude field value to 0,
         // this is to empty the fields and hide the map

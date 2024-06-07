@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 describe('Test comments feature', () => {
-  const { user, hguser, editor } = require('../fixtures/user.json');
+  const { user, hguser } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
 
   it('Post comment on project page', () => {

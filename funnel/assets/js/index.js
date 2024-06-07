@@ -1,4 +1,4 @@
-import SaveProject from './utils/bookmark';
+import saveProject from './utils/bookmark';
 import 'htmx.org';
 import initEmbed from './utils/initembed';
 import Ticketing from './utils/ticket_widget';
@@ -18,7 +18,7 @@ $(() => {
         formId: $(this).attr('id'),
         postUrl: $(this).attr('action'),
       };
-      SaveProject(projectSaveConfig);
+      saveProject(projectSaveConfig);
     });
     initEmbed(markdownContainer);
 

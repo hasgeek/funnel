@@ -103,7 +103,7 @@
 .mui-btn__icon {
   display: flex;
   flex-direction: row;
-  gap: $mui-grid-padding/2;
+  gap: calc($mui-grid-padding/2);
   align-items: center;
 }
 

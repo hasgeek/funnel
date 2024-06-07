@@ -45,7 +45,6 @@ setCatchHandler(({ event }) => {
   switch (event.request.destination) {
     case 'document':
       return caches.match('/api/1/template/offline');
-      break;
 
     default:
       return Response.error();

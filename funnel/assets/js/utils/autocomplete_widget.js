@@ -78,10 +78,10 @@ const EnableAutocompleteWidgets = {
         processResults(data) {
           const rdata = [];
           if (data.status === 'ok') {
-            for (let i = 0; i < data.result.length; i += 1) {
+            for (const r of data.result) {
               rdata.push({
-                id: data.result[i].geonameid,
-                text: data.result[i].picker_title,
+                id: r.geonameid,
+                text: r.picker_title,
               });
             }
           }
@@ -104,11 +104,11 @@ const EnableAutocompleteWidgets = {
         $(options.selector).empty();
         const rdata = [];
         if (data.status === 'ok') {
-          for (let i = 0; i < data.result.length; i += 1) {
+          for (const r of data.result) {
             $(options.selector).append(
-              `<option value="${data.result[i].geonameid}" selected>${data.result[i].picker_title}</option>`,
+              `<option value="${r.geonameid}" selected>${r.picker_title}</option>`,
             );
-            rdata.push(data.result[i].geonameid);
+            rdata.push(r.geonameid);
           }
           $(options.selector).val(rdata).trigger('change');
         }

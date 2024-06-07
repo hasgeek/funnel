@@ -16,7 +16,9 @@ module.exports = defineConfig({
     supportFile: 'tests/cypress/support.js',
   },
   component: {
-    setupNodeEvents(on, config) {},
+    setupNodeEvents() {
+      /* Do nothing */
+    },
     specPattern: 'tests/cypress/component/**/*.cy.{js,jsx,ts,tsx}',
   },
 });

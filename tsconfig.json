@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "alwaysStrict": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "pretty": true,
+    "strict": true,
+    "verbatimModuleSyntax": true
+  }
+}
