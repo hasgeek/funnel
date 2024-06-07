@@ -2,11 +2,8 @@ import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute, setCatchHandler } from 'workbox-routing';
 import { NetworkFirst, NetworkOnly } from 'workbox-strategies';
 import { skipWaiting, clientsClaim } from 'workbox-core';
-const filteredManifest = self.__WB_MANIFEST.filter((entry) => {
-  return !entry.url.match('prism-');
-});
 
-precacheAndRoute(filteredManifest);
+precacheAndRoute(self.__WB_MANIFEST);
 
 skipWaiting();
 clientsClaim();

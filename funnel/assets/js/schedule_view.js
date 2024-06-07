@@ -11,29 +11,29 @@ import Modal from './utils/modalhelper';
 
 const Schedule = {
   renderScheduleTable() {
-    const schedule = this;
+    const self = this;
 
     const scheduleUI = Vue.component('schedule', {
-      template: schedule.config.scriptTemplate,
+      template: self.config.scriptTemplate,
       data() {
         return {
-          schedules: schedule.config.schedule,
-          rowWidth: Object.keys(schedule.config.rooms).length,
+          schedules: self.config.schedule,
+          rowWidth: Object.keys(self.config.rooms).length,
           rowHeight: '30',
           timeSlotWidth: '75',
-          timeZone: schedule.config.timeZone,
+          timeZone: self.config.timeZone,
           rowBorder: '1',
-          activeTab: Object.keys(schedule.config.rooms)[0],
+          activeTab: Object.keys(self.config.rooms)[0],
           width: $(window).width(),
           height: $(window).height(),
           modalHtml: '',
           headerHeight: '',
           pageDetails: {
             url: window.location.href,
-            title: `Schedule – ${schedule.config.projectTitle}`,
-            projectTitle: schedule.config.projectTitle,
+            title: `Schedule – ${self.config.projectTitle}`,
+            projectTitle: self.config.projectTitle,
             pageTitle: 'Schedule',
-            description: schedule.config.pageDescription,
+            description: self.config.pageDescription,
           },
           view: 'agenda',
           svgIconUrl: window.Hasgeek.Config.svgIconUrl,
@@ -84,14 +84,14 @@ const Schedule = {
           // On closing modal, update browser history
           $('#session-modal').on($.modal.CLOSE, () => {
             this.modalHtml = '';
-            if (schedule.config.replaceHistoryToModalUrl) {
+            if (self.config.replaceHistoryToModalUrl) {
               Spa.updateMetaTags(this.pageDetails);
               if (window.history.state.openModal) {
                 window.history.back();
               }
             }
           });
-          if (schedule.config.changeToModalUrl) {
+          if (self.config.changeToModalUrl) {
             $(window).on('popstate', () => {
               if (this.modalHtml) {
                 $.modal.close();
@@ -103,7 +103,7 @@ const Schedule = {
           this.modalHtml = sessionHtml;
           $('#session-modal').modal('show');
           this.handleModalShown();
-          if (schedule.config.replaceHistoryToModalUrl) {
+          if (self.config.replaceHistoryToModalUrl) {
             window.history.pushState(
               {
                 openModal: true,
@@ -184,7 +184,7 @@ const Schedule = {
           this.getHeight();
           this.pathName = window.location.pathname;
           const scrollPos = JSON.parse(window.sessionStorage.getItem('scrollPos'));
-          const activeSession = schedule.config.active_session;
+          const activeSession = self.config.active_session;
           if (activeSession) {
             // Open session modal
             const paths = window.location.href.split('/');
@@ -243,7 +243,7 @@ const Schedule = {
         },
       },
       mounted() {
-        if (schedule.config.rememberScrollPos) {
+        if (self.config.rememberScrollPos) {
           this.animateWindowScrollWithHeader();
         }
         this.handleBrowserResize();
@@ -257,7 +257,7 @@ const Schedule = {
         faSvg,
       },
     });
-    scheduleApp.$mount(schedule.config.divElem);
+    scheduleApp.$mount(self.config.divElem);
   },
   addSessionToSlots() {
     this.config.sessions.forEach((session) => {
@@ -316,7 +316,6 @@ const Schedule = {
     };
   },
   init(config) {
-    const self = this;
     this.config = config;
     this.config.rooms = {};
     if (!this.config.venues.length) {
@@ -330,7 +329,7 @@ const Schedule = {
           this.config.rooms[room.scoped_name].venue_title = venue.title;
         });
       } else {
-        self.addDefaultRoom(venue);
+        this.addDefaultRoom(venue);
       }
     });
     this.config.currentDate = this.Utils.getDateString(new Date());

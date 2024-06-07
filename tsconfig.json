@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "alwaysStrict": true,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
     "module": "NodeNext",
@@ -9,5 +11,11 @@
     "pretty": true,
     "strict": true,
     "verbatimModuleSyntax": true
+  },
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
   }
 }

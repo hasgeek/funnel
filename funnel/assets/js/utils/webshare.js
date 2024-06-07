@@ -17,21 +17,20 @@ const WebShare = {
 
       $('body').on('click', '.hg-link-btn', function clickWebShare(event) {
         event.preventDefault();
-        const linkElem = this;
         let url =
-          $(linkElem).data('url') ||
+          $(this).data('url') ||
           (document.querySelector('link[rel=canonical]') &&
             document.querySelector('link[rel=canonical]').href) ||
           window.location.href;
         const title = $(this).data('title') || document.title;
         const text = $(this).data('text') || '';
-        if ($(linkElem).attr('data-shortlink')) {
+        if ($(this).attr('data-shortlink')) {
           mobileShare(title, url, text);
         } else {
           Utils.fetchShortUrl(url)
             .then((shortlink) => {
               url = shortlink;
-              $(linkElem).attr('data-shortlink', true);
+              $(this).attr('data-shortlink', true);
             })
             .finally(() => {
               mobileShare(title, url, text);
@@ -41,15 +40,14 @@ const WebShare = {
     } else {
       $('body').on('click', '.js-copy-link', function clickCopyLink(event) {
         event.preventDefault();
-        const linkElem = this;
-        if ($(linkElem).attr('data-shortlink')) {
-          Utils.copyToClipboard($(linkElem).find('.js-copy-url')[0]);
+        if ($(this).attr('data-shortlink')) {
+          Utils.copyToClipboard($(this).find('.js-copy-url')[0]);
         } else {
-          Utils.fetchShortUrl($(linkElem).find('.js-copy-url').first().html())
+          Utils.fetchShortUrl($(this).find('.js-copy-url').first().html())
             .then((shortlink) => {
-              $(linkElem).find('.js-copy-url').text(shortlink);
-              $(linkElem).attr('data-shortlink', true);
-              Utils.copyToClipboard($(linkElem).find('.js-copy-url')[0]);
+              $(this).find('.js-copy-url').text(shortlink);
+              $(this).attr('data-shortlink', true);
+              Utils.copyToClipboard($(this).find('.js-copy-url')[0]);
             })
             .catch((errMsg) => {
               toastr.error(errMsg);

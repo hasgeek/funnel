@@ -103,6 +103,7 @@ export default {
     path: path.resolve(__dirname, 'funnel/static/build'),
     publicPath: '/static/build/',
     filename: 'js/[name].[chunkhash].js',
+    compareBeforeEmit: true,
   },
   module: {
     rules: [
@@ -160,6 +161,7 @@ export default {
     new InjectManifest({
       swSrc: path.resolve(__dirname, 'funnel/assets/service-worker-template.js'),
       swDest: path.resolve(__dirname, 'funnel/static/build/js/service-worker.js'),
+      exclude: [/prismjs/, /\.map$/, /\.LICENSE\.txt$/],
     }),
   ],
 };

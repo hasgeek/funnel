@@ -42,8 +42,7 @@ const Ticketing = {
       },
 
       error(response) {
-        const ajaxLoad = this;
-        ajaxLoad.retries -= 1;
+        this.retries -= 1;
         let errorMsg;
 
         if (response.readyState === 4) {
@@ -52,7 +51,7 @@ const Ticketing = {
           );
           $(widgetElem).html(errorMsg);
         } else if (response.readyState === 0) {
-          if (ajaxLoad.retries < 0) {
+          if (this.retries < 0) {
             if (!navigator.onLine) {
               errorMsg = window.gettext('This device has no internet connection');
             } else {
@@ -64,8 +63,8 @@ const Ticketing = {
             $(widgetElem).html(errorMsg);
           } else {
             setTimeout(() => {
-              $.get(ajaxLoad);
-            }, ajaxLoad.retryInterval);
+              $.get(this);
+            }, this.retryInterval);
           }
         }
       },

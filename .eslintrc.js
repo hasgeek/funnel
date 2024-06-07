@@ -31,6 +31,6 @@ module.exports = {
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'cypress/no-unnecessary-waiting': 'off',
-    '@typescript-eslint/no-this-alias': 'off',
+    '@typescript-eslint/no-this-alias': ['error', { allowedNames: ['self'] }],
   },
 };

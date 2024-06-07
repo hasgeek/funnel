@@ -12,7 +12,7 @@ const MarkmapEmbed = {
   },
   async init(container) {
     const parentElement = $(container || 'body');
-    const markmapEmbed = this;
+    const self = this;
     if (
       parentElement.find('.md-embed-markmap:not(.activating, .activated)').length > 0
     ) {
@@ -34,14 +34,11 @@ const MarkmapEmbed = {
       parentElement
         .find('.md-embed-markmap:not(.activating):not(.activated)')
         .each(function embedMarkmap() {
-          const markdownDiv = this;
-          $(markdownDiv).addClass('activating');
-          $(markdownDiv).find('.embed-loading').addClass('loading');
-          const { root } = transformer.transform(
-            $(markdownDiv).find('.embed-content').text(),
-          );
-          $(markdownDiv).find('.embed-container').append('<svg></svg>');
-          const current = $(markdownDiv).find('svg')[0];
+          $(this).addClass('activating');
+          $(this).find('.embed-loading').addClass('loading');
+          const { root } = transformer.transform($(this).find('.embed-content').text());
+          $(this).find('.embed-container').append('<svg></svg>');
+          const current = $(this).find('svg')[0];
           const markmap = Markmap.create(
             current,
             {
@@ -52,10 +49,10 @@ const MarkmapEmbed = {
             },
             root,
           );
-          markmapEmbed.markmaps.push(markmap);
+          self.markmaps.push(markmap);
           $(current).data('markmap', markmap);
           observer.observe(current);
-          $(markdownDiv).addClass('activated').removeClass('activating');
+          $(this).addClass('activated').removeClass('activating');
         });
 
       window.addEventListener('resize', this.resizeMarkmapContainers.bind(this));
