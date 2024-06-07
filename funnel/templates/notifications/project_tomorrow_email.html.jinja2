@@ -7,11 +7,11 @@
       <p class="body-content">
         {%- with venue = view.project.primary_venue %}
           {%- if venue %}
-            {%- trans project=view.project.joined_title, start_at=(view.session or view.project).start_at_localized|datetime, venue=venue.title, location=venue.city or project.location -%}
+            {%- trans project=view.project.joined_title, start_at=(view.session or view.project).start_at_localized|datetime, venue=venue.title, location=venue.city or view.project.location -%}
               <b>{{ project }}</b> has an in-person session at {{ venue }}, {{ location }} starting {{ start_at }}.
             {%- endtrans -%}
           {%- else %}
-            {%- trans project=view.project.joined_title, start_at=(view.session or view.project).start_at_localized|datetime, location=project.location -%}
+            {%- trans project=view.project.joined_title, start_at=(view.session or view.project).start_at_localized|datetime, location=view.project.location -%}
               <b>{{ project }}</b> has an in-person session at {{ location }}, starting {{ start_at }}.
             {%- endtrans -%}
           {%- endif %}
