@@ -62,9 +62,9 @@ All the above are classified as “workplace”.
 
 This policy is applicable to all employees:
 
--   for any work on regular, temporary, ad-hoc or daily wage basis
--   for remuneration or not, or working on a voluntary basis or otherwise
--   as a coworker, a contract worker, probationer, trainee, apprentice or by any other such name
+- for any work on regular, temporary, ad-hoc or daily wage basis
+- for remuneration or not, or working on a voluntary basis or otherwise
+- as a coworker, a contract worker, probationer, trainee, apprentice or by any other such name
 
 This policy is applicable also for community members or an outsider or third party who has visited the workplace.
 
@@ -197,14 +197,14 @@ The ICC is responsible for:
 
 Hasgeek is committed to providing a safe working environment for its employees that is free from harassment, bias and prejudice of any kind:
 
--   Treat Sexual Harassment as misconduct under the service rules and take appropriate action as required.
--   Encourage respectful and dignified behaviour at the workplace at all times.
--   Have zero tolerance toward acts of sexual harassment.
--   Declare the names and contact details of all members of the ICC.
--   Display at conspicuous places in the workplace the penal consequences of Sexual Harassment.
--   Organize workshops and awareness programs at regular intervals for sensitizing employees, keeping in mind the provisions of this policy.
--   Organize orientation and skill-building programs for the members of the ICC.
--   Provide the ICC with any support it may require in the process of conducting an inquiry.
--   Assist in securing the attendance all parties required for an inquiry, including the respondent, complainant and witnesses.
--   Provide assistance to the complainant if they chooses to file a complaint in relation to the offence under the Indian Penal Code or any other law for the time being in force.
--   Monitor the timely submission of reports by the ICC.
+- Treat Sexual Harassment as misconduct under the service rules and take appropriate action as required.
+- Encourage respectful and dignified behaviour at the workplace at all times.
+- Have zero tolerance toward acts of sexual harassment.
+- Declare the names and contact details of all members of the ICC.
+- Display at conspicuous places in the workplace the penal consequences of Sexual Harassment.
+- Organize workshops and awareness programs at regular intervals for sensitizing employees, keeping in mind the provisions of this policy.
+- Organize orientation and skill-building programs for the members of the ICC.
+- Provide the ICC with any support it may require in the process of conducting an inquiry.
+- Assist in securing the attendance all parties required for an inquiry, including the respondent, complainant and witnesses.
+- Provide assistance to the complainant if they chooses to file a complaint in relation to the offence under the Indian Penal Code or any other law for the time being in force.
+- Monitor the timely submission of reports by the ICC.
