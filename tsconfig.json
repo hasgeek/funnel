@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "allowJs": true,
+    "allowJs": false,
     "allowSyntheticDefaultImports": true,
     "alwaysStrict": true,
     "esModuleInterop": true,
@@ -12,6 +12,7 @@
     "strict": true,
     "verbatimModuleSyntax": true
   },
+  "exclude": ["**/node_modules/**", "**/build/**"],
   "ts-node": {
     "transpileOnly": true,
     "compilerOptions": {
