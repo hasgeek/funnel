@@ -120,7 +120,7 @@ const Ticketing = {
       this.openTicketModal();
     }
 
-    $('.js-open-ticket-widget').click((event) => {
+    $('.js-open-ticket-widget').on('click', (event) => {
       event.preventDefault();
       this.openTicketModal();
     });

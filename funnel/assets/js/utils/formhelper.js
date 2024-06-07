@@ -63,8 +63,7 @@ const Form = {
   },
   preventSubmitOnEnter(id) {
     $(`#${id}`).on('keyup keypress', (e) => {
-      const code = e.keyCode || e.which;
-      if (code === 13) {
+      if (e.key === 'Enter') {
         e.preventDefault();
         return false;
       }
@@ -187,7 +186,7 @@ const Form = {
   handleFormSubmit(formId, url, onSuccess, onError, config) {
     $(`#${formId}`)
       .find('button[type="submit"]')
-      .click((event) => {
+      .on('click', (event) => {
         event.preventDefault();
         Form.ajaxFormSubmit(formId, url, onSuccess, onError, config);
       });

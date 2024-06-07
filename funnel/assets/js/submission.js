@@ -59,7 +59,7 @@ export const LabelsWidget = {
         self.updateLabels('', attr, false);
       } else {
         $(this).addClass('checked');
-        $(this).siblings().find('input[type="radio"]').first().click();
+        $(this).siblings().find('input[type="radio"]').first().trigger('click');
       }
     });
 

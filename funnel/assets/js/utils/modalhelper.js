@@ -1,6 +1,6 @@
 const Modal = {
   handleModalForm() {
-    $('.js-modal-form').click(function addModalToWindowHash() {
+    $('.js-modal-form').on('click', function addModalToWindowHash() {
       window.location.hash = $(this).data('hash');
     });
 
@@ -27,7 +27,7 @@ const Modal = {
     const hashId = window.location.hash.split('#')[1];
     if (hashId) {
       if ($(`a.js-modal-form[data-hash="${hashId}"]`).length) {
-        $(`a[data-hash="${hashId}"]`).click();
+        $(`a[data-hash="${hashId}"]`).trigger('click');
       }
     }
 
@@ -47,7 +47,7 @@ const Modal = {
     $this.find('.modal__close').focus();
 
     $this.on('keydown', (event) => {
-      if (event.keyCode !== 9) return;
+      if (event.key !== 'Tab') return;
       focusedItem = $(document.activeElement);
       focusedItemIndex = focusableItems.index(focusedItem);
       if (!event.shiftKey && focusedItemIndex === numberOfFocusableItems - 1) {

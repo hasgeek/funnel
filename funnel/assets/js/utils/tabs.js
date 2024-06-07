@@ -35,16 +35,16 @@ const Tabs = {
       .wrap('<div class="md-tablist-wrapper"></div>')
       .before($leftIcons)
       .after($rightIcons);
-    $(icons.left.touch).click(function previousTab() {
+    $(icons.left.touch).on('click', function previousTab() {
       tablist.dispatchEvent(new Event('previous-tab'));
     });
-    $(icons.right.touch).click(function nextTab() {
+    $(icons.right.touch).on('click', function nextTab() {
       tablist.dispatchEvent(new Event('next-tab'));
     });
-    $(icons.left.scroll).click(function scrollLeft() {
+    $(icons.left.scroll).on('click', function scrollLeft() {
       tablist.dispatchEvent(new Event('scroll-left'));
     });
-    $(icons.right.scroll).click(function scrollRight() {
+    $(icons.right.scroll).on('click', function scrollRight() {
       tablist.dispatchEvent(new Event('scroll-right'));
     });
   },
@@ -119,21 +119,19 @@ const Tabs = {
   },
   enhanceARIA(tablist, $tabs) {
     $tabs.on('keydown', function addArrowNav(event) {
-      const [LEFT, UP, RIGHT, DOWN] = [37, 38, 39, 40];
-      const k = event.which || event.keyCode;
-      if (k >= LEFT && k <= DOWN) {
-        switch (k) {
-          case LEFT:
-          case UP:
-            tablist.dispatchEvent(new Event('previous-tab'));
-            break;
-          case RIGHT:
-          case DOWN:
-            tablist.dispatchEvent(new Event('next-tab'));
-            break;
-          default:
-        }
-        event.preventDefault();
+      const k = event.key;
+      switch (k) {
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          event.preventDefault();
+          tablist.dispatchEvent(new Event('previous-tab'));
+          break;
+        case 'ArrowRight':
+        case 'ArrowDown':
+          event.preventDefault();
+          tablist.dispatchEvent(new Event('next-tab'));
+          break;
+        default:
       }
     });
     $tabs.each(function addTabListeners(tabIndex, tab) {

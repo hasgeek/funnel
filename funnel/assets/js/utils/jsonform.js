@@ -24,7 +24,7 @@ const jsonForm = Vue.component('jsonform', {
       };
       $(`#${this.formid}`)
         .find('button[type="submit"]')
-        .click((event) => {
+        .on('click', (event) => {
           event.preventDefault();
           Form.ajaxFormSubmit(this.formid, url, onSuccess, onError, {
             contentType: 'application/json',

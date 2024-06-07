@@ -34,7 +34,7 @@ $(() => {
       });
     }
 
-    $('a.js-register-btn').click(function showRegistrationModal() {
+    $('a.js-register-btn').on('click', function showRegistrationModal() {
       window.history.pushState(
         {
           openModal: true,

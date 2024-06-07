@@ -11,16 +11,16 @@ const Analytics = {
   },
   init() {
     // Send click events to Google analytics
-    $('.mui-btn, a').click(function gaHandler() {
+    $('.mui-btn, a').on('click', function gaHandler() {
       const action = $(this).attr('data-ga') || $(this).attr('title') || $(this).html();
       const target = $(this).attr('data-target') || $(this).attr('href') || '';
       Analytics.sendToGA('click', action, target);
     });
-    $('.ga-login-btn').click(function gaHandler() {
+    $('.ga-login-btn').on('click', function gaHandler() {
       const action = $(this).attr('data-ga');
       Analytics.sendToGA('login', action);
     });
-    $('.search-form__submit').click(function gaHandler() {
+    $('.search-form__submit').on('click', function gaHandler() {
       const target = $('.js-search-field').val();
       Analytics.sendToGA('search', target, target);
     });
