@@ -113,7 +113,7 @@ const badgeScan = {
             0,
             0,
             canvasElement.width,
-            canvasElement.height
+            canvasElement.height,
           );
           const qrcode = jsQR(imageData.data, imageData.width, imageData.height);
           this.verifyQRDecode(qrcode);
@@ -165,8 +165,8 @@ const badgeScan = {
           this.set(
             'error',
             window.gettext(
-              'Unable to access video stream. Please make sure you have camera enabled or try a different browser'
-            )
+              'Unable to access video stream. Please make sure you have camera enabled or try a different browser',
+            ),
           );
         }
       },

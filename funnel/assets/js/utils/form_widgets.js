@@ -140,17 +140,17 @@ export async function activateFormWidgets() {
       $('#username').attr('autocomplete', inputMode);
       $('#username').blur();
       $('#username').focus();
-    }
+    },
   );
 
   if (
     $(
-      'textarea.markdown:not([style*="display: none"], .activating, .activated, .no-codemirror)'
+      'textarea.markdown:not([style*="display: none"], .activating, .activated, .no-codemirror)',
     ).length
   ) {
     const { default: codemirrorHelper } = await import('./codemirror');
     $(
-      'textarea.markdown:not([style*="display: none"]:not(.activating):not(.activated)'
+      'textarea.markdown:not([style*="display: none"]:not(.activating):not(.activated)',
     ).each(function enableCodemirror() {
       const markdownId = $(this).attr('id');
       $(`#${markdownId}`).addClass('activating');
@@ -160,14 +160,14 @@ export async function activateFormWidgets() {
 
   if (
     $(
-      'textarea.stylesheet:not([style*="display: none"]:not(.activating):not(.activated)'
+      'textarea.stylesheet:not([style*="display: none"]:not(.activating):not(.activated)',
     ).length
   ) {
     const { default: codemirrorStylesheetHelper } = await import(
       './codemirror_stylesheet'
     );
     $(
-      'textarea.stylesheet:not([style*="display: none"]:not(.activating):not(.activated)'
+      'textarea.stylesheet:not([style*="display: none"]:not(.activating):not(.activated)',
     ).each(function enableCodemirrorForStylesheet() {
       const textareaId = $(this).attr('id');
       $(`#${textareaId}`).addClass('activating');

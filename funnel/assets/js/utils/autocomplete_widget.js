@@ -106,7 +106,7 @@ const EnableAutocompleteWidgets = {
         if (data.status === 'ok') {
           for (let i = 0; i < data.result.length; i += 1) {
             $(options.selector).append(
-              `<option value="${data.result[i].geonameid}" selected>${data.result[i].picker_title}</option>`
+              `<option value="${data.result[i].geonameid}" selected>${data.result[i].picker_title}</option>`,
             );
             rdata.push(data.result[i].geonameid);
           }

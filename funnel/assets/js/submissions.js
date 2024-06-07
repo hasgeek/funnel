@@ -30,7 +30,7 @@ $(() => {
     if (openSubmission) {
       Widgets.openSubmissionToggle(
         openSubmission.toggleId,
-        openSubmission.cfpStatusElem
+        openSubmission.cfpStatusElem,
       );
     }
   };

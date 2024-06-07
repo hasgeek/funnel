@@ -21,16 +21,16 @@ const pace = require('pace-js');
 $(() => {
   /* eslint-disable no-console */
   console.log(
-    'Hello, curious geek. Our source is at https://github.com/hasgeek. Why not contribute a patch?'
+    'Hello, curious geek. Our source is at https://github.com/hasgeek. Why not contribute a patch?',
   );
 
   loadLangTranslations();
   window.Hasgeek.Config.errorMsg = {
     serverError: window.gettext(
-      'An internal server error occurred. Our support team has been notified and will investigate'
+      'An internal server error occurred. Our support team has been notified and will investigate',
     ),
     networkError: window.gettext(
-      'Unable to connect. Check connection and refresh the page'
+      'Unable to connect. Check connection and refresh the page',
     ),
     rateLimitError: window.gettext('This is unusually high activity. Try again later'),
     error: window.gettext('An error occured when submitting the form'),
@@ -58,7 +58,7 @@ $(() => {
     polyfill.setAttribute('type', 'text/javascript');
     polyfill.setAttribute(
       'src',
-      'https://cdnjs.cloudflare.com/ajax/libs/url-search-params/1.1.0/url-search-params.js'
+      'https://cdnjs.cloudflare.com/ajax/libs/url-search-params/1.1.0/url-search-params.js',
     );
     document.head.appendChild(polyfill);
   }

@@ -88,7 +88,7 @@ const Notification = {
               this.notifications[$(notification).attr('data-index')];
             const url = this.markReadUrl.replace(
               'eventid_b58',
-              notificationItem.notification.eventid_b58
+              notificationItem.notification.eventid_b58,
             );
             const response = await fetch(url, {
               method: 'POST',
@@ -140,7 +140,7 @@ const Notification = {
             {
               rootMargin: '0px',
               threshold: 0,
-            }
+            },
           );
           notificationObserver.observe(elem);
           const notificationItem = app.notifications[$(elem).attr('data-index')];

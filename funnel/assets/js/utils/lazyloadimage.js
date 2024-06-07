@@ -16,7 +16,7 @@ const LazyloadImg = {
         polyfill.setAttribute('type', 'text/javascript');
         polyfill.setAttribute(
           'src',
-          'https://cdn.polyfill.io/v2/polyfill.min.js?features=IntersectionObserver'
+          'https://cdn.polyfill.io/v2/polyfill.min.js?features=IntersectionObserver',
         );
         polyfill.onload = function loadintersectionObserverComponents() {
           intersectionObserverComponents();
@@ -46,7 +46,7 @@ const LazyloadImg = {
           {
             rootMargin: '0px',
             threshold: 0,
-          }
+          },
         );
         observer.observe(img);
       }

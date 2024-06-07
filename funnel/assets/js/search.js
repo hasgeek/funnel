@@ -29,7 +29,7 @@ const Search = {
           scrollLeft: document.querySelector(`.${this.config.activetabClassName}`)
             .offsetLeft,
         },
-        'slow'
+        'slow',
       );
     }
     Utils.truncate();

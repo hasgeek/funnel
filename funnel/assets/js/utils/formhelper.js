@@ -14,8 +14,8 @@ const Form = {
     ) {
       window.location.assign(
         `${window.Hasgeek.Config.accountSudo}?next=${encodeURIComponent(
-          window.location.href
-        )}`
+          window.location.href,
+        )}`,
       );
     } else if (
       response.status === 422 &&

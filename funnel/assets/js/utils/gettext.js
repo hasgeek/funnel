@@ -114,7 +114,7 @@ class Gettext {
         if (msgidCatalog.length < 2) {
           // eslint-disable-next-line no-console
           console.error(
-            'Invalid format for translated messages, at least 2 values expected for plural translations'
+            'Invalid format for translated messages, at least 2 values expected for plural translations',
           );
         } else {
           let msgstr = '';

@@ -48,7 +48,7 @@ const Ticketing = {
 
         if (response.readyState === 4) {
           errorMsg = window.gettext(
-            'The server is experiencing difficulties. Try again in a few minutes'
+            'The server is experiencing difficulties. Try again in a few minutes',
           );
           $(widgetElem).html(errorMsg);
         } else if (response.readyState === 0) {
@@ -57,7 +57,7 @@ const Ticketing = {
               errorMsg = window.gettext('This device has no internet connection');
             } else {
               errorMsg = window.gettext(
-                'Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com'
+                'Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com',
               );
             }
 
@@ -82,7 +82,7 @@ const Ticketing = {
           user_phone: userPhone,
         });
       },
-      false
+      false,
     );
     $(document).on('boxofficeTicketingEvents', (event, userAction, label, value) => {
       Analytics.sendToGA('ticketing', userAction, label, value);
@@ -111,7 +111,7 @@ const Ticketing = {
           }
           $('.js-ticket-price').text(price);
         }
-      }
+      },
     );
   },
 
@@ -142,7 +142,7 @@ const Ticketing = {
         openModal: true,
       },
       '',
-      this.urlHash
+      this.urlHash,
     );
     $('.header').addClass('header--lowzindex');
     $('.tickets-wrapper__modal').addClass('tickets-wrapper__modal--show');

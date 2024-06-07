@@ -9,7 +9,7 @@ const Modal = {
         window.history.replaceState(
           '',
           '',
-          window.location.pathname + window.location.search
+          window.location.pathname + window.location.search,
         );
       }
     });
@@ -21,7 +21,7 @@ const Modal = {
           $.modal.close();
         }
       },
-      false
+      false,
     );
 
     const hashId = window.location.hash.split('#')[1];
@@ -88,7 +88,7 @@ const Modal = {
         $('body').append('<div class="markdown-modal markdown"></div>');
         $('.markdown-modal').html($(this)[0].outerHTML);
         $('.markdown-modal').modal();
-      }
+      },
     );
 
     $('body').on('click', '.markdown table a', (event) => {

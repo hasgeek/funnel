@@ -47,7 +47,7 @@ module.exports = {
     notification_list: path.resolve(__dirname, 'funnel/assets/js/notification_list.js'),
     notification_settings: path.resolve(
       __dirname,
-      'funnel/assets/js/notification_settings.js'
+      'funnel/assets/js/notification_settings.js',
     ),
     account_saved: path.resolve(__dirname, 'funnel/assets/js/account_saved.js'),
     autosave_form: path.resolve(__dirname, 'funnel/assets/js/autosave_form.js'),
@@ -64,7 +64,7 @@ module.exports = {
     profile_css: path.resolve(__dirname, 'funnel/assets/sass/pages/profile.scss'),
     profile_calendar_css: path.resolve(
       __dirname,
-      'funnel/assets/sass/pages/profile_calendar.scss'
+      'funnel/assets/sass/pages/profile_calendar.scss',
     ),
     project_css: path.resolve(__dirname, 'funnel/assets/sass/pages/project.scss'),
     submission_css: path.resolve(__dirname, 'funnel/assets/sass/pages/submission.scss'),
@@ -77,19 +77,19 @@ module.exports = {
     contacts_css: path.resolve(__dirname, 'funnel/assets/sass/pages/contacts.scss'),
     submissions_css: path.resolve(
       __dirname,
-      'funnel/assets/sass/pages/submissions.scss'
+      'funnel/assets/sass/pages/submissions.scss',
     ),
     membership_css: path.resolve(__dirname, 'funnel/assets/sass/pages/membership.scss'),
     account_css: path.resolve(__dirname, 'funnel/assets/sass/pages/account.scss'),
     update_css: path.resolve(__dirname, 'funnel/assets/sass/pages/update.scss'),
     imgee_modal_css: path.resolve(
       __dirname,
-      'funnel/assets/sass/pages/imgee_modal.scss'
+      'funnel/assets/sass/pages/imgee_modal.scss',
     ),
     label_form_css: path.resolve(__dirname, 'funnel/assets/sass/pages/label_form.scss'),
     submission_form_css: path.resolve(
       __dirname,
-      'funnel/assets/sass/pages/submission_form.scss'
+      'funnel/assets/sass/pages/submission_form.scss',
     ),
     screens_css: path.resolve(__dirname, 'funnel/assets/sass/pages/screens.scss'),
     event_css: path.resolve(__dirname, 'funnel/assets/sass/pages/event.scss'),

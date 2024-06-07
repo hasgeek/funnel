@@ -57,7 +57,7 @@ class Queue {
     then it is removed from checkin queue */
     this.updateQueue = function updateQueue(
       participantsHashMap,
-      ticketParticipantList
+      ticketParticipantList,
     ) {
       const queue = this;
       const ticketParticipantIds = queue.readAll();
@@ -73,11 +73,11 @@ class Queue {
               const index = Utils.findLoopIndex(
                 ticketParticipants,
                 'puuid_b58',
-                ticketParticipantId
+                ticketParticipantId,
               );
               ticketParticipantList.set(
                 `ticket_participants.${index}.submitting`,
-                true
+                true,
               );
             }
           } else if (participantsHashMap[ticketParticipantId].checked_in) {
@@ -87,7 +87,7 @@ class Queue {
             const index = Utils.findLoopIndex(
               ticketParticipants,
               'puuid_b58',
-              ticketParticipantId
+              ticketParticipantId,
             );
             ticketParticipantList.set(`ticket_participants.${index}.submitting`, true);
           }
@@ -165,7 +165,7 @@ const ParticipantTable = {
           list.set('ticket_participants', data.ticket_participants).then(() => {
             const ticketParticipants = Utils.tohashMap(
               data.ticket_participants,
-              'puuid_b58'
+              'puuid_b58',
             );
             list.get('checkinQ').updateQueue(ticketParticipants, list);
             list.get('cancelcheckinQ').updateQueue(ticketParticipants, list);

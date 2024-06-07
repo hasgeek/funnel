@@ -53,7 +53,7 @@ window.Hasgeek.Accountform = ({
                 .text(remoteData.error_description);
             } else {
               const errorTxt = $('<p class="mui-form__error"></p>').text(
-                remoteData.error_description
+                remoteData.error_description,
               );
               $(errorTxt).insertBefore($(fieldWrapper).find('.mui-form__helptext'));
             }

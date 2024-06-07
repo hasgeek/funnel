@@ -25,7 +25,7 @@ describe('Add sponsor to project', () => {
       force: true,
     });
     cy.get('.select2-results__option--highlighted', { timeout: 20000 }).should(
-      'be.visible'
+      'be.visible',
     );
     cy.get('.select2-results__option').contains(sponsor.name).click();
     cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');

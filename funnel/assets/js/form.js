@@ -49,7 +49,7 @@ window.Hasgeek.initWidgets = async function init(fieldName, config) {
 window.Hasgeek.preventDoubleSubmit = function stopDoubleSubmit(
   formId,
   isXHR,
-  alertBoxHtml
+  alertBoxHtml,
 ) {
   if (isXHR) {
     document.body.addEventListener('htmx:beforeSend', () => {
@@ -79,7 +79,7 @@ window.Hasgeek.recaptcha = function handleRecaptcha(
   formId,
   formWrapperId,
   ajax,
-  alertBoxHtml
+  alertBoxHtml,
 ) {
   if (ajax) {
     window.onInvisibleRecaptchaSubmit = function handleAjaxFormSubmit() {

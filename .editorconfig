@@ -5,12 +5,12 @@ root = True
 [*]
 end_of_line = lf
 insert_final_newline = true
+tab_width = 8
 
 # For all code, config and documentation
-[*.{js,py,jinja2,j2,html,xml,css,sass,scss,json,yml,md,rst}]
+[*.{js,py,jinja2,j2,html,xml,css,sass,scss,json,yml,yaml,md,rst}]
 charset = utf-8
 indent_style = space
-tab_width = 8
 max_line_length = 88
 
 # Python code

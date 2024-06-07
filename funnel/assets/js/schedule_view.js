@@ -71,7 +71,7 @@ const Schedule = {
         hasActiveRoom(session) {
           return Object.prototype.hasOwnProperty.call(
             session.rooms[this.activeTab],
-            'talk'
+            'talk',
           );
         },
         removeImg(descriptionHtml) {
@@ -109,7 +109,7 @@ const Schedule = {
                 openModal: true,
               },
               '',
-              currentPage
+              currentPage,
             );
             Spa.updateMetaTags(pageDetails);
           }
@@ -193,7 +193,7 @@ const Schedule = {
             this.showSessionModal(activeSession);
             // Scroll page to session
             ScrollHelper.animateScrollTo(
-              $(`#${activeSession.url_name_uuid_b58}`).offset().top - this.headerHeight
+              $(`#${activeSession.url_name_uuid_b58}`).offset().top - this.headerHeight,
             );
           } else if (
             window.location.pathname === this.pathName &&
@@ -213,12 +213,12 @@ const Schedule = {
           } else if ($('.schedule__date--upcoming').length) {
             // Scroll to the upcoming schedule
             ScrollHelper.animateScrollTo(
-              $('.schedule__date--upcoming').first().offset().top - this.headerHeight
+              $('.schedule__date--upcoming').first().offset().top - this.headerHeight,
             );
           } else {
             // Scroll to the last schedule
             ScrollHelper.animateScrollTo(
-              $('.schedule__date').last().offset().top - this.headerHeight
+              $('.schedule__date').last().offset().top - this.headerHeight,
             );
           }
           window.history.replaceState(
@@ -229,7 +229,7 @@ const Schedule = {
               refresh: false,
             },
             '',
-            this.pageDetails.url
+            this.pageDetails.url,
           );
 
           // On exiting the page, save page scroll position in session storage
@@ -268,12 +268,12 @@ const Schedule = {
       session.endTime = this.Utils.getTime(session.end_at);
       session.eventDay = this.Utils.getEventDay(
         session.start_at,
-        this.config.eventDayhashes
+        this.config.eventDayhashes,
       );
       session.duration = this.Utils.getDuration(
         session.end_at,
         session.start_at,
-        this.config.slotInterval
+        this.config.slotInterval,
       );
       if (this.config.schedule[session.eventDay]) {
         this.config.schedule[session.eventDay].sessions[session.startTime].showLabel =
@@ -302,7 +302,7 @@ const Schedule = {
         };
         sessionSlots = new Date(sessionSlots);
         sessionSlots = sessionSlots.setMinutes(
-          sessionSlots.getMinutes() + this.config.slotInterval
+          sessionSlots.getMinutes() + this.config.slotInterval,
         );
       }
       slots[day.endTime].showLabel = true;

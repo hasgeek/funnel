@@ -10,7 +10,7 @@ $(() => {
     sortUrl,
     formId,
     markdownPreviewElem,
-    markdownPreviewApi
+    markdownPreviewApi,
   ) {
     function updateCollaboratorsList(responseData, updateModal = true) {
       if (updateModal) $.modal.close();
@@ -136,7 +136,7 @@ $(() => {
       })
       .blur((event) => {
         return $(event.currentTarget).val(
-          removeLineBreaks($(event.currentTarget).val())
+          removeLineBreaks($(event.currentTarget).val()),
         );
       });
 

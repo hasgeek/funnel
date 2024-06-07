@@ -19,7 +19,7 @@ const Spa = {
         refresh: true,
       },
       '',
-      window.location.href
+      window.location.href,
     );
 
     $(window).on('popstate', () => {
@@ -41,7 +41,7 @@ const Spa = {
         refresh: true,
       },
       '',
-      pageDetails.url
+      pageDetails.url,
     );
     pageDetails.pageTitle = pageDetails.title
       ? `${pageDetails.title} – ${Spa.pageTitle}`

@@ -68,7 +68,7 @@ export const LabelsWidget = {
       const label = $(this).parent().parent().prev('.mui-form__label');
       label.addClass('checked');
       const labelTxt = `${Widget.getLabelTxt(label.text())}: ${Widget.getLabelTxt(
-        $(this).parent().find('label').text()
+        $(this).parent().find('label').text(),
       )}`;
       const attr = Widget.getLabelTxt(label.text());
       Widget.updateLabels(labelTxt, attr, this.checked);
@@ -110,7 +110,7 @@ export const LabelsWidget = {
         $(`.label[data-labeltxt='${attr}']`).remove();
       }
       const labelSpan = $(
-        '<span class="label mui--text-caption mui--text-bold"></span>'
+        '<span class="label mui--text-caption mui--text-bold"></span>',
       )
         .attr('data-labeltxt', attr)
         .text(label);

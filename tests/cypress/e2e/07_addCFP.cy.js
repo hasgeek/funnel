@@ -39,7 +39,7 @@ describe('Add CFP and labels to project', () => {
         cy.get('.emojionearea-button').click();
         cy.get('.emojionearea-picker').should('be.visible');
         cy.get(
-          '.emojionearea-category[name="smileys_people"] i[title="Innocent"]'
+          '.emojionearea-category[name="smileys_people"] i[title="Innocent"]',
         ).click();
         cy.get('.emojionearea-picker').should('be.hidden');
 

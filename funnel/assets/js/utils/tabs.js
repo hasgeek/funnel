@@ -17,7 +17,7 @@ const Tabs = {
         {
           root: tablist,
           threshold: 1,
-        }
+        },
       );
     });
   },
@@ -26,10 +26,10 @@ const Tabs = {
     // Wrap the tabs bar with a container, to allow introduction of
     // tabs navigation arrow icons.
     const $leftIcons = $('<div class="tabs-nav-icons-left"></div>').html(
-      Object.values(icons.left)
+      Object.values(icons.left),
     );
     const $rightIcons = $('<div class="tabs-nav-icons-right"></div>').html(
-      Object.values(icons.right)
+      Object.values(icons.right),
     );
     $(tablist)
       .wrap('<div class="md-tablist-wrapper"></div>')
@@ -169,10 +169,10 @@ const Tabs = {
         visibilityObserver.observe(tab);
         const $panel = $(`#${$(tab).attr('aria-controls')}`);
         $panel.mouseenter(
-          $tablistContainer.addClass.bind($tablistContainer, 'has-panel-hover')
+          $tablistContainer.addClass.bind($tablistContainer, 'has-panel-hover'),
         );
         $panel.mouseleave(
-          $tablistContainer.removeClass.bind($tablistContainer, 'has-panel-hover')
+          $tablistContainer.removeClass.bind($tablistContainer, 'has-panel-hover'),
         );
       }
     });
@@ -187,7 +187,7 @@ const Tabs = {
   async init(container) {
     const $parentElement = $(container || 'body');
     const $tablists = $parentElement.find(
-      '[role=tablist]:not(.activating, .activated)'
+      '[role=tablist]:not(.activating, .activated)',
     );
     $tablists.addClass('activating');
     this.process($parentElement, $tablists);

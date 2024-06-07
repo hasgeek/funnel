@@ -28,7 +28,7 @@ const MarkmapEmbed = {
         },
         {
           root: $('.main-content')[0],
-        }
+        },
       );
 
       parentElement
@@ -38,7 +38,7 @@ const MarkmapEmbed = {
           $(markdownDiv).addClass('activating');
           $(markdownDiv).find('.embed-loading').addClass('loading');
           const { root } = transformer.transform(
-            $(markdownDiv).find('.embed-content').text()
+            $(markdownDiv).find('.embed-content').text(),
           );
           $(markdownDiv).find('.embed-container').append('<svg></svg>');
           const current = $(markdownDiv).find('svg')[0];
@@ -50,7 +50,7 @@ const MarkmapEmbed = {
               fitRatio: 0.85,
               initialExpandLevel: 1,
             },
-            root
+            root,
           );
           markmapEmbed.markmaps.push(markmap);
           $(current).data('markmap', markmap);

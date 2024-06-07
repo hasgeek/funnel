@@ -22,7 +22,7 @@ async function addVegaSupport(container) {
         const embedded = await embed(
           root.find('.embed-container')[0],
           JSON.parse(root.find('.embed-content').text()),
-          options
+          options,
         );
         embedded.view.runAfter(() => {
           root.addClass('activated').removeClass('activating');

@@ -16,7 +16,7 @@ registerRoute(
   new NetworkFirst({
     cacheName: 'offline',
   }),
-  'GET'
+  'GET',
 );
 
 registerRoute(
@@ -24,14 +24,14 @@ registerRoute(
   new NetworkFirst({
     cacheName: 'homepage',
   }),
-  'GET'
+  'GET',
 );
 
 registerRoute(new RegExp('/(.*)'), new NetworkOnly(), 'GET');
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open('offline').then((cache) => cache.addAll(['/api/1/template/offline']))
+    caches.open('offline').then((cache) => cache.addAll(['/api/1/template/offline'])),
   );
 });
 

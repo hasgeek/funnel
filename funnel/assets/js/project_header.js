@@ -13,7 +13,7 @@ $(() => {
     tickets = '',
     toggleId = '',
     sort = '',
-    rsvpModalHash = 'register-modal'
+    rsvpModalHash = 'register-modal',
   ) => {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);
@@ -40,7 +40,7 @@ $(() => {
           openModal: true,
         },
         '',
-        `#${rsvpModalHash}`
+        `#${rsvpModalHash}`,
       );
     });
 

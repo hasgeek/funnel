@@ -6,7 +6,7 @@ $(() => {
     fullname,
     email,
     phone,
-    company
+    company,
   ) {
     const vCard = vCardsJS();
     vCard.firstName = fullname;
@@ -16,8 +16,8 @@ $(() => {
     element.setAttribute(
       'href',
       `data:text/x-vcard;charset=utf-8,${encodeURIComponent(
-        vCard.getFormattedString()
-      )}`
+        vCard.getFormattedString(),
+      )}`,
     );
     element.setAttribute('download', `${vCard.firstName}.vcf`);
   };
