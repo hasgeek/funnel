@@ -38,7 +38,7 @@ policy_pages = [
     PolicyPage('policy/refunds', __("Cancellation &amp; refund policy")),
     PolicyPage('policy/community', __("Community guidelines")),
     PolicyPage('policy/code', __("Code of conduct")),
-    PolicyPage('policy/posh', __("Prevention of Sexual Harassment Policy")),
+    PolicyPage('policy/posh', __("POSH policy")),
 ]
 
 

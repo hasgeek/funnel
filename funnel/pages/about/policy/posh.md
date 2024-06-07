@@ -1,4 +1,4 @@
-title: Prevention of Sexual Harassment Policy
+title: Prevention of sexual harassment policy
 
 We believe in creating fair and equitable environments within the organization, for folks who interact with us on contract and for our larger communities. To that end, our Prevention of Sexual Harassment policy (Link the entire policy here) details our intention and commitment to safety and dignity of all persons. We have simplified the policy below for easy readability, so that anyone associating with Hasgeek is under no doubt that harassment of any kind, including sexual harassment, is forbidden in this organization and the communities we foster and every employee, contractor and community member has the right to be protected against it.
 
@@ -68,7 +68,7 @@ This policy is applicable:
 
 2.  to all locations where employees travel while on assignment
 
-3.  in any place where the employee visits in connection with her/his work with Hasgeek, including transportation provided for undertaking such a journey
+3.  in any place where the employee visits in connection with their work with Hasgeek, including transportation provided for undertaking such a journey
 
 4.  virtual spaces
 
@@ -244,7 +244,7 @@ Providing a safe working environment for its employees that is free from harassm
 
 -   Assist in securing the attendance all parties required for an inquiry, including the respondent, complainant and witnesses.
 
--   Provide assistance to the complainant if he/she/they chooses to file a complaint in relation to the offence under the Indian Penal Code or any other law for the time being in force.
+-   Provide assistance to the complainant if they chooses to file a complaint in relation to the offence under the Indian Penal Code or any other law for the time being in force.
 
 -   Monitor the timely submission of reports by the ICC.
 
