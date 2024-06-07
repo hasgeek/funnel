@@ -127,7 +127,6 @@ repos:
     rev: v3.3.1
     hooks:
       - id: prettier
-        exclude: funnel/pages/
   - repo: https://github.com/ducminh-phan/reformat-gherkin
     rev: v3.0.1
     hooks:
