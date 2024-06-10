@@ -52,17 +52,6 @@ $(() => {
   // Request for new CSRF token and update the page every 15 mins
   setInterval(Utils.csrfRefresh, 900000);
 
-  // Add polyfill
-  if (!('URLSearchParams' in window)) {
-    const polyfill = document.createElement('script');
-    polyfill.setAttribute('type', 'text/javascript');
-    polyfill.setAttribute(
-      'src',
-      'https://cdnjs.cloudflare.com/ajax/libs/url-search-params/1.1.0/url-search-params.js',
-    );
-    document.head.appendChild(polyfill);
-  }
-
   setTimezoneCookie();
   updateParsleyConfig();
 });
