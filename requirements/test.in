@@ -10,6 +10,7 @@ pytest-cov
 pytest-dotenv
 pytest-env
 pytest-playwright
+pytest-pretty
 pytest-rerunfailures
 pytest-socket
 requests-mock
