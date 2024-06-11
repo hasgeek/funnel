@@ -8,6 +8,7 @@ po2json
 pre-commit
 ptpython
 pylint
+pytest-icdiff
 pyupgrade
 reformat-gherkin
 ruff
