@@ -130,27 +130,6 @@ def pytest_runtest_call(item: pytest.Function) -> None:
             typeguard.check_type(item.funcargs[attr], type_)
 
 
-def pytest_runtest_logreport(report: pytest.TestReport) -> None:
-    """Add line numbers to log report, for easier discovery in code editors."""
-    # Report location of test (failing line number if available, else test location)
-    filename, line_no, domain = report.location
-    if (
-        report.longrepr is not None
-        and (repr_traceback := getattr(report.longrepr, 'reprtraceback', None))
-        is not None
-        and (repr_file_loc := repr_traceback.reprentries[0].reprfileloc).path
-        == filename
-    ):
-        line_no = repr_file_loc.lineno
-    if report.nodeid.startswith(filename):
-        # Only insert a line number if the existing `nodeid`` refers to the same
-        # filename. Needed for pytest-bdd, which constructs tests and refers the
-        # filename that imported the scenario. This file will not have the actual test
-        # function, so no line number reference is possible; the `filename` in the
-        # report will refer to pytest-bdd internals
-        report.nodeid = f'{filename}:{line_no}::{domain}'
-
-
 # MARK: Playwright browser config ------------------------------------------------------
 
 
