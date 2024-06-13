@@ -17,7 +17,7 @@ test('Submitting a proposal to a project and commenting on proposal', async ({
     usher.password
   );
   let projectPage = new ProjectPage(page);
-  await projectPage.addLabels();
+  // await projectPage.addLabels();
   await loginPage.logout();
 
   await loginPage.login(
@@ -25,6 +25,7 @@ test('Submitting a proposal to a project and commenting on proposal', async ({
     owner.username,
     owner.password
   );
+  await page.getByTestId('submissions').locator('visible=true').click();
   await page.getByTestId('propose-a-session').locator('visible=true').click();
   await page.getByTestId('close-consent-modal').click();
   await page.locator('#title').fill(proposal.title);

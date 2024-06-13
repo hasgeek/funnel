@@ -62,7 +62,7 @@
             <p class="mui--text-light">{% trans %}The session has no attached video{% endtrans %}</p>
             {% if not project_session.views.video and project_session.project.current_roles.editor %}
               <div>
-                <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project_session.url_for('edit') }}" data-cy-admin="edit-session" aria-label="{% trans %}Add session video{% endtrans %}">{% trans %}Edit session{% endtrans %}</a>
+                <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project_session.url_for('edit') }}" data-testid-admin="edit-session" aria-label="{% trans %}Add session video{% endtrans %}">{% trans %}Edit session{% endtrans %}</a>
               </div>
             {%- endif %}
           </div>
@@ -71,7 +71,7 @@
     </div>
   {%- endif %}
   {% if project_session.proposal %}
-    <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ project_session.proposal.url_for('view') }}" target="_blank" rel="noopener" data-cy="view-proposal">{{ faicon(icon='presentation') }} {% trans %}View submission for this session{% endtrans %}</a></p>
+    <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ project_session.proposal.url_for('view') }}" target="_blank" rel="noopener" data-testid="view-proposal">{{ faicon(icon='presentation') }} {% trans %}View submission for this session{% endtrans %}</a></p>
   {% endif %}
   {% if project_session.views.video or project_session.proposal %}
   <hr class="modal__body__separator" />

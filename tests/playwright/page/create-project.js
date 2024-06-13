@@ -10,7 +10,7 @@ export class ProjectPage {
   }
 
   async createNewProject(projectName) {
-    await this.page.getByTestId('new-project').click();
+    await this.page.getByTestId('new-project').locator('nth=0').click();
     await this.page.locator('input#title').fill(projectName);
     await this.page.locator('input#location').type(project.location);
     await this.page.locator('input#tagline').type(project.tagline);

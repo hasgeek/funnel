@@ -303,7 +303,7 @@
        {% if add_profile_link %}</a>{% endif %}
     </div>
   </div>
-  {% if add_profile_link %}<a href="{{ account.absolute_url }}" class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{%- else %}<span class="mui--text-dark mui--text-subhead text-bold nounderline">{% endif %}{{ account.title }}{% if add_profile_link %}</a>{%- else %}</span>{% endif %}
+  {% if add_profile_link %}<a href="{{ account.absolute_url }}" class="mui--text-dark mui--text-subhead text-bold nounderline" data-testid="profile-link">{%- else %}<span class="mui--text-dark mui--text-subhead text-bold nounderline">{% endif %}{{ account.title }}{% if add_profile_link %}</a>{%- else %}</span>{% endif %}
   {{ add_follow_button(account, css_class=css_class) }}
 {%- endmacro %}
 

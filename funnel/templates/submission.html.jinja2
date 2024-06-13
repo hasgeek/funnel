@@ -242,7 +242,7 @@
               <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}"
                   id="pane-justified-{{ seq }}">
                 <div class="details__box__video bg-primary-dark embed-video-wrapper"
-                    data-cy="session-video">
+                    data-testid="session-video">
                   {{ embed_video_player(proposal.session.views.video) }}
                 </div>
                 <div class="details__box__control mui--clearfix">
@@ -253,7 +253,7 @@
               <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}"
                   id="pane-justified-{{ seq }}">
                 <div class="details__box__video bg-primary-dark embed-video-wrapper"
-                    data-cy="session-video">
+                    data-testid="session-video">
                     <div class="video_txt">
                       <p>{{ faicon(icon='video-slash', icon_size='display1') }}</p>
                       <p class="mui--text-light">{% trans %}This video is for members only{% endtrans %}</p>

@@ -208,7 +208,7 @@ def init_models():
         project5.cfp_end_at = datetime.now(utc) + timedelta(days=10)
         project5.instructions = 'If you are interested in speaking at The Fifth Elephant.Submit a description of your talk, explaining the problem that your talk covers, and one concrete takeaway for audience. Talks have to give at least one practical insight to the audience'
         project5.open_cfp()
-        db.session.add_all([venue1, venue2, room1, room2])
+        db.session.add_all([project5, venue1, venue2, room1, room2])
         db.session.commit()
 
 

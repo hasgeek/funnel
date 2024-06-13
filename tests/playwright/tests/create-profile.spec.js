@@ -12,13 +12,13 @@ test('To create profile, edit, add crew and update banner', async ({ page }) => 
   loginPage = new LoginPage(page);
   await loginPage.login('/', owner.username, owner.password);
   await page.getByTestId('my-account').click();
-  await page.getByTestId('org').click();
+  await page.getByTestId('org-page').click();
   await page.getByTestId('new').click();
   await page.locator('input#title').fill(orgNameCapitalize);
   await page.locator('input#name').fill(randomOrgName);
   await page.getByTestId('form-submit-btn').click();
   await page
-    .locator('#field-description .cm-editor .cm-line')
+    .locator('input#tagline')
     .fill('Lorem Ipsum is simply dummy text of the printing and typesetting industry');
   await page.getByTestId('form-submit-btn').click();
   let titleRegex = new RegExp(orgNameCapitalize);
@@ -55,7 +55,7 @@ test('To create profile, edit, add crew and update banner', async ({ page }) => 
   await page.getByTestId('edit-details').locator('visible=true').waitFor(5000);
   await page.getByTestId('edit-details').locator('visible=true').click();
   await page
-    .locator('#field-description .cm-editor .cm-line')
+    .locator('input#tagline')
     .fill('Lorem Ipsum is simply dummy');
   await page.getByTestId('form-submit-btn').click();
   await page.getByTestId('add-banner').isVisible();
