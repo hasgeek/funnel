@@ -54,9 +54,7 @@ test('To create profile, edit, add crew and update banner', async ({ page }) => 
   await page.getByTestId('admin-dropdown').locator('visible=true').click();
   await page.getByTestId('edit-details').locator('visible=true').waitFor(5000);
   await page.getByTestId('edit-details').locator('visible=true').click();
-  await page
-    .locator('input#tagline')
-    .fill('Lorem Ipsum is simply dummy');
+  await page.locator('input#tagline').fill('Lorem Ipsum is simply dummy');
   await page.getByTestId('form-submit-btn').click();
   await page.getByTestId('add-banner').isVisible();
 
