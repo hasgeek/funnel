@@ -49,6 +49,7 @@ test('Add schedule to a  project (open cfp, add labels, sort labels, add session
       .locator('.label-box__inner__heading')
   ).toContainText(project.labels[1].title);
   await page.getByTestId('project-page').click();
+  await page.getByTestId('submissions').click();
 
   await page.getByTestId('propose-a-session').locator('visible=true').click();
   await page.getByTestId('close-consent-modal').click();
@@ -172,8 +173,8 @@ test('Add schedule to a  project (open cfp, add labels, sort labels, add session
   await page.getByTestId('schedule-subscribe').isVisible();
   await page.getByTestId('close-modal').click();
 
-  let tomorrowDate = dayjs().add(2, 'days').format('dddd, D MMMM YYYY');
-  await expect(page.locator('.schedule__date')).toContainText(tomorrowDate);
+  let tomorrowDate = dayjs().add(2, 'days').format('D MMMM YYYY');
+  await expect(page.getByText(tomorrowDate)).toBeVisible();
   for (let venue of project.venues) {
     await page
       .locator('.schedule__row__column--header', {

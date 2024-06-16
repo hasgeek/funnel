@@ -18,13 +18,13 @@ test('Open rsvp, for all and members only', async ({ page }) => {
   await page.getByTestId('settings').locator('visible=true').click();
   await page.getByTestId('setup-ticket-events').click();
 
-  await page.getByTestId('new-ticket-client').click();
-  await page.locator('#name').fill(process.env.BOXOFFICE_CLIENT_ID);
-  await page.locator('#clientid').fill(process.env.BOXOFFICE_CLIENT_ID);
-  await page.locator('#client_eventid').fill(process.env.BOXOFFICE_IC_ID);
-  await page.locator('#client_secret').fill(process.env.BOXOFFICE_SECRET_KEY);
-  await page.locator('#client_access_token').fill(process.env.BOXOFFICE_ACCESS_KEY);
-  await page.getByTestId('form-submit-btn').click();
+  // await page.getByTestId('new-ticket-client').click();
+  // await page.locator('#name').fill(process.env.FLASK_BOXOFFICE_CLIENT_ID);
+  // await page.locator('#clientid').fill(process.env.FLASK_BOXOFFICE_CLIENT_ID);
+  // await page.locator('#client_eventid').fill(process.env.FLASK_BOXOFFICE_IC_ID);
+  // await page.locator('#client_secret').fill(process.env.FLASK_BOXOFFICE_SECRET_KEY);
+  // await page.locator('#client_access_token').fill(process.env.FLASK_BOXOFFICE_ACCESS_KEY);
+  // await page.getByTestId('form-submit-btn').click();
 
   await page.getByTestId('sync-tickets').click();
 

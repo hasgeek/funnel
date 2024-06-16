@@ -23,7 +23,7 @@
                 <input type="hidden" v-if="!update.is_pinned" name="is_pinned" value="true">
                 <input type="hidden" v-if="update.is_pinned" name="is_pinned" value="">
               </form>
-              <ul class="bullet-separated-list--flex mui--text-light mui--text-body2" v-if="update.number">
+              <ul class="bullet-separated-list--flex mui--text-light mui--text-body2" v-if="update.number" data-testid="update-heading-list">
                 <li><a class="text-uppercase mui--text-light nounderline" :href="update.urls.view">{{ gettext('Update #%d', update.number) }}</a></li>
                 <li v-if="age"><a class="mui--text-light nounderline" :href="update.urls.view">{{ age }}</a></li>
                 <li v-if="update.visibility == 'participants'">
@@ -33,13 +33,13 @@
                   <faicon :icon="'lock-alt'"></faicon>
                 </li>
                 <li v-if="update.is_pinned">
-                  <a v-if="iseditor" href="#" @click="handlePinEvent($event, `pin-form-${update.uuid_b58}`, update.urls.edit);">
+                  <a v-if="iseditor" href="#" @click="handlePinEvent($event, `pin-form-${update.uuid_b58}`, update.urls.edit);" data-testid="unpin-update">
                     <faicon :icon="'thumbtack-solid'" :baseline=false :css_class="'mui--align-middle'"></faicon>
                   </a>
                   <faicon v-else :icon="'thumbtack-solid'" :baseline=false :css_class="'mui--align-middle'"></faicon>
                 </li>
-                <li v-if="!update.is_pinned && iseditor">
-                  <a href="#" @click="handlePinEvent($event, `pin-form-${update.uuid_b58}`, update.urls.edit);" class="update__heading__unpin">
+                <li v-if="!update.is_pinned && iseditor" data-testid="pin">
+                  <a href="#" @click="handlePinEvent($event, `pin-form-${update.uuid_b58}`, update.urls.edit);" class="update__heading__unpin" data-testid="pin-update">
                     <faicon :icon="'thumbtack'" :baseline=false :css_class="'mui--align-middle'"></faicon>
                   </a>
                 </li>
@@ -81,7 +81,7 @@
             <div class="update__content markdown" v-else v-html="update.body.html"></div>
           </div>
           <div v-else>
-            <p class="mui--text-body2 mui--text-light mui--text-center"><faicon :icon="'lock-alt'" :icon_size="'caption'"></faicon> <em>{{ gettext('This update is for participants only') }}</em></p>
+            <p class="mui--text-body2 mui--text-light mui--text-center"><faicon :icon="'lock-alt'" :icon_size="'caption'"></faicon> <em data-testid="member-update">{{ gettext('This update is for participants only') }}</em></p>
           </div>
         </div>
       </li>

@@ -14,7 +14,7 @@ test('Add sponsor to project', async ({ page }) => {
   await page.getByTestId('site-editor-menu').locator('visible=true').click();
   await page.locator('.mui-dropdown__menu').locator('visible=true').waitFor(1000);
   await Promise.all([
-    page.waitForRequest((request) => request.url().includes('/sponsor'), {
+    page.waitForRequest((request) => request.url().includes('/sponsors/add'), {
       timeout: 60000,
     }),
     await page.getByTestId('add-sponsor').click(),
@@ -39,7 +39,7 @@ test('Add sponsor to project', async ({ page }) => {
     page.waitForRequest((request) => request.url().includes('/edit'), {
       timeout: 60000,
     }),
-    await page.getByTestId('edit-sponsor').locator('nth=1').click(),
+    await page.getByTestId('edit-sponsor').click(),
   ]);
   await page.locator('#is_promoted').click();
   await Promise.all([
@@ -50,13 +50,13 @@ test('Add sponsor to project', async ({ page }) => {
     page.getByTestId('form-submit-btn').click(),
   ]);
   await page.reload();
-  await page.getByTestId('promoted').locator('nth=1').isVisible();
+  await page.getByTestId('promoted').isVisible();
 
   await Promise.all([
     page.waitForRequest((request) => request.url().includes('/remove'), {
       timeout: 60000,
     }),
-    await page.getByTestId('remove-sponsor').locator('nth=1').click(),
+    await page.getByTestId('remove-sponsor').click(),
   ]);
   await Promise.all([
     page.waitForResponse(

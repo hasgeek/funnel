@@ -17,7 +17,7 @@ test('Submitting a proposal to a project and commenting on proposal', async ({
     usher.password
   );
   let projectPage = new ProjectPage(page);
-  // await projectPage.addLabels();
+  await projectPage.addLabels();
   await loginPage.logout();
 
   await loginPage.login(
