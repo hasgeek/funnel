@@ -6,19 +6,19 @@ describe('Verify roles of promoter', () => {
   it('Access available for promoter in project settings', () => {
     cy.login('/', promoter.username, promoter.password);
 
-    cy.get(`[data-cy-title="${project.title}"]`).first().click();
+    cy.get(`[data-testid="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy="project-menu"]:visible').click();
+    cy.get('a[data-testid="project-menu"]:visible').click();
     cy.wait(1000);
-    cy.get('a[data-cy-navbar="settings"]:visible').click();
+    cy.get('a[data-testid="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
-    cy.get('a[data-cy="edit"]').should('not.exist');
-    cy.get('a[data-cy="add-livestream"]').should('not.exist');
-    cy.get('a[data-cy="manage-venues"]').should('not.exist');
-    cy.get('a[data-cy="add-cfp"]').should('not.exist');
-    cy.get('a[data-cy="edit-schedule"]').should('not.exist');
-    cy.get('a[data-cy="manage-labels"]').should('not.exist');
-    cy.get('a[data-cy="setup-ticket-events"]').should('exist');
-    cy.get('a[data-cy="scan-checkin"]').should('exist');
+    cy.get('a[data-testid="edit"]').should('not.exist');
+    cy.get('a[data-testid="add-livestream"]').should('not.exist');
+    cy.get('a[data-testid="manage-venues"]').should('not.exist');
+    cy.get('a[data-testid="add-cfp"]').should('not.exist');
+    cy.get('a[data-testid="edit-schedule"]').should('not.exist');
+    cy.get('a[data-testid="manage-labels"]').should('not.exist');
+    cy.get('a[data-testid="setup-ticket-events"]').should('exist');
+    cy.get('a[data-testid="scan-checkin"]').should('exist');
   });
 });

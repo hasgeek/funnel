@@ -1,0 +1,52 @@
+{
+  "owner": {
+    "username": "profile_cypress",
+    "fullname": "profile-cypress",
+    "password": "profile-cypress123_St",
+    "owns_profile": "fifthelephant",
+    "project": "summer-edition"
+  },
+  "admin": {
+    "username": "admin_user",
+    "fullname": "admin-user",
+    "password": "admin-user129_Ftz",
+    "owns_profile": "rootconf",
+    "project": "autumn-edition"
+  },
+  "editor": {
+    "username": "editor_cypress",
+    "fullname": "editor-cypress",
+    "password": "editor-cypress9_GH",
+    "owns_profile": "jsfoo",
+    "project": "monsoon-edition"
+  },
+  "promoter": {
+    "username": "promoter_user",
+    "fullname": "promoter-user",
+    "password": "promoter-user34_qQE",
+    "owns_profile": "metarefresh",
+    "project": "winter-edition"
+  },
+  "usher": {
+    "username": "usher_cypress",
+    "fullname": "usher-cypress",
+    "password": "usher-cypress566_YUt",
+    "owns_profile": "kilter",
+    "project": "spring-edition"
+  },
+  "user": {
+    "username": "member_user",
+    "fullname": "member-user",
+    "password": "member-user341_Wer"
+  },
+  "hguser": {
+    "username": "hg_user",
+    "fullname": "hg-user",
+    "password": "hg-user5_HE"
+  },
+  "newuser": {
+    "username": "new_user",
+    "fullname": "new-user",
+    "password": "new-user11_EveryOne"
+  }
+}

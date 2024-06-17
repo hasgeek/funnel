@@ -1,0 +1,26 @@
+[
+  {
+    "fullname": "Alpha Bravo",
+    "email": "alpha@mailinator.com",
+    "phone": "9102345679",
+    "company": "Tango",
+    "twitter": "alpha_bravo",
+    "ticketEvent": "Conference Day"
+  },
+  {
+    "fullname": "Charlie Delta",
+    "email": "bravo@mailinator.com",
+    "phone": "9102345679",
+    "company": "Sierra",
+    "twitter": "bravo123",
+    "ticketEvent": "Conference Day"
+  },
+  {
+    "fullname": "Echo Foxtrot",
+    "email": "charlie@mailinator.com",
+    "phone": "9102345679",
+    "company": "Zulu",
+    "twitter": "delta",
+    "ticketEvent": "Workshop"
+  }
+]

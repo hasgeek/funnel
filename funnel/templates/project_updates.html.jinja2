@@ -15,7 +15,7 @@
   <div class="page-card page-card--nomargin">
     <div id="updates" class="project-section">
       {% if project.features.post_update() -%}
-        <a class="update-form-block" href="{{ project.url_for('new_update') }}" aria-label="{% trans %}Add new update{% endtrans %}" data-cy-btn="add-update">
+        <a class="update-form-block" href="{{ project.url_for('new_update') }}" aria-label="{% trans %}Add new update{% endtrans %}" data-testid="add-update">
           <div class="user">
             <div class="user__box">
               {{ useravatar(current_auth.user, add_profile_link=false) }}

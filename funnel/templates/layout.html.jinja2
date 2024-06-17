@@ -111,7 +111,7 @@
                 <div class="header__site-title__title">
                   <a href="{{ url_for('index') }}"
                     class="header__site-title__title__home mui--hidden-xs mui--hidden-sm"
-                    data-cy="home-desktop"
+                    data-testid="home-desktop"
                     data-ga="Home"
                     aria-label="{% trans %}Home{% endtrans %}">
                     <img src="{{ url_for('static', filename='img/hg-logo.svg') }}"
@@ -124,7 +124,7 @@
                   <a href="{{ url_for('index') }}"
                     class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if request.endpoint == 'index' %}header__nav-links--active{% endif %}"
                     aria-label="{% trans %}Home{% endtrans %}"
-                    data-cy="home"
+                    data-testid="home"
                     data-ga="Home">
                     <img src="{{ url_for('static', filename='img/hg-logo.svg') }}"
                         class="header__site-title__home__logo header__site-title__home__logo--primary"
@@ -184,7 +184,7 @@
                       <a href="{{ url_for('notifications') }}"
                         class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar profile-avatar--bigger"
                         aria-label="{% trans %}Updates{% endtrans %}"
-                        data-cy="my-updates"
+                        data-testid="my-updates"
                         data-ga="Updates">{{ faicon(icon='bell', icon_size='title', baseline=false) }}
                       </a>
                       <a href="#"
@@ -192,14 +192,14 @@
                         class="header__nav-links header__nav-links--right profile-avatar profile-avatar--bigger js-comments-btn"
                         aria-label="{% trans %}Comments{% endtrans %}"
                         data-ga="Comments"
-                        data-cy="comment-sidebar"
+                        data-testid="comment-sidebar"
                         role="button"
                         aria-haspopup="true"
                         aria-expanded="false">{{ faicon(icon='comment-alt', icon_size='title', baseline=false) }}
                       </a>
                       <div class="header__nav-links--dropdown">
                         <a class="header__nav-links user user--standalone js-menu-btn"
-                          data-cy="my-account"
+                          data-testid="my-account"
                           data-ga="account dropdown"
                           aria-label="{% trans %}Account menu{% endtrans %}"
                           role="button"
@@ -219,7 +219,7 @@
                     </div>
                   {%- elif request.endpoint != 'login' %}
                     <a href="{{ url_for('login') }}"
-                      class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button" id="login-nav">{% trans %}Login{% endtrans %}</a>
+                      class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button" id="login-nav" data-testid="login">{% trans %}Login{% endtrans %}</a>
                   {%- else %}
                     {# On the login page, remove the login button but occupy the spot -#}
                     <div></div>

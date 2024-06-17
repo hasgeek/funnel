@@ -12,27 +12,27 @@ describe('Add CFP and labels to project', () => {
 
     cy.login(`/${profile.title}/${project.url}`, editor.username, editor.password);
 
-    cy.get('a[data-cy-navbar="submissions"]').click();
-    cy.get('a[data-cy="add-cfp"]').click();
+    cy.get('a[data-testid="submissions"]').click();
+    cy.get('a[data-testid="add-cfp"]').click();
     cy.location('pathname').should('contain', '/cfp');
     cy.get('#field-instructions')
       .find('.cm-editor .cm-line')
       .type(cfp.instructions, { force: true });
-    cy.get('button[data-cy="add-cfp"]').click();
+    cy.get('button[data-testid="add-cfp"]').click();
     cy.get('label.switch-label').click();
-    cy.get('p[data-cy="cfp-state"]').contains('Accepting submissions');
-    cy.get('a[data-cy="propose-a-session"]').should('exist');
+    cy.get('p[data-testid="cfp-state"]').contains('Accepting submissions');
+    cy.get('a[data-testid="propose-a-session"]').should('exist');
 
-    cy.get('a[data-cy="project-menu"]:visible').click();
+    cy.get('a[data-testid="project-menu"]:visible').click();
     cy.wait(1000);
-    cy.get('a[data-cy-navbar="settings"]:visible').click();
+    cy.get('a[data-testid="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
-    cy.get('a[data-cy="manage-labels"').click();
+    cy.get('a[data-testid="manage-labels"').click();
     cy.location('pathname').should('contain', '/labels');
 
     cy.fixture('labels').then((flabels) => {
       flabels.forEach((label) => {
-        cy.get('a[data-cy="add-labels"]').click();
+        cy.get('a[data-testid="add-labels"]').click();
         cy.location('pathname').should('contain', '/new');
 
         cy.get('#title').type(label.title);
@@ -97,7 +97,7 @@ describe('Add CFP and labels to project', () => {
         if (label.adminLabel) {
           cy.get('#field-restricted').find('label').click();
         }
-        cy.get('button[data-cy-submit="save-label"]').click();
+        cy.get('button[data-testid="save-label"]').click();
         cy.location('pathname').should('contain', '/labels');
       });
     });
@@ -119,7 +119,7 @@ describe('Add CFP and labels to project', () => {
         .trigger('mouseup', { force: true, view: window });
     });
 
-    cy.get('button[data-cy="save-label-seq"]').click();
+    cy.get('button[data-testid="save-label-seq"]').click();
 
     cy.get('.ui-draggable-box')
       .eq(0)

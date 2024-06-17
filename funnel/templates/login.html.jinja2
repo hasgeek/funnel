@@ -21,7 +21,7 @@
       <p class="mui--text-body2 mui--text-light text-bold mui--text-left">{% trans %}Hello!{% endtrans %}</p>
       <p class="mui--text-body2 mui--text-light text-bold mui--text-left">{% trans %}Tell us where you’d like to get updates. We’ll send an OTP to confirm.{% endtrans %}</p>
     {% endif %}
-    <div id="loginformwrapper" data-cy="login-wrapper">{{ passwordlogin(form, formid, ref_id, action) }}</div>
+    <div id="loginformwrapper" data-testid="login-wrapper">{{ passwordlogin(form, formid, ref_id, action) }}</div>
   </div>
   <p class="mui--text-body2 mui--text-light text-bold mui--text-center top-padding">{% trans %}Or, use your existing account, no OTP required{% endtrans %}</p>
   {{ sociallogin(login_registry) }}
