@@ -54,6 +54,10 @@ test('Add update to project', async ({ page }) => {
     page.locator('.pinned__update__heading').locator('visible=true')
   ).toContainText(project.update_title);
   await page.getByTestId('updates').click();
-  await page.locator('.update').locator('nth=1').getByTestId('member-update').isVisible();
+  await page
+    .locator('.update')
+    .locator('nth=1')
+    .getByTestId('member-update')
+    .isVisible();
   await loginPage.logout();
 });
