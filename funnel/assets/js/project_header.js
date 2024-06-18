@@ -1,9 +1,9 @@
-import SaveProject from './utils/bookmark';
+import saveProject from './utils/bookmark';
 import Video from './utils/embedvideo';
 import Spa from './utils/spahelper';
 import { Widgets } from './utils/form_widgets';
 import initEmbed from './utils/initembed';
-import SortItem from './utils/sort';
+import sortItem from './utils/sort';
 import Ticketing from './utils/ticket_widget';
 
 $(() => {
@@ -13,10 +13,10 @@ $(() => {
     tickets = '',
     toggleId = '',
     sort = '',
-    rsvpModalHash = 'register-modal'
+    rsvpModalHash = 'register-modal',
   ) => {
     if (saveProjectConfig) {
-      SaveProject(saveProjectConfig);
+      saveProject(saveProjectConfig);
     }
 
     $('body').on('click', '.js-htmltruncate-expand', function expandTruncation(event) {
@@ -34,13 +34,13 @@ $(() => {
       });
     }
 
-    $('a.js-register-btn').click(function showRegistrationModal() {
+    $('a.js-register-btn').on('click', function showRegistrationModal() {
       window.history.pushState(
         {
           openModal: true,
         },
         '',
-        `#${rsvpModalHash}`
+        `#${rsvpModalHash}`,
       );
     });
 
@@ -57,7 +57,7 @@ $(() => {
     }
 
     if (sort?.url) {
-      SortItem($(sort.wrapperElem), sort.placeholder, sort.url);
+      sortItem($(sort.wrapperElem), sort.placeholder, sort.url);
     }
 
     const hightlightNavItem = (navElem) => {

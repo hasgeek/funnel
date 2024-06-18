@@ -1,12 +1,10 @@
-/* eslint-disable global-require */
-describe('Remove video to session', () => {
-  const { admin } = require('../fixtures/user.json');
-  const project = require('../fixtures/project.json');
-  const proposal = require('../fixtures/proposal.json');
+import { admin } from '../fixtures/user.json';
+import project from '../fixtures/project.json';
+import proposal from '../fixtures/proposal.json';
 
+describe('Remove video to session', () => {
   it('Add videos to session', () => {
-    cy.server();
-    cy.route('**/schedule/*').as('view-session');
+    cy.intercept('**/schedule/*').as('view-session');
 
     cy.login('/', admin.username, admin.password);
 

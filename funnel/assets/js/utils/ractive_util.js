@@ -12,7 +12,7 @@ export const useravatar = Ractive.extend({
     getInitials: Utils.getInitials,
     imgurl() {
       return `${this.get('user').logo_url}?size=${encodeURIComponent(
-        USER_AVATAR_IMG_SIZE[this.get('size')]
+        USER_AVATAR_IMG_SIZE[this.get('size')],
       )}`;
     },
     getAvatarColour(name) {

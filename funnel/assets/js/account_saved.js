@@ -1,4 +1,4 @@
-import SaveProject from './utils/bookmark';
+import saveProject from './utils/bookmark';
 
 $(() => {
   $('.js-save-form').each(function saveProjectButton() {
@@ -6,6 +6,6 @@ $(() => {
       formId: $(this).attr('id'),
       postUrl: $(this).attr('action'),
     };
-    SaveProject(projectSaveConfig);
+    saveProject(projectSaveConfig);
   });
 });

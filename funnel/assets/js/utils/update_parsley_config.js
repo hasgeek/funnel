@@ -42,7 +42,7 @@ function updateParsleyConfig() {
       integer: 'This value should be a valid integer',
       digits: 'This value should be digits',
       alphanum: 'This value should be alphanumeric',
-    }
+    },
   );
 }
 

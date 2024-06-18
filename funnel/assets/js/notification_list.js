@@ -88,7 +88,7 @@ const Notification = {
               this.notifications[$(notification).attr('data-index')];
             const url = this.markReadUrl.replace(
               'eventid_b58',
-              notificationItem.notification.eventid_b58
+              notificationItem.notification.eventid_b58,
             );
             const response = await fetch(url, {
               method: 'POST',
@@ -111,12 +111,11 @@ const Notification = {
           }
         },
         notificationInViewport(entries) {
-          const app = this;
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               $(entry.target).attr('data-visible-time', entry.time);
               window.setTimeout(() => {
-                app.updateReadStatus(entry.target);
+                this.updateReadStatus(entry.target);
               }, READ_RECEIPT_TIMEOUT);
             } else {
               $(entry.target).attr('data-visible-time', '');
@@ -132,18 +131,17 @@ const Notification = {
         }, REFRESH_INTERVAL);
       },
       updated() {
-        const app = this;
         $.each($('.update--unread'), (index, elem) => {
-          app.notificationInViewport = app.notificationInViewport.bind(app);
+          this.notificationInViewport = this.notificationInViewport.bind(this);
           const notificationObserver = new IntersectionObserver(
-            app.notificationInViewport,
+            this.notificationInViewport,
             {
               rootMargin: '0px',
               threshold: 0,
-            }
+            },
           );
           notificationObserver.observe(elem);
-          const notificationItem = app.notifications[$(elem).attr('data-index')];
+          const notificationItem = this.notifications[$(elem).attr('data-index')];
           notificationItem.observer = notificationObserver;
         });
       },

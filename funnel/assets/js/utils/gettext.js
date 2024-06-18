@@ -61,13 +61,6 @@ import { AJAX_TIMEOUT } from '../constants';
 
 class Gettext {
   constructor(config) {
-    this.getTranslationFileUrl = function getTranslationFileUrl(langCode) {
-      return `/static/translations/${langCode}/messages.json`;
-    };
-
-    this.getBaseframeTranslationFileUrl = (langCode) =>
-      `/static/translations/${langCode}/baseframe.json`;
-
     if (config !== undefined && config.translatedLang !== undefined) {
       let catalog = {};
       let domain = 'messages';
@@ -95,44 +88,51 @@ class Gettext {
       this.domain = domain;
       this.catalog = catalog;
     }
+  }
 
-    this.gettext = function gettext(msgid, ...args) {
-      if (msgid in this.catalog) {
-        const msgidCatalog = this.catalog[msgid];
+  getTranslationFileUrl(langCode) {
+    return `/static/translations/${langCode}/messages.json`;
+  }
 
-        if (msgidCatalog[0] !== '') {
-          return vsprintf(msgidCatalog[0], args);
-        }
+  getBaseframeTranslationFileUrl = (langCode) =>
+    `/static/translations/${langCode}/baseframe.json`;
+
+  gettext(msgid, ...args) {
+    if (msgid in this.catalog) {
+      const msgidCatalog = this.catalog[msgid];
+
+      if (msgidCatalog[0] !== '') {
+        return vsprintf(msgidCatalog[0], args);
       }
-      return vsprintf(msgid, args);
-    };
+    }
+    return vsprintf(msgid, args);
+  }
 
-    this.ngettext = function ngettext(msgid, msgidPlural, num, ...args) {
-      if (msgid in this.catalog) {
-        const msgidCatalog = this.catalog[msgid];
+  ngettext(msgid, msgidPlural, num, ...args) {
+    if (msgid in this.catalog) {
+      const msgidCatalog = this.catalog[msgid];
 
-        if (msgidCatalog.length < 2) {
-          // eslint-disable-next-line no-console
-          console.error(
-            'Invalid format for translated messages, at least 2 values expected for plural translations'
-          );
+      if (msgidCatalog.length < 2) {
+        // eslint-disable-next-line no-console
+        console.error(
+          'Invalid format for translated messages, at least 2 values expected for plural translations',
+        );
+      } else {
+        let msgstr = '';
+        if (num === 1) {
+          msgstr = sprintf(msgidCatalog[0], { num });
         } else {
-          let msgstr = '';
-          if (num === 1) {
-            msgstr = sprintf(msgidCatalog[0], { num });
-          } else {
-            msgstr = sprintf(msgidCatalog[1], { num });
-          }
-          if (msgstr !== '') {
-            return vsprintf(msgstr, args);
-          }
+          msgstr = sprintf(msgidCatalog[1], { num });
+        }
+        if (msgstr !== '') {
+          return vsprintf(msgstr, args);
         }
       }
-      if (num === 1) {
-        return vsprintf(sprintf(msgid, { num }), args);
-      }
-      return vsprintf(sprintf(msgidPlural, { num }), args);
-    };
+    }
+    if (num === 1) {
+      return vsprintf(sprintf(msgid, { num }), args);
+    }
+    return vsprintf(sprintf(msgidPlural, { num }), args);
   }
 }
 

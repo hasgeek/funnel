@@ -1,20 +1,18 @@
-/* eslint-disable global-require */
-describe('Adding crew to profile', () => {
-  const { owner, admin, hguser } = require('../fixtures/user.json');
-  const profile = require('../fixtures/profile.json');
+import { owner, admin, hguser } from '../fixtures/user.json';
+import profile from '../fixtures/profile.json';
 
+describe('Adding crew to profile', () => {
   Cypress.on('uncaught:exception', () => {
     return false;
   });
 
   it('Add new member to profile and edit roles', () => {
-    cy.server();
-    cy.route('**/edit').as('edit-form');
-    cy.route('POST', '**/edit').as('edit-member');
-    cy.route('GET', '**/delete').as('delete-form');
-    cy.route('POST', '**/delete').as('delete-member');
-    cy.route('GET', '**/new').as('member-form');
-    cy.route('POST', '**/new').as('add-member');
+    cy.intercept('**/edit').as('edit-form');
+    cy.intercept('POST', '**/edit').as('edit-member');
+    cy.intercept('GET', '**/delete').as('delete-form');
+    cy.intercept('POST', '**/delete').as('delete-member');
+    cy.intercept('GET', '**/new').as('member-form');
+    cy.intercept('POST', '**/new').as('add-member');
 
     cy.login(`/${profile.title}`, owner.username, owner.password);
     cy.get('a[data-cy="admin-dropdown"]:visible').click();

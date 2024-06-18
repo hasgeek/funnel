@@ -129,14 +129,14 @@
             c +
             '"><span class="sp-thumb-inner" style="' +
             swatchStyle +
-            ';" /></span>'
+            ';" /></span>',
         );
       } else {
         var cls = 'sp-clear-display';
         html.push(
           '<span title="No Color Selected" data-color="" style="background-color:transparent;" class="' +
             cls +
-            '"></span>'
+            '"></span>',
         );
       }
     }
@@ -304,15 +304,15 @@
       }
 
       // Prevent clicks from bubbling up to document.  This would cause it to be hidden.
-      container.click(stopPropagation);
+      container.on('click', stopPropagation);
 
       // Handle user typed input
-      textInput.change(setFromTextInput);
+      textInput.on('change', setFromTextInput);
       textInput.bind('paste', function () {
         setTimeout(setFromTextInput, 1);
       });
-      textInput.keydown(function (e) {
-        if (e.keyCode == 13) {
+      textInput.on('keydown', function (e) {
+        if (e.key === 'Enter') {
           setFromTextInput();
         }
       });
@@ -366,7 +366,7 @@
           move();
         },
         dragStart,
-        dragStop
+        dragStop,
       );
 
       draggable(
@@ -398,7 +398,7 @@
           move();
         },
         dragStart,
-        dragStop
+        dragStop,
       );
 
       if (!!initialColor) {
@@ -440,7 +440,7 @@
         '.sp-thumb-el:nth-child(1)',
         paletteEvent,
         { ignore: true },
-        palletElementClick
+        palletElementClick,
       );
     }
 
@@ -496,7 +496,7 @@
         return paletteTemplate(
           palette,
           currentColor,
-          'sp-palette-row sp-palette-row-' + i
+          'sp-palette-row sp-palette-row-' + i,
         );
       });
 
@@ -505,8 +505,8 @@
           paletteTemplate(
             getUniqueSelectionPalette(),
             currentColor,
-            'sp-palette-row sp-palette-row-selection'
-          )
+            'sp-palette-row sp-palette-row-selection',
+          ),
         );
       }
 
@@ -518,7 +518,7 @@
         var initial = colorOnShow;
         var current = get();
         initialColorContainer.html(
-          paletteTemplate([initial, current], current, 'sp-palette-row-initial')
+          paletteTemplate([initial, current], current, 'sp-palette-row-initial'),
         );
       }
     }
@@ -668,7 +668,7 @@
           v: currentValue,
           a: Math.round(currentAlpha * 100) / 100,
         },
-        { format: opts.format || currentPreferredFormat }
+        { format: opts.format || currentPreferredFormat },
       );
     }
 
@@ -736,7 +736,7 @@
           if (IE) {
             alphaSliderInner.css(
               'filter',
-              tinycolor(realAlpha).toFilter({ gradientType: 1 }, realHex)
+              tinycolor(realAlpha).toFilter({ gradientType: 1 }, realHex),
             );
           } else {
             alphaSliderInner.css('background', '-webkit-' + gradient);
@@ -780,11 +780,11 @@
         var dragY = dragHeight - v * dragHeight;
         dragX = Math.max(
           -dragHelperHeight,
-          Math.min(dragWidth - dragHelperHeight, dragX - dragHelperHeight)
+          Math.min(dragWidth - dragHelperHeight, dragX - dragHelperHeight),
         );
         dragY = Math.max(
           -dragHelperHeight,
-          Math.min(dragHeight - dragHelperHeight, dragY - dragHelperHeight)
+          Math.min(dragHeight - dragHelperHeight, dragY - dragHelperHeight),
         );
         dragHelper.css({
           top: dragY,
@@ -922,14 +922,14 @@
       offset.left,
       offset.left + dpWidth > viewWidth && viewWidth > dpWidth
         ? Math.abs(offset.left + dpWidth - viewWidth)
-        : 0
+        : 0,
     );
 
     offset.top -= Math.min(
       offset.top,
       offset.top + dpHeight > viewHeight && viewHeight > dpHeight
         ? Math.abs(dpHeight + inputHeight - extraY)
-        : extraY
+        : extraY,
     );
 
     return offset;

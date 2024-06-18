@@ -4,7 +4,7 @@ import 'jquery-ui-touch-punch';
 import toastr from 'toastr';
 import Form from './formhelper';
 
-function SortItem(wrapperJqueryElem, placeholderClass, sortUrl) {
+function sortItem(wrapperJqueryElem, placeholderClass, sortUrl) {
   let oldList;
   let target;
   let other;
@@ -59,4 +59,4 @@ function SortItem(wrapperJqueryElem, placeholderClass, sortUrl) {
   });
 }
 
-export default SortItem;
+export default sortItem;

@@ -2,11 +2,8 @@ import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute, setCatchHandler } from 'workbox-routing';
 import { NetworkFirst, NetworkOnly } from 'workbox-strategies';
 import { skipWaiting, clientsClaim } from 'workbox-core';
-const filteredManifest = self.__WB_MANIFEST.filter((entry) => {
-  return !entry.url.match('prism-');
-});
 
-precacheAndRoute(filteredManifest);
+precacheAndRoute(self.__WB_MANIFEST);
 
 skipWaiting();
 clientsClaim();
@@ -16,7 +13,7 @@ registerRoute(
   new NetworkFirst({
     cacheName: 'offline',
   }),
-  'GET'
+  'GET',
 );
 
 registerRoute(
@@ -24,14 +21,14 @@ registerRoute(
   new NetworkFirst({
     cacheName: 'homepage',
   }),
-  'GET'
+  'GET',
 );
 
 registerRoute(new RegExp('/(.*)'), new NetworkOnly(), 'GET');
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open('offline').then((cache) => cache.addAll(['/api/1/template/offline']))
+    caches.open('offline').then((cache) => cache.addAll(['/api/1/template/offline'])),
   );
 });
 
@@ -45,7 +42,6 @@ setCatchHandler(({ event }) => {
   switch (event.request.destination) {
     case 'document':
       return caches.match('/api/1/template/offline');
-      break;
 
     default:
       return Response.error();

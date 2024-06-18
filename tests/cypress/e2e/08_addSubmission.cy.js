@@ -1,17 +1,14 @@
-/* eslint-disable global-require */
-describe('Add a new submission', () => {
-  const { user, editor, usher } = require('../fixtures/user.json');
-  const profile = require('../fixtures/profile.json');
-  const proposal = require('../fixtures/proposal.json');
-  const project = require('../fixtures/project.json');
+import { user, usher } from '../fixtures/user.json';
+import proposal from '../fixtures/proposal.json';
+import project from '../fixtures/project.json';
 
+describe('Add a new submission', () => {
   it('Add submission', () => {
-    cy.server();
-    cy.route('GET', '**/admin').as('fetch-admin-panel');
-    cy.route('GET', '**/updates?*').as('fetch-updates');
-    cy.route('POST', '**/new').as('post-comment');
-    cy.route('GET', '**/collaborator/*').as('get-collaborator-form');
-    cy.route('POST', '**/collaborator/new').as('add-collaborator');
+    cy.intercept('GET', '**/admin').as('fetch-admin-panel');
+    cy.intercept('GET', '**/updates?*').as('fetch-updates');
+    cy.intercept('POST', '**/new').as('post-comment');
+    cy.intercept('GET', '**/collaborator/*').as('get-collaborator-form');
+    cy.intercept('POST', '**/collaborator/new').as('add-collaborator');
 
     cy.login('/', user.username, user.password);
 
@@ -52,12 +49,13 @@ describe('Add a new submission', () => {
       force: true,
     });
     cy.get('.select2-results__option--highlighted', { timeout: 20000 }).should(
-      'be.visible'
+      'be.visible',
     );
     cy.get('.select2-results__option').contains(usher.username).click();
     cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');
     cy.wait(1000);
-    cy.get('#field-label').click().type('Editor');
+    cy.get('#field-label').click();
+    cy.get('#field-label').type('Editor');
     cy.get('.modal').find('button[data-cy="form-submit-btn"]:visible').click();
     cy.wait('@add-collaborator');
     cy.get('a.modal__close:visible').click();

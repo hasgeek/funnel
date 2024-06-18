@@ -16,84 +16,77 @@ const Store = {
 class Queue {
   constructor(queueName) {
     this.queueName = queueName;
+  }
 
-    // Adds a ticketParticipantId to queue
-    this.enqueue = function enqueue(ticketParticipantId) {
-      const ticketParticipantList = Store.read(this.queueName) || [];
-      if (ticketParticipantList.indexOf(ticketParticipantId) === -1) {
-        ticketParticipantList.push(ticketParticipantId);
-        return Store.add(this.queueName, ticketParticipantList);
-      }
-      return false;
-    };
+  // Adds a ticketParticipantId to queue
+  enqueue(ticketParticipantId) {
+    const ticketParticipantList = Store.read(this.queueName) || [];
+    if (ticketParticipantList.indexOf(ticketParticipantId) === -1) {
+      ticketParticipantList.push(ticketParticipantId);
+      return Store.add(this.queueName, ticketParticipantList);
+    }
+    return false;
+  }
 
-    // Reads and returns all items from queue
-    // Returns undefined when queue is empty or not defined
-    this.readAll = function readAll() {
-      const ticketParticipantList = Store.read(this.queueName);
-      if (ticketParticipantList && ticketParticipantList.length) {
-        return ticketParticipantList;
-      }
-      return false;
-    };
+  // Reads and returns all items from queue
+  // Returns undefined when queue is empty or not defined
+  readAll() {
+    const ticketParticipantList = Store.read(this.queueName);
+    if (ticketParticipantList && ticketParticipantList.length) {
+      return ticketParticipantList;
+    }
+    return false;
+  }
 
-    // Removes item from queue and returns true
-    // Returns undefined when item not present in queue
-    this.dequeue = function dequeue(ticketParticipantId) {
-      const ticketParticipantList = Store.read(this.queueName);
-      const index = ticketParticipantList
-        ? ticketParticipantList.indexOf(ticketParticipantId)
-        : -1;
-      if (index !== -1) {
-        // Remove item from queue and add updated queue to localStorage
-        ticketParticipantList.splice(index, 1);
-        Store.add(this.queueName, ticketParticipantList);
-        return ticketParticipantId;
-      }
-      return false;
-    };
+  // Removes item from queue and returns true
+  // Returns undefined when item not present in queue
+  dequeue(ticketParticipantId) {
+    const ticketParticipantList = Store.read(this.queueName);
+    const index = ticketParticipantList
+      ? ticketParticipantList.indexOf(ticketParticipantId)
+      : -1;
+    if (index !== -1) {
+      // Remove item from queue and add updated queue to localStorage
+      ticketParticipantList.splice(index, 1);
+      Store.add(this.queueName, ticketParticipantList);
+      return ticketParticipantId;
+    }
+    return false;
+  }
 
-    /* updateQueue: If participant in "checkin-queue" has already been checked-in
+  /* updateQueue: If participant in "checkin-queue" has already been checked-in
     then it is removed from checkin queue */
-    this.updateQueue = function updateQueue(
-      participantsHashMap,
-      ticketParticipantList
-    ) {
-      const queue = this;
-      const ticketParticipantIds = queue.readAll();
-      const ticketParticipants = ticketParticipantList.get('ticket_participants');
-      if (ticketParticipantIds) {
-        ticketParticipantIds.forEach((ticketParticipantId) => {
-          if (queue.queueName.indexOf('cancelcheckin-queue') > -1) {
-            if (!participantsHashMap[ticketParticipantId].checked_in) {
-              /* Participant's check-in has already been cancelled so remove
+  updateQueue(participantsHashMap, ticketParticipantList) {
+    const ticketParticipantIds = this.readAll();
+    const ticketParticipants = ticketParticipantList.get('ticket_participants');
+    if (ticketParticipantIds) {
+      ticketParticipantIds.forEach((ticketParticipantId) => {
+        if (this.queueName.indexOf('cancelcheckin-queue') > -1) {
+          if (!participantsHashMap[ticketParticipantId].checked_in) {
+            /* Participant's check-in has already been cancelled so remove
               from 'cancelcheckin-queue' */
-              queue.dequeue(ticketParticipantId);
-            } else {
-              const index = Utils.findLoopIndex(
-                ticketParticipants,
-                'puuid_b58',
-                ticketParticipantId
-              );
-              ticketParticipantList.set(
-                `ticket_participants.${index}.submitting`,
-                true
-              );
-            }
-          } else if (participantsHashMap[ticketParticipantId].checked_in) {
-            // Participant has been checked-in so remove from 'checkin-queue'
-            queue.dequeue(ticketParticipantId);
+            this.dequeue(ticketParticipantId);
           } else {
             const index = Utils.findLoopIndex(
               ticketParticipants,
               'puuid_b58',
-              ticketParticipantId
+              ticketParticipantId,
             );
             ticketParticipantList.set(`ticket_participants.${index}.submitting`, true);
           }
-        });
-      }
-    };
+        } else if (participantsHashMap[ticketParticipantId].checked_in) {
+          // Participant has been checked-in so remove from 'checkin-queue'
+          this.dequeue(ticketParticipantId);
+        } else {
+          const index = Utils.findLoopIndex(
+            ticketParticipants,
+            'puuid_b58',
+            ticketParticipantId,
+          );
+          ticketParticipantList.set(`ticket_participants.${index}.submitting`, true);
+        }
+      });
+    }
   }
 }
 
@@ -165,7 +158,7 @@ const ParticipantTable = {
           list.set('ticket_participants', data.ticket_participants).then(() => {
             const ticketParticipants = Utils.tohashMap(
               data.ticket_participants,
-              'puuid_b58'
+              'puuid_b58',
             );
             list.get('checkinQ').updateQueue(ticketParticipants, list);
             list.get('cancelcheckinQ').updateQueue(ticketParticipants, list);

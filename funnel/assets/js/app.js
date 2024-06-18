@@ -1,5 +1,7 @@
 import 'jquery-modal';
 import 'trunk8';
+import pace from 'pace-js';
+
 import Utils from './utils/helper';
 import WebShare from './utils/webshare';
 import ScrollHelper from './utils/scrollhelper';
@@ -16,24 +18,22 @@ import setTimezoneCookie from './utils/timezone';
 import './utils/follow_action';
 import 'muicss/dist/js/mui';
 
-const pace = require('pace-js');
-
 $(() => {
   /* eslint-disable no-console */
   console.log(
-    'Hello, curious geek. Our source is at https://github.com/hasgeek. Why not contribute a patch?'
+    'Hello, curious geek. Our source is at https://github.com/hasgeek. Why not contribute a patch?',
   );
 
   loadLangTranslations();
   window.Hasgeek.Config.errorMsg = {
     serverError: window.gettext(
-      'An internal server error occurred. Our support team has been notified and will investigate'
+      'An internal server error occurred. Our support team has been notified and will investigate',
     ),
     networkError: window.gettext(
-      'Unable to connect. Check connection and refresh the page'
+      'Unable to connect. Check connection and refresh the page',
     ),
     rateLimitError: window.gettext('This is unusually high activity. Try again later'),
-    error: window.gettext('An error occured when submitting the form'),
+    error: window.gettext('An error occurred when submitting the form'),
   };
 
   Utils.collapse();
@@ -51,17 +51,6 @@ $(() => {
   LazyloadImg.init('js-lazyload-img');
   // Request for new CSRF token and update the page every 15 mins
   setInterval(Utils.csrfRefresh, 900000);
-
-  // Add polyfill
-  if (!('URLSearchParams' in window)) {
-    const polyfill = document.createElement('script');
-    polyfill.setAttribute('type', 'text/javascript');
-    polyfill.setAttribute(
-      'src',
-      'https://cdnjs.cloudflare.com/ajax/libs/url-search-params/1.1.0/url-search-params.js'
-    );
-    document.head.appendChild(polyfill);
-  }
 
   setTimezoneCookie();
   updateParsleyConfig();

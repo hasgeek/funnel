@@ -1,15 +1,20 @@
 process.traceDeprecation = true;
 
-const webpack = require('webpack');
-const ESLintPlugin = require('eslint-webpack-plugin');
-const path = require('path');
-const { InjectManifest } = require('workbox-webpack-plugin');
-const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+import { createRequire } from 'node:module';
+import webpack from 'webpack';
+import ESLintPlugin from 'eslint-webpack-plugin';
+import path from 'path';
+import { InjectManifest } from 'workbox-webpack-plugin';
+import { WebpackManifestPlugin } from 'webpack-manifest-plugin';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+import { fileURLToPath } from 'url';
 
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const nodeEnv = process.env.NODE_ENV || 'production';
 
-module.exports = {
+export default {
   resolve: {
     fallback: {
       fs: false,
@@ -47,7 +52,7 @@ module.exports = {
     notification_list: path.resolve(__dirname, 'funnel/assets/js/notification_list.js'),
     notification_settings: path.resolve(
       __dirname,
-      'funnel/assets/js/notification_settings.js'
+      'funnel/assets/js/notification_settings.js',
     ),
     account_saved: path.resolve(__dirname, 'funnel/assets/js/account_saved.js'),
     autosave_form: path.resolve(__dirname, 'funnel/assets/js/autosave_form.js'),
@@ -64,7 +69,7 @@ module.exports = {
     profile_css: path.resolve(__dirname, 'funnel/assets/sass/pages/profile.scss'),
     profile_calendar_css: path.resolve(
       __dirname,
-      'funnel/assets/sass/pages/profile_calendar.scss'
+      'funnel/assets/sass/pages/profile_calendar.scss',
     ),
     project_css: path.resolve(__dirname, 'funnel/assets/sass/pages/project.scss'),
     submission_css: path.resolve(__dirname, 'funnel/assets/sass/pages/submission.scss'),
@@ -77,19 +82,19 @@ module.exports = {
     contacts_css: path.resolve(__dirname, 'funnel/assets/sass/pages/contacts.scss'),
     submissions_css: path.resolve(
       __dirname,
-      'funnel/assets/sass/pages/submissions.scss'
+      'funnel/assets/sass/pages/submissions.scss',
     ),
     membership_css: path.resolve(__dirname, 'funnel/assets/sass/pages/membership.scss'),
     account_css: path.resolve(__dirname, 'funnel/assets/sass/pages/account.scss'),
     update_css: path.resolve(__dirname, 'funnel/assets/sass/pages/update.scss'),
     imgee_modal_css: path.resolve(
       __dirname,
-      'funnel/assets/sass/pages/imgee_modal.scss'
+      'funnel/assets/sass/pages/imgee_modal.scss',
     ),
     label_form_css: path.resolve(__dirname, 'funnel/assets/sass/pages/label_form.scss'),
     submission_form_css: path.resolve(
       __dirname,
-      'funnel/assets/sass/pages/submission_form.scss'
+      'funnel/assets/sass/pages/submission_form.scss',
     ),
     screens_css: path.resolve(__dirname, 'funnel/assets/sass/pages/screens.scss'),
     event_css: path.resolve(__dirname, 'funnel/assets/sass/pages/event.scss'),
@@ -98,6 +103,7 @@ module.exports = {
     path: path.resolve(__dirname, 'funnel/static/build'),
     publicPath: '/static/build/',
     filename: 'js/[name].[chunkhash].js',
+    compareBeforeEmit: true,
   },
   module: {
     rules: [
@@ -155,6 +161,7 @@ module.exports = {
     new InjectManifest({
       swSrc: path.resolve(__dirname, 'funnel/assets/service-worker-template.js'),
       swDest: path.resolve(__dirname, 'funnel/static/build/js/service-worker.js'),
+      exclude: [/prismjs/, /\.map$/, /\.LICENSE\.txt$/],
     }),
   ],
 };

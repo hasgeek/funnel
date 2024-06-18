@@ -11,7 +11,7 @@ import {
 function codemirrorStylesheetHelper(
   textareaId,
   updateFnCallback = '',
-  callbackInterval = 1000
+  callbackInterval = 1000,
 ) {
   let textareaWaitTimer;
 

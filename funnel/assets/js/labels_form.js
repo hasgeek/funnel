@@ -29,7 +29,7 @@ $(() => {
         },
       });
     }
-    $('#add-sublabel-form').click((e) => {
+    $('#add-sublabel-form').on('click', (e) => {
       e.preventDefault();
       $('#child-form').append(formHtml);
       activateFormWidgets();

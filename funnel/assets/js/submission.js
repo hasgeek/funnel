@@ -42,7 +42,7 @@ export const Submission = {
 
 export const LabelsWidget = {
   init() {
-    const Widget = this;
+    const self = this;
 
     // On load, if the radio has been selected, then check mark the listwidget label
     $('.listwidget input[type="radio"]').each(function loadCheckMarkToLabel() {
@@ -51,33 +51,36 @@ export const LabelsWidget = {
       }
     });
 
-    $('.listwidget .mui-form__label').click(function uncheckLabel() {
+    $('.listwidget .mui-form__label').on('click', function uncheckLabel() {
       if ($(this).hasClass('checked')) {
         $(this).removeClass('checked');
         $(this).siblings().find('input[type="radio"]').prop('checked', false);
-        const attr = Widget.getLabelTxt($(this).text().trim());
-        Widget.updateLabels('', attr, false);
+        const attr = self.getLabelTxt($(this).text().trim());
+        self.updateLabels('', attr, false);
       } else {
         $(this).addClass('checked');
-        $(this).siblings().find('input[type="radio"]').first().click();
+        $(this).siblings().find('input[type="radio"]').first().trigger('click');
       }
     });
 
     // Add check mark to listwidget label
-    $('.listwidget input[type="radio"]').change(function addCheckMarkToLabel() {
+    $('.listwidget input[type="radio"]').on('change', function addCheckMarkToLabel() {
       const label = $(this).parent().parent().prev('.mui-form__label');
       label.addClass('checked');
-      const labelTxt = `${Widget.getLabelTxt(label.text())}: ${Widget.getLabelTxt(
-        $(this).parent().find('label').text()
+      const labelTxt = `${self.getLabelTxt(label.text())}: ${self.getLabelTxt(
+        $(this).parent().find('label').text(),
       )}`;
-      const attr = Widget.getLabelTxt(label.text());
-      Widget.updateLabels(labelTxt, attr, this.checked);
+      const attr = self.getLabelTxt(label.text());
+      self.updateLabels(labelTxt, attr, this.checked);
     });
 
-    $('.mui-checkbox input[type="checkbox"]').change(function clickLabelCheckbox() {
-      const labelTxt = Widget.getLabelTxt($(this).parent('label').text());
-      Widget.updateLabels(labelTxt, labelTxt, this.checked);
-    });
+    $('.mui-checkbox input[type="checkbox"]').on(
+      'change',
+      function clickLabelCheckbox() {
+        const labelTxt = self.getLabelTxt($(this).parent('label').text());
+        self.updateLabels(labelTxt, labelTxt, this.checked);
+      },
+    );
 
     // Open and close dropdown
     $('#label-select').on('click', () => {
@@ -110,7 +113,7 @@ export const LabelsWidget = {
         $(`.label[data-labeltxt='${attr}']`).remove();
       }
       const labelSpan = $(
-        '<span class="label mui--text-caption mui--text-bold"></span>'
+        '<span class="label mui--text-caption mui--text-bold"></span>',
       )
         .attr('data-labeltxt', attr)
         .text(label);

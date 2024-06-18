@@ -1,8 +1,12 @@
-function hexToRgb(hex) {
+/* eslint-disable no-undef */
+/* eslint-disable prefer-arrow-callback */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+function hexToRgb(color) {
+  var hex = color;
   if (hex.charAt(0) != '#') hex = '#' + hex;
   // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
   var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  hex = hex.replace(shorthandRegex, function (m, r, g, b) {
+  hex = hex.replace(shorthandRegex, function (_m, r, g, b) {
     return r + r + g + g + b + b;
   });
 
@@ -28,11 +32,11 @@ function rgbToHex(color) {
 }
 
 function invert(color) {
-  color = hexToRgb(color);
-  avg = (color.r + color.g + color.b) / 3;
+  var rgb_color = hexToRgb(color);
+  var avg = (rgb_color.r + rgb_color.g + rgb_color.b) / 3;
   avg = ((Math.round(avg / 256) + 1) % 2) * 255;
-  color = { r: avg, g: avg, b: avg };
-  return rgbToHex(color);
+  rgb_color = { r: avg, g: avg, b: avg };
+  return rgbToHex(rgb_color);
 }
 
 function activate_widgets() {
@@ -65,7 +69,8 @@ $(function () {
             $(this)
               .children()
               .each(function (index) {
-                $(this).children('input[name$="seq"]').val(++index);
+                var i = index;
+                $(this).children('input[name$="seq"]').val(++i);
               });
           },
         });
@@ -83,33 +88,33 @@ $(function () {
               change: settings.onColorChange,
             });
           });
-          this.color_form.find('input[type=reset]').click(function () {
+          this.color_form.find('input[type=reset]').on('click', function () {
             settings.color_form.find('input[type=text]').each(function () {
               ROOMS[$(this).attr('data-room-id')].bgcolor = $(this).attr('data-color');
               $(this).spectrum('set', $(this).attr('data-color'));
             });
             calendar.render();
           });
-          this.color_form.submit(function (event) {
+          this.color_form.on('submit', function (event) {
             event.preventDefault();
             var json = {};
 
-            $('input[name="uuid"]').each(function (index, element) {
+            $('input[name="uuid"]').each(function (_index, element) {
               var venue = $(element).val();
               json[venue] = {
                 seq: $('input[name="venue-seq"][data-venue="' + venue + '"]').val(),
                 rooms: [],
               };
-              $('input[data-venue="' + venue + '"]').each(function (index, element) {
+              $('input[data-venue="' + venue + '"]').each(function (_index, element) {
                 if ($(element).attr('name') === 'room-uuidb58') {
                   var roomUuidB58 = $(element).val();
                   var room = {
                     uuid_b58: roomUuidB58,
                     seq: $(
-                      'input[name="room-seq"][data-room="' + roomUuidB58 + '"]'
+                      'input[name="room-seq"][data-room="' + roomUuidB58 + '"]',
                     ).val(),
                     color: $(
-                      'input[name="color"][data-room="' + roomUuidB58 + '"]'
+                      'input[name="color"][data-room="' + roomUuidB58 + '"]',
                     ).val(),
                   };
                   json[venue]['rooms'].push(room);
@@ -122,17 +127,17 @@ $(function () {
               dataType: 'json',
               contentType: 'application/json',
               data: JSON.stringify(json),
-              success: function (result) {
+              success: function () {
                 window.toastr.success(
-                  gettext('The room sequence and colours have been updated')
+                  gettext('The room sequence and colours have been updated'),
                 );
               },
-              complete: function (xhr, type) {
+              complete: function (_xhr, type) {
                 if (type == 'error' || type == 'timeout') {
                   window.toastr.error(
                     gettext(
-                      'The server could not be reached. Check connection and try again'
-                    )
+                      'The server could not be reached. Check connection and try again',
+                    ),
                   );
                 }
               },
@@ -220,19 +225,19 @@ $(function () {
                 calendar.update(events.current);
                 popup.hide();
                 if ($('#schedule-publish-alert').length) {
-                  $('#schedule-publish-alert .alert__close').click();
+                  $('#schedule-publish-alert .alert__close').trigger('click');
                 }
               } else {
                 popup.body().html(result.form);
                 activate_widgets();
               }
             },
-            complete: function (xhr, type) {
+            complete: function (_xhr, type) {
               if (type == 'error' || type == 'timeout') {
                 window.toastr.error(
                   gettext(
-                    'The server could not be reached. Check connection and try again'
-                  )
+                    'The server could not be reached. Check connection and try again',
+                  ),
                 );
               }
               popup.submitting = false;
@@ -263,17 +268,19 @@ $(function () {
               .text(
                 $.fullCalendar.formatDate(events.current.start, 'd MMMM, yyyy H:mm') +
                   ' - ' +
-                  $.fullCalendar.formatDate(events.current.end, 'H:mm')
+                  $.fullCalendar.formatDate(events.current.end, 'H:mm'),
               );
           }
           popup.body().html(result.form);
           popup.pop();
         },
-        complete: function (xhr, type) {
+        complete: function (_xhr, type) {
           if (type == 'error' || type == 'timeout') {
             popup.close();
             window.toastr.error(
-              gettext('The server could not be reached. Check connection and try again')
+              gettext(
+                'The server could not be reached. Check connection and try again',
+              ),
             );
           }
         },
@@ -281,7 +288,7 @@ $(function () {
     };
 
     obj.init = function () {
-      popup.container.find('.save').click(popup.save);
+      popup.container.find('.save').on('click', popup.save);
     };
 
     return obj;
@@ -301,7 +308,7 @@ $(function () {
             var from_day = getDaydate(from),
               to_day = getDaydate(to);
             var inactive = [];
-            for (i = 0; i <= 6; i++) {
+            for (var i = 0; i <= 6; i++) {
               if (
                 (from_day <= to_day && (i < from_day || i > to_day)) ||
                 (from_day > to_day && i < from_day && i > to_day)
@@ -347,10 +354,10 @@ $(function () {
           var config = calendar.options.config;
           config.events = scheduled;
           if (from_date != null) {
-            var fromdate = getDateArrayProjectTZ(from_date);
-            config.year = parseInt(fromdate[0], 10);
-            config.month = parseInt(fromdate[1], 10) - 1;
-            config.date = parseInt(fromdate[2], 10);
+            var from_date_array = getDateArrayProjectTZ(from_date);
+            config.year = parseInt(from_date_array[0], 10);
+            config.month = parseInt(from_date_array[1], 10) - 1;
+            config.date = parseInt(from_date_array[2], 10);
             if (to_date != null) {
               config.hiddenDays = calendar.helpers.inactive_days(from_date, to_date);
               config.firstDay = getDaydate(from_date);
@@ -386,8 +393,9 @@ $(function () {
           calendar.temp[filter] = args;
           var return_data = calendar.container.fullCalendar(
             'clientEvents',
-            calendar.filters[filter]
+            calendar.filters[filter],
           );
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
           delete calendar.temp[filter];
           return return_data;
         }
@@ -424,7 +432,7 @@ $(function () {
       config.selectable = true;
       config.editable = true;
       config.droppable = true;
-      config.select = function (startDate, endDate, allDay, jsEvent, view) {
+      config.select = function (startDate, endDate, _allDay, _jsEvent, _view) {
         $('body').append('<div id="dummy"></div>');
         var event = {
           saved: false,
@@ -438,7 +446,7 @@ $(function () {
         popup.open();
         calendar.container.fullCalendar('unselect');
       };
-      config.drop = function (date, allDay) {
+      config.drop = function (date, _allDay) {
         // we need to clone it, else we will lose it when we remove the source's DOM element
         var source = $(this);
         var _event = source.data('info');
@@ -447,25 +455,25 @@ $(function () {
         event.start = date;
         event.end = new Date(date.getTime());
         event.end.setMinutes(
-          event.end.getMinutes() + calendar.options.config.defaultEventMinutes
+          event.end.getMinutes() + calendar.options.config.defaultEventMinutes,
         );
         event.unscheduled = source;
         calendar.add(event);
         popup.open();
       };
       config.viewRender = function () {
-        event_list = calendar.events();
-        for (e in event_list) {
+        var event_list = calendar.events();
+        for (const e in event_list) {
           events.update_properties(event_list[e]);
         }
       };
-      config.eventAfterRender = function (event, element, view) {
+      config.eventAfterRender = function (event, element, _view) {
         element.append('<div class="fc-event-custom"></div>');
         var custom = element.find('.fc-event-custom');
         custom.append(
-          '<a class="fc-event-delete" href="javascript:void(0)">&times;</div>'
+          '<a class="fc-event-delete" href="javascript:void(0)">&times;</div>',
         );
-        custom.find('.fc-event-delete').click(function (e) {
+        custom.find('.fc-event-delete').on('click', function () {
           if (confirm(gettext('Remove %s from the schedule?', event.obj_data.title))) {
             $.ajax({
               url: event.delete_url,
@@ -480,12 +488,12 @@ $(function () {
                   }
                 }
               },
-              complete: function (xhr, type) {
+              complete: function (_xhr, type) {
                 if (type == 'error' || type == 'timeout') {
                   window.toastr.error(
                     gettext(
-                      'The server could not be reached. Check connection and try again'
-                    )
+                      'The server could not be reached. Check connection and try again',
+                    ),
                   );
                 }
               },
@@ -522,7 +530,7 @@ $(function () {
             .append(
               '<span class="hg-fc-button mui-btn save-schedule">' +
                 gettext('Save') +
-                '</span>'
+                '</span>',
             );
           var button = calendar.container.find('.save-schedule');
           button.enable = function (label) {
@@ -539,7 +547,7 @@ $(function () {
           button.disabled = function () {
             return $(this).hasClass('fc-state-disabled');
           };
-          button.click(function () {
+          button.on('click', function () {
             if (!button.disabled()) events.save();
           });
           button.disable('Saved');
@@ -556,7 +564,7 @@ $(function () {
           },
           function () {
             $(this).removeClass('fc-state-hover');
-          }
+          },
         );
       calendar.container
         .find('.fc-header-left')
@@ -569,10 +577,10 @@ $(function () {
             gettext('30 mins') +
             '</button> <button class="tabs__item js-fc-zoom" data-slotinterval="60">' +
             gettext('60 mins') +
-            '</button></div>'
+            '</button></div>',
         );
       $(
-        '.js-fc-zoom[data-slotinterval=' + calendar.options.config.slotMinutes + ']'
+        '.js-fc-zoom[data-slotinterval=' + calendar.options.config.slotMinutes + ']',
       ).addClass('tabs__item--active');
       $('.js-fc-zoom').on('click', function () {
         var zoom = $(this).data('slotinterval');
@@ -593,11 +601,11 @@ $(function () {
           .prepend(
             '<label for="autosaver" class="hg-fc-checkbox"><input id="autosaver" class="autosave" type="checkbox">' +
               gettext('Autosave') +
-              '</label>'
+              '</label>',
           );
         var autosaver = calendar.container.find('.autosave');
         autosaver.prop('checked', events.autosave);
-        autosaver.change(function () {
+        autosaver.on('change', function () {
           events.autosave = $(this).is(':checked');
         });
       }
@@ -623,7 +631,7 @@ $(function () {
       add_obj_data: function (event) {
         if (typeof event != 'undefined') this.current = event;
         if (this.current) {
-          obj_data = $.extend({}, this.init_obj);
+          var obj_data = $.extend({}, this.init_obj);
           obj_data = $.extend(obj_data, this.current.obj_data);
           this.current.obj_data = obj_data;
           this.update_time();
@@ -678,7 +686,7 @@ $(function () {
       height: function (ht) {
         if (settings.editable) unscheduled_events.container.height(ht);
       },
-      onClick: function (event, jsEvent, view) {
+      onClick: function (event, jsEvent, _view) {
         if (!$(jsEvent.target).parent().hasClass('fc-event-custom')) {
           events.current = event;
           popup.open();
@@ -687,7 +695,7 @@ $(function () {
     };
 
     if (settings.editable) {
-      events.onChange = function (event, jsEvent, ui, view) {
+      events.onChange = function (event, _jsEvent, _ui, _view) {
         event.saved = false;
         events.update_time(event);
         calendar.buttons.save.enable(gettext('Save'));
@@ -697,32 +705,32 @@ $(function () {
         calendar.buttons.save.disable(gettext('Saving…'));
         var event_list = calendar.events('unsaved');
         var e = [];
-        for (event in event_list) {
-          e.push(event_list[event].obj_data);
+        for (const ev in event_list) {
+          e.push(event_list[ev].obj_data);
         }
         $.ajax({
           url: UPDATE_URL,
           type: 'POST',
           data: [{ name: 'sessions', value: JSON.stringify(e) }],
-          success: function (result) {
-            for (event in event_list) event_list[event].saved = true;
+          success: function (_result) {
+            for (const ev in event_list) event_list[ev].saved = true;
             calendar.buttons.save.disable(gettext('Saved'));
           },
-          complete: function (xhr, type) {
+          complete: function (_xhr, type) {
             if (type == 'error' || type == 'timeout') {
               calendar.buttons.save.enable(gettext('Save'));
               if (e.length > 2) {
                 window.toastr.error(
                   gettext(
                     'The server could not be reached. There are %d unsaved sessions. Check connection and try again',
-                    e.length
-                  )
+                    e.length,
+                  ),
                 );
               } else {
                 window.toastr.error(
                   gettext(
-                    'The server could not be reached. There is 1 unsaved session. Check connection and try again'
-                  )
+                    'The server could not be reached. There is 1 unsaved session. Check connection and try again',
+                  ),
                 );
               }
             }
@@ -755,10 +763,10 @@ $(function () {
               modal_url +
               '">' +
               title +
-              '</div>'
+              '</div>',
           );
           unscheduled_events.add(
-            unscheduled_events.container.find('.js-unscheduled').first()
+            unscheduled_events.container.find('.js-unscheduled').first(),
           );
         },
       };
@@ -769,7 +777,7 @@ $(function () {
       events.add_unscheduled = unscheduled_events.create;
     }
 
-    for (i in scheduled) {
+    for (const i in scheduled) {
       scheduled[i] = {
         start: moment.tz(scheduled[i].start_at, TIMEZONE).format(),
         end: moment.tz(scheduled[i].end_at, TIMEZONE).format(),

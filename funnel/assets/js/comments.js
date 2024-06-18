@@ -190,7 +190,7 @@ const Comments = {
               const editorView = codemirrorHelper(
                 textareaId,
                 copyTextAreaContent,
-                SAVE_EDITOR_CONTENT_TIMEOUT
+                SAVE_EDITOR_CONTENT_TIMEOUT,
               );
               editorView.focus();
             });
@@ -268,7 +268,7 @@ const Comments = {
         refreshCommentsTimer() {
           this.refreshTimer = window.setInterval(
             this.fetchCommentsList,
-            REFRESH_INTERVAL
+            REFRESH_INTERVAL,
           );
         },
         getInitials: Utils.getInitials,
@@ -320,7 +320,7 @@ const Comments = {
             {
               rootMargin: '0px',
               threshold: 0,
-            }
+            },
           );
           observer.observe(commentSection);
         }
@@ -328,14 +328,14 @@ const Comments = {
       updated() {
         if (this.initialLoad && window.location.hash) {
           ScrollHelper.animateScrollTo(
-            $(window.location.hash).offset().top - this.headerHeight
+            $(window.location.hash).offset().top - this.headerHeight,
           );
           this.initialLoad = false;
         }
         if (this.scrollTo) {
           if ($(window).width() < MOBILE_BREAKPOINT) {
             ScrollHelper.animateScrollTo(
-              $(this.scrollTo).offset().top - this.headerHeight
+              $(this.scrollTo).offset().top - this.headerHeight,
             );
           }
           this.scrollTo = '';

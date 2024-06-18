@@ -1,9 +1,8 @@
-/* eslint-disable global-require */
-describe('Manage project venue', () => {
-  const { editor } = require('../fixtures/user.json');
-  const profile = require('../fixtures/profile.json');
-  const project = require('../fixtures/project.json');
+import { editor } from '../fixtures/user.json';
+import profile from '../fixtures/profile.json';
+import project from '../fixtures/project.json';
 
+describe('Manage project venue', () => {
   it('Add venue', () => {
     cy.login(`/${profile.title}/${project.url}`, editor.username, editor.password);
 
@@ -30,7 +29,7 @@ describe('Manage project venue', () => {
         cy.get('button[data-cy="form-submit-btn"]').click();
         cy.location('pathname').should(
           'include',
-          `/testcypressproject/${project.url}/venues`
+          `/testcypressproject/${project.url}/venues`,
         );
       });
 
@@ -47,11 +46,12 @@ describe('Manage project venue', () => {
         cy.get('#field-description')
           .find('.cm-editor .cm-line')
           .type(venue.room.description, { force: true });
-        cy.get('#bgcolor').clear().type(venue.room.bgcolor);
+        cy.get('#bgcolor').clear();
+        cy.get('#bgcolor').type(venue.room.bgcolor);
         cy.get('button[data-cy="form-submit-btn"]').click();
         cy.location('pathname').should(
           'include',
-          `/testcypressproject/${project.url}/venues`
+          `/testcypressproject/${project.url}/venues`,
         );
         cy.get(`.card[data-cy-venue="${venue.venue_title}"]`)
           .find('li')

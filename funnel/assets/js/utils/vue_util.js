@@ -76,22 +76,22 @@ export const shareDropdown = Vue.component('sharedropdown', {
   computed: {
     twitterUrl() {
       return `https://twitter.com/share?url=${encodeURIComponent(
-        this.url
+        this.url,
       )}&amp;text=${encodeURIComponent(this.title)}+(via+@hasgeek)`;
     },
     facebookUrl() {
       return `https://www.facebook.com/sharer.php?u=${encodeURIComponent(
-        this.url
+        this.url,
       )}&amp;t=${encodeURIComponent(this.title)}`;
     },
     emailUrl() {
       return `mailto:?subject=${encodeURIComponent(
-        this.title
+        this.title,
       )}&amp;body=${encodeURIComponent(this.url)}`;
     },
     linkedinUrl() {
       return `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(
-        this.url
+        this.url,
       )}&title=${encodeURIComponent(this.title)}`;
     },
   },

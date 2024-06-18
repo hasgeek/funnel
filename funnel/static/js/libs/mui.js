@@ -21,7 +21,7 @@
         t,
         e,
         i,
-        n
+        n,
       );
     }
     return i[s].exports;
@@ -286,7 +286,7 @@
                 function o(s) {
                   i && i.apply(this, arguments), r(t, e, o, n);
                 },
-                n
+                n,
               );
             });
           },
@@ -1015,7 +1015,7 @@
             for (
               var t = document,
                 e = t.querySelectorAll(
-                  '.mui-textfield > input, .mui-textfield > textarea'
+                  '.mui-textfield > input, .mui-textfield > textarea',
                 ),
                 i = e.length;
               i--;
@@ -1059,5 +1059,5 @@
     ],
   },
   {},
-  [1]
+  [1],
 );

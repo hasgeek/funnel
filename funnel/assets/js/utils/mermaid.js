@@ -5,7 +5,7 @@ async function addMermaidEmbed(container) {
     let idCount = $('.md-embed-mermaid.activating, .md-embed-mermaid.activated').length;
     const idMarker = 'mermaid_elem_';
     const instances = parentElement.find(
-      '.md-embed-mermaid:not(.activating):not(.activated)'
+      '.md-embed-mermaid:not(.activating):not(.activated)',
     );
     instances.each(function embedMermaid() {
       const root = $(this);

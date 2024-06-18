@@ -1,30 +1,7 @@
 const LazyloadImg = {
   init(imgClassName) {
-    const intersectionObserverComponents = function intersectionObserverComponents() {
-      LazyloadImg.addObserver(imgClassName);
-    };
-
     if (document.querySelector(`.${imgClassName}`)) {
-      if (
-        !(
-          'IntersectionObserver' in global &&
-          'IntersectionObserverEntry' in global &&
-          'intersectionRatio' in IntersectionObserverEntry.prototype
-        )
-      ) {
-        const polyfill = document.createElement('script');
-        polyfill.setAttribute('type', 'text/javascript');
-        polyfill.setAttribute(
-          'src',
-          'https://cdn.polyfill.io/v2/polyfill.min.js?features=IntersectionObserver'
-        );
-        polyfill.onload = function loadintersectionObserverComponents() {
-          intersectionObserverComponents();
-        };
-        document.head.appendChild(polyfill);
-      } else {
-        intersectionObserverComponents();
-      }
+      LazyloadImg.addObserver(imgClassName);
     }
   },
   displayImages(img) {
@@ -46,7 +23,7 @@ const LazyloadImg = {
           {
             rootMargin: '0px',
             threshold: 0,
-          }
+          },
         );
         observer.observe(img);
       }

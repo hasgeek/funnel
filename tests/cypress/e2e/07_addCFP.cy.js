@@ -1,12 +1,10 @@
-/* eslint-disable global-require */
-describe('Add CFP and labels to project', () => {
-  const { editor } = require('../fixtures/user.json');
-  const cfp = require('../fixtures/cfp.json');
-  const profile = require('../fixtures/profile.json');
-  const project = require('../fixtures/project.json');
-  const dayjs = require('dayjs');
-  const labels = require('../fixtures/labels.json');
+import { editor } from '../fixtures/user.json';
+import cfp from '../fixtures/cfp.json';
+import profile from '../fixtures/profile.json';
+import project from '../fixtures/project.json';
+import labels from '../fixtures/labels.json';
 
+describe('Add CFP and labels to project', () => {
   it('Add CFP and labels', () => {
     var boxCoords = {};
 
@@ -39,7 +37,7 @@ describe('Add CFP and labels to project', () => {
         cy.get('.emojionearea-button').click();
         cy.get('.emojionearea-picker').should('be.visible');
         cy.get(
-          '.emojionearea-category[name="smileys_people"] i[title="Innocent"]'
+          '.emojionearea-category[name="smileys_people"] i[title="Innocent"]',
         ).click();
         cy.get('.emojionearea-picker').should('be.hidden');
 
@@ -106,17 +104,24 @@ describe('Add CFP and labels to project', () => {
 
     cy.get('.ui-draggable-box').then(($target) => {
       boxCoords = $target[1].getBoundingClientRect();
-      cy.get('.ui-draggable-box')
-        .eq(0)
-        .find('.drag-handle')
-        .trigger('mouseover', { which: 1, force: true, view: window })
-        .trigger('mousedown', { which: 1, force: true, view: window })
-        .trigger('mousemove', {
-          pageX: boxCoords.left,
-          pageY: boxCoords.bottom + boxCoords.height,
-          view: window,
-        })
-        .trigger('mouseup', { force: true, view: window });
+      cy.get('.ui-draggable-box').eq(0);
+      cy.get('.ui-draggable-box').find('.drag-handle');
+      cy.get('.ui-draggable-box').trigger('mouseover', {
+        which: 1,
+        force: true,
+        view: window,
+      });
+      cy.get('.ui-draggable-box').trigger('mousedown', {
+        which: 1,
+        force: true,
+        view: window,
+      });
+      cy.get('.ui-draggable-box').trigger('mousemove', {
+        pageX: boxCoords.left,
+        pageY: boxCoords.bottom + boxCoords.height,
+        view: window,
+      });
+      cy.get('.ui-draggable-box').trigger('mouseup', { force: true, view: window });
     });
 
     cy.get('button[data-cy="save-label-seq"]').click();

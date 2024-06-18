@@ -53,7 +53,7 @@ window.Hasgeek.Accountform = ({
                 .text(remoteData.error_description);
             } else {
               const errorTxt = $('<p class="mui-form__error"></p>').text(
-                remoteData.error_description
+                remoteData.error_description,
               );
               $(errorTxt).insertBefore($(fieldWrapper).find('.mui-form__helptext'));
             }
@@ -143,10 +143,9 @@ window.Hasgeek.Accountform = ({
     });
 
     $(usernameField).on('keydown', function handleUsernameEntry() {
-      const usernamefield = this;
       if (typingTimerUsername) clearTimeout(typingTimerUsername);
       typingTimerUsername = setTimeout(() => {
-        checkUsernameAvailability(usernamefield);
+        checkUsernameAvailability(this);
       }, typingWaitInterval);
     });
   }
@@ -157,10 +156,9 @@ window.Hasgeek.Accountform = ({
     });
 
     $(passwordField).on('keydown', function handlePasswordEntry() {
-      const field = this;
       if (typingTimer) clearTimeout(typingTimer);
       typingTimer = setTimeout(() => {
-        checkPasswordStrength(field);
+        checkPasswordStrength(this);
       }, typingWaitInterval);
     });
 

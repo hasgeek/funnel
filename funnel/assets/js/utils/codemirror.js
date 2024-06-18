@@ -10,6 +10,8 @@ import {
   foldGutter,
 } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
+import { languages } from '@codemirror/language-data';
+import { mermaidLanguageDescription } from 'codemirror-lang-mermaid';
 
 function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 1000) {
   let textareaWaitTimer;
@@ -37,7 +39,10 @@ function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 
     syntaxHighlighting(markdownHighlighting),
     syntaxHighlighting(defaultHighlightStyle),
     keymap.of([defaultKeymap, markdownKeymap, historyKeymap]),
-    markdown({ base: markdownLanguage }),
+    markdown({
+      base: markdownLanguage,
+      codeLanguages: [...languages, mermaidLanguageDescription],
+    }),
     html(),
   ];
 
