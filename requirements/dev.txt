@@ -80,7 +80,7 @@ pyupgrade==3.16.0
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
-ruff==0.4.8
+ruff==0.4.10
     # via -r requirements/dev.in
 tokenize-rt==5.2.0
     # via pyupgrade
