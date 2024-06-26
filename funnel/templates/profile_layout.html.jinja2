@@ -421,7 +421,9 @@
                 {% endif %}
                 <div class="mui--hidden-xs mui--hidden-sm profile__logo__details">
                   <h2 class="mui--text-dark text-bold zero-bottom-margin"><a class="mui--text-dark" data-cy="profile-title" href="{{ profile.url_for() }}">{{ profile.title }}</a></h2>
-                  <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
+                  {%- if profile.name %}
+                    <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
+                  {% endif %}
                 </div>
               </div>
               <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
@@ -442,7 +444,9 @@
         <div class="grid__col-12">
           <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
             <h2 class="text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
-            <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
+            {%- if profile.name %}
+              <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
+            {%- endif %}
           </div>
           <ul class="bullet-separated-list">
             {%- if profile.joined_at %}
