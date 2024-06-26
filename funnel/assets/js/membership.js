@@ -72,7 +72,9 @@ const Membership = {
               const data = await response.json();
               if (data) {
                 const vueFormHtml = data.form;
-                this.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
+                this.memberForm = vueFormHtml.replace(/<\/?\bscript/gi, (tag) =>
+                  tag === '<script' ? '<script2' : '</script2',
+                );
                 this.errorMsg = '';
                 $('#member-form').modal('show');
               }
