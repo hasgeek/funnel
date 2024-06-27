@@ -3,14 +3,14 @@ import codemirrorHelper from './utils/codemirror';
 import initEmbed from './utils/initembed';
 import Form from './utils/formhelper';
 import { Widgets } from './utils/form_widgets';
-import SortItem from './utils/sort';
+import sortItem from './utils/sort';
 
 $(() => {
   window.Hasgeek.submissionFormInit = function formInit(
     sortUrl,
     formId,
     markdownPreviewElem,
-    markdownPreviewApi
+    markdownPreviewApi,
   ) {
     function updateCollaboratorsList(responseData, updateModal = true) {
       if (updateModal) $.modal.close();
@@ -136,12 +136,12 @@ $(() => {
       })
       .blur((event) => {
         return $(event.currentTarget).val(
-          removeLineBreaks($(event.currentTarget).val())
+          removeLineBreaks($(event.currentTarget).val()),
         );
       });
 
     Widgets.handleDelete('.js-remove-collaborator', updateCollaboratorsList);
 
-    SortItem($('.js-collaborator-list'), 'collaborator-placeholder', sortUrl);
+    sortItem($('.js-collaborator-list'), 'collaborator-placeholder', sortUrl);
   };
 });

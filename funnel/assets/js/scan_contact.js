@@ -37,8 +37,8 @@ const badgeScan = {
         event.node.setAttribute(
           'href',
           `data:text/x-vcard;charset=utf-8,${encodeURIComponent(
-            vCard.getFormattedString()
-          )}`
+            vCard.getFormattedString(),
+          )}`,
         );
         event.node.setAttribute('download', `${vCard.firstName}.vcf`);
       },
@@ -51,7 +51,7 @@ const badgeScan = {
         const puk = qrcode.substring(0, 8);
         const key = qrcode.substring(8);
         const formValues = `puk=${encodeURIComponent(puk)}&key=${encodeURIComponent(
-          key
+          key,
         )}`;
 
         function handleError(error) {
@@ -88,7 +88,7 @@ const badgeScan = {
                 .some(
                   (contact) =>
                     contact.fullname === responseData.contact.fullname &&
-                    contact.email === responseData.contact.email
+                    contact.email === responseData.contact.email,
                 )
             ) {
               badgeScanComponent.push('contacts', responseData.contact);
@@ -129,7 +129,7 @@ const badgeScan = {
             0,
             0,
             canvasElement.width,
-            canvasElement.height
+            canvasElement.height,
           );
           const qrcode = jsQR(imageData.data, imageData.width, imageData.height);
           this.verifyQRDecode(qrcode);
@@ -162,8 +162,8 @@ const badgeScan = {
           this.set(
             'error',
             window.gettext(
-              'Unable to access video stream. Please make sure you have camera enabled or try a different browser'
-            )
+              'Unable to access video stream. Please make sure you have camera enabled or try a different browser',
+            ),
           );
         }
       },

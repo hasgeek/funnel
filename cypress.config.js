@@ -1,4 +1,4 @@
-const { defineConfig } = require('cypress');
+import { defineConfig } from 'cypress';
 
 module.exports = defineConfig({
   projectId: '1kvcow',
@@ -16,7 +16,9 @@ module.exports = defineConfig({
     supportFile: 'tests/cypress/support.js',
   },
   component: {
-    setupNodeEvents(on, config) {},
+    setupNodeEvents() {
+      /* Do nothing */
+    },
     specPattern: 'tests/cypress/component/**/*.cy.{js,jsx,ts,tsx}',
   },
 });

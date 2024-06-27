@@ -1,7 +1,7 @@
 import toastr from 'toastr';
 import Form from './formhelper';
 
-const SaveProject = ({
+const saveProject = ({
   formId,
   postUrl = $(`#${formId}`).attr('action'),
   config = {},
@@ -35,4 +35,4 @@ const SaveProject = ({
   Form.handleFormSubmit(formId, postUrl, onSuccess, onError, config);
 };
 
-export default SaveProject;
+export default saveProject;

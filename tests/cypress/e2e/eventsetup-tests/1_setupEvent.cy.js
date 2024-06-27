@@ -1,7 +1,7 @@
-describe('Setup ticketed event for checkin', () => {
-  const { promoter } = require('../../fixtures/user.json');
-  const project = require('../../fixtures/project.json');
+import { promoter } from '../../fixtures/user.json';
+import project from '../../fixtures/project.json';
 
+describe('Setup ticketed event for checkin', () => {
   it('Setup ticketed event for checkin', () => {
     cy.login('/', promoter.username, promoter.password);
 

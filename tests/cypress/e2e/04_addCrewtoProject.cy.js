@@ -1,9 +1,8 @@
-/* eslint-disable global-require */
-describe('Adding crew', () => {
-  const { admin, promoter, usher, editor, hguser } = require('../fixtures/user.json');
-  const profile = require('../fixtures/profile.json');
-  const project = require('../fixtures/project.json');
+import { admin, promoter, usher, editor, hguser } from '../fixtures/user.json';
+import profile from '../fixtures/profile.json';
+import project from '../fixtures/project.json';
 
+describe('Adding crew', () => {
   Cypress.on('uncaught:exception', () => {
     return false;
   });

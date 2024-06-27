@@ -1,16 +1,14 @@
-/* eslint-disable global-require */
-describe('Add sponsor to project', () => {
-  const { owner } = require('../fixtures/user.json');
-  const project = require('../fixtures/project.json');
-  const sponsor = require('../fixtures/sponsor.json');
+import { owner } from '../fixtures/user.json';
+import project from '../fixtures/project.json';
+import sponsor from '../fixtures/sponsor.json';
 
+describe('Add sponsor to project', () => {
   it('Add sponsor', () => {
-    cy.server();
-    cy.route('GET', '**/sponsors/add').as('add-sponsor-form');
-    cy.route('POST', '**/sponsors/add').as('add-sponsor');
-    cy.route('GET', '**/sponsors/**/edit').as('edit-sponsor-form');
-    cy.route('POST', '**/sponsors/**/edit').as('edit-sponsor');
-    cy.route('GET', '**/sponsors/**/remove').as('remove-sponsor-form');
+    cy.intercept('GET', '**/sponsors/add').as('add-sponsor-form');
+    cy.intercept('POST', '**/sponsors/add').as('add-sponsor');
+    cy.intercept('GET', '**/sponsors/**/edit').as('edit-sponsor-form');
+    cy.intercept('POST', '**/sponsors/**/edit').as('edit-sponsor');
+    cy.intercept('GET', '**/sponsors/**/remove').as('remove-sponsor-form');
 
     cy.login('/', owner.username, owner.password);
     cy.get('.upcoming')
@@ -25,7 +23,7 @@ describe('Add sponsor to project', () => {
       force: true,
     });
     cy.get('.select2-results__option--highlighted', { timeout: 20000 }).should(
-      'be.visible'
+      'be.visible',
     );
     cy.get('.select2-results__option').contains(sponsor.name).click();
     cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');

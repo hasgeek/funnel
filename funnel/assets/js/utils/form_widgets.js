@@ -140,17 +140,17 @@ export async function activateFormWidgets() {
       $('#username').attr('autocomplete', inputMode);
       $('#username').blur();
       $('#username').focus();
-    }
+    },
   );
 
   if (
     $(
-      'textarea.markdown:not([style*="display: none"], .activating, .activated, .no-codemirror)'
+      'textarea.markdown:not([style*="display: none"], .activating, .activated, .no-codemirror)',
     ).length
   ) {
     const { default: codemirrorHelper } = await import('./codemirror');
     $(
-      'textarea.markdown:not([style*="display: none"]:not(.activating):not(.activated)'
+      'textarea.markdown:not([style*="display: none"]:not(.activating):not(.activated)',
     ).each(function enableCodemirror() {
       const markdownId = $(this).attr('id');
       $(`#${markdownId}`).addClass('activating');
@@ -160,14 +160,14 @@ export async function activateFormWidgets() {
 
   if (
     $(
-      'textarea.stylesheet:not([style*="display: none"]:not(.activating):not(.activated)'
+      'textarea.stylesheet:not([style*="display: none"]:not(.activating):not(.activated)',
     ).length
   ) {
     const { default: codemirrorStylesheetHelper } = await import(
       './codemirror_stylesheet'
     );
     $(
-      'textarea.stylesheet:not([style*="display: none"]:not(.activating):not(.activated)'
+      'textarea.stylesheet:not([style*="display: none"]:not(.activating):not(.activated)',
     ).each(function enableCodemirrorForStylesheet() {
       const textareaId = $(this).attr('id');
       $(`#${textareaId}`).addClass('activating');
@@ -183,12 +183,11 @@ export class MapMarker {
   }
 
   activate() {
-    const self = this;
     Form.preventSubmitOnEnter(this.field.locationId);
 
     // locationpicker.jquery.js
     $(`#${this.field.mapId}`).locationpicker({
-      location: self.getDefaultLocation(),
+      location: this.getDefaultLocation(),
       radius: 0,
       zoom: 18,
       inputBinding: {
@@ -197,19 +196,21 @@ export class MapMarker {
         locationNameInput: $(`#${this.field.locationId}`),
       },
       enableAutocomplete: true,
-      onchanged() {
-        if ($(`#${self.field.locationId}`).val()) {
-          $(`#${self.field.mapId}`).removeClass('mui--hide');
+      onchanged: () => {
+        if ($(`#${this.field.locationId}`).val()) {
+          $(`#${this.field.mapId}`).removeClass('mui--hide');
         }
       },
-      onlocationnotfound() {},
-      oninitialized() {
+      onlocationnotfound() {
+        // Ignore this event
+      },
+      oninitialized: () => {
         // Locationpicker sets latitude and longitude field value to 0,
         // this is to empty the fields and hide the map
-        if (!$(`#${self.field.locationId}`).val()) {
-          $(`#${self.field.latitudeId}`).val('');
-          $(`#${self.field.longitudeId}`).val('');
-          $(`#${self.field.mapId}`).addClass('mui--hide');
+        if (!$(`#${this.field.locationId}`).val()) {
+          $(`#${this.field.latitudeId}`).val('');
+          $(`#${this.field.longitudeId}`).val('');
+          $(`#${this.field.mapId}`).addClass('mui--hide');
         }
       },
     });
@@ -217,10 +218,10 @@ export class MapMarker {
     // On clicking clear, empty latitude, longitude, location fields and hide map
     $(`#${this.field.clearId}`).on('click', (event) => {
       event.preventDefault();
-      $(`#${self.field.latitudeId}`).val('');
-      $(`#${self.field.longitudeId}`).val('');
-      $(`#${self.field.locationId}`).val('');
-      $(`#${self.field.mapId}`).addClass('mui--hide');
+      $(`#${this.field.latitudeId}`).val('');
+      $(`#${this.field.longitudeId}`).val('');
+      $(`#${this.field.locationId}`).val('');
+      $(`#${this.field.mapId}`).addClass('mui--hide');
     });
   }
 

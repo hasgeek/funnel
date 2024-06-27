@@ -1,11 +1,9 @@
-/* eslint-disable global-require */
-describe('Test updates feature', () => {
-  const { user, editor, newuser } = require('../fixtures/user.json');
-  const project = require('../fixtures/project.json');
+import { user, editor, newuser } from '../fixtures/user.json';
+import project from '../fixtures/project.json';
 
+describe('Test updates feature', () => {
   it('Post update on project page', () => {
-    cy.server();
-    cy.route('GET', '**/updates?*').as('fetch-updates');
+    cy.intercept('GET', '**/updates?*').as('fetch-updates');
 
     cy.login('/', editor.username, editor.password);
     cy.get('.upcoming')

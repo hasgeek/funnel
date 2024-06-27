@@ -14,7 +14,6 @@ const jsonForm = Vue.component('jsonform', {
       return JSON.stringify(obj);
     },
     activateForm() {
-      const form = this;
       const url = Form.getActionUrl(this.formid);
       const formValues = new FormData($(`#${this.formid}`)[0]);
       const onSuccess = (response) => {
@@ -25,14 +24,14 @@ const jsonForm = Vue.component('jsonform', {
       };
       $(`#${this.formid}`)
         .find('button[type="submit"]')
-        .click((event) => {
+        .on('click', (event) => {
           event.preventDefault();
           Form.ajaxFormSubmit(this.formid, url, onSuccess, onError, {
             contentType: 'application/json',
             dataType: 'html',
             formData: JSON.stringify({
               csrf_token: formValues.get('csrf_token'),
-              form: form.getFormData(),
+              form: this.getFormData(),
             }),
           });
         });

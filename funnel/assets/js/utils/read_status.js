@@ -7,7 +7,7 @@ const ReadStatus = {
       $('.header__nav-links--updates').addClass('header__nav-links--updates--unread');
     } else {
       $('.header__nav-links--updates').removeClass(
-        'header__nav-links--updates--unread'
+        'header__nav-links--updates--unread',
       );
     }
   },
@@ -30,7 +30,7 @@ const ReadStatus = {
     if (notificationID && Base58regex.test(notificationID)) {
       const url = window.Hasgeek.Config.markNotificationReadUrl.replace(
         'eventid_b58',
-        notificationID
+        notificationID,
       );
       const response = await fetch(url, {
         method: 'POST',
@@ -115,7 +115,7 @@ const ReadStatus = {
               {
                 rootMargin: '0px',
                 threshold: 0,
-              }
+              },
             );
             observer.observe(lazyLoader);
           }
@@ -158,7 +158,7 @@ const ReadStatus = {
       ReadStatus.updateNotificationStatus();
       window.setInterval(
         ReadStatus.updateNotificationStatus,
-        NOTIFICATION_REFRESH_INTERVAL
+        NOTIFICATION_REFRESH_INTERVAL,
       );
     }
   },

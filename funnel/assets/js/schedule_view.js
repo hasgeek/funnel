@@ -11,29 +11,29 @@ import Modal from './utils/modalhelper';
 
 const Schedule = {
   renderScheduleTable() {
-    const schedule = this;
+    const self = this;
 
     const scheduleUI = Vue.component('schedule', {
-      template: schedule.config.scriptTemplate,
+      template: self.config.scriptTemplate,
       data() {
         return {
-          schedules: schedule.config.schedule,
-          rowWidth: Object.keys(schedule.config.rooms).length,
+          schedules: self.config.schedule,
+          rowWidth: Object.keys(self.config.rooms).length,
           rowHeight: '30',
           timeSlotWidth: '75',
-          timeZone: schedule.config.timeZone,
+          timeZone: self.config.timeZone,
           rowBorder: '1',
-          activeTab: Object.keys(schedule.config.rooms)[0],
+          activeTab: Object.keys(self.config.rooms)[0],
           width: $(window).width(),
           height: $(window).height(),
           modalHtml: '',
           headerHeight: '',
           pageDetails: {
             url: window.location.href,
-            title: `Schedule – ${schedule.config.projectTitle}`,
-            projectTitle: schedule.config.projectTitle,
+            title: `Schedule – ${self.config.projectTitle}`,
+            projectTitle: self.config.projectTitle,
             pageTitle: 'Schedule',
-            description: schedule.config.pageDescription,
+            description: self.config.pageDescription,
           },
           view: 'agenda',
           svgIconUrl: window.Hasgeek.Config.svgIconUrl,
@@ -71,7 +71,7 @@ const Schedule = {
         hasActiveRoom(session) {
           return Object.prototype.hasOwnProperty.call(
             session.rooms[this.activeTab],
-            'talk'
+            'talk',
           );
         },
         removeImg(descriptionHtml) {
@@ -84,14 +84,14 @@ const Schedule = {
           // On closing modal, update browser history
           $('#session-modal').on($.modal.CLOSE, () => {
             this.modalHtml = '';
-            if (schedule.config.replaceHistoryToModalUrl) {
+            if (self.config.replaceHistoryToModalUrl) {
               Spa.updateMetaTags(this.pageDetails);
               if (window.history.state.openModal) {
                 window.history.back();
               }
             }
           });
-          if (schedule.config.changeToModalUrl) {
+          if (self.config.changeToModalUrl) {
             $(window).on('popstate', () => {
               if (this.modalHtml) {
                 $.modal.close();
@@ -103,13 +103,13 @@ const Schedule = {
           this.modalHtml = sessionHtml;
           $('#session-modal').modal('show');
           this.handleModalShown();
-          if (schedule.config.replaceHistoryToModalUrl) {
+          if (self.config.replaceHistoryToModalUrl) {
             window.history.pushState(
               {
                 openModal: true,
               },
               '',
-              currentPage
+              currentPage,
             );
             Spa.updateMetaTags(pageDetails);
           }
@@ -184,7 +184,7 @@ const Schedule = {
           this.getHeight();
           this.pathName = window.location.pathname;
           const scrollPos = JSON.parse(window.sessionStorage.getItem('scrollPos'));
-          const activeSession = schedule.config.active_session;
+          const activeSession = self.config.active_session;
           if (activeSession) {
             // Open session modal
             const paths = window.location.href.split('/');
@@ -193,7 +193,7 @@ const Schedule = {
             this.showSessionModal(activeSession);
             // Scroll page to session
             ScrollHelper.animateScrollTo(
-              $(`#${activeSession.url_name_uuid_b58}`).offset().top - this.headerHeight
+              $(`#${activeSession.url_name_uuid_b58}`).offset().top - this.headerHeight,
             );
           } else if (
             window.location.pathname === this.pathName &&
@@ -213,12 +213,12 @@ const Schedule = {
           } else if ($('.schedule__date--upcoming').length) {
             // Scroll to the upcoming schedule
             ScrollHelper.animateScrollTo(
-              $('.schedule__date--upcoming').first().offset().top - this.headerHeight
+              $('.schedule__date--upcoming').first().offset().top - this.headerHeight,
             );
           } else {
             // Scroll to the last schedule
             ScrollHelper.animateScrollTo(
-              $('.schedule__date').last().offset().top - this.headerHeight
+              $('.schedule__date').last().offset().top - this.headerHeight,
             );
           }
           window.history.replaceState(
@@ -229,7 +229,7 @@ const Schedule = {
               refresh: false,
             },
             '',
-            this.pageDetails.url
+            this.pageDetails.url,
           );
 
           // On exiting the page, save page scroll position in session storage
@@ -243,7 +243,7 @@ const Schedule = {
         },
       },
       mounted() {
-        if (schedule.config.rememberScrollPos) {
+        if (self.config.rememberScrollPos) {
           this.animateWindowScrollWithHeader();
         }
         this.handleBrowserResize();
@@ -257,7 +257,7 @@ const Schedule = {
         faSvg,
       },
     });
-    scheduleApp.$mount(schedule.config.divElem);
+    scheduleApp.$mount(self.config.divElem);
   },
   addSessionToSlots() {
     this.config.sessions.forEach((session) => {
@@ -268,12 +268,12 @@ const Schedule = {
       session.endTime = this.Utils.getTime(session.end_at);
       session.eventDay = this.Utils.getEventDay(
         session.start_at,
-        this.config.eventDayhashes
+        this.config.eventDayhashes,
       );
       session.duration = this.Utils.getDuration(
         session.end_at,
         session.start_at,
-        this.config.slotInterval
+        this.config.slotInterval,
       );
       if (this.config.schedule[session.eventDay]) {
         this.config.schedule[session.eventDay].sessions[session.startTime].showLabel =
@@ -302,7 +302,7 @@ const Schedule = {
         };
         sessionSlots = new Date(sessionSlots);
         sessionSlots = sessionSlots.setMinutes(
-          sessionSlots.getMinutes() + this.config.slotInterval
+          sessionSlots.getMinutes() + this.config.slotInterval,
         );
       }
       slots[day.endTime].showLabel = true;
@@ -316,7 +316,6 @@ const Schedule = {
     };
   },
   init(config) {
-    const self = this;
     this.config = config;
     this.config.rooms = {};
     if (!this.config.venues.length) {
@@ -330,7 +329,7 @@ const Schedule = {
           this.config.rooms[room.scoped_name].venue_title = venue.title;
         });
       } else {
-        self.addDefaultRoom(venue);
+        this.addDefaultRoom(venue);
       }
     });
     this.config.currentDate = this.Utils.getDateString(new Date());

@@ -1,8 +1,7 @@
-/* eslint-disable global-require */
-describe('View crew', () => {
-  const { admin, promoter, usher } = require('../fixtures/user.json');
-  const project = require('../fixtures/project.json');
+import { admin, promoter, usher } from '../fixtures/user.json';
+import project from '../fixtures/project.json';
 
+describe('View crew', () => {
   it('View crew of the project', () => {
     cy.visit('/');
     cy.get('.upcoming')

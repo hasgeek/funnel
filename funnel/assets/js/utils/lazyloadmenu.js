@@ -66,7 +66,7 @@ const LazyLoadMenu = {
               {
                 rootMargin: '0px',
                 threshold: 0,
-              }
+              },
             );
             observer.observe(lazyLoader);
           }
@@ -108,14 +108,14 @@ const LazyLoadMenu = {
       '.js-menu-btn',
       '.js-account-menu-wrapper',
       '.js-account-menu',
-      window.Hasgeek.Config.accountMenu
+      window.Hasgeek.Config.accountMenu,
     );
     if (window.Hasgeek.Config.commentSidebarElem) {
       LazyLoadMenu.headerMenuDropdown(
         '.js-comments-btn',
         '.js-comments-wrapper',
         '.js-comment-sidebar',
-        window.Hasgeek.Config.unreadCommentUrl
+        window.Hasgeek.Config.unreadCommentUrl,
       );
     }
   },

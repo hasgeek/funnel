@@ -1,9 +1,8 @@
-/* eslint-disable global-require */
-describe('Project', () => {
-  const { admin } = require('../fixtures/user.json');
-  const profile = require('../fixtures/profile.json');
-  const project = require('../fixtures/project.json');
+import { admin } from '../fixtures/user.json';
+import profile from '../fixtures/profile.json';
+import project from '../fixtures/project.json';
 
+describe('Project', () => {
   it('Create a new project', () => {
     cy.login(`/${profile.title}`, admin.username, admin.password);
 

@@ -46,7 +46,7 @@ const Utils = {
   },
   truncate() {
     const readMoreTxt = `&hellip;<span class="js-read-more mui--text-hyperlink read-more">${gettext(
-      'read more'
+      'read more',
     )}</span>`;
 
     $('.js-truncate').each(function truncateLines() {
@@ -80,7 +80,7 @@ const Utils = {
 
       firstActiveWeek
         .find(
-          '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest:first'
+          '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest:first',
         )
         .addClass('calendar__weekdays__dates__date--display');
 
@@ -98,7 +98,7 @@ const Utils = {
         .mouseleave(() => {
           firstActiveWeek
             .find(
-              '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest:first'
+              '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest:first',
             )
             .addClass('calendar__weekdays__dates__date--display');
         });
@@ -108,7 +108,7 @@ const Utils = {
         .find('.calendar__weekdays__dates--upcoming--first')
         .first()
         .find(
-          '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest'
+          '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest',
         )
         .first();
       const eventDate = nextEventElem.data('event-date');
@@ -198,7 +198,7 @@ const Utils = {
     useElem.setAttributeNS(
       'http://www.w3.org/1999/xlink',
       'xlink:href',
-      `${window.Hasgeek.Config.svgIconUrl}#${icon}`
+      `${window.Hasgeek.Config.svgIconUrl}#${icon}`,
     );
     svgElem.appendChild(useElem);
     svgElem.classList.add(`fa5-icon--${iconSize}`);
@@ -234,7 +234,7 @@ const Utils = {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(stringToCopy).then(
         () => toastr.success(window.gettext('Link copied')),
-        () => toastr.success(window.gettext('Could not copy link'))
+        () => toastr.success(window.gettext('Could not copy link')),
       );
     } else {
       const selection = window.getSelection();

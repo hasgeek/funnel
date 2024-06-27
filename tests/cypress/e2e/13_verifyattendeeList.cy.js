@@ -1,8 +1,7 @@
-/* eslint-disable global-require */
-describe('Verify attendee list', () => {
-  const { user, promoter } = require('../fixtures/user.json');
-  const project = require('../fixtures/project.json');
+import { user, promoter } from '../fixtures/user.json';
+import project from '../fixtures/project.json';
 
+describe('Verify attendee list', () => {
   it('Verify list of attendees who have responded yes to attending a project', () => {
     cy.login('/testcypressproject', promoter.username, promoter.password);
 

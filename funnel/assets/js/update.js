@@ -69,7 +69,7 @@ const Updates = {
           return this.now && this.update.published_at
             ? this.timeago.format(
                 this.update.published_at,
-                window.Hasgeek.Config.locale
+                window.Hasgeek.Config.locale,
               )
             : '';
         },
@@ -106,7 +106,7 @@ const Updates = {
         if (window.location.hash) {
           ScrollHelper.animateScrollTo(
             document.getElementById(window.location.hash).getBoundingClientRect().top -
-              this.headerHeight
+              this.headerHeight,
           );
         }
         Utils.truncate();

@@ -29,8 +29,7 @@ const TypeformEmbed = {
     $(containerDiv)
       .find('a')
       .each(function isTypeformUrl() {
-        const anchorTag = this;
-        const txt = $(anchorTag).attr('href');
+        const txt = $(this).attr('href');
         let urlSplit;
         let typeformId;
         let parentDiv;
@@ -40,9 +39,9 @@ const TypeformEmbed = {
           urlSplit = txt.split('/');
           typeformId = urlSplit.pop();
           typeformId = typeformId.includes('?') ? typeformId.split('?')[0] : typeformId;
-          parentDiv = $(anchorTag).parents(containerDiv);
+          parentDiv = $(this).parents(containerDiv);
           if (typeformId) {
-            self.addTypeformEmbed(typeformId, anchorTag, parentDiv, loadScript);
+            self.addTypeformEmbed(typeformId, this, parentDiv, loadScript);
           }
         }
       });

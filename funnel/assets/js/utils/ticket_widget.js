@@ -42,30 +42,29 @@ const Ticketing = {
       },
 
       error(response) {
-        const ajaxLoad = this;
-        ajaxLoad.retries -= 1;
+        this.retries -= 1;
         let errorMsg;
 
         if (response.readyState === 4) {
           errorMsg = window.gettext(
-            'The server is experiencing difficulties. Try again in a few minutes'
+            'The server is experiencing difficulties. Try again in a few minutes',
           );
           $(widgetElem).html(errorMsg);
         } else if (response.readyState === 0) {
-          if (ajaxLoad.retries < 0) {
+          if (this.retries < 0) {
             if (!navigator.onLine) {
               errorMsg = window.gettext('This device has no internet connection');
             } else {
               errorMsg = window.gettext(
-                'Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com'
+                'Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com',
               );
             }
 
             $(widgetElem).html(errorMsg);
           } else {
             setTimeout(() => {
-              $.get(ajaxLoad);
-            }, ajaxLoad.retryInterval);
+              $.get(this);
+            }, this.retryInterval);
           }
         }
       },
@@ -82,7 +81,7 @@ const Ticketing = {
           user_phone: userPhone,
         });
       },
-      false
+      false,
     );
     $(document).on('boxofficeTicketingEvents', (event, userAction, label, value) => {
       Analytics.sendToGA('ticketing', userAction, label, value);
@@ -111,7 +110,7 @@ const Ticketing = {
           }
           $('.js-ticket-price').text(price);
         }
-      }
+      },
     );
   },
 
@@ -121,7 +120,7 @@ const Ticketing = {
       this.openTicketModal();
     }
 
-    $('.js-open-ticket-widget').click((event) => {
+    $('.js-open-ticket-widget').on('click', (event) => {
       event.preventDefault();
       this.openTicketModal();
     });
@@ -142,7 +141,7 @@ const Ticketing = {
         openModal: true,
       },
       '',
-      this.urlHash
+      this.urlHash,
     );
     $('.header').addClass('header--lowzindex');
     $('.tickets-wrapper__modal').addClass('tickets-wrapper__modal--show');

@@ -1,10 +1,9 @@
-/* eslint-disable global-require */
-describe('View participant badge', () => {
-  const { usher } = require('../../fixtures/user.json');
-  const project = require('../../fixtures/project.json');
-  const ticketEvents = require('../../fixtures/ticket_events.json');
-  const ticketParticipants = require('../../fixtures/ticket_participants.json');
+import { usher } from '../../fixtures/user.json';
+import project from '../../fixtures/project.json';
+import ticketEvents from '../../fixtures/ticket_events.json';
+import ticketParticipants from '../../fixtures/ticket_participants.json';
 
+describe('View participant badge', () => {
   it('View participant badge', () => {
     cy.login('/', usher.username, usher.password);
 

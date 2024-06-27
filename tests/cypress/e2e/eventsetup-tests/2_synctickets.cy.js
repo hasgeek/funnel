@@ -1,12 +1,8 @@
-/* eslint-disable global-require */
-describe('Sync tickets from Boxoffice', () => {
-  const { promoter } = require('../../fixtures/user.json');
-  const { user } = require('../../fixtures/user.json');
-  const project = require('../../fixtures/project.json');
-  const ticketEvents = require('../../fixtures/ticket_events.json');
-  // eslint-disable-next-line camelcase
-  const { ticket_client } = require('../../fixtures/boxoffice.js');
+import { promoter } from '../../fixtures/user.json';
+import project from '../../fixtures/project.json';
+import { ticket_client } from '../../fixtures/boxoffice.js';
 
+describe('Sync tickets from Boxoffice', () => {
   it('Sync tickets from Boxoffice', () => {
     cy.login('/', promoter.username, promoter.password);
 

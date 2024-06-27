@@ -1,9 +1,8 @@
-/* eslint-disable global-require */
-describe('Verify roles of editor and publish project', () => {
-  const { editor } = require('../fixtures/user.json');
-  const profile = require('../fixtures/profile.json');
-  const project = require('../fixtures/project.json');
+import { editor } from '../fixtures/user.json';
+import profile from '../fixtures/profile.json';
+import project from '../fixtures/project.json';
 
+describe('Verify roles of editor and publish project', () => {
   it('Verify roles of editor and publish project', () => {
     cy.login(`/${profile.title}`, editor.username, editor.password);
     cy.get(`[data-cy-title="${project.title}"]`).first().click();

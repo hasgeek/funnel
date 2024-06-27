@@ -54,7 +54,7 @@ window.Hasgeek.autoSave = ({ autosave, formId, msgElemId }) => {
   $(window).bind('beforeunload', () => {
     if (haveDirtyFields()) {
       return window.gettext(
-        'You have unsaved changes on this page. Do you want to leave this page?'
+        'You have unsaved changes on this page. Do you want to leave this page?',
       );
     }
     return true;

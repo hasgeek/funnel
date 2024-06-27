@@ -6,7 +6,7 @@ const ScrollHelper = {
       {
         scrollTop: offsetY,
       },
-      'slow'
+      'slow',
     );
   },
   smoothScroll() {
@@ -30,7 +30,7 @@ const ScrollHelper = {
         {
           scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
         },
-        'slow'
+        'slow',
       );
       $('#jquery-scroll-tabs .js-scroll-prev').on('click', (event) => {
         event.preventDefault();

@@ -1,16 +1,14 @@
-/* eslint-disable global-require */
-describe('Test comments feature', () => {
-  const { user, hguser, editor } = require('../fixtures/user.json');
-  const project = require('../fixtures/project.json');
+import { user, hguser } from '../fixtures/user.json';
+import project from '../fixtures/project.json';
 
+describe('Test comments feature', () => {
   it('Post comment on project page', () => {
-    cy.server();
-    cy.route('GET', '**/new').as('get-form');
-    cy.route('POST', '**/new').as('post-comment');
-    cy.route('POST', '**/edit').as('edit-comment');
-    cy.route('POST', '**/reply').as('reply-comment');
-    cy.route('POST', '**/delete').as('delete-comment');
-    cy.route('**/json').as('edit-comment');
+    cy.intercept('GET', '**/new').as('get-form');
+    cy.intercept('POST', '**/new').as('post-comment');
+    cy.intercept('POST', '**/edit').as('edit-comment');
+    cy.intercept('POST', '**/reply').as('reply-comment');
+    cy.intercept('POST', '**/delete').as('delete-comment');
+    cy.intercept('**/json').as('edit-comment');
 
     cy.visit('/');
     cy.get('.upcoming')

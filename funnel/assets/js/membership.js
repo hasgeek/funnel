@@ -63,11 +63,8 @@ const Membership = {
           event.preventDefault();
           if (this.isUserProfileAdmin) {
             this.activeMember = member;
-            const app = this;
             const response = await fetch(url, {
-              headers: {
-                Accept: 'application/json',
-              },
+              headers: { Accept: 'application/json' },
             }).catch(() => {
               toastr.error(window.Hasgeek.Config.errorMsg.networkError);
             });
@@ -75,8 +72,10 @@ const Membership = {
               const data = await response.json();
               if (data) {
                 const vueFormHtml = data.form;
-                app.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
-                app.errorMsg = '';
+                this.memberForm = vueFormHtml.replace(/<\/?script\b/gi, (tag) =>
+                  tag === '<script' ? '<script2' : '</script2',
+                );
+                this.errorMsg = '';
                 $('#member-form').modal('show');
               }
             } else {

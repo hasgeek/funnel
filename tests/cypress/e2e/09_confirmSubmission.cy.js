@@ -1,17 +1,14 @@
-/* eslint-disable global-require */
-describe('Confirm submission', () => {
-  const { editor } = require('../fixtures/user.json');
-  const member = require('../fixtures/user.json').user;
-  const profile = require('../fixtures/profile.json');
-  const proposal = require('../fixtures/proposal.json');
-  const project = require('../fixtures/project.json');
-  const labels = require('../fixtures/labels.json');
+import { user as member, editor } from '../fixtures/user.json';
+import profile from '../fixtures/profile.json';
+import proposal from '../fixtures/proposal.json';
+import project from '../fixtures/project.json';
+import labels from '../fixtures/labels.json';
 
+describe('Confirm submission', () => {
   it('Confirm submission', () => {
-    cy.server();
-    cy.route('GET', '**/admin').as('fetch-admin-panel');
-    cy.route('GET', '**/updates?*').as('fetch-updates');
-    cy.route('POST', '**/new').as('post-comment');
+    cy.intercept('GET', '**/admin').as('fetch-admin-panel');
+    cy.intercept('GET', '**/updates?*').as('fetch-updates');
+    cy.intercept('POST', '**/new').as('post-comment');
 
     cy.login('/', editor.username, editor.password);
     cy.get('a[data-cy="my-updates"]:visible').click();

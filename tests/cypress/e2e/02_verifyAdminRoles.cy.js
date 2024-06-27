@@ -1,11 +1,9 @@
-/* eslint-disable global-require */
-describe('Profile admin roles', () => {
-  const { owner, admin } = require('../fixtures/user.json');
-  const profile = require('../fixtures/profile.json');
+import { owner, admin } from '../fixtures/user.json';
+import profile from '../fixtures/profile.json';
 
+describe('Profile admin roles', () => {
   it('Check roles of profile admins', () => {
-    cy.server();
-    cy.route('GET', '**/updates?*').as('fetch-updates');
+    cy.intercept('GET', '**/updates?*').as('fetch-updates');
 
     cy.login(`/${profile.title}`, admin.username, admin.password);
 
