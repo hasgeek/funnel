@@ -17,6 +17,7 @@ from coaster.views import ClassView, route
 
 from .. import app, executor
 from ..models import Account, Project, Proposal, Session, Update
+from ..utils import TIMEDELTA_1DAY
 from .decorators import xml_response
 from .helpers import JinjaTemplate
 from .index import policy_pages
@@ -151,7 +152,7 @@ def validate_daterange(
         except ValueError:
             # Invalid day
             abort(404)
-        dtend = dtstart + timedelta(days=1)
+        dtend = dtstart + TIMEDELTA_1DAY
     return dtstart, dtend
 
 
@@ -168,7 +169,7 @@ def changefreq_for_age(age: timedelta) -> ChangeFreq:
 
     :param timedelta age: Age of the last change
     """
-    if age < timedelta(days=1):  # Past day
+    if age < TIMEDELTA_1DAY:  # Past day
         return ChangeFreq.hourly
     if age < timedelta(days=7):  # Past week
         return ChangeFreq.daily
@@ -293,7 +294,7 @@ class SitemapView(ClassView):
                         day=date.strftime('%d'),
                         _external=True,
                     ),
-                    lastmod=min(now, date + timedelta(days=1)),
+                    lastmod=min(now, date + TIMEDELTA_1DAY),
                 )
                 for date in all_sitemap_days(now)
             ]

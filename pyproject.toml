@@ -269,43 +269,43 @@ quote-style = "preserve"
 
 [tool.ruff.lint]
 select = [
-  "A",     # flake8-builtins
-  "ANN",   # flake8-annotations
-  "ARG",   # flake8-unused-arguments
-  "ASYNC", # flake8-async
-  "B",     # flake8-bugbear
-  "BLE",   # flake8-blind-except
-  "C",     # pylint convention
-  "D",     # pydocstyle
-  "C4",    # flake8-comprehensions
-  "E",     # Error
-  "EM",    # flake8-errmsg
-  "EXE",   # flake8-executable
-  "F",     # pyflakes
-  "FA",    # flake8-future-annotations
-  "FLY",   # flynt
-  "G",     # flake8-logging-format
-  "I",     # isort
-  "INP",   # flake8-no-pep420
-  "INT",   # flake8-gettext
-  "ISC",   # flake8-implicit-str-concat
-  "N",     # pep8-naming
-  "PERF",  # Perflint
-  "PGH",   # pygrep-hooks
-  "PIE",   # flake8-pie
-  "PL",    # pylint
-  "PT",    # flake8-pytest-style
-  "PYI",   # flake8-pyi
-  "RET",   # flake8-return
-  "RUF",   # ruff
-  "S",     # flake8-bandit
-  "SIM",   # flake8-simplify
-  "SLOT",  # flake8-slots
-  "T20",   # flake8-print
-  "TRIO",  # flake8-trio
-  "UP",    # pyupgrade
-  "W",     # Warnings
-  "YTT",   # flake8-2020
+  "A",      # flake8-builtins
+  "ANN",    # flake8-annotations
+  "ARG",    # flake8-unused-arguments
+  "ASYNC",  # flake8-async
+  "ASYNC1", # flake8-trio
+  "B",      # flake8-bugbear
+  "BLE",    # flake8-blind-except
+  "C",      # pylint convention
+  "C4",     # flake8-comprehensions
+  "D",      # pydocstyle
+  "E",      # Error
+  "EM",     # flake8-errmsg
+  "EXE",    # flake8-executable
+  "F",      # pyflakes
+  "FA",     # flake8-future-annotations
+  "FLY",    # flynt
+  "G",      # flake8-logging-format
+  "I",      # isort
+  "INP",    # flake8-no-pep420
+  "INT",    # flake8-gettext
+  "ISC",    # flake8-implicit-str-concat
+  "N",      # pep8-naming
+  "PERF",   # Perflint
+  "PGH",    # pygrep-hooks
+  "PIE",    # flake8-pie
+  "PL",     # pylint
+  "PT",     # flake8-pytest-style
+  "PYI",    # flake8-pyi
+  "RET",    # flake8-return
+  "RUF",    # ruff
+  "S",      # flake8-bandit
+  "SIM",    # flake8-simplify
+  "SLOT",   # flake8-slots
+  "T20",    # flake8-print
+  "UP",     # pyupgrade
+  "W",      # Warnings
+  "YTT",    # flake8-2020
 ]
 ignore = [
   "ANN002",  # `*args` is implicit `Any`

@@ -252,10 +252,7 @@ class AccountNotificationView(ClassView):
             (request.method == 'GET' and 'unsub_token' not in session)
             or (request.method == 'POST' and 'token' not in request.form)
         ):
-            return render_redirect(
-                url_for('notification_preferences'),
-                302 if request.method == 'GET' else 303,
-            )
+            return render_redirect(url_for('notification_preferences'))
 
         # Step 2: We have a URL token, but no `cookietest=1` in the URL. Copy token into
         # session and reload the page with the flag set

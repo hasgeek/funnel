@@ -3,7 +3,6 @@
 import csv
 import io
 from dataclasses import dataclass
-from datetime import timedelta
 from json import JSONDecodeError
 from types import SimpleNamespace
 
@@ -46,6 +45,7 @@ from ..models import (
 )
 from ..signals import project_data_change, project_role_change
 from ..typing import ReturnRenderWith, ReturnView
+from ..utils import TIMEDELTA_1DAY
 from .decorators import idempotent_request
 from .helpers import FormLayoutTemplate, html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
@@ -66,8 +66,6 @@ class ProjectCfpTemplate(FormLayoutTemplate, template='project_cfp.html.jinja2')
 
 
 # MARK: Helpers ------------------------------------------------------------------------
-
-TIMEDELTA_1DAY = timedelta(days=1)
 
 
 @dataclass

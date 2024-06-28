@@ -19,7 +19,7 @@ def test_authcode_requires_login(client: TestClient) -> None:
     # Auth is attempting to reload itself using meta-refresh to get a cookie
     assert urlsplit(rv.metarefresh.url).path == '/api/1/auth'
     rv = client.get(rv.metarefresh.url)
-    assert rv.status_code == 302
+    assert rv.status_code == 303
     assert urlsplit(rv.location).path == '/login'
 
 

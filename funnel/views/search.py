@@ -837,7 +837,7 @@ class SiteSearchView(ClassView):
         # Can't use @requestargs for stype as it doesn't support name changes
         stype: str | None = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
-            return render_redirect(url_for('index'), 302)
+            return render_redirect(url_for('index'))
         if stype is None or stype not in search_providers:
             return {
                 'status': 'ok',
@@ -869,7 +869,7 @@ class AccountSearchView(AccountViewBase):
         # Can't use @requestargs as it doesn't support name changes
         stype: str | None = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
-            return render_redirect(url_for('index'), 302)
+            return render_redirect(url_for('index'))
         if (
             stype is None
             or stype not in search_providers
@@ -908,7 +908,7 @@ class ProjectSearchView(ProjectViewBase):
         # Can't use @requestargs as it doesn't support name changes
         stype: str | None = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
-            return render_redirect(url_for('index'), 302)
+            return render_redirect(url_for('index'))
         if (
             stype is None
             or stype not in search_providers

@@ -18,6 +18,7 @@ from .markdown import (
     mdit_plugins,
 )
 from .misc import (
+    TIMEDELTA_1DAY,
     abort_null,
     blake2b160_hex,
     extract_twitter_handle,
@@ -35,6 +36,7 @@ __all__ = [
     "MarkdownConfig",
     "MarkdownPlugin",
     "MarkdownString",
+    "TIMEDELTA_1DAY",
     "abort_null",
     "blake2b160_hex",
     "extract_twitter_handle",

@@ -28,6 +28,7 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, NameTitle, buid, utcnow
 
 from .. import app
+from ..utils import TIMEDELTA_1DAY
 from . import types
 from .account import Account
 from .base import (
@@ -738,9 +739,7 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
         if actor is None:
             return False
         roles = self.roles_for(actor)
-        if 'participant' in roles and 'account_member' in roles:
-            return True
-        return False
+        return 'participant' in roles and 'account_member' in roles
 
     @has_member_participant_role.iterable
     def _(self) -> Iterable[Account]:
@@ -1559,9 +1558,14 @@ class ProjectRedirect(TimestampMixin, Model):
         )
 
     def redirect_view_args(self) -> dict[str, str]:
+        """View arguments to substitute in a URL."""
         if self.project:
             return {'account': self.account.urlname, 'project': self.project.name}
         return {}
+
+    def is_over_a_day_old(self) -> bool:
+        """Confirm if this redirect has existed for over a day."""
+        return utcnow() - self.created_at > TIMEDELTA_1DAY
 
     @classmethod
     def add(

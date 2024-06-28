@@ -217,10 +217,10 @@ class MarkdownString(str):
     splitlines.__doc__ = str.splitlines.__doc__
 
     __getitem__ = _simple_escaping_wrapper(str.__getitem__)
-    capitalize = _simple_escaping_wrapper(str.capitalize)  # type: ignore[assignment]
-    title = _simple_escaping_wrapper(str.title)  # type: ignore[assignment]
-    lower = _simple_escaping_wrapper(str.lower)  # type: ignore[assignment]
-    upper = _simple_escaping_wrapper(str.upper)  # type: ignore[assignment]
+    capitalize = _simple_escaping_wrapper(str.capitalize)
+    title = _simple_escaping_wrapper(str.title)
+    lower = _simple_escaping_wrapper(str.lower)
+    upper = _simple_escaping_wrapper(str.upper)
     replace = _simple_escaping_wrapper(str.replace)
     ljust = _simple_escaping_wrapper(str.ljust)
     rjust = _simple_escaping_wrapper(str.rjust)
@@ -229,10 +229,10 @@ class MarkdownString(str):
     center = _simple_escaping_wrapper(str.center)
     strip = _simple_escaping_wrapper(str.strip)
     translate = _simple_escaping_wrapper(str.translate)
-    expandtabs = _simple_escaping_wrapper(str.expandtabs)  # type: ignore[assignment]
-    swapcase = _simple_escaping_wrapper(str.swapcase)  # type: ignore[assignment]
+    expandtabs = _simple_escaping_wrapper(str.expandtabs)
+    swapcase = _simple_escaping_wrapper(str.swapcase)
     zfill = _simple_escaping_wrapper(str.zfill)
-    casefold = _simple_escaping_wrapper(str.casefold)  # type: ignore[assignment]
+    casefold = _simple_escaping_wrapper(str.casefold)
     removeprefix = _simple_escaping_wrapper(str.removeprefix)
     removesuffix = _simple_escaping_wrapper(str.removesuffix)
 

@@ -462,17 +462,14 @@ def requires_user_not_spammy(
             """Validate user rights in a view."""
             if not current_auth.is_authenticated:
                 flash(_("Confirm your phone number to continue"), 'info')
-                return render_redirect(
-                    url_for('login', next=get_current_url()),
-                    302 if request.method == 'GET' else 303,
-                )
+                return render_redirect(url_for('login', next=get_current_url()))
             if not current_auth.user.features.not_likely_throwaway:
                 flash(_("Confirm your phone number to continue"), 'info')
 
                 session['next'] = (
                     get_current(*args, **kwargs) if get_current else get_current_url()
                 )
-                return render_redirect(url_for('add_phone'), code=303)
+                return render_redirect(url_for('add_phone'))
 
             return f(*args, **kwargs)
 
@@ -528,10 +525,7 @@ def requires_login(
             if not current_auth.is_authenticated:
                 if message:  # Setting an empty message will disable it
                     flash(message, 'info')
-                return render_redirect(
-                    url_for('login', next=get_current_url()),
-                    302 if request.method == 'GET' else 303,
-                )
+                return render_redirect(url_for('login', next=get_current_url()))
             return f(*args, **kwargs)
 
         return wrapper
@@ -615,16 +609,13 @@ def requires_sudo(f: Callable[P, ReturnView]) -> Callable[P, ReturnView]:
             # This view does not support GET or POST methods, which we need. Send the
             # user off to the sudo endpoint for authentication.
             save_sudo_preference_context()
-            return render_redirect(
-                url_for('account_sudo', next=get_current_url()),
-                302 if request.method == 'GET' else 303,
-            )
+            return render_redirect(url_for('account_sudo', next=get_current_url()))
 
         if request_wants.html_fragment:
             # If the request wanted a HTML fragment, reload as a full page to ensure the
             # authentication form is properly rendered. The current page's fragment
             # identifier cannot be preserved in this case.
-            return render_redirect(request.url, 302 if request.method == 'GET' else 303)
+            return render_redirect(request.url)
 
         # We'll need a password form or an OTP form, depending on whether the user has a
         # password or contact info for an OTP. If neither are available, we'll ask them
@@ -676,7 +667,7 @@ def requires_sudo(f: Callable[P, ReturnView]) -> Callable[P, ReturnView]:
                     otp_session = OtpSession.retrieve('sudo')
                 except OtpTimeoutError:
                     # Reload the page to send another OTP
-                    return render_redirect(url=request.url)
+                    return render_redirect(request.url)
                 form = OtpForm(valid_otp=otp_session.otp)
             elif formid == FORMID_SUDO_PASSWORD:
                 form = PasswordForm(edit_user=current_auth.user)

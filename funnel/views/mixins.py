@@ -4,10 +4,11 @@
 
 from __future__ import annotations
 
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
-from flask import abort, g, request
+from flask import abort, g, request, url_for
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
@@ -30,7 +31,7 @@ from .login_session import requires_login
 
 
 class AccountCheckMixin:
-    """Base class checks for suspended accounts."""
+    """View mixin to intercept non-active accounts."""
 
     if TYPE_CHECKING:
         # Define `account` as a read-only attribute (for this mixin!)
@@ -39,8 +40,7 @@ class AccountCheckMixin:
 
     def after_loader(self) -> ReturnView | None:
         """Post-process loader."""
-        account = self.account
-        g.account = account
+        g.account = account = self.account
         if not account.state.ACTIVE:
             abort(410)
 
@@ -72,11 +72,21 @@ class ProjectViewBase(
                 .filter(Account.name_is(account), ProjectRedirect.name == project)
                 .first_or_404()
             )
-            if obj_redirect.project:
+            if obj_redirect.project is not None:
+                if TYPE_CHECKING:
+                    assert request.endpoint is not None
+                    assert request.view_args is not None
+
                 self.account = obj_redirect.project.account
                 return render_redirect(
-                    obj_redirect.project.url_for(),
-                    302 if request.method == 'GET' else 303,
+                    url_for(
+                        request.endpoint,
+                        **request.view_args | obj_redirect.redirect_view_args(),
+                    ),
+                    HTTPStatus.PERMANENT_REDIRECT
+                    if obj_redirect.is_over_a_day_old()
+                    else HTTPStatus.TEMPORARY_REDIRECT,
+                    timeout=86400,
                 )
             abort(410)  # Project has been deleted
         elif obj.state.DELETED:
@@ -177,6 +187,8 @@ class DraftViewProtoMixin:
     def autosave_post(self, obj: ModelUuidProtocol | None = None) -> ReturnView:
         """Handle autosave POST requests."""
         obj = obj if obj is not None else self.obj
+        if TYPE_CHECKING:
+            assert obj is not None
         if 'form.revision' not in request.form:
             # as form.autosave is true, the form should have `form.revision` field even
             # if it's empty

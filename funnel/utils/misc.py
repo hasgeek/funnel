@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import urllib.parse
+from datetime import timedelta
 from hashlib import blake2b
 from typing import overload
 
@@ -13,6 +14,7 @@ import qrcode.image.svg
 from flask import abort
 
 __all__ = [
+    'TIMEDELTA_1DAY',
     'blake2b160_hex',
     'abort_null',
     'make_redirect_url',
@@ -24,6 +26,7 @@ __all__ = [
     'make_qrcode',
 ]
 
+TIMEDELTA_1DAY = timedelta(days=1)
 MASK_DIGITS = str.maketrans('0123456789', '•' * 10)
 TWITTER_HANDLE_MAXLENGTH = 16  # 15 + '@' prefix
 
