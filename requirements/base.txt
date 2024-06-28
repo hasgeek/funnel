@@ -21,7 +21,7 @@ aiohttp-retry==2.8.3
     # via twilio
 aiosignal==1.3.1
     # via aiohttp
-alembic==1.13.1
+alembic==1.13.2
     # via
     #   -r requirements/base.in
     #   flask-migrate
@@ -105,7 +105,7 @@ dnspython==2.6.1
     #   pyisemail
 emoji==2.12.1
     # via baseframe
-filelock==3.15.3
+filelock==3.15.4
     # via tldextract
 flask==3.0.3
     # via
@@ -360,7 +360,7 @@ pyyaml==6.0.1
     #   pymdown-extensions
 qrcode==7.4.2
     # via -r requirements/base.in
-redis==5.0.6
+redis==5.0.7
     # via
     #   baseframe
     #   flask-redis
@@ -406,7 +406,7 @@ semantic-version==2.10.0
     # via
     #   baseframe
     #   coaster
-sentry-sdk==2.6.0
+sentry-sdk==2.7.1
     # via baseframe
 six==1.16.0
     # via
@@ -449,7 +449,7 @@ tuspy==1.0.3
     # via pyvimeo
 tweepy==4.14.0
     # via -r requirements/base.in
-twilio==9.2.0
+twilio==9.2.2
     # via -r requirements/base.in
 types-python-dateutil==2.9.0.20240316
     # via arrow

@@ -45,9 +45,7 @@ def xhr_only(
                     destination = redirect_to()
                 else:
                     destination = redirect_to
-                return render_redirect(
-                    destination, 302 if request.method == 'GET' else 303
-                )
+                return render_redirect(destination)
             return f(*args, **kwargs)
 
         return wrapper

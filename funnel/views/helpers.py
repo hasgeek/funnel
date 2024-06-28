@@ -630,7 +630,9 @@ def compress_response(response: BaseResponse) -> None:
 # MARK: Template helpers ---------------------------------------------------------------
 
 
-def render_redirect(url: str, code: int = 303) -> ReturnResponse:
+def render_redirect(
+    url: str, code: int = 303, timeout: int | None = None
+) -> ReturnResponse:
     """
     Render a redirect that is sensitive to the request type.
 
@@ -638,17 +640,23 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
     transitions. Caller must specify 302 for instances where a request is being
     intercepted (typically in a view decorator).
     """
+    response: BaseResponse
+    cache_control = 'no-cache' if timeout is None else f'max-age={timeout}'
     if request_wants.html_fragment:
         return Response(
             render_template('redirect.html.jinja2', url=url),
             status=200,
+            headers={'Cache-Control': cache_control},
         )
     if request_wants.json:
         response = jsonify({'status': 'error', 'error': 'redirect', 'location': url})
         response.status_code = 422
+        response.headers['Cache-Control'] = cache_control
         response.headers['HX-Redirect'] = url
         return response
-    return redirect(url, code)
+    response = redirect(url, code)
+    response.headers['Cache-Control'] = cache_control
+    return response
 
 
 def html_in_json(

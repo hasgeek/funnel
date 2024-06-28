@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import TYPE_CHECKING, Self
 
 from furl import furl
@@ -11,6 +11,7 @@ from werkzeug.utils import cached_property
 from baseframe import localize_timezone
 from coaster.sqlalchemy import with_roles
 
+from ..utils import TIMEDELTA_1DAY
 from .account import Account
 from .base import (
     BaseScopedIdNameMixin,
@@ -116,7 +117,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin[int, Account], VideoMixin, Model)
                     start_at.is_not(None),
                     end_at.is_not(None),
                     end_at > start_at,
-                    end_at <= start_at + timedelta(days=1),
+                    end_at <= start_at + TIMEDELTA_1DAY,
                 ),
             ),
             'session_start_at_end_at_check',

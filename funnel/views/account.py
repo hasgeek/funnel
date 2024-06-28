@@ -657,7 +657,7 @@ class AccountView(ClassView):
             # Already linked to another account, but we have verified the ownership, so
             # proceed to merge account flow here
             session['merge_buid'] = existing.user.buid
-            return render_redirect(url_for('account_merge'), 303)
+            return render_redirect(url_for('account_merge'))
         return render_form(
             form=form,
             title=_("Verify email address"),
@@ -881,7 +881,7 @@ class AccountView(ClassView):
             # Already linked to another user, but we have verified the ownership, so
             # proceed to merge account flow here
             session['merge_buid'] = existing.user.buid
-            return render_redirect(url_for('account_merge'), 303)
+            return render_redirect(url_for('account_merge'))
         return render_form(
             form=form,
             title=_("Verify phone number"),

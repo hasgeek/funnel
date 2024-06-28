@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import csv
 from collections.abc import Iterable
-from datetime import datetime, timedelta
+from datetime import datetime
 from io import StringIO
 
 from flask import Response, current_app, request
@@ -19,7 +19,7 @@ from .. import app
 from ..auth import current_auth
 from ..models import ContactExchange, Project, TicketParticipant, db, sa_orm
 from ..typing import ReturnRenderWith, ReturnView
-from ..utils import format_twitter_handle
+from ..utils import TIMEDELTA_1DAY, format_twitter_handle
 from .helpers import LayoutTemplate
 from .login_session import requires_login
 
@@ -165,7 +165,7 @@ class ContactView(ClassView):
         project = ticket_participant.project
         if project.end_at:
             if (
-                midnight_to_utc(project.end_at + timedelta(days=1), project.timezone)
+                midnight_to_utc(project.end_at + TIMEDELTA_1DAY, project.timezone)
                 < utcnow()
             ):
                 # FIXME: when status='error', message should be in `error_description`
