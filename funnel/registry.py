@@ -206,13 +206,12 @@ class LoginProvider:
     :meth:`do` is called when the user chooses to login with the specified provider.
     :meth:`callback` is called with the response from the provider.
 
-    Both :meth:`do` and :meth:`callback` are called as part of a Flask
-    view and have full access to the view infrastructure. However, while
-    :meth:`do` is expected to return a Response to the user,
-    :meth:`callback` only returns information on the user back to Lastuser.
+    Both :meth:`do` and :meth:`callback` are called as part of a Flask view and have
+    full access to the view infrastructure. However, while :meth:`do` is expected to
+    return a Response to the user, :meth:`callback` only returns information on the user
+    back to Lastuser.
 
-    Implementations must take their configuration via the __init__
-    constructor.
+    Implementations must take their configuration via the __init__ constructor.
 
     :param name: Name of the service (stored in the database)
     :param title: Title (shown to user)

@@ -22,6 +22,7 @@ from ...models import (
     AuthToken,
     LoginSession,
     Organization,
+    Placeholder,
     User,
     db,
     getuser,
@@ -47,6 +48,7 @@ def get_userinfo(
     get_permissions: bool = True,
 ) -> ReturnResource:
     """Return userinfo for a given user, auth client and scope."""
+    userinfo: dict[str, Any]
     if '*' in scope or 'id' in scope or 'id/*' in scope:
         userinfo = {
             'userid': user.buid,
@@ -92,6 +94,21 @@ def get_userinfo(
                 for org in user.organizations_as_admin
             ],
         }
+        # If the user is a site editor, also include placeholder accounts.
+        # TODO: Remove after Imgee merger
+        if user.is_site_editor:
+            placeholders = [
+                {
+                    'userid': p.buid,
+                    'buid': p.buid,
+                    'uuid': p.uuid,
+                    'name': p.urlname,
+                    'title': p.title,
+                }
+                for p in Placeholder.query.all()
+            ]
+            userinfo['organizations']['owner'].extend(placeholders)
+            userinfo['organizations']['admin'].extend(placeholders)
 
     if get_permissions:
         uperms = AuthClientPermissions.get(auth_client=auth_client, account=user)
@@ -488,13 +505,13 @@ def resource_id(
 
 
 @app.route('/api/1/session/verify', methods=['POST'])
-@resource_registry.resource('session/verify', __("Verify user session"), scope='id')
+@resource_registry.resource('session/verify', __("Verify login session"), scope='id')
 def session_verify(
     authtoken: AuthToken,
     args: MultiDict,
     files: MultiDict | None = None,  # noqa: ARG001
 ) -> ReturnResource:
-    """Verify a UserSession."""
+    """Verify a :class:`LoginSession`."""
     sessionid = abort_null(args['sessionid'])
     login_session = LoginSession.authenticate(buid=sessionid, silent=True)
     if login_session is not None and login_session.account == authtoken.effective_user:

@@ -117,7 +117,7 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                 ],
             }
 
-        elif self.obj.is_organization_profile:
+        else:
             template_name = 'profile.html.jinja2'
 
             # `order_by(None)` clears any existing order defined in relationship.
@@ -248,8 +248,6 @@ class ProfileView(UrlChangeCheck, AccountViewBase):
                     else None
                 ),
             }
-        else:
-            abort(404)  # Reserved account
 
         return ctx
 

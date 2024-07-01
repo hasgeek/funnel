@@ -64,11 +64,13 @@ class ProfileForm(OrganizationForm):
         self.logo_url.profile = self.account.name or self.account.buid
         if self.account.is_user_profile:
             self.make_for_user()
+        elif self.account.is_placeholder_profile:
+            self.make_for_placeholder()
         if not self.account.is_verified:
             del self.description
 
     def make_for_user(self) -> None:
-        """Customise form for a user account."""
+        """Customize form for a user account."""
         self.title.label.text = __("Your name")
         self.title.description = __(
             "Your full name, in the form others can recognise you by"
@@ -79,6 +81,19 @@ class ProfileForm(OrganizationForm):
             " Pick something permanent: changing it will break existing links"
         )
         self.description.label.text = __("More about you")
+        self.description.description = __(
+            "Optional – This message will be shown on the account’s page"
+        )
+
+    def make_for_placeholder(self) -> None:
+        """Customize form for a placeholder account."""
+        self.title.label.text = __("Entity name")
+        self.title.description = __("A common name for this entity")
+        self.tagline.description = __("A brief statement about this entity")
+        self.name.description = __(
+            "A unique word for this entity’s account page. Alphabets, numbers and underscores are okay. Pick something permanent: changing it will break links"
+        )
+        self.description.label.text = __("More about this entity")
         self.description.description = __(
             "Optional – This message will be shown on the account’s page"
         )
