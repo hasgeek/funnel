@@ -1,6 +1,7 @@
 """Provide configuration for models and import all into a common `models` namespace."""
 
 # pyright: reportUnsupportedDunderAll=false
+# ruff: noqa: F811
 
 # The second half of this file is dynamically generated. Run `make initpy` to
 # regenerate. Since lazy_loader is opaque to static type checkers, there's an overriding
