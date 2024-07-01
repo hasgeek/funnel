@@ -91,7 +91,9 @@ class ProfileForm(OrganizationForm):
         self.title.description = __("A common name for this entity")
         self.tagline.description = __("A brief statement about this entity")
         self.name.description = __(
-            "A unique word for this entity’s account page. Alphabets, numbers and underscores are okay. Pick something permanent: changing it will break links"
+            "A unique word for this entity’s account page. Alphabets, numbers and"
+            " underscores are okay. Pick something permanent: changing it will break"
+            " links"
         )
         self.description.label.text = __("More about this entity")
         self.description.description = __(
