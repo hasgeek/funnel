@@ -52,9 +52,7 @@ def delete_validator(
 )
 def profile_is_protected(user: Account) -> bool:
     """Block deletion if the user has a protected account."""
-    if user.is_protected:
-        return False
-    return True
+    return not user.is_protected
 
 
 @delete_validator(
@@ -91,9 +89,7 @@ def profile_has_projects(user: Account) -> bool:
 )
 def user_owns_apps(user: Account) -> bool:
     """Fail if user is the owner of client apps."""
-    if user.clients:
-        return False
-    return True
+    return not user.clients
 
 
 # MARK: Delete validator view helper ---------------------------------------------------

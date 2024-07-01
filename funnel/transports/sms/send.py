@@ -108,9 +108,7 @@ def validate_exotel_token(token: str, to: str) -> bool:
 def okay_to_message_in_india_right_now() -> bool:
     """Report if it's currently within messaging hours in India (9 AM to 7PM IST)."""
     now = utcnow().astimezone(indian_timezone)
-    if now.hour >= DND_END_HOUR and now.hour < DND_START_HOUR:
-        return True
-    return False
+    return bool(now.hour >= DND_END_HOUR and now.hour < DND_START_HOUR)
 
 
 def send_via_exotel(

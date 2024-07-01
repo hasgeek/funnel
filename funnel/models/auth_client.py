@@ -531,9 +531,7 @@ class AuthToken(ScopeMixin, BaseMixin[int, Account], Model):
         if self.validity == 0:
             return True  # This token is perpetually valid
         now = utcnow()
-        if self.created_at < now - timedelta(seconds=self.validity):
-            return False
-        return True
+        return not self.created_at < now - timedelta(seconds=self.validity)
 
     @classmethod
     def revoke_all_for(cls, account: Account) -> None:

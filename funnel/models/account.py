@@ -1466,21 +1466,6 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
         # This user has no email addresses
         return None
 
-    @property
-    def _self_is_owner_of_self(self) -> Account | None:
-        """
-        Return self in a user account.
-
-        Helper method for :meth:`roles_for` and :meth:`actors_with` to assert that the
-        user is owner and admin of their own account.
-        """
-        return self if self.is_user_profile else None
-
-    with_roles(
-        _self_is_owner_of_self,
-        grants={'follower', 'member', 'admin', 'owner'},
-    )
-
     def organizations_as_owner_ids(self) -> list[int]:
         """
         Return the database ids of the organizations this user is an owner of.
@@ -2025,6 +2010,21 @@ class User(Account):
         if self.joined_at is None:
             self.joined_at = sa.func.utcnow()
 
+    @property
+    def _self_is_owner_of_self(self) -> Self:
+        """
+        Return self in a user account.
+
+        Helper method for :meth:`roles_for` and :meth:`actors_with` to assert that the
+        user is owner and admin of their own account.
+        """
+        return self
+
+    with_roles(
+        _self_is_owner_of_self,
+        grants={'follower', 'member', 'admin', 'owner'},
+    )
+
 
 # XXX: Deprecated, still here for Baseframe compatibility
 Account.userid = Account.uuid_b64
@@ -2139,7 +2139,8 @@ class Community(Account):
     """
     A community account.
 
-    Communities differ from organizations in having open-ended membership.
+    Communities differ from organizations in having open-ended membership. This model
+    is currently not properly specified and therefore not exposed in UI.
     """
 
     __mapper_args__ = {'polymorphic_identity': 'C'}
@@ -2157,10 +2158,27 @@ class Community(Account):
 
 
 class Placeholder(Account):
-    """A placeholder account."""
+    """
+    A placeholder account.
+
+    Placeholders are managed by site editors, typically on behalf of an external entity.
+    """
 
     __mapper_args__ = {'polymorphic_identity': 'P'}
     is_placeholder_profile = True
+
+    @role_check('owner', 'admin')
+    def site_editor_owner(
+        self, actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Grant 'owner' and related roles to site editors."""
+        return actor is not None and actor.is_site_editor
+
+    @site_editor_owner.iterable
+    def _(self) -> Iterable[Account]:
+        return Account.query.join(
+            SiteMembership, SiteMembership.member_id == Account.id
+        ).filter(SiteMembership.is_active, Account.state.ACTIVE)
 
 
 class Team(UuidMixin, BaseMixin[int, Account], Model):
