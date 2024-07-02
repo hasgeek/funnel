@@ -21,8 +21,11 @@ async function addMermaidEmbed(container) {
           idCount += 1;
         } while ($(`#${idMarker}${idCount}`).length > 0);
       }
-      mermaid.render(elemId, definition, (svg) => {
+      mermaid.render(elemId, definition).then(({ svg, bindFunctions }) => {
         containerElem.html(svg);
+        containerElem.each(function () {
+          bindFunctions?.(this);
+        });
         root.addClass('activated').removeClass('activating');
       });
     });
