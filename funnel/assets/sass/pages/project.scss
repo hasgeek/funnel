@@ -386,7 +386,6 @@
         .calendar__weekdays .calendar__weekdays__dates--latest {
           display: flex;
           margin-bottom: $mui-grid-padding * 0.5;
-          font-weight: 600;
         }
 
         .calendar__weekdays .calendar__weekdays__dates:last-child {
@@ -425,6 +424,7 @@
 @media (min-width: 768px) {
   .project-banner {
     display: flex;
+    gap: $mui-grid-padding * 2;
     .project-banner__box {
       .project-banner__box__add-btn {
         right: $mui-grid-padding;
@@ -452,14 +452,15 @@
       }
     }
     .project-banner__left {
-      width: 67%;
-      margin: 0 $mui-grid-padding * 2 0 0;
+      flex: 1 1 auto;
+      margin: 0;
+      min-width: 0;
       .embed-video-wrapper--shaped {
         border-radius: 16px;
       }
     }
     .project-banner__right {
-      width: auto;
+      width: 420px;
     }
   }
   .project-banner.project-banner--inner {
@@ -467,7 +468,7 @@
       width: 25%;
     }
     .project-banner__right--smaller {
-      width: auto;
+      width: 75%;
     }
   }
 }
