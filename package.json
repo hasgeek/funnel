@@ -72,7 +72,7 @@
     "@codemirror/lang-markdown": "^6.0.2",
     "@codemirror/language": "^6.2.1",
     "@codemirror/language-data": "^6.5.1",
-    "@codemirror/view": "^6.4.0",
+    "@codemirror/view": "^6.28.1",
     "@fullcalendar/core": "^6.1.11",
     "@fullcalendar/daygrid": "^6.1.11",
     "@fullcalendar/multimonth": "^6.1.11",
