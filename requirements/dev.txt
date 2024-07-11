@@ -32,7 +32,7 @@ gherkin-official==24.0.0
     # via reformat-gherkin
 icdiff==2.0.7
     # via pytest-icdiff
-identify==2.5.36
+identify==2.6.0
     # via pre-commit
 isort==5.13.2
     # via pylint
@@ -80,7 +80,7 @@ pyupgrade==3.16.0
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
-ruff==0.5.0
+ruff==0.5.1
     # via -r requirements/dev.in
 tokenize-rt==5.2.0
     # via pyupgrade
@@ -118,7 +118,7 @@ types-pillow==10.2.0.20240520
     # via -r requirements/dev.in
 types-pyopenssl==24.1.0.20240425
     # via types-redis
-types-pytest-lazy-fixture==0.6.3.20240310
+types-pytest-lazy-fixture==0.6.3.20240707
     # via -r requirements/dev.in
 types-pytz==2024.1.0.20240417
     # via -r requirements/dev.in
@@ -128,7 +128,7 @@ types-redis==4.6.0.20240425
     # via -r requirements/dev.in
 types-requests==2.32.0.20240622
     # via -r requirements/dev.in
-types-setuptools==70.1.0.20240627
+types-setuptools==70.3.0.20240710
     # via types-cffi
 types-zxcvbn==4.4.1.20240106
     # via -r requirements/dev.in

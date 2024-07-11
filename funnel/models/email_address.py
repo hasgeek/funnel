@@ -5,11 +5,13 @@ from __future__ import annotations
 import hashlib
 import unicodedata
 import warnings
+from collections.abc import MutableMapping
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, cast, overload
 
 import base58
 import idna
+from mxsniff import mxsniff
 from pyisemail import is_email
 from pyisemail.diagnosis import BaseDiagnosis
 from sqlalchemy import event, inspect
@@ -407,6 +409,19 @@ class EmailAddress(BaseMixin[int, 'Account'], Model):
                 if curr_owner is not None and curr_owner != owner:
                     return False
         return True
+
+    def is_public_provider(self, cache: MutableMapping | None = None) -> bool:
+        """
+        Check if this email address is from a known public provider (Gmail, etc).
+
+        This performs a DNS lookup for unknown domains. Providing a cache is highly
+        recommended. The cache object must implement the
+        :class:`~collections.abc.MutableMapping` API.
+        """
+        if not self.domain:
+            raise ValueError("Can't lookup a removed email address.")
+        lookup = mxsniff(self.domain, cache=cache)
+        return lookup['public']
 
     @delivery_state.transition(None, delivery_state.SENT)
     def mark_sent(self) -> None:

@@ -37,6 +37,7 @@ lazy-loader
 linkify-it-py
 markdown-it-py
 mdit-py-plugins
+mxsniff
 oauth2client
 passlib
 phonenumbers

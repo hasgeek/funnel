@@ -211,6 +211,45 @@ def user_not_likely_throwaway(obj: Account) -> bool:
     return obj.is_verified or bool(obj.phone)
 
 
+@Account.features('has_work_email', cached_property=True)
+def account_has_work_email(obj: Account) -> bool:
+    """Confirm the user has a work email address associated with their account."""
+    if not obj.emails:
+        return False
+    # TODO: Provide cache
+    return any(not ae.email_address.is_public_provider() for ae in obj.emails)
+
+
+@Account.features('has_personal_email', cached_property=True)
+def account_has_personal_email(obj: Account) -> bool:
+    """Confirm the user has a personal email address associated with their account."""
+    if not obj.emails:
+        return False
+    # TODO: Provide cache
+    return any(ae.email_address.is_public_provider() for ae in obj.emails)
+
+
+@Account.features('may_need_to_add_email', cached_property=True)
+def account_may_need_to_add_email(obj: Account) -> bool:
+    """Check if the user missing work or personal email addresses."""
+    if not obj.emails:
+        return True
+    has_work_email = False
+    has_personal_email = False
+    for ae in obj.emails:
+        # TODO: Provide cache
+        is_public = ae.email_address.is_public_provider()
+        if is_public:
+            has_personal_email = True
+            if has_work_email:
+                return False
+        else:
+            has_work_email = True
+            if has_personal_email:
+                return False
+    return True
+
+
 _quoted_str_re = re.compile('"(.*?)"')
 _quoted_ua_re = re.compile(r'"(.*?)"\s*;\s*v\s*=\s*"(.*?)",?\s*')
 _fake_ua_re = re.compile(
