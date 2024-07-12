@@ -116,9 +116,11 @@ class OrganizationMembersView(AccountViewBase):
                             'error_description': _("This user is already an admin"),
                             'errors': membership_form.errors,
                         }, 422
-                    with previous_membership.amend_by(current_auth.user) as amendment:
-                        membership_form.populate_obj(amendment)
-                    new_membership = amendment.membership
+                    new_membership = previous_membership.replace(
+                        actor=current_auth.user,
+                        is_owner=membership_form.is_owner.data,
+                        is_admin=True,
+                    )
                 else:
                     new_membership = AccountMembership(
                         account=self.obj, granted_by=current_auth.user, is_admin=True
