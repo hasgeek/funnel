@@ -109,7 +109,6 @@
 
     .schedule__row--sticky {
       display: flex;
-      overflow-x: auto;
       position: -webkit-sticky;
       position: sticky;
       top: 0; // header height in home page
@@ -239,8 +238,6 @@
           }
         }
         .schedule__row--sticky {
-          overflow: auto;
-
           .schedule__row__column--header {
             outline: 1px solid $mui-divider-color;
             border: none !important;
