@@ -283,7 +283,7 @@ class TicketParticipant(
         grants_via={None: project_child_role_map},
     )
 
-    scanned_contacts: Mapped[ContactExchange] = with_roles(
+    scanned_contacts: Mapped[list[ContactExchange]] = with_roles(
         relationship(passive_deletes=True, back_populates='ticket_participant'),
         grants_via={'account': {'scanner'}},
     )
