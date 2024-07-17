@@ -109,6 +109,7 @@
 
     .schedule__row--sticky {
       display: flex;
+      overflow-x: auto;
       position: -webkit-sticky;
       position: sticky;
       top: 0; // header height in home page
