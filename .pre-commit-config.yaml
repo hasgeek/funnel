@@ -50,18 +50,18 @@ repos:
           ]
         files: ^requirements/.*\.txt$
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.16.0
+    rev: v3.17.0
     hooks:
       - id: pyupgrade
         args: ['--keep-runtime-typing', '--py311-plus']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.0
+    rev: v0.5.5
     hooks:
       - id: ruff
         args: ['--fix', '--exit-non-zero-on-fix']
       - id: ruff-format
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.2.4
+    rev: v3.2.6
     hooks:
       - id: pylint
         args: [
@@ -124,7 +124,7 @@ repos:
       - id: forbid-tabs
       - id: remove-tabs
   - repo: https://github.com/pycontribs/mirrors-prettier
-    rev: v3.3.2
+    rev: v3.3.3
     hooks:
       - id: prettier
   - repo: https://github.com/ducminh-phan/reformat-gherkin
