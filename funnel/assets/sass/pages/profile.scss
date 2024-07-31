@@ -213,6 +213,13 @@
   }
   .profile-details {
     padding: 2 * $mui-grid-padding 0 0;
+    ul {
+      padding: 0;
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      list-style: none;
+    }
   }
   .profile.profile--unverified {
     .profile__banner__box {
