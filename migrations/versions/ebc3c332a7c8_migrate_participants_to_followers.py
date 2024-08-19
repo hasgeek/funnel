@@ -107,8 +107,9 @@ def upgrade_() -> None:
         followers.setdefault(item.account_id, {}).setdefault(
             item.member_id, item.created_at
         )
-        if item.created_at < followers[item.account_id][item.member_id]:
-            followers[item.account_id][item.member_id] = item.created_at
+        followers[item.account_id][item.member_id] = min(
+            item.created_at, followers[item.account_id][item.member_id]
+        )
 
     # Load from RSVP
     rsvp_select = (
@@ -130,8 +131,9 @@ def upgrade_() -> None:
         followers.setdefault(item.account_id, {}).setdefault(
             item.participant_id, item.created_at
         )
-        if item.created_at < followers[item.account_id][item.participant_id]:
-            followers[item.account_id][item.participant_id] = item.created_at
+        followers[item.account_id][item.participant_id] = min(
+            item.created_at, followers[item.account_id][item.participant_id]
+        )
 
     # Load from ticket participants
     ticket_select = (
@@ -154,8 +156,9 @@ def upgrade_() -> None:
         followers.setdefault(item.account_id, {}).setdefault(
             item.participant_id, item.created_at
         )
-        if item.created_at < followers[item.account_id][item.participant_id]:
-            followers[item.account_id][item.participant_id] = item.created_at
+        followers[item.account_id][item.participant_id] = min(
+            item.created_at, followers[item.account_id][item.participant_id]
+        )
 
     # Get account names
     accounts: dict[int, str | None] = {
