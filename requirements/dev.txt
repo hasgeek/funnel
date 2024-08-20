@@ -14,7 +14,7 @@
     #   baseframe
 appdirs==1.4.4
     # via ptpython
-astroid==3.2.2
+astroid==3.2.4
     # via pylint
 build==1.2.1
     # via pip-tools
@@ -32,7 +32,7 @@ gherkin-official==24.0.0
     # via reformat-gherkin
 icdiff==2.0.7
     # via pytest-icdiff
-identify==2.5.36
+identify==2.6.0
     # via pre-commit
 isort==5.13.2
     # via pylint
@@ -42,7 +42,7 @@ mccabe==0.7.0
     # via pylint
 mkinit==1.1.0
     # via -r requirements/dev.in
-mypy==1.10.1
+mypy==1.11.1
     # via -r requirements/dev.in
 mypy-json-report==1.2.0
     # via -r requirements/dev.in
@@ -62,13 +62,13 @@ po2json==0.2.2
     # via -r requirements/dev.in
 pprintpp==0.4.0
     # via pytest-icdiff
-pre-commit==3.7.1
+pre-commit==3.8.0
     # via -r requirements/dev.in
 prompt-toolkit==3.0.47
     # via ptpython
-ptpython==3.0.27
+ptpython==3.0.29
     # via -r requirements/dev.in
-pylint==3.2.5
+pylint==3.2.6
     # via -r requirements/dev.in
 pyproject-hooks==1.1.0
     # via
@@ -76,13 +76,13 @@ pyproject-hooks==1.1.0
     #   pip-tools
 pytest-icdiff==0.9
     # via -r requirements/dev.in
-pyupgrade==3.16.0
+pyupgrade==3.17.0
     # via -r requirements/dev.in
 reformat-gherkin==3.0.1
     # via -r requirements/dev.in
-ruff==0.5.0
+ruff==0.6.1
     # via -r requirements/dev.in
-tokenize-rt==5.2.0
+tokenize-rt==6.0.0
     # via pyupgrade
 toposort==1.10
     # via pip-compile-multi
@@ -102,33 +102,33 @@ types-geoip2==3.0.0
     # via -r requirements/dev.in
 types-greenlet==3.0.0.20240604
     # via -r requirements/dev.in
-types-html5lib==1.1.11.20240228
+types-html5lib==1.1.11.20240806
     # via types-beautifulsoup4
 types-ipaddress==1.0.8
     # via types-maxminddb
-types-lxml==2024.4.14
+types-lxml==2024.8.7
     # via -r requirements/dev.in
 types-maxminddb==1.5.0
     # via types-geoip2
 types-mock==5.1.0.20240425
     # via -r requirements/dev.in
-types-passlib==1.7.7.20240327
+types-passlib==1.7.7.20240819
     # via -r requirements/dev.in
 types-pillow==10.2.0.20240520
     # via -r requirements/dev.in
-types-pyopenssl==24.1.0.20240425
+types-pyopenssl==24.1.0.20240722
     # via types-redis
-types-pytest-lazy-fixture==0.6.3.20240310
+types-pytest-lazy-fixture==0.6.3.20240707
     # via -r requirements/dev.in
 types-pytz==2024.1.0.20240417
     # via -r requirements/dev.in
-types-pyyaml==6.0.12.20240311
+types-pyyaml==6.0.12.20240808
     # via -r requirements/dev.in
-types-redis==4.6.0.20240425
+types-redis==4.6.0.20240819
     # via -r requirements/dev.in
-types-requests==2.32.0.20240622
+types-requests==2.32.0.20240712
     # via -r requirements/dev.in
-types-setuptools==70.1.0.20240627
+types-setuptools==71.1.0.20240818
     # via types-cffi
 types-zxcvbn==4.4.1.20240106
     # via -r requirements/dev.in
@@ -140,7 +140,7 @@ wcwidth==0.2.13
     # via
     #   prompt-toolkit
     #   reformat-gherkin
-wheel==0.43.0
+wheel==0.44.0
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
