@@ -979,6 +979,12 @@ class AccountView(ClassView):
         )
 
 
+@app.route('/.well-known/change-password')
+def well_known_change_password() -> ReturnView:
+    """Redirect to the change_password page."""
+    return redirect(url_for('change_password'), 303)
+
+
 # MARK: Compatibility routes -----------------------------------------------------------
 
 
