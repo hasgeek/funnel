@@ -5,7 +5,7 @@ coveralls
 lxml
 pytest
 pytest-asyncio
-pytest-bdd
+pytest-bdd  # See tests/conftest.py for a patch for version 7.2.0
 pytest-cov
 pytest-dotenv
 pytest-env
