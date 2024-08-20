@@ -72,6 +72,9 @@ def test_username_available(
     }
 
 
+# MARK: User agent details
+
+
 @pytest.mark.parametrize(
     ('user_agent', 'client_hints', 'output'),
     [
@@ -327,3 +330,68 @@ def test_user_agent_details(
         )
         == output
     )
+
+
+# MARK: Work and personal email
+
+
+def test_has_work_email_empty(user_twoflower: models.User) -> None:
+    """Test for work email addresses on an account (when user has no emails)."""
+    assert user_twoflower.features.has_work_email is False
+
+
+def test_has_personal_email_empty(user_twoflower: models.User) -> None:
+    """Test for personal email addresses on an account (when user has no emails)."""
+    assert user_twoflower.features.has_personal_email is False
+
+
+def test_may_need_email_empty(user_twoflower: models.User) -> None:
+    """Test if user needs to add any email addresses (when having none)."""
+    assert user_twoflower.features.may_need_to_add_email is True
+
+
+@pytest.fixture
+def work_email(user_twoflower: models.User) -> models.AccountEmail:
+    """Provide a (test) work email for the user."""
+    return user_twoflower.add_email('no-reply@hasgeek.com')
+
+
+@pytest.fixture
+def personal_email(user_twoflower: models.User) -> models.AccountEmail:
+    """Provide a (test) personal email for the user."""
+    return user_twoflower.add_email('example@gmail.com')
+
+
+@pytest.mark.usefixtures('personal_email')
+@pytest.mark.enable_socket
+def test_has_work_email_no(user_twoflower) -> None:
+    """Confirm user is missing a work email."""
+    assert user_twoflower.features.has_work_email is False
+
+
+@pytest.mark.usefixtures('work_email')
+@pytest.mark.enable_socket
+def test_has_work_email_yes(user_twoflower: models.User) -> None:
+    """Confirm user has a work email."""
+    assert user_twoflower.features.has_work_email is True
+
+
+@pytest.mark.usefixtures('personal_email')
+@pytest.mark.enable_socket
+def test_has_personal_not_work_email(user_twoflower) -> None:
+    """Confirm user has both work and personal email addresses."""
+    assert user_twoflower.features.may_need_to_add_email is True
+
+
+@pytest.mark.usefixtures('work_email')
+@pytest.mark.enable_socket
+def test_has_work_not_personal_email(user_twoflower) -> None:
+    """Confirm user has both work and personal email addresses."""
+    assert user_twoflower.features.may_need_to_add_email is True
+
+
+@pytest.mark.usefixtures('work_email', 'personal_email')
+@pytest.mark.enable_socket
+def test_has_both_work_and_personal_email(user_twoflower) -> None:
+    """Confirm user has both work and personal email addresses."""
+    assert user_twoflower.features.may_need_to_add_email is False

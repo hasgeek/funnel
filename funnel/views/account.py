@@ -20,7 +20,7 @@ from flask import (
 )
 from markupsafe import Markup, escape
 
-from baseframe import _, forms
+from baseframe import _, cache, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
 from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import ClassView, get_next_url, render_with, route
@@ -61,6 +61,7 @@ from ..models import (
 from ..registry import login_registry
 from ..signals import user_data_changed
 from ..typing import ReturnRenderWith, ReturnResponse, ReturnView
+from ..utils import DictCache
 from .decorators import etag_cache_for_user, xhr_only
 from .email import send_email_verify_link
 from .helpers import (
@@ -80,6 +81,8 @@ from .login_session import (
 )
 from .notification import dispatch_notification
 from .otp import OtpSession, OtpTimeoutError
+
+email_cache = DictCache(cache, 'email/', 86400)
 
 # MARK: View registry ------------------------------------------------------------------
 
@@ -209,6 +212,52 @@ def user_not_likely_throwaway(obj: Account) -> bool:
     marked as verified.
     """
     return obj.is_verified or bool(obj.phone)
+
+
+@Account.features('has_work_email', cached_property=True)
+def account_has_work_email(obj: Account) -> bool:
+    """Confirm the user has a work email address associated with their account."""
+    if not obj.emails:
+        return False
+    return any(
+        not ae.email_address.is_public_provider(email_cache)
+        for ae in obj.emails
+        if ae.email_address.domain is not None
+    )
+
+
+@Account.features('has_personal_email', cached_property=True)
+def account_has_personal_email(obj: Account) -> bool:
+    """Confirm the user has a personal email address associated with their account."""
+    if not obj.emails:
+        return False
+    return any(
+        ae.email_address.is_public_provider(email_cache)
+        for ae in obj.emails
+        if ae.email_address.domain is not None
+    )
+
+
+@Account.features('may_need_to_add_email', cached_property=True)
+def account_may_need_to_add_email(obj: Account) -> bool:
+    """Check if the user missing work or personal email addresses."""
+    if not obj.emails:
+        return True
+    has_work_email = False
+    has_personal_email = False
+    for ae in obj.emails:
+        if ae.email_address.domain is None:
+            continue
+        is_public = ae.email_address.is_public_provider(email_cache)
+        if is_public:
+            has_personal_email = True
+            if has_work_email:
+                return False
+        else:
+            has_work_email = True
+            if has_personal_email:
+                return False
+    return True
 
 
 _quoted_str_re = re.compile('"(.*?)"')
