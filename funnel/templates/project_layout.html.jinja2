@@ -125,13 +125,11 @@
             </div>
           </div>
         {% endif %}
-        <div class="{% if not project.start_at %}full-width-btn {% endif %}project-footer zero-padding zero-bottom-margin project-footer--main">
-          {{ registerblock(project) }}
-        </div>
-        <div class="mui--hidden-xs mui--hidden-sm">
-          {{ project_details(project) }}
-        </div>
-      {% endif %}
+        {% if project.features.tickets_or_rsvp %}
+          <div class="{% if not project.start_at %}full-width-btn {% endif %}project-footer zero-padding zero-bottom-margin project-footer--main"> {{ registerblock(project) }} </div> {% endif %} <div class="mui--hidden-xs mui--hidden-sm">
+            {{ project_details(project) }}
+          </div>
+        {% endif %}
     </div>
   </div>
 {% endmacro %}
