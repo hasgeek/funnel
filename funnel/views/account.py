@@ -220,7 +220,9 @@ def account_has_work_email(obj: Account) -> bool:
     if not obj.emails:
         return False
     return any(
-        not ae.email_address.is_public_provider(email_cache) for ae in obj.emails
+        not ae.email_address.is_public_provider(email_cache)
+        for ae in obj.emails
+        if ae.email_address.domain is not None
     )
 
 
@@ -229,7 +231,11 @@ def account_has_personal_email(obj: Account) -> bool:
     """Confirm the user has a personal email address associated with their account."""
     if not obj.emails:
         return False
-    return any(ae.email_address.is_public_provider(email_cache) for ae in obj.emails)
+    return any(
+        ae.email_address.is_public_provider(email_cache)
+        for ae in obj.emails
+        if ae.email_address.domain is not None
+    )
 
 
 @Account.features('may_need_to_add_email', cached_property=True)
@@ -240,6 +246,8 @@ def account_may_need_to_add_email(obj: Account) -> bool:
     has_work_email = False
     has_personal_email = False
     for ae in obj.emails:
+        if ae.email_address.domain is None:
+            continue
         is_public = ae.email_address.is_public_provider(email_cache)
         if is_public:
             has_personal_email = True
