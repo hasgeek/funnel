@@ -286,9 +286,9 @@
 {% endmacro %}
 
 {% macro project_host_sponsor(project) %}
-  <p class="mui--text-subhead text-bold mui--text-light">{% trans %}Hosted by{% endtrans %}</p>
-  <div class="card card--shaped card--lessmargin">
-    <div class="card__body margin-bottom">
+  <p class="mui--text-subhead top-padding text-bold mui--text-light">{% trans %}Hosted by{% endtrans %}</p>
+  <div class="page-card">
+    <div class="project-section bottom-padding">
       <div class="flex-wrapper flex-wrapper--center margin-bottom">
         {{ profileavatar(project.account, css_class='flex-order-last flex-item-align-end') }}
       </div>
@@ -305,7 +305,7 @@
     </div>
   </div>
   {%- if project.has_sponsors %}
-  <p class="mui--text-subhead text-bold mui--text-light">{% trans %}Supported by{% endtrans %}</p>
+  <p class="mui--text-subhead text-bold top-padding mui--text-light">{% trans %}Supported by{% endtrans %}</p>
   {%- endif %}
 <div class="sponsors-wrapper">
   {% for sponsorship in project.sponsor_memberships %}
@@ -313,8 +313,8 @@
       {%- if current_auth.user and current_auth.user.is_site_editor %}
         <div id="{{ sponsorship.uuid_b58 }}" class="sortable" data-drag-placeholder="ui-box-placeholder" draggable="true">
       {%- endif %}
-      <div class="card card--shaped card--lessmargin" data-cy="sponsor-card">
-        <div class="card__body margin-bottom">
+      <div class="page-card" data-cy="sponsor-card">
+        <div class="project-section bottom-padding margin-bottom">
           <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
             <div>
             {% if sponsorship.label %}

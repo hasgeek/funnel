@@ -124,6 +124,16 @@
   }
 }
 
+.profile-details {
+  ul {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    list-style: none;
+  }
+}
+
 .profile-dropdown-btn {
   background-color: $mui-bg-color-primary-dark;
   padding: $mui-grid-padding * 0.5 $mui-grid-padding;
@@ -213,6 +223,10 @@
   }
   .profile-details {
     padding: 2 * $mui-grid-padding 0 0;
+    ul {
+      gap: 16px;
+      flex-direction: row;
+    }
   }
   .profile.profile--unverified {
     .profile__banner__box {

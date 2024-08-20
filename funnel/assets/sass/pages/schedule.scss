@@ -188,8 +188,9 @@
       margin: $mui-grid-padding-double 0;
       .schedule__table {
         overflow: auto;
+        max-height: 100vh;
         .schedule__row {
-          overflow: auto;
+          overflow: initial;
           .schedule__row__column {
             position: relative;
             background-image: url('../../img/schedule-box-background.png');
@@ -238,8 +239,6 @@
           }
         }
         .schedule__row--sticky {
-          overflow: auto;
-
           .schedule__row__column--header {
             outline: 1px solid $mui-divider-color;
             border: none !important;

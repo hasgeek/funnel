@@ -6,9 +6,13 @@ Refunds, where eligible, are typically issued via the same instrument that was u
 
 ## Events
 
-We offer a 100% refund on attendee ticket cancellations until the day before the event, but some events may have a specific policy that overrides this generic policy. Please check if the event you are cancelling for has a specific policy.
+Memberships can be cancelled within 1 hour of purchase. Workshop tickets can be cancelled or transferred upto 24 hours prior to the workshop.
+
+Please check if the event you are cancelling for has a specific policy.
 
 Please write to us at <support@hasgeek.com> to request a refund (or see the [contact info](/about/contact) page for other ways to contact us).
+
+Refund requests will be processed within 24 hours. Once processed, the refund amount will be credited to the customer's original method of payment. Please note that it may take 7-10 business days for the refunded amount to reflect in your account, depending on your bank.
 
 We may cancel an event due to unforeseen reasons or circumstances outside our control (force majeure events such as floods, fire, riots, terrorist incidents, bandhs, etc). If that happens, we may reschedule the event or issue a full or partial refund at our discretion.
 

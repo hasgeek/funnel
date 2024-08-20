@@ -1560,7 +1560,10 @@ class ProjectRedirect(TimestampMixin, Model):
     def redirect_view_args(self) -> dict[str, str]:
         """View arguments to substitute in a URL."""
         if self.project:
-            return {'account': self.account.urlname, 'project': self.project.name}
+            return {
+                'account': self.project.account.urlname,
+                'project': self.project.name,
+            }
         return {}
 
     def is_over_a_day_old(self) -> bool:

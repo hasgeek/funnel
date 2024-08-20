@@ -110,17 +110,23 @@ class OrganizationMembersView(AccountViewBase):
                     .one_or_none()
                 )
                 if previous_membership is not None:
-                    return {
-                        'status': 'error',
-                        'error_description': _("This user is already an admin"),
-                        'errors': membership_form.errors,
-                    }, 422
-
-                new_membership = AccountMembership(
-                    account=self.obj, granted_by=current_auth.user, is_admin=True
-                )
-                membership_form.populate_obj(new_membership)
-                db.session.add(new_membership)
+                    if previous_membership.is_admin:
+                        return {
+                            'status': 'error',
+                            'error_description': _("This user is already an admin"),
+                            'errors': membership_form.errors,
+                        }, 422
+                    new_membership = previous_membership.replace(
+                        actor=current_auth.user,
+                        is_owner=membership_form.is_owner.data,
+                        is_admin=True,
+                    )
+                else:
+                    new_membership = AccountMembership(
+                        account=self.obj, granted_by=current_auth.user, is_admin=True
+                    )
+                    membership_form.populate_obj(new_membership)
+                    db.session.add(new_membership)
                 db.session.commit()
                 dispatch_notification(
                     AccountAdminNotification(
