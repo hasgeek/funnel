@@ -118,7 +118,7 @@ def then_user_gets_notification(
     )
     notification_recipient = models.NotificationFor(preview, getuser(recipient))
     view = notification_recipient.views.render
-    assert view.actor.uuid == getuser(actor).uuid
+    assert view.actor == getuser(actor)
     assert ridcully_member.granted_by is not None
     assert (
         view.activity_template().format(
@@ -335,7 +335,7 @@ def then_notification_recipient_removal(
     )
     notification_recipient = models.NotificationFor(preview, getuser(recipient))
     view = notification_recipient.views.render
-    assert view.actor.uuid == getuser(actor).uuid
+    assert view.actor == getuser(actor)
     assert ridcully_member.revoked_by is not None
     assert (
         view.activity_template().format(
