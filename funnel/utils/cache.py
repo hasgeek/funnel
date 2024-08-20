@@ -3,7 +3,8 @@
 from collections.abc import Iterator, MutableMapping
 from typing import Any
 
-from flask_caching import Cache
+from cachelib import BaseCache
+from flask_caching import Cache as CacheExtension
 
 __all__ = ['DictCache']
 
@@ -12,7 +13,13 @@ _marker = object()
 
 class DictCache(MutableMapping):
     """
-    Provide a dict interface to Flask-Caching cache.
+    Provide a dict-like interface to a Cachelib cache.
+
+    This object has three significant differences from regular dicts:
+
+    1. Since a cache can't be enumerated, this object will behave like an empty dict.
+    2. However, this object is always truthy despite appearing to be empty.
+    3. `None` is a special value indicating a cache miss and can't be used as a value.
 
     :param cache: Flask-Caching cache backend to wrap
     :param prefix: Prefix string to apply to all keys
@@ -20,7 +27,10 @@ class DictCache(MutableMapping):
     """
 
     def __init__(
-        self, cache: Cache, prefix: str = '', timeout: int | None = None
+        self,
+        cache: CacheExtension | BaseCache,
+        prefix: str = '',
+        timeout: int | None = None,
     ) -> None:
         self.cache = cache
         self.prefix = prefix
@@ -42,7 +52,7 @@ class DictCache(MutableMapping):
         if not success:
             raise KeyError(key)
 
-    def __contains__(self, key: object) -> bool:
+    def __contains__(self, key: Any) -> bool:
         return self.cache.has(key)
 
     # Dummy implementations for compatibility with MutableMapping:
