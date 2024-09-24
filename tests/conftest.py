@@ -130,68 +130,6 @@ def pytest_runtest_call(item: pytest.Function) -> None:
             typeguard.check_type(item.funcargs[attr], type_)
 
 
-# MARK: Pytest-bdd patch ---------------------------------------------------------------
-
-
-@pytest.fixture(scope='session', autouse=True)
-def _patch_pytest_bdd_inject_fixture() -> None:
-    """Patch pytest-bdd 7.2.0 for pytest 8.1."""
-    # Reported issue: https://github.com/pytest-dev/pytest-bdd/issues/689
-    # Pending fix: https://github.com/pytest-dev/pytest-bdd/pull/690
-    # Remove this function when that PR is accepted and incorporated in a release
-
-    # pylint: disable=protected-access
-    from _pytest.fixtures import FixtureDef, FixtureRequest
-
-    def inject_fixture(request: FixtureRequest, arg: str, value: Any) -> None:
-        """
-        Inject fixture into pytest fixture request.
-
-        :param request: pytest fixture request
-        :param arg: argument name
-        :param value: argument value
-        """
-        fd = FixtureDef(
-            config=request._fixturemanager.config,
-            baseid=request.node.nodeid,
-            argname=arg,
-            func=lambda: value,
-            scope="function",
-            params=None,
-            ids=None,
-            _ispytest=True,
-        )
-
-        fd.cached_result = (value, 0, None)
-
-        old_fd = request._fixture_defs.get(arg)
-        add_fixturename = arg not in request.fixturenames
-
-        def fin() -> None:
-            request._fixturemanager._arg2fixturedefs[arg].remove(fd)
-
-            if old_fd is not None:
-                request._fixture_defs[arg] = old_fd
-
-            if add_fixturename:
-                request._pyfuncitem._fixtureinfo.names_closure.remove(arg)
-
-        request.addfinalizer(fin)
-
-        # inject fixture definition
-        request._fixturemanager._arg2fixturedefs.setdefault(arg, []).append(fd)
-
-        # inject fixture value in request cache
-        request._fixture_defs[arg] = fd
-        if add_fixturename:
-            request._pyfuncitem._fixtureinfo.names_closure.append(arg)
-
-    # Apply patch to the (sole) function using it
-    from pytest_bdd.scenario import _execute_step_function
-
-    _execute_step_function.__globals__['inject_fixture'] = inject_fixture
-
-
 # MARK: Playwright browser config ------------------------------------------------------
 
 
