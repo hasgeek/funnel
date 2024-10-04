@@ -404,14 +404,14 @@ class WebOtpTemplate(SmsTemplate):
 
     registered_template = (
         'OTP is {#var#} for Hasgeek. If you did not request this, report misuse at'
-        ' https://has.gy/not-my-otp\n\n@hasgeek.com #{#var#}'
+        ' https://hasgeek.com/account/not-my-otp\n\n@hasgeek.com #{#var#}'
     )
     template = (
         "OTP is {otp} for Hasgeek. If you did not request this, report misuse at"
-        " https://has.gy/not-my-otp\n\n@hasgeek.com #{otp}"
+        " https://hasgeek.com/account/not-my-otp\n\n@hasgeek.com #{otp}"
     )
     plaintext_template = (
         "OTP is {otp} for Hasgeek. If you did not request this, report misuse at"
-        " https://has.gy/not-my-otp\n\n@hasgeek.com #{otp}"
+        " https://hasgeek.com/account/not-my-otp\n\n@hasgeek.com #{otp}"
     )
     message_priority = SmsPriority.URGENT
