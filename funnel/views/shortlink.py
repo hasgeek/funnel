@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from flask import abort, redirect
+
+from coaster.utils import utcnow
 
 from .. import app, shortlinkapp, unsubscribeapp
 from ..models import Shortlink
@@ -18,8 +20,9 @@ def shortlink_index() -> Response:
     return redirect(app_url_for(app, 'index'), 301)
 
 
-@shortlinkapp.route('/<name>')
-def link(name: str) -> Response:
+@shortlinkapp.route('/<header>/<name>')  # 'header' is required for SMS DLT URLs
+@shortlinkapp.route('/<name>', defaults={'header': None})
+def link(name: str, header: str | None = None) -> Response:  # noqa: ARG001
     """Redirect from a shortlink to the full link."""
     sl = Shortlink.get(name, True)
     if sl is None:
@@ -29,10 +32,10 @@ def link(name: str) -> Response:
     response = redirect(str(sl.url), 301)
     response.cache_control.private = True
     response.cache_control.max_age = 90
-    response.expires = datetime.utcnow() + timedelta(seconds=90)
+    response.expires = utcnow() + timedelta(seconds=90)
 
     # These two borrowed from Bitly and TinyURL's response headers. They tell the
-    # browser to reproduce the HTTP Referer header that was sent to this endpoint, to
+    # browser to reproduce the HTTP `Referer` header that was sent to this endpoint, to
     # send it again to the destination URL
 
     # Needs Werkzeug >= 2.0.2

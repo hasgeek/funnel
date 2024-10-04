@@ -14,7 +14,7 @@ from ...models import (
     Session,
 )
 from ...transports.sms import SmsPriority, SmsTemplate
-from ..helpers import shortlink
+from ..helpers import sms_shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
 
@@ -117,9 +117,8 @@ class RenderProjectStartingNotification(RenderNotification):
     def sms(self) -> SmsTemplate:
         return ProjectStartingTemplate(
             project=self.project,
-            url=shortlink(
-                self.project.url_for(_external=True, **self.tracking_tags('sms')),
-                shorter=True,
+            url=sms_shortlink(
+                self.project.url_for(_external=True, **self.tracking_tags('sms'))
             ),
         )
 
@@ -156,16 +155,14 @@ class RenderProjectTomorrowNotification(RenderProjectStartingNotification):
             return ProjectStartingTomorrowVenueTemplate(
                 account=self.project.account,
                 venue=venue,
-                url=shortlink(
-                    self.project.url_for(_external=True, **self.tracking_tags('sms')),
-                    shorter=True,
+                url=sms_shortlink(
+                    self.project.url_for(_external=True, **self.tracking_tags('sms'))
                 ),
             )
         return ProjectStartingTomorrowLocationTemplate(
             account=self.project.account,
             location=self.project.location,
-            url=shortlink(
-                self.project.url_for(_external=True, **self.tracking_tags('sms')),
-                shorter=True,
+            url=sms_shortlink(
+                self.project.url_for(_external=True, **self.tracking_tags('sms'))
             ),
         )

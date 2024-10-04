@@ -15,7 +15,7 @@ from ...models import (
 )
 from ...transports import email
 from ...transports.sms import SmsPriority, SmsTemplate
-from ..helpers import shortlink
+from ..helpers import sms_shortlink
 from ..notification import RenderNotification
 from ..schedule import schedule_ical
 from .mixins import TemplateVarMixin
@@ -128,8 +128,8 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
     ) -> RegistrationConfirmationTemplate | RegistrationConfirmationWithNextTemplate:
         project = self.rsvp.project
         next_at = project.next_starting_at()
-        url = shortlink(
-            project.url_for(_external=True, **self.tracking_tags('sms')), shorter=True
+        url = sms_shortlink(
+            project.url_for(_external=True, **self.tracking_tags('sms'))
         )
         if next_at:
             return RegistrationConfirmationWithNextTemplate(

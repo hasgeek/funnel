@@ -22,7 +22,7 @@ from ...models import (
     Proposal,
 )
 from ...transports.sms import SmsPriority, SmsTemplate
-from ..helpers import shortlink
+from ..helpers import sms_shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
 
@@ -252,7 +252,7 @@ class CommentNotification(RenderNotification):
         )
 
     def sms(self) -> SmsTemplate:
-        url = shortlink(
+        url = sms_shortlink(
             self.comment.url_for(_external=True, **self.tracking_tags('sms'))
         )
         if self.document_type == 'comment':
