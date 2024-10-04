@@ -18,7 +18,7 @@ from ...models import (
     sa_orm,
 )
 from ...transports.sms import SmsPriority, SmsTemplate
-from ..helpers import shortlink
+from ..helpers import sms_shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
 
@@ -110,9 +110,8 @@ class RenderProposalReceivedNotification(RenderNotification):
         return ProposalReceivedTemplate(
             project=self.project,
             actor=self.proposal.first_user,
-            url=shortlink(
-                self.proposal.url_for(_external=True, **self.tracking_tags('sms')),
-                shorter=True,
+            url=sms_shortlink(
+                self.proposal.url_for(_external=True, **self.tracking_tags('sms'))
             ),
         )
 
@@ -152,8 +151,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
     def sms(self) -> ProposalSubmittedTemplate:
         return ProposalSubmittedTemplate(
             project=self.proposal.project,
-            url=shortlink(
-                self.proposal.url_for(_external=True, **self.tracking_tags('sms')),
-                shorter=True,
+            url=sms_shortlink(
+                self.proposal.url_for(_external=True, **self.tracking_tags('sms'))
             ),
         )

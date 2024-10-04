@@ -8,7 +8,7 @@ from baseframe import _, __
 
 from ...models import Account, Project, ProjectUpdateNotification, Update
 from ...transports.sms import SmsPriority, SmsTemplate
-from ..helpers import shortlink
+from ..helpers import sms_shortlink
 from ..notification import RenderNotification
 from .mixins import TemplateVarMixin
 
@@ -90,16 +90,14 @@ class RenderProjectUpdateNotification(RenderNotification):
         if len(self.update.project.title_parts) == 1:
             return UpdateMergedTitleTemplate(
                 project=self.update.project,
-                url=shortlink(
-                    self.update.url_for(_external=True, **self.tracking_tags('sms')),
-                    shorter=True,
+                url=sms_shortlink(
+                    self.update.url_for(_external=True, **self.tracking_tags('sms'))
                 ),
             )
         return UpdateSplitTitleTemplate(
             project_title=self.update.project,
             account_title=self.update.project.account,
-            url=shortlink(
-                self.update.url_for(_external=True, **self.tracking_tags('sms')),
-                shorter=True,
+            url=sms_shortlink(
+                self.update.url_for(_external=True, **self.tracking_tags('sms'))
             ),
         )

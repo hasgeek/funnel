@@ -718,18 +718,40 @@ def cleanurl_filter(url: str | furl) -> str:
 
 
 @app.template_filter('shortlink')
-def shortlink(url: str, actor: Account | None = None, shorter: bool = True) -> str:
+def shortlink(
+    url: str,
+    actor: Account | None = None,
+    shorter: bool = True,
+    header: str | None = None,
+) -> str:
     """
     Return a short link suitable for sharing, in a template filter.
 
     Caller must perform a database commit.
 
+    :param url: URL to shorten
+    :param actor: Optional actor to save against the shortlink
     :param shorter: Use a shorter shortlink, ideal for SMS or a small database
+    :param header: Insert a brand header into the shortlink, for SMS DLT
     """
     sl = Shortlink.new(url, reuse=True, shorter=shorter, actor=actor)
     db.session.add(sl)
     g.require_db_commit = True
+    if header is not None:
+        return app_url_for(
+            shortlinkapp, 'link', name=sl.name, header=header, _external=True
+        )
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
+
+
+def sms_shortlink(url: str) -> str:
+    """SMS version of :func:`shortlink`.
+
+    :param url: URL to shorten
+    """
+    return shortlink(
+        url, shorter=True, header=app.config.get('SMS_DLT_SHORTURL_HEADER')
+    )
 
 
 # MARK: Request/response handlers ------------------------------------------------------
