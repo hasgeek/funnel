@@ -2,12 +2,12 @@ import { AJAX_TIMEOUT, RETRY_INTERVAL } from '../constants';
 import Analytics from './analytics';
 
 const Ticketing = {
-  init(tickets) {
+  init(tickets, membership = false) {
     if (tickets.boxofficeUrl) {
       this.initBoxfficeWidget(tickets);
     }
 
-    this.initTicketModal();
+    this.initTicketModal(membership);
   },
 
   initBoxfficeWidget({
@@ -114,8 +114,9 @@ const Ticketing = {
     );
   },
 
-  initTicketModal() {
+  initTicketModal(membership) {
     this.urlHash = '#tickets';
+    if (membership) this.urlHash = '#membership';
     if (window.location.hash.indexOf(this.urlHash) > -1) {
       this.openTicketModal();
     }
