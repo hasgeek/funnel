@@ -23,7 +23,7 @@ $(() => {
     initEmbed(markdownContainer);
 
     if (tickets) {
-      Ticketing.init(tickets);
+      Ticketing.init(tickets, true);
     }
   };
 });
