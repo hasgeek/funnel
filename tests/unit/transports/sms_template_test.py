@@ -237,5 +237,5 @@ def test_web_otp_template() -> None:
     t = sms.WebOtpTemplate(otp='1234')
     assert str(t) == (
         'OTP is 1234 for Hasgeek. If you did not request this, report misuse at '
-        'https://has.gy/not-my-otp\n\n@hasgeek.com #1234'
+        'https://hasgeek.com/account/not-my-otp\n\n@hasgeek.com #1234'
     )

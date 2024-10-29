@@ -55,5 +55,5 @@ def create_shortlink(
     return {
         'status': 'ok',
         'shortlink': app_url_for(shortlinkapp, 'link', name=sl.name, _external=True),
-        'url': url,
+        'url': str(url),
     }, status_code
