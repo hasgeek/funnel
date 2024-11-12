@@ -34,7 +34,8 @@
 
             .schedule__row__column__content__title__heading {
               cursor: pointer;
-              font-weight: 700;
+              font-weight: 500;
+              padding-bottom: $mui-grid-padding/2;
             }
 
             .schedule__row__column__content__title__heading:hover {
@@ -73,11 +74,9 @@
         }
 
         p.schedule__row__column__content__title__duration {
-          background-color: $mui-accent-color-lighter;
-          color: $mui-text-accent-lighter;
+          color: $mui-accent-color;
           z-index: 1;
-          float: right;
-          padding: 5px;
+          padding: 5px 0 $mui-grid-padding/2;
           border-radius: 3px;
           line-height: 1;
           margin-top: 4px;
@@ -193,7 +192,6 @@
           overflow: initial;
           .schedule__row__column {
             position: relative;
-            background-image: url('../../img/schedule-box-background.png');
             background-size: 20px 10px;
             min-width: 200px;
 
@@ -242,7 +240,9 @@
           .schedule__row__column--header {
             outline: 1px solid $mui-divider-color;
             border: none !important;
-            background-color: $mui-bg-color-primary;
+            background-color: $mui-primary-color-lighter;
+            font-size: 14px;
+            font-weight: 500;
           }
           .schedule__row__column--time--header {
             display: block;
