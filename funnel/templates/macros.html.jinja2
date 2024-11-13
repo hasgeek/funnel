@@ -191,7 +191,7 @@
         {% endif %}
         <div class="flex-wrapper flex-wrapper--end flex-wrapper--space-between flex-wrapper--wrap top-padding">
           {%- if include_details %}
-            <div class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.title and project.primary_venue.city %}{{ project.primary_venue.title }}, {{ project.primary_venue.city }}{% else %}{{ project.primary_venue.city }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</div>
+            <div class="card__body__location mui--text-light">{% if project.primary_venue.title and project.primary_venue.city %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.primary_venue.title }}, {{ project.primary_venue.city }}{% elif project.primary_venue.title %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.primary_venue.title }}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</div>
           {% endif %}
         </div>
       </div>
