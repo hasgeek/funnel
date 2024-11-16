@@ -190,8 +190,19 @@
           <p class="mui--text-body2 mui--text-light zero-top-margin search-snippets">{{ faicon(icon='search', css_class="search-icon", baseline=false) }} {{ snippet_html }}</p>
         {% endif %}
         <div class="flex-wrapper flex-wrapper--end flex-wrapper--space-between flex-wrapper--wrap top-padding">
-          {%- if include_details %}
-            <div class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</div>
+          {%- if include_details and (project.primary_venue or project.location) -%}
+            <div class="card__body__location mui--text-light">
+              {{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }}
+              {%- if project.primary_venue.title and project.primary_venue.city %}
+                {% trans venue=project.primary_venue.title, city=project.primary_venue.city -%}
+                  {{ venue }}, {{ city }}
+                {%- endtrans %}
+              {%- elif project.primary_venue.title %}
+                {{ project.primary_venue.title }}
+              {%- elif project.location %}
+                {{ project.location }}
+              {%- endif -%}
+            </div>
           {% endif %}
         </div>
       </div>
