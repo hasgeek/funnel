@@ -159,6 +159,12 @@
                       aria-label="{% trans %}Updates{% endtrans %}"
                       data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class="header__nav-links__icon") }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span>
                     </a>
+                    {# TODO: Add check for live event (and current participant?) #}
+                    <a href="{{ url_for('scan_contact') }}"
+                      class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if request.endpoint == 'scan_contact' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--scanbadge"
+                      aria-label="{% trans %}Scan{% endtrans %}"
+                      data-ga="Scan badge">{{ faicon(icon='barcode-read', baseline=false, css_class="header__nav-links__icon") }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Scan{% endtrans %}</span>
+                    </a>
                     <a href="#"
                       onclick="return false;"
                       class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-btn"
