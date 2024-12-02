@@ -32,15 +32,15 @@ from .helpers import (
 )
 
 __all__ = [
+    'EmailOtpForm',
+    'LoginForm',
     'LoginPasswordResetException',
     'LoginPasswordWeakException',
     'LoginWithOtp',
-    'LoginForm',
     'LogoutForm',
-    'RegisterWithOtp',
     'OtpForm',
-    'EmailOtpForm',
     'RegisterOtpForm',
+    'RegisterWithOtp',
 ]
 
 

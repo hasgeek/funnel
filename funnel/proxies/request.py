@@ -13,7 +13,7 @@ from werkzeug.utils import cached_property
 
 from ..typing import ResponseType, T
 
-__all__ = ['request_wants', 'RequestWants']
+__all__ = ['RequestWants', 'request_wants']
 
 
 RequestWantsType = TypeVar('RequestWantsType', bound='RequestWants')

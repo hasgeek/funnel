@@ -131,7 +131,7 @@ def test_reopen() -> None:
 
         @mhelpers.reopen(OriginalClass)
         class HasSlots:  # pylint: disable=unused-variable
-            __slots__ = ['spam', 'eggs']
+            __slots__ = ['eggs', 'spam']
 
 
 def test_add_to_class() -> None:
