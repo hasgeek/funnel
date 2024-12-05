@@ -13,13 +13,13 @@ from .exc import (
 )
 
 __all__ = [
-    'TransportError',
     'TransportConnectionError',
+    'TransportError',
     'TransportRecipientError',
     'TransportTransactionError',
+    'email',
     'init',
     'platform_transports',
-    'email',
     'sms',
     'telegram',
     'webpush',

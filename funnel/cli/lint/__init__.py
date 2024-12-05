@@ -10,4 +10,4 @@ from . import jinja
 
 app.cli.add_command(lint)
 
-__all__ = ['lint', 'jinja']
+__all__ = ['jinja', 'lint']

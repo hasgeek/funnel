@@ -34,10 +34,10 @@ from .reorder_mixin import ReorderMixin
 
 # Export only symbols needed in views.
 __all__ = [
-    'MembershipRecordTypeEnum',
     'MembershipError',
-    'MembershipRevokedError',
+    'MembershipRecordTypeEnum',
     'MembershipRecordTypeError',
+    'MembershipRevokedError',
 ]
 
 # MARK: Typing -------------------------------------------------------------------------

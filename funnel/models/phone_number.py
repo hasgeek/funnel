@@ -34,17 +34,17 @@ from .base import (
 )
 
 __all__ = [
-    'PhoneNumberError',
-    'PhoneNumberInvalidError',
-    'PhoneNumberBlockedError',
-    'PhoneNumberInUseError',
-    'parse_phone_number',
-    'validate_phone_number',
-    'canonical_phone_number',
-    'phone_blake2b160_hash',
-    'PhoneNumber',
     'OptionalPhoneNumberMixin',
+    'PhoneNumber',
+    'PhoneNumberBlockedError',
+    'PhoneNumberError',
+    'PhoneNumberInUseError',
+    'PhoneNumberInvalidError',
     'PhoneNumberMixin',
+    'canonical_phone_number',
+    'parse_phone_number',
+    'phone_blake2b160_hash',
+    'validate_phone_number',
 ]
 
 # MARK: Enums and constants ------------------------------------------------------------

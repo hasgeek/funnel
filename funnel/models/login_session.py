@@ -22,13 +22,13 @@ from .base import (
 )
 
 __all__ = [
+    'LOGIN_SESSION_VALIDITY_PERIOD',
     'LoginSession',
     'LoginSessionError',
     'LoginSessionExpiredError',
-    'LoginSessionRevokedError',
     'LoginSessionInactiveUserError',
+    'LoginSessionRevokedError',
     'auth_client_login_session',
-    'LOGIN_SESSION_VALIDITY_PERIOD',
 ]
 
 

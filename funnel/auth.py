@@ -13,8 +13,8 @@ from .models import User
 
 __all__ = [
     'CurrentAuth',
-    'add_auth_attribute',
     'add_auth_anchor',
+    'add_auth_attribute',
     'current_auth',
     'request_has_auth',
 ]
