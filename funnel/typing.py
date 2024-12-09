@@ -10,15 +10,15 @@ from werkzeug.wrappers import Response  # Base class for Flask Response
 from coaster.views import ReturnRenderWith
 
 __all__ = [
-    'T',
-    'T_co',
-    'P',
     'OptionalMigratedTables',
+    'P',
+    'ResponseReturnValue',
+    'ResponseType',
     'ReturnRenderWith',
     'ReturnResponse',
     'ReturnView',
-    'ResponseType',
-    'ResponseReturnValue',
+    'T',
+    'T_co',
 ]
 
 #: Type used to indicate type continuity within a block of code

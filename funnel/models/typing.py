@@ -14,13 +14,13 @@ from coaster.sqlalchemy import LazyRoleSet, QueryProperty, RoleAccessProxy
 from coaster.utils import InspectableSet
 
 __all__ = [
+    'ModelIdProtocol',
     'ModelProtocol',
+    'ModelRoleProtocol',
+    'ModelSearchProtocol',
     'ModelTimestampProtocol',
     'ModelUrlProtocol',
-    'ModelRoleProtocol',
-    'ModelIdProtocol',
     'ModelUuidProtocol',
-    'ModelSearchProtocol',
 ]
 
 

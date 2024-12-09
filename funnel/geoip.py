@@ -8,7 +8,7 @@ from geoip2.database import Reader
 from geoip2.errors import AddressNotFoundError, GeoIP2Error
 from geoip2.models import ASN, City
 
-__all__ = ['GeoIP', 'geoip', 'GeoIP2Error', 'AddressNotFoundError']
+__all__ = ['AddressNotFoundError', 'GeoIP', 'GeoIP2Error', 'geoip']
 
 
 @dataclass
