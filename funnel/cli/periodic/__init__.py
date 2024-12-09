@@ -12,4 +12,4 @@ from . import mnrl, notification, stats
 
 app.cli.add_command(periodic)
 
-__all__ = ['periodic', 'mnrl', 'notification', 'stats']
+__all__ = ['mnrl', 'notification', 'periodic', 'stats']

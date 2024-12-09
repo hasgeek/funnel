@@ -35,10 +35,10 @@ from .base import (
 from .helpers import IntTitle
 
 __all__ = [
-    'MailerState',
     'Mailer',
     'MailerDraft',
     'MailerRecipient',
+    'MailerState',
 ]
 
 NAMESPLIT_RE = re.compile(r'[\W\.]+')
