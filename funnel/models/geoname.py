@@ -26,7 +26,7 @@ from .base import (
 )
 from .helpers import quote_autocomplete_like
 
-__all__ = ['GeoName', 'GeoCountryInfo', 'GeoAdmin1Code', 'GeoAdmin2Code', 'GeoAltName']
+__all__ = ['GeoAdmin1Code', 'GeoAdmin2Code', 'GeoAltName', 'GeoCountryInfo', 'GeoName']
 
 
 NOWORDS_RE = re.compile(r'(\W+)', re.UNICODE)

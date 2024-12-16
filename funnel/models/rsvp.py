@@ -28,7 +28,7 @@ from .base import (
 from .project import Project
 from .project_membership import project_child_role_map
 
-__all__ = ['RSVP_STATUS', 'RsvpStateEnum', 'Rsvp']
+__all__ = ['RSVP_STATUS', 'Rsvp', 'RsvpStateEnum']
 
 
 class RSVP_STATUS(LabeledEnum):  # noqa: N801
