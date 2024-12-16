@@ -10,4 +10,4 @@ from . import markdown
 
 app.cli.add_command(refresh)
 
-__all__ = ['refresh', 'markdown']
+__all__ = ['markdown', 'refresh']
