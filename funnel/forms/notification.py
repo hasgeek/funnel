@@ -14,9 +14,9 @@ from ..models import Account, notification_type_registry
 from ..transports import platform_transports
 
 __all__ = [
-    'transport_labels',
-    'UnsubscribeForm',
     'SetNotificationPreferenceForm',
+    'UnsubscribeForm',
+    'transport_labels',
 ]
 
 

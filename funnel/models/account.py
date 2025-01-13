@@ -83,23 +83,23 @@ from .phone_number import PhoneNumber, PhoneNumberMixin
 
 __all__ = [
     'ACCOUNT_STATE',
-    'AccountNameProblem',
     'Account',
     'AccountEmail',
     'AccountEmailClaim',
     'AccountExternalId',
+    'AccountNameProblem',
     'AccountOldId',
     'AccountPhone',
     'Anchor',
     'Community',
-    'deleted_account',
     'DuckTypeAccount',
     'Organization',
     'Placeholder',
-    'removed_account',
     'Team',
-    'unknown_account',
     'User',
+    'deleted_account',
+    'removed_account',
+    'unknown_account',
 ]
 
 

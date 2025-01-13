@@ -16,8 +16,8 @@ from ..models import (
 from .helpers import strip_filters
 
 __all__ = [
-    'AuthClientForm',
     'AuthClientCredentialForm',
+    'AuthClientForm',
     'AuthClientPermissionEditForm',
     'UserPermissionAssignForm',
 ]

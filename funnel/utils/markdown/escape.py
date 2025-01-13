@@ -62,7 +62,7 @@ class _MarkdownEscapeFormatter(string.Formatter):
 class _MarkdownEscapeHelper:
     """Helper for :meth:`MarkdownString.__mod__`."""
 
-    __slots__ = ('obj', 'escape')
+    __slots__ = ('escape', 'obj')
 
     def __init__(self, obj: Any, escape: Callable[[Any], MarkdownString]) -> None:
         self.obj = obj

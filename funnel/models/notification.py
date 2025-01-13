@@ -139,15 +139,15 @@ from .phone_number import PhoneNumber, PhoneNumberMixin
 from .typing import ModelUuidProtocol
 
 __all__ = [
-    'SmsStatusEnum',
-    'notification_categories',
-    'SmsMessage',
-    'NotificationType',
     'Notification',
-    'PreviewNotification',
+    'NotificationFor',
     'NotificationPreferences',
     'NotificationRecipient',
-    'NotificationFor',
+    'NotificationType',
+    'PreviewNotification',
+    'SmsMessage',
+    'SmsStatusEnum',
+    'notification_categories',
     'notification_type_registry',
     'notification_web_types',
 ]
@@ -795,7 +795,7 @@ class NotificationRecipientProtoMixin:
             is missing
         """
         with suppress(NoResultFound):
-            return bool(self.fragment and self.document or self.document)
+            return bool((self.fragment and self.document) or self.document)
         if revoke:
             self.is_revoked = True
             # Do not set `self.rollupid` because this is not a rollup

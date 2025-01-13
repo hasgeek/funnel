@@ -388,7 +388,7 @@ def user_agent_details(obj: LoginSession) -> dict[str, Any]:
             # Windows 11 is reported as Windows 10
             platform = "Windows"
         else:
-            platform = f"{ ua.os.family or ''} {ua.os.version_string or ''}".strip()
+            platform = f"{ua.os.family or ''} {ua.os.version_string or ''}".strip()
 
     if device:
         device_platform = f'{device} ({platform})'

@@ -38,12 +38,12 @@ from .mdit_plugins import (
 from .tabs import render_tab
 
 __all__ = [
-    'MarkdownPlugin',
     'MarkdownConfig',
+    'MarkdownPlugin',
     'markdown_basic',
     'markdown_document',
-    'markdown_mailer',
     'markdown_inline',
+    'markdown_mailer',
 ]
 
 

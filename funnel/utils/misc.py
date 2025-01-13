@@ -15,15 +15,15 @@ from flask import abort
 
 __all__ = [
     'TIMEDELTA_1DAY',
-    'blake2b160_hex',
     'abort_null',
+    'blake2b160_hex',
+    'extract_twitter_handle',
+    'format_twitter_handle',
+    'make_qrcode',
     'make_redirect_url',
     'mask_email',
     'mask_phone',
-    'extract_twitter_handle',
-    'format_twitter_handle',
     'split_name',
-    'make_qrcode',
 ]
 
 TIMEDELTA_1DAY = timedelta(days=1)

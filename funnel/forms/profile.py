@@ -9,11 +9,11 @@ from .helpers import image_url_validator, nullable_strip_filters
 from .organization import OrganizationForm
 
 __all__ = [
+    'FollowForm',
+    'ProfileBannerForm',
     'ProfileForm',
     'ProfileLogoForm',
-    'ProfileBannerForm',
     'ProfileTransitionForm',
-    'FollowForm',
 ]
 
 

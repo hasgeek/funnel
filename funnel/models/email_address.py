@@ -44,12 +44,12 @@ from .base import (
 
 __all__ = [
     'EMAIL_DELIVERY_STATE',
-    'EmailAddressError',
-    'EmailAddressBlockedError',
-    'EmailAddressInUseError',
     'EmailAddress',
-    'OptionalEmailAddressMixin',
+    'EmailAddressBlockedError',
+    'EmailAddressError',
+    'EmailAddressInUseError',
     'EmailAddressMixin',
+    'OptionalEmailAddressMixin',
 ]
 
 

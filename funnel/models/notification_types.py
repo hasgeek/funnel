@@ -22,21 +22,21 @@ from .session import Session
 from .update import Update
 
 __all__ = [
+    'AccountAdminNotification',
+    'AccountAdminRevokedNotification',
     'AccountPasswordNotification',
-    'ProjectUpdateNotification',
-    'CommentReportReceivedNotification',
     'CommentReplyNotification',
+    'CommentReportReceivedNotification',
     'NewCommentNotification',
     'ProjectCrewNotification',
     'ProjectCrewRevokedNotification',
+    'ProjectStartingNotification',
+    'ProjectTomorrowNotification',
+    'ProjectUpdateNotification',
     'ProposalReceivedNotification',
     'ProposalSubmittedNotification',
     'RegistrationCancellationNotification',
     'RegistrationConfirmationNotification',
-    'ProjectStartingNotification',
-    'ProjectTomorrowNotification',
-    'AccountAdminNotification',
-    'AccountAdminRevokedNotification',
 ]
 
 # MARK: Protocol and Mixin classes -----------------------------------------------------

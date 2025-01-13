@@ -21,18 +21,18 @@ from .helpers import (
 
 __all__ = [
     'CfpForm',
+    'ProjectAssignParentForm',
+    'ProjectBannerForm',
     'ProjectCfpTransitionForm',
+    'ProjectFeaturedForm',
     'ProjectForm',
     'ProjectLivestreamForm',
     'ProjectNameForm',
-    'ProjectFeaturedForm',
-    'ProjectTransitionForm',
-    'ProjectBannerForm',
+    'ProjectRegisterForm',
     'ProjectSponsorForm',
+    'ProjectTransitionForm',
     'RsvpTransitionForm',
     'SavedProjectForm',
-    'ProjectRegisterForm',
-    'ProjectAssignParentForm',
 ]
 
 double_quote_re = re.compile(r'["“”]')

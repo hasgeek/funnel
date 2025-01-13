@@ -6,7 +6,7 @@ from furl import furl
 
 from .base import Mapped, declarative_mixin, sa, sa_orm
 
-__all__ = ['VideoMixin', 'VideoError', 'parse_video_url']
+__all__ = ['VideoError', 'VideoMixin', 'parse_video_url']
 
 
 class VideoError(Exception):
