@@ -168,6 +168,9 @@ def merge_accounts(current_account: _A1, other_account: _A2) -> _A1 | _A2 | None
             # Push this change to the db so that the name can be re-assigned
             db.session.flush()
             keep_account.name = name
+        else:
+            # Release name of the merged account
+            merge_account.name = None
         if keep_account == other_account:
             # The user's currently logged in account is being discarded, so transfer
             # their password over
