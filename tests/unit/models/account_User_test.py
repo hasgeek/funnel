@@ -490,3 +490,65 @@ def test_user_get(
 
     lookup_by_buid = models.User.get(buid=user_rincewind.buid)
     assert lookup_by_buid == user_death
+
+
+def test_merge_username_delete1(
+    db_session: scoped_session, user_death: models.User, user_rincewind: models.User
+) -> None:
+    """Test for discarding merged account username."""
+    db_session.commit()  # Add SQL timestamps
+    assert user_death.username
+    username_death = user_death.username
+    assert user_rincewind.username
+    user_kept = models.merge_accounts(user_death, user_rincewind)
+    db_session.commit()
+    assert user_kept is user_death
+    assert user_death.username == username_death
+    assert user_rincewind.username is None
+
+
+def test_merge_username_delete2(
+    db_session: scoped_session, user_death: models.User, user_rincewind: models.User
+) -> None:
+    """Test for discarding merged account username (reversed order)."""
+    db_session.commit()  # Add SQL timestamps
+    assert user_death.username
+    username_death = user_death.username
+    assert user_rincewind.username
+    user_kept = models.merge_accounts(user_rincewind, user_death)
+    db_session.commit()
+    assert user_kept is user_death
+    assert user_death.username == username_death
+    assert user_rincewind.username is None
+
+
+def test_merge_username_transfer1(
+    db_session: scoped_session, user_death: models.User, user_rincewind: models.User
+) -> None:
+    """Test for transferring merged account username."""
+    user_death.username = None  # Remove username for transfer
+    db_session.commit()  # Add SQL timestamps
+    assert user_death.username is None
+    assert user_rincewind.username
+    username_rincewind = user_rincewind.username
+    user_kept = models.merge_accounts(user_death, user_rincewind)
+    db_session.commit()
+    assert user_kept is user_death
+    assert user_death.username == username_rincewind
+    assert user_rincewind.username is None
+
+
+def test_merge_username_transfer2(
+    db_session: scoped_session, user_death: models.User, user_rincewind: models.User
+) -> None:
+    """Test for transferring merged account username (reversed order)."""
+    user_death.username = None  # Remove username for transfer
+    db_session.commit()  # Add SQL timestamps
+    assert user_death.username is None
+    assert user_rincewind.username
+    username_rincewind = user_rincewind.username
+    user_kept = models.merge_accounts(user_rincewind, user_death)
+    db_session.commit()
+    assert user_kept is user_death
+    assert user_death.username == username_rincewind
+    assert user_rincewind.username is None
