@@ -413,7 +413,7 @@ def print_stack(
                     )
 
             if limit and limit < len(stack):
-                lines.append(Text.assemble((f'✂️ {len(stack)-limit} more…', 'dim')))
+                lines.append(Text.assemble((f'✂️ {len(stack) - limit} more…', 'dim')))
         finally:
             del stack
         # Now print the lines

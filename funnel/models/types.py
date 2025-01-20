@@ -18,20 +18,20 @@ from coaster.sqlalchemy import (
 )
 
 __all__ = [
-    'int_pkey',
-    'uuid4_pkey',
+    'Char2',
+    'Char3',
+    'Jsonb',
+    'JsonbDict',
+    'Str3',
+    'Str16',
+    'Text',
+    'Unicode',
     'bigint',
+    'int_pkey',
     'smallint',
     'timestamp',
     'timestamp_now',
-    'Unicode',
-    'Text',
-    'Jsonb',
-    'JsonbDict',
-    'Char2',
-    'Char3',
-    'Str3',
-    'Str16',
+    'uuid4_pkey',
 ]
 
 Unicode: TypeAlias = Annotated[str, mapped_column(sa.Unicode())]

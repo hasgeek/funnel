@@ -36,12 +36,12 @@ from .base import (
 from .login_session import LoginSession, auth_client_login_session
 
 __all__ = [
-    'AuthCode',
-    'AuthToken',
     'AuthClient',
     'AuthClientCredential',
-    'AuthClientTeamPermissions',
     'AuthClientPermissions',
+    'AuthClientTeamPermissions',
+    'AuthCode',
+    'AuthToken',
 ]
 
 

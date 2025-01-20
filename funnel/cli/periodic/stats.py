@@ -358,7 +358,7 @@ async def user_stats() -> dict[str, ResourceStats]:
         }
     )
 
-    for key in stats:
+    for key in list(stats.keys()):
         if key not in ('login_sessions', 'app_login_sessions', 'returning_users'):
             stats[key].set_trend_symbols()
 

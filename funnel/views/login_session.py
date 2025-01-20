@@ -480,18 +480,18 @@ def requires_user_not_spammy(
 
 @overload
 def requires_login(
-    __message_or_func: str,
+    __message_or_func: str, /
 ) -> Callable[[Callable[P, T]], Callable[P, T | ReturnResponse]]: ...
 
 
 @overload
 def requires_login(
-    __message_or_func: Callable[P, T],
+    __message_or_func: Callable[P, T], /
 ) -> Callable[P, T | ReturnResponse]: ...
 
 
 def requires_login(
-    __message_or_func: str | Callable[P, T],
+    __message_or_func: str | Callable[P, T], /
 ) -> (
     Callable[[Callable[P, T]], Callable[P, T | ReturnResponse]]
     | Callable[P, T | ReturnResponse]

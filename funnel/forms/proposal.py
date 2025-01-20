@@ -9,13 +9,13 @@ from ..models import Account, Project, Proposal
 from .helpers import nullable_strip_filters, video_url_validator
 
 __all__ = [
-    'ProposalForm',
     'ProposalFeaturedForm',
+    'ProposalForm',
     'ProposalLabelsAdminForm',
     'ProposalLabelsForm',
+    'ProposalMemberForm',
     'ProposalMoveForm',
     'ProposalTransitionForm',
-    'ProposalMemberForm',
 ]
 
 # FIXME: As labels are user generated content (UGC), these form constructors will

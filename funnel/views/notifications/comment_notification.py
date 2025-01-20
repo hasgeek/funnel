@@ -35,8 +35,7 @@ class CommentReplyTemplate(TemplateVarMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop -Hasgeek'
     )
     template = (
-        '{actor} has replied to your comment: {url}'
-        '\n\nhttps://bye.li to stop -Hasgeek'
+        '{actor} has replied to your comment: {url}\n\nhttps://bye.li to stop -Hasgeek'
     )
     plaintext_template = '{actor} has replied to your comment: {url}'
     message_priority = SmsPriority.NORMAL
@@ -52,8 +51,7 @@ class CommentProposalTemplate(TemplateVarMixin, SmsTemplate):
         '\n\nhttps://bye.li to stop -Hasgeek'
     )
     template = (
-        '{actor} commented on your submission: {url}'
-        '\n\nhttps://bye.li to stop -Hasgeek'
+        '{actor} commented on your submission: {url}\n\nhttps://bye.li to stop -Hasgeek'
     )
     plaintext_template = '{actor} commented on your submission: {url}'
     message_priority = SmsPriority.NORMAL

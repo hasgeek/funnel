@@ -37,8 +37,7 @@ class SessionForm(forms.Form):
     banner_image_url = forms.URLField(
         __("Banner image URL"),
         description=__(
-            "From images.hasgeek.com, with 16:9 aspect ratio."
-            " Should be < 50 kB in size"
+            "From images.hasgeek.com, with 16:9 aspect ratio. Should be < 50 kB in size"
         ),
         validators=[
             forms.validators.Optional(),

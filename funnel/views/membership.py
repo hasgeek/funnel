@@ -204,8 +204,7 @@ class OrganizationMembershipView(
                     return {
                         'status': 'error',
                         'error_description': _(
-                            "This member’s record was edited elsewhere."
-                            " Reload the page"
+                            "This member’s record was edited elsewhere. Reload the page"
                         ),
                     }, 422
                 if new_membership != previous_membership:
@@ -481,8 +480,7 @@ class ProjectMembershipView(ProjectMembershipViewBase):
                     return {
                         'status': 'error',
                         'error_description': _(
-                            "The member’s record was edited elsewhere."
-                            " Reload the page"
+                            "The member’s record was edited elsewhere. Reload the page"
                         ),
                     }, 422
                 if new_membership != previous_membership:

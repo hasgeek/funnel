@@ -23,8 +23,8 @@ from .phone_number import PHONE_LOOKUP_REGIONS
 from .typing import ModelIdProtocol
 
 __all__ = [
-    'IncompleteUserMigrationError',
     'AccountAndAnchor',
+    'IncompleteUserMigrationError',
     'getextid',
     'getuser',
     'merge_accounts',

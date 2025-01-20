@@ -34,17 +34,17 @@ from .base import (
 )
 
 __all__ = [
-    'PhoneNumberError',
-    'PhoneNumberInvalidError',
-    'PhoneNumberBlockedError',
-    'PhoneNumberInUseError',
-    'parse_phone_number',
-    'validate_phone_number',
-    'canonical_phone_number',
-    'phone_blake2b160_hash',
-    'PhoneNumber',
     'OptionalPhoneNumberMixin',
+    'PhoneNumber',
+    'PhoneNumberBlockedError',
+    'PhoneNumberError',
+    'PhoneNumberInUseError',
+    'PhoneNumberInvalidError',
     'PhoneNumberMixin',
+    'canonical_phone_number',
+    'parse_phone_number',
+    'phone_blake2b160_hash',
+    'validate_phone_number',
 ]
 
 # MARK: Enums and constants ------------------------------------------------------------
@@ -783,7 +783,7 @@ class OptionalPhoneNumberMixin:
         return None
 
     @phone.setter
-    def phone(self, __value: str | None) -> None:
+    def phone(self, __value: str | None, /) -> None:
         if self.__phone_for__:
             if __value is not None:
                 self.phone_number = PhoneNumber.add_for(
@@ -835,7 +835,7 @@ class PhoneNumberMixin(OptionalPhoneNumberMixin):
         def phone(self) -> str: ...
 
         @phone.setter
-        def phone(self, __value: str) -> None: ...
+        def phone(self, __value: str, /) -> None: ...
 
         @property
         def transport_hash(self) -> str: ...

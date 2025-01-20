@@ -309,10 +309,9 @@ select = [
   "YTT",    # flake8-2020
 ]
 ignore = [
+  "A005",    # Shadowing a Python standard-library module is okay as they're namespaced
   "ANN002",  # `*args` is implicit `Any`
   "ANN003",  # `**kwargs` is implicit `Any`
-  "ANN101",  # `self` type is implicit
-  "ANN102",  # `cls` type is implicit
   "ANN401",  # Allow `Any` type
   "C901",
   "D101",

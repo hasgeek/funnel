@@ -30,25 +30,25 @@ from ..utils import MarkdownConfig, MarkdownString, markdown_escape
 from .base import Model, UrlType, sa, sa_orm
 
 __all__ = [
-    'RESERVED_NAMES',
-    'PASSWORD_MIN_LENGTH',
     'PASSWORD_MAX_LENGTH',
-    'IntTitle',
-    'check_password_strength',
-    'profanity',
-    'add_to_class',
-    'add_search_trigger',
-    'visual_field_delimiter',
-    'valid_name',
-    'valid_account_name',
-    'quote_autocomplete_like',
-    'quote_autocomplete_tsquery',
+    'PASSWORD_MIN_LENGTH',
+    'RESERVED_NAMES',
     'ImgeeFurl',
     'ImgeeType',
+    'IntTitle',
     'MarkdownCompositeBase',
     'MarkdownCompositeBasic',
     'MarkdownCompositeDocument',
     'MarkdownCompositeInline',
+    'add_search_trigger',
+    'add_to_class',
+    'check_password_strength',
+    'profanity',
+    'quote_autocomplete_like',
+    'quote_autocomplete_tsquery',
+    'valid_account_name',
+    'valid_name',
+    'visual_field_delimiter',
 ]
 
 RESERVED_NAMES: set[str] = {
@@ -697,8 +697,7 @@ class MarkdownCompositeBase(MutableComposite):
         return (
             isinstance(other, self.__class__)
             and (self.__composite_values__() == other.__composite_values__())
-            or self._text == other
-        )
+        ) or self._text == other
 
     def __ne__(self, other: object) -> bool:
         """Compare for inequality."""

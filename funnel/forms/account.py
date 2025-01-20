@@ -34,23 +34,23 @@ from .helpers import (
 )
 
 __all__ = [
-    'PasswordForm',
-    'PasswordCreateForm',
-    'PasswordPolicyForm',
-    'PasswordResetRequestForm',
-    'PasswordResetForm',
-    'PasswordChangeForm',
-    'AccountForm',
     'AccountDeleteForm',
-    'UsernameAvailableForm',
+    'AccountForm',
     'EmailPrimaryForm',
     'ModeratorReportForm',
     'NewEmailAddressForm',
     'NewPhoneForm',
+    'PasswordChangeForm',
+    'PasswordCreateForm',
+    'PasswordForm',
+    'PasswordPolicyForm',
+    'PasswordResetForm',
+    'PasswordResetRequestForm',
     'PhonePrimaryForm',
+    'UsernameAvailableForm',
+    'pwned_password_validator',
     'supported_locales',
     'timezone_identifiers',
-    'pwned_password_validator',
 ]
 
 

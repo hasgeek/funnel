@@ -38,8 +38,8 @@ from .helpers import make_cached_token
 from .jobs import rqjob
 
 __all__ = [
-    'DecisionFactorBase',
     'DecisionBranchBase',
+    'DecisionFactorBase',
     'RenderNotification',
     'dispatch_notification',
 ]

@@ -31,7 +31,7 @@ from .helpers import (
 )
 from .project import Project
 
-__all__ = ['Update', 'VISIBILITY_STATE']
+__all__ = ['VISIBILITY_STATE', 'Update']
 
 
 class UPDATE_STATE(LabeledEnum):  # noqa: N801

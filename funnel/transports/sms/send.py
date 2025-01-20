@@ -28,12 +28,12 @@ from ..exc import (
 from .template import SmsPriority, SmsTemplate
 
 __all__ = [
+    'init',
     'make_exotel_token',
-    'validate_exotel_token',
+    'send_sms',
     'send_via_exotel',
     'send_via_twilio',
-    'send_sms',
-    'init',
+    'validate_exotel_token',
 ]
 
 DND_END_HOUR = 9

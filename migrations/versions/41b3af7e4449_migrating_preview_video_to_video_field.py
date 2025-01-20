@@ -85,8 +85,7 @@ def parse_video_url(video_url: str) -> tuple[str, str]:
             video_source = 'vimeo'
         else:
             raise ValueError(
-                "Vimeo video URLs need to be in the format: "
-                "https://vimeo.com/336892869"
+                "Vimeo video URLs need to be in the format: https://vimeo.com/336892869"
             )
     elif parsed.netloc == 'drive.google.com':
         if parsed.path.startswith('/open'):
