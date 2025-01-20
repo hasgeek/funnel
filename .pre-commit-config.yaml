@@ -11,7 +11,7 @@ ci:
       'no-commit-to-branch',
       # 'hadolint-docker',
       'docker-compose-check',
-      'mypy', # Runs as a local hook now
+      'mypy-local', # Runs as a local hook now
     ]
 repos:
   - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
@@ -147,7 +147,7 @@ repos:
       - id: docker-compose-check
   - repo: local
     hooks:
-      - id: mypy
+      - id: mypy-local
         name: mypy
         entry: .venv/bin/mypy
         args:

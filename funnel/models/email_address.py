@@ -785,7 +785,7 @@ class OptionalEmailAddressMixin:
         return None
 
     @email.setter
-    def email(self, __value: str | None) -> None:
+    def email(self, __value: str | None, /) -> None:
         """Set an email address."""
         if self.__email_for__:
             if __value is not None:
@@ -842,7 +842,7 @@ class EmailAddressMixin(OptionalEmailAddressMixin):
         def email(self) -> str: ...
 
         @email.setter
-        def email(self, __value: str) -> None: ...
+        def email(self, __value: str, /) -> None: ...
 
         @property
         def transport_hash(self) -> str: ...

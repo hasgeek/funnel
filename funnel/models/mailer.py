@@ -44,7 +44,7 @@ __all__ = [
 NAMESPLIT_RE = re.compile(r'[\W\.]+')
 
 EMAIL_TAGS = dict(MARKDOWN_HTML_TAGS)
-for _key in EMAIL_TAGS:
+for _key in list(EMAIL_TAGS.keys()):
     EMAIL_TAGS[_key].append('class')
     EMAIL_TAGS[_key].append('style')
 
