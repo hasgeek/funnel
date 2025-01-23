@@ -335,8 +335,11 @@ class TicketParticipant(
     def get(
         cls, current_project: Project, current_email: str
     ) -> TicketParticipant | None:
+        email_address = EmailAddress.get(current_email)
+        if not email_address:
+            return None
         return cls.query.filter_by(
-            project=current_project, email_address=EmailAddress.get(current_email)
+            project=current_project, email_address=email_address
         ).one_or_none()
 
     @classmethod
