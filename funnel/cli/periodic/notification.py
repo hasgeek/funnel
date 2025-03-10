@@ -54,9 +54,17 @@ def project_starting_alert() -> None:
         .options(sa_orm.load_only(models.Project.uuid))
         .all()
     ):
-        dispatch_notification(
-            models.ProjectTomorrowNotification(
-                document=project,
-                fragment=project.next_session_from(use_now + timedelta(hours=24)),
+        session = project.next_session_from(use_now + timedelta(hours=24))
+        if session is not None and session.venue_room_id is None:
+            # A project can have both online sessions and in-person sessions. If the
+            # next session in 24 hours is an online session, it should not cause a
+            # notification for an in-person session. We identify online sessions by the
+            # lack of a venue room assignment
+            pass
+        else:
+            dispatch_notification(
+                models.ProjectTomorrowNotification(
+                    document=project,
+                    fragment=session,
+                )
             )
-        )
