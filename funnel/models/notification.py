@@ -353,12 +353,16 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
     #: SQL table name for fragment type, auto-populated from the fragment model
     fragment_type: ClassVar[str | None]
 
+    # TODO: When PEP 767 is accepted, replace this property with
+    # `dispatch_roles: ReadOnly[Sequence[str]] = []`
+    # This is NOT a ClassVar. Subclasses can replace it with an instance property
+
     #: Roles to send notifications to. Roles must be in order of priority for situations
     #: where a user has more than one role on the document. The notification can
     #: customize target roles based on the document or fragment's properties
     @property
     def dispatch_roles(self) -> Sequence[str]:
-        return []
+        return ()
 
     #: Exclude triggering actor from receiving notifications? Subclasses may override
     exclude_actor: ClassVar[bool] = False
