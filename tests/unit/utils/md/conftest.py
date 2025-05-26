@@ -99,12 +99,7 @@ class MarkdownTestRegistry:
                         ),
                     )
                     for md_configname, config in {
-                        **{
-                            p: None
-                            for p in config.get(  # type: ignore[union-attr]
-                                'profiles', []
-                            )
-                        },
+                        **dict.fromkeys(config.get('profiles', [])),
                         **config.get('custom_profiles', {}),  # type: ignore[union-attr]
                     }.items()
                 }

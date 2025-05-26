@@ -634,9 +634,7 @@ class FrozenAttributionMixin:
         return self._title if self._title else self.member.pickername
 
     @with_roles(call={'owner', 'member'})
-    def freeze_member_attribution(
-        self: FrozenAttributionType, actor: Account
-    ) -> FrozenAttributionType:
+    def freeze_member_attribution(self, actor: Account) -> Self:
         """Freeze member attribution and return a replacement record."""
         if self._title is None:
             membership = self.replace(actor=actor, title=self.member.title)
@@ -687,9 +685,7 @@ class AmendMembership(Generic[MembershipType]):
             raise AttributeError(
                 f"{attr} cannot be set",
                 name=attr,
-                obj=SimpleNamespace(
-                    **{_: None for _ in self.membership.__data_columns__}
-                ),
+                obj=SimpleNamespace(**dict.fromkeys(self.membership.__data_columns__)),
             )
         self._new[attr] = value
 
