@@ -4,7 +4,7 @@
 
     <tr align="center">
         <td class="text-content">
-            <p class="body-content">{%- trans project=view.project.joined_title, start_time=(view.session or view.project).start_at_localized|time -%}<b>{{ project }}</b> starts at {{ start_time }}{%- endtrans -%}</p>
+            <p class="body-content">{%- trans project=view.project.joined_title, start_time=view.start_time|time -%}<b>{{ project }}</b> starts at {{ start_time }}{%- endtrans -%}</p>
         </td>
     </tr>
     <br/>
