@@ -18,7 +18,7 @@ from flask import (
     session,
     url_for,
 )
-from markupsafe import Markup, escape
+from markupsafe import Markup
 
 from baseframe import _, cache, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -548,23 +548,23 @@ class AccountView(ClassView):
                     if claimed_user != current_auth.user:
                         return render_message(
                             title=_("Email address already claimed"),
-                            message=Markup(
+                            message=Markup(  # noqa: S704
                                 _(
                                     "The email address <code>{email}</code> has already"
                                     " been verified by another user"
-                                ).format(email=escape(claimed_email))
-                            ),
+                                )
+                            ).format(email=claimed_email),
                         )
                     return render_message(
                         title=_("Email address already verified"),
-                        message=Markup(
+                        message=Markup(  # noqa: S704
                             _(
                                 "Hello, {fullname}! Your email address"
                                 " <code>{email}</code> has already been verified"
-                            ).format(
-                                fullname=escape(claimed_user.fullname),
-                                email=escape(claimed_email),
                             )
+                        ).format(
+                            fullname=claimed_user.fullname,
+                            email=claimed_email,
                         ),
                     )
 
@@ -579,15 +579,15 @@ class AccountView(ClassView):
                 user_data_changed.send(current_auth.user, changes=['email'])
                 return render_message(
                     title=_("Email address verified"),
-                    message=Markup(
+                    message=Markup(  # noqa: S704
                         _(
                             "Hello, {fullname}!"
                             " Your email address <code>{email}</code> has now been"
                             " verified"
-                        ).format(
-                            fullname=escape(accountemail.account.title),
-                            email=escape(accountemail.email),
                         )
+                    ).format(
+                        fullname=accountemail.account.title,
+                        email=accountemail.email,
                     ),
                 )
             return render_message(

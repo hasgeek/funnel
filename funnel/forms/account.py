@@ -520,7 +520,7 @@ class EnableNotificationsDescriptionProtoMixin:
 
     def __post_init__(self) -> None:
         """Change the description to include a link."""
-        self.enable_notifications.description = Markup(
+        self.enable_notifications.description = Markup(  # noqa: S704
             _(
                 "Unsubscribe anytime, and control what notifications are sent from the"
                 ' <a href="{url}" target="_blank">Notifications tab under account'

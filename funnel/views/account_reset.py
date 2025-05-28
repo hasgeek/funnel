@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import itsdangerous
 from flask import current_app, flash, redirect, request, session, url_for
 from flask_babel import ngettext
-from markupsafe import Markup, escape
+from markupsafe import Markup
 
 from baseframe import _
 from baseframe.forms import render_form, render_message
@@ -64,29 +64,29 @@ def reset() -> ReturnView:
                 session.pop('temp_username', None)
                 return render_message(
                     title=_("Cannot reset password"),
-                    message=Markup(
+                    message=Markup(  # noqa: S704
                         _(
                             "Your account does not have a phone number or email"
                             " address. However, it is linked to {service} with the ID"
                             " {username}. You can use that to login"
-                        ).format(
-                            service=login_registry[extid.service].title,
-                            username=extid.username or extid.userid,
                         )
+                    ).format(
+                        service=login_registry[extid.service].title,
+                        username=extid.username or extid.userid,
                     ),
                 )
             session.pop('temp_username', None)
             return render_message(
                 title=_("Cannot reset password"),
-                message=Markup(
+                message=Markup(  # noqa: S704
                     _(
                         'Your account does not have a phone number or email address.'
                         ' Please contact <a href="tel:{phone}">{phone}</a> or'
                         ' <a href="mailto:{email}">{email}</a> for assistance'
-                    ).format(
-                        phone=escape(current_app.config['SITE_SUPPORT_PHONE']),
-                        email=escape(current_app.config['SITE_SUPPORT_EMAIL']),
                     )
+                ).format(
+                    phone=current_app.config['SITE_SUPPORT_PHONE'],
+                    email=current_app.config['SITE_SUPPORT_EMAIL'],
                 ),
             )
         # Allow only three reset attempts per hour to discourage abuse
@@ -284,11 +284,9 @@ def reset_with_token_do() -> ReturnView:
         title=_("Reset password"),
         formid='password-change',
         submit=_("Reset password"),
-        message=Markup(
-            _("Hello, {fullname}. You may now choose a new password").format(
-                fullname=escape(user.fullname)
-            )
-        ),
+        message=Markup(  # noqa: S704
+            _("Hello, {fullname}. You may now choose a new password")
+        ).format(fullname=user.fullname),
         ajax=False,
         template='account_formlayout.html.jinja2',
     )

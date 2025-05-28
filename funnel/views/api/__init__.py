@@ -1,6 +1,6 @@
 """API views."""
 
-# flake8: noqa
+# ruff: noqa: F401
 
 from . import (
     account,

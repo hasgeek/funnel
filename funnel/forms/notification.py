@@ -157,7 +157,7 @@ class UnsubscribeForm(forms.Form):
             (
                 ntype,
                 (
-                    Markup(f'<strong>{nvalue.title}</strong> 👈')
+                    Markup('<strong>{}</strong> 👈').format(nvalue.title)
                     if ntype == self.notification_type
                     else nvalue.title
                 ),

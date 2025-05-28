@@ -14,7 +14,6 @@ from typing import (
     Self,
     SupportsIndex,
     TypeVar,
-    cast,
     no_type_check,
 )
 
@@ -102,10 +101,11 @@ def _simple_escaping_wrapper(
     func: Callable[Concatenate[Any, _P], str],
 ) -> Callable[Concatenate[Any, _P], MarkdownString]:
     @wraps(func)
-    def wrapped(self: Any, *args: _P.args, **kwargs: _P.kwargs) -> MarkdownString:
-        _escape_argspec(cast(list, args), enumerate(args), self.escape)
+    def wrapped(self: Any, *args: Any, **kwargs: Any) -> MarkdownString:
+        largs = list(args)
+        _escape_argspec(largs, enumerate(largs), self.escape)
         _escape_argspec(kwargs, kwargs.items(), self.escape)
-        return self.__class__(func(self, *args, **kwargs))
+        return self.__class__(func(self, *largs, **kwargs))
 
     return wrapped
 

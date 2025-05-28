@@ -492,7 +492,7 @@ def _mock_config(request: pytest.FixtureRequest) -> Generator[None, None, None]:
     ) -> None:
         if key in saved_config:
             pytest.fail(f"Duplicate mock for {app_name}.config[{key!r}]")
-        if key in app_fixture.config:  # noqa: SIM401
+        if key in app_fixture.config:
             saved_config[key] = app_fixture.config[key]
         else:
             saved_config[key] = ...  # Sentinel value

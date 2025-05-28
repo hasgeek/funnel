@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, Self, TypeVar
 
 import phonenumbers
 from flask import current_app, flash, render_template, request, session, url_for
@@ -134,13 +134,13 @@ class OtpSession(Generic[OptionalAccountType]):
 
     @classmethod
     def make(
-        cls: type[OtpSessionType],
+        cls,
         reason: str,
         user: OptionalAccountType,
         anchor: Anchor | None,
         phone: str | None = None,
         email: str | None = None,
-    ) -> OtpSessionType:
+    ) -> Self:
         """
         Create an OTP for login and save it to cache and browser cookie session.
 
@@ -172,7 +172,7 @@ class OtpSession(Generic[OptionalAccountType]):
         )
 
     @classmethod
-    def retrieve(cls: type[OtpSessionType], reason: str) -> OtpSessionType:
+    def retrieve(cls, reason: str) -> Self:
         """Retrieve an OTP from cache using the token in browser cookie session."""
         otp_token = session.get('otp')
         if not otp_token:
@@ -201,7 +201,7 @@ class OtpSession(Generic[OptionalAccountType]):
             reason=reason,
             token=otp_token,
             otp=otp_data['otp'],
-            user=user,
+            user=user,  # type: ignore[arg-type]
             email=otp_data['email'],
             phone=otp_data['phone'],
         )

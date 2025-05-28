@@ -1,6 +1,6 @@
 """Notification view renderers."""
 
-# flake8: noqa
+# ruff: noqa: F401
 
 from __future__ import annotations
 

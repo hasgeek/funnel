@@ -978,7 +978,7 @@ msgstr ""
 #: funnel/forms/organization.py:71
 msgid ""
 "This is <em>your</em> current username. You must change it first from <a "
-"href=\"{account}\">your account</a> before you can assign it to an "
+"href=\"{url}\">your account</a> before you can assign it to an "
 "organization"
 msgstr ""
 

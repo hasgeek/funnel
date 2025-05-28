@@ -14,6 +14,8 @@ from bs4.element import Tag
 from markupsafe import Markup
 
 if TYPE_CHECKING:
+    from tomlkit.container import Container as TOMLContainer
+
     from funnel.utils.markdown import MarkdownConfig
 
 md_tests_data_root = Path(__file__).parent / 'data'
@@ -83,6 +85,8 @@ class MarkdownTestRegistry:
             }
             for md_testname, test_data in cls.test_files.items():
                 config = test_data['config']
+                if TYPE_CHECKING:
+                    assert isinstance(config, TOMLContainer)
                 exp = test_data.get('expected_output', {})
                 # Combine pre-defined profiles with custom profiles
                 # and store each test case in test_map[md_testname][md_configname]
@@ -95,17 +99,12 @@ class MarkdownTestRegistry:
                         expected_output=(
                             None
                             if (output := exp.get(md_configname)) is None
-                            else Markup(output)
+                            else Markup(output)  # noqa: S704
                         ),
                     )
                     for md_configname, config in {
-                        **{
-                            p: None
-                            for p in config.get(  # type: ignore[union-attr]
-                                'profiles', []
-                            )
-                        },
-                        **config.get('custom_profiles', {}),  # type: ignore[union-attr]
+                        **dict.fromkeys(config.get('profiles', [])),
+                        **config.get('custom_profiles', {}),
                     }.items()
                 }
             cls.test_map = test_map

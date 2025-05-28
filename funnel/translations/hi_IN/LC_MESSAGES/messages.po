@@ -1017,11 +1017,11 @@ msgstr "यह नाम रिज़र्व है"
 #: funnel/forms/organization.py:71
 msgid ""
 "This is <em>your</em> current username. You must change it first from <a "
-"href=\"{account}\">your account</a> before you can assign it to an "
+"href=\"{url}\">your account</a> before you can assign it to an "
 "organization"
 msgstr ""
 "यह <em>आपका</em> मौजूदा यूजरनेम है. इसे किसी संगठन को सौंपने से पहले आपको"
-" <a href=\"{account}\">अपने अकाउंट</a> से बदलना होगा"
+" <a href=\"{url}\">अपने अकाउंट</a> से बदलना होगा"
 
 #: funnel/forms/organization.py:79
 msgid "This name has been taken by another user"

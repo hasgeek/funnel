@@ -1,6 +1,6 @@
 """All app views and view helpers."""
 
-# flake8: noqa
+# ruff: noqa: F401
 
 from __future__ import annotations
 

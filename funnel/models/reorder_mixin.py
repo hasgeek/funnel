@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Protocol, TypeVar
+from typing import Any, Protocol, Self, TypeVar
 
 from .base import Mapped, db, declarative_mixin, sa, sa_orm
 from .typing import ModelIdProtocol
@@ -23,7 +23,7 @@ class ReorderSubclassProtocol(ModelIdProtocol, Protocol):
     @property
     def parent_scoped_reorder_query_filter(self) -> sa.ColumnElement[bool]: ...
 
-    def reorder_item(self: Reorderable, other: Reorderable, before: bool) -> None: ...
+    def reorder_item(self, other: Self, before: bool) -> None: ...
 
 
 Reorderable = TypeVar('Reorderable', bound='ReorderSubclassProtocol')
@@ -47,7 +47,9 @@ class ReorderMixin:
         cls = self.__class__
         return cls.parent_id == self.parent_id
 
-    def reorder_item(self: Reorderable, other: Reorderable, before: bool) -> None:
+    def reorder_item(
+        self: ReorderSubclassProtocol, other: ReorderSubclassProtocol, before: bool
+    ) -> None:
         """Reorder self before or after other item."""
         cls = self.__class__
 
@@ -121,10 +123,14 @@ class ReorderMixin:
         self.seq = new_seq_number
         db.session.flush()
 
-    def reorder_before(self: Reorderable, other: Reorderable) -> None:
+    def reorder_before(
+        self: ReorderSubclassProtocol, other: ReorderSubclassProtocol
+    ) -> None:
         """Reorder to be before another item's sequence number."""
         self.reorder_item(other, True)
 
-    def reorder_after(self: Reorderable, other: Reorderable) -> None:
+    def reorder_after(
+        self: ReorderSubclassProtocol, other: ReorderSubclassProtocol
+    ) -> None:
         """Reorder to be after another item's sequence number."""
         self.reorder_item(other, False)

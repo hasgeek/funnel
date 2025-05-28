@@ -12,7 +12,7 @@ from typing import Any, ClassVar, Self, TypeVar, get_type_hints
 
 from better_profanity import profanity
 from furl import furl
-from markupsafe import Markup, escape as html_escape
+from markupsafe import Markup
 from sqlalchemy import event as sa_event
 from sqlalchemy.dialects.postgresql import TSQUERY
 from sqlalchemy.dialects.postgresql.base import (
@@ -571,8 +571,10 @@ class MessageComposite:
         # Localize lazy string on demand
         tag = self.tag
         if tag:
-            return Markup(f'<p><{tag}>{html_escape(self.text)}</{tag}></p>')
-        return Markup(f'<p>{html_escape(self.text)}</p>')
+            return Markup('<p><{tag}>{text}</{tag}></p>').format(
+                tag=tag, text=self.text
+            )
+        return Markup('<p>{text}</p>').format(text=self.text)
 
     def __html_format__(self, format_spec: str) -> str:
         """Implement format_spec support as required by Markup."""
@@ -580,7 +582,7 @@ class MessageComposite:
 
     @property
     def html(self) -> Markup:
-        return Markup(self.__html__())
+        return Markup(self)  # noqa: S704
 
     def __json__(self) -> dict[str, Any]:
         """Return JSON-compatible rendering of contents."""
@@ -610,7 +612,7 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
     url_parser = ImgeeFurl
     cache_ok = True
 
-    def process_bind_param(self, value: Any, dialect: Any) -> furl:
+    def process_bind_param(self, value: Any, dialect: Any) -> str | None:
         value = super().process_bind_param(value, dialect)
         if value:
             allowed_domains = app.config.get('IMAGE_URL_DOMAINS', [])
@@ -623,9 +625,6 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
             if allowed_schemes and parsed.scheme not in allowed_schemes:
                 raise ValueError("Invalid scheme for the URL")
         return value
-
-
-_MC = TypeVar('_MC', bound='MarkdownCompositeBase')
 
 
 class MarkdownCompositeBase(MutableComposite):
@@ -674,7 +673,7 @@ class MarkdownCompositeBase(MutableComposite):
     @property
     def html(self) -> Markup | None:
         """Return HTML as a read-only property."""
-        return Markup(self._html) if self._html is not None else None
+        return Markup(self._html) if self._html is not None else None  # noqa: S704
 
     @property
     def text(self) -> str | None:
@@ -732,12 +731,12 @@ class MarkdownCompositeBase(MutableComposite):
 
     @classmethod
     def create(
-        cls: type[_MC],
+        cls,
         name: str,
         deferred: bool = False,
         deferred_group: str | None = None,
         **kwargs: Any,
-    ) -> tuple[sa_orm.Composite[_MC], Mapped[str], Mapped[str]]:
+    ) -> tuple[sa_orm.Composite[Self], Mapped[str], Mapped[str]]:
         """Create a composite column and backing individual columns."""
         col_text = sa_orm.mapped_column(
             name + '_text',
