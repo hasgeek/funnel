@@ -352,7 +352,7 @@ def downgrade_() -> None:
                 account.c.is_verified,
                 account.c.revisionid,
             )
-            .where(account.c.type == AccountType.USER, account.c.name.isnot(None))
+            .where(account.c.type == AccountType.USER, account.c.name.is_not(None))
             .order_by(account.c.created_at),
         )
     )
@@ -399,7 +399,7 @@ def downgrade_() -> None:
             )
             .where(
                 account.c.type == AccountType.ORG,
-                account.c.name.isnot(None),
+                account.c.name.is_not(None),
                 organization.c.uuid == account.c.uuid,
             )
             .order_by(account.c.created_at),
@@ -447,7 +447,7 @@ def downgrade_() -> None:
                 account.c.revisionid,
             )
             .where(
-                account.c.type == AccountType.PLACEHOLDER, account.c.name.isnot(None)
+                account.c.type == AccountType.PLACEHOLDER, account.c.name.is_not(None)
             )
             .order_by(account.c.created_at),
         )

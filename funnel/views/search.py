@@ -266,9 +266,9 @@ class ProjectSearch(SearchInAccountProvider):
                     'epoch',
                     sa.func.utcnow()
                     - sa.case(
-                        (Project.start_at.isnot(None), Project.start_at),
+                        (Project.start_at.is_not(None), Project.start_at),
                         (
-                            Project.published_at.isnot(None),
+                            Project.published_at.is_not(None),
                             Project.published_at,
                         ),
                         else_=Project.created_at,
