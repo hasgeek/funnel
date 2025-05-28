@@ -940,7 +940,7 @@ def upgrade_() -> None:
             auth_client.update()
             .values(organization_id=None, account_id=account.c.id)
             .where(
-                auth_client.c.organization_id.isnot(None),
+                auth_client.c.organization_id.is_not(None),
                 auth_client.c.organization_id == organization.c.id,
                 organization.c.uuid == account.c.uuid,
             )
