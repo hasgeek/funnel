@@ -242,7 +242,7 @@ class SmsMessage(PhoneNumberMixin, BaseMixin[int, Account], Model):
     __tablename__ = 'sms_message'
     __phone_unique__ = False
     __phone_is_exclusive__ = False
-    phone_number_reference_is_active: bool = False
+    phone_number_reference_is_active: bool = False  # pyright: ignore[reportIncompatibleMethodOverride]
 
     transactionid: Mapped[str | None] = immutable(
         sa_orm.mapped_column(sa.Unicode, unique=True, nullable=True)
@@ -287,6 +287,9 @@ class NotificationType(Generic[_D, _F], Protocol):
     created_at: datetime
     created_by_id: int | None
     created_by: Account | None
+
+    @property
+    def dispatch_roles(self) -> Sequence[str]: ...
 
 
 class Notification(NoIdMixin, Model, Generic[_D, _F]):
@@ -751,6 +754,28 @@ class PreviewNotification(NotificationType):
     def __getattr__(self, attr: str) -> Any:
         """Get an attribute."""
         return getattr(self.cls, attr)
+
+    @property
+    def dispatch_roles(self) -> Sequence[str]:
+        """Roles to send notifications to."""
+        roles: Any = self.cls.dispatch_roles
+        if isinstance(roles, property):
+            return roles.fget(self)  # type: ignore[misc]
+        return roles
+
+    @property
+    def identity(self) -> tuple[UUID, UUID]:
+        """Primary key of this object."""
+        return self.eventid, self.id
+
+    def allow_transport(self, transport: str) -> bool:
+        """Return ``self.cls.allow_<transport>``."""
+        return getattr(self.cls, 'allow_' + transport)
+
+    @property
+    def role_provider_obj(self) -> ModelUuidProtocol:
+        """Return fragment if exists, document otherwise, indicating role provider."""
+        return self.fragment or self.document
 
 
 class NotificationRecipientProtoMixin:
@@ -1226,7 +1251,7 @@ class NotificationFor(NotificationRecipientProtoMixin):
     def __init__(
         self, notification: Notification | PreviewNotification, recipient: Account
     ) -> None:
-        self.notification = notification
+        self.notification = notification  # pyright: ignore[reportIncompatibleVariableOverride]
         self.eventid = notification.eventid
         self.notification_id = notification.id
 

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from datetime import datetime, timedelta
 from enum import ReprEnum
 from typing import TYPE_CHECKING, Any, Literal, Self, cast, overload
@@ -1266,6 +1266,73 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
                 cls.start_at < timestamp + within,
             )
         )
+
+    @classmethod
+    def starting_at_with_venue(
+        cls, timestamp: datetime, within: timedelta, gap: timedelta
+    ) -> Iterator[tuple[Self, Session | None]]:
+        for project in (
+            (
+                cls.query.filter(
+                    cls.id.in_(
+                        db.session.query(sa.func.distinct(Session.project_id)).filter(
+                            Session.start_at.is_not(None),
+                            Session.start_at >= timestamp,
+                            Session.start_at < timestamp + within,
+                            Session.venue_room_id.is_not(None),
+                            # TODO: This will also filter out a session at an entirely
+                            # different venue. It should not, but it's probably not
+                            # worth fixing as those sessions should ideally be in a
+                            # separate project
+                            Session.project_id.notin_(
+                                db.session.query(
+                                    sa.func.distinct(Session.project_id)
+                                ).filter(
+                                    Session.start_at.is_not(None),
+                                    Session.venue_room_id.is_not(None),
+                                    sa.or_(
+                                        sa.and_(
+                                            Session.start_at >= timestamp - gap,
+                                            Session.start_at < timestamp,
+                                        ),
+                                        sa.and_(
+                                            Session.end_at > timestamp - gap,
+                                            Session.end_at <= timestamp,
+                                        ),
+                                    ),
+                                )
+                            ),
+                        )
+                    )
+                )
+                .join(Session.project)
+                .filter(
+                    cls.state.PUBLISHED,
+                    Venue.query.filter(Venue.project_id == cls.id).exists(),
+                )
+            )
+            .union(
+                cls.query.filter(
+                    cls.state.PUBLISHED,
+                    cls.start_at.is_not(None),
+                    cls.start_at >= timestamp,
+                    cls.start_at < timestamp + within,
+                    Venue.query.filter(Venue.project_id == cls.id).exists(),
+                )
+            )
+            .options(sa_orm.load_only(cls.uuid))
+            .all()
+        ):
+            session = project.next_session_from(timestamp)
+            if session is not None and session.venue_room_id is None:
+                # A project can have both online sessions and at-venue sessions. If the
+                # next is an online session (identified by the lack of a venue room
+                # assignment), it should be skipped
+                pass
+            else:
+                # If a project has no sessions but has a venue, this will yield
+                # (Project, None). The project can be treated as a single session.
+                yield project, session
 
     @with_roles(call={'all'})
     def current_sessions(self) -> dict | None:

@@ -42,29 +42,12 @@ def project_starting_alert() -> None:
         )
 
     # Find all projects with a venue that have a session starting 24 hours from now
-    for project in (
-        models.Project.starting_at(
-            use_now + timedelta(hours=24), timedelta(minutes=10), timedelta(minutes=60)
-        )
-        .filter(
-            models.Venue.query.filter(
-                models.Venue.project_id == models.Project.id
-            ).exists()
-        )
-        .options(sa_orm.load_only(models.Project.uuid))
-        .all()
+    for project, session in models.Project.starting_at_with_venue(
+        use_now + timedelta(hours=24), timedelta(minutes=10), timedelta(minutes=60)
     ):
-        session = project.next_session_from(use_now + timedelta(hours=24))
-        if session is not None and session.venue_room_id is None:
-            # A project can have both online sessions and in-person sessions. If the
-            # next session in 24 hours is an online session, it should not cause a
-            # notification for an in-person session. We identify online sessions by the
-            # lack of a venue room assignment
-            pass
-        else:
-            dispatch_notification(
-                models.ProjectTomorrowNotification(
-                    document=project,
-                    fragment=session,
-                )
+        dispatch_notification(
+            models.ProjectTomorrowNotification(
+                document=project,
+                fragment=session,
             )
+        )

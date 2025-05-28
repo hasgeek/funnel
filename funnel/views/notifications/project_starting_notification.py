@@ -150,7 +150,11 @@ class RenderProjectTomorrowNotification(RenderProjectStartingNotification):
         )
 
     def sms(self) -> SmsTemplate:
-        venue = self.project.primary_venue
+        venue = (
+            self.session.venue_room.venue
+            if self.session and self.session.venue_room
+            else self.project.primary_venue
+        )
         if venue is not None:
             return ProjectStartingTomorrowVenueTemplate(
                 account=self.project.account,
