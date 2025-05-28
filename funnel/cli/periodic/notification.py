@@ -42,21 +42,12 @@ def project_starting_alert() -> None:
         )
 
     # Find all projects with a venue that have a session starting 24 hours from now
-    for project in (
-        models.Project.starting_at(
-            use_now + timedelta(hours=24), timedelta(minutes=10), timedelta(minutes=60)
-        )
-        .filter(
-            models.Venue.query.filter(
-                models.Venue.project_id == models.Project.id
-            ).exists()
-        )
-        .options(sa_orm.load_only(models.Project.uuid))
-        .all()
+    for project, session in models.Project.starting_at_with_venue(
+        use_now + timedelta(hours=24), timedelta(minutes=10), timedelta(minutes=60)
     ):
         dispatch_notification(
             models.ProjectTomorrowNotification(
                 document=project,
-                fragment=project.next_session_from(use_now + timedelta(hours=24)),
+                fragment=session,
             )
         )

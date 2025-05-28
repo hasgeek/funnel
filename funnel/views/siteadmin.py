@@ -186,7 +186,7 @@ class SiteadminView(ClassView):
             )
             .select_from(Account)
             .filter(
-                Account.state.ACTIVE, Account.joined_at.isnot(None), User.type_filter()
+                Account.state.ACTIVE, Account.joined_at.is_not(None), User.type_filter()
             )
             .group_by('month')
             .order_by('month')

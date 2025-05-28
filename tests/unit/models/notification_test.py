@@ -1,7 +1,7 @@
 """Tests for Notification and UserNotification models."""
 
 # pylint: disable=possibly-unused-variable,redefined-outer-name
-# pyright: reportAssignmentType=false
+# pyright: reportAssignmentType=false, reportIncompatibleMethodOverride=false
 
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ def notification_types(database: SQLAlchemy) -> SimpleNamespace:
         category = models.notification_categories.participant
         description = "When a project posts an update"
 
-        dispatch_roles = ['project_crew', 'project_participant']
+        dispatch_roles = ('project_crew', 'project_participant')
 
     class TestEditedUpdateNotification(
         ProjectIsParent,
@@ -47,7 +47,7 @@ def notification_types(database: SQLAlchemy) -> SimpleNamespace:
     ):
         """Notifications of edited updates (test edition)."""
 
-        dispatch_roles = ['project_crew', 'project_participant']
+        dispatch_roles = ('project_crew', 'project_participant')
 
     class TestProposalReceivedNotification(
         ProjectIsParent,
@@ -58,7 +58,7 @@ def notification_types(database: SQLAlchemy) -> SimpleNamespace:
 
         category = models.notification_categories.project_crew
         description = "When my project receives a new proposal"
-        dispatch_roles = ['project_editor']
+        dispatch_roles = ('project_editor',)
 
     sa_orm.configure_mappers()
     return SimpleNamespace(**locals())
@@ -250,7 +250,7 @@ def test_update_notification_structure(
     assert notification.type_ == 'update_new_test'
     assert notification.document == update
     assert notification.fragment is None
-    assert notification.dispatch_roles == ['project_crew', 'project_participant']
+    assert notification.dispatch_roles == ('project_crew', 'project_participant')
     assert notification.preference_context == project_fixtures.org
 
     load_notification = models.Notification.query.first()

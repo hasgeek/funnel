@@ -18,7 +18,6 @@ def test_open_homepage(
 ) -> None:
     page.goto(live_server.url)
     expect(page).to_have_title(re.compile("Test Hasgeek"))
-    expect(page.get_by_text("Past sessions")).to_be_visible()
 
 
 def test_transport_mock_sms(

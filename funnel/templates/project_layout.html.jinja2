@@ -38,7 +38,7 @@
 
 {% macro project_header(project) %}
   {%- if project.livestream_urls %}
-    {% if (project.is_restricted_video and project.current_roles.account_member) or not project.is_restricted_video %}
+    {% if (project.is_restricted_video and (project.current_roles.account_member or project.current_roles.participant)) or not project.is_restricted_video %}
       <div class="livestream-box project-banner__left" id="livestream">
         {% if project.livestream_urls|length >= 2 %}
         <ul class="mui-tabs__bar project-banner__box" role="tablist">

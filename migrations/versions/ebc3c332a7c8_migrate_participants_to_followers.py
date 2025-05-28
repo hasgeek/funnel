@@ -143,7 +143,7 @@ def upgrade_() -> None:
             project.c.account_id.label('account_id'),
         )
         .where(
-            ticket_participant.c.participant_id.isnot(None),
+            ticket_participant.c.participant_id.is_not(None),
             ticket_participant.c.project_id == project.c.id,
         )
         .group_by(ticket_participant.c.participant_id, project.c.account_id)

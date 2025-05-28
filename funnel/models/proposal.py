@@ -360,7 +360,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         state.CONFIRMED,
         lambda proposal: proposal.session is not None and proposal.session.scheduled,
         lambda proposal: sa.and_(
-            proposal.session.isnot(None), proposal.session.scheduled
+            proposal.session.is_not(None), proposal.session.scheduled
         ),
         label=('scheduled', __("Confirmed &amp; scheduled")),
     )

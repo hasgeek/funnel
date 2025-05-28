@@ -424,7 +424,7 @@ class MailerRecipient(BaseScopedIdMixin[int, Account], Model):
         return (
             cls.query.filter(
                 cls.mailer == mailer,
-                cls.draft.isnot(None),
+                cls.draft.is_not(None),
             )
             .options(
                 defer(cls.created_at),

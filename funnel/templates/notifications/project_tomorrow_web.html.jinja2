@@ -6,13 +6,13 @@
 
 {%- block content -%}
   <p>
-    {%- with venue = view.project.primary_venue %}
+    {%- with venue = view.venue %}
       {%- if venue %}
-        {%- trans project=view.project.joined_title, url=view.project.url_for(), start_at=(view.session or view.project).start_at_localized|datetime, venue=venue.title, location=view.project.location -%}
-          <a href="{{ url }}">{{ project }}</a> has an in-person session at {{ venue }}, {{location}} starting {{ start_at }}
+        {%- trans project=view.project.joined_title, url=view.project.url_for(), start_at=view.start_time|datetime, venue=venue.title, location=venue.city or view.project.location -%}
+          <a href="{{ url }}">{{ project }}</a> has an in-person session at {{ venue }}, {{ location }}, starting {{ start_at }}
         {%- endtrans %}
       {%- else %}
-        {%- trans project=view.project.joined_title, url=view.project.url_for(), start_at=(view.session or view.project).start_at_localized|datetime, location=view.project.location -%}
+        {%- trans project=view.project.joined_title, url=view.project.url_for(), start_at=view.start_time|datetime, location=view.project.location -%}
           <a href="{{ url }}">{{ project }}</a> has an in-person session at {{ location }}, starting {{ start_at }}
         {%- endtrans %}
       {%- endif %}
