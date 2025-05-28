@@ -57,7 +57,7 @@ qrcode
 requests
 rich
 rq
-rq-dashboard @ git+https://github.com/jace/rq-dashboard
+rq-dashboard
 sqlalchemy-json
 SQLAlchemy-Utils
 SQLAlchemy[asyncio]
