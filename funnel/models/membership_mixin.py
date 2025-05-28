@@ -637,7 +637,7 @@ class FrozenAttributionMixin:
     def freeze_member_attribution(self, actor: Account) -> Self:
         """Freeze member attribution and return a replacement record."""
         if self._title is None:
-            membership = self.replace(actor=actor, title=self.member.title)
+            membership = self.replace(actor=actor, title=self.member.title)  # type: ignore[attr-defined]
         else:
             membership = self
         return membership

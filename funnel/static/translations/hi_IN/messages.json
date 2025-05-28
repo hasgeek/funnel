@@ -369,8 +369,8 @@
       ],
       "Names can only have alphabets, numbers and underscores": [""],
       "This name is reserved": ["यह नाम रिज़र्व है"],
-      "This is <em>your</em> current username. You must change it first from <a href=\"{account}\">your account</a> before you can assign it to an organization": [
-        "यह <em>आपका</em> मौजूदा यूजरनेम है. इसे किसी संगठन को सौंपने से पहले आपको <a href=\"{account}\">अपने अकाउंट</a> से बदलना होगा"
+      "This is <em>your</em> current username. You must change it first from <a href=\"{url}\">your account</a> before you can assign it to an organization": [
+        "यह <em>आपका</em> मौजूदा यूजरनेम है. इसे किसी संगठन को सौंपने से पहले आपको <a href=\"{url}\">अपने अकाउंट</a> से बदलना होगा"
       ],
       "This name has been taken by another user": [
         "यह यूजरनेम किसी दूसरे यूजर द्वारा लिया जा चुका है"

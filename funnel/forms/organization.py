@@ -68,14 +68,14 @@ class OrganizationForm(forms.Form):
             case AccountNameProblem.USER:
                 if self.edit_user.name_is(field.data):
                     raise forms.validators.ValidationError(
-                        Markup(
+                        Markup(  # noqa: S704
                             _(
                                 'This is <em>your</em> current username.'
                                 ' You must change it first from <a href="'
-                                '{account}">your account</a> before you can assign it'
+                                '{url}">your account</a> before you can assign it'
                                 ' to an organization'
-                            ).format(account=url_for('account'))
-                        )
+                            )
+                        ).format(url=url_for('account'))
                     )
                 raise forms.validators.ValidationError(
                     _("This name has been taken by another user")

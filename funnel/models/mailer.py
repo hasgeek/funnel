@@ -10,7 +10,7 @@ from typing import Any, Self
 from uuid import UUID
 
 from flask import request
-from markupsafe import Markup, escape
+from markupsafe import Markup
 from premailer import transform as email_transform
 from sqlalchemy.orm import defer
 
@@ -175,10 +175,12 @@ class Mailer(BaseNameMixin[int, Account], Model):
 
     def render_preview(self, text: str) -> str:
         if self.stylesheet is not None and self.stylesheet.strip():
-            stylesheet = f'<style type="text/css">{escape(self.stylesheet)}</style>\n'
+            stylesheet = Markup('<style type="text/css">{}</style>\n').format(
+                self.stylesheet
+            )
         else:
-            stylesheet = ''
-        rendered_text = Markup(stylesheet) + markdown_mailer.render(text)
+            stylesheet = Markup('')
+        rendered_text = stylesheet + markdown_mailer.render(text)
         if rendered_text:
             # email_transform uses LXML, which does not like empty strings
             return email_transform(rendered_text, base_url=request.url_root)
@@ -404,14 +406,14 @@ class MailerRecipient(BaseScopedIdMixin[int, Account], Model):
     def openmarkup(self) -> Markup:
         if self.mailer.trackopens:
             return Markup(
-                f'\n<img src="{self.url_for("trackopen")}" width="1" height="1" alt=""'
-                f' border="0" style="height:1px !important;width:1px !important;'
-                f'border-width:0 !important;margin-top:0 !important;'
-                f'margin-bottom:0 !important;margin-right:0 !important;'
-                f'margin-left:0 !important;padding-top:0 !important;'
-                f'padding-bottom:0 !important;padding-right:0 !important;'
-                f'padding-left:0 !important;"/>'
-            )
+                '\n<img src="{}" width="1" height="1" alt=""'
+                ' border="0" style="height:1px !important;width:1px !important;'
+                'border-width:0 !important;margin-top:0 !important;'
+                'margin-bottom:0 !important;margin-right:0 !important;'
+                'margin-left:0 !important;padding-top:0 !important;'
+                'padding-bottom:0 !important;padding-right:0 !important;'
+                'padding-left:0 !important;"/>'
+            ).format(self.url_for('trackopen'))
         return Markup('')
 
     @property

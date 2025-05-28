@@ -201,7 +201,7 @@ class OtpSession(Generic[OptionalAccountType]):
             reason=reason,
             token=otp_token,
             otp=otp_data['otp'],
-            user=user,
+            user=user,  # type: ignore[arg-type]
             email=otp_data['email'],
             phone=otp_data['phone'],
         )

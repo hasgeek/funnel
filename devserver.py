@@ -58,7 +58,7 @@ if __name__ == '__main__':
         # Only start RQ worker within the reloader environment
         background_rq = BackgroundWorker(
             rq_background_worker,
-            mock_transports=bool(getbool(os.environ.get('MOCK_TRANSPORTS', True))),
+            mock_transports=bool(getbool(os.environ.get('MOCK_TRANSPORTS', 'Y'))),
         )
         background_rq.start()
 
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     run_simple(
         os.environ.get('FLASK_RUN_HOST', '127.0.0.1'),
-        int(os.environ.get('FLASK_RUN_PORT', 3000)),
+        int(os.environ.get('FLASK_RUN_PORT', '3000')),
         run_app,
         use_reloader=True,
         use_debugger=False,  # Since we've already wrapped the app in the debugger

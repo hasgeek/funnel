@@ -159,8 +159,8 @@ class MarkdownConfig:
             md.use(plugin.func, **(plugin.config or {}))  # type: ignore[union-attr]
 
         if self.inline:
-            return Markup(md.renderInline(text or ''))
-        return Markup(md.render(text or ''))
+            return Markup(md.renderInline(text or ''))  # noqa: S704
+        return Markup(md.render(text or ''))  # noqa: S704
 
 
 # MARK: Markdown plugins ---------------------------------------------------------------

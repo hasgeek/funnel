@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, cast
 
 from flask import render_template
-from markupsafe import Markup, escape
+from markupsafe import Markup
 from werkzeug.utils import cached_property
 
 from baseframe import _, __
@@ -199,30 +199,27 @@ class CommentNotification(RenderNotification):
         if comment is None:
             comment = self.comment
 
-        actor_markup = Markup(
-            f'<a href="{escape(self.actor.absolute_url)}">'
-            f'{escape(self.actor.pickername)}</a>'
+        actor_markup = Markup('<a href="{url}">{name}</a>').format(
+            url=self.actor.absolute_url, name=self.actor.pickername
         )
         project = self.project
         project_markup = (
-            Markup(
-                f'<a href="{escape(project.absolute_url)}">'
-                f'{escape(project.joined_title)}</a>'
+            Markup('<a href="{url}">{title}</a>').format(
+                url=project.absolute_url, title=project.joined_title
             )
             if project is not None
             else Markup('')
         )
         proposal = self.proposal
         proposal_markup = (
-            Markup(
-                f'<a href="{escape(proposal.absolute_url)}">'
-                f'{escape(proposal.title)}</a>'
+            Markup('<a href="{url}">{title}</a>').format(
+                url=proposal.absolute_url, title=proposal.title
             )
             if proposal is not None
             else Markup('')
         )
 
-        return Markup(self.activity_template_inline(comment)).format(
+        return Markup(self.activity_template_inline(comment)).format(  # noqa: S704
             actor=actor_markup,
             project=project_markup,
             proposal=proposal_markup,

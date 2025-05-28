@@ -235,7 +235,7 @@ def not_my_otp() -> ReturnView:
     """Show help page for OTP misuse."""
     return render_message(
         title=_("Did not request an OTP?"),
-        message=Markup(
+        message=Markup(  # noqa: S704
             _(
                 "If you’ve received an OTP without requesting it, someone may have made"
                 " a typo in their own phone number and accidentally used yours. They"
@@ -244,10 +244,10 @@ def not_my_otp() -> ReturnView:
                 " to us. Email:"
                 ' <a href="mailto:{email}">{email}</a>, phone:'
                 ' <a href="tel:{phone}">{phone_formatted}</a>.'
-            ).format(
-                email=app.config['SITE_SUPPORT_EMAIL'],
-                phone=app.config['SITE_SUPPORT_PHONE'],
-                phone_formatted=app.config['SITE_SUPPORT_PHONE_FORMATTED'],
             )
+        ).format(
+            email=app.config['SITE_SUPPORT_EMAIL'],
+            phone=app.config['SITE_SUPPORT_PHONE'],
+            phone_formatted=app.config['SITE_SUPPORT_PHONE_FORMATTED'],
         ),
     )

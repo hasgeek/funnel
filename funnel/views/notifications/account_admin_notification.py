@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import cast
 
 from flask import render_template
-from markupsafe import Markup, escape
+from markupsafe import Markup
 from werkzeug.utils import cached_property
 
 from baseframe import _, __
@@ -391,21 +391,16 @@ class RenderShared:
         if membership is None:
             membership = self.membership
         actor = self.membership_actor(membership)
-        return Markup(self.activity_template(membership)).format(
-            user=Markup(
-                f'<a href="{escape(membership.member.absolute_url)}">'
-                f'{escape(membership.member.pickername)}</a>'
+        return Markup(self.activity_template(membership)).format(  # noqa: S704
+            user=Markup('<a href="{url}">{name}</a>').format(
+                url=membership.member.absolute_url, name=membership.member.pickername
             ),
-            organization=Markup(
-                f'<a href="{escape(cast(str, self.account.absolute_url))}">'
-                f'{escape(self.account.pickername)}</a>'
+            organization=Markup('<a href="{url}">{name}</a>').format(
+                url=cast(str, self.account.absolute_url), name=self.account.pickername
             ),
             actor=(
-                (
-                    Markup(
-                        f'<a href="{escape(actor.absolute_url)}">'
-                        f'{escape(actor.pickername)}</a>'
-                    )
+                Markup('<a href="{url}">{name}</a>').format(
+                    url=actor.absolute_url, name=actor.pickername
                 )
                 if actor
                 else _("(unknown)")
