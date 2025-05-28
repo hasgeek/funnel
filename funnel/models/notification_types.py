@@ -1,11 +1,13 @@
 """Notification types."""
 
-# Pyright complains that a property in the base class (for `roles`) has become a
-# classvar in the subclass. Mypy does not. Silence Pyright here
+# Pyright complains that a property in the base class (for `dispatch_roles`) has become
+# a classvar in the subclass. Mypy does not. Silence Pyright here
 
-# pyright: reportAssignmentType=false
+# pyright: reportAssignmentType=false, reportIncompatibleMethodOverride=false
 
 from __future__ import annotations
+
+from collections.abc import Sequence
 
 from baseframe import __
 
@@ -82,7 +84,7 @@ class AccountPasswordNotification(
     description = __("For your attention, in case this was not authorized")
 
     exclude_actor = False
-    dispatch_roles = ['owner']
+    dispatch_roles = ('owner',)
     for_private_recipient = True
 
 
@@ -98,7 +100,7 @@ class FollowerNotification(
     description = __("See who is interested in your work")
 
     exclude_actor = True  # The actor can't possibly receive this notification anyway
-    dispatch_roles = ['account_admin']
+    dispatch_roles = ('account_admin',)
 
 
 # MARK: Project participant notifications ----------------------------------------------
@@ -113,7 +115,7 @@ class RegistrationConfirmationNotification(
     title = __("When I register for a session")
     description = __("This will prompt a calendar entry in Gmail and other apps")
 
-    dispatch_roles = ['owner']
+    dispatch_roles = ('owner',)
     exclude_actor = False  # This is a notification to the actor
     for_private_recipient = True
 
@@ -126,7 +128,7 @@ class RegistrationCancellationNotification(
 ):
     """Notification confirming cancelling registration to a project."""
 
-    dispatch_roles = ['owner']
+    dispatch_roles = ('owner',)
     exclude_actor = False  # This is a notification to the actor
     for_private_recipient = True
     allow_web = False
@@ -146,18 +148,18 @@ class ProjectUpdateNotification(
     exclude_actor = False  # Send to everyone including the actor
 
     @property
-    def dispatch_roles(self) -> list[str]:
+    def dispatch_roles(self) -> Sequence[str]:
         """Target roles based on Update visibility state."""
         # TODO: Use match/case matching here. If states use a Python Enum, Mypy will
         # do an exhaustiveness check, so the closing RuntimeError is not needed.
         # https://github.com/python/mypy/issues/6366
         visibility = self.fragment.visibility_state
         if visibility.PUBLIC:
-            return ['project_crew', 'project_participant', 'account_follower']
+            return ('project_crew', 'project_participant', 'account_follower')
         if visibility.PARTICIPANTS:
-            return ['project_crew', 'project_participant']
+            return ('project_crew', 'project_participant')
         if visibility.MEMBERS:
-            return ['project_crew', 'project_participant', 'account_member']
+            return ('project_crew', 'project_participant', 'account_member')
 
         raise RuntimeError("Unknown update visibility state")
 
@@ -171,7 +173,7 @@ class ProposalSubmittedNotification(
     title = __("When I submit a proposal")
     description = __("Confirmation for your records")
 
-    dispatch_roles = ['creator']
+    dispatch_roles = ('creator',)
     exclude_actor = False  # This notification is for the actor
 
     # Email is typically fine. Messengers may be too noisy
@@ -196,7 +198,7 @@ class ProjectStartingNotification(
         " in-person session"
     )
 
-    dispatch_roles = ['project_crew', 'project_participant']
+    dispatch_roles = ('project_crew', 'project_participant')
     # This is a notification triggered without an actor
 
 
@@ -208,7 +210,7 @@ class ProjectTomorrowNotification(
 ):
     """Notification of an in-person session the next day."""
 
-    dispatch_roles = ['project_crew', 'project_participant']
+    dispatch_roles = ('project_crew', 'project_participant')
     # This is a notification triggered without an actor
 
 
@@ -222,7 +224,7 @@ class NewCommentNotification(Notification[Commentset, Comment], type='comment_ne
     title = __("When there is a new comment on something I’m involved in")
     exclude_actor = True
 
-    dispatch_roles = ['replied_to_commenter', 'document_subscriber']
+    dispatch_roles = ('replied_to_commenter', 'document_subscriber')
 
 
 class CommentReplyNotification(Notification[Comment, Comment], type='comment_reply'):
@@ -234,7 +236,7 @@ class CommentReplyNotification(Notification[Comment, Comment], type='comment_rep
 
     # document_model = Parent comment (being replied to)
     # fragment_model = Child comment (the reply that triggered notification)
-    dispatch_roles = ['replied_to_commenter']
+    dispatch_roles = ('replied_to_commenter',)
 
 
 # MARK: Project crew notifications -----------------------------------------------------
@@ -251,7 +253,7 @@ class ProjectCrewNotification(
     title = __("When crew members change")
     description = __("Crew members have access to the project’s settings and data")
 
-    dispatch_roles = ['member', 'project_crew']
+    dispatch_roles = ('member', 'project_crew')
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -263,7 +265,7 @@ class ProjectCrewRevokedNotification(
 ):
     """Notification of being removed from crew membership (including role changes)."""
 
-    dispatch_roles = ['member', 'project_crew']
+    dispatch_roles = ('member', 'project_crew')
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -275,7 +277,7 @@ class ProposalReceivedNotification(
     category = notification_categories.project_crew
     title = __("When my project receives a new proposal")
 
-    dispatch_roles = ['project_editor']
+    dispatch_roles = ('project_editor',)
     exclude_actor = True  # Don't notify editor of proposal they submitted
 
 
@@ -289,7 +291,7 @@ class RegistrationReceivedNotification(
     category = notification_categories.project_crew
     title = __("When someone registers for my project")
 
-    dispatch_roles = ['project_promoter']
+    dispatch_roles = ('project_promoter',)
     exclude_actor = True
 
 
@@ -308,7 +310,7 @@ class AccountAdminNotification(
     description = __("Account admins control all projects under the account")
 
     # Notify the affected individual and all account admins
-    dispatch_roles = ['member', 'account_admin']
+    dispatch_roles = ('member', 'account_admin')
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -321,7 +323,7 @@ class AccountAdminRevokedNotification(
     """Notification of admin membership being revoked."""
 
     # Notify the affected individual and all account admins
-    dispatch_roles = ['member', 'account_admin']
+    dispatch_roles = ('member', 'account_admin')
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -336,4 +338,4 @@ class CommentReportReceivedNotification(
     category = notification_categories.site_admin
     title = __("When a comment is reported as spam")
 
-    dispatch_roles = ['comment_moderator']
+    dispatch_roles = ('comment_moderator',)

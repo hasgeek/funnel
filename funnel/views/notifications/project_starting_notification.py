@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from flask import render_template
 
 from baseframe import _, __
@@ -12,6 +14,7 @@ from ...models import (
     ProjectStartingNotification,
     ProjectTomorrowNotification,
     Session,
+    Venue,
 )
 from ...transports.sms import SmsPriority, SmsTemplate
 from ..helpers import sms_shortlink
@@ -94,6 +97,18 @@ class RenderProjectStartingNotification(RenderNotification):
     hero_image = 'img/email/chars-v1/session-starting.png'
     email_heading = __("Session starting soon!")
 
+    @property
+    def start_time(self) -> datetime | None:
+        return (self.session or self.project).start_at_localized
+
+    @property
+    def venue(self) -> Venue | None:
+        return (
+            self.session.venue_room.venue
+            if self.session and self.session.venue_room
+            else self.project.primary_venue
+        )
+
     def web(self) -> str:
         return render_template(
             'notifications/project_starting_web.html.jinja2', view=self
@@ -135,7 +150,7 @@ class RenderProjectTomorrowNotification(RenderProjectStartingNotification):
         )
 
     def email_subject(self) -> str:
-        start_time = (self.session or self.project).start_at_localized
+        start_time = self.start_time
         if start_time is not None:
             return self.emoji_prefix + _("{project} starts at {time}").format(
                 project=self.project.joined_title, time=time_filter(start_time)
@@ -150,7 +165,7 @@ class RenderProjectTomorrowNotification(RenderProjectStartingNotification):
         )
 
     def sms(self) -> SmsTemplate:
-        venue = self.project.primary_venue
+        venue = self.venue
         if venue is not None:
             return ProjectStartingTomorrowVenueTemplate(
                 account=self.project.account,
