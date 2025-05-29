@@ -10,7 +10,6 @@ ptpython
 pylint
 pytest-icdiff
 pyupgrade
-reformat-gherkin
 ruff
 twilio-stubs
 types-beautifulsoup4

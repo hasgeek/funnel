@@ -20,7 +20,7 @@ flask-mailman
 Flask-Migrate
 flask-moreshell
 Flask-Redis
-Flask-RQ2
+Flask-RQ2  # Needs setuptools with Python 3.12+
 Flask-SQLAlchemy
 Flask-WTF
 furl
@@ -57,7 +57,7 @@ qrcode
 requests
 rich
 rq
-rq-dashboard @ git+https://github.com/jace/rq-dashboard
+rq-dashboard
 sqlalchemy-json
 SQLAlchemy-Utils
 SQLAlchemy[asyncio]
