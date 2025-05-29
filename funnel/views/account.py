@@ -548,7 +548,7 @@ class AccountView(ClassView):
                     if claimed_user != current_auth.user:
                         return render_message(
                             title=_("Email address already claimed"),
-                            message=Markup(  # noqa: S704
+                            message=Markup(
                                 _(
                                     "The email address <code>{email}</code> has already"
                                     " been verified by another user"
@@ -557,7 +557,7 @@ class AccountView(ClassView):
                         )
                     return render_message(
                         title=_("Email address already verified"),
-                        message=Markup(  # noqa: S704
+                        message=Markup(
                             _(
                                 "Hello, {fullname}! Your email address"
                                 " <code>{email}</code> has already been verified"
@@ -579,7 +579,7 @@ class AccountView(ClassView):
                 user_data_changed.send(current_auth.user, changes=['email'])
                 return render_message(
                     title=_("Email address verified"),
-                    message=Markup(  # noqa: S704
+                    message=Markup(
                         _(
                             "Hello, {fullname}!"
                             " Your email address <code>{email}</code> has now been"

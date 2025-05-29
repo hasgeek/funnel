@@ -384,3 +384,6 @@ mark-parentheses = false
 
 [tool.ruff.lint.pyupgrade]
 keep-runtime-typing = true
+
+[tool.ruff.lint.flake8-bandit]
+allowed-markup-calls = ['baseframe._']
