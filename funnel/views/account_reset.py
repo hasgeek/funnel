@@ -64,7 +64,7 @@ def reset() -> ReturnView:
                 session.pop('temp_username', None)
                 return render_message(
                     title=_("Cannot reset password"),
-                    message=Markup(  # noqa: S704
+                    message=Markup(
                         _(
                             "Your account does not have a phone number or email"
                             " address. However, it is linked to {service} with the ID"
@@ -78,7 +78,7 @@ def reset() -> ReturnView:
             session.pop('temp_username', None)
             return render_message(
                 title=_("Cannot reset password"),
-                message=Markup(  # noqa: S704
+                message=Markup(
                     _(
                         'Your account does not have a phone number or email address.'
                         ' Please contact <a href="tel:{phone}">{phone}</a> or'
@@ -284,7 +284,7 @@ def reset_with_token_do() -> ReturnView:
         title=_("Reset password"),
         formid='password-change',
         submit=_("Reset password"),
-        message=Markup(  # noqa: S704
+        message=Markup(
             _("Hello, {fullname}. You may now choose a new password")
         ).format(fullname=user.fullname),
         ajax=False,

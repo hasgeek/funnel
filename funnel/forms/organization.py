@@ -68,7 +68,7 @@ class OrganizationForm(forms.Form):
             case AccountNameProblem.USER:
                 if self.edit_user.name_is(field.data):
                     raise forms.validators.ValidationError(
-                        Markup(  # noqa: S704
+                        Markup(
                             _(
                                 'This is <em>your</em> current username.'
                                 ' You must change it first from <a href="'
