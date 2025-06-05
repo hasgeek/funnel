@@ -129,9 +129,12 @@ def video_property(obj: VideoMixin) -> VideoData | None:
                                     youtube_video['snippet']['publishedAt'], naive=False
                                 )
                             if 'thumbnails' in youtube_video['snippet']:
-                                data['thumbnail'] = youtube_video['snippet'][
-                                    'thumbnails'
-                                ]['medium']['url']
+                                all_thumbnails = youtube_video['snippet']['thumbnails']
+                                data['thumbnail'] = (
+                                    all_thumbnails.get('medium', {})
+                                    or all_thumbnails.get('standard', {})
+                                    or all_thumbnails.get('default', {})
+                                ).get('url', '')
                 else:
                     current_app.logger.error(
                         "HTTP %s: YouTube API request failed for url '%s'",
