@@ -380,7 +380,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'submissions': [
-                _p.current_access(datasets=('without_parent', 'related'))
+                _p.current_access(datasets=('without_parent', 'related', 'related'))
                 for _p in self.obj.proposals.filter(Proposal.state.PUBLIC)
             ],
         }

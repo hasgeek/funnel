@@ -306,6 +306,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
 
     __datasets__ = {
         'primary': {
+            'absolute_url',
             'urls',
             'uuid_b58',
             'url_name_uuid_b58',
@@ -314,9 +315,11 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
             'created_by',
             'first_user',
             'session',
+            'labels',
             'project',
         },
         'without_parent': {
+            'absolute_url',
             'urls',
             'uuid_b58',
             'url_name_uuid_b58',
@@ -324,9 +327,10 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
             'body',
             'created_by',
             'first_user',
+            'labels',
             'session',
         },
-        'related': {'urls', 'uuid_b58', 'url_name_uuid_b58', 'title'},
+        'related': {'absolute_url', 'uuid_b58', 'url_name_uuid_b58', 'title'},
     }
 
     def __init__(self, **kwargs: Any) -> None:
