@@ -307,6 +307,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
     __datasets__ = {
         'primary': {
             'absolute_url',
+            'datetime',
             'urls',
             'uuid_b58',
             'url_name_uuid_b58',
@@ -320,6 +321,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
         },
         'without_parent': {
             'absolute_url',
+            'datetime',
             'urls',
             'uuid_b58',
             'url_name_uuid_b58',
