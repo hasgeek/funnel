@@ -114,7 +114,7 @@
 }
 
 .card__calendar {
-  padding: $mui-grid-padding * 0.5 0 $mui-grid-padding-double;
+  padding: $mui-grid-padding * 0.5 0 $mui-grid-padding-double * 0.75;
   margin-left: -$mui-grid-padding;
   margin-right: -$mui-grid-padding;
 
@@ -394,7 +394,7 @@
     }
 
     .card__body__title {
-      margin: 0 0 $mui-grid-padding * 0.5;
+      margin: $mui-grid-padding * 0.5 0 $mui-grid-padding * 0.5;
     }
 
     .card__body__title--smaller {
