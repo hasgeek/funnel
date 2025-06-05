@@ -314,6 +314,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
             'created_by',
             'first_user',
             'session',
+            'labels',
             'project',
         },
         'without_parent': {
@@ -324,6 +325,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
             'body',
             'created_by',
             'first_user',
+            'labels',
             'session',
         },
         'related': {'urls', 'uuid_b58', 'url_name_uuid_b58', 'title'},
