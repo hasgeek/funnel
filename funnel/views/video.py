@@ -99,6 +99,7 @@ def video_property(obj: VideoMixin) -> VideoData | None:
                     try:
                         youtube_video = youtube_resp.json()
                     except requests.exceptions.JSONDecodeError as exc:
+                        youtube_video = None
                         current_app.logger.error(
                             "Unable to parse JSON response while calling '%s'",
                             video_url,
@@ -115,15 +116,25 @@ def video_property(obj: VideoMixin) -> VideoData | None:
                     else:
                         youtube_video = youtube_video['items'][0]
 
-                        data['duration'] = parse_duration(
-                            youtube_video['contentDetails']['duration']
-                        ).total_seconds()
-                        data['uploaded_at'] = parse_isoformat(
-                            youtube_video['snippet']['publishedAt'], naive=False
-                        )
-                        data['thumbnail'] = youtube_video['snippet']['thumbnails'][
-                            'medium'
-                        ]['url']
+                        if (
+                            'contentDetails' in youtube_video
+                            and 'duration' in youtube_video['contentDetails']
+                        ):
+                            data['duration'] = parse_duration(
+                                youtube_video['contentDetails']['duration']
+                            ).total_seconds()
+                        if 'snippet' in youtube_video:
+                            if 'publishedAt' in youtube_video['snippet']:
+                                data['uploaded_at'] = parse_isoformat(
+                                    youtube_video['snippet']['publishedAt'], naive=False
+                                )
+                            if 'thumbnails' in youtube_video['snippet']:
+                                all_thumbnails = youtube_video['snippet']['thumbnails']
+                                data['thumbnail'] = (
+                                    all_thumbnails.get('medium', {})
+                                    or all_thumbnails.get('standard', {})
+                                    or all_thumbnails.get('default', {})
+                                ).get('url', '')
                 else:
                     current_app.logger.error(
                         "HTTP %s: YouTube API request failed for url '%s'",
