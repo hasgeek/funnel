@@ -566,7 +566,7 @@ class ReorderMembershipMixin(ImmutableMembershipMixin, ReorderMixin):
         super().__init__(**kwargs)
         # Assign a default value to `seq`
         if self.seq is None:  # Will be None until first commit
-            self.seq = (
+            self.seq = (  # type: ignore[unreachable]
                 sa.select(sa.func.coalesce(sa.func.max(self.__class__.seq) + 1, 1))
                 .where(self.parent_scoped_reorder_query_filter)
                 .scalar_subquery()
@@ -591,7 +591,7 @@ class ReorderMembershipMixin(ImmutableMembershipMixin, ReorderMixin):
                 cls.parent_id == self.parent_id,
                 cls.is_active,
             )
-        return sa.and_(
+        return sa.and_(  # type: ignore[unreachable]
             cls.parent == self.parent,
             cls.is_active,
         )
@@ -619,7 +619,7 @@ class FrozenAttributionMixin:
         if self._local_data_only:
             # self._title may be None when returning local data
             return self._title  # type: ignore[return-value]
-        return self._title or self.member.title
+        return self._title if self._title else self.member.title  # type: ignore[attr-defined,return-value]
 
     @title.setter
     def title(self, value: str | None) -> None:
@@ -631,7 +631,7 @@ class FrozenAttributionMixin:
     @property
     def pickername(self: FrozenAttributionSubclassProtocol) -> str:
         """Return member's pickername, but only if attribution isn't frozen."""
-        return self._title if self._title else self.member.pickername
+        return self._title if self._title else self.member.pickername  # type: ignore[attr-defined,return-value]
 
     @with_roles(call={'owner', 'member'})
     def freeze_member_attribution(self, actor: Account) -> Self:

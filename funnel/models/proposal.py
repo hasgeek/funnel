@@ -156,7 +156,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, Model
     #: to all proposals, including drafts. A user-facing sequence will have gaps.
     #: Should numbering be required in the product, see `Update.number` for a better
     #: implementation.
-    seq: Mapped[int] = sa_orm.synonym('url_id')
+    seq: Mapped[int] = sa_orm.synonym('url_id')  # type: ignore[assignment]
 
     # TODO: Stand-in for `submitted_at` until proposals have a workflow-driven datetime
     datetime: Mapped[datetime_type] = sa_orm.synonym('created_at')

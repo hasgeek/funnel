@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Protocol, Self, TypeVar
+from typing import TYPE_CHECKING, Any, Protocol, Self, TypeVar
 
 from .base import Mapped, db, declarative_mixin, sa, sa_orm
 from .typing import ModelIdProtocol
@@ -32,6 +32,9 @@ Reorderable = TypeVar('Reorderable', bound='ReorderSubclassProtocol')
 @declarative_mixin
 class ReorderMixin:
     """Adds support for re-ordering sequences within a parent container."""
+
+    if TYPE_CHECKING:
+        seq: Mapped[int]
 
     @property
     def parent_scoped_reorder_query_filter(
@@ -79,8 +82,8 @@ class ReorderMixin:
         items_to_reorder = (
             cls.query.filter(
                 self.parent_scoped_reorder_query_filter,
-                cls.seq >= min(self.seq, other.seq),
-                cls.seq <= max(self.seq, other.seq),
+                cls.seq >= min(self.seq, other.seq),  # type: ignore[call-overload]
+                cls.seq <= max(self.seq, other.seq),  # type: ignore[call-overload]
             )
             .populate_existing()  # Force reload `.seq` into session cache
             .with_for_update(of=cls)  # Lock these rows to prevent a parallel update
@@ -102,8 +105,8 @@ class ReorderMixin:
 
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
-        self.seq: Mapped[int] = (
-            sa.select(sa.func.coalesce(sa.func.max(cls.seq) + 1, 1))
+        self.seq = (
+            sa.select(sa.func.coalesce(sa.func.max(cls.seq) + 1, 1))  # type: ignore[assignment]
             .where(self.parent_scoped_reorder_query_filter)
             .scalar_subquery()
         )
