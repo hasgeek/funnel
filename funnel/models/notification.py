@@ -676,14 +676,21 @@ class Notification(NoIdMixin, Model, Generic[_D, _F]):
         Subclasses wanting more control over how their notifications are dispatched
         should override this method.
         """
-        for account, role in self.role_provider_obj.actors_with(
+        try:
+            role_provider_obj = self.role_provider_obj
+        except NoResultFound:
+            # The underlying document or fragment may have been deleted, so this
+            # notification is obsolete and there's nothing to dispatch.
+            # TODO: There needs to be cleanup job to remove dangling notifications
+            return
+        for account, role in role_provider_obj.actors_with(
             self.dispatch_roles, with_role=True
         ):
-            # If this notification requires that it not be sent to the actor that
-            # triggered the notification, don't notify them. For example, a user who
-            # leaves a comment should not be notified of their own comment. This `if`
-            # condition uses `created_by_id` instead of the recommended `created_by` for
-            # faster processing in a loop.
+            # If this notification should not be sent to the actor who triggered the
+            # notification, exclude them. For example, a user who leaves a comment
+            # should not be notified of their own comment. This `if` condition uses
+            # `created_by_id` instead of the recommended `created_by` for faster
+            # processing in a loop.
             if (
                 self.exclude_actor
                 and self.created_by_id is not None

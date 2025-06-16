@@ -639,7 +639,6 @@ def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -
     for notification in notifications:
         if notification is not None:
             generator = notification.dispatch()
-            # TODO: Use walrus operator := after we move off Python 3.7
             while batch := tuple(islice(generator, DISPATCH_BATCH_SIZE)):
                 db.session.commit()
                 notification_recipient_ids = [
