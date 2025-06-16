@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Collection, Iterable
-from typing import Any, cast
+from typing import Any
 
 from flask import abort, get_flashed_messages, jsonify, redirect, request
 
@@ -200,8 +200,8 @@ def oauth_authorize() -> ReturnView:
     response_type = request.args.get('response_type')
     client_id = request.args.get('client_id')
     redirect_uri = request.args.get('redirect_uri')
-    scope = cast(str, request.args.get('scope', '')).split(' ')
-    state = cast(str, request.args.get('state', ''))
+    scope = request.args.get('scope', '').split(' ')
+    state = request.args.get('state', '')
 
     # Validation 1.1: Client_id present
     if not client_id:

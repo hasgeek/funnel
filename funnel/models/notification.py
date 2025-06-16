@@ -751,9 +751,9 @@ class PreviewNotification(NotificationType):
         self.type_ = cls.cls_type
         self.for_private_recipient = cls.for_private_recipient
         self.document = document
-        self.document_uuid = document.uuid
+        self.document_uuid = document.uuid  # type: ignore[assignment]
         self.fragment = fragment
-        self.fragment_uuid = fragment.uuid if fragment is not None else None
+        self.fragment_uuid = fragment.uuid if fragment is not None else None  # type: ignore[assignment]
         self.created_at = utcnow()
         self.created_by = user
         self.created_by_id = user.id if user is not None else None
