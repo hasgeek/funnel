@@ -31,7 +31,11 @@ from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.ext.hybrid import Comparator
 from sqlalchemy.sql.expression import ColumnElement
 from werkzeug.utils import cached_property
-from zbase32 import decode as zbase32_decode, encode as zbase32_encode
+from zbase32 import (
+    DecodeError as ZBase32DecodeError,
+    decode as zbase32_decode,
+    encode as zbase32_encode,
+)
 
 from baseframe import __
 from coaster.sqlalchemy import (
@@ -150,7 +154,8 @@ class ZBase32Comparator(Comparator[str]):  # pylint: disable=abstract-method
             return self.__clause_element__() == UUID(  # type: ignore[return-value]
                 bytes=zbase32_decode(str(other))
             )
-        except ValueError:  # zbase32 call failed, so it's not a valid string
+        except (ValueError, ZBase32DecodeError):
+            # zbase32 call failed, so it's not a valid string
             return sa.false()
 
 
@@ -1606,7 +1611,11 @@ class Account(UuidMixin, BaseMixin[int, 'Account'], Model):
 
     @classmethod
     def name_in(cls, names: Iterable[str]) -> ColumnElement:
-        """Generate query filter to check if name is among candidates."""
+        """
+        Generate query filter to check if name is among candidates.
+
+        This method does not accept ``~names`` using zbase32 encoding.
+        """
         return sa.func.lower(cls.name).in_(
             [name.lower().replace('-', '_') for name in names]
         )
