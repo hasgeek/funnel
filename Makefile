@@ -152,7 +152,7 @@ install-npm-ci:
 	npm clean-install
 
 install-python-pip:
-	pip install --upgrade pip setuptools
+	pip install --upgrade pip
 
 install-python-dev: install-python-pip deps-editable
 	pip install --use-pep517 -r requirements/dev.txt

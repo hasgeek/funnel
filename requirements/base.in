@@ -20,7 +20,7 @@ flask-mailman
 Flask-Migrate
 flask-moreshell
 Flask-Redis
-Flask-RQ2  # Needs setuptools with Python 3.12+
+Flask-RQ
 Flask-SQLAlchemy
 Flask-WTF
 furl

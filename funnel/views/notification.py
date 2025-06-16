@@ -19,7 +19,7 @@ from werkzeug.utils import cached_property
 from baseframe import __, statsd
 from coaster.sqlalchemy import RoleAccessProxy
 
-from .. import app
+from .. import app, rq
 from ..auth import current_auth
 from ..models import (
     Account,
@@ -35,7 +35,6 @@ from ..models import (
 from ..serializers import token_serializer
 from ..transports import TransportError, email, platform_transports, sms
 from .helpers import make_cached_token
-from .jobs import rqjob
 
 __all__ = [
     'DecisionBranchBase',
@@ -493,7 +492,7 @@ def dispatch_notification(*notifications: Notification) -> None:
         )
     db.session.add_all(notifications)
     db.session.commit()
-    dispatch_notification_job.queue(
+    dispatch_notification_job.enqueue(
         eventid, [notification.id for notification in notifications]
     )
     for notification in notifications:
@@ -539,7 +538,7 @@ def transport_worker_wrapper(
     return inner
 
 
-@rqjob()
+@rq.job(queue='funnel')
 @transport_worker_wrapper
 def dispatch_transport_email(
     notification_recipient: NotificationRecipient, view: RenderNotification
@@ -591,7 +590,7 @@ def dispatch_transport_email(
     )
 
 
-@rqjob()
+@rq.job(queue='funnel')
 @transport_worker_wrapper
 def dispatch_transport_sms(
     notification_recipient: NotificationRecipient, view: RenderNotification
@@ -629,7 +628,7 @@ transport_workers = {'email': dispatch_transport_email, 'sms': dispatch_transpor
 DISPATCH_BATCH_SIZE = 10
 
 
-@rqjob()
+@rq.job(queue='funnel')
 def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -> None:
     """Process :class:`Notification` into batches of :class:`UserNotification`."""
     notifications = [
@@ -646,7 +645,7 @@ def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -
                 notification_recipient_ids = [
                     notification_recipient.identity for notification_recipient in batch
                 ]
-                dispatch_notification_recipients_job.queue(notification_recipient_ids)
+                dispatch_notification_recipients_job.enqueue(notification_recipient_ids)
                 statsd.incr(
                     'notification.recipient',
                     count=len(notification_recipient_ids),
@@ -655,7 +654,7 @@ def dispatch_notification_job(eventid: UUID, notification_ids: Sequence[UUID]) -
                 # Continue to the next batch
 
 
-@rqjob()
+@rq.job(queue='funnel')
 def dispatch_notification_recipients_job(
     notification_recipient_ids: Sequence[tuple[int, UUID]],
 ) -> None:
@@ -680,4 +679,4 @@ def dispatch_notification_recipients_job(
         # Based on user preferences, a transport may have no recipients at all.
         # Only queue a background job when there is work to do.
         if batch:
-            transport_workers[transport].queue(batch)
+            transport_workers[transport].enqueue(batch)

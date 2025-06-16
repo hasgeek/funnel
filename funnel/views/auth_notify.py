@@ -28,7 +28,7 @@ user_changes_to_notify = {
 def notify_session_revoked(session: LoginSession) -> None:
     for auth_client in session.auth_clients:
         if auth_client.trusted and auth_client.notification_uri:
-            send_auth_client_notice.queue(
+            send_auth_client_notice.enqueue(
                 str(auth_client.notification_uri),
                 data={
                     'userid': session.account.buid,  # XXX: Deprecated parameter
@@ -79,7 +79,7 @@ def notify_user_data_changed(user: Account, changes: list[str]) -> None:
                     }.intersection(tokenscope):
                         notify_changes.append(change)
                 if notify_changes:
-                    send_auth_client_notice.queue(
+                    send_auth_client_notice.enqueue(
                         str(token.auth_client.notification_uri),
                         data={
                             'userid': user.buid,  # XXX: Deprecated parameter
@@ -116,7 +116,7 @@ def notify_org_data_changed(
         # First available user of the client if the current user is not a user
         notify_user = user if user is not None and user in users else users[0]
         if auth_client.trusted and auth_client.notification_uri:
-            send_auth_client_notice.queue(
+            send_auth_client_notice.enqueue(
                 str(auth_client.notification_uri),
                 data={
                     'userid': notify_user.buid,  # XXX: Deprecated parameter
