@@ -455,6 +455,7 @@ class SiteadminView(ClassView):
 def init_rq_dashboard() -> None:
     """Register RQ Dashboard Blueprint if available for import."""
     if rq_dashboard is not None:
+        rq_dashboard.web.setup_rq_connection(app)
         rq_dashboard.blueprint.before_request(
             lambda: (
                 None if current_auth and current_auth.user.is_sysadmin else abort(403)
