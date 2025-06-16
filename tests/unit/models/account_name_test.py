@@ -171,3 +171,17 @@ def test_urlname(user_twoflower: models.User, user_rincewind: models.User) -> No
         ).one()
         == user_rincewind
     )
+
+
+def test_urlname_invalid(user_twoflower: models.Account) -> None:
+    """Test Account.urlname with invalid input."""
+    assert user_twoflower.urlname != '~'
+    assert user_twoflower.urlname != '~invalid'
+    assert user_twoflower.urlname != '~help'
+    assert (
+        models.Account.query.filter(models.Account.name_is('~')).one_or_none() is None
+    )
+    assert (
+        models.Account.query.filter(models.Account.name_is('~help')).one_or_none()
+        is None
+    )
