@@ -135,7 +135,7 @@ class TicketEventView(TicketEventViewBase):
                             'explara',
                             'boxoffice',
                         ]:
-                            import_tickets.queue(ticket_client.id)
+                            import_tickets.enqueue(ticket_client.id)
                     flash(
                         _(
                             "Importing tickets from vendors…"

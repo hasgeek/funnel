@@ -455,6 +455,9 @@ class SiteadminView(ClassView):
 def init_rq_dashboard() -> None:
     """Register RQ Dashboard Blueprint if available for import."""
     if rq_dashboard is not None:
+        # Copy RQ connection config to RQ dashboard config. Should be safe to do here
+        # as Flask-RQ's init_app has already been called
+        app.config.setdefault('RQ_DASHBOARD_REDIS_URL', app.config['RQ_CONNECTION'])
         rq_dashboard.web.setup_rq_connection(app)
         rq_dashboard.blueprint.before_request(
             lambda: (

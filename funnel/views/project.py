@@ -339,7 +339,7 @@ class AccountProjectView(AccountViewBase):
 
             flash(_("Your new project has been created"), 'info')
             # tag locations
-            tag_locations.queue(project.id)
+            tag_locations.enqueue(project.id)
 
             return render_redirect(project.url_for())
         return render_form(
@@ -505,7 +505,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
             project_data_change.send(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            tag_locations.queue(self.obj.id)
+            tag_locations.enqueue(self.obj.id)
 
             # Find and delete draft if it exists
             if self.get_draft() is not None:
@@ -895,7 +895,7 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
                         'explara',
                         'boxoffice',
                     ]:
-                        import_tickets.queue(ticket_client.id)
+                        import_tickets.enqueue(ticket_client.id)
                 flash(
                     _(
                         "Importing tickets from vendors…"

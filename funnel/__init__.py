@@ -14,7 +14,7 @@ from flask_flatpages import FlatPages
 from flask_mailman import Mail
 from flask_migrate import Migrate
 from flask_redis import FlaskRedis
-from flask_rq2 import RQ
+from flask_rq import RQ
 from whitenoise import WhiteNoise
 
 import coaster.app
@@ -43,8 +43,7 @@ webpack = WebpackManifest(filepath='static/build/manifest.json', jinja_global='w
 
 redis_store = FlaskRedis(decode_responses=True, config_prefix='CACHE_REDIS')
 rq = RQ()
-rq.job_class = 'rq.job.Job'
-rq.queues = ['funnel']  # Queues used in this app
+app.config.setdefault('RQ_QUEUES', ['funnel'])
 executor = Executor()
 
 # MARK: Assets -------------------------------------------------------------------------
