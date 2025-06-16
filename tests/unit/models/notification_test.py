@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
+from uuid import uuid4
 
 import pytest
 import sqlalchemy.orm as sa_orm
@@ -291,6 +292,19 @@ def test_update_notification_structure(
     all_recipients = {nr.recipient for nr in notification_recipients}
     assert project_fixtures.user_cancelled_participant not in all_recipients
     assert project_fixtures.user_bystander not in all_recipients
+
+
+def test_invalid_notification_dispatch(
+    db_session: scoped_session, notification_types: SimpleNamespace
+) -> None:
+    """Test that dispatch fails silently when document or fragment is missing."""
+    # Make a notification linking to a non-existent document and fragment.
+    notification: models.Notification = notification_types.TestNewUpdateNotification(
+        document_uuid=uuid4(), fragment_uuid=uuid4()
+    )
+    db_session.add(notification)
+    # Confirm dispatch() returns an empty iterator instead of raising an exception
+    assert not list(notification.dispatch())
 
 
 def test_account_notification_preferences(
