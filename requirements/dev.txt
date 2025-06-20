@@ -38,7 +38,7 @@ mccabe==0.7.0
     # via pylint
 mkinit==1.1.0
     # via -r requirements/dev.in
-mypy==1.16.0
+mypy==1.16.1
     # via -r requirements/dev.in
 mypy-json-report==1.3.0
     # via -r requirements/dev.in
@@ -48,7 +48,7 @@ parso==0.8.4
     # via jedi
 pathspec==0.12.1
     # via mypy
-pip-compile-multi==3.1.0
+pip-compile-multi==3.2.1
     # via -r requirements/dev.in
 pip-tools==7.4.1
     # via pip-compile-multi
@@ -76,7 +76,7 @@ pytest-icdiff==0.9
     # via -r requirements/dev.in
 pyupgrade==3.20.0
     # via -r requirements/dev.in
-ruff==0.11.13
+ruff==0.12.0
     # via -r requirements/dev.in
 tokenize-rt==6.2.0
     # via pyupgrade

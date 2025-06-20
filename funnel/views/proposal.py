@@ -43,6 +43,7 @@ from ..models import (
     sa,
     sa_orm,
 )
+from ..signals import proposal_role_change
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo, requires_user_not_spammy
@@ -101,6 +102,9 @@ class ProjectProposalView(ProjectViewBase):
                 form.populate_obj(proposal)
             proposal.name = make_name(proposal.title)
             proposal.update_description()
+            proposal_role_change.send(
+                proposal, actor=current_auth.user, user=current_auth.user
+            )
             db.session.commit()
             dispatch_notification(
                 ProposalSubmittedNotification(document=proposal),
@@ -256,6 +260,9 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
                     )
                     collaborator_form.populate_obj(membership)
                     db.session.add(membership)
+                proposal_role_change.send(
+                    self.obj, actor=current_auth.user, user=membership.member
+                )
                 db.session.commit()
                 return {
                     'status': 'ok',
@@ -483,6 +490,9 @@ class ProposalMembershipView(
                 membership.amend_by(current_auth.user) as amendment,
             ):
                 collaborator_form.populate_obj(amendment)
+            proposal_role_change.send(
+                self.obj.proposal, actor=current_auth.user, user=amendment.member
+            )
             db.session.commit()
             return {
                 'status': 'ok',
@@ -523,6 +533,9 @@ class ProposalMembershipView(
                     ),
                 }, 422
             membership.revoke(actor=current_auth.user)
+            proposal_role_change.send(
+                self.obj.proposal, actor=current_auth.user, user=self.obj.member
+            )
             db.session.commit()
             return {
                 'status': 'ok',

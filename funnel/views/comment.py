@@ -57,6 +57,7 @@ def update_project_commentset_membership(
 def update_proposal_commentset_membership(
     proposal: Proposal, actor: Account, user: Account
 ) -> None:
+    db.session.flush()
     if 'submitter' in proposal.roles_for(user):
         proposal.commentset.add_subscriber(actor=actor, member=user)
     else:
