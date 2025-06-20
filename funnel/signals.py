@@ -7,7 +7,7 @@ not type-friendly.
 
 from __future__ import annotations
 
-from flask.signals import Namespace
+from blinker import Namespace
 
 model_signals = Namespace()
 app_signals = Namespace()
