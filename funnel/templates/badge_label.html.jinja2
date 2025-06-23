@@ -2,9 +2,9 @@
 <html lang="{{ get_locale() }}">
 <head>
   <title>{% trans %}Label badge{% endtrans %}</title>
-  <script src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js'></script>
-  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css' />
-  <style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css" />
+  <style type="text/css">
     @page {
       size: 62mm 68mm;  /* width height */
       margin: 0;
@@ -90,6 +90,14 @@
       font-size: 13px;
     }
   </style>
+  {%- if badge_style_link %}
+    <link href="{{ badge_style_link }}" rel="stylesheet" type="text/css" />
+  {%- endif %}
+  {%- if badge_style %}
+    <style type="text/css">
+      {{ badge_style }}
+    </style>
+  {%- endif %}
 </head>
 <body>
 {%- for badge in badges|sort(attribute='first_name') %}

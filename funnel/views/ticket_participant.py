@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from types import SimpleNamespace
 from typing import Any, TypedDict
 
 from flask import abort, flash, request, url_for
+from markupsafe import Markup
 from sqlalchemy.exc import IntegrityError
 
 from baseframe import _, forms
@@ -21,7 +23,7 @@ from coaster.views import (
 )
 
 from .. import app
-from ..forms import TicketParticipantForm
+from ..forms import BadgeStyleForm, TicketParticipantForm
 from ..models import (
     Account,
     CheckinParticipantProtocol,
@@ -118,14 +120,14 @@ def ticket_participant_checkin_data(
     if not {'promoter', 'usher'}.isdisjoint(project.current_roles):
         data.update(
             {
-                'badge_url': url_for(
-                    'TicketParticipantView_badge',
+                'badge_lanyard_url': url_for(
+                    'TicketParticipantView_badge_lanyard',
                     account=project.account.urlname,
                     project=project.name,
                     ticket_participant=puuid_b58,
                 ),
-                'label_badge_url': url_for(
-                    'TicketParticipantView_label_badge',
+                'badge_label_url': url_for(
+                    'TicketParticipantView_badge_label',
                     account=project.account.urlname,
                     project=project.name,
                     ticket_participant=puuid_b58,
@@ -142,7 +144,7 @@ def ticket_participant_checkin_data(
 
 
 @Project.views('ticket_participant')
-@route('/<account>/<project>/ticket_participants', init_app=app)
+@route('/<account>/<project>', init_app=app)
 class ProjectTicketParticipantView(ProjectViewBase):
     @route('json')
     @requires_login
@@ -156,7 +158,7 @@ class ProjectTicketParticipantView(ProjectViewBase):
             ],
         }
 
-    @route('new', methods=['GET', 'POST'])
+    @route('ticket_participant/new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'promoter'})
     def new_participant(self) -> ReturnView:
@@ -171,10 +173,44 @@ class ProjectTicketParticipantView(ProjectViewBase):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_("This participant already exists"), 'info')
+                flash(_("This participant already exists"), 'error')
             return render_redirect(self.obj.url_for('admin'))
         return render_form(
             form=form, title=_("New ticketed participant"), submit=_("Add participant")
+        )
+
+    @route('badge_style', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'promoter', 'editor'})
+    def badge_style(self) -> ReturnView:
+        form = BadgeStyleForm(
+            obj=SimpleNamespace(
+                badge_lanyard_style_link=self.obj.boxoffice_data.get(
+                    'badge_lanyard_style_link', ''
+                ),
+                badge_lanyard_style=self.obj.boxoffice_data.get(
+                    'badge_lanyard_style', ''
+                ),
+                badge_label_style_link=self.obj.boxoffice_data.get(
+                    'badge_label_style_link', ''
+                ),
+                badge_label_style=self.obj.boxoffice_data.get('badge_label_style', ''),
+            )
+        )
+        if form.validate_on_submit():
+            self.obj.boxoffice_data.update(
+                {
+                    'badge_lanyard_style_link': form.badge_lanyard_style_link.data,
+                    'badge_lanyard_style': form.badge_lanyard_style.data,
+                    'badge_label_style_link': form.badge_label_style_link.data,
+                    'badge_label_style': form.badge_label_style.data,
+                }
+            )
+            db.session.commit()
+            flash(_("The badge style has been updated"), 'info')
+            return render_redirect(self.obj.url_for('admin'))
+        return render_form(
+            form=form, title=_("Edit badge style"), submit=_("Save changes")
         )
 
 
@@ -224,17 +260,37 @@ class TicketParticipantView(
             form=form, title=_("Edit Participant"), submit=_("Save changes")
         )
 
-    @route('badge', methods=['GET'])
-    @render_with('badge.html.jinja2')
+    @route('badge_lanyard', methods=['GET'])
+    @render_with('badge_lanyard.html.jinja2')
     @requires_roles({'project_promoter', 'project_usher'})
-    def badge(self) -> ReturnRenderWith:
-        return {'badges': ticket_participant_badge_data([self.obj])}
+    def badge_lanyard(self) -> ReturnRenderWith:
+        badge_style_link = self.obj.project.boxoffice_data.get(
+            'badge_lanyard_style_link', ''
+        )
+        badge_style = Markup(  # noqa: S704
+            self.obj.project.boxoffice_data.get('badge_lanyard_style', '')
+        )
+        return {
+            'badges': ticket_participant_badge_data([self.obj]),
+            'badge_style_link': badge_style_link,
+            'badge_style': badge_style,
+        }
 
-    @route('label_badge', methods=['GET'])
-    @render_with('label_badge.html.jinja2')
+    @route('badge_label', methods=['GET'])
+    @render_with('badge_label.html.jinja2')
     @requires_roles({'project_promoter', 'project_usher'})
-    def label_badge(self) -> ReturnRenderWith:
-        return {'badges': ticket_participant_badge_data([self.obj])}
+    def badge_label(self) -> ReturnRenderWith:
+        badge_style_link = self.obj.project.boxoffice_data.get(
+            'badge_label_style_link', ''
+        )
+        badge_style = Markup(  # noqa: S704
+            self.obj.project.boxoffice_data.get('badge_label_style', '')
+        )
+        return {
+            'badges': ticket_participant_badge_data([self.obj]),
+            'badge_style_link': badge_style_link,
+            'badge_style': badge_style,
+        }
 
 
 @user_data_changed.connect
@@ -309,10 +365,10 @@ class TicketEventParticipantView(TicketEventViewBase):
             'total_checkedin': checkin_count,
         }
 
-    @route('badges')
-    @render_with('badge.html.jinja2')
+    @route('badges_lanyard')
+    @render_with('badge_lanyard.html.jinja2')
     @requires_roles({'project_promoter', 'project_usher'})
-    def badges(self) -> ReturnRenderWith:
+    def badges_lanyard(self) -> ReturnRenderWith:
         badge_printed = getbool(request.args.get('badge_printed', 'f'))
         ticket_participants = (
             TicketParticipant.query.join(TicketEventParticipant)
@@ -320,15 +376,23 @@ class TicketEventParticipantView(TicketEventViewBase):
             .filter(TicketParticipant.badge_printed == badge_printed)
             .all()
         )
+        badge_style_link = self.obj.project.boxoffice_data.get(
+            'badge_lanyard_style_link', ''
+        )
+        badge_style = Markup(  # noqa: S704
+            self.obj.project.boxoffice_data.get('badge_lanyard_style', '')
+        )
         return {
             'badge_template': self.obj.badge_template,
             'badges': ticket_participant_badge_data(ticket_participants),
+            'badge_style_link': badge_style_link,
+            'badge_style': badge_style,
         }
 
-    @route('label_badges')
-    @render_with('label_badge.html.jinja2')
+    @route('badges_label')
+    @render_with('badge_label.html.jinja2')
     @requires_roles({'project_promoter', 'project_usher'})
-    def label_badges(self) -> ReturnRenderWith:
+    def badges_label(self) -> ReturnRenderWith:
         badge_printed = getbool(request.args.get('badge_printed', 'f'))
         ticket_participants = (
             TicketParticipant.query.join(TicketEventParticipant)
@@ -336,9 +400,17 @@ class TicketEventParticipantView(TicketEventViewBase):
             .filter(TicketParticipant.badge_printed == badge_printed)
             .all()
         )
+        badge_style_link = self.obj.project.boxoffice_data.get(
+            'badge_label_style_link', ''
+        )
+        badge_style = Markup(  # noqa: S704
+            self.obj.project.boxoffice_data.get('badge_label_style', '')
+        )
         return {
             'badge_template': self.obj.badge_template,
             'badges': ticket_participant_badge_data(ticket_participants),
+            'badge_style_link': badge_style_link,
+            'badge_style': badge_style,
         }
 
 

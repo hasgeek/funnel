@@ -23,6 +23,7 @@ from .helpers import nullable_json_filters, validate_and_convert_json
 
 __all__ = [
     'FORM_SCHEMA_PLACEHOLDER',
+    'BadgeStyleForm',
     'ProjectBoxofficeForm',
     'TicketClientForm',
     'TicketEventForm',
@@ -246,4 +247,29 @@ class TicketParticipantBadgeForm(forms.Form):
     choices = [('', "Badge printing status"), ('t', "Printed"), ('f', "Not printed")]
     badge_printed = forms.SelectField(
         "", choices=[(val_title[0], val_title[1]) for val_title in choices]
+    )
+
+
+class BadgeStyleForm(forms.Form):
+    """Badge style customization form."""
+
+    badge_lanyard_style_link = forms.URLField(
+        __("Lanyard stylesheet link"),
+        description=__("Fonts and externally hosted stylesheets"),
+        validators=[forms.validators.Optional(), forms.validators.ValidUrl()],
+    )
+    badge_label_style_link = forms.URLField(
+        __("Label stylesheet link"),
+        description=__("Fonts and externally hosted stylesheets"),
+        validators=[forms.validators.Optional(), forms.validators.ValidUrl()],
+    )
+    badge_lanyard_style = forms.StylesheetField(
+        __("Lanyard stylesheet CSS"),
+        description=__("Must be valid CSS (not validated)"),
+        validators=[forms.validators.Optional()],
+    )
+    badge_label_style = forms.StylesheetField(
+        __("Label stylesheet CSS"),
+        description=__("Must be valid CSS (not validated)"),
+        validators=[forms.validators.Optional()],
     )
