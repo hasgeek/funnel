@@ -644,6 +644,9 @@ class MarkdownCompositeBase(MutableComposite):
         """Return composite values for SQLAlchemy."""
         return self._text, self._html
 
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}({self._text!r})'
+
     # Return a string representation of the text (see class decorator)
     def __str__(self) -> str:
         """Return string representation."""
@@ -690,6 +693,9 @@ class MarkdownCompositeBase(MutableComposite):
     def __json__(self) -> dict[str, str | None]:
         """Return JSON-compatible rendering of composite."""
         return {'text': self._text, 'html': self._html}
+
+    def __hash__(self) -> int:
+        return hash(repr(self))
 
     def __eq__(self, other: object) -> bool:
         """Compare for equality."""

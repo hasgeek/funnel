@@ -175,6 +175,8 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
     If the provided name is invalid, :func:`name_to_bigint` will raise exceptions.
     """
 
+    __hash__ = Comparator.__hash__
+
     def __eq__(self, other: object) -> sa.ColumnElement[bool]:  # type: ignore[override]
         """Return an expression for column == other."""
         if isinstance(other, str | bytes):

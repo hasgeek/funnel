@@ -148,6 +148,8 @@ class PROFILE_STATE(LabeledEnum):  # noqa: N801
 class ZBase32Comparator(Comparator[str]):  # pylint: disable=abstract-method
     """Comparator to allow lookup by Account.uuid_zbase32."""
 
+    __hash__ = Comparator.__hash__
+
     def __eq__(self, other: object) -> sa.ColumnElement[bool]:  # type: ignore[override]
         """Return an expression for column == other."""
         try:
