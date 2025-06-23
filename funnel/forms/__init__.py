@@ -125,6 +125,7 @@ from .proposal import (
 from .session import SavedSessionForm, SessionForm
 from .sync_ticket import (
     FORM_SCHEMA_PLACEHOLDER,
+    BadgeStyleForm,
     ProjectBoxofficeForm,
     TicketClientForm,
     TicketEventForm,
@@ -151,6 +152,7 @@ __all__ = [
     "AuthClientCredentialForm",
     "AuthClientForm",
     "AuthClientPermissionEditForm",
+    "BadgeStyleForm",
     "CfpForm",
     "CommentForm",
     "CommentsetSubscribeForm",

@@ -147,6 +147,7 @@ class TicketEvent(GetTitleMixin, Model):
         ),
         rw={'project_promoter'},
     )
+    # TODO: Rename this to badge_background_url and use UrlType
     badge_template: Mapped[str | None] = with_roles(
         sa_orm.mapped_column(sa.Unicode(250), nullable=True), rw={'project_promoter'}
     )

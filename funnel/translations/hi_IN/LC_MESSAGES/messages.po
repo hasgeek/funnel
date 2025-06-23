@@ -2737,8 +2737,8 @@ msgstr "त्रुटी"
 msgid "Error URI"
 msgstr "त्रुटी URI"
 
-#: funnel/templates/badge.html.jinja2:4
-msgid "Badge"
+#: funnel/templates/badge_lanyard.html.jinja2:4
+msgid "Lanyard badge"
 msgstr ""
 
 #: funnel/templates/collaborator_list.html.jinja2:21
@@ -2900,7 +2900,7 @@ msgstr ""
 msgid "Explore communities"
 msgstr ""
 
-#: funnel/templates/label_badge.html.jinja2:4
+#: funnel/templates/badge_label.html.jinja2:4
 msgid "Label badge"
 msgstr ""
 

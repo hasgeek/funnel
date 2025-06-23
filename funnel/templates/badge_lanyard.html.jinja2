@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="{{ get_locale() }}">
 <head>
-  <title>{% trans %}Badge{% endtrans %}</title>
-  <meta name="description" content="{% if g.account %}{{ g.account.description.html|firstline }}{% endif %}" />
-  <script src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js'></script>
-  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css' />
-  <style>
+  <title>{% trans %}Lanyard badge{% endtrans %}</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css" />
+  <style type="text/css">
     @page {
       size: 4.129in 11.34in;  /* width height */
       margin: 0;
@@ -15,7 +14,7 @@
       padding: 0;
       background: transparent;
     }
-    .badge-wrapper{
+    .badge-wrapper {
       width: 4.129in;
       height: 5.67in;
       page-break-after: always;
@@ -24,13 +23,13 @@
       background-size: 100% 100%;
       font-family: 'Open Sans', sans-serif;
     }
-    .badge{
+    .badge {
       width: 4.129in;
       height: 5.67in;
       position: relative;
       page-break-inside: avoid;
     }
-    .badge.frontside{
+    .badge.frontside {
       -moz-transform: rotate(180deg);
       -webkit-transform: rotate(180deg);
       -o-transform: rotate(180deg);
@@ -105,6 +104,14 @@
       font-size: 18px;
     }
   </style>
+  {%- if badge_style_link %}
+    <link href="{{ badge_style_link }}" rel="stylesheet" type="text/css" />
+  {%- endif %}
+  {%- if badge_style %}
+    <style type="text/css">
+      {{ badge_style }}
+    </style>
+  {%- endif %}
 </head>
 <body>
 {%- for badge in badges|sort(attribute='first_name') %}

@@ -23,10 +23,10 @@
           <ul class="mui-list--unstyled">
             {{#if isUsher || IsPromoter}}
             <li>
-              <a href="{{ badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-badge">{{ gettext('Show badge') }}</a>
+              <a href="{{ badge_lanyard_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-badge">{{ gettext('Show lanyard badge') }}</a>
             </li>
             <li>
-              <a href="{{ label_badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-label-badge">{{ gettext('Show label badge') }}</a>
+              <a href="{{ badge_label_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-label-badge">{{ gettext('Show label badge') }}</a>
             </li>
             {{/if}}
             <li>
