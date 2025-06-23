@@ -15,7 +15,8 @@ from coaster.utils import getbool
 
 def rq_background_worker(*args: Any, **kwargs: Any) -> Any:
     """Import, create and start a new RQ worker in the background process."""
-    from funnel import app, rq  # pylint: disable=import-outside-toplevel
+    # pylint: disable=import-outside-toplevel
+    from funnel import app, rq  # noqa: PLC0415
 
     with app.app_context():
         return rq.make_worker().work(*args, **kwargs)

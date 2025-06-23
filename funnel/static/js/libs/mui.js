@@ -44,14 +44,14 @@
               s = t('src/js/select'),
               a = t('src/js/tabs'),
               l = t('src/js/textfield');
-            (e.mui = { overlay: o, tabs: a.api }),
+            ((e.mui = { overlay: o, tabs: a.api }),
               i.ready(function () {
-                l.initListeners(),
+                (l.initListeners(),
                   s.initListeners(),
                   r.initListeners(),
                   n.initListeners(),
-                  a.initListeners();
-              });
+                  a.initListeners());
+              }));
           }
         })(window);
       },
@@ -110,10 +110,10 @@
             n < o;
             n++
           )
-            (i += '@keyframes ' + (t = e[n])[1]),
+            ((i += '@keyframes ' + (t = e[n])[1]),
               (i += '{from{transform:none;}to{transform:none;}}'),
               (i += t[0]),
-              (i += '{animation-duration:0.0001s;animation-name:' + t[1] + ';}');
+              (i += '{animation-duration:0.0001s;animation-name:' + t[1] + ';}'));
           s.loadStyle(i);
         }
         var r = t('./jqLite'),
@@ -124,9 +124,9 @@
           animationEvents: a,
           onAnimationStart: function (t, e) {
             var i = l[t];
-            i || (i = l[t] = []),
+            (i || (i = l[t] = []),
               i.push(e),
-              this.init || (o(), r.on(document, a, n, !0), (this.init = !0));
+              this.init || (o(), r.on(document, a, n, !0), (this.init = !0)));
           },
         };
       },
@@ -148,10 +148,10 @@
               d = document.documentElement.clientHeight,
               m = e * r + 2 * s,
               f = Math.min(m, d);
-            (l = s + r - (n + o)),
+            ((l = s + r - (n + o)),
               (l -= i * r),
               (c = d - f + (u = -1 * t.getBoundingClientRect().top)),
-              (a = Math.min(Math.max(l, u), c));
+              (a = Math.min(Math.max(l, u), c)));
             var p,
               h,
               v = 0;
@@ -180,7 +180,7 @@
           n = void 0 !== n && n;
           var o = (t._muiEventCache = t._muiEventCache || {});
           e.split(' ').map(function (e) {
-            t.addEventListener(e, i, n), (o[e] = o[e] || []), o[e].push([i, n]);
+            (t.addEventListener(e, i, n), (o[e] = o[e] || []), o[e].push([i, n]));
           });
         }
         function r(t, e, i, n) {
@@ -191,9 +191,9 @@
             a = (t._muiEventCache = t._muiEventCache || {});
           e.split(' ').map(function (e) {
             for (s = (o = a[e] || []).length; s--; )
-              (r = o[s]),
+              ((r = o[s]),
                 (void 0 === i || (r[0] === i && r[1] === n)) &&
-                  (o.splice(s, 1), t.removeEventListener(e, r[0], r[1]));
+                  (o.splice(s, 1), t.removeEventListener(e, r[0], r[1])));
           });
         }
         function s(t, e) {
@@ -243,7 +243,7 @@
           addClass: function (t, e) {
             if (e && t.setAttribute) {
               for (var i, n = l(t), o = e.split(' '), r = 0; r < o.length; r++)
-                (i = o[r].trim()), -1 === n.indexOf(' ' + i + ' ') && (n += i + ' ');
+                ((i = o[r].trim()), -1 === n.indexOf(' ' + i + ' ') && (n += i + ' '));
               t.setAttribute('class', n.trim());
             }
           },
@@ -284,7 +284,7 @@
                 t,
                 e,
                 function o(s) {
-                  i && i.apply(this, arguments), r(t, e, o, n);
+                  (i && i.apply(this, arguments), r(t, e, o, n));
                 },
                 n,
               );
@@ -320,9 +320,9 @@
                 } catch (t) {}
                 i && c();
               }
-              n[s](l + 'DOMContentLoaded', u, !1),
+              (n[s](l + 'DOMContentLoaded', u, !1),
                 n[s](l + 'readystatechange', u, !1),
-                o[s](l + 'load', u, !1);
+                o[s](l + 'load', u, !1));
             }
           },
           removeClass: function (t, e) {
@@ -409,7 +409,7 @@
               i = void 0 === i || i,
               n = void 0 === n || n;
             if ((s.initEvent(e, i, n), o)) for (r in o) s[r] = o[r];
-            return t && t.dispatchEvent(s), s;
+            return (t && t.dispatchEvent(s), s);
           },
           enableScrollLock: function () {
             if (1 === (d += 1)) {
@@ -421,7 +421,7 @@
                 u = a.documentElement,
                 p = a.body,
                 h = f();
-              (t = ['overflow:hidden']),
+              ((t = ['overflow:hidden']),
                 h &&
                   (u.scrollHeight > u.clientHeight &&
                     ((i = parseInt(c.css(p, 'padding-right')) + h),
@@ -434,7 +434,7 @@
                 (r = n(e)),
                 c.on(l, 'scroll', s, !0),
                 (o = { left: c.scrollLeft(l), top: c.scrollTop(l) }),
-                c.addClass(p, m);
+                c.addClass(p, m));
             }
           },
           log: function () {
@@ -475,10 +475,10 @@
           if (!0 !== t._muiDropdown) {
             t._muiDropdown = !0;
             var e = t.tagName;
-            ('INPUT' !== e && 'BUTTON' !== e) ||
+            (('INPUT' !== e && 'BUTTON' !== e) ||
               t.hasAttribute('type') ||
               (t.type = 'button'),
-              s.on(t, 'click', o);
+              s.on(t, 'click', o));
           }
         }
         function o(t) {
@@ -489,7 +489,7 @@
         }
         function r(t) {
           function e() {
-            s.removeClass(n, u), s.off(o, 'click', e);
+            (s.removeClass(n, u), s.off(o, 'click', e));
           }
           var i = t.parentNode,
             n = t.nextElementSibling,
@@ -502,11 +502,11 @@
                 var r = i.getBoundingClientRect(),
                   a = t.getBoundingClientRect(),
                   l = a.top - r.top + a.height;
-                s.css(n, 'top', l + 'px'),
+                (s.css(n, 'top', l + 'px'),
                   s.addClass(n, u),
                   setTimeout(function () {
                     s.on(o, 'click', e);
-                  }, 0);
+                  }, 0));
               })();
         }
         var s = t('./lib/jqLite'),
@@ -548,10 +548,10 @@
             for (; o.firstChild; ) o.removeChild(o.firstChild);
             e && o.appendChild(e);
           } else
-            (o = i.createElement('div')).setAttribute('id', p),
+            ((o = i.createElement('div')).setAttribute('id', p),
               o.setAttribute('tabindex', '-1'),
               e && o.appendChild(e),
-              n.appendChild(o);
+              n.appendChild(o));
           return (
             h.test(navigator.userAgent) && f.css(o, 'cursor', 'pointer'),
             t.keyboard ? r() : s(),
@@ -566,9 +566,9 @@
             e = document.getElementById(p);
           if (e) {
             for (; e.firstChild; ) e.removeChild(e.firstChild);
-            e.parentNode.removeChild(e), (t = e.muiOptions.onclose), u(e);
+            (e.parentNode.removeChild(e), (t = e.muiOptions.onclose), u(e));
           }
-          return m.disableScrollLock(), s(), d && d.focus(), t && t(), e;
+          return (m.disableScrollLock(), s(), d && d.focus(), t && t(), e);
         }
         function r() {
           f.on(document, 'keyup', a);
@@ -597,12 +597,12 @@
           var e;
           if ('on' === t) {
             for (var i, r, s, a = arguments.length - 1; a > 0; a--)
-              (i = arguments[a]),
+              ((i = arguments[a]),
                 'object' === f.type(i) && (r = i),
-                i instanceof Element && 1 === i.nodeType && (s = i);
-            void 0 === (r = r || {}).keyboard && (r.keyboard = !0),
+                i instanceof Element && 1 === i.nodeType && (s = i));
+            (void 0 === (r = r || {}).keyboard && (r.keyboard = !0),
               void 0 === r.static && (r.static = !1),
-              (e = n(r, s));
+              (e = n(r, s)));
           } else 'off' === t ? (e = o()) : m.raiseError("Expecting 'on' or 'off'");
           return e;
         };
@@ -623,17 +623,18 @@
             if (!e.disabled) {
               if (!i) {
                 var n = document.createElement('span');
-                (n.className = 'mui-btn__ripple-container'),
+                ((n.className = 'mui-btn__ripple-container'),
                   (n.innerHTML = '<span class="mui-ripple"></span>'),
                   e.appendChild(n),
                   (i = e._rippleEl = n.children[0]),
-                  s.on(e, d, r);
+                  s.on(e, d, r));
               }
               var o,
                 l,
                 u = s.offset(e),
                 c = 'touchstart' === t.type ? t.touches[0] : t;
-              (l = 2 * (o = Math.sqrt(u.height * u.height + u.width * u.width)) + 'px'),
+              ((l =
+                2 * (o = Math.sqrt(u.height * u.height + u.width * u.width)) + 'px'),
                 s.css(i, {
                   width: l,
                   height: l,
@@ -644,7 +645,7 @@
                 s.addClass(i, 'mui--is-visible'),
                 a.requestAnimationFrame(function () {
                   s.addClass(i, 'mui--is-animating');
-                });
+                }));
             }
           }
         }
@@ -685,7 +686,7 @@
             ((t._muiSelect = !0), !('ontouchstart' in v.documentElement))
           ) {
             var e = t.parentNode;
-            (e._selectEl = t),
+            ((e._selectEl = t),
               (e._menu = null),
               (e._q = ''),
               (e._qTimeout = null),
@@ -695,16 +696,16 @@
               d.on(e, 'click', l),
               d.on(e, 'blur focus', r),
               d.on(e, 'keydown', s),
-              d.on(e, 'keypress', a);
+              d.on(e, 'keypress', a));
             var i = document.createElement('div');
-            (i.className = 'mui-event-trigger'),
+            ((i.className = 'mui-event-trigger'),
               e.appendChild(i),
               d.on(i, f.animationEvents, function (t) {
-                t.stopPropagation(),
+                (t.stopPropagation(),
                   'mui-node-disabled' === t.animationName
                     ? t.target.parentNode.removeAttribute('tabIndex')
-                    : (t.target.parentNode.tabIndex = 0);
-              });
+                    : (t.target.parentNode.tabIndex = 0));
+              }));
           }
         }
         function o(t) {
@@ -719,14 +720,14 @@
               i = this._menu;
             if (i) {
               if (9 === e) return i.destroy();
-              (27 !== e && 40 !== e && 38 !== e && 13 !== e) || t.preventDefault(),
+              ((27 !== e && 40 !== e && 38 !== e && 13 !== e) || t.preventDefault(),
                 27 === e
                   ? i.destroy()
                   : 40 === e
                     ? i.increment()
                     : 38 === e
                       ? i.decrement()
-                      : 13 === e && (i.selectCurrent(), i.destroy());
+                      : 13 === e && (i.selectCurrent(), i.destroy()));
             } else (32 !== e && 38 !== e && 40 !== e) || (t.preventDefault(), u(this));
           }
         }
@@ -734,11 +735,11 @@
           var e = this._menu;
           if (!t.defaultPrevented && e) {
             var i = this;
-            clearTimeout(this._qTimeout),
+            (clearTimeout(this._qTimeout),
               (this._q += t.key),
               (this._qTimeout = setTimeout(function () {
                 i._q = '';
-              }, 300));
+              }, 300)));
             var n,
               o = new RegExp('^' + this._q, 'i'),
               r = e.itemArray;
@@ -755,29 +756,29 @@
         function u(t) {
           t._menu ||
             (t._menu = new c(t, t._selectEl, function () {
-              (t._menu = null), t.focus();
+              ((t._menu = null), t.focus());
             }));
         }
         function c(t, e, i) {
-          m.enableScrollLock(),
+          (m.enableScrollLock(),
             (this.itemArray = []),
             (this.origPos = null),
             (this.currentPos = null),
             (this.selectEl = e),
             (this.wrapperEl = t),
-            (this.menuEl = this._createMenuEl(t, e));
+            (this.menuEl = this._createMenuEl(t, e)));
           var n = m.callback;
-          (this.onClickCB = n(this, 'onClick')),
+          ((this.onClickCB = n(this, 'onClick')),
             (this.destroyCB = n(this, 'destroy')),
             (this.wrapperCallbackFn = i),
             t.appendChild(this.menuEl),
-            d.scrollTop(this.menuEl, this.menuEl._scrollTop);
+            d.scrollTop(this.menuEl, this.menuEl._scrollTop));
           var o = this.destroyCB;
-          d.on(this.menuEl, 'click', this.onClickCB),
+          (d.on(this.menuEl, 'click', this.onClickCB),
             d.on(b, 'resize', o),
             setTimeout(function () {
               d.on(v, 'click', o);
-            }, 0);
+            }, 0));
         }
         var d = t('./lib/jqLite'),
           m = t('./lib/util'),
@@ -786,7 +787,7 @@
           h = 'mui--is-selected',
           v = document,
           b = window;
-        (c.prototype._createMenuEl = function (t, e) {
+        ((c.prototype._createMenuEl = function (t, e) {
           var i,
             n,
             o,
@@ -816,7 +817,7 @@
               l < u;
               l++
             )
-              (i = o[l]),
+              ((i = o[l]),
                 ((n = v.createElement('div')).textContent = i.textContent),
                 r && d.addClass(n, 'mui-optgroup__option'),
                 i.disabled
@@ -826,10 +827,10 @@
                     i.selected && (d.addClass(n, h), (y = c.children.length), (g = b)),
                     f.push(n),
                     (b += 1)),
-                C.appendChild(n);
-          c.appendChild(C), (this.origPos = g), (this.currentPos = g);
+                C.appendChild(n));
+          (c.appendChild(C), (this.origPos = g), (this.currentPos = g));
           var E = p.getMenuPositionalCSS(t, c.children.length, y);
-          return d.css(c, E), (c._scrollTop = E.scrollTop), c;
+          return (d.css(c, E), (c._scrollTop = E.scrollTop), c);
         }),
           (c.prototype.onClick = function (t) {
             t.stopPropagation();
@@ -856,15 +857,15 @@
               m.dispatchEvent(this.selectEl, 'change', !1, !1));
           }),
           (c.prototype.selectPos = function (t) {
-            d.removeClass(this.itemArray[this.currentPos], h),
+            (d.removeClass(this.itemArray[this.currentPos], h),
               (this.currentPos = t),
-              d.addClass(this.itemArray[t], h);
+              d.addClass(this.itemArray[t], h));
           }),
           (c.prototype.destroy = function () {
-            m.disableScrollLock(!0),
+            (m.disableScrollLock(!0),
               d.off(this.menuEl, 'click', this.clickCallbackFn),
               d.off(v, 'click', this.destroyCB),
-              d.off(b, 'resize', this.destroyCB);
+              d.off(b, 'resize', this.destroyCB));
             var t = this.menuEl.parentNode;
             t && (t.removeChild(this.menuEl), this.wrapperCallbackFn());
           }),
@@ -880,7 +881,7 @@
                 n(t.target);
               });
             },
-          });
+          }));
       },
       {
         './lib/animationHelpers': 3,
@@ -966,8 +967,8 @@
             activate: function (t) {
               var e = '[' + c + '=' + t + ']',
                 i = document.querySelectorAll(e);
-              i.length || l.raiseError('Tab control for pane "' + t + '" not found'),
-                r(i[0]);
+              (i.length || l.raiseError('Tab control for pane "' + t + '" not found'),
+                r(i[0]));
             },
           },
         };
@@ -987,7 +988,7 @@
                 (s.removeClass(t, c), s.addClass(t, u), s.off(t, 'blur', e));
             }),
             s.one(t, 'input change', function () {
-              s.removeClass(t, d), s.addClass(t, m);
+              (s.removeClass(t, d), s.addClass(t, m));
             }),
             s.on(t, 'input change', o));
         }
@@ -1022,7 +1023,7 @@
 
             )
               n(e[i]);
-            l.onAnimationStart('mui-textfield-inserted', function (t) {
+            (l.onAnimationStart('mui-textfield-inserted', function (t) {
               n(t.target);
             }),
               setTimeout(function () {
@@ -1051,7 +1052,7 @@
                     var i = e.previousElementSibling;
                     i && i.focus();
                   }
-                });
+                }));
           },
         };
       },

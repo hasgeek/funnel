@@ -32,7 +32,8 @@ class MarkdownCase:
         config: dict | None = None,
         expected_output: str | None = None,
     ) -> None:
-        from funnel.utils.markdown import MarkdownConfig  # pylint: disable=C0415
+        # pylint: disable=import-outside-toplevel
+        from funnel.utils.markdown import MarkdownConfig  # noqa: PLC0415
 
         self.md_testname = md_testname
         self.mdtext = mdtext
