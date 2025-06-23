@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from types import SimpleNamespace
 from typing import Any, TypedDict
 
 from flask import abort, flash, request, url_for
@@ -182,7 +183,20 @@ class ProjectTicketParticipantView(ProjectViewBase):
     @requires_login
     @requires_roles({'promoter', 'editor'})
     def badge_style(self) -> ReturnView:
-        form = BadgeStyleForm()
+        form = BadgeStyleForm(
+            obj=SimpleNamespace(
+                badge_lanyard_style_link=self.obj.boxoffice_data.get(
+                    'badge_lanyard_style_link', ''
+                ),
+                badge_lanyard_style=self.obj.boxoffice_data.get(
+                    'badge_lanyard_style', ''
+                ),
+                badge_label_style_link=self.obj.boxoffice_data.get(
+                    'badge_label_style_link', ''
+                ),
+                badge_label_style=self.obj.boxoffice_data.get('badge_label_style', ''),
+            )
+        )
         if form.validate_on_submit():
             self.obj.boxoffice_data.update(
                 {

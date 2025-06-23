@@ -263,12 +263,12 @@ class BadgeStyleForm(forms.Form):
         description=__("Fonts and externally hosted stylesheets"),
         validators=[forms.validators.Optional(), forms.validators.ValidUrl()],
     )
-    badge_lanyard_style = forms.TextAreaField(
+    badge_lanyard_style = forms.StylesheetField(
         __("Lanyard stylesheet CSS"),
         description=__("Must be valid CSS (not validated)"),
         validators=[forms.validators.Optional()],
     )
-    badge_label_style = forms.TextAreaField(
+    badge_label_style = forms.StylesheetField(
         __("Label stylesheet CSS"),
         description=__("Must be valid CSS (not validated)"),
         validators=[forms.validators.Optional()],
