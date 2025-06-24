@@ -8,7 +8,7 @@ from typing import Any, ClassVar, Generic, TypedDict, TypeVar
 from urllib.parse import quote as urlquote
 
 from flask import request, url_for
-from markupsafe import Markup, escape as html_escape
+from markupsafe import Markup
 from sqlalchemy.sql import expression
 
 from baseframe import __
@@ -657,9 +657,11 @@ def escape_quotes(text: str) -> Markup:
     Escape quotes in text returned by PostgreSQL's ``ts_headline``.
 
     PostgreSQL strips HTML tags for us, but we also need to escape quotes to safely
-    use the text in HTML tag attributes. Typical use is for ARIA labels.
+    use the text in HTML tag attributes. Typical use is for ARIA labels. Escaping is
+    limited to quotes-only as we use `<mark>` for highlights via :var:`pg_startsel` and
+    :var:`pg_stopsel`.
     """
-    return html_escape(text)
+    return Markup(text.replace('"', '&quot;').replace("'", '&#39;'))  # noqa: S704
 
 
 def get_tsquery(text: str | None) -> sa.Function:
