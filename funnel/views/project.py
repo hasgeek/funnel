@@ -8,6 +8,7 @@ from types import SimpleNamespace
 
 from flask import Response, abort, current_app, flash, request
 from flask_babel import format_number
+from markupsafe import Markup
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -165,13 +166,13 @@ def get_registration_text(
             return registration_count_messages[count].following
         return registration_count_messages[count].not_following
     if registered and not follow_mode:
-        return numeric_count.registered.format(num=format_number(count - 1))
+        return Markup(numeric_count.registered).format(num=format_number(count - 1))  # noqa: S704
 
     if not registered and not follow_mode:
-        return numeric_count.unregistered.format(num=format_number(count))
+        return Markup(numeric_count.unregistered).format(num=format_number(count))  # noqa: S704
     if registered and follow_mode:
-        return numeric_count.following.format(num=format_number(count - 1))
-    return numeric_count.not_following.format(num=format_number(count))
+        return Markup(numeric_count.following).format(num=format_number(count - 1))  # noqa: S704
+    return Markup(numeric_count.not_following).format(num=format_number(count))  # noqa: S704
 
 
 @Project.features('rsvp', cached_property=True)
