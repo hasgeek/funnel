@@ -504,21 +504,37 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     ticket_clients: Mapped[list[TicketClient]] = relationship(back_populates='project')
     ticket_events: Mapped[list[TicketEvent]] = relationship(back_populates='project')
     ticket_types: Mapped[list[TicketType]] = relationship(back_populates='project')
-    # XXX: This relationship exposes an edge case in RoleMixin. It previously expected
-    # TicketParticipant.participant to be unique per project, meaning one user could
-    # have one participant ticket only. This is not guaranteed by the model as tickets
-    # are unique per email address per ticket type, and one user can have (a) two email
-    # addresses with tickets, or (b) tickets of different types. RoleMixin has since
-    # been patched to look for the first matching record (.first() instead of .one()).
-    # This may expose a new edge case in future in case the TicketParticipant model adds
-    # an `offered_roles` method, as only the first matching record's method will be
-    # called
-    ticket_participants: DynamicMapped[TicketParticipant] = with_roles(
-        relationship(lazy='dynamic', back_populates='project'),
-        grants_via={
-            'participant': {'participant', 'project_participant', 'ticket_participant'}
-        },
+    ticket_participants: DynamicMapped[TicketParticipant] = relationship(
+        lazy='dynamic', back_populates='project'
     )
+
+    # The `ticket_participant` role should also grant `project_participant` and
+    # `participant` roles, so we list them all here. RoleMixin will avoid duplicate
+    # checks during role discovery.
+    @role_check('ticket_participant', 'project_participant', 'participant')
+    def has_ticket_participant_role(
+        self, actor: Account | None, _anchors: Sequence[Any] = ()
+    ) -> bool:
+        """Confirm if the actor is a ticketed participant linked to a ticketed event."""
+        if actor is None:
+            return False
+        return (
+            TicketEventParticipant.query.join(TicketEventParticipant.ticket_event)
+            .join(TicketEventParticipant.ticket_participant)
+            .filter(TicketEvent.project == self, TicketParticipant.participant == actor)
+            .notempty()
+        )
+
+    @has_ticket_participant_role.iterable
+    def _(self) -> Iterable[Account]:
+        """Find all ticketed participants."""
+        return (
+            Account.query.join(Account.ticket_participants)
+            .join(TicketParticipant.ticket_events)
+            .join(TicketEvent.project)
+            .filter(Project.id == self.id)
+            .distinct()
+        )
 
     # update.py
     updates: DynamicMapped[Update] = relationship(
@@ -1708,18 +1724,25 @@ class ProjectLocation(TimestampMixin, Model):
 
 
 # Tail imports
+from .comment import SET_TYPE, Commentset
 from .label import Label
 from .project_membership import ProjectMembership
 from .proposal import Proposal
 from .rsvp import Rsvp, RsvpStateEnum
 from .session import Session
 from .sponsor_membership import ProjectSponsorMembership
+from .sync_ticket import (
+    TicketClient,
+    TicketEvent,
+    TicketEventParticipant,
+    TicketParticipant,
+    TicketType,
+)
 from .update import Update
 from .venue import Venue, VenueRoom
 
 if TYPE_CHECKING:
     from .saved import SavedProject
-    from .sync_ticket import TicketClient, TicketEvent, TicketParticipant, TicketType
 
 # MARK: Additional column properties
 
@@ -1791,7 +1814,3 @@ with_roles(
     # joined model, not the first
     grants_via={Rsvp.participant: {'participant', 'project_participant'}},
 )
-
-
-# Tail imports
-from .comment import SET_TYPE, Commentset
