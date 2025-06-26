@@ -198,10 +198,10 @@
       <div class="register-block__content {% if current_page != 'project' %} register-block__btn--full-width{% endif %}">
         <button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled"><span class="register-block__btn__member-txt">{% trans %}Registration for members only{% endtrans %}</span></button> </div>
     {%- endif %}
-    {%- if project.current_roles.account_member %}
-      <div class="register-block__content {%- if current_page != 'project' %} register-block__btn--full-width{% endif %}"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
-    {%- elif project.current_roles.ticket_participant %}
+    {%- if project.current_roles.ticket_participant %}
       <div class="register-block__content {%- if current_page != 'project' %} register-block__btn--full-width{% endif %}"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}You have a ticket{% endtrans %}</button></div>
+    {%- elif project.current_roles.account_member %}
+      <div class="register-block__content {%- if current_page != 'project' %} register-block__btn--full-width{% endif %}"><button class="mui-btn mui-btn--accent register-block__btn mui--is-disabled">{% trans %}You are a member{% endtrans %}</button></div>
     {%- endif %}
     {%- if project.features.show_tickets %}
       {{ buy_button(project) }}
