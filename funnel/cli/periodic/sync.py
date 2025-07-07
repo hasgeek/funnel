@@ -20,8 +20,10 @@ def sync(projects: Iterable[str]) -> None:
     for name in projects:
         project = Project.get(name)
         if project is None:
-            raise click.BadParameter(f"Project {name} does not exist")
+            click.echo(f"Project {name} does not exist", err=True)
+            continue
         if not project.ticket_clients:
-            raise click.BadParameter(f"Project {name} has nothing to sync")
+            click.echo(f"Project {name} has nothing to sync", err=True)
+            continue
         for ticket_client in project.ticket_clients:
             import_tickets.enqueue(ticket_client.id)
