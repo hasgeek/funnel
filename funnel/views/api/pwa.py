@@ -31,9 +31,18 @@ def manifest() -> ReturnView:
         'scope': '/',
         'theme_color': '#e3e1e1',
         'background_color': '#ffffff',
-        'display': 'standalone',
         'orientation': 'portrait',
         'start_url': '/?utm_source=WebApp',
+        'display': 'standalone',
+        'display_override': ['tabbed'],
+        'tab_strip': {
+            'home_tab': {
+                'scope_patterns': [
+                    {'pathname': '/'},
+                    {'pathname': '/?utm_source=WebApp'},
+                ],
+            },
+        },
         'icons': [
             {
                 'src': url_for(
