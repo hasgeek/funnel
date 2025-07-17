@@ -45,19 +45,23 @@ def manifest() -> ReturnView:
         },
         'icons': [
             {
-                'src': url_for('static', filename='img/apple-touch-icon.png'),
+                'src': url_for('static', filename='img/hasgeek-icon-any-180x180.png'),
                 'sizes': '180x180',
                 'type': 'image/png',
                 'purpose': 'any',
             },
             {
-                'src': url_for('static', filename='img/android-chrome-192x192.png'),
+                'src': url_for(
+                    'static', filename='img/hasgeek-icon-maskable-192x192.png'
+                ),
                 'sizes': '192x192',
                 'type': 'image/png',
                 'purpose': 'maskable',
             },
             {
-                'src': url_for('static', filename='img/android-chrome-512x512.png'),
+                'src': url_for(
+                    'static', filename='img/hasgeek-icon-maskable-512x512.png'
+                ),
                 'sizes': '512x512',
                 'type': 'image/png',
                 'purpose': 'maskable',
