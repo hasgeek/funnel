@@ -1,8 +1,8 @@
 markdown = """
 ## Images
 
-![Logo](https://hasgeek.com/static/img/hg-logo.svg)
-![Logo](https://hasgeek.com/static/img/hg-logo.svg) Images stay inline within the same block after a new line
+![Logo](https://hasgeek.com/static/img/hasgeek-logo.svg)
+![Logo](https://hasgeek.com/static/img/hasgeek-logo.svg) Images stay inline within the same block after a new line
 
 ![The past as a compass for the future](https://images.hasgeek.com/embed/file/c36a88cf749040a186efc481d19e48ef?size=700 "Privacy Mode")
 
@@ -21,12 +21,12 @@ With a reference later in the document defining the URL location.
 """
 
 [config]
-profiles = [ "basic", "document",]
+profiles = ["basic", "document"]
 
 [expected_output]
 basic = """<h2>Images</h2>
-<p><img src="https://hasgeek.com/static/img/hg-logo.svg" alt="Logo" /><br />
-<img src="https://hasgeek.com/static/img/hg-logo.svg" alt="Logo" /> Images stay inline within the same block after a new line</p>
+<p><img src="https://hasgeek.com/static/img/hasgeek-logo.svg" alt="Logo" /><br />
+<img src="https://hasgeek.com/static/img/hasgeek-logo.svg" alt="Logo" /> Images stay inline within the same block after a new line</p>
 <p><img src="https://images.hasgeek.com/embed/file/c36a88cf749040a186efc481d19e48ef?size=700" alt="The past as a compass for the future" title="Privacy Mode" /></p>
 <p>Like links, images also have a footnote style syntax</p>
 <p><img src="https://hasgeek.com/static/img/peers.svg" alt="Alt: Find your peers" title="Title: Find your peers" /><br />
@@ -35,8 +35,8 @@ basic = """<h2>Images</h2>
 <p>With a reference later in the document defining the URL location.</p>
 """
 document = """<h2 id="h:images"><a href="#h:images">Images</a></h2>
-<p><img src="https://hasgeek.com/static/img/hg-logo.svg" alt="Logo" /><br />
-<img src="https://hasgeek.com/static/img/hg-logo.svg" alt="Logo" /> Images stay inline within the same block after a new line</p>
+<p><img src="https://hasgeek.com/static/img/hasgeek-logo.svg" alt="Logo" /><br />
+<img src="https://hasgeek.com/static/img/hasgeek-logo.svg" alt="Logo" /> Images stay inline within the same block after a new line</p>
 <p><img src="https://images.hasgeek.com/embed/file/c36a88cf749040a186efc481d19e48ef?size=700" alt="The past as a compass for the future" title="Privacy Mode" /></p>
 <p>Like links, images also have a footnote style syntax</p>
 <p><img src="https://hasgeek.com/static/img/peers.svg" alt="Alt: Find your peers" title="Title: Find your peers" /><br />

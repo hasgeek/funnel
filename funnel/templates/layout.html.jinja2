@@ -68,11 +68,11 @@
         <meta name="twitter:image" content="{{ account.logo_url }}" />
       {%- else %}
         <link rel="image_src"
-              href="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}"/>
+              href="{{ url_for('static', filename='img/hasgeek-logo.png', _external=true) }}"/>
         <meta property="og:image"
-              content="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}"/>
+              content="{{ url_for('static', filename='img/hasgeek-logo.png', _external=true) }}"/>
         <meta name="twitter:image"
-              content="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}"/>
+              content="{{ url_for('static', filename='img/hasgeek-logo.png', _external=true) }}"/>
       {% endif -%}
     {%- endblock image_src %}
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -83,7 +83,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="#e3e1e1" />
     <meta name="apple-mobile-web-app-title" content="js" />
     <link rel="apple-touch-icon"
-          href="{{ url_for('static', filename='img/apple-touch-icon.png', v=2, _external=true) }}"/>
+          href="{{ url_for('static', filename='img/hasgeek-icon-any-180x180.png', _external=true) }}"/>
     <!-- Included CSS Files -->
     {%- block font_icons %}
     {%- endblock font_icons %}
@@ -114,7 +114,7 @@
                     data-cy="home-desktop"
                     data-ga="Home"
                     aria-label="{% trans %}Home{% endtrans %}">
-                    <img src="{{ url_for('static', filename='img/hg-logo.svg') }}"
+                    <img src="{{ url_for('static', filename='img/hasgeek-logo.svg') }}"
                         class="header__site-title__home__logo"
                         alt="{% trans %}Home{% endtrans %}"/>
                   </a>
@@ -126,10 +126,10 @@
                     aria-label="{% trans %}Home{% endtrans %}"
                     data-cy="home"
                     data-ga="Home">
-                    <img src="{{ url_for('static', filename='img/hg-logo.svg') }}"
+                    <img src="{{ url_for('static', filename='img/hasgeek-logo.svg') }}"
                         class="header__site-title__home__logo header__site-title__home__logo--primary"
                         alt="{% trans %}Home{% endtrans %}"/>
-                    <img src="{{ url_for('static', filename='img/hg-logo-grey.svg') }}"
+                    <img src="{{ url_for('static', filename='img/hasgeek-logo-grey.svg') }}"
                         class="header__site-title__home__logo header__site-title__home__logo--grey"
                         alt="{% trans %}Home{% endtrans %}"/>
                     <span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>

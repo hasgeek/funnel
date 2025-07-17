@@ -131,12 +131,12 @@
           <div class="mui-divider"></div>
           <div class="card__body card__body--lgtext mui--text-subhead">
             <div class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between social-login-wrapper">
-              {% for provider in login_registry %}
-                <a class="profile-avatar profile-avatar--bigger--padding profile-avatar--nomargin login login-{{ provider }}"
-                   href="{{ url_for('login_service', service=provider, next=url_for('account')) }}"
-                   data-ga="login using {{ provider }}"
+              {% for provider in login_registry.values() %}
+                <a class="profile-avatar profile-avatar--bigger--padding profile-avatar--nomargin login login-{{ provider.name }}"
+                   href="{{ url_for('login_service', service=provider.name, next=url_for('account')) }}"
+                   data-ga="login using {{ provider.name }}"
                    aria-label="{% trans title=provider.title %}Login using {{ title }}{% endtrans %}">
-                  <img src="{{ url_for('static', filename='img/' + provider + '.svg') }}"
+                  <img src="{{ url_for('static', filename='img/login/' + provider.name + '.svg') }}"
                        alt="{{ provider.title }}"
                        aria-hidden="true"/>
                 </a>
