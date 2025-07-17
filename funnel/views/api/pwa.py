@@ -45,20 +45,22 @@ def manifest() -> ReturnView:
         },
         'icons': [
             {
-                'src': url_for(
-                    'static', filename='img/android-chrome-192x192.png', v=2
-                ),
-                'sizes': '192x192',
+                'src': url_for('static', filename='img/apple-touch-icon.png'),
+                'sizes': '180x180',
                 'type': 'image/png',
                 'purpose': 'any',
             },
             {
-                'src': url_for(
-                    'static', filename='img/android-chrome-512x512.png', v=2
-                ),
+                'src': url_for('static', filename='img/android-chrome-192x192.png'),
+                'sizes': '192x192',
+                'type': 'image/png',
+                'purpose': 'maskable',
+            },
+            {
+                'src': url_for('static', filename='img/android-chrome-512x512.png'),
                 'sizes': '512x512',
                 'type': 'image/png',
-                'purpose': 'any',
+                'purpose': 'maskable',
             },
         ],
     }
