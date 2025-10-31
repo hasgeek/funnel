@@ -814,12 +814,14 @@ class ProjectView(ProjectViewBase, DraftViewProtoMixin):
         """Export participant list as a CSV."""
         outfile = io.StringIO(newline='')
         out = csv.writer(outfile)
-        out.writerow(['fullname', 'email', 'created_at'])
+        out.writerow(['fullname', 'email', 'phone', 'created_at'])
         for rsvp in self.obj.rsvps_with(state):
             out.writerow(
                 [
                     rsvp.participant.fullname,
                     rsvp.participant.default_email(context=rsvp.project.account) or '',
+                    rsvp.participant.transport_for_sms(context=rsvp.project.account)
+                    or '',
                     rsvp.created_at.astimezone(self.obj.timezone)
                     .replace(second=0, microsecond=0, tzinfo=None)
                     .isoformat(),  # Strip precision from timestamp

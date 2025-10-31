@@ -9,7 +9,8 @@
         <thead>
           <tr>
             <th data-sorted="true">{% trans %}Name{% endtrans %}</th>
-            <th data-sorted="true">{% trans %}Email/Phone{% endtrans %}</th>
+            <th data-sorted="true">{% trans %}Email{% endtrans %}</th>
+            <th data-sorted="true">{% trans %}Phone{% endtrans %}</th>
             <th data-sorted="true" data-type="numeric">{% trans %}Responded at{% endtrans %}</th>
             {% if rsvp_form_fields -%}
               {% for field_name in rsvp_form_fields %}
@@ -22,14 +23,8 @@
           {%- for rsvp in going_rsvps %}
             <tr>
               <td data-cy="username">{{ rsvp.participant.fullname }}</td>
-              <td>
-                {% with contact, contact_type = rsvp.best_contact() %}
-                  {{ contact }}
-                  {% if contact_type in ('ec', 'pc') %}
-                    <em>{% trans %}(Unverified){% endtrans %}</em>
-                  {% endif %}
-                {%- endwith %}
-              </td>
+              <td>{{ rsvp.participant_email() }}</td>
+              <td>{{ rsvp.participant_phone() }}</td>
               <td data-cy="user" data-value="{{ rsvp.updated_at|timestamp }}">{{ rsvp.updated_at|datetime }}</td>
               {% if rsvp_form_fields -%}
                 {% for field_name in rsvp_form_fields %}
