@@ -150,28 +150,14 @@ class Rsvp(UuidMixin, NoIdMixin, Model):
         pass
 
     @with_roles(call={'owner', 'project_promoter'})
-    def participant_email(self) -> AccountEmail | None:
+    def participant_email(self) -> AccountEmail | AccountEmailClaim | Literal['']:
         """Participant's preferred email address for this registration."""
-        return self.participant.transport_for_email(self.project.account)
+        return self.participant.default_email(self.project.account) or ''
 
     @with_roles(call={'owner', 'project_promoter'})
-    def participant_phone(self) -> AccountPhone | None:
+    def participant_phone(self) -> AccountPhone | Literal['']:
         """Participant's preferred phone number for this registration."""
-        return self.participant.transport_for_sms(self.project.account)
-
-    @with_roles(call={'owner', 'project_promoter'})
-    def best_contact(
-        self,
-    ) -> tuple[AccountEmail | AccountEmailClaim | AccountPhone | None, str]:
-        email = self.participant_email()
-        if email:
-            return email, 'e'
-        phone = self.participant_phone()
-        if phone:
-            return phone, 'p'
-        if self.participant.emailclaims:
-            return self.participant.emailclaims[0], 'ec'
-        return None, ''
+        return self.participant.transport_for_sms(self.project.account) or ''
 
     @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
