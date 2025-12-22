@@ -23,12 +23,12 @@ repos:
     hooks:
       - id: sync-pre-commit-deps
   - repo: https://github.com/peterdemin/pip-compile-multi
-    rev: v3.2.1
+    rev: v3.2.2
     hooks:
       - id: pip-compile-multi-verify
         files: ^requirements/.*\.(in|txt)$
   - repo: https://github.com/pypa/pip-audit
-    rev: v2.9.0
+    rev: v2.10.0
     hooks:
       - id: pip-audit
         args: [
@@ -50,18 +50,18 @@ repos:
           ]
         files: ^requirements/.*\.txt$
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         args: ['--keep-runtime-typing', '--py311-plus']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.0
+    rev: v0.14.10
     hooks:
       - id: ruff-check
         args: ['--fix', '--exit-non-zero-on-fix']
       - id: ruff-format
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.3.7
+    rev: v4.0.4
     hooks:
       - id: pylint
         args: [
@@ -73,17 +73,17 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/fredrikaverpil/creosote
-    rev: v4.0.3
+    rev: v4.1.0
     hooks:
       - id: creosote
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
         args:
           - --external-sources
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -124,7 +124,7 @@ repos:
       - id: forbid-tabs
       - id: remove-tabs
   - repo: https://github.com/pycontribs/mirrors-prettier
-    rev: v3.6.0
+    rev: v3.6.2
     hooks:
       - id: prettier
   - repo: https://github.com/ducminh-phan/reformat-gherkin
