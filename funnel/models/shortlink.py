@@ -286,7 +286,7 @@ class Shortlink(NoIdMixin, Model):
         cls,
         url: str | furl,
         *,
-        name: Literal[None] = None,
+        name: None = None,
         shorter: bool = False,
         reuse: Literal[True] = True,
         actor: Account | None = None,
