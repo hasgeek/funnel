@@ -210,7 +210,7 @@ def jinja_global(*, init: Literal[False] = False) -> Any:  # noqa: ARG001
     return ...
 
 
-def jinja_undefined(*, default: Literal[None] = None) -> Any:  # noqa: ARG001
+def jinja_undefined(*, default: None = None) -> Any:  # noqa: ARG001
     """Sentinel for an optional Jinja2 context variable."""
     return ...
 
