@@ -112,7 +112,7 @@ jobs:
       - name: Build Webpack assets
         run: make assets
       - name: Annotate Pytest failures in PR
-        run: pip install pytest-github-actions-annotate-failures
+        run: uv pip install pytest-github-actions-annotate-failures
       - name: Setup hostnames
         run: |
           sudo -- sh -c "echo '127.0.0.1  funnel.test' >> /etc/hosts"
@@ -132,15 +132,15 @@ jobs:
           psql -h localhost -U postgres geoname_testing -c "grant all privileges on schema public to $(whoami); grant all privileges on all tables in schema public to $(whoami); grant all privileges on all sequences in schema public to $(whoami);"
       - name: Test with pytest
         run: |
-          pytest --showlocals --ignore=tests/e2e --cov=funnel
+          uv run pytest --showlocals --ignore=tests/e2e --cov=funnel
       - name: Browser tests with pytest
         timeout-minutes: 5
         run: |
-          pytest --showlocals --cov-append --cov=funnel tests/e2e
+          uv run pytest --showlocals --cov-append --cov=funnel tests/e2e
       - name: Prepare coverage report
         run: |
           mkdir -p coverage
-          coverage lcov -o coverage/funnel.lcov
+          uv run coverage lcov -o coverage/funnel.lcov
       - name: Upload coverage report to Coveralls
         uses: coverallsapp/github-action@master
         with:
