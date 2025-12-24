@@ -300,8 +300,16 @@ def reopen(cls: ReopenedType) -> Callable[[type], ReopenedType]:
             '__getattr__',
             '__setattr__',
             '__delattr__',
+            '__type_params__',  # Python 3.12
         }.intersection(set(temp_cls.__dict__.keys())):
             raise TypeError("Reopened class contains unsupported __dunder__ attributes")
+        if '__static_attributes__' in temp_cls.__dict__:
+            # Merge static attributes (Python 3.13+)
+            cls.__static_attributes__ = tuple(  # type: ignore[attr-defined]
+                set(cls.__dict__.get('__static_attributes__', ()))
+                | set(temp_cls.__dict__['__static_attributes__'])
+            )
+
         if '__annotations__' in temp_cls.__dict__:
             # Temp class annotations must be un-stringified as they may refer to names
             # not available in the reopened class's namespace
@@ -328,6 +336,9 @@ def reopen(cls: ReopenedType) -> Callable[[type], ReopenedType]:
                 '__module__',
                 '__weakref__',
                 '__annotations__',
+                '__annotate__',  # Python 3.14
+                '__firstlineno__',  # Python 3.13
+                '__static_attributes__',  # Python 3.13
             ):
                 # Refuse to overwrite existing attributes
                 if hasattr(cls, attr):
