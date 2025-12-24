@@ -1,6 +1,150 @@
 # Default tool config file. See also setup.cfg for tools that don't yet
 # support pyproject.toml.
 
+[project]
+name = "Funnel"
+version = "2025.12"
+description = "Hasgeek website application"
+readme = "README.rst"
+requires-python = ">=3.11"
+dependencies = [
+  "alembic",
+  "argon2-cffi",
+  "babel",
+  "base58",
+  "baseframe",
+  "bcrypt<5.0.0",              # https://github.com/notypecheck/passlib/pull/23
+  "better-profanity!=0.7.0",
+  "blinker",
+  "brotli",
+  "cachelib",
+  "chevron",
+  "click",
+  "coaster",
+  "cryptography",
+  "dataclasses-json",
+  "flask",
+  "flask-babel",
+  "flask-executor",
+  "flask-flatpages",
+  "flask-mailman",
+  "flask-migrate",
+  "flask-moreshell",
+  "flask-redis",
+  "flask-rq",
+  "flask-sqlalchemy",
+  "flask-wtf",
+  "furl",
+  "geoip2",
+  "grapheme",
+  "greenlet",
+  "gunicorn",
+  "html2text",
+  "httpx[http2]",
+  "icalendar",
+  "idna",
+  "ijson",
+  "itsdangerous",
+  "jinja2",
+  "lazy-loader",
+  "linkify-it-py",
+  "markdown-it-py",
+  "mdit-py-plugins",
+  "mxsniff",
+  "oauth2client",
+  "passlib-fork>=1.7.4.post2",
+  "phonenumbers",
+  "premailer",
+  "progressbar2",
+  "psycopg[binary]",
+  "pycountry",
+  "pyisemail",
+  "python-dateutil",
+  "python-dotenv",
+  "python-telegram-bot>=20.7",
+  "pytz",
+  "pyvimeo",
+  "qrcode",
+  "requests",
+  "rich",
+  "rq",
+  "rq-dashboard",
+  "sqlalchemy-json",
+  "sqlalchemy-utils",
+  "sqlalchemy[asyncio]",
+  "tweepy",
+  "twilio",
+  "typing-extensions",
+  "tzdata",
+  "user-agents",
+  "werkzeug",
+  "whitenoise",
+  "z-base-32",
+  "zxcvbn",
+]
+
+[tool.uv.workspace]
+members = ["build/dependencies/baseframe", "build/dependencies/coaster"]
+
+[tool.uv.sources]
+baseframe = { workspace = true }
+coaster = { workspace = true }
+
+[dependency-groups]
+test = [
+  "beautifulsoup4",
+  "coverage",
+  "coveralls",
+  "lxml",
+  "playwright",
+  "pytest",
+  "pytest-asyncio",
+  "pytest-bdd>=7.3.0",
+  "pytest-cov",
+  "pytest-dotenv",
+  "pytest-env",
+  "pytest-playwright",
+  "pytest-pretty",
+  "pytest-rerunfailures",
+  "pytest-socket",
+  "requests-mock",
+  "respx",
+  "sttable",
+  "tomlkit",
+  "typeguard",
+]
+dev = [
+  { include-group = "test" },
+  "flask-debugtoolbar",
+  "mkinit",
+  "mypy",
+  "mypy-json-report",
+  "po2json",
+  "pre-commit",
+  "ptpython",
+  "pylint",
+  "pytest-icdiff",
+  "pyupgrade",
+  "ruff",
+  "twilio-stubs",
+  "types-beautifulsoup4",
+  "types-chevron",
+  "types-flask-migrate",
+  "types-geoip2",
+  "types-greenlet",
+  "types-lxml",
+  "types-mock",
+  "types-passlib",
+  "types-pillow",
+  "types-pytest-lazy-fixture",
+  "types-python-dateutil",
+  "types-pytz",
+  "types-pyyaml",
+  "types-redis",
+  "types-requests",
+  "types-zxcvbn",
+]
+
 [tool.black]
 line-length = 88
 target-version = ['py311']
@@ -27,7 +171,8 @@ exclude = '''
 [tool.creosote]
 venvs = [".venv"]
 paths = ["funnel", "tests", "migrations/versions"]
-deps-file = "requirements/base.in"
+deps-file = "pyproject.toml"
+sections = ["project.dependencies"]
 exclude-deps = [
   "argon2-cffi",     # Optional dep for passlib
   "bcrypt",          # Optional dep for passlib
@@ -36,10 +181,8 @@ exclude-deps = [
   "gunicorn",        # Not imported, used as server
   "linkify-it-py",   # Optional dep for markdown-it-py
   "psycopg",         # Optional dep for SQLAlchemy
-  "python-dateutil", # Creosote fails to recognise the import
   "rq-dashboard",    # Creosote fails to recognise the import
   "tzdata",          # Resource-only dep, no code to import
-  "urllib3",         # Unused but required to silence a pip-audit warning
 ]
 
 [tool.djlint]
@@ -191,6 +334,7 @@ disable = [
   'comparison-with-callable',       # Pylint is confused by SQLAlchemy attributes
   'cyclic-import',                  # We have tail imports all over
   'duplicate-code',                 # Too many false positives
+  'function-redefined',             # Let Ruff handle this
   'fixme',                          # Our workflow is to tag for future fixes
   'invalid-name',                   # Ruff covers our naming convention requirements
   'line-too-long',                  # Long lines are okay if Black doesn't wrap them

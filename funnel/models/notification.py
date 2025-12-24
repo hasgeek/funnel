@@ -270,7 +270,7 @@ class SmsMessage(PhoneNumberMixin, BaseMixin[int, Account], Model):
 # MARK: Notification models ------------------------------------------------------------
 
 
-class NotificationType(Generic[_D, _F], Protocol):
+class NotificationType(Protocol, Generic[_D, _F]):
     """Protocol for :class:`Notification` and :class:`PreviewNotification`."""
 
     preference_context: ClassVar[Any]

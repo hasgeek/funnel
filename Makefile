@@ -3,7 +3,8 @@ ifeq ($(shell test -d .venv/bin && echo 1 || echo 0), 1)
 endif
 
 all:
-	@echo "You must have an active Python virtualenv (3.11+) before using any of these."
+	@echo "You must have `uv` installed and available in the path first."
+	@echo "See https://docs.astral.sh/uv/getting-started/installation/"
 	@echo
 	@echo "For production deployment:"
 	@echo
@@ -88,26 +89,10 @@ deps-editable:
 	done;
 
 deps-python: deps-editable
-	pip install --upgrade pip pip-tools pip-compile-multi
-	pip-compile-multi --backtracking --use-cache
+    uv lock --upgrade
 
 deps-python-noup:
-	pip-compile-multi --backtracking --use-cache --no-upgrade
-
-deps-python-rebuild: deps-editable
-	pip-compile-multi --backtracking --live
-
-deps-python-base: deps-editable
-	pip-compile-multi -t requirements/base.in --backtracking --use-cache
-
-deps-python-test: deps-editable
-	pip-compile-multi -t requirements/test.in --backtracking --use-cache
-
-deps-python-dev: deps-editable
-	pip-compile-multi -t requirements/dev.in --backtracking --use-cache
-
-deps-python-verify:
-	pip-compile-multi verify
+	uv lock
 
 deps-npm:
 	npm update
@@ -151,17 +136,14 @@ install-npm:
 install-npm-ci:
 	npm clean-install
 
-install-python-pip:
-	pip install --upgrade pip
+install-python-dev: deps-editable
+	uv sync --dev
 
-install-python-dev: install-python-pip deps-editable
-	pip install --use-pep517 -r requirements/dev.txt
+install-python-test: deps-editable
+	uv sync --no-dev --group test
 
-install-python-test: install-python-pip deps-editable
-	pip install --use-pep517 -r requirements/test.txt
-
-install-python: install-python-pip deps-editable
-	pip install --use-pep517 -r requirements/base.txt
+install-python: deps-editable
+	uv sync --no-dev --no-default-groups --locked
 
 install-playwright:
 	@if command -v playwright > /dev/null; then\

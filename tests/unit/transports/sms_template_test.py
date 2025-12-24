@@ -2,6 +2,7 @@
 
 # pylint: disable=possibly-unused-variable,redefined-outer-name
 
+import re
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -42,7 +43,8 @@ def test_validate_registered_template() -> None:
             registered_template = template = 'a' * 2001
 
     with pytest.raises(
-        ValueError, match='Registered template must use {#var#}, not {# var #}'
+        ValueError,
+        match=re.escape('Registered template must use {#var#}, not {# var #}'),
     ):
 
         class TemplateVarSpaceWrong(sms.SmsTemplate):
@@ -50,7 +52,7 @@ def test_validate_registered_template() -> None:
             template = '{var}'
 
     with pytest.raises(
-        ValueError, match='Registered template must use {#var#}, not {#VAR#}'
+        ValueError, match=re.escape('Registered template must use {#var#}, not {#VAR#}')
     ):
 
         class TemplateVarCaseWrong(sms.SmsTemplate):
