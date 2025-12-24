@@ -124,23 +124,23 @@ jobs:
           psql -h localhost -U postgres -c "create database funnel_testing;"
           psql -h localhost -U postgres -c "create database geoname_testing;"
           set -a; source .testenv; set +a
-          FLASK_ENV=testing flask dbconfig | psql -h localhost -U postgres funnel_testing
-          FLASK_ENV=testing flask dbconfig | psql -h localhost -U postgres geoname_testing
+          FLASK_ENV=testing uv run --no-dev flask dbconfig | psql -h localhost -U postgres funnel_testing
+          FLASK_ENV=testing uv run --no-dev flask dbconfig | psql -h localhost -U postgres geoname_testing
           psql -h localhost -U postgres -c "grant all privileges on database funnel_testing to $(whoami);"
           psql -h localhost -U postgres -c "grant all privileges on database geoname_testing to $(whoami);"
           psql -h localhost -U postgres funnel_testing -c "grant all privileges on schema public to $(whoami); grant all privileges on all tables in schema public to $(whoami); grant all privileges on all sequences in schema public to $(whoami);"
           psql -h localhost -U postgres geoname_testing -c "grant all privileges on schema public to $(whoami); grant all privileges on all tables in schema public to $(whoami); grant all privileges on all sequences in schema public to $(whoami);"
       - name: Test with pytest
         run: |
-          uv run pytest --showlocals --ignore=tests/e2e --cov=funnel
+          uv run --no-dev pytest --showlocals --ignore=tests/e2e --cov=funnel
       - name: Browser tests with pytest
         timeout-minutes: 5
         run: |
-          uv run pytest --showlocals --cov-append --cov=funnel tests/e2e
+          uv run --no-dev  pytest --showlocals --cov-append --cov=funnel tests/e2e
       - name: Prepare coverage report
         run: |
           mkdir -p coverage
-          uv run coverage lcov -o coverage/funnel.lcov
+          uv run --no-dev  coverage lcov -o coverage/funnel.lcov
       - name: Upload coverage report to Coveralls
         uses: coverallsapp/github-action@master
         with:
