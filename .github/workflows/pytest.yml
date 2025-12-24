@@ -84,7 +84,7 @@ jobs:
           path: ${{ env.pythonLocation }}
           key: ${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('uv.lock') }}
       - name: Install Python dependencies
-        run: uv sync --locked --group test
+        run: make install-python-test
       - name: Install Playwright browser
         run: make install-playwright
       - name: Install Node

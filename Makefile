@@ -140,10 +140,10 @@ install-python-dev: deps-editable
 	uv sync --dev
 
 install-python-test: deps-editable
-	uv sync --no-dev --group test
+	uv sync --locked --no-dev --group test
 
 install-python: deps-editable
-	uv sync --no-dev --no-default-groups --locked
+	uv sync --locked --no-dev --no-default-groups
 
 install-playwright:
 	@if command -v playwright > /dev/null; then\
