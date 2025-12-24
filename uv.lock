@@ -1508,6 +1508,29 @@ test = [
     { name = "tomlkit" },
     { name = "typeguard" },
 ]
+test-github = [
+    { name = "beautifulsoup4" },
+    { name = "coverage" },
+    { name = "coveralls" },
+    { name = "lxml" },
+    { name = "playwright" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-bdd" },
+    { name = "pytest-cov" },
+    { name = "pytest-dotenv" },
+    { name = "pytest-env" },
+    { name = "pytest-github-actions-annotate-failures" },
+    { name = "pytest-playwright" },
+    { name = "pytest-pretty" },
+    { name = "pytest-rerunfailures" },
+    { name = "pytest-socket" },
+    { name = "requests-mock" },
+    { name = "respx" },
+    { name = "sttable" },
+    { name = "tomlkit" },
+    { name = "typeguard" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -1649,6 +1672,29 @@ test = [
     { name = "pytest-cov" },
     { name = "pytest-dotenv" },
     { name = "pytest-env" },
+    { name = "pytest-playwright" },
+    { name = "pytest-pretty" },
+    { name = "pytest-rerunfailures" },
+    { name = "pytest-socket" },
+    { name = "requests-mock" },
+    { name = "respx" },
+    { name = "sttable" },
+    { name = "tomlkit" },
+    { name = "typeguard" },
+]
+test-github = [
+    { name = "beautifulsoup4" },
+    { name = "coverage" },
+    { name = "coveralls" },
+    { name = "lxml" },
+    { name = "playwright" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-bdd", specifier = ">=7.3.0" },
+    { name = "pytest-cov" },
+    { name = "pytest-dotenv" },
+    { name = "pytest-env" },
+    { name = "pytest-github-actions-annotate-failures" },
     { name = "pytest-playwright" },
     { name = "pytest-pretty" },
     { name = "pytest-rerunfailures" },
@@ -3289,6 +3335,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/13/12/9c87d0ca45d5992473208bcef2828169fa7d39b8d7fc6e3401f5c08b8bf7/pytest_env-1.2.0.tar.gz", hash = "sha256:475e2ebe8626cee01f491f304a74b12137742397d6c784ea4bc258f069232b80", size = 8973, upload-time = "2025-10-09T19:15:47.42Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/27/98/822b924a4a3eb58aacba84444c7439fce32680592f394de26af9c76e2569/pytest_env-1.2.0-py3-none-any.whl", hash = "sha256:d7e5b7198f9b83c795377c09feefa45d56083834e60d04767efd64819fc9da00", size = 6251, upload-time = "2025-10-09T19:15:46.077Z" },
+]
+
+[[package]]
+name = "pytest-github-actions-annotate-failures"
+version = "0.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/39/d4/c54ee6a871eee4a7468e3a8c0dead28e634c0bc2110c694309dcb7563a66/pytest_github_actions_annotate_failures-0.3.0.tar.gz", hash = "sha256:d4c3177c98046c3900a7f8ddebb22ea54b9f6822201b5d3ab8fcdea51e010db7", size = 11248, upload-time = "2025-01-17T22:39:32.722Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6d/73/7b0b15cb8605ee967b34aa1d949737ab664f94e6b0f1534e8339d9e64ab2/pytest_github_actions_annotate_failures-0.3.0-py3-none-any.whl", hash = "sha256:41ea558ba10c332c0bfc053daeee0c85187507b2034e990f21e4f7e5fef044cf", size = 6030, upload-time = "2025-01-17T22:39:31.701Z" },
 ]
 
 [[package]]

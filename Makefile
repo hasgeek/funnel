@@ -142,6 +142,9 @@ install-python-dev: deps-editable
 install-python-test: deps-editable
 	uv sync --locked --no-dev --group test
 
+install-python-test-github: deps-editable
+	uv sync --locked --no-dev --group test-github
+
 install-python: deps-editable
 	uv sync --locked --no-dev --no-default-groups
 

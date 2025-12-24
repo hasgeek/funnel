@@ -84,7 +84,7 @@ jobs:
           path: ${{ env.pythonLocation }}
           key: ${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('uv.lock') }}
       - name: Install Python dependencies
-        run: make install-python-test
+        run: make install-python-test-github
       - name: Install Playwright browser
         run: make install-playwright
       - name: Install Node
@@ -111,8 +111,6 @@ jobs:
         run: make install-npm
       - name: Build Webpack assets
         run: make assets
-      - name: Annotate Pytest failures in PR
-        run: uv pip install pytest-github-actions-annotate-failures
       - name: Setup hostnames
         run: |
           sudo -- sh -c "echo '127.0.0.1  funnel.test' >> /etc/hosts"

@@ -113,6 +113,10 @@ test = [
   "tomlkit",
   "typeguard",
 ]
+test-github = [
+  { include-group = "test" },
+  "pytest-github-actions-annotate-failures",
+]
 dev = [
   { include-group = "test" },
   "flask-debugtoolbar",
