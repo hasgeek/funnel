@@ -100,13 +100,19 @@ def test_exotel_send_error() -> None:
     ('now', 'okay'),
     [
         (indian_timezone.localize(datetime(2020, 1, 1, 8, 59)).astimezone(utc), False),
-        (indian_timezone.localize(datetime(2020, 1, 1, 9, 0)).astimezone(utc), True),
+        (indian_timezone.localize(datetime(2020, 1, 1, 9, 0)).astimezone(utc), False),
+        (indian_timezone.localize(datetime(2020, 1, 1, 9, 59)).astimezone(utc), False),
+        (indian_timezone.localize(datetime(2020, 1, 1, 10, 0)).astimezone(utc), True),
         (indian_timezone.localize(datetime(2020, 1, 1, 12, 0)).astimezone(utc), True),
         (indian_timezone.localize(datetime(2020, 1, 1, 16, 0)).astimezone(utc), True),
         (indian_timezone.localize(datetime(2020, 1, 1, 18, 0)).astimezone(utc), True),
         (indian_timezone.localize(datetime(2020, 1, 1, 18, 59)).astimezone(utc), True),
-        (indian_timezone.localize(datetime(2020, 1, 1, 19, 0)).astimezone(utc), False),
+        (indian_timezone.localize(datetime(2020, 1, 1, 19, 0)).astimezone(utc), True),
+        (indian_timezone.localize(datetime(2020, 1, 1, 19, 59)).astimezone(utc), True),
+        (indian_timezone.localize(datetime(2020, 1, 1, 20, 0)).astimezone(utc), True),
+        (indian_timezone.localize(datetime(2020, 1, 1, 20, 59)).astimezone(utc), True),
         (indian_timezone.localize(datetime(2020, 1, 1, 21, 0)).astimezone(utc), False),
+        (indian_timezone.localize(datetime(2020, 1, 1, 22, 0)).astimezone(utc), False),
     ],
 )
 def test_okay_to_message_in_india_right_now(now: datetime, okay: bool) -> None:
