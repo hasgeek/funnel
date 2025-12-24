@@ -89,7 +89,7 @@ deps-editable:
 	done;
 
 deps-python: deps-editable
-    uv lock --upgrade
+	uv lock --upgrade
 
 deps-python-noup:
 	uv lock
