@@ -1357,7 +1357,7 @@ wheels = [
 
 [[package]]
 name = "funnel"
-version = "2025.12"
+version = "26.1"
 source = { virtual = "." }
 dependencies = [
     { name = "alembic" },
