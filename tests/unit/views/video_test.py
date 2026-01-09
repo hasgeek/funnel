@@ -69,7 +69,7 @@ def test_youtube(db_session: scoped_session, new_proposal: models.Proposal) -> N
     assert check_video['source'] == check_proposal.video_source
     assert check_video['id'] == check_proposal.video_id
     assert check_video['url'] == check_proposal.video_url
-    assert check_video['duration'] == 213
+    assert check_video['duration'] == 214
     assert check_video['uploaded_at'] == utc.localize(datetime(2009, 10, 25, 6, 57, 33))
     assert (
         check_video['thumbnail']

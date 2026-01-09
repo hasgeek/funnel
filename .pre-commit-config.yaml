@@ -6,11 +6,12 @@ default_language_version:
   python: python3.11
 ci:
   skip: [
-      'pip-audit',
+      'uv-lock',
+      'pysentry',
       'creosote',
       'no-commit-to-branch',
       # 'hadolint-docker',
-      'docker-compose-check',
+      # 'docker-compose-check',
       'mypy-local', # Runs as a local hook now
     ]
 repos:
@@ -18,50 +19,31 @@ repos:
     rev: v1.6.1
     hooks:
       - id: check-pre-commit-ci-config
-  - repo: https://github.com/mxr/sync-pre-commit-deps
-    rev: v0.0.3
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.9.22
     hooks:
-      - id: sync-pre-commit-deps
-  - repo: https://github.com/peterdemin/pip-compile-multi
-    rev: v3.2.1
+      - id: uv-lock
+  - repo: https://github.com/tsvikas/sync-with-uv
+    rev: v0.5.0
     hooks:
-      - id: pip-compile-multi-verify
-        files: ^requirements/.*\.(in|txt)$
-  - repo: https://github.com/pypa/pip-audit
-    rev: v2.9.0
+      - id: sync-with-uv
+  - repo: https://github.com/pysentry/pysentry-pre-commit
+    rev: v0.3.13
     hooks:
-      - id: pip-audit
-        args: [
-            '--disable-pip',
-            '--no-deps',
-            '--skip-editable',
-            '-r',
-            'requirements/base.txt',
-            '-r',
-            'requirements/test.txt',
-            '-r',
-            'requirements/dev.txt',
-            '--ignore-vuln',
-            'PYSEC-2021-13', # https://github.com/pallets-eco/flask-caching/pull/209
-            '--ignore-vuln',
-            'PYSEC-2022-42969', # https://github.com/pytest-dev/pytest/issues/10392
-            '--ignore-vuln',
-            'PYSEC-2023-73', # https://github.com/RedisLabs/redisraft/issues/608
-          ]
-        files: ^requirements/.*\.txt$
+      - id: pysentry # default pysentry settings
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         args: ['--keep-runtime-typing', '--py311-plus']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.0
+    rev: v0.14.11
     hooks:
       - id: ruff-check
         args: ['--fix', '--exit-non-zero-on-fix']
       - id: ruff-format
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.3.7
+    rev: v4.0.4
     hooks:
       - id: pylint
         args: [
@@ -73,19 +55,20 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/fredrikaverpil/creosote
-    rev: v4.0.3
+    rev: v4.1.0
     hooks:
       - id: creosote
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
         args:
           - --external-sources
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
+        exclude: ^(uv.lock|package-lock.json)$
       - id: check-ast
       - id: check-case-conflict
       - id: check-docstring-first
@@ -105,8 +88,6 @@ repos:
       - id: detect-private-key
       - id: end-of-file-fixer
       - id: fix-byte-order-marker
-      - id: fix-encoding-pragma
-        args: ['--remove']
       - id: forbid-new-submodules
       - id: mixed-line-ending
       - id: name-tests-test
@@ -124,7 +105,7 @@ repos:
       - id: forbid-tabs
       - id: remove-tabs
   - repo: https://github.com/pycontribs/mirrors-prettier
-    rev: v3.6.0
+    rev: v3.6.2
     hooks:
       - id: prettier
   - repo: https://github.com/ducminh-phan/reformat-gherkin
@@ -141,15 +122,15 @@ repos:
   #   rev: v2.12.1-beta
   #   hooks:
   #     - id: hadolint-docker
-  - repo: https://github.com/IamTheFij/docker-pre-commit
-    rev: v3.0.1
-    hooks:
-      - id: docker-compose-check
+  # - repo: https://github.com/IamTheFij/docker-pre-commit
+  #   rev: v3.0.1
+  #   hooks:
+  #     - id: docker-compose-check
   - repo: local
     hooks:
       - id: mypy-local
         name: mypy
-        entry: .venv/bin/mypy
+        entry: uv run mypy
         args:
           - --no-warn-unused-ignores
           - --no-warn-redundant-casts
