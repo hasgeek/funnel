@@ -269,6 +269,15 @@
     max-height: 50vh;
     overflow: scroll;
   }
+  .schedule-grid.schedule-grid--compressed .schedule .schedule__table .schedule__row {
+    content-visibility: auto;
+  }
+  .schedule-grid.schedule-grid--compressed .schedule .schedule__date {
+    display: none;
+  }
+  .schedule-grid.schedule-grid--compressed .schedule .schedule__date--upcoming {
+    display: block;
+  }
 }
 
 .calendar-wrapper {
