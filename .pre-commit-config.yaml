@@ -20,15 +20,15 @@ repos:
     hooks:
       - id: check-pre-commit-ci-config
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.9.22
+    rev: 0.12.10
     hooks:
       - id: uv-lock
   - repo: https://github.com/tsvikas/sync-with-uv
-    rev: v0.5.0
+    rev: v0.6.0
     hooks:
       - id: sync-with-uv
   - repo: https://github.com/pysentry/pysentry-pre-commit
-    rev: v0.3.13
+    rev: v0.5.0
     hooks:
       - id: pysentry # default pysentry settings
   - repo: https://github.com/asottile/pyupgrade
@@ -55,11 +55,11 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/fredrikaverpil/creosote
-    rev: v4.1.0
+    rev: v5.2.0
     hooks:
       - id: creosote
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.11.0.1
+    rev: v0.11.0.1-1
     hooks:
       - id: shellcheck
         args:
@@ -98,7 +98,7 @@ repos:
       - id: trailing-whitespace
         args: ['--markdown-linebreak-ext=md']
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.5
+    rev: v1.5.6
     hooks:
       - id: forbid-crlf
       - id: remove-crlf
