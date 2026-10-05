@@ -180,7 +180,7 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView[Prop
             return self.after_loader()
         redirect = (
             ProposalSuuidRedirect.query.join(Proposal)
-            .filter(ProposalSuuidRedirect.suuid == proposal.split('-')[-1])
+            .filter(ProposalSuuidRedirect.suuid == proposal.rsplit('-', maxsplit=1)[-1])
             .first_or_404()
         )
         if not redirect.proposal:
