@@ -698,8 +698,9 @@ class Project(UuidMixin, BaseScopedNameMixin[int, Account], Model):
     cfp_state.add_conditional_state(
         'EXPIRED',
         cfp_state.PUBLIC,
-        lambda project: project.cfp_end_at is not None
-        and utcnow() >= project.cfp_end_at,
+        lambda project: (
+            project.cfp_end_at is not None and utcnow() >= project.cfp_end_at
+        ),
         lambda project: sa.and_(
             project.cfp_end_at.is_not(None), sa.func.utcnow() >= project.cfp_end_at
         ),
