@@ -150,6 +150,11 @@
           <div class="card">
             <div class="card__header">
               <h3 class="card__header__title mui--text-title text-bold">{% trans %}Email addresses{% endtrans %}</h3>
+              {% if not current_auth.user.features.has_personal_email %}
+                <p class="mui--text-caption mui--text-danger zero-bottom-margin">Please add your personal email address to receive project updates and view your purchased tickets.</p>
+              {%- elif not current_auth.user.features.has_work_emai %}
+                <p class="mui--text-caption mui--text-danger zero-bottom-margin">Please add your work email address to receive event updates and view your purchased tickets.</p>
+              {%- endif -%}
             </div>
             <form action="{{ url_for('make_email_primary') }}"
                   method="post"
