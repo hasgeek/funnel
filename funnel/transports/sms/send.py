@@ -36,8 +36,8 @@ __all__ = [
     'validate_exotel_token',
 ]
 
-DND_END_HOUR = 9
-DND_START_HOUR = 19
+DND_END_HOUR = 10
+DND_START_HOUR = 21
 
 indian_timezone = timezone('Asia/Kolkata')
 
